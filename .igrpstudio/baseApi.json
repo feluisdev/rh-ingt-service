@@ -1,0 +1,14 @@
+{
+  "type": "springboot",
+  "name": "Recursos_Humanos",
+  "group": "cv.igrp",
+  "artifact": "RH-Service",
+  "packageName": "RH_Service",
+  "database": "Postgresql",
+  "projectStructureStyle": "domain",
+  "enableObservability": false,
+  "enableEntityRevision": true,
+  "igrpCoreVersion": "0.0.3-alpha",
+  "springBootVersion": "3.5.0",
+  "enableGraalVm": false
+}
