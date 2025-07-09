@@ -1,9 +1,12 @@
 package cv.igrp.RH_Service.shared.infrastructure.persistence.repository;
 
+import cv.igrp.RH_Service.shared.application.constants.Estado;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.FuncionarioEntity;
-import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,4 +17,7 @@ public interface FuncionarioEntityRepository extends
     JpaSpecificationExecutor<FuncionarioEntity>
 {
 
+  List<FuncionarioEntity> findAllByEstado(Estado estado);
+
+  Optional<FuncionarioEntity> findByExternalId(UUID externalId);
 }

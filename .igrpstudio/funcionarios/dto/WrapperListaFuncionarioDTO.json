@@ -1,0 +1,28 @@
+{
+  "type": "dto",
+  "module": "funcionarios",
+  "name": "WrapperListaFuncionario",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "extends": {
+    "name": "Page",
+    "module": "shared"
+  },
+  "attributes": [
+    {
+      "name": "content",
+      "objectType": "dto",
+      "type": "FuncionarioResponse",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "collectionType": "list",
+      "module": "funcionarios"
+    }
+  ],
+  "id": "7piac4xjji"
+}
