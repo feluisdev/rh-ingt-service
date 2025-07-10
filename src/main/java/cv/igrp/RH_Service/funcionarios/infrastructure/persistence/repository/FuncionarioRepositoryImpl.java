@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +24,7 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
   private final FuncionarioEntityRepository jpaFuncionarioEntityRepository;
   private final FuncionarioMapper funcionarioMapper;
 
+  @Transactional
   @Override
   public Funcionario save(Funcionario funcionario) {
     var entity = funcionarioMapper.toEntity(funcionario);
@@ -30,12 +32,14 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
     return funcionarioMapper.toDomain(saved);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<Funcionario> getbyId(Integer id) {
     return jpaFuncionarioEntityRepository.findById(id)
         .map(funcionarioMapper::toDomain);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<Funcionario> getByExternalId(ExternalID externalId) {
     return jpaFuncionarioEntityRepository.findByExternalId(externalId.getValor()).map(
@@ -43,6 +47,7 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
     );
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<Funcionario> getAll(FuncionarioFilter filter) {
     var pageable = PageRequest.of(
@@ -86,6 +91,7 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
         .toList();
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<Funcionario> getAll() {
     List<FuncionarioEntity> entities = jpaFuncionarioEntityRepository.findAllByEstado(Estado.A);

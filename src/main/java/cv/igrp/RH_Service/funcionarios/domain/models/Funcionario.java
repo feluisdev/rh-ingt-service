@@ -10,6 +10,7 @@ import cv.igrp.RH_Service.shared.domain.valueobject.Nib;
 import cv.igrp.RH_Service.shared.domain.valueobject.Nif;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -35,7 +36,7 @@ public class Funcionario {
 
   private Funcionario(Integer id, ExternalID externalId, String nome, Nif nif,
                       NumSegurado numSegurado, Nib nib, Email email, Estado estado, Sexo sexo,
-                      EstadoCivil estadoCivil, String endereco) {
+                      EstadoCivil estadoCivil, String endereco, List<Dependente> dependentes) {
     this.id = id;
     this.externalId = externalId;
     this.nome = nome;
@@ -47,6 +48,7 @@ public class Funcionario {
     this.sexo = sexo;
     this.estadoCivil = estadoCivil;
     this.endereco = endereco;
+    this.dependentes = dependentes != null ? dependentes : new ArrayList<>();
   }
 
   public static Funcionario criar(String nome, String nifRaw,
@@ -65,7 +67,7 @@ public class Funcionario {
     Email email = Email.from(emailRaw);
 
     return new Funcionario(null, ExternalID.gerarNovo(), nome, nif,
-        numSegurado, nib, email, Estado.A, sexo, estadoCivil, endereco);
+        numSegurado, nib, email, Estado.A, sexo, estadoCivil, endereco, null);
   }
 
 
@@ -83,7 +85,7 @@ public class Funcionario {
     Email email = (emailRaw != null) ? Email.from(emailRaw) : null;
 
     return new Funcionario(id, externalId, nome, nif,
-        numSegurado, nib, email, estado, sexo, estadoCivil, endereco);
+        numSegurado, nib, email, estado, sexo, estadoCivil, endereco, null);
   }
 
   public void atualizar(String nome, String nifRaw, String numSeguradoRaw,

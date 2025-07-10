@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +27,7 @@ public class DependenteRepositoryImpl implements DependenteRepository {
   private final FuncionarioMapper funcionarioMapper;
 
 
+  @Transactional
   @Override
   public Dependente save(Dependente dependente) {
     var funcionarioEntity = funcionarioMapper.toEntity(dependente.getFuncionario());
@@ -36,11 +38,13 @@ public class DependenteRepositoryImpl implements DependenteRepository {
     return dependenteMapper.toDomainWithFuncionario(saved, funcionarioDomain);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<Dependente> getById(Integer id) {
     return Optional.empty();
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<Dependente> getByExternalId(ExternalID externalId) {
 
@@ -54,6 +58,7 @@ public class DependenteRepositoryImpl implements DependenteRepository {
   }
 
 
+  @Transactional(readOnly = true)
   @Override
   public List<Dependente> getAll() {
     var entities = dependenteEntityRepository.findAllByEstado(Estado.A);
@@ -65,6 +70,7 @@ public class DependenteRepositoryImpl implements DependenteRepository {
         .toList();
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<Dependente> getAll(DependenteFilter filter) {
     var pageable = PageRequest.of(
@@ -100,6 +106,7 @@ public class DependenteRepositoryImpl implements DependenteRepository {
         .toList();
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<Dependente> getAllByFuncionarioExternalId(ExternalID funcionarioExternalId) {
     var entities = dependenteEntityRepository.findAllByIdFuncionario_ExternalId_AndEstado(funcionarioExternalId.getValor(), Estado.A);
