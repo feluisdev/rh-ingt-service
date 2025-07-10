@@ -10,6 +10,7 @@ import cv.igrp.RH_Service.shared.domain.valueobject.Nib;
 import cv.igrp.RH_Service.shared.domain.valueobject.Nif;
 import lombok.Getter;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -28,6 +29,8 @@ public class Funcionario {
   private Sexo sexo;
   private EstadoCivil estadoCivil;
   private String endereco;
+
+  private List<Dependente> dependentes;
 
 
   private Funcionario(Integer id, ExternalID externalId, String nome, Nif nif,
@@ -117,10 +120,23 @@ public class Funcionario {
 
   public void inativar() {
     this.estado = Estado.I;
+
+    for (Dependente dependente : this.dependentes) {
+      dependente.desativar();
+    }
   }
 
   public void ativar() {
     this.estado = Estado.A;
+
+    for (Dependente dependente : this.dependentes) {
+      dependente.ativar();
+    }
+  }
+
+  public void adicionarDependente(Dependente dependente) {
+    Objects.requireNonNull(dependente, "Dependente não pode ser nulo");
+    dependentes.add(dependente);
   }
 
 

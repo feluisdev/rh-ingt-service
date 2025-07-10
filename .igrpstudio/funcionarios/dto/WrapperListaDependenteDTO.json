@@ -1,0 +1,28 @@
+{
+  "type": "dto",
+  "module": "funcionarios",
+  "name": "WrapperListaDependente",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "extends": {
+    "name": "Page",
+    "module": "shared"
+  },
+  "attributes": [
+    {
+      "name": "content",
+      "objectType": "dto",
+      "type": "DependenteResponse",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "collectionType": "list",
+      "module": "funcionarios"
+    }
+  ],
+  "id": "bwggi6cej3"
+}

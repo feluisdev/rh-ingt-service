@@ -6,14 +6,23 @@ import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.FuncionarioEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.stream.Collectors;
+
 @Component
 public class FuncionarioMapper {
+
+  private final DependenteMapper dependenteMapper;
+
+  public FuncionarioMapper(DependenteMapper dependenteMapper) {
+    this.dependenteMapper = dependenteMapper;
+  }
+
 
   public Funcionario toDomain(FuncionarioEntity entity) {
     if (entity == null) {
       return null;
     }
-    return Funcionario.reconstruir(
+    var funcionario = Funcionario.reconstruir(
         entity.getId(),
         ExternalID.from(entity.getExternalId()),
         entity.getNome(),
@@ -27,6 +36,14 @@ public class FuncionarioMapper {
         entity.getEndereco()
 
     );
+
+    // Mapeia os dependentes
+    if (entity.getDependentes() != null) {
+      entity.getDependentes().forEach(dep ->
+          funcionario.adicionarDependente(dependenteMapper.toDomainWithFuncionario(dep, funcionario)));
+    }
+
+    return funcionario;
   }
 
   public FuncionarioEntity toEntity(Funcionario funcionario) {
@@ -48,6 +65,15 @@ public class FuncionarioMapper {
     entity.setSexo(funcionario.getSexo());
     entity.setEstadoCivil(funcionario.getEstadoCivil());
     entity.setEndereco(funcionario.getEndereco());
+
+    if (funcionario.getDependentes() != null) {
+      var dependentes = funcionario.getDependentes().stream()
+          .map(d -> dependenteMapper.toEntity(d, entity))
+          .collect(Collectors.toList());
+
+      entity.setDependentes(dependentes);
+    }
+
     return entity;
   }
 
