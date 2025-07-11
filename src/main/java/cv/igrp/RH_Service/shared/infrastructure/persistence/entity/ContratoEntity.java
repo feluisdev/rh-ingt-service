@@ -1,14 +1,14 @@
 package cv.igrp.RH_Service.shared.infrastructure.persistence.entity;
 
+import cv.igrp.RH_Service.shared.application.constants.Estado;
 import cv.igrp.RH_Service.shared.config.AuditEntity;
 import cv.igrp.framework.stereotype.IgrpEntity;
 import jakarta.persistence.*;
-import lombok.*;
 import jakarta.validation.constraints.NotNull;
-import java.util.UUID;
+import lombok.*;
+
 import java.time.LocalDate;
-import cv.igrp.RH_Service.shared.application.constants.Estado;
-import java.util.List;
+import java.util.UUID;
 
 
 @Getter
@@ -26,36 +26,36 @@ public class ContratoEntity extends AuditEntity {
     @Column(name = "id", unique = true, nullable = false)
     private Integer id;
 
-  
+
     @NotNull(message = "externalId is mandatory")
     @Column(name="external_id", nullable = false)
     private UUID externalId;
 
-  
+
     @Column(name="tipo_contrato")
     private String tipoContrato;
 
-  
+
     @Column(name="data_inicio")
     private LocalDate dataInicio;
 
-  
+
     @Column(name="data_fim")
     private LocalDate dataFim;
 
-  
+
     @Column(name="salario")
     private String salario;
 
-  
+
     @Column(name="carga_horaria")
     private Integer cargaHoraria;
 
-  
+
     @Column(name="observacoes")
     private String observacoes;
 
-  
+
     @Enumerated(EnumType.STRING)
     @Column(name="estado")
     private Estado estado;
