@@ -32,11 +32,12 @@ public class Funcionario {
   private String endereco;
 
   private List<Dependente> dependentes;
+  private List<Qualificacao> qualificacoes;
 
 
   private Funcionario(Integer id, ExternalID externalId, String nome, Nif nif,
                       NumSegurado numSegurado, Nib nib, Email email, Estado estado, Sexo sexo,
-                      EstadoCivil estadoCivil, String endereco, List<Dependente> dependentes) {
+                      EstadoCivil estadoCivil, String endereco, List<Dependente> dependentes, List<Qualificacao> qualificacoes) {
     this.id = id;
     this.externalId = externalId;
     this.nome = nome;
@@ -49,6 +50,7 @@ public class Funcionario {
     this.estadoCivil = estadoCivil;
     this.endereco = endereco;
     this.dependentes = dependentes != null ? dependentes : new ArrayList<>();
+    this.qualificacoes = qualificacoes != null ? qualificacoes : new ArrayList<>();
   }
 
   public static Funcionario criar(String nome, String nifRaw,
@@ -67,7 +69,7 @@ public class Funcionario {
     Email email = Email.from(emailRaw);
 
     return new Funcionario(null, ExternalID.gerarNovo(), nome, nif,
-        numSegurado, nib, email, Estado.A, sexo, estadoCivil, endereco, null);
+        numSegurado, nib, email, Estado.A, sexo, estadoCivil, endereco, null, null);
   }
 
 
@@ -85,7 +87,7 @@ public class Funcionario {
     Email email = (emailRaw != null) ? Email.from(emailRaw) : null;
 
     return new Funcionario(id, externalId, nome, nif,
-        numSegurado, nib, email, estado, sexo, estadoCivil, endereco, null);
+        numSegurado, nib, email, estado, sexo, estadoCivil, endereco, null, null);
   }
 
   public void atualizar(String nome, String nifRaw, String numSeguradoRaw,
@@ -141,5 +143,9 @@ public class Funcionario {
     dependentes.add(dependente);
   }
 
+  public void adicionarQualificacao(Qualificacao qualificacao) {
+    Objects.requireNonNull(qualificacao, "Dependente não pode ser nulo");
+    qualificacoes.add(qualificacao);
+  }
 
 }
