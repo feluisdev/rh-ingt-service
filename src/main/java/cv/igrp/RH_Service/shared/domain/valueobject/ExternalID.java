@@ -64,4 +64,19 @@ public class ExternalID {
     public String getStringValor() {
         return valor.toString();
     }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof ExternalID)) return false;
+    ExternalID that = (ExternalID) o;
+    return valor.equals(that.valor);
+  }
+
+  @Override
+  public int hashCode() {
+    return valor.hashCode();
+  }
+
 }

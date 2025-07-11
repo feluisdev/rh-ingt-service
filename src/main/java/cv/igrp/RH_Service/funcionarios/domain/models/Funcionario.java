@@ -10,6 +10,8 @@ import cv.igrp.RH_Service.shared.domain.valueobject.Nib;
 import cv.igrp.RH_Service.shared.domain.valueobject.Nif;
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -29,10 +31,13 @@ public class Funcionario {
   private EstadoCivil estadoCivil;
   private String endereco;
 
+  private List<Dependente> dependentes;
+  private List<Qualificacao> qualificacoes;
+
 
   private Funcionario(Integer id, ExternalID externalId, String nome, Nif nif,
                       NumSegurado numSegurado, Nib nib, Email email, Estado estado, Sexo sexo,
-                      EstadoCivil estadoCivil, String endereco) {
+                      EstadoCivil estadoCivil, String endereco, List<Dependente> dependentes, List<Qualificacao> qualificacoes) {
     this.id = id;
     this.externalId = externalId;
     this.nome = nome;
@@ -44,6 +49,8 @@ public class Funcionario {
     this.sexo = sexo;
     this.estadoCivil = estadoCivil;
     this.endereco = endereco;
+    this.dependentes = dependentes != null ? dependentes : new ArrayList<>();
+    this.qualificacoes = qualificacoes != null ? qualificacoes : new ArrayList<>();
   }
 
   public static Funcionario criar(String nome, String nifRaw,
@@ -62,7 +69,7 @@ public class Funcionario {
     Email email = Email.from(emailRaw);
 
     return new Funcionario(null, ExternalID.gerarNovo(), nome, nif,
-        numSegurado, nib, email, Estado.A, sexo, estadoCivil, endereco);
+        numSegurado, nib, email, Estado.A, sexo, estadoCivil, endereco, null, null);
   }
 
 
@@ -80,7 +87,7 @@ public class Funcionario {
     Email email = (emailRaw != null) ? Email.from(emailRaw) : null;
 
     return new Funcionario(id, externalId, nome, nif,
-        numSegurado, nib, email, estado, sexo, estadoCivil, endereco);
+        numSegurado, nib, email, estado, sexo, estadoCivil, endereco, null, null);
   }
 
   public void atualizar(String nome, String nifRaw, String numSeguradoRaw,
@@ -117,11 +124,28 @@ public class Funcionario {
 
   public void inativar() {
     this.estado = Estado.I;
+
+    for (Dependente dependente : this.dependentes) {
+      dependente.desativar();
+    }
   }
 
   public void ativar() {
     this.estado = Estado.A;
+
+    for (Dependente dependente : this.dependentes) {
+      dependente.ativar();
+    }
   }
 
+  public void adicionarDependente(Dependente dependente) {
+    Objects.requireNonNull(dependente, "Dependente não pode ser nulo");
+    dependentes.add(dependente);
+  }
+
+  public void adicionarQualificacao(Qualificacao qualificacao) {
+    Objects.requireNonNull(qualificacao, "Dependente não pode ser nulo");
+    qualificacoes.add(qualificacao);
+  }
 
 }

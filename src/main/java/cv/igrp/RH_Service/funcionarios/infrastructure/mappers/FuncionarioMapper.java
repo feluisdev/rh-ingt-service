@@ -2,18 +2,31 @@ package cv.igrp.RH_Service.funcionarios.infrastructure.mappers;
 
 import cv.igrp.RH_Service.funcionarios.application.dto.FuncionarioResponseDTO;
 import cv.igrp.RH_Service.funcionarios.domain.models.Funcionario;
+import cv.igrp.RH_Service.funcionarios.domain.models.Qualificacao;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.FuncionarioEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Component
 public class FuncionarioMapper {
+
+  private final DependenteMapper dependenteMapper;
+  private final QualificacaoMapper qualificacaoMapper;
+
+  public FuncionarioMapper(DependenteMapper dependenteMapper, QualificacaoMapper qualificacaoMapper) {
+    this.dependenteMapper = dependenteMapper;
+    this.qualificacaoMapper = qualificacaoMapper;
+  }
+
 
   public Funcionario toDomain(FuncionarioEntity entity) {
     if (entity == null) {
       return null;
     }
-    return Funcionario.reconstruir(
+    var funcionario = Funcionario.reconstruir(
         entity.getId(),
         ExternalID.from(entity.getExternalId()),
         entity.getNome(),
@@ -27,6 +40,21 @@ public class FuncionarioMapper {
         entity.getEndereco()
 
     );
+
+    // Mapeia os dependentes
+    if (entity.getDependentes() != null) {
+      entity.getDependentes().forEach(dep ->
+          funcionario.adicionarDependente(dependenteMapper.toDomainWithFuncionario(dep, funcionario)));
+    }
+
+    if (entity.getQualificacoes() != null) {
+      entity.getQualificacoes().forEach(q ->
+          funcionario.adicionarQualificacao(qualificacaoMapper.toDomainWithFuncionario(q, funcionario))
+      );
+    }
+
+
+    return funcionario;
   }
 
   public FuncionarioEntity toEntity(Funcionario funcionario) {
@@ -48,6 +76,22 @@ public class FuncionarioMapper {
     entity.setSexo(funcionario.getSexo());
     entity.setEstadoCivil(funcionario.getEstadoCivil());
     entity.setEndereco(funcionario.getEndereco());
+
+    if (funcionario.getDependentes() != null) {
+      var dependentes = funcionario.getDependentes().stream()
+          .map(d -> dependenteMapper.toEntity(d, entity))
+          .collect(Collectors.toList());
+
+      entity.setDependentes(dependentes);
+    }
+
+    if (funcionario.getQualificacoes() != null) {
+      var qualificacoesEntities = funcionario.getQualificacoes().stream()
+          .map(q -> qualificacaoMapper.toEntity(q, entity))
+          .toList();
+      entity.setQualificacoes(qualificacoesEntities);
+    }
+
     return entity;
   }
 
