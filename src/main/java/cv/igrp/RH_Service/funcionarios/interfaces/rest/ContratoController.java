@@ -65,12 +65,12 @@ public class ContratoController {
   )
   
   public ResponseEntity<ContratoResponseDTO> getContrato(
-    @RequestParam(value = "id") String id, @PathVariable(value = "funcionarioId") String funcionarioId,@PathVariable(value = "contratoId") String contratoId)
+    @PathVariable(value = "funcionarioId") String funcionarioId,@PathVariable(value = "contratoId") String contratoId)
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new GetContratoQuery(id, funcionarioId, contratoId);
+      final var query = new GetContratoQuery(funcionarioId, contratoId);
 
       ResponseEntity<ContratoResponseDTO> response = queryBus.handle(query);
 

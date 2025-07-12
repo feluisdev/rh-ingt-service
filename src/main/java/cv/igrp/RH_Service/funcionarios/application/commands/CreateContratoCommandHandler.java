@@ -22,7 +22,7 @@ import java.util.Map;
 
 @Component
 
-public class CreateContratoCommandHandler implements CommandHandler<CreateContratoCommand, ResponseEntity<String>> {
+public class CreateContratoCommandHandler implements CommandHandler<CreateContratoCommand,ResponseEntity<Map<String, ?>>> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CreateContratoCommandHandler.class);
 
@@ -39,7 +39,7 @@ public class CreateContratoCommandHandler implements CommandHandler<CreateContra
   }
 
   @IgrpCommandHandler
-  public ResponseEntity<String> handle(CreateContratoCommand command) {
+  public ResponseEntity<Map<String, ?>> handle(CreateContratoCommand command) {
     // TODO: Implement the command handling logic here
     var dto = command.getContratorequest();
     var idFuncionario = ExternalID.from(command.getFuncionarioId());
@@ -70,9 +70,9 @@ public class CreateContratoCommandHandler implements CommandHandler<CreateContra
     );
 
 
-    var cotradoSaved = contratoRepository.save(contrato);
+    var contratoSaved = contratoRepository.save(contrato);
 
-    return ResponseEntity.status(HttpStatus.CREATED).body("Contrato criado com sucesso!"+cotradoSaved.getExternalId());
+    return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("Contrato criado com sucesso!",contratoSaved.getExternalId()));
   }
 
 }

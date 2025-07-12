@@ -13,8 +13,6 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class GetContratoQuery implements Query {
 
-  @NotBlank(message = "The field <id> is required.")
-  private String id;
   @NotBlank(message = "The field <funcionarioId> is required.")
   private String funcionarioId;
   @NotBlank(message = "The field <contratoId> is required.")

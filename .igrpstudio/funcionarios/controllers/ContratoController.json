@@ -25,13 +25,6 @@
           }
         }
       },
-      "requestParams": [
-        {
-          "type": "string",
-          "name": "id",
-          "isRequired": true
-        }
-      ],
       "pathVariables": [
         {
           "name": "funcionarioId",
