@@ -8,18 +8,18 @@ import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.DepartamentoMapper
 import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.FuncionarioMapper;
 import cv.igrp.RH_Service.shared.application.constants.Estado;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.CargoEntityRepository;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.ContratoEntityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+
 @Repository
 @RequiredArgsConstructor
 public class ContratoRepositoryImpl implements ContratoRepository {
-  private final ContratoEntityRepository contratoEntityRepository;
 
+  private final ContratoEntityRepository contratoEntityRepository;
   private final ContratoMapper contratoMapper;
   private final DepartamentoMapper departamentoMapper;
   private final FuncionarioMapper funcionarioMapper;
@@ -27,25 +27,24 @@ public class ContratoRepositoryImpl implements ContratoRepository {
 
   @Override
   public Contrato save(Contrato contrato) {
-
     var cargoEntity = cargoMapper.toEntity(contrato.getCargo());
     var funcionarioEntity = funcionarioMapper.toEntity(contrato.getFuncionario());
-    var departamentoEntity = departamentoMapper.toEntity(contrato.getDepartamento(),funcionarioEntity);
+    var departamentoEntity = departamentoMapper.toEntity(contrato.getDepartamento(), funcionarioEntity);
 
-    var entity = contratoMapper.toEntity(contrato,departamentoEntity,funcionarioEntity,cargoEntity);
+    var entity = contratoMapper.toEntity(contrato, departamentoEntity, funcionarioEntity, cargoEntity);
     var saved = contratoEntityRepository.save(entity);
+
     return contratoMapper.toDomainComReferencias(saved, contrato.getDepartamento(), contrato.getFuncionario(), contrato.getCargo());
   }
 
   @Override
   public Optional<Contrato> getById(Integer id) {
-
     return contratoEntityRepository.findById(id)
         .map(entity -> {
           var funcionario = funcionarioMapper.toDomain(entity.getIdFuncionario());
           var departamento = departamentoMapper.toDomainWithResponsavel(
               entity.getIdDepartamento(),
-              funcionarioMapper.toDomain(entity.getIdFuncionario())
+              funcionarioMapper.toDomain(entity.getIdDepartamento().getResponsavelId())
           );
           var cargo = cargoMapper.toDomain(entity.getIdCargo());
 
@@ -55,7 +54,17 @@ public class ContratoRepositoryImpl implements ContratoRepository {
 
   @Override
   public Optional<Contrato> getByExternalId(ExternalID externalId) {
-    return Optional.empty();
+    return contratoEntityRepository.findByExternalId(externalId.getValor())
+        .map(entity -> {
+          var funcionario = funcionarioMapper.toDomain(entity.getIdFuncionario());
+          var departamento = departamentoMapper.toDomainWithResponsavel(
+              entity.getIdDepartamento(),
+              funcionarioMapper.toDomain(entity.getIdDepartamento().getResponsavelId())
+          );
+          var cargo = cargoMapper.toDomain(entity.getIdCargo());
+
+          return contratoMapper.toDomainComReferencias(entity, departamento, funcionario, cargo);
+        });
   }
 
   @Override
@@ -66,7 +75,7 @@ public class ContratoRepositoryImpl implements ContratoRepository {
           var funcionario = funcionarioMapper.toDomain(entity.getIdFuncionario());
           var departamento = departamentoMapper.toDomainWithResponsavel(
               entity.getIdDepartamento(),
-              funcionarioMapper.toDomain(entity.getIdFuncionario())
+              funcionarioMapper.toDomain(entity.getIdDepartamento().getResponsavelId())
           );
           var cargo = cargoMapper.toDomain(entity.getIdCargo());
 
@@ -83,7 +92,7 @@ public class ContratoRepositoryImpl implements ContratoRepository {
           var funcionario = funcionarioMapper.toDomain(entity.getIdFuncionario());
           var departamento = departamentoMapper.toDomainWithResponsavel(
               entity.getIdDepartamento(),
-              funcionarioMapper.toDomain(entity.getIdFuncionario())
+              funcionarioMapper.toDomain(entity.getIdDepartamento().getResponsavelId())
           );
           var cargo = cargoMapper.toDomain(entity.getIdCargo());
 
