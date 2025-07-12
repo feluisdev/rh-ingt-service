@@ -1,4 +1,9 @@
 package cv.igrp.RH_Service.funcionarios.application.queries;
+import cv.igrp.RH_Service.funcionarios.domain.models.Contrato;
+import cv.igrp.RH_Service.funcionarios.domain.repository.ContratoRepository;
+import cv.igrp.RH_Service.funcionarios.domain.repository.DependenteRepository;
+import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.ContratoMapper;
+import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.DependenteMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import cv.igrp.framework.core.domain.QueryHandler;
@@ -14,8 +19,13 @@ public class GetContratoQueryHandler implements QueryHandler<GetContratoQuery, R
   private static final Logger LOGGER = LoggerFactory.getLogger(GetContratoQueryHandler.class);
 
 
-  public GetContratoQueryHandler() {
+  private final ContratoRepository contratoRepository;
+  private final ContratoMapper contratoMapper;
 
+  public GetContratoQueryHandler(ContratoRepository contratoRepository, ContratoMapper contratoMapper) {
+
+    this.contratoRepository = contratoRepository;
+    this.contratoMapper = contratoMapper;
   }
 
    @IgrpQueryHandler
