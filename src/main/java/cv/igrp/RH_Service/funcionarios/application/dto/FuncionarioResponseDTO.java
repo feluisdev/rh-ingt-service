@@ -45,6 +45,12 @@ public class FuncionarioResponseDTO {
   private String estadoCivil ;
   
   
+  private String estado ;
+  
+  
+  private String estadoDesc ;
+  
+  
   private LocalDate createdAt ;
   
   

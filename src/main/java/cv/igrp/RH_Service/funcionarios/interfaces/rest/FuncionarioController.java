@@ -232,4 +232,41 @@ public class FuncionarioController {
               .body(response.getBody());
   }
 
+  @PatchMapping(
+    value = "{funcionarioId}"
+  )
+  @Operation(
+    summary = "PATCH method to handle operations for ativarFuncionario",
+    description = "PATCH method to handle operations for ativarFuncionario",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<Map<String, ?>> ativarFuncionario(
+    @PathVariable(value = "funcionarioId") String funcionarioId)
+  {
+
+      LOGGER.debug("Operation started");
+
+      final var command = new AtivarFuncionarioCommand(funcionarioId);
+
+       ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+
+       LOGGER.debug("Operation finished");
+
+        return ResponseEntity.status(response.getStatusCode())
+              .headers(response.getHeaders())
+              .body(response.getBody());
+  }
+
 }

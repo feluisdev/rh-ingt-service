@@ -183,7 +183,38 @@
           "isRequired": true
         }
       ]
+    },
+    {
+      "actionName": "ativarDependente",
+      "path": "{funcionarioId}/dependentes/{dependenteId}",
+      "method": "PATCH",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string",
+          "isRequired": true
+        },
+        {
+          "name": "dependenteId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     }
   ],
-  "id": "dr52d6tnbj-CONTROLLER-CONTROLLER-CONTROLLER-CONTROLLER"
+  "id": "dr52d6tnbj-CONTROLLER-CONTROLLER-CONTROLLER-CONTROLLER-CONTROLLER"
 }

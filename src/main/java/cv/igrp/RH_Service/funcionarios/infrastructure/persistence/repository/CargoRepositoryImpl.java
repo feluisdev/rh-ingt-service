@@ -80,6 +80,11 @@ public class CargoRepositoryImpl implements CargoRepository {
             cb.equal(root.get("nivelHierarquico"), filter.getNivelHierarquico()));
       }
 
+      if (filter.getCodigo() != null) {
+        predicates = cb.and(predicates,
+            cb.equal(root.get("codigo"), filter.getCodigo()));
+      }
+
       if (filter.getEstado() != null) {
         predicates = cb.and(predicates,
             cb.equal(root.get("estado"), filter.getEstado()));

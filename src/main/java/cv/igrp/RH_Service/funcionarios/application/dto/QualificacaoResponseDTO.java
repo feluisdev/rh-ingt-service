@@ -44,5 +44,11 @@ public class QualificacaoResponseDTO {
   
   
   private BigDecimal notaFinal ;
+  
+  
+  private String estado ;
+  
+  
+  private String estadoDesc ;
 
 }

@@ -181,7 +181,38 @@
           "isRequired": true
         }
       ]
+    },
+    {
+      "actionName": "ativarQualificacao",
+      "path": "{funcionarioId}/qualificacoes/{qualificacaoId}",
+      "method": "PATCH",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string",
+          "isRequired": true
+        },
+        {
+          "name": "qualificacaoId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     }
   ],
-  "id": "f78fvhf0vm-CONTROLLER-CONTROLLER-CONTROLLER-CONTROLLER"
+  "id": "f78fvhf0vm-CONTROLLER-CONTROLLER-CONTROLLER-CONTROLLER-CONTROLLER"
 }

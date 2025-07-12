@@ -1,0 +1,238 @@
+{
+  "type": "controller",
+  "name": "Cargo",
+  "module": "funcionarios",
+  "description": "gestao de cargos",
+  "basePath": "api/v1/cargos",
+  "actions": [
+    {
+      "actionName": "getCargos",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaCargo",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "funcionarios"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "nome",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "codigo",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "nivelHierarquico",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "salarioBaseMax",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "salarioBaseMin",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "estado",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "pagina",
+          "value": "0",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "tamanho",
+          "value": "20",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "ativarCargo",
+      "path": "{cargoId}/ativar",
+      "method": "PATCH",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "cargoId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "desativarCargo",
+      "path": "{cargoId}/desativar",
+      "method": "PATCH",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "cargoId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "getCargoById",
+      "path": "{cargoId}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "CargoResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "funcionarios"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "cargoId",
+          "type": "string",
+          "isRequired": true
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CargoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "funcionarios"
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "createCargo",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CargoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "funcionarios"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "updateCargo",
+      "path": "{cargoId}",
+      "method": "PUT",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CargoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "funcionarios"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "CargoResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "funcionarios"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "cargoId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    }
+  ],
+  "id": "epbkycdxpv-CONTROLLER-CONTROLLER-CONTROLLER-CONTROLLER-CONTROLLER"
+}

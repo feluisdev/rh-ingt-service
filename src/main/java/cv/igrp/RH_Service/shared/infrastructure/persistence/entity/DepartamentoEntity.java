@@ -26,33 +26,36 @@ public class DepartamentoEntity extends AuditEntity {
     @Column(name = "id", unique = true, nullable = false)
     private Integer id;
 
-
+  
     @Column(name="external_id")
     private UUID externalId;
 
-
+  
     @NotBlank(message = "nome is mandatory")
     @Column(name="nome", nullable = false)
     private String nome;
 
+  
+    @Column(name="codigo", unique = true)
+    private String codigo;
 
+  
     @Column(name="descricao")
     private String descricao;
 
-
+  
     @Column(name="localizacao")
     private String localizacao;
 
-
+  
     @Column(name="orcamento")
     private BigDecimal orcamento;
 
-
+  
 
 
   @OneToMany(mappedBy = "idDepartamento", fetch = FetchType.LAZY)
 private List<ContratoEntity> contratos;
-
     @Enumerated(EnumType.STRING)
     @Column(name="estado")
     private Estado estado;

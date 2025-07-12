@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 public class CargoFilter {
 
   private String nome;
+  private String codigo;
   private BigDecimal salarioBaseMin;
   private BigDecimal salarioBaseMax;
   private Integer nivelHierarquico;

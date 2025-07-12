@@ -34,5 +34,11 @@ public class DependenteResponseDTO {
   
   
   private String cpf ;
+  
+  
+  private String estado ;
+  
+  
+  private String estadoDesc ;
 
 }

@@ -186,7 +186,33 @@
           "isRequired": true
         }
       ]
+    },
+    {
+      "actionName": "ativarFuncionario",
+      "path": "{funcionarioId}",
+      "method": "PATCH",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     }
   ],
-  "id": "m0wjsk7q8b-CONTROLLER-CONTROLLER-CONTROLLER-CONTROLLER"
+  "id": "m0wjsk7q8b-CONTROLLER-CONTROLLER-CONTROLLER-CONTROLLER-CONTROLLER"
 }

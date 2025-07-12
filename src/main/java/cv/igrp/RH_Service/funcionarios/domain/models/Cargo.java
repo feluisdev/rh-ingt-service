@@ -13,17 +13,19 @@ public class Cargo {
   private Integer id;
   private ExternalID externalId;
   private String nome;
+  private String codigo;
   private String descricao;
   private BigDecimal salarioBase;
   private Integer nivelHierarquico;
   private Estado estado;
 
   // Construtor privado para forçar uso dos métodos estáticos
-  private Cargo(Integer id, ExternalID externalId, String nome, String descricao,
+  private Cargo(Integer id, ExternalID externalId, String nome, String codigo, String descricao,
                 BigDecimal salarioBase, Integer nivelHierarquico, Estado estado) {
     this.id = id;
     this.externalId = externalId;
     this.nome = nome;
+    this.codigo = codigo;
     this.descricao = descricao;
     this.salarioBase = salarioBase;
     this.nivelHierarquico = nivelHierarquico;
@@ -31,13 +33,14 @@ public class Cargo {
   }
 
   // Método factory para criar um novo Cargo
-  public static Cargo criarNovo(String nome, String descricao, BigDecimal salarioBase, Integer nivelHierarquico) {
+  public static Cargo criarNovo(String nome, String codigo, String descricao, BigDecimal salarioBase, Integer nivelHierarquico) {
     Objects.requireNonNull(nome, "Nome não pode ser nulo");
     // Outros validations que desejar
     return new Cargo(
         null,
         ExternalID.gerarNovo(), // gera novo UUID
         nome,
+        codigo,
         descricao,
         salarioBase,
         nivelHierarquico,
@@ -46,17 +49,20 @@ public class Cargo {
   }
 
   // Método para reconstruir a partir de dados existentes (ex: do banco)
-  public static Cargo reconstruir(Integer id, ExternalID externalId, String nome, String descricao,
+  public static Cargo reconstruir(Integer id, ExternalID externalId, String nome, String codigo, String descricao,
                                   BigDecimal salarioBase, Integer nivelHierarquico, Estado estado) {
     Objects.requireNonNull(id, "ID não pode ser nulo para reconstruir");
     Objects.requireNonNull(externalId, "ExternalID não pode ser nulo para reconstruir");
-    return new Cargo(id, externalId, nome, descricao, salarioBase, nivelHierarquico, estado);
+    Objects.requireNonNull(codigo, "Nome não pode ser nulo para reconstruir");
+    return new Cargo(id, externalId, nome, codigo,descricao, salarioBase, nivelHierarquico, estado);
   }
 
   // Método para atualizar os dados do cargo
-  public void atualizar(String nome, String descricao, BigDecimal salarioBase, Integer nivelHierarquico) {
+  public void atualizar(String nome, String codigo, String descricao, BigDecimal salarioBase, Integer nivelHierarquico) {
     Objects.requireNonNull(nome, "Nome não pode ser nulo");
+    Objects.requireNonNull(codigo, "Nome não pode ser nulo para reconstruir");
     this.nome = nome;
+    this.codigo = codigo;
     this.descricao = descricao;
     this.salarioBase = salarioBase;
     this.nivelHierarquico = nivelHierarquico;

@@ -229,4 +229,41 @@ public class QualificacaoController {
               .body(response.getBody());
   }
 
+  @PatchMapping(
+    value = "{funcionarioId}/qualificacoes/{qualificacaoId}"
+  )
+  @Operation(
+    summary = "PATCH method to handle operations for ativarQualificacao",
+    description = "PATCH method to handle operations for ativarQualificacao",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<Map<String, ?>> ativarQualificacao(
+    @PathVariable(value = "funcionarioId") String funcionarioId,@PathVariable(value = "qualificacaoId") String qualificacaoId)
+  {
+
+      LOGGER.debug("Operation started");
+
+      final var command = new AtivarQualificacaoCommand(funcionarioId, qualificacaoId);
+
+       ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+
+       LOGGER.debug("Operation finished");
+
+        return ResponseEntity.status(response.getStatusCode())
+              .headers(response.getHeaders())
+              .body(response.getBody());
+  }
+
 }

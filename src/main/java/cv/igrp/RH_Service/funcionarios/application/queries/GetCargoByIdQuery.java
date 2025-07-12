@@ -1,0 +1,21 @@
+package cv.igrp.RH_Service.funcionarios.application.queries;
+
+import cv.igrp.framework.core.domain.Query;
+import jakarta.validation.constraints.*;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import cv.igrp.RH_Service.funcionarios.application.dto.CargoRequestDTO;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class GetCargoByIdQuery implements Query {
+
+  
+  private CargoRequestDTO cargorequest;
+  @NotBlank(message = "The field <cargoId> is required.")
+  private String cargoId;
+
+}

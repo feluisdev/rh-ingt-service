@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.funcionarios.infrastructure.mappers;
 
+import cv.igrp.RH_Service.funcionarios.application.dto.CargoResponseDTO;
 import cv.igrp.RH_Service.funcionarios.domain.models.Cargo;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.CargoEntity;
@@ -15,6 +16,7 @@ public class CargoMapper {
         entity.getId(),
         ExternalID.from(entity.getExternalId()),
         entity.getNome(),
+        entity.getCodigo(),
         entity.getDescricao(),
         entity.getSalarioBase(),
         entity.getNivelHierarquico(),
@@ -34,7 +36,28 @@ public class CargoMapper {
     entity.setSalarioBase(domain.getSalarioBase());
     entity.setNivelHierarquico(domain.getNivelHierarquico());
     entity.setEstado(domain.getEstado());
+    entity.setCodigo(domain.getCodigo());
 
     return entity;
   }
+
+  public CargoResponseDTO toDTO(Cargo cargo) {
+    if (cargo == null) {
+      return null;
+    }
+
+    CargoResponseDTO dto = new CargoResponseDTO();
+
+    dto.setCargoId(cargo.getExternalId() != null ? cargo.getExternalId().getValor().toString() : null);
+    dto.setNome(cargo.getNome());
+    dto.setDescricao(cargo.getDescricao());
+    dto.setCodigo(cargo.getCodigo());
+    dto.setSalarioBase(cargo.getSalarioBase());
+    dto.setNivelHierarquico(cargo.getNivelHierarquico());
+    dto.setEstado(cargo.getEstado() != null ? cargo.getEstado().name() : null);
+    dto.setEstadoDesc(cargo.getEstado() != null ? cargo.getEstado().getDescription() : null);
+
+    return dto;
+  }
+
 }
