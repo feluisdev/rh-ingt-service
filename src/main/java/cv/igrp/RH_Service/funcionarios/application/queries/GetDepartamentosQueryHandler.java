@@ -1,4 +1,8 @@
 package cv.igrp.RH_Service.funcionarios.application.queries;
+import cv.igrp.RH_Service.funcionarios.domain.filter.DepartamentoFilter;
+import cv.igrp.RH_Service.funcionarios.domain.repository.DepartamentoRepository;
+import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.DepartamentoMapper;
+import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import cv.igrp.framework.core.domain.QueryHandler;
@@ -13,15 +17,41 @@ public class GetDepartamentosQueryHandler implements QueryHandler<GetDepartament
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GetDepartamentosQueryHandler.class);
 
+  private final DepartamentoRepository departamentoRepository;
+  private final DepartamentoMapper departamentoMapper;
 
-  public GetDepartamentosQueryHandler() {
+  public GetDepartamentosQueryHandler(DepartamentoRepository departamentoRepository, DepartamentoMapper departamentoMapper) {
 
+    this.departamentoRepository = departamentoRepository;
+    this.departamentoMapper = departamentoMapper;
   }
 
    @IgrpQueryHandler
   public ResponseEntity<WrapperListaDepartamentoDTO> handle(GetDepartamentosQuery query) {
-    // TODO: Implement the query handling logic here
-    return null;
+     DepartamentoFilter filter = DepartamentoFilter.builder()
+         .nome(!query.getNome().isBlank() ? query.getNome() : null)
+         .localizacao(!query.getLocalizacao().isBlank() ? query.getLocalizacao() : null)
+         .codigo(!query.getCodigo().isBlank() ? query.getCodigo() : null)
+         .estado(!query.getEstado().isBlank() ? query.getEstado() : null)
+         .responsavelId(!query.getResponsavelId().isBlank() ? ExternalID.from(query.getResponsavelId()) : null)
+         .pageNumber(Integer.parseInt(query.getPagina()))
+         .pageSize(Integer.parseInt(query.getTamanho()))
+         .build();
+
+     var departamentos = departamentoRepository.getAll(filter);
+
+     var dtoList = departamentos.stream()
+         .map(departamentoMapper::toDTO)
+         .toList();
+
+     WrapperListaDepartamentoDTO wrapper = new WrapperListaDepartamentoDTO();
+     wrapper.setContent(dtoList);
+     wrapper.setPageNumber(filter.getPageNumber());
+     wrapper.setPageSize(filter.getPageSize());
+     wrapper.setTotalElements((long) dtoList.size());
+
+
+     return ResponseEntity.ok(wrapper);
   }
 
 }

@@ -1,5 +1,10 @@
 package cv.igrp.RH_Service.funcionarios.application.commands;
 
+import cv.igrp.RH_Service.funcionarios.domain.repository.DepartamentoRepository;
+import cv.igrp.RH_Service.funcionarios.domain.repository.FuncionarioRepository;
+import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.DepartamentoMapper;
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +19,41 @@ public class UpdateDepartamentoCommandHandler implements CommandHandler<UpdateDe
 
    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateDepartamentoCommandHandler.class);
 
-   public UpdateDepartamentoCommandHandler() {
+  private final DepartamentoRepository departamentoRepository;
+  private final FuncionarioRepository funcionarioRepository;
+  private final DepartamentoMapper departamentoMapper;
 
+   public UpdateDepartamentoCommandHandler(DepartamentoRepository departamentoRepository, FuncionarioRepository funcionarioRepository, DepartamentoMapper departamentoMapper) {
+
+     this.departamentoRepository = departamentoRepository;
+     this.funcionarioRepository = funcionarioRepository;
+     this.departamentoMapper = departamentoMapper;
    }
 
    @IgrpCommandHandler
    public ResponseEntity<DepartamentoResponseDTO> handle(UpdateDepartamentoCommand command) {
-      // TODO: Implement the command handling logic here
-      return null;
+     var departamentoId = ExternalID.from(command.getDepartamentoId());
+     var dto = command.getDepartamentorequest();
+
+     var responsavelId = ExternalID.from(dto.getResponsavelId());
+
+     var responsavel = funcionarioRepository.getByExternalId(responsavelId)
+         .orElseThrow(() -> IgrpResponseStatusException.notFound("Responsável não encontrado com ID: " + responsavelId.getStringValor()));
+
+      var departamento = departamentoRepository.getByExternalId(departamentoId).orElseThrow(
+        () -> IgrpResponseStatusException.notFound("Departamento não encontrado com ID: " + departamentoId.getStringValor())
+      );
+
+      departamento.atualizar(
+         dto.getNome(),
+         dto.getCodigo(),
+         dto.getDescricao(),
+         dto.getLocalizacao(),
+         dto.getOrcamento(),
+         responsavel
+      );
+      departamentoRepository.save(departamento);
+     return ResponseEntity.ok(departamentoMapper.toDTO(departamento));
    }
 
 }

@@ -12,7 +12,7 @@ public class DepartamentoFilter {
   private String nome;
   private String localizacao;
   private String codigo;
-  private Estado estado;
+  private String estado;
   private ExternalID responsavelId;
   private Integer pageNumber;
   private Integer pageSize;
