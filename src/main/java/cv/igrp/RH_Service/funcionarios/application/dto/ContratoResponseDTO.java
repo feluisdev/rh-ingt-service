@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -34,10 +34,10 @@ public class ContratoResponseDTO {
   private String tipoContrato ;
   
   
-  private LocalDateTime dataInicio ;
+  private LocalDate dataInicio ;
   
   
-  private LocalDateTime dataFim ;
+  private LocalDate dataFim ;
   
   
   private BigDecimal salario ;
