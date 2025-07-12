@@ -107,7 +107,7 @@
     },
     {
       "actionName": "updateContrato",
-      "path": "{funcionarioId}/contratos",
+      "path": "{funcionarioId}/contratos/{contratoId}",
       "method": "PUT",
       "requestBody": {
         "content": {
@@ -137,7 +137,19 @@
             }
           }
         }
-      }
+      },
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string",
+          "isRequired": true
+        },
+        {
+          "name": "contratoId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     },
     {
       "actionName": "inativarContrato",

@@ -156,7 +156,7 @@ public class ContratoController {
   }
 
   @PutMapping(
-    value = "{funcionarioId}/contratos"
+    value = "{funcionarioId}/contratos/{contratoId}"
   )
   @Operation(
     summary = "PUT method to handle operations for updateContrato",
@@ -176,12 +176,12 @@ public class ContratoController {
   )
   
   public ResponseEntity<ContratoResponseDTO> updateContrato(@Valid @RequestBody ContratoRequestDTO updateContratoRequest
-    )
+    , @PathVariable(value = "funcionarioId") String funcionarioId,@PathVariable(value = "contratoId") String contratoId)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new UpdateContratoCommand(updateContratoRequest);
+      final var command = new UpdateContratoCommand(updateContratoRequest, funcionarioId, contratoId);
 
        ResponseEntity<ContratoResponseDTO> response = commandBus.send(command);
 
