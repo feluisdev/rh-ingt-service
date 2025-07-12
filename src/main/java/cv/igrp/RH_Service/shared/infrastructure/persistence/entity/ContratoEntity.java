@@ -7,6 +7,7 @@ import lombok.*;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import java.time.LocalDate;
+import java.math.BigDecimal;
 import cv.igrp.RH_Service.shared.application.constants.Estado;
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class ContratoEntity extends AuditEntity {
 
   
     @Column(name="salario")
-    private String salario;
+    private BigDecimal salario;
 
   
     @Column(name="carga_horaria")

@@ -1,5 +1,9 @@
 package cv.igrp.RH_Service.funcionarios.application.commands;
 
+import cv.igrp.RH_Service.funcionarios.domain.repository.CargoRepository;
+import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.CargoMapper;
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import org.springframework.http.ResponseEntity;
@@ -12,16 +16,38 @@ import cv.igrp.RH_Service.funcionarios.application.dto.CargoResponseDTO;
 @Component
 public class UpdateCargoCommandHandler implements CommandHandler<UpdateCargoCommand, ResponseEntity<CargoResponseDTO>> {
 
-   private static final Logger LOGGER = LoggerFactory.getLogger(UpdateCargoCommandHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(UpdateCargoCommandHandler.class);
+  private final CargoRepository cargoRepository;
+  private final CargoMapper cargoMapper;
 
-   public UpdateCargoCommandHandler() {
+  public UpdateCargoCommandHandler(CargoRepository cargoRepository, CargoMapper cargoMapper) {
 
-   }
+    this.cargoRepository = cargoRepository;
+    this.cargoMapper = cargoMapper;
+  }
 
-   @IgrpCommandHandler
-   public ResponseEntity<CargoResponseDTO> handle(UpdateCargoCommand command) {
-      // TODO: Implement the command handling logic here
-      return null;
-   }
+  @IgrpCommandHandler
+  public ResponseEntity<CargoResponseDTO> handle(UpdateCargoCommand command) {
+    var dto = command.getCargorequest();
+    var cargoId = ExternalID.from(command.getCargoId());
+
+    var cargo = cargoRepository.getByExternalId(cargoId).orElseThrow(
+        () -> IgrpResponseStatusException.notFound("Cargo not found with ID: " + cargoId.getStringValor())
+    );
+
+    cargo.atualizar(
+        dto.getNome(),
+        dto.getDescricao(),
+        dto.getCodigo(),
+        dto.getSalarioBase(),
+        dto.getNivelHierarquico()
+    );
+
+    var salvo = cargoRepository.save(cargo);
+
+    var responseDto = cargoMapper.toDTO(salvo);
+
+    return ResponseEntity.ok(responseDto);
+  }
 
 }

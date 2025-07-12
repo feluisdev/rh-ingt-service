@@ -5,6 +5,7 @@ import cv.igrp.RH_Service.funcionarios.domain.models.Cargo;
 import cv.igrp.RH_Service.funcionarios.domain.repository.CargoRepository;
 import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.CargoMapper;
 import cv.igrp.RH_Service.shared.application.constants.Estado;
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.CargoEntity;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.CargoEntityRepository;
@@ -86,12 +87,10 @@ public class CargoRepositoryImpl implements CargoRepository {
       }
 
       if (filter.getEstado() != null) {
-        predicates = cb.and(predicates,
-            cb.equal(root.get("estado"), filter.getEstado()));
+          Estado estadoEnum = Estado.valueOf(filter.getEstado().toUpperCase());
+          predicates = cb.and(predicates, cb.equal(root.get("estado"), estadoEnum));
       } else {
-        // opcional: filtrar apenas ativos por padrão
-        predicates = cb.and(predicates,
-            cb.equal(root.get("estado"), Estado.A));
+        predicates = cb.and(predicates, cb.equal(root.get("estado"), Estado.A));
       }
 
       return predicates;

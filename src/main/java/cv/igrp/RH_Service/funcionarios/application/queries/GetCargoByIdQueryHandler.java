@@ -1,4 +1,8 @@
 package cv.igrp.RH_Service.funcionarios.application.queries;
+import cv.igrp.RH_Service.funcionarios.domain.repository.CargoRepository;
+import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.CargoMapper;
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import cv.igrp.framework.core.domain.QueryHandler;
@@ -13,15 +17,24 @@ public class GetCargoByIdQueryHandler implements QueryHandler<GetCargoByIdQuery,
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GetCargoByIdQueryHandler.class);
 
+  private final CargoRepository cargoRepository;
+  private final CargoMapper cargoMapper;
+  public GetCargoByIdQueryHandler(CargoRepository cargoRepository, CargoMapper cargoMapper) {
 
-  public GetCargoByIdQueryHandler() {
-
+    this.cargoRepository = cargoRepository;
+    this.cargoMapper = cargoMapper;
   }
 
    @IgrpQueryHandler
   public ResponseEntity<CargoResponseDTO> handle(GetCargoByIdQuery query) {
-    // TODO: Implement the query handling logic here
-    return null;
+     var cargoId = ExternalID.from(query.getCargoId());
+
+     var cargo = cargoRepository.getByExternalId(cargoId)
+         .orElseThrow(() -> IgrpResponseStatusException.notFound("Cargo não encontrado com ID: " + cargoId.getStringValor()));
+
+     var dto = cargoMapper.toDTO(cargo);
+
+     return ResponseEntity.ok(dto);
   }
 
 }

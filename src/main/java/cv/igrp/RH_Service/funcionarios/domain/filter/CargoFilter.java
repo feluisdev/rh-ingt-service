@@ -15,7 +15,7 @@ public class CargoFilter {
   private BigDecimal salarioBaseMin;
   private BigDecimal salarioBaseMax;
   private Integer nivelHierarquico;
-  private Estado estado;
+  private String estado;
   private Integer pageNumber;
   private Integer pageSize;
 }
