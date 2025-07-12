@@ -1,0 +1,213 @@
+{
+  "type": "controller",
+  "name": "Contrato",
+  "module": "funcionarios",
+  "description": "Gestão de Contrato",
+  "basePath": "api/v1/funcionarios",
+  "actions": [
+    {
+      "actionName": "getContrato",
+      "path": "{funcionarioId}/contratos/{contratoId}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ContratoResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "funcionarios"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "id",
+          "isRequired": true
+        }
+      ],
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string",
+          "isRequired": true
+        },
+        {
+          "name": "contratoId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "getContratos",
+      "path": "{funcionarioId}/contratos",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ContratoResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "funcionarios"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "createContrato",
+      "path": "{funcionarioId}/contratos",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "collectionType": "none",
+              "name": "data",
+              "type": "ContratoRequest",
+              "objectType": "dto",
+              "module": "funcionarios"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "updateContrato",
+      "path": "{funcionarioId}/contratos",
+      "method": "PUT",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ContratoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "funcionarios"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ContratoResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "funcionarios"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "inativarContrato",
+      "path": "{funcionarioId}/contratos/{contratoId}",
+      "method": "PATCH",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string",
+          "isRequired": true
+        },
+        {
+          "name": "contratoId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "ativarContrato",
+      "path": "{funcionarioId}/contratos/{contratoId}",
+      "method": "PATCH",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string",
+          "isRequired": true
+        },
+        {
+          "name": "contratoId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    }
+  ],
+  "id": "qndge82io4-CONTROLLER-CONTROLLER-CONTROLLER-CONTROLLER-CONTROLLER"
+}
