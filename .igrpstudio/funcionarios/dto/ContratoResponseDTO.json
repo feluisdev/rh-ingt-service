@@ -68,7 +68,7 @@
     {
       "name": "dataInicio",
       "objectType": "java",
-      "type": "datetime",
+      "type": "date",
       "required": false,
       "before": false,
       "after": false,
@@ -80,7 +80,7 @@
     {
       "name": "dataFim",
       "objectType": "java",
-      "type": "datetime",
+      "type": "date",
       "required": false,
       "before": false,
       "after": false,

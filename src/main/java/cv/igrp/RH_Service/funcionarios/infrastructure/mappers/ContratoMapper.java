@@ -1,5 +1,6 @@
 ﻿package cv.igrp.RH_Service.funcionarios.infrastructure.mappers;
 
+import cv.igrp.RH_Service.funcionarios.application.dto.ContratoResponseDTO;
 import cv.igrp.RH_Service.funcionarios.domain.models.Cargo;
 import cv.igrp.RH_Service.funcionarios.domain.models.Contrato;
 import cv.igrp.RH_Service.funcionarios.domain.models.Departamento;
@@ -56,5 +57,24 @@ public class ContratoMapper {
     entity.setIdCargo(cargoEntity);
 
     return entity;
+  }
+
+  public ContratoResponseDTO toDTO(Contrato contrato) {
+    if (contrato == null) return null;
+
+    return new ContratoResponseDTO(
+        contrato.getExternalId() != null ? contrato.getExternalId().getStringValor() : null,
+        contrato.getFuncionario() != null ? contrato.getFuncionario().getExternalId().getStringValor() : null,
+        contrato.getDepartamento() != null ? contrato.getDepartamento().getExternalId().getStringValor() : null,
+        contrato.getCargo() != null ? contrato.getCargo().getExternalId().getStringValor() : null,
+        contrato.getTipoContrato(),
+        contrato.getDataInicio(),
+        contrato.getDataFim(),
+        contrato.getSalario(),
+        contrato.getCargaHoraria(),
+        contrato.getObservacoes(),
+        contrato.getEstado().getCode(),
+        contrato.getEstado().getDescription() // Assumindo que existe um getEstadoDescricao()
+    );
   }
 }
