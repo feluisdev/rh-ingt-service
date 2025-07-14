@@ -153,7 +153,7 @@
     },
     {
       "actionName": "inativarContrato",
-      "path": "{funcionarioId}/contratos/{contratoId}",
+      "path": "{funcionarioId}/contratos/{contratoId}/desativar",
       "method": "PATCH",
       "responses": {
         "200": {
@@ -184,7 +184,7 @@
     },
     {
       "actionName": "ativarContrato",
-      "path": "{funcionarioId}/contratos/{contratoId}",
+      "path": "{funcionarioId}/contratos/{contratoId}/ativar",
       "method": "PATCH",
       "responses": {
         "200": {

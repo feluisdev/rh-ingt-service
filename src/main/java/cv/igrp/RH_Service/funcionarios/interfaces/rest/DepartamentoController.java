@@ -32,11 +32,11 @@ public class DepartamentoController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DepartamentoController.class);
 
-  
+
   private final CommandBus commandBus;
   private final QueryBus queryBus;
 
-  
+
   public DepartamentoController(
     CommandBus commandBus, QueryBus queryBus
   ) {
@@ -62,7 +62,7 @@ public class DepartamentoController {
       )
     }
   )
-  
+
   public ResponseEntity<WrapperListaDepartamentoDTO> getDepartamentos(
     @RequestParam(value = "tamanho", defaultValue = "20") String tamanho,
     @RequestParam(value = "pagina", defaultValue = "0") String pagina,
@@ -105,7 +105,7 @@ public class DepartamentoController {
       )
     }
   )
-  
+
   public ResponseEntity<DepartamentoResponseDTO> getDepartamentoById(
     @PathVariable(value = "departamentoId") String departamentoId)
   {
@@ -124,7 +124,7 @@ public class DepartamentoController {
   }
 
   @PatchMapping(
-    value = "{departamentoId}"
+    value = "{departamentoId}/ativar"
   )
   @Operation(
     summary = "PATCH method to handle operations for ativarDepartamento",
@@ -142,7 +142,7 @@ public class DepartamentoController {
       )
     }
   )
-  
+
   public ResponseEntity<Map<String, ?>> ativarDepartamento(
     @PathVariable(value = "departamentoId") String departamentoId)
   {
@@ -161,7 +161,7 @@ public class DepartamentoController {
   }
 
   @PatchMapping(
-    value = "{departamentoId}"
+    value = "{departamentoId}/desativar"
   )
   @Operation(
     summary = "PATCH method to handle operations for desativarDepartamento",
@@ -179,7 +179,7 @@ public class DepartamentoController {
       )
     }
   )
-  
+
   public ResponseEntity<Map<String, ?>> desativarDepartamento(
     @PathVariable(value = "departamentoId") String departamentoId)
   {
@@ -215,7 +215,7 @@ public class DepartamentoController {
       )
     }
   )
-  
+
   public ResponseEntity<Map<String, ?>> createDepartamento(@Valid @RequestBody DepartamentoRequestDTO createDepartamentoRequest
     )
   {
@@ -252,7 +252,7 @@ public class DepartamentoController {
       )
     }
   )
-  
+
   public ResponseEntity<DepartamentoResponseDTO> updateDepartamento(@Valid @RequestBody DepartamentoRequestDTO updateDepartamentoRequest
     , @PathVariable(value = "departamentoId") String departamentoId)
   {

@@ -94,7 +94,7 @@
     },
     {
       "actionName": "ativarDepartamento",
-      "path": "{departamentoId}",
+      "path": "{departamentoId}/ativar",
       "method": "PATCH",
       "responses": {
         "200": {
@@ -120,7 +120,7 @@
     },
     {
       "actionName": "desativarDepartamento",
-      "path": "{departamentoId}",
+      "path": "{departamentoId}/desativar",
       "method": "PATCH",
       "responses": {
         "200": {

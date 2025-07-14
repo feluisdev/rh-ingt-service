@@ -32,11 +32,11 @@ public class ContratoController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ContratoController.class);
 
-  
+
   private final CommandBus commandBus;
   private final QueryBus queryBus;
 
-  
+
   public ContratoController(
     CommandBus commandBus, QueryBus queryBus
   ) {
@@ -63,7 +63,7 @@ public class ContratoController {
       )
     }
   )
-  
+
   public ResponseEntity<ContratoResponseDTO> getContrato(
     @PathVariable(value = "funcionarioId") String funcionarioId,@PathVariable(value = "contratoId") String contratoId)
   {
@@ -100,7 +100,7 @@ public class ContratoController {
       )
     }
   )
-  
+
   public ResponseEntity<List<ContratoResponseDTO>> getContratos(
     @PathVariable(value = "funcionarioId") String funcionarioId)
   {
@@ -137,7 +137,7 @@ public class ContratoController {
       )
     }
   )
-  
+
   public ResponseEntity<Map<String, ?>> createContrato(@Valid @RequestBody ContratoRequestDTO createContratoRequest
     , @PathVariable(value = "funcionarioId") String funcionarioId)
   {
@@ -174,7 +174,7 @@ public class ContratoController {
       )
     }
   )
-  
+
   public ResponseEntity<ContratoResponseDTO> updateContrato(@Valid @RequestBody ContratoRequestDTO updateContratoRequest
     , @PathVariable(value = "funcionarioId") String funcionarioId,@PathVariable(value = "contratoId") String contratoId)
   {
@@ -193,7 +193,7 @@ public class ContratoController {
   }
 
   @PatchMapping(
-    value = "{funcionarioId}/contratos/{contratoId}"
+    value = "{funcionarioId}/contratos/{contratoId}/desativar"
   )
   @Operation(
     summary = "PATCH method to handle operations for inativarContrato",
@@ -211,7 +211,7 @@ public class ContratoController {
       )
     }
   )
-  
+
   public ResponseEntity<Map<String, ?>> inativarContrato(
     @PathVariable(value = "funcionarioId") String funcionarioId,@PathVariable(value = "contratoId") String contratoId)
   {
@@ -230,7 +230,7 @@ public class ContratoController {
   }
 
   @PatchMapping(
-    value = "{funcionarioId}/contratos/{contratoId}"
+    value = "{funcionarioId}/contratos/{contratoId}/ativar"
   )
   @Operation(
     summary = "PATCH method to handle operations for ativarContrato",
@@ -248,7 +248,7 @@ public class ContratoController {
       )
     }
   )
-  
+
   public ResponseEntity<Map<String, ?>> ativarContrato(
     @PathVariable(value = "funcionarioId") String funcionarioId,@PathVariable(value = "contratoId") String contratoId)
   {
