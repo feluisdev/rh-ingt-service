@@ -130,6 +130,10 @@ public class Funcionario {
     for (Dependente dependente : this.dependentes) {
       dependente.desativar();
     }
+
+    for (Qualificacao qualificacao : this.qualificacoes) {
+      qualificacao.desativar();
+    }
   }
 
   public void ativar() {
@@ -137,6 +141,10 @@ public class Funcionario {
 
     for (Dependente dependente : this.dependentes) {
       dependente.ativar();
+    }
+
+    for (Qualificacao qualificacao : this.qualificacoes) {
+      qualificacao.ativar();
     }
   }
 

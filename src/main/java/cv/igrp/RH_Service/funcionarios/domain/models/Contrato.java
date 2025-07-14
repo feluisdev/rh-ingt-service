@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.funcionarios.domain.models;
 
 import cv.igrp.RH_Service.shared.application.constants.Estado;
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import lombok.Getter;
 
@@ -53,8 +54,13 @@ public class Contrato {
 
     Objects.requireNonNull(tipoContrato, "Tipo de contrato é obrigatório");
     Objects.requireNonNull(dataInicio, "Data de início é obrigatória");
+    Objects.requireNonNull(dataFim, "Data fim é obrigatória");
     Objects.requireNonNull(salario, "Salário é obrigatório");
     Objects.requireNonNull(funcionario, "Funcionário é obrigatório");
+
+   if (dataFim.isBefore(dataInicio)) {
+      throw IgrpResponseStatusException.badRequest("Data fim não pode ser antes da data de início.");
+    }
 
     return new Contrato(
         null,
