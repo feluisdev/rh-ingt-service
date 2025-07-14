@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +25,7 @@ public class CargoRepositoryImpl implements CargoRepository {
   private final CargoEntityRepository cargoEntityRepository;
   private final CargoMapper cargoMapper;
 
+  @Transactional
   @Override
   public Cargo save(Cargo cargo) {
     var entity = cargoMapper.toEntity(cargo);
@@ -31,18 +33,21 @@ public class CargoRepositoryImpl implements CargoRepository {
     return cargoMapper.toDomain(saved);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<Cargo> getById(Integer id) {
     return cargoEntityRepository.findById(id)
         .map(cargoMapper::toDomain);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<Cargo> getByExternalId(ExternalID externalId) {
     return cargoEntityRepository.findByExternalId(externalId.getValor())
         .map(cargoMapper::toDomain);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<Cargo> getAll() {
     return cargoEntityRepository.findAllByEstado(Estado.A)
@@ -51,6 +56,7 @@ public class CargoRepositoryImpl implements CargoRepository {
         .toList();
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<Cargo> getAll(CargoFilter filter) {
     var pageable = PageRequest.of(

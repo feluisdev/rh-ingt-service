@@ -11,6 +11,7 @@ import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.QualificacaoE
 import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.QualificacaoEntityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +25,7 @@ public class QualificacaoRepositoryImpl implements QualificacaoRepository {
   private final FuncionarioMapper funcionarioMapper;
 
 
+  @Transactional
   @Override
   public Qualificacao save(Qualificacao qualificacao) {
 
@@ -38,6 +40,7 @@ public class QualificacaoRepositoryImpl implements QualificacaoRepository {
     return qualificacaoMapper.toDomainWithFuncionario(saved, funcionarioDomain);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<Qualificacao> getById(Integer id) {
     return qualificacaoJpaRepository.findById(id)
@@ -47,6 +50,7 @@ public class QualificacaoRepositoryImpl implements QualificacaoRepository {
         });
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<Qualificacao> getByExternalId(ExternalID externalId) {
     return qualificacaoJpaRepository.findByExternalId(externalId.getValor())
@@ -56,6 +60,7 @@ public class QualificacaoRepositoryImpl implements QualificacaoRepository {
         });
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<Qualificacao> getAll() {
     List<QualificacaoEntity> list = qualificacaoJpaRepository.findAllByEstado(Estado.A);
@@ -68,11 +73,13 @@ public class QualificacaoRepositoryImpl implements QualificacaoRepository {
         .toList();
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<Qualificacao> getAll(QualificacaoFilter filter) {
     return List.of();
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<Qualificacao> getAllByFuncionarioExternalId(ExternalID funcionarioExternalId) {
     var list = qualificacaoJpaRepository.findAllByIdFuncionario_ExternalId_AndEstado(funcionarioExternalId.getValor(), Estado.A);

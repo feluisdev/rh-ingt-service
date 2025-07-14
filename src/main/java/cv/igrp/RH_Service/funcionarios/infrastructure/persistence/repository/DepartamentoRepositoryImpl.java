@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +26,7 @@ public class DepartamentoRepositoryImpl implements DepartamentoRepository {
   private final DepartamentoMapper departamentoMapper;
   private final FuncionarioMapper funcionarioMapper;
 
-
+  @Transactional
   @Override
   public Departamento save(Departamento departamento) {
     var funcionarioEntity = funcionarioMapper.toEntity(departamento.getResponsavel());
@@ -35,6 +36,7 @@ public class DepartamentoRepositoryImpl implements DepartamentoRepository {
     return departamentoMapper.toDomainWithResponsavel(saved, funcionarioMapper.toDomain(saved.getResponsavelId()));
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<Departamento> getById(Integer id) {
     return jpaDepartamentoEntityRepository.findById(id)
@@ -44,6 +46,7 @@ public class DepartamentoRepositoryImpl implements DepartamentoRepository {
         });
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<Departamento> getByExternalId(ExternalID externalId) {
     return jpaDepartamentoEntityRepository.findByExternalId(externalId.getValor())
@@ -53,6 +56,7 @@ public class DepartamentoRepositoryImpl implements DepartamentoRepository {
         });
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<Departamento> getAll() {
     return jpaDepartamentoEntityRepository.findAllByEstado(Estado.A).stream()
@@ -63,6 +67,7 @@ public class DepartamentoRepositoryImpl implements DepartamentoRepository {
         .toList();
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<Departamento> getAll(DepartamentoFilter filter) {
     var pageable = PageRequest.of(
@@ -110,6 +115,7 @@ public class DepartamentoRepositoryImpl implements DepartamentoRepository {
 
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<Departamento> getAllByResponsavel(ExternalID responsavelId) {
     return jpaDepartamentoEntityRepository.findAllByResponsavelId_ExternalIdAndEstado(
