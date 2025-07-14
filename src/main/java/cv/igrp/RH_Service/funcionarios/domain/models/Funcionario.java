@@ -52,6 +52,7 @@ public class Funcionario {
     this.endereco = endereco;
     this.dependentes = dependentes != null ? dependentes : new ArrayList<>();
     this.qualificacoes = qualificacoes != null ? qualificacoes : new ArrayList<>();
+    this.contratos = contratos != null ? contratos : new ArrayList<>();
   }
 
   public static Funcionario criar(String nome, String nifRaw,
