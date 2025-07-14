@@ -29,11 +29,11 @@ public class GetDepartamentosQueryHandler implements QueryHandler<GetDepartament
    @IgrpQueryHandler
   public ResponseEntity<WrapperListaDepartamentoDTO> handle(GetDepartamentosQuery query) {
      DepartamentoFilter filter = DepartamentoFilter.builder()
-         .nome(!query.getNome().isBlank() ? query.getNome() : null)
-         .localizacao(!query.getLocalizacao().isBlank() ? query.getLocalizacao() : null)
-         .codigo(!query.getCodigo().isBlank() ? query.getCodigo() : null)
-         .estado(!query.getEstado().isBlank() ? query.getEstado() : null)
-         .responsavelId(!query.getResponsavelId().isBlank() ? ExternalID.from(query.getResponsavelId()) : null)
+         .nome(query.getNome() != null ? query.getNome() : null)
+         .localizacao(query.getLocalizacao() != null ? query.getLocalizacao() : null)
+         .codigo(query.getCodigo() != null ? query.getCodigo() : null)
+         .estado(query.getEstado() != null ? query.getEstado() : null)
+         .responsavelId(query.getResponsavelId() != null ? ExternalID.from(query.getResponsavelId()) : null)
          .pageNumber(Integer.parseInt(query.getPagina()))
          .pageSize(Integer.parseInt(query.getTamanho()))
          .build();

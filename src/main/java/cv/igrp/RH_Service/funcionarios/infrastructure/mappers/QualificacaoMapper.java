@@ -71,6 +71,8 @@ public class QualificacaoMapper {
     dto.setSituacao(qualificacao.getSituacao());
     dto.setCargaHoraria(qualificacao.getCargaHoraria());
     dto.setNotaFinal(qualificacao.getNotaFinal());
+    dto.setEstado(qualificacao.getEstado().getCode());
+    dto.setEstadoDesc(qualificacao.getEstado().getDescription());
 
     return dto;
   }

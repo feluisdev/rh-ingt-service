@@ -61,6 +61,7 @@ public class CreateContratoCommandHandler implements CommandHandler<CreateContra
     var contrato = Contrato.criar(
         dto.getTipoContrato(),
         dto.getDataInicio(),
+        dto.getDataFim(),
         dto.getSalario(),
         dto.getCargaHoraria(),
         dto.getObservacoes(),

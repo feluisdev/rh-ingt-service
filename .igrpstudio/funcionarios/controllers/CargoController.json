@@ -146,20 +146,7 @@
           "type": "string",
           "isRequired": true
         }
-      ],
-      "requestBody": {
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "CargoRequest",
-              "collectionType": "none",
-              "name": "data",
-              "objectType": "dto",
-              "module": "funcionarios"
-            }
-          }
-        }
-      }
+      ]
     },
     {
       "actionName": "createCargo",

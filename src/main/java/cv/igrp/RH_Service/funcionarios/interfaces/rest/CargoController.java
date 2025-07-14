@@ -32,11 +32,11 @@ public class CargoController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CargoController.class);
 
-  
+
   private final CommandBus commandBus;
   private final QueryBus queryBus;
 
-  
+
   public CargoController(
     CommandBus commandBus, QueryBus queryBus
   ) {
@@ -62,7 +62,7 @@ public class CargoController {
       )
     }
   )
-  
+
   public ResponseEntity<WrapperListaCargoDTO> getCargos(
     @RequestParam(value = "nome", required = false) String nome,
     @RequestParam(value = "codigo", required = false) String codigo,
@@ -106,7 +106,7 @@ public class CargoController {
       )
     }
   )
-  
+
   public ResponseEntity<Map<String, ?>> ativarCargo(
     @PathVariable(value = "cargoId") String cargoId)
   {
@@ -143,7 +143,7 @@ public class CargoController {
       )
     }
   )
-  
+
   public ResponseEntity<Map<String, ?>> desativarCargo(
     @PathVariable(value = "cargoId") String cargoId)
   {
@@ -180,14 +180,13 @@ public class CargoController {
       )
     }
   )
-  
-  public ResponseEntity<CargoResponseDTO> getCargoById(@Valid @RequestBody CargoRequestDTO getCargoByIdRequest
-    , @PathVariable(value = "cargoId") String cargoId)
+
+  public ResponseEntity<CargoResponseDTO> getCargoById(@PathVariable(value = "cargoId") String cargoId)
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new GetCargoByIdQuery(getCargoByIdRequest, cargoId);
+      final var query = new GetCargoByIdQuery(cargoId);
 
       ResponseEntity<CargoResponseDTO> response = queryBus.handle(query);
 
@@ -216,7 +215,7 @@ public class CargoController {
       )
     }
   )
-  
+
   public ResponseEntity<Map<String, ?>> createCargo(@Valid @RequestBody CargoRequestDTO createCargoRequest
     )
   {
@@ -253,7 +252,7 @@ public class CargoController {
       )
     }
   )
-  
+
   public ResponseEntity<CargoResponseDTO> updateCargo(@Valid @RequestBody CargoRequestDTO updateCargoRequest
     , @PathVariable(value = "cargoId") String cargoId)
   {

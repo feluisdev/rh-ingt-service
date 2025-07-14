@@ -64,7 +64,10 @@ public class UpdateContratoCommandHandler implements CommandHandler<UpdateContra
          dto.getSalario(),
          dto.getCargaHoraria(),
          dto.getObservacoes(),
-         departamento,cargo
+         departamento,
+         cargo,
+          dto.getDataInicio(),
+          dto.getDataFim()
      );
 
      contratoRepository.save(contrato);

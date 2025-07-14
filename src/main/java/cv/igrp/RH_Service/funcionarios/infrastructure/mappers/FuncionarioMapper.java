@@ -144,6 +144,8 @@ public class FuncionarioMapper {
     dto.setSexo(funcionario.getSexo() != null ? funcionario.getSexo().name() : null);
     dto.setEstadoCivil(funcionario.getEstadoCivil() != null ? funcionario.getEstadoCivil().name() : null);
     dto.setEndereco(funcionario.getEndereco());
+    dto.setEstado(funcionario.getEstado() != null ? funcionario.getEstado().getCode() : null);
+    dto.setEstadoDesc(funcionario.getEstado() != null ? funcionario.getEstado().getDescription() : null);
 
     // opcional: ajustar caso pegue essas datas da entidade JPA
     dto.setCreatedAt(null); // você pode preencher se tiver isso vindo do Entity

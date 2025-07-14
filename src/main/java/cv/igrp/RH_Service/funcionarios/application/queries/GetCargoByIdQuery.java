@@ -13,8 +13,6 @@ import cv.igrp.RH_Service.funcionarios.application.dto.CargoRequestDTO;
 @AllArgsConstructor
 public class GetCargoByIdQuery implements Query {
 
-  
-  private CargoRequestDTO cargorequest;
   @NotBlank(message = "The field <cargoId> is required.")
   private String cargoId;
 

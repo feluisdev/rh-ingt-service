@@ -46,7 +46,7 @@ public class Contrato {
   }
 
   // ===== MÉTODO CRIAR =====
-  public static Contrato criar(String tipoContrato, LocalDate dataInicio,
+  public static Contrato criar(String tipoContrato, LocalDate dataInicio, LocalDate dataFim,
                                BigDecimal salario, Integer cargaHoraria,
                                String observacoes, Departamento departamento,
                                Funcionario funcionario, Cargo cargo) {
@@ -61,7 +61,7 @@ public class Contrato {
         ExternalID.gerarNovo(),
         tipoContrato,
         dataInicio,
-        null,
+        dataFim,
         salario,
         cargaHoraria,
         observacoes,
@@ -100,6 +100,20 @@ public class Contrato {
   }
 
   // ===== MÉTODO ATUALIZAR =====
+  public void atualizar(String tipoContrato, BigDecimal salario,
+                        Integer cargaHoraria, String observacoes,
+                        Departamento departamento, Cargo cargo, LocalDate dataInicio, LocalDate dataFim) {
+
+    this.tipoContrato = tipoContrato;
+    this.salario = salario;
+    this.cargaHoraria = cargaHoraria;
+    this.observacoes = observacoes;
+    this.departamento = departamento;
+    this.cargo = cargo;
+    this.dataInicio = dataInicio;
+    this.dataFim = dataFim;
+  }
+
   public void atualizar(String tipoContrato, BigDecimal salario,
                         Integer cargaHoraria, String observacoes,
                         Departamento departamento, Cargo cargo) {

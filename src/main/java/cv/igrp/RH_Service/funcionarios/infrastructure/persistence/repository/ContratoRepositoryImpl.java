@@ -11,6 +11,7 @@ import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.ContratoEntityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +26,7 @@ public class ContratoRepositoryImpl implements ContratoRepository {
   private final FuncionarioMapper funcionarioMapper;
   private final CargoMapper cargoMapper;
 
+  @Transactional
   @Override
   public Contrato save(Contrato contrato) {
     var cargoEntity = cargoMapper.toEntity(contrato.getCargo());
@@ -37,6 +39,7 @@ public class ContratoRepositoryImpl implements ContratoRepository {
     return contratoMapper.toDomainComReferencias(saved, contrato.getDepartamento(), contrato.getFuncionario(), contrato.getCargo());
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<Contrato> getById(Integer id) {
     return contratoEntityRepository.findById(id)
@@ -52,6 +55,7 @@ public class ContratoRepositoryImpl implements ContratoRepository {
         });
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<Contrato> getByExternalId(ExternalID externalId) {
     return contratoEntityRepository.findByExternalId(externalId.getValor())
@@ -67,6 +71,7 @@ public class ContratoRepositoryImpl implements ContratoRepository {
         });
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<Contrato> getAll() {
     return contratoEntityRepository.findAllByEstado(Estado.A)
@@ -84,6 +89,7 @@ public class ContratoRepositoryImpl implements ContratoRepository {
         .toList();
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<Contrato> getAllByFuncionarioExternalId(ExternalID funcionarioExternalId) {
     return contratoEntityRepository.findByIdFuncionario_ExternalId(funcionarioExternalId.getValor())
