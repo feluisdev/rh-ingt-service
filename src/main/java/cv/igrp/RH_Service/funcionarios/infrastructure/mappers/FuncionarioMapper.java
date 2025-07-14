@@ -26,6 +26,27 @@ public class FuncionarioMapper {
   }
 
 
+  public Funcionario toLightDomain(FuncionarioEntity entity) {
+    if (entity == null) {
+      return null;
+    }
+    return Funcionario.reconstruir(
+        entity.getId(),
+        ExternalID.from(entity.getExternalId()),
+        entity.getNome(),
+        entity.getNif(),
+        entity.getNumSegurado(),
+        entity.getNib(),
+        entity.getEmail(),
+        entity.getEstado(),
+        entity.getSexo(),
+        entity.getEstadoCivil(),
+        entity.getEndereco()
+
+    );
+  }
+
+
   public Funcionario toDomain(FuncionarioEntity entity) {
     if (entity == null) {
       return null;
@@ -59,7 +80,10 @@ public class FuncionarioMapper {
 
     if (entity.getContratos() != null) {
       entity.getContratos().forEach(c ->
-          funcionario.adicionarContrato(contratoMapper.toDomainComReferencias(c, departamentoMapper.toDomainWithResponsavel(c.getIdDepartamento(), null), funcionario, cargoMapper.toDomain(c.getIdCargo())))
+          funcionario.adicionarContrato(
+              contratoMapper.toDomainComReferencias(c,
+                  departamentoMapper.toDomainWithResponsavel(c.getIdDepartamento(), this.toLightDomain(c.getIdDepartamento().getResponsavelId())),
+              funcionario, cargoMapper.toDomain(c.getIdCargo())))
       );
     }
 

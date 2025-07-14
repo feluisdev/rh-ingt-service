@@ -44,7 +44,7 @@ public class ContratoRepositoryImpl implements ContratoRepository {
           var funcionario = funcionarioMapper.toDomain(entity.getIdFuncionario());
           var departamento = departamentoMapper.toDomainWithResponsavel(
               entity.getIdDepartamento(),
-              funcionarioMapper.toDomain(entity.getIdDepartamento().getResponsavelId())
+              funcionarioMapper.toLightDomain(entity.getIdDepartamento().getResponsavelId())
           );
           var cargo = cargoMapper.toDomain(entity.getIdCargo());
 
@@ -59,7 +59,7 @@ public class ContratoRepositoryImpl implements ContratoRepository {
           var funcionario = funcionarioMapper.toDomain(entity.getIdFuncionario());
           var departamento = departamentoMapper.toDomainWithResponsavel(
               entity.getIdDepartamento(),
-              funcionarioMapper.toDomain(entity.getIdDepartamento().getResponsavelId())
+              funcionarioMapper.toLightDomain(entity.getIdDepartamento().getResponsavelId())
           );
           var cargo = cargoMapper.toDomain(entity.getIdCargo());
 
@@ -75,7 +75,7 @@ public class ContratoRepositoryImpl implements ContratoRepository {
           var funcionario = funcionarioMapper.toDomain(entity.getIdFuncionario());
           var departamento = departamentoMapper.toDomainWithResponsavel(
               entity.getIdDepartamento(),
-              funcionarioMapper.toDomain(entity.getIdDepartamento().getResponsavelId())
+              funcionarioMapper.toLightDomain(entity.getIdDepartamento().getResponsavelId())
           );
           var cargo = cargoMapper.toDomain(entity.getIdCargo());
 
@@ -92,7 +92,7 @@ public class ContratoRepositoryImpl implements ContratoRepository {
           var funcionario = funcionarioMapper.toDomain(entity.getIdFuncionario());
           var departamento = departamentoMapper.toDomainWithResponsavel(
               entity.getIdDepartamento(),
-              funcionarioMapper.toDomain(entity.getIdDepartamento().getResponsavelId())
+              funcionarioMapper.toLightDomain(entity.getIdDepartamento().getResponsavelId())
           );
           var cargo = cargoMapper.toDomain(entity.getIdCargo());
 
