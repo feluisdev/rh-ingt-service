@@ -1,4 +1,4 @@
-﻿package cv.igrp.RH_Service.funcionarios.infrastructure.mappers;
+package cv.igrp.RH_Service.funcionarios.infrastructure.mappers;
 
 import cv.igrp.RH_Service.funcionarios.application.dto.ContratoResponseDTO;
 import cv.igrp.RH_Service.funcionarios.domain.models.Cargo;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ContratoMapper {
+
   // ====== ENTITY → DOMAIN ======
   public Contrato toDomainComReferencias(ContratoEntity entity,
                                          Departamento departamento,

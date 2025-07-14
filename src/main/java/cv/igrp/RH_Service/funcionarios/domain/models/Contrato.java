@@ -1,4 +1,4 @@
-﻿package cv.igrp.RH_Service.funcionarios.domain.models;
+package cv.igrp.RH_Service.funcionarios.domain.models;
 
 import cv.igrp.RH_Service.shared.application.constants.Estado;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
@@ -7,7 +7,6 @@ import lombok.Getter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
-import java.util.UUID;
 
 @Getter
 public class Contrato {

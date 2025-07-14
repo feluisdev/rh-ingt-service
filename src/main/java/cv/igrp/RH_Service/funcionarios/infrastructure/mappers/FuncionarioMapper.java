@@ -2,12 +2,10 @@ package cv.igrp.RH_Service.funcionarios.infrastructure.mappers;
 
 import cv.igrp.RH_Service.funcionarios.application.dto.FuncionarioResponseDTO;
 import cv.igrp.RH_Service.funcionarios.domain.models.Funcionario;
-import cv.igrp.RH_Service.funcionarios.domain.models.Qualificacao;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.FuncionarioEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -15,10 +13,16 @@ public class FuncionarioMapper {
 
   private final DependenteMapper dependenteMapper;
   private final QualificacaoMapper qualificacaoMapper;
+  private final ContratoMapper contratoMapper;
+  private final DepartamentoMapper departamentoMapper;
+  private final CargoMapper cargoMapper;
 
-  public FuncionarioMapper(DependenteMapper dependenteMapper, QualificacaoMapper qualificacaoMapper) {
+  public FuncionarioMapper(DependenteMapper dependenteMapper, QualificacaoMapper qualificacaoMapper, ContratoMapper contratoMapper, DepartamentoMapper departamentoMapper, CargoMapper cargoMapper) {
     this.dependenteMapper = dependenteMapper;
     this.qualificacaoMapper = qualificacaoMapper;
+    this.contratoMapper = contratoMapper;
+    this.departamentoMapper = departamentoMapper;
+    this.cargoMapper = cargoMapper;
   }
 
 
@@ -50,6 +54,12 @@ public class FuncionarioMapper {
     if (entity.getQualificacoes() != null) {
       entity.getQualificacoes().forEach(q ->
           funcionario.adicionarQualificacao(qualificacaoMapper.toDomainWithFuncionario(q, funcionario))
+      );
+    }
+
+    if (entity.getContratos() != null) {
+      entity.getContratos().forEach(c ->
+          funcionario.adicionarContrato(contratoMapper.toDomainComReferencias(c, departamentoMapper.toDomainWithResponsavel(c.getIdDepartamento(), null), funcionario, cargoMapper.toDomain(c.getIdCargo())))
       );
     }
 

@@ -1,4 +1,4 @@
-﻿package cv.igrp.RH_Service.funcionarios.infrastructure.persistence.repository;
+package cv.igrp.RH_Service.funcionarios.infrastructure.persistence.repository;
 
 import cv.igrp.RH_Service.funcionarios.domain.models.Contrato;
 import cv.igrp.RH_Service.funcionarios.domain.repository.ContratoRepository;
@@ -18,8 +18,8 @@ import java.util.Optional;
 @Repository
 @RequiredArgsConstructor
 public class ContratoRepositoryImpl implements ContratoRepository {
-
   private final ContratoEntityRepository contratoEntityRepository;
+
   private final ContratoMapper contratoMapper;
   private final DepartamentoMapper departamentoMapper;
   private final FuncionarioMapper funcionarioMapper;
