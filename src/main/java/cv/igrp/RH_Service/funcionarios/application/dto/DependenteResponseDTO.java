@@ -30,6 +30,9 @@ public class DependenteResponseDTO {
   private String parentesco ;
   
   
+  private String parentescoDesc ;
+  
+  
   private LocalDate dataNascimento ;
   
   

@@ -19,15 +19,16 @@
     },
     {
       "name": "parentesco",
-      "objectType": "java",
-      "type": "string",
+      "objectType": "enum",
+      "type": "GrauParentesco",
       "required": false,
       "before": false,
       "after": false,
       "positive": false,
       "isEmail": false,
       "isUrl": false,
-      "primaryKey": false
+      "primaryKey": false,
+      "module": "shared"
     },
     {
       "name": "dataNascimento",

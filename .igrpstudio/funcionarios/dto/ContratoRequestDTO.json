@@ -31,15 +31,16 @@
     },
     {
       "name": "tipoContrato",
-      "objectType": "java",
-      "type": "string",
+      "objectType": "enum",
+      "type": "TipoContrato",
       "required": false,
       "before": false,
       "after": false,
       "positive": false,
       "isEmail": false,
       "isUrl": false,
-      "primaryKey": false
+      "primaryKey": false,
+      "module": "shared"
     },
     {
       "name": "dataInicio",

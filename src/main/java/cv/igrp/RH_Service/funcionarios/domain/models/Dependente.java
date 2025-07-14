@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.funcionarios.domain.models;
 
 import cv.igrp.RH_Service.shared.application.constants.Estado;
+import cv.igrp.RH_Service.shared.application.constants.GrauParentesco;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import lombok.Getter;
 
@@ -14,7 +15,7 @@ public class Dependente {
   private ExternalID externalId;
   private String nome;
   private LocalDate dataNascimento;
-  private String parentesco;
+  private GrauParentesco parentesco;
   private String cpf;
   private Estado estado;
   private Integer funcionarioId; // ID do funcionário associado
@@ -22,7 +23,7 @@ public class Dependente {
   private Funcionario funcionario;
 
   private Dependente(Integer id, ExternalID externalId, String nome,
-                     LocalDate dataNascimento, String parentesco,
+                     LocalDate dataNascimento, GrauParentesco parentesco,
                      String cpf, Estado estado, Funcionario funcionario) {
     this.id = id;
     this.externalId = externalId;
@@ -34,7 +35,7 @@ public class Dependente {
     this.funcionario = funcionario;
   }
   private Dependente(Integer id, ExternalID externalId, String nome,
-                     LocalDate dataNascimento, String parentesco,
+                     LocalDate dataNascimento, GrauParentesco parentesco,
                      String cpf, Estado estado, Integer funcionarioId) {
     this.id = id;
     this.externalId = externalId;
@@ -47,7 +48,7 @@ public class Dependente {
   }
 
   private Dependente(Integer id, ExternalID externalId, String nome,
-                     LocalDate dataNascimento, String parentesco,
+                     LocalDate dataNascimento, GrauParentesco parentesco,
                      String cpf, Estado estado, ExternalID funcionarioExternalId) {
     this.id = id;
     this.externalId = externalId;
@@ -59,7 +60,7 @@ public class Dependente {
     this.funcionarioExternalId = funcionarioExternalId;
   }
 
-  public static Dependente criar(String nome, LocalDate dataNascimento, String parentesco,
+  public static Dependente criar(String nome, LocalDate dataNascimento, GrauParentesco parentesco,
                                  String cpf, Funcionario funcionario) {
     Objects.requireNonNull(nome, "Nome é obrigatório");
     Objects.requireNonNull(funcionario, "Funcionario é obrigatório");
@@ -76,7 +77,7 @@ public class Dependente {
     );
   }
 
-  public static Dependente criar(String nome, LocalDate dataNascimento, String parentesco,
+  public static Dependente criar(String nome, LocalDate dataNascimento, GrauParentesco parentesco,
                                  String cpf, Integer funcionarioId) {
     Objects.requireNonNull(nome, "Nome é obrigatório");
     Objects.requireNonNull(funcionarioId, "Funcionario é obrigatório");
@@ -93,7 +94,7 @@ public class Dependente {
     );
   }
 
-  public static Dependente criar(String nome, LocalDate dataNascimento, String parentesco,
+  public static Dependente criar(String nome, LocalDate dataNascimento, GrauParentesco parentesco,
                                  String cpf, ExternalID funcionarioExternalId) {
     Objects.requireNonNull(nome, "Nome é obrigatório");
     Objects.requireNonNull(funcionarioExternalId, "Funcionario é obrigatório");
@@ -112,7 +113,7 @@ public class Dependente {
 
   // Reconstituição do estado (usado no repositório)
   public static Dependente reconstruir(Integer id, ExternalID externalId, String nome,
-                                       LocalDate dataNascimento, String parentesco,
+                                       LocalDate dataNascimento, GrauParentesco parentesco,
                                        String cpf, Estado estado, Funcionario funcionario) {
     Objects.requireNonNull(id, "ID é obrigatório");
     Objects.requireNonNull(externalId, "ExternalID é obrigatório");
@@ -121,20 +122,20 @@ public class Dependente {
 
   // Reconstituição do estado (usado no repositório)
   public static Dependente reconstruir(Integer id, ExternalID externalId, String nome,
-                                       LocalDate dataNascimento, String parentesco,
+                                       LocalDate dataNascimento, GrauParentesco parentesco,
                                        String cpf, Estado estado,  Integer funcionarioId) {
     return reconstruir(id, externalId, nome, dataNascimento, parentesco, cpf, estado, funcionarioId);
   }
 
   // Reconstituição do estado (usado no repositório)
   public static Dependente reconstruir(Integer id, ExternalID externalId, String nome,
-                                       LocalDate dataNascimento, String parentesco,
+                                       LocalDate dataNascimento, GrauParentesco parentesco,
                                        String cpf, Estado estado,  ExternalID funcionarioExternalId) {
     return reconstruir(id, externalId, nome, dataNascimento, parentesco, cpf, estado, funcionarioExternalId);
   }
 
   // Atualização de dados
-  public void atualizarDados(String nome, LocalDate dataNascimento, String parentesco, String cpf) {
+  public void atualizarDados(String nome, LocalDate dataNascimento, GrauParentesco parentesco, String cpf) {
     this.nome = nome;
     this.dataNascimento = dataNascimento;
     this.parentesco = parentesco;

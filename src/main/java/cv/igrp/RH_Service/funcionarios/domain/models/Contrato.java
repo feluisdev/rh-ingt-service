@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.funcionarios.domain.models;
 
 import cv.igrp.RH_Service.shared.application.constants.Estado;
+import cv.igrp.RH_Service.shared.application.constants.TipoContrato;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import lombok.Getter;
@@ -15,7 +16,7 @@ public class Contrato {
   private Integer id; // gerado pelo banco
   private ExternalID externalId;
 
-  private String tipoContrato;
+  private TipoContrato tipoContrato;
   private LocalDate dataInicio;
   private LocalDate dataFim;
   private BigDecimal salario;
@@ -27,7 +28,7 @@ public class Contrato {
   private Funcionario funcionario;
   private Cargo cargo;
 
-  private Contrato(Integer id, ExternalID externalId, String tipoContrato,
+  private Contrato(Integer id, ExternalID externalId, TipoContrato tipoContrato,
                    LocalDate dataInicio, LocalDate dataFim, BigDecimal salario,
                    Integer cargaHoraria, String observacoes, Estado estado,
                    Departamento departamento, Funcionario funcionario, Cargo cargo) {
@@ -47,7 +48,7 @@ public class Contrato {
   }
 
   // ===== MÉTODO CRIAR =====
-  public static Contrato criar(String tipoContrato, LocalDate dataInicio, LocalDate dataFim,
+  public static Contrato criar(TipoContrato tipoContrato, LocalDate dataInicio, LocalDate dataFim,
                                BigDecimal salario, Integer cargaHoraria,
                                String observacoes, Departamento departamento,
                                Funcionario funcionario, Cargo cargo) {
@@ -79,7 +80,7 @@ public class Contrato {
   }
 
   // ===== MÉTODO RECONSTRUIR =====
-  public static Contrato reconstruir(Integer id, ExternalID externalId, String tipoContrato,
+  public static Contrato reconstruir(Integer id, ExternalID externalId, TipoContrato tipoContrato,
                                      LocalDate dataInicio, LocalDate dataFim, BigDecimal salario,
                                      Integer cargaHoraria, String observacoes, Estado estado,
                                      Departamento departamento, Funcionario funcionario, Cargo cargo) {
@@ -106,7 +107,7 @@ public class Contrato {
   }
 
   // ===== MÉTODO ATUALIZAR =====
-  public void atualizar(String tipoContrato, BigDecimal salario,
+  public void atualizar(TipoContrato tipoContrato, BigDecimal salario,
                         Integer cargaHoraria, String observacoes,
                         Departamento departamento, Cargo cargo, LocalDate dataInicio, LocalDate dataFim) {
 
@@ -120,7 +121,7 @@ public class Contrato {
     this.dataFim = dataFim;
   }
 
-  public void atualizar(String tipoContrato, BigDecimal salario,
+  public void atualizar(TipoContrato tipoContrato, BigDecimal salario,
                         Integer cargaHoraria, String observacoes,
                         Departamento departamento, Cargo cargo) {
 

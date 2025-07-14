@@ -6,6 +6,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import cv.igrp.RH_Service.shared.application.constants.TipoContrato;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -25,7 +26,7 @@ public class ContratoRequestDTO {
   private String cargoId ;
   
   
-  private String tipoContrato ;
+  private TipoContrato tipoContrato ;
   
   
   private LocalDate dataInicio ;

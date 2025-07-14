@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
+import cv.igrp.RH_Service.shared.application.constants.TipoContrato;
 import java.time.LocalDate;
 import java.math.BigDecimal;
 import cv.igrp.RH_Service.shared.application.constants.Estado;
@@ -33,8 +34,9 @@ public class ContratoEntity extends AuditEntity {
     private UUID externalId;
 
   
+    @Enumerated(EnumType.STRING)
     @Column(name="tipo_contrato")
-    private String tipoContrato;
+    private TipoContrato tipoContrato;
 
   
     @Column(name="data_inicio")

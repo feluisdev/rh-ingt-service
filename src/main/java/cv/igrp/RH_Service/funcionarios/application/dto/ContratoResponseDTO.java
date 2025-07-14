@@ -34,6 +34,9 @@ public class ContratoResponseDTO {
   private String tipoContrato ;
   
   
+  private String tipoContratoDesc ;
+  
+  
   private LocalDate dataInicio ;
   
   

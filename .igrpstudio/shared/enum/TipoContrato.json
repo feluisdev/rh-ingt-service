@@ -1,0 +1,73 @@
+{
+  "type": "enum",
+  "module": "shared",
+  "name": "TipoContrato",
+  "values": [
+    {
+      "name": "TEMPO_INDETERMINADO",
+      "attributes": [
+        "TEMPO_INDETERMINADO",
+        "Contrato sem prazo definido"
+      ]
+    },
+    {
+      "name": "PRAZO_CERTO",
+      "attributes": [
+        "PRAZO_CERTO",
+        "Contrato com prazo de início e fim definidos"
+      ]
+    },
+    {
+      "name": "PRAZO_INCERTO",
+      "attributes": [
+        "PRAZO_INCERTO",
+        "Contrato com fim indefinido no início"
+      ]
+    },
+    {
+      "name": "EXPERIENCIA",
+      "attributes": [
+        "EXPERIENCIA",
+        "Contrato em período experimental"
+      ]
+    },
+    {
+      "name": "ESTAGIO",
+      "attributes": [
+        "ESTAGIO",
+        "Contrato de estágio"
+      ]
+    },
+    {
+      "name": "TRABALHO_RURAL",
+      "attributes": [
+        "TRABALHO_RURAL",
+        "Contrato específico para atividades rurais"
+      ]
+    },
+    {
+      "name": "OBRA_OU_SERVICO",
+      "attributes": [
+        "OBRA_OU_SERVICO",
+        "Contrato vinculado à execução de uma obra ou serviço específico"
+      ]
+    },
+    {
+      "name": "TEMPO_PARCIAL",
+      "attributes": [
+        "TEMPO_PARCIAL",
+        "Contrato com jornada inferior à do tempo completo"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}

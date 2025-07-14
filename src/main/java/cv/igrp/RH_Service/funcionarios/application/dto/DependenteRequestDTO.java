@@ -6,6 +6,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import cv.igrp.RH_Service.shared.application.constants.GrauParentesco;
 import java.time.LocalDate;
 
 @Data
@@ -21,7 +22,7 @@ public class DependenteRequestDTO {
   private String nome ;
   
   
-  private String parentesco ;
+  private GrauParentesco parentesco ;
   
   
   private LocalDate dataNascimento ;
