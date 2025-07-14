@@ -9,11 +9,14 @@ import java.util.UUID;
 import cv.igrp.RH_Service.shared.application.constants.EstadoCivil;
 import cv.igrp.RH_Service.shared.application.constants.Sexo;
 import java.util.List;
+
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import cv.igrp.RH_Service.shared.application.constants.Estado;
 
 
+@DynamicUpdate
 @Getter
 @Setter
 @ToString
@@ -29,46 +32,46 @@ public class FuncionarioEntity extends AuditEntity {
     @Column(name = "id", unique = true, nullable = false)
     private Integer id;
 
-  
+
     @NotNull(message = "externalId is mandatory")
     @Column(name="external_id", nullable = false)
     private UUID externalId;
 
-  
+
     @Column(name="nome")
     private String nome;
 
-  
+
     @Column(name="nif", unique = true)
     private String nif;
 
-  
+
     @Column(name="num_segurado")
     private String numSegurado;
 
-  
+
     @Column(name="nib")
     private String nib;
 
-  
+
     @Column(name="email", unique = true)
     private String email;
 
-  
+
     @Column(name="endereco")
     private String endereco;
 
-  
+
     @Enumerated(EnumType.STRING)
     @Column(name="estado_civil")
     private EstadoCivil estadoCivil;
 
-  
+
     @Enumerated(EnumType.STRING)
     @Column(name="sexo")
     private Sexo sexo;
 
-  
+
 
 
   @OneToMany(mappedBy = "idFuncionario", fetch = FetchType.LAZY, cascade = { CascadeType.ALL }, orphanRemoval = true)
@@ -90,5 +93,5 @@ private List<ContratoEntity> contratos;
     @Column(name="estado")
     private Estado estado;
 
-  
+
 }

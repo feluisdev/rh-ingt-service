@@ -163,4 +163,25 @@ public class Funcionario {
     contratos.add(contrato);
   }
 
+  public Dependente getDependenteByExternalId(ExternalID externalId) {
+    return dependentes.stream()
+        .filter(d -> d.getExternalId().equals(externalId))
+        .findFirst()
+        .orElse(null);
+  }
+
+  public Qualificacao getQualificacaoByExternalId(ExternalID externalId) {
+    return qualificacoes.stream()
+        .filter(q -> q.getExternalId().equals(externalId))
+        .findFirst()
+        .orElse(null);
+  }
+
+  public Contrato getContratoByExternalId(ExternalID externalId) {
+    return contratos.stream()
+        .filter(c -> c.getExternalId().equals(externalId))
+        .findFirst()
+        .orElse(null);
+  }
+
 }

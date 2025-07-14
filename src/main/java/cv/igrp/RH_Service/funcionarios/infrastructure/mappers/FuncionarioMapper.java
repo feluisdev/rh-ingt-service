@@ -91,6 +91,29 @@ public class FuncionarioMapper {
     return funcionario;
   }
 
+  public FuncionarioEntity toLightEntity(Funcionario funcionario) {
+    if (funcionario == null) {
+      return null;
+    }
+    FuncionarioEntity entity = new FuncionarioEntity();
+
+    if (funcionario.getId() != null) {
+      entity.setId(funcionario.getId());
+    }
+    entity.setExternalId(funcionario.getExternalId().getValor());
+    entity.setNome(funcionario.getNome());
+    entity.setNif(funcionario.getNif() != null ? funcionario.getNif().getValor() : null);
+    entity.setNumSegurado(funcionario.getNumSegurado() != null ? funcionario.getNumSegurado().getValor() : null);
+    entity.setNib(funcionario.getNib() != null ? funcionario.getNib().getValor() : null);
+    entity.setEmail(funcionario.getEmail() != null ? funcionario.getEmail().getValor() : null);
+    entity.setEstado(funcionario.getEstado());
+    entity.setSexo(funcionario.getSexo());
+    entity.setEstadoCivil(funcionario.getEstadoCivil());
+    entity.setEndereco(funcionario.getEndereco());
+
+    return entity;
+  }
+
   public FuncionarioEntity toEntity(Funcionario funcionario) {
     if (funcionario == null) {
       return null;
@@ -124,6 +147,13 @@ public class FuncionarioMapper {
           .map(q -> qualificacaoMapper.toEntity(q, entity))
           .toList();
       entity.setQualificacoes(qualificacoesEntities);
+    }
+
+    if (funcionario.getContratos() != null) {
+      var contratosEntities = funcionario.getContratos().stream()
+          .map(c -> contratoMapper.toEntity(c, departamentoMapper.toEntity(c.getDepartamento(), this.toLightEntity(c.getDepartamento().getResponsavel())), entity, cargoMapper.toEntity(c.getCargo())))
+          .toList();
+      entity.setContratos(contratosEntities);
     }
 
     return entity;

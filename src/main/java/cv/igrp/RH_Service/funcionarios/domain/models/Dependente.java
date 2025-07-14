@@ -17,6 +17,8 @@ public class Dependente {
   private String parentesco;
   private String cpf;
   private Estado estado;
+  private Integer funcionarioId; // ID do funcionário associado
+  private ExternalID funcionarioExternalId; // ExternalID do funcionário associado
   private Funcionario funcionario;
 
   private Dependente(Integer id, ExternalID externalId, String nome,
@@ -30,6 +32,31 @@ public class Dependente {
     this.cpf = cpf;
     this.estado = estado;
     this.funcionario = funcionario;
+  }
+  private Dependente(Integer id, ExternalID externalId, String nome,
+                     LocalDate dataNascimento, String parentesco,
+                     String cpf, Estado estado, Integer funcionarioId) {
+    this.id = id;
+    this.externalId = externalId;
+    this.nome = nome;
+    this.dataNascimento = dataNascimento;
+    this.parentesco = parentesco;
+    this.cpf = cpf;
+    this.estado = estado;
+    this.funcionarioId = funcionarioId;
+  }
+
+  private Dependente(Integer id, ExternalID externalId, String nome,
+                     LocalDate dataNascimento, String parentesco,
+                     String cpf, Estado estado, ExternalID funcionarioExternalId) {
+    this.id = id;
+    this.externalId = externalId;
+    this.nome = nome;
+    this.dataNascimento = dataNascimento;
+    this.parentesco = parentesco;
+    this.cpf = cpf;
+    this.estado = estado;
+    this.funcionarioExternalId = funcionarioExternalId;
   }
 
   public static Dependente criar(String nome, LocalDate dataNascimento, String parentesco,
@@ -49,6 +76,40 @@ public class Dependente {
     );
   }
 
+  public static Dependente criar(String nome, LocalDate dataNascimento, String parentesco,
+                                 String cpf, Integer funcionarioId) {
+    Objects.requireNonNull(nome, "Nome é obrigatório");
+    Objects.requireNonNull(funcionarioId, "Funcionario é obrigatório");
+
+    return new Dependente(
+        null,
+        ExternalID.gerarNovo(),
+        nome,
+        dataNascimento,
+        parentesco,
+        cpf,
+        Estado.A,
+        funcionarioId
+    );
+  }
+
+  public static Dependente criar(String nome, LocalDate dataNascimento, String parentesco,
+                                 String cpf, ExternalID funcionarioExternalId) {
+    Objects.requireNonNull(nome, "Nome é obrigatório");
+    Objects.requireNonNull(funcionarioExternalId, "Funcionario é obrigatório");
+
+    return new Dependente(
+        null,
+        ExternalID.gerarNovo(),
+        nome,
+        dataNascimento,
+        parentesco,
+        cpf,
+        Estado.A,
+        funcionarioExternalId
+    );
+  }
+
   // Reconstituição do estado (usado no repositório)
   public static Dependente reconstruir(Integer id, ExternalID externalId, String nome,
                                        LocalDate dataNascimento, String parentesco,
@@ -56,6 +117,20 @@ public class Dependente {
     Objects.requireNonNull(id, "ID é obrigatório");
     Objects.requireNonNull(externalId, "ExternalID é obrigatório");
     return new Dependente(id, externalId, nome, dataNascimento, parentesco, cpf, estado, funcionario);
+  }
+
+  // Reconstituição do estado (usado no repositório)
+  public static Dependente reconstruir(Integer id, ExternalID externalId, String nome,
+                                       LocalDate dataNascimento, String parentesco,
+                                       String cpf, Estado estado,  Integer funcionarioId) {
+    return reconstruir(id, externalId, nome, dataNascimento, parentesco, cpf, estado, funcionarioId);
+  }
+
+  // Reconstituição do estado (usado no repositório)
+  public static Dependente reconstruir(Integer id, ExternalID externalId, String nome,
+                                       LocalDate dataNascimento, String parentesco,
+                                       String cpf, Estado estado,  ExternalID funcionarioExternalId) {
+    return reconstruir(id, externalId, nome, dataNascimento, parentesco, cpf, estado, funcionarioExternalId);
   }
 
   // Atualização de dados

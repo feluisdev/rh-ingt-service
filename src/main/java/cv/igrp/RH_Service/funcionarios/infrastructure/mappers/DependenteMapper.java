@@ -29,13 +29,32 @@ public class DependenteMapper {
     );
   }
 
+  public Dependente toDomain(DependenteEntity entity) {
+    if (entity == null) {
+      return null;
+    }
+
+    return Dependente.reconstruir(
+        entity.getId(),
+        ExternalID.from(entity.getExternalId()),
+        entity.getNome(),
+        entity.getDataNascimento(),
+        entity.getParentesco(),
+        entity.getCpf(),
+        entity.getEstado(),
+        entity.getId()
+    );
+  }
+
   public DependenteEntity toEntity(Dependente domain, FuncionarioEntity funcionarioEntity) {
     if (domain == null) {
       return null;
     }
 
     DependenteEntity entity = new DependenteEntity();
-    entity.setId(domain.getId());
+    if (domain.getId() != null) {
+      entity.setId(domain.getId());
+    }
     entity.setExternalId(domain.getExternalId().getValor());
     entity.setNome(domain.getNome());
     entity.setDataNascimento(domain.getDataNascimento());
@@ -52,11 +71,14 @@ public class DependenteMapper {
 
     DependenteResponseDTO dto = new DependenteResponseDTO();
     dto.setDependenteId(dependente.getExternalId().getStringValor());
-    dto.setFuncionarioId(dependente.getFuncionario().getExternalId().getStringValor());
+    //dto.setFuncionarioId(dependente.getFuncionario().getExternalId().getStringValor());
+    dto.setFuncionarioId(dependente.getFuncionarioExternalId() != null ? dependente.getFuncionarioExternalId().getStringValor() : null);
     dto.setNome(dependente.getNome());
     dto.setParentesco(dependente.getParentesco());
     dto.setDataNascimento(dependente.getDataNascimento());
     dto.setCpf(dependente.getCpf());
+    dto.setEstado(dependente.getEstado().getCode());
+    dto.setEstadoDesc(dependente.getEstado().getDescription());
 
     return dto;
   }
