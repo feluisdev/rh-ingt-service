@@ -37,7 +37,7 @@
 	    <spring-cloud.version>2025.0.0</spring-cloud.version>
 	</properties>
 	<dependencies>
-		
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -78,18 +78,18 @@
 		  <groupId>org.springframework.data</groupId>
 		  <artifactId>spring-data-envers</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
@@ -103,7 +103,7 @@
 			<artifactId>spring-security-oauth2-client</artifactId>
 			<version>6.3.7</version>
 		</dependency>
-		
+
 		<dependency>
 		    <groupId>org.apache.commons</groupId>
 		    <artifactId>commons-lang3</artifactId>
@@ -112,14 +112,14 @@
 		    <groupId>com.fasterxml.jackson.dataformat</groupId>
 		    <artifactId>jackson-dataformat-xml</artifactId>
 		</dependency>
-    
+
     <!-- IGRP dependencies -->
     <dependency>
         <groupId>cv.igrp.framework</groupId>
         <artifactId>core</artifactId>
         <version>0.0.3-alpha</version>
     </dependency>
-    
+
     <dependency>
       <groupId>cv.igrp.framework</groupId>
       <artifactId>stereotype</artifactId>
@@ -128,17 +128,31 @@
       <groupId>com.github.ben-manes.caffeine</groupId>
       <artifactId>caffeine</artifactId>
     </dependency>
-    
-    <dependency>
+
+        <!-- IGRP File Libraries -->
+        <dependency>
+            <groupId>cv.igrp.platform</groupId>
+            <artifactId>filemanager</artifactId>
+            <version>0.0.2-alpha</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cv.igrp.framework.filemanager</groupId>
+            <artifactId>minio</artifactId>
+            <version>0.0.2-alpha</version>
+        </dependency>
+
+
+        <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-kubernetes-client</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
     </dependency>
-  
+
   </dependencies>
   <dependencyManagement>
     <dependencies>
