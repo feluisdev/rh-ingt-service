@@ -7,15 +7,15 @@ networks:
 
 services:
 
-  minio:
+  minio-rh-ingt:
     image: minio/minio:latest
-    container_name: minio
+    container_name: minio-rh-ingt
     restart: no
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
     volumes:
-      - ./data:/inss_minio_data
+      - ./data:/rh_ingt_minio_data
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -31,6 +31,7 @@ services:
         kill -s INT $(cat /tmp/minio.pid) && rm /tmp/minio.pid             # stop Minio
         while isAlive; do sleep 0.1; done                                  # wait until Minio is stopped
         exec minio $0 "$@"
+      '
 
   postgres:
       image: postgres:17-alpine
