@@ -6,8 +6,8 @@
     {
       "name": "Funcionario",
       "attributes": [
-        "funcionario documents",
-        "funcionario documents"
+        "funcionario_documents",
+        "funcionario_documents"
       ]
     }
   ],

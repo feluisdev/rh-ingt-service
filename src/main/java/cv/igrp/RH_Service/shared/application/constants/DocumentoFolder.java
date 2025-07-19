@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public enum DocumentoFolder implements IgrpEnum<String> {
 
-  FUNCIONARIO("funcionario documents", "funcionario documents")
+  FUNCIONARIO("funcionario_documents", "funcionario_documents")
   ;
 
   private final String code;
