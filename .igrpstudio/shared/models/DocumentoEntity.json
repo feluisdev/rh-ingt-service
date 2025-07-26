@@ -1,0 +1,92 @@
+{
+  "type": "model",
+  "module": "shared",
+  "name": "DocumentoEntity",
+  "tableName": "t_documento",
+  "audit": true,
+  "crud": false,
+  "revision": false,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "integer",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": true,
+      "generationType": "IDENTITY",
+      "skipFieldRevision": false
+    },
+    {
+      "name": "external_id",
+      "type": "uuid",
+      "length": 255,
+      "nullable": false,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "url",
+      "type": "string",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false
+    },
+    {
+      "name": "observacao",
+      "type": "string",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false
+    },
+    {
+      "name": "objecto_tipo",
+      "type": "string",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false
+    },
+    {
+      "name": "object_id",
+      "type": "uuid",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "estado",
+      "type": "Estado",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "enum",
+      "module": "shared"
+    }
+  ],
+  "id": "zrf2oa5y6b",
+  "relationReference": [
+    {
+      "type": "OneToMany",
+      "entity": "TipoDocumentoEntity",
+      "fetchType": "lazy",
+      "fieldName": "id_tipo_doc",
+      "mappedBy": "documentos",
+      "module": "shared"
+    }
+  ],
+  "uniqueConstraints": [],
+  "indexes": []
+}
