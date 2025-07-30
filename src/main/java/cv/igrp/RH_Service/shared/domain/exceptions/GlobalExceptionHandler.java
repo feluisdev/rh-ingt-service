@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-//import org.postgresql.util.PSQLException;
+import org.postgresql.util.PSQLException;
 
 
 @ControllerAdvice
@@ -119,7 +119,7 @@ public class GlobalExceptionHandler {
     return problem;
   }
 
-  /*@ExceptionHandler(DataIntegrityViolationException.class)
+  @ExceptionHandler(DataIntegrityViolationException.class)
   public ProblemDetail handleDataIntegrityViolation(DataIntegrityViolationException ex) {
 
     var rootCause = getRootCause(ex);
@@ -162,7 +162,7 @@ public class GlobalExceptionHandler {
       }
     }
     return null;
-  }*/
+  }
 
   private Throwable getRootCause(Throwable throwable) {
     var cause = throwable.getCause();
