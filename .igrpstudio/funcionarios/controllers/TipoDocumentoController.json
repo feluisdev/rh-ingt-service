@@ -1,0 +1,180 @@
+{
+  "type": "controller",
+  "name": "TipoDocumento",
+  "module": "funcionarios",
+  "description": "Tipo de Documento",
+  "basePath": "api/v1/tipoDocumentos",
+  "actions": [
+    {
+      "actionName": "getTipoDocumento",
+      "method": "GET",
+      "requestBody": {
+        "content": {
+          "multipart/form-data": {
+            "schema": {
+              "collectionType": "none",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "isRequired": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TipoDocumentoResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "collection",
+                "module": "funcionarios"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "id",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "inativarTipoDocumento",
+      "path": "{TipoDocumentoId}",
+      "method": "DELETE",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "TipoDocumentoId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "getTipoDocumentoById",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TipoDocumentoResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "funcionarios"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "id",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "updateTipoDocumento",
+      "path": "{tipoDocumentoId}",
+      "method": "PUT",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "TipoDocumentoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "funcionarios"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TipoDocumentoResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "funcionarios"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "tipoDocumentoId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "createTipoDocumento",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "TipoDocumentoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "funcionarios"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TipoDocumentoResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "funcionarios"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "id": "s3bcdlvrlt-CONTROLLER"
+}

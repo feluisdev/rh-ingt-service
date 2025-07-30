@@ -1,0 +1,180 @@
+{
+  "type": "controller",
+  "name": "Documento",
+  "module": "funcionarios",
+  "description": "GetDocumento",
+  "basePath": "api/v1/Documento",
+  "actions": [
+    {
+      "actionName": "getDocumentos",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "external_id",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "url",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "observacao",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "object_id",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "estado",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "getDocumentoById",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "DocumentoResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "funcionarios"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "id",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "createDocumento",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "DocumentoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "funcionarios"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "DocumentoResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "funcionarios"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "updateDocumento",
+      "path": "{DocumentoId}",
+      "method": "PUT",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "collectionType": "none",
+              "name": "data",
+              "type": "DocumentoRequest",
+              "objectType": "dto",
+              "module": "funcionarios"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "DocumentoId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "inativarDocumento",
+      "path": "{DocumentoId}",
+      "method": "DELETE",
+      "responses": {
+        "": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "DocumentoId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    }
+  ],
+  "id": "p6ilaup5z6-CONTROLLER"
+}

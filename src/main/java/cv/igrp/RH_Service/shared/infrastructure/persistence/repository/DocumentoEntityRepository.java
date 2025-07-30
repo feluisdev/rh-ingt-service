@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.shared.infrastructure.persistence.repository;
 
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.DocumentoEntity;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.FuncionarioEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -13,5 +14,6 @@ public interface DocumentoEntityRepository extends
     JpaRepository<DocumentoEntity, Integer>,
     JpaSpecificationExecutor<DocumentoEntity>
 {
+  Optional<DocumentoEntity> findByExternalId(UUID externalId);
 
 }

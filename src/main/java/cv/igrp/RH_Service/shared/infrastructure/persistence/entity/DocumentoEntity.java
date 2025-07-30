@@ -47,7 +47,7 @@ public class DocumentoEntity extends AuditEntity {
 
   
     @Column(name="object_id")
-    private UUID objectId;
+    private Integer objectId;
 
   
     @Enumerated(EnumType.STRING)
