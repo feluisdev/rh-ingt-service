@@ -1,4 +1,4 @@
-﻿package cv.igrp.RH_Service.funcionarios.domain.filter;
+package cv.igrp.RH_Service.funcionarios.domain.filter;
 
 import cv.igrp.RH_Service.shared.application.constants.Estado;
 import lombok.Builder;

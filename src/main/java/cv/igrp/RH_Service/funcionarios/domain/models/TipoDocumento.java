@@ -1,4 +1,4 @@
-﻿package cv.igrp.RH_Service.funcionarios.domain.models;
+package cv.igrp.RH_Service.funcionarios.domain.models;
 
 import cv.igrp.RH_Service.shared.application.constants.Estado;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
@@ -29,7 +29,7 @@ public class TipoDocumento {
     return new TipoDocumento( descricao, codigo);
   }
   public static TipoDocumento reconstruir(Integer id, ExternalID external_id, String descricao, String codigo) {
-     Objects.requireNonNull(id, "ID é obrigatório");
+    Objects.requireNonNull(id, "ID é obrigatório");
     return new TipoDocumento( descricao, codigo);
   }
 

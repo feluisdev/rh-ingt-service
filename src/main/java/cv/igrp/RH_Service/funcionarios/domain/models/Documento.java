@@ -1,4 +1,4 @@
-﻿package cv.igrp.RH_Service.funcionarios.domain.models;
+package cv.igrp.RH_Service.funcionarios.domain.models;
 
 import java.util.UUID;
 
