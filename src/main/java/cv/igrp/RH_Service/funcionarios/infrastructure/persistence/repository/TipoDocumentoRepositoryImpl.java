@@ -51,13 +51,9 @@ public class TipoDocumentoRepositoryImpl implements TipoDocumentoRepository {
   public List<TipoDocumento> getAll(TipoDocumentoFilter filter) {
     var pageable = PageRequest.of(0, 20);
 
-
     Specification<TipoDocumentoEntity> spec = (root, query, cb) -> {
       var predicates = cb.conjunction();
 
-      if (filter.getId() != null) {
-        predicates = cb.and(predicates, cb.equal(root.get("id"), filter.getId()));
-      }
 
       if (filter.getDescricao() != null && !filter.getDescricao().isBlank()) {
         predicates = cb.and(predicates,
@@ -66,8 +62,9 @@ public class TipoDocumentoRepositoryImpl implements TipoDocumentoRepository {
 
       if (filter.getCodigo() != null && !filter.getCodigo().isBlank()) {
         predicates = cb.and(predicates,
-            cb.like(cb.lower(root.get("codigo")), "%" + filter.getCodigo().trim().toLowerCase() + "%"));
+            cb.equal(cb.lower(root.get("codigo")), filter.getCodigo().trim().toLowerCase()));
       }
+
 
       return predicates;
     };

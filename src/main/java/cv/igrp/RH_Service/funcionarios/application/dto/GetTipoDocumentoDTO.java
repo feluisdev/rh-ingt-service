@@ -17,13 +17,10 @@ import lombok.AllArgsConstructor;
 
 
 @IgrpDTO
-public class TipoDocumentoRequestDTO {
+public class GetTipoDocumentoDTO {
 
   
   
-  private String descrcicao ;
-  
-  
-  private String codigo ;
+  private String id ;
 
 }

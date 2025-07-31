@@ -33,7 +33,7 @@ public class UpdateTipoDocumentoCommandHandler implements CommandHandler<UpdateT
 
     var tipoDocumento = tipoDocumentoRepository.getByExternalId(tipoDocumentoId).orElseThrow(
 
-        () -> IgrpResponseStatusException.notFound("Cargo not found with ID: " + tipoDocumentoId.getStringValor())
+        () -> IgrpResponseStatusException.notFound("Tipo Documento not found with ID: " + tipoDocumentoId.getStringValor())
     );
 
     tipoDocumento.atualizar(

@@ -18,7 +18,7 @@
       "primaryKey": false
     },
     {
-      "name": "external_id",
+      "name": "externalId",
       "objectType": "java",
       "type": "string",
       "required": false,
@@ -54,17 +54,28 @@
       "primaryKey": false
     },
     {
-      "name": "Estado",
-      "objectType": "enum",
-      "type": "Estado",
+      "name": "estado",
+      "objectType": "java",
+      "type": "string",
       "required": false,
       "before": false,
       "after": false,
       "positive": false,
       "isEmail": false,
       "isUrl": false,
-      "primaryKey": false,
-      "module": "shared"
+      "primaryKey": false
+    },
+    {
+      "name": "estadoDesc",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
     }
   ],
   "id": "oja3tr4v38"

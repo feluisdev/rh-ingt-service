@@ -14,7 +14,7 @@ public class UpdateDocumentoCommand implements Command {
 
   
   private DocumentoRequestDTO documentorequest;
-  @NotBlank(message = "The field <DocumentoId> is required")
+  @NotBlank(message = "The field <DocumentoId> is required.")
   private String documentoId;
 
 }

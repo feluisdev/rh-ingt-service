@@ -66,11 +66,11 @@ public class DocumentoController {
   )
   
   public ResponseEntity<String> getDocumentos(
-    @RequestParam(value = "external_id") String external_id,
-    @RequestParam(value = "url") String url,
-    @RequestParam(value = "observacao") String observacao,
-    @RequestParam(value = "object_id") String object_id,
-    @RequestParam(value = "estado") String estado)
+    @RequestParam(value = "external_id", required = false) String external_id,
+    @RequestParam(value = "url", required = false) String url,
+    @RequestParam(value = "observacao", required = false) String observacao,
+    @RequestParam(value = "object_id", required = false) String object_id,
+    @RequestParam(value = "estado", required = false) String estado)
   {
 
       LOGGER.debug("Operation started");
@@ -87,6 +87,7 @@ public class DocumentoController {
   }
 
   @GetMapping(
+    value = "{documentoId}"
   )
   @Operation(
     summary = "GET method to handle operations for getDocumentoById",
@@ -106,12 +107,12 @@ public class DocumentoController {
   )
   
   public ResponseEntity<DocumentoResponseDTO> getDocumentoById(
-    @RequestParam(value = "id") String id)
+    @PathVariable(value = "documentoId") String documentoId)
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new GetDocumentoByIdQuery(id);
+      final var query = new GetDocumentoByIdQuery(documentoId);
 
       ResponseEntity<DocumentoResponseDTO> response = queryBus.handle(query);
 

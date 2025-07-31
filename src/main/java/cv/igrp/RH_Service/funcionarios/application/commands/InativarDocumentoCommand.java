@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class InativarDocumentoCommand implements Command {
 
-  @NotBlank(message = "The field <DocumentoId> is required")
+  @NotBlank(message = "The field <DocumentoId> is required.")
   private String documentoId;
 
 }

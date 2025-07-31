@@ -9,21 +9,21 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-
-
+import cv.igrp.RH_Service.funcionarios.application.dto.TipoDocumentoResponseDTO;
+import cv.igrp.RH_Service.shared.application.dto.PageDTO;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.EqualsAndHashCode;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 
-
+@EqualsAndHashCode(callSuper = true)
 @IgrpDTO
-public class TipoDocumentoRequestDTO {
+public class WrapperListaTipoDocumentoDTO extends PageDTO{
 
   
-  
-  private String descrcicao ;
-  
-  
-  private String codigo ;
+  @Valid
+  private List<TipoDocumentoResponseDTO> content = new ArrayList<>();
 
 }

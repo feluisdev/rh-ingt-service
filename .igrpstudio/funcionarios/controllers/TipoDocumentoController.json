@@ -8,32 +8,16 @@
     {
       "actionName": "getTipoDocumento",
       "method": "GET",
-      "requestBody": {
-        "content": {
-          "multipart/form-data": {
-            "schema": {
-              "collectionType": "none",
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string",
-                  "isRequired": true
-                }
-              }
-            }
-          }
-        }
-      },
       "responses": {
         "200": {
           "name": "OK",
           "content": {
             "application/json": {
               "schema": {
-                "type": "TipoDocumentoResponse",
+                "type": "WrapperListaTipoDocumento",
                 "objectType": "dto",
                 "name": "data",
-                "collectionType": "collection",
+                "collectionType": "none",
                 "module": "funcionarios"
               }
             }
@@ -43,8 +27,25 @@
       "requestParams": [
         {
           "type": "string",
-          "name": "id",
-          "isRequired": true
+          "name": "codigo",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "descricao",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "pagina",
+          "isRequired": true,
+          "value": "0"
+        },
+        {
+          "type": "string",
+          "name": "tamanho",
+          "isRequired": true,
+          "value": "20"
         }
       ]
     },
@@ -76,6 +77,7 @@
     },
     {
       "actionName": "getTipoDocumentoById",
+      "path": "{tipoDocumentoId}",
       "method": "GET",
       "responses": {
         "200": {
@@ -93,10 +95,10 @@
           }
         }
       },
-      "requestParams": [
+      "pathVariables": [
         {
+          "name": "tipoDocumentoId",
           "type": "string",
-          "name": "id",
           "isRequired": true
         }
       ]

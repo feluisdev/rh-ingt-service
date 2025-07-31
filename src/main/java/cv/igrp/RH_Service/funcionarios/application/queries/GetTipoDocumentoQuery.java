@@ -1,6 +1,5 @@
 package cv.igrp.RH_Service.funcionarios.application.queries;
 
-import cv.igrp.RH_Service.funcionarios.application.dto.TipoDocumentoRequestDTO;
 import cv.igrp.framework.core.domain.Query;
 import jakarta.validation.constraints.*;
 
@@ -14,9 +13,13 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class GetTipoDocumentoQuery implements Query {
 
-
-  private TipoDocumentoRequestDTO getTipoDocumento;
-  @NotBlank(message = "The field <id> is required")
-  private String id;
+  @NotBlank(message = "The field <codigo> is required.")
+  private String codigo;
+  @NotBlank(message = "The field <descricao> is required.")
+  private String descricao;
+  @NotBlank(message = "The field <pagina> is required.")
+  private String pagina;
+  @NotBlank(message = "The field <tamanho> is required.")
+  private String tamanho;
 
 }

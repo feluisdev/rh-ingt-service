@@ -12,25 +12,28 @@ import java.util.UUID;
 @Setter
 public class TipoDocumento {
   private Integer id ;
-  private ExternalID external_id ;
+  private ExternalID externalId ;
   private String descricao ;
   private String codigo ;
   private Estado estado ;
 
-  public TipoDocumento(){}
+  private TipoDocumento(){}
 
-  public TipoDocumento( String descricao, String codigo) {
-    this.external_id = ExternalID.gerarNovo();
+  private TipoDocumento(Integer id, ExternalID externalId, String descricao, String codigo, Estado estado) {
+    this.id = id;
+    this.externalId = externalId;
     this.descricao = descricao;
     this.codigo = codigo;
+    this.estado = estado;
   }
 
-  public static TipoDocumento criar(  String descricao, String codigo) {
-    return new TipoDocumento( descricao, codigo);
+  public static TipoDocumento criar( String descricao, String codigo) {
+    Objects.requireNonNull(codigo,"codigo nao pode ser nulo");
+    return new TipoDocumento(null, ExternalID.gerarNovo(), descricao, codigo, Estado.A);
   }
-  public static TipoDocumento reconstruir(Integer id, ExternalID external_id, String descricao, String codigo) {
-    Objects.requireNonNull(id, "ID é obrigatório");
-    return new TipoDocumento( descricao, codigo);
+  public static TipoDocumento reconstruir(Integer id, ExternalID externalId, String descricao, String codigo, Estado estado) {
+
+    return new TipoDocumento( id,externalId, descricao, codigo, estado);
   }
 
   public void atualizar( String descricao, String codigo) {

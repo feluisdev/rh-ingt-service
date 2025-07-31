@@ -29,6 +29,24 @@ public class DependenteMapper {
     );
   }
 
+  public Dependente toDomaint(DependenteEntity entity) {
+    if (entity == null) {
+      return null;
+    }
+
+    return Dependente.reconstruir(
+        entity.getId(),
+        ExternalID.from(entity.getExternalId()),
+        entity.getNome(),
+        entity.getDataNascimento(),
+        entity.getParentesco(),
+        entity.getCpf(),
+        entity.getEstado(),
+        ExternalID.from(entity.getExternalId())
+    );
+  }
+
+
   public Dependente toDomain(DependenteEntity entity) {
     if (entity == null) {
       return null;

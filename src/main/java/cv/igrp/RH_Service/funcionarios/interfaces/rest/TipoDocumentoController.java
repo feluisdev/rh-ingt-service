@@ -22,9 +22,9 @@ import cv.igrp.RH_Service.funcionarios.application.commands.*;
 import cv.igrp.RH_Service.funcionarios.application.queries.*;
 
 
-import java.util.Collection;
-import cv.igrp.RH_Service.funcionarios.application.dto.TipoDocumentoResponseDTO;
+import cv.igrp.RH_Service.funcionarios.application.dto.WrapperListaTipoDocumentoDTO;
 import java.util.Map;
+import cv.igrp.RH_Service.funcionarios.application.dto.TipoDocumentoResponseDTO;
 import cv.igrp.RH_Service.funcionarios.application.dto.TipoDocumentoRequestDTO;
 
 @IgrpController
@@ -35,11 +35,11 @@ public class TipoDocumentoController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TipoDocumentoController.class);
 
-
+  
   private final CommandBus commandBus;
   private final QueryBus queryBus;
 
-
+  
   public TipoDocumentoController(
     CommandBus commandBus, QueryBus queryBus
   ) {
@@ -59,22 +59,25 @@ public class TipoDocumentoController {
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = TipoDocumentoResponseDTO.class,
+                  implementation = WrapperListaTipoDocumentoDTO.class,
                   type = "object")
           )
       )
     }
   )
-
-  public ResponseEntity<Collection<TipoDocumentoResponseDTO>> getTipoDocumento(@ModelAttribute TipoDocumentoRequestDTO getTipoDocumentoRequest
-    , @RequestParam(value = "id") String id)
+  
+  public ResponseEntity<WrapperListaTipoDocumentoDTO> getTipoDocumento(
+    @RequestParam(value = "codigo", required = false) String codigo,
+    @RequestParam(value = "descricao", required = false) String descricao,
+    @RequestParam(value = "pagina", defaultValue = "0") String pagina,
+    @RequestParam(value = "tamanho", defaultValue = "20") String tamanho)
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new GetTipoDocumentoQuery(getTipoDocumentoRequest, id);
+      final var query = new GetTipoDocumentoQuery(codigo, descricao, pagina, tamanho);
 
-      ResponseEntity<Collection<TipoDocumentoResponseDTO>> response = queryBus.handle(query);
+      ResponseEntity<WrapperListaTipoDocumentoDTO> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 
@@ -102,7 +105,7 @@ public class TipoDocumentoController {
       )
     }
   )
-
+  
   public ResponseEntity<Map<String, ?>> inativarTipoDocumento(
     @PathVariable(value = "TipoDocumentoId") String TipoDocumentoId)
   {
@@ -121,6 +124,7 @@ public class TipoDocumentoController {
   }
 
   @GetMapping(
+    value = "{tipoDocumentoId}"
   )
   @Operation(
     summary = "GET method to handle operations for getTipoDocumentoById",
@@ -138,14 +142,14 @@ public class TipoDocumentoController {
       )
     }
   )
-
+  
   public ResponseEntity<TipoDocumentoResponseDTO> getTipoDocumentoById(
-    @RequestParam(value = "id") String id)
+    @PathVariable(value = "tipoDocumentoId") String tipoDocumentoId)
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new GetTipoDocumentoByIdQuery(id);
+      final var query = new GetTipoDocumentoByIdQuery(tipoDocumentoId);
 
       ResponseEntity<TipoDocumentoResponseDTO> response = queryBus.handle(query);
 
@@ -175,7 +179,7 @@ public class TipoDocumentoController {
       )
     }
   )
-
+  
   public ResponseEntity<TipoDocumentoResponseDTO> updateTipoDocumento(@Valid @RequestBody TipoDocumentoRequestDTO updateTipoDocumentoRequest
     , @PathVariable(value = "tipoDocumentoId") String tipoDocumentoId)
   {
@@ -211,7 +215,7 @@ public class TipoDocumentoController {
       )
     }
   )
-
+  
   public ResponseEntity<TipoDocumentoResponseDTO> createTipoDocumento(@Valid @RequestBody TipoDocumentoRequestDTO createTipoDocumentoRequest
     )
   {

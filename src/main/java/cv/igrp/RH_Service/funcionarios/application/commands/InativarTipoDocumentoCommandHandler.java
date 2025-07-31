@@ -34,7 +34,7 @@ public class InativarTipoDocumentoCommandHandler implements CommandHandler<Inati
      var tipoDocumentoId = ExternalID.from(command.getTipoDocumentoId());
 
      var tipoDocumento = tipoDocumentoRepository.getByExternalId(tipoDocumentoId)
-         .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Qualificação não encontrada: " + tipoDocumentoId.getStringValor()));
+         .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Tipo Documento não encontrado: " + tipoDocumentoId.getStringValor()));
 
 
      tipoDocumento.inativar();

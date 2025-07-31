@@ -13,7 +13,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class GetDocumentoByIdQuery implements Query {
 
-  @NotBlank(message = "The field <id> is required")
-  private String id;
+  @NotBlank(message = "The field <documentoId> is required.")
+  private String documentoId;
 
 }

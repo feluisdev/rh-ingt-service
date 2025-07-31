@@ -26,32 +26,33 @@
         {
           "type": "string",
           "name": "external_id",
-          "isRequired": true
+          "isRequired": false
         },
         {
           "type": "string",
           "name": "url",
-          "isRequired": true
+          "isRequired": false
         },
         {
           "type": "string",
           "name": "observacao",
-          "isRequired": true
+          "isRequired": false
         },
         {
           "type": "string",
           "name": "object_id",
-          "isRequired": true
+          "isRequired": false
         },
         {
           "type": "string",
           "name": "estado",
-          "isRequired": true
+          "isRequired": false
         }
       ]
     },
     {
       "actionName": "getDocumentoById",
+      "path": "{documentoId}",
       "method": "GET",
       "responses": {
         "200": {
@@ -69,10 +70,10 @@
           }
         }
       },
-      "requestParams": [
+      "pathVariables": [
         {
+          "name": "documentoId",
           "type": "string",
-          "name": "id",
           "isRequired": true
         }
       ]
