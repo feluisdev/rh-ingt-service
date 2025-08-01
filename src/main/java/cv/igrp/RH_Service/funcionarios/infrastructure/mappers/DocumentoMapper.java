@@ -48,6 +48,7 @@ public class DocumentoMapper {
     documentoResponseDto.setObservacao(documento.getObservacao());
     documentoResponseDto.setIdTipoDocumento(documento.getTipoDocumento().getExternalId().getStringValor());
     documentoResponseDto.setTipoDocumento(documento.getTipoDocumento().getDescricao());
+    //documentoResponseDto.setTipoDocumento("adsasdasdasdasdasd");
     documentoResponseDto.setEstado(documento.getEstado().getCode());
     documentoResponseDto.setEstadoDesc(documento.getEstado().getDescription());
 
@@ -90,6 +91,7 @@ public class DocumentoMapper {
     TipoDocumentoEntity tipoDocumentoEntity = new TipoDocumentoEntity();
     tipoDocumentoEntity.setId(domain.getTipoDocumento().getId());
     tipoDocumentoEntity.setExternalId(domain.getTipoDocumento().getExternalId().getValor());
+    tipoDocumentoEntity.setDescricao(domain.getTipoDocumento().getDescricao());
     entity.setIdTipoDoc(tipoDocumentoEntity);
     entity.setObservacao(domain.getObservacao());
     return entity;
