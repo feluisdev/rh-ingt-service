@@ -13,8 +13,7 @@ public class CargoMapper {
     if (entity == null) return null;
 
     return Cargo.reconstruir(
-        entity.getId(),
-        ExternalID.from(entity.getExternalId()),
+        ExternalID.from(entity.getId()),
         entity.getNome(),
         entity.getCodigo(),
         entity.getDescricao(),
@@ -29,8 +28,7 @@ public class CargoMapper {
 
     CargoEntity entity = new CargoEntity();
 
-    entity.setId(domain.getId());
-    entity.setExternalId(domain.getExternalId().getValor());
+    entity.setId(domain.getIdCargo().getValor());
     entity.setNome(domain.getNome());
     entity.setDescricao(domain.getDescricao());
     entity.setSalarioBase(domain.getSalarioBase());
@@ -48,7 +46,7 @@ public class CargoMapper {
 
     CargoResponseDTO dto = new CargoResponseDTO();
 
-    dto.setCargoId(cargo.getExternalId() != null ? cargo.getExternalId().getValor().toString() : null);
+    dto.setCargoId(cargo.getIdCargo() != null ? cargo.getIdCargo().getStringValor() : null);
     dto.setNome(cargo.getNome());
     dto.setDescricao(cargo.getDescricao());
     dto.setCodigo(cargo.getCodigo());

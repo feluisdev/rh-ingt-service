@@ -43,7 +43,7 @@ public class CreateCargoCommandHandler implements CommandHandler<CreateCargoComm
 
      // Retornar resposta com o ID externo criado
      Map<String, Object> response = Map.of(
-         "cargoId", salvo.getExternalId().getStringValor(),
+         "cargoId", salvo.getIdCargo().getStringValor(),
          "message", "Cargo criado com sucesso"
      );
 

@@ -10,8 +10,7 @@ import java.util.Objects;
 @Getter
 public class Cargo {
 
-  private Integer id;
-  private ExternalID externalId;
+  private ExternalID idCargo;
   private String nome;
   private String codigo;
   private String descricao;
@@ -20,10 +19,10 @@ public class Cargo {
   private Estado estado;
 
   // Construtor privado para forçar uso dos métodos estáticos
-  private Cargo(Integer id, ExternalID externalId, String nome, String codigo, String descricao,
+  private Cargo(ExternalID idCargo, String nome, String codigo, String descricao,
                 BigDecimal salarioBase, Integer nivelHierarquico, Estado estado) {
-    this.id = id;
-    this.externalId = externalId;
+
+    this.idCargo = idCargo;
     this.nome = nome;
     this.codigo = codigo;
     this.descricao = descricao;
@@ -35,9 +34,8 @@ public class Cargo {
   // Método factory para criar um novo Cargo
   public static Cargo criarNovo(String nome, String codigo, String descricao, BigDecimal salarioBase, Integer nivelHierarquico) {
     Objects.requireNonNull(nome, "Nome não pode ser nulo");
-    // Outros validations que desejar
+
     return new Cargo(
-        null,
         ExternalID.gerarNovo(), // gera novo UUID
         nome,
         codigo,
@@ -49,12 +47,11 @@ public class Cargo {
   }
 
   // Método para reconstruir a partir de dados existentes (ex: do banco)
-  public static Cargo reconstruir(Integer id, ExternalID externalId, String nome, String codigo, String descricao,
+  public static Cargo reconstruir(ExternalID idCargo, String nome, String codigo, String descricao,
                                   BigDecimal salarioBase, Integer nivelHierarquico, Estado estado) {
-    Objects.requireNonNull(id, "ID não pode ser nulo para reconstruir");
-    Objects.requireNonNull(externalId, "ExternalID não pode ser nulo para reconstruir");
+    Objects.requireNonNull(idCargo, "ExternalID não pode ser nulo para reconstruir");
     Objects.requireNonNull(codigo, "Nome não pode ser nulo para reconstruir");
-    return new Cargo(id, externalId, nome, codigo,descricao, salarioBase, nivelHierarquico, estado);
+    return new Cargo(idCargo, nome, codigo,descricao, salarioBase, nivelHierarquico, estado);
   }
 
   // Método para atualizar os dados do cargo

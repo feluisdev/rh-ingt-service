@@ -67,7 +67,7 @@ public class ContratoMapper {
         contrato.getExternalId() != null ? contrato.getExternalId().getStringValor() : null,
         contrato.getFuncionario() != null ? contrato.getFuncionario().getExternalId().getStringValor() : null,
         contrato.getDepartamento() != null ? contrato.getDepartamento().getExternalId().getStringValor() : null,
-        contrato.getCargo() != null ? contrato.getCargo().getExternalId().getStringValor() : null,
+        contrato.getCargo() != null ? contrato.getCargo().getIdCargo().getStringValor() : null,
         contrato.getTipoContrato().getCode(),
         contrato.getTipoContrato().getDescription(),
         contrato.getDataInicio(),

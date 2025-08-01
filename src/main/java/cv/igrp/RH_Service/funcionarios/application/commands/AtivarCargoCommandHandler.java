@@ -37,7 +37,7 @@ public class AtivarCargoCommandHandler implements CommandHandler<AtivarCargoComm
      Cargo salvo = cargoRepository.save(cargo);
 
      Map<String, Object> response = Map.of(
-         "cargoId", salvo.getExternalId().getStringValor(),
+         "cargoId", salvo.getIdCargo().getStringValor(),
          "message", "Cargo ativado com sucesso"
      );
 
