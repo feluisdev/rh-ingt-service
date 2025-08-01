@@ -17,8 +17,7 @@ import java.util.Objects;
 @Getter
 public class Funcionario {
 
-  private Integer id;         // id do banco, pode ser null no momento de criar
-  private ExternalID externalId;    // identificador externo
+  private ExternalID idFuncionario;    // identificador externo
   private String nome;
   private Nif nif;
   private NumSegurado numSegurado;
@@ -36,12 +35,11 @@ public class Funcionario {
   private List<Documento> documentos;
 
 
-  private Funcionario(Integer id, ExternalID externalId, String nome, Nif nif,
+  private Funcionario(ExternalID idFuncionario, String nome, Nif nif,
                       NumSegurado numSegurado, Nib nib, Email email, Estado estado, Sexo sexo,
                       EstadoCivil estadoCivil, String endereco, List<Dependente> dependentes, List<Qualificacao> qualificacoes,
                       List<Contrato> contratos, List<Documento> documentos) {
-    this.id = id;
-    this.externalId = externalId;
+    this.idFuncionario = idFuncionario;
     this.nome = nome;
     this.nif = nif;
     this.numSegurado = numSegurado;
@@ -73,17 +71,16 @@ public class Funcionario {
     Nib nib = Nib.from(nibRaw);
     Email email = Email.from(emailRaw);
 
-    return new Funcionario(null, ExternalID.gerarNovo(), nome, nif,
+    return new Funcionario(ExternalID.gerarNovo(), nome, nif,
         numSegurado, nib, email, Estado.A, sexo, estadoCivil, endereco, null, null, null, null);
   }
 
 
-  public static Funcionario reconstruir(Integer id, ExternalID externalId, String nome,
+  public static Funcionario reconstruir(ExternalID idFuncionario, String nome,
                                         String nifRaw, String numSeguradoRaw, String nibRaw,
                                         String emailRaw, Estado estado, Sexo sexo,
                                         EstadoCivil estadoCivil, String endereco, List<Documento> documentos) {
-    Objects.requireNonNull(id, "ID é obrigatório");
-    Objects.requireNonNull(externalId, "ExternalID é obrigatório");
+    Objects.requireNonNull(idFuncionario, "idFuncionario é obrigatório");
     Objects.requireNonNull(estado, "Estado é obrigatório");
 
     Nif nif = (nifRaw != null) ? Nif.from(nifRaw) : null;
@@ -91,16 +88,15 @@ public class Funcionario {
     Nib nib = (nibRaw != null) ? Nib.from(nibRaw) : null;
     Email email = (emailRaw != null) ? Email.from(emailRaw) : null;
 
-    return new Funcionario(id, externalId, nome, nif,
+    return new Funcionario(idFuncionario, nome, nif,
         numSegurado, nib, email, estado, sexo, estadoCivil, endereco, null, null, null, documentos);
   }
 
-  public static Funcionario reconstruir(Integer id, ExternalID externalId, String nome,
+  public static Funcionario reconstruir(ExternalID idFuncionario, String nome,
                                         String nifRaw, String numSeguradoRaw, String nibRaw,
                                         String emailRaw, Estado estado, Sexo sexo,
                                         EstadoCivil estadoCivil, String endereco) {
-    Objects.requireNonNull(id, "ID é obrigatório");
-    Objects.requireNonNull(externalId, "ExternalID é obrigatório");
+    Objects.requireNonNull(idFuncionario, "idFuncionario é obrigatório");
     Objects.requireNonNull(estado, "Estado é obrigatório");
 
     Nif nif = (nifRaw != null) ? Nif.from(nifRaw) : null;
@@ -108,7 +104,7 @@ public class Funcionario {
     Nib nib = (nibRaw != null) ? Nib.from(nibRaw) : null;
     Email email = (emailRaw != null) ? Email.from(emailRaw) : null;
 
-    return new Funcionario(id, externalId, nome, nif,
+    return new Funcionario(idFuncionario, nome, nif,
         numSegurado, nib, email, estado, sexo, estadoCivil, endereco, null, null, null, null);
   }
 
@@ -210,21 +206,21 @@ public class Funcionario {
 
   public Dependente getDependenteByExternalId(ExternalID idDependente) {
     return dependentes.stream()
-        .filter(d -> d.getIdDependente().equals(externalId))
+        .filter(d -> d.getIdDependente().equals(idDependente))
         .findFirst()
         .orElse(null);
   }
 
-  public Qualificacao getQualificacaoByExternalId(ExternalID externalId) {
+  public Qualificacao getQualificacaoByExternalId(ExternalID idQualificacao) {
     return qualificacoes.stream()
-        .filter(q -> q.getIdQualificacao().equals(externalId))
+        .filter(q -> q.getIdQualificacao().equals(idQualificacao))
         .findFirst()
         .orElse(null);
   }
 
-  public Contrato getContratoByExternalId(ExternalID externalId) {
+  public Contrato getContratoByExternalId(ExternalID idContrato) {
     return contratos.stream()
-        .filter(c -> c.getIdContrato().equals(externalId))
+        .filter(c -> c.getIdContrato().equals(idContrato))
         .findFirst()
         .orElse(null);
   }

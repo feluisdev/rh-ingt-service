@@ -38,7 +38,7 @@ public class AtivarContratoCommandHandler implements CommandHandler<AtivarContra
              HttpStatus.NOT_FOUND, "contrato não encontrado com id: " + externalId.getStringValor()
          ));
 
-     if (!contrato.getFuncionario().getExternalId().equals(funcionarioId)) {
+     if (!contrato.getFuncionario().getIdFuncionario().equals(funcionarioId)) {
        throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN, "Contrato não pertence ao funcionário informado.");
      }
 

@@ -58,7 +58,7 @@ public class UpdateFuncionarioCommandHandler implements CommandHandler<UpdateFun
          var tipoDocumento = tipoDocumentoRepository.getByExternalId(ExternalID.from(docDto.getIdTipodocumento()))
              .orElseThrow(() -> IgrpResponseStatusException.notFound("Tipo documento not found with id:: "+docDto.getIdTipodocumento()));
 
-         var documento = documentoMapper.toDocumentoDomain(ObjetoTipo.FUNCIONARIO, funcionario.getExternalId(), docDto, tipoDocumento);
+         var documento = documentoMapper.toDocumentoDomain(ObjetoTipo.FUNCIONARIO, funcionario.getIdFuncionario(), docDto, tipoDocumento);
          funcionario.adicionarOuAtualizarDocumento(documento);
        }
      }

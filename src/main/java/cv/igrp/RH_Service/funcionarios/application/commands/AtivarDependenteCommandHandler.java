@@ -35,7 +35,7 @@ public class AtivarDependenteCommandHandler implements CommandHandler<AtivarDepe
              HttpStatus.NOT_FOUND, "Dependente não encontrado com id: " + externalId.getStringValor()
          ));
 
-     if (!dependente.getFuncionario().getExternalId().equals(funcionarioId)) {
+     if (!dependente.getFuncionario().getIdFuncionario().equals(funcionarioId)) {
        throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN, "Dependente não pertence ao funcionário informado.");
      }
 

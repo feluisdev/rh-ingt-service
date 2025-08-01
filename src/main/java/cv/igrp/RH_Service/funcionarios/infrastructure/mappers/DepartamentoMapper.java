@@ -53,8 +53,8 @@ public class DepartamentoMapper {
     dto.setDepartamentoId(departamento.getIdDepartamento() != null ? departamento.getIdDepartamento().getStringValor() : null);
 
     dto.setResponsavelId(
-        departamento.getResponsavel() != null && departamento.getResponsavel().getExternalId() != null
-            ? departamento.getResponsavel().getExternalId().getStringValor()
+        departamento.getResponsavel() != null && departamento.getResponsavel().getIdFuncionario() != null
+            ? departamento.getResponsavel().getIdFuncionario().getStringValor()
             : null
     );
 

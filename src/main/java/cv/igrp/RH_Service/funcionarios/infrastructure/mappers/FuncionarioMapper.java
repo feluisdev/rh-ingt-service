@@ -37,8 +37,7 @@ public class FuncionarioMapper {
       return null;
     }
     return Funcionario.reconstruir(
-        entity.getId(),
-        ExternalID.from(entity.getExternalId()),
+        ExternalID.from(entity.getId()),
         entity.getNome(),
         entity.getNif(),
         entity.getNumSegurado(),
@@ -58,8 +57,7 @@ public class FuncionarioMapper {
       return null;
     }
     var funcionario = Funcionario.reconstruir(
-        entity.getId(),
-        ExternalID.from(entity.getExternalId()),
+        ExternalID.from(entity.getId()),
         entity.getNome(),
         entity.getNif(),
         entity.getNumSegurado(),
@@ -108,10 +106,8 @@ public class FuncionarioMapper {
     }
     FuncionarioEntity entity = new FuncionarioEntity();
 
-    if (funcionario.getId() != null) {
-      entity.setId(funcionario.getId());
-    }
-    entity.setExternalId(funcionario.getExternalId().getValor());
+
+    entity.setId(funcionario.getIdFuncionario().getValor());
     entity.setNome(funcionario.getNome());
     entity.setNif(funcionario.getNif() != null ? funcionario.getNif().getValor() : null);
     entity.setNumSegurado(funcionario.getNumSegurado() != null ? funcionario.getNumSegurado().getValor() : null);
@@ -131,10 +127,7 @@ public class FuncionarioMapper {
     }
     FuncionarioEntity entity = new FuncionarioEntity();
 
-    if (funcionario.getId() != null) {
-      entity.setId(funcionario.getId());
-    }
-    entity.setExternalId(funcionario.getExternalId().getValor());
+    entity.setId(funcionario.getIdFuncionario().getValor());
     entity.setNome(funcionario.getNome());
     entity.setNif(funcionario.getNif() != null ? funcionario.getNif().getValor() : null);
     entity.setNumSegurado(funcionario.getNumSegurado() != null ? funcionario.getNumSegurado().getValor() : null);
@@ -177,7 +170,7 @@ public class FuncionarioMapper {
     }
 
     FuncionarioResponseDTO dto = new FuncionarioResponseDTO();
-    dto.setFuncionarioId(funcionario.getExternalId().getStringValor());
+    dto.setFuncionarioId(funcionario.getIdFuncionario().getStringValor());
     dto.setNome(funcionario.getNome());
     dto.setNif(funcionario.getNif() != null ? funcionario.getNif().getValor() : null);
     dto.setNumSegurado(funcionario.getNumSegurado() != null ? funcionario.getNumSegurado().getValor() : null);
@@ -210,7 +203,7 @@ public class FuncionarioMapper {
     }
 
     var dto = new FuncionarioDetailsDTO();
-    dto.setFuncionarioId(funcionario.getExternalId().getStringValor());
+    dto.setFuncionarioId(funcionario.getIdFuncionario().getStringValor());
     dto.setNome(funcionario.getNome());
     dto.setNif(funcionario.getNif() != null ? funcionario.getNif().getValor() : null);
     dto.setNumSegurado(funcionario.getNumSegurado() != null ? funcionario.getNumSegurado().getValor() : null);

@@ -40,7 +40,7 @@ public class GetContratoQueryHandler implements QueryHandler<GetContratoQuery, R
      var contrato = contratoRepository.getByExternalId(contratoId)
          .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Contrato não encontrado: " + contratoId));
 
-     if (!contrato.getFuncionario().getExternalId().equals(funcionarioId)) {
+     if (!contrato.getFuncionario().getIdFuncionario().equals(funcionarioId)) {
        throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN, "Contrato não pertence ao funcionário informado.");
      }
 
