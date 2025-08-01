@@ -9,7 +9,6 @@ import java.util.Optional;
 public interface ContratoRepository {
 
   Contrato save(Contrato contrato);
-  Optional<Contrato> getById(Integer id);
 
   Optional<Contrato> getByExternalId(ExternalID externalId);
 

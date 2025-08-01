@@ -40,12 +40,6 @@ public class DependenteRepositoryImpl implements DependenteRepository {
 
   @Transactional(readOnly = true)
   @Override
-  public Optional<Dependente> getById(Integer id) {
-    return Optional.empty();
-  }
-
-  @Transactional(readOnly = true)
-  @Override
   public Optional<Dependente> getByExternalId(ExternalID externalId) {
 
     return dependenteEntityRepository.findByExternalId(externalId.getValor())

@@ -11,8 +11,6 @@ public interface QualificacaoRepository {
 
   Qualificacao save(Qualificacao qualificacao);
 
-  Optional<Qualificacao> getById(Integer id);
-
   Optional<Qualificacao> getByExternalId(ExternalID externalId);
 
   List<Qualificacao> getAll();

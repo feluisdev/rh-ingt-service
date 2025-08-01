@@ -39,21 +39,6 @@ public class ContratoRepositoryImpl implements ContratoRepository {
     return contratoMapper.toDomainComReferencias(saved, contrato.getDepartamento(), contrato.getFuncionario(), contrato.getCargo());
   }
 
-  @Transactional(readOnly = true)
-  @Override
-  public Optional<Contrato> getById(Integer id) {
-    return contratoEntityRepository.findById(id)
-        .map(entity -> {
-          var funcionario = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
-          var departamento = departamentoMapper.toDomainWithResponsavel(
-              entity.getIdDepartamento(),
-              funcionarioMapper.toLightDomain(entity.getIdDepartamento().getResponsavelId())
-          );
-          var cargo = cargoMapper.toDomain(entity.getIdCargo());
-
-          return contratoMapper.toDomainComReferencias(entity, departamento, funcionario, cargo);
-        });
-  }
 
   @Transactional(readOnly = true)
   @Override

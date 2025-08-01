@@ -33,13 +33,6 @@ public class TipoDocumentoRepositoryImpl implements TipoDocumentoRepository {
 
   @Transactional(readOnly = true)
   @Override
-  public Optional<TipoDocumento> getById(Integer id) {
-    return tipoDocumentoEntityRepository.findById(id)
-        .map(tipoDocumentoMapper::toDomain);
-  }
-
-  @Transactional(readOnly = true)
-  @Override
   public List<TipoDocumento> getAll() {
     return tipoDocumentoEntityRepository.findAllByEstado(Estado.A)
         .stream()

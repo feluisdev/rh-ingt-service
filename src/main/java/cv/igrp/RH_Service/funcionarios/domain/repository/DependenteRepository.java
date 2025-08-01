@@ -11,8 +11,6 @@ public interface DependenteRepository {
 
   Dependente save(Dependente dependente);
 
-  Optional<Dependente> getById(Integer id);
-
   Optional<Dependente> getByExternalId(ExternalID externalId);
 
   List<Dependente> getAll();

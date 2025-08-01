@@ -33,12 +33,6 @@ public class CargoRepositoryImpl implements CargoRepository {
     return cargoMapper.toDomain(saved);
   }
 
-  @Transactional(readOnly = true)
-  @Override
-  public Optional<Cargo> getById(Integer id) {
-    return cargoEntityRepository.findById(id)
-        .map(cargoMapper::toDomain);
-  }
 
   @Transactional(readOnly = true)
   @Override

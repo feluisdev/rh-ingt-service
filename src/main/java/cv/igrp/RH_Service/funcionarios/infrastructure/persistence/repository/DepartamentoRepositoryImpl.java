@@ -36,15 +36,6 @@ public class DepartamentoRepositoryImpl implements DepartamentoRepository {
     return departamentoMapper.toDomainWithResponsavel(saved, funcionarioMapper.toLightDomain(saved.getResponsavelId()));
   }
 
-  @Transactional(readOnly = true)
-  @Override
-  public Optional<Departamento> getById(Integer id) {
-    return jpaDepartamentoEntityRepository.findById(id)
-        .map(entity -> {
-          var responsavel = funcionarioMapper.toLightDomain(entity.getResponsavelId());
-          return departamentoMapper.toDomainWithResponsavel(entity, responsavel);
-        });
-  }
 
   @Transactional(readOnly = true)
   @Override

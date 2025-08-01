@@ -62,13 +62,6 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
   }
 
 
-  @Transactional(readOnly = true)
-  @Override
-  public Optional<Funcionario> getbyId(Integer id) {
-    return jpaFuncionarioEntityRepository.findById(id)
-        .map(funcionarioMapper::toLightDomain);
-  }
-
 
   @Transactional(readOnly = true)
   @Override

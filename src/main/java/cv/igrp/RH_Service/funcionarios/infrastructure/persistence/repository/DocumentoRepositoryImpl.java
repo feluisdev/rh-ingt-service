@@ -33,12 +33,6 @@ public class DocumentoRepositoryImpl implements DocumentoRepository {
     return documentoMapper.toDomain(saved);
   }
 
-  @Transactional(readOnly = true)
-  @Override
-  public Optional<Documento> getById(Integer id) {
-    return documentoEntityRepository.findById(id)
-        .map(documentoMapper::toDomain);
-  }
   @Override
   public List<Documento> getAll() {
     return documentoEntityRepository.findAll ( )

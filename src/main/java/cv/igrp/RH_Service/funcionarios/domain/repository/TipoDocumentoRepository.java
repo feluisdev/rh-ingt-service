@@ -7,7 +7,6 @@ import java.util.Optional;
 
 public interface TipoDocumentoRepository {
     TipoDocumento save(TipoDocumento tipoDocumento);
-    Optional<TipoDocumento> getById(Integer id);
     List<TipoDocumento> getAll();
     List<TipoDocumento> getAll(TipoDocumentoFilter filter);
     Optional<TipoDocumento> getByExternalId(ExternalID externalId);

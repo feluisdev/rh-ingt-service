@@ -11,8 +11,6 @@ public interface FuncionarioRepository {
 
   Funcionario save(Funcionario funcionario);
 
-  Optional<Funcionario> getbyId(Integer id);
-
   Optional<Funcionario> getByExternalId(ExternalID externalId);
 
   List<Funcionario> getAll(FuncionarioFilter filter);

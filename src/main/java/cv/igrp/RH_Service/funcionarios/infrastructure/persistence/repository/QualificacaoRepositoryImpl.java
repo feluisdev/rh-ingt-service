@@ -40,15 +40,6 @@ public class QualificacaoRepositoryImpl implements QualificacaoRepository {
     return qualificacaoMapper.toDomainWithFuncionario(saved, funcionarioDomain);
   }
 
-  @Transactional(readOnly = true)
-  @Override
-  public Optional<Qualificacao> getById(Integer id) {
-    return qualificacaoJpaRepository.findById(id)
-        .map(entity -> {
-          var funcionarioDomain = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
-          return qualificacaoMapper.toDomainWithFuncionario(entity, funcionarioDomain);
-        });
-  }
 
   @Transactional(readOnly = true)
   @Override
