@@ -48,7 +48,7 @@ public class CreateDepartamentoCommandHandler implements CommandHandler<CreateDe
     departamentoRepository.save(departamento);
 
     Map<String, Object> response = Map.of(
-        "departamentoId", departamento.getExternalId().getStringValor(),
+        "departamentoId", departamento.getIdDepartamento().getStringValor(),
         "message", "Departamento criado com sucesso"
     );
 

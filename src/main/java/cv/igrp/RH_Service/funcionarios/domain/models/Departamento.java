@@ -9,8 +9,7 @@ import java.math.BigDecimal;
 @Getter
 public class Departamento {
 
-  private final Integer id;
-  private final ExternalID externalId;
+  private final ExternalID idDepartamento;
   private String nome;
   private String codigo;
   private String descricao;
@@ -20,8 +19,7 @@ public class Departamento {
   private Funcionario responsavel;
 
   private Departamento(
-      Integer id,
-      ExternalID externalId,
+      ExternalID idDepartamento,
       String nome,
       String codigo,
       String descricao,
@@ -30,8 +28,7 @@ public class Departamento {
       Estado estado,
       Funcionario responsavel
   ) {
-    this.id = id;
-    this.externalId = externalId;
+    this.idDepartamento = idDepartamento;
     this.nome = nome;
     this.codigo = codigo;
     this.descricao = descricao;
@@ -44,7 +41,6 @@ public class Departamento {
   public static Departamento criarNovo(String nome, String codigo,String descricao, String localizacao,
                                        BigDecimal orcamento, Funcionario responsavel) {
     return new Departamento(
-        null,
         ExternalID.gerarNovo(),
         nome,
         codigo,
@@ -56,11 +52,11 @@ public class Departamento {
     );
   }
 
-  public static Departamento reconstruir(Integer id, ExternalID externalId, String nome,String codigo,
+  public static Departamento reconstruir(ExternalID idDepartamento, String nome,String codigo,
                                          String descricao, String localizacao,
                                          BigDecimal orcamento, Estado estado,
                                          Funcionario responsavel) {
-    return new Departamento(id, externalId, nome, codigo, descricao, localizacao, orcamento, estado, responsavel);
+    return new Departamento(idDepartamento, nome, codigo, descricao, localizacao, orcamento, estado, responsavel);
   }
 
   public void atualizar(String nome,String codigo, String descricao, String localizacao,

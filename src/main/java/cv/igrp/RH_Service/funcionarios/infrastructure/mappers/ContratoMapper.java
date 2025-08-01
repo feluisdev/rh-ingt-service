@@ -66,7 +66,7 @@ public class ContratoMapper {
     return new ContratoResponseDTO(
         contrato.getExternalId() != null ? contrato.getExternalId().getStringValor() : null,
         contrato.getFuncionario() != null ? contrato.getFuncionario().getExternalId().getStringValor() : null,
-        contrato.getDepartamento() != null ? contrato.getDepartamento().getExternalId().getStringValor() : null,
+        contrato.getDepartamento() != null ? contrato.getDepartamento().getIdDepartamento().getStringValor() : null,
         contrato.getCargo() != null ? contrato.getCargo().getIdCargo().getStringValor() : null,
         contrato.getTipoContrato().getCode(),
         contrato.getTipoContrato().getDescription(),

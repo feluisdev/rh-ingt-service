@@ -15,8 +15,7 @@ public class DepartamentoMapper {
     if (entity == null) return null;
 
     return Departamento.reconstruir(
-        entity.getId(),
-        ExternalID.from(entity.getExternalId()),
+        ExternalID.from(entity.getId()),
         entity.getNome(),
         entity.getCodigo(),
         entity.getDescricao(),
@@ -32,8 +31,7 @@ public class DepartamentoMapper {
 
     DepartamentoEntity entity = new DepartamentoEntity();
 
-    entity.setId(domain.getId());
-    entity.setExternalId(domain.getExternalId().getValor());
+    entity.setId(domain.getIdDepartamento().getValor());
     entity.setNome(domain.getNome());
     entity.setCodigo(domain.getCodigo());
     entity.setDescricao(domain.getDescricao());
@@ -52,7 +50,7 @@ public class DepartamentoMapper {
 
     DepartamentoResponseDTO dto = new DepartamentoResponseDTO();
 
-    dto.setDepartamentoId(departamento.getExternalId() != null ? departamento.getExternalId().getStringValor() : null);
+    dto.setDepartamentoId(departamento.getIdDepartamento() != null ? departamento.getIdDepartamento().getStringValor() : null);
 
     dto.setResponsavelId(
         departamento.getResponsavel() != null && departamento.getResponsavel().getExternalId() != null

@@ -38,7 +38,7 @@ public class AtivarDepartamentoCommandHandler implements CommandHandler<AtivarDe
      LOGGER.info("Departamento {} desativado com sucesso", departamentoId.getStringValor());
 
      Map<String, Object> response = Map.of(
-         "departamentoId", departamento.getExternalId().getStringValor(),
+         "departamentoId", departamento.getIdDepartamento().getStringValor(),
          "message", "Departamento desativado com sucesso"
      );
 
