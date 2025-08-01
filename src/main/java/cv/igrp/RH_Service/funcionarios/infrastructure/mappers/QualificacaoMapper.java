@@ -11,47 +11,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class QualificacaoMapper {
 
-  public Qualificacao toDomainWithFuncionario(QualificacaoEntity entity, Funcionario funcionarioDomain) {
-    if (entity == null) {
-      return null;
-    }
-
-    return Qualificacao.reconstruir(
-        ExternalID.from(entity.getId()),
-        entity.getInstituicao(),
-        entity.getCurso(),
-        entity.getDataInicio(),
-        entity.getDataConclusao(),
-        entity.getNivel(),
-        entity.getSituacao(),
-        entity.getCargaHoraria(),
-        entity.getNotaFinal(),
-        entity.getEstado(),
-        null
-    );
-  }
-
-
-  public QualificacaoEntity toEntity(Qualificacao domain, FuncionarioEntity funcionarioEntity) {
-    if (domain == null) {
-      return null;
-    }
-
-    QualificacaoEntity entity = new QualificacaoEntity();
-    entity.setId(domain.getIdQualificacao().getValor());
-    entity.setInstituicao(domain.getInstituicao());
-    entity.setCurso(domain.getCurso());
-    entity.setDataInicio(domain.getDataInicio());
-    entity.setDataConclusao(domain.getDataConclusao());
-    entity.setNivel(domain.getNivel());
-    entity.setSituacao(domain.getSituacao());
-    entity.setCargaHoraria(domain.getCargaHoraria());
-    entity.setNotaFinal(domain.getNotaFinal());
-    entity.setEstado(domain.getEstado());
-    entity.setIdFuncionario(funcionarioEntity);
-
-    return entity;
-  }
 
 
   public QualificacaoEntity toEntity(Qualificacao domain) {

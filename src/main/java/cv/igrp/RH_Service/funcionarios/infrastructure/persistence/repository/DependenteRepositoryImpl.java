@@ -24,7 +24,6 @@ public class DependenteRepositoryImpl implements DependenteRepository {
 
   private final DependenteMapper dependenteMapper;
   private final DependenteEntityRepository dependenteEntityRepository;
-  private final FuncionarioMapper funcionarioMapper;
 
 
   @Transactional
@@ -50,10 +49,7 @@ public class DependenteRepositoryImpl implements DependenteRepository {
   public List<Dependente> getAll() {
     var entities = dependenteEntityRepository.findAllByEstado(Estado.A);
     return entities.stream()
-        .map(entity -> {
-          var funcionario = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
-          return dependenteMapper.toDomainWithFuncionario(entity, funcionario);
-        })
+        .map(dependenteMapper::toDomain)
         .toList();
   }
 

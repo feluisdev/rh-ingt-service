@@ -56,10 +56,11 @@ public class Dependente {
   // Reconstituição do usando funcionarioID
   public static Dependente reconstruir(ExternalID idDependente, String nome,
                                        LocalDate dataNascimento, GrauParentesco parentesco,
-                                       String cpf, Estado estado,  ExternalID funcionarioId) {
+                                       String cpf, Estado estado, ExternalID funcionarioId) {
     Objects.requireNonNull(idDependente, "idDependente é obrigatório");
-    return reconstruir( idDependente, nome, dataNascimento, parentesco, cpf, estado, funcionarioId);
+    return new Dependente(idDependente, nome, dataNascimento, parentesco, cpf, estado, funcionarioId);
   }
+
 
   // Atualização de dados
   public void atualizarDados(String nome, LocalDate dataNascimento, GrauParentesco parentesco, String cpf) {

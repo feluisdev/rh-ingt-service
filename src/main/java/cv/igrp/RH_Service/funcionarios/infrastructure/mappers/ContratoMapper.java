@@ -15,49 +15,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ContratoMapper {
 
-  // ====== ENTITY → DOMAIN ======
-  public Contrato toDomainComReferencias(ContratoEntity entity,
-                                         Departamento departamento,
-                                         Funcionario funcionario,
-                                         Cargo cargo) {
-    if (entity == null) return null;
-
-    return Contrato.reconstruir(
-        ExternalID.from( entity.getId()),
-        entity.getTipoContrato(),
-        entity.getDataInicio(),
-        entity.getDataFim(),
-        entity.getSalario(),
-        entity.getCargaHoraria(),
-        entity.getObservacoes(),
-        entity.getEstado(),
-        null,
-        null,
-        null
-    );
-  }
-
-  // ====== DOMAIN → ENTITY ======
-  public ContratoEntity toEntity(Contrato domain, DepartamentoEntity departamentoEntity, FuncionarioEntity funcionarioEntity, CargoEntity cargoEntity) {
-    if (domain == null) return null;
-
-    ContratoEntity entity = new ContratoEntity();
-    entity.setId(domain.getIdContrato().getValor());
-    entity.setTipoContrato(domain.getTipoContrato());
-    entity.setDataInicio(domain.getDataInicio());
-    entity.setDataFim(domain.getDataFim());
-    entity.setSalario(domain.getSalario());
-    entity.setCargaHoraria(domain.getCargaHoraria());
-    entity.setObservacoes(domain.getObservacoes());
-    entity.setEstado(domain.getEstado());
-
-    entity.setIdDepartamento(departamentoEntity);
-    entity.setIdFuncionario(funcionarioEntity);
-    entity.setIdCargo(cargoEntity);
-
-    return entity;
-  }
-
 
 
   public Contrato toDomain(ContratoEntity entity) {

@@ -11,20 +11,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class DepartamentoMapper {
 
-  public Departamento toDomainWithResponsavel(DepartamentoEntity entity, Funcionario responsavel) {
-    if (entity == null) return null;
-
-    return Departamento.reconstruir(
-        ExternalID.from(entity.getId()),
-        entity.getNome(),
-        entity.getCodigo(),
-        entity.getDescricao(),
-        entity.getLocalizacao(),
-        entity.getOrcamento(),
-        entity.getEstado(),
-        null
-    );
-  }
 
   public DepartamentoEntity toEntity(Departamento domain, FuncionarioEntity responsavelEntity) {
     if (domain == null) return null;

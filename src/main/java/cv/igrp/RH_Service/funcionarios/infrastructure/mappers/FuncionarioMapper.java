@@ -73,21 +73,19 @@ public class FuncionarioMapper {
     // Mapeia os dependentes
     if (entity.getDependentes() != null) {
       entity.getDependentes().forEach(dep ->
-          funcionario.adicionarDependente(dependenteMapper.toDomainWithFuncionario(dep, funcionario)));
+          funcionario.adicionarDependente(dependenteMapper.toDomain(dep)));
     }
 
     if (entity.getQualificacoes() != null) {
       entity.getQualificacoes().forEach(q ->
-          funcionario.adicionarQualificacao(qualificacaoMapper.toDomainWithFuncionario(q, funcionario))
+          funcionario.adicionarQualificacao(qualificacaoMapper.toDomain(q))
       );
     }
 
     if (entity.getContratos() != null) {
       entity.getContratos().forEach(c ->
           funcionario.adicionarContrato(
-              contratoMapper.toDomainComReferencias(c,
-                  departamentoMapper.toDomainWithResponsavel(c.getIdDepartamento(), this.toLightDomain(c.getIdDepartamento().getResponsavelId())),
-              funcionario, cargoMapper.toDomain(c.getIdCargo())))
+              contratoMapper.toDomain(c))
       );
     }
 

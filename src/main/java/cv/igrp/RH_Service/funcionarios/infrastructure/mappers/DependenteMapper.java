@@ -12,41 +12,6 @@ import org.springframework.stereotype.Component;
 public class DependenteMapper {
 
 
-  public Dependente toDomainWithFuncionario(DependenteEntity entity, Funcionario funcionarioDomain) {
-    if (entity == null) {
-      return null;
-    }
-
-    return Dependente.reconstruir(
-        ExternalID.from(entity.getId()),
-        entity.getNome(),
-        entity.getDataNascimento(),
-        entity.getParentesco(),
-        entity.getCpf(),
-        entity.getEstado(),
-        null
-    );
-  }
-
-
-
-  public DependenteEntity toEntity(Dependente domain, FuncionarioEntity funcionarioEntity) {
-    if (domain == null) {
-      return null;
-    }
-
-    DependenteEntity entity = new DependenteEntity();
-    entity.setId(domain.getIdDependente().getValor());
-    entity.setNome(domain.getNome());
-    entity.setDataNascimento(domain.getDataNascimento());
-    entity.setParentesco(domain.getParentesco());
-    entity.setCpf(domain.getCpf());
-    entity.setEstado(domain.getEstado());
-    entity.setIdFuncionario(funcionarioEntity);
-
-    return entity;
-  }
-
   public DependenteEntity toEntity(Dependente domain) {
     if (domain == null) {
       return null;
@@ -62,7 +27,7 @@ public class DependenteMapper {
 
     //mapp funcionario with id
     FuncionarioEntity funcionarioEntity = new FuncionarioEntity();
-    entity.setId(domain.getFuncionarioId().getValor());
+    funcionarioEntity.setId(domain.getFuncionarioId().getValor());
     entity.setIdFuncionario(funcionarioEntity);
 
     return entity;
