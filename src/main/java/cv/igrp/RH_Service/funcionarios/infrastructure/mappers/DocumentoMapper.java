@@ -70,7 +70,7 @@ public class DocumentoMapper {
         entity.getObjectoTipo(),
         ExternalID.from(entity.getObjectId()),
         entity.getEstado(),
-        tipoDocumentoMapper.toDomain(entity.getIdTipoDoc())
+           tipoDocumentoMapper.toDomain(entity.getIdTipoDoc())
     );
   }
 
@@ -88,11 +88,7 @@ public class DocumentoMapper {
     entity.setObjectId(domain.getObjectId().getValor());
     entity.setEstado(domain.getEstado());
     entity.setEstado(domain.getEstado());
-    TipoDocumentoEntity tipoDocumentoEntity = new TipoDocumentoEntity();
-    tipoDocumentoEntity.setId(domain.getTipoDocumento().getId());
-    tipoDocumentoEntity.setExternalId(domain.getTipoDocumento().getExternalId().getValor());
-    tipoDocumentoEntity.setDescricao(domain.getTipoDocumento().getDescricao());
-    entity.setIdTipoDoc(tipoDocumentoEntity);
+    entity.setIdTipoDoc(tipoDocumentoMapper.toEntity(domain.getTipoDocumento()));
     entity.setObservacao(domain.getObservacao());
     return entity;
   }

@@ -89,7 +89,6 @@ public class DependenteMapper {
 
     DependenteResponseDTO dto = new DependenteResponseDTO();
     dto.setDependenteId(dependente.getExternalId().getStringValor());
-    //dto.setFuncionarioId(dependente.getFuncionario().getExternalId().getStringValor());
     dto.setFuncionarioId(dependente.getFuncionarioExternalId() != null ? dependente.getFuncionarioExternalId().getStringValor() : null);
     dto.setNome(dependente.getNome());
     dto.setParentesco(dependente.getParentesco().getCode());
