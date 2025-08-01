@@ -23,8 +23,7 @@ public class ContratoMapper {
     if (entity == null) return null;
 
     return Contrato.reconstruir(
-        entity.getId(),
-        ExternalID.from( entity.getExternalId()),
+        ExternalID.from( entity.getId()),
         entity.getTipoContrato(),
         entity.getDataInicio(),
         entity.getDataFim(),
@@ -43,8 +42,7 @@ public class ContratoMapper {
     if (domain == null) return null;
 
     ContratoEntity entity = new ContratoEntity();
-    entity.setId(domain.getId());
-    entity.setExternalId(domain.getExternalId().getValor());
+    entity.setId(domain.getIdContrato().getValor());
     entity.setTipoContrato(domain.getTipoContrato());
     entity.setDataInicio(domain.getDataInicio());
     entity.setDataFim(domain.getDataFim());
@@ -64,7 +62,7 @@ public class ContratoMapper {
     if (contrato == null) return null;
 
     return new ContratoResponseDTO(
-        contrato.getExternalId() != null ? contrato.getExternalId().getStringValor() : null,
+        contrato.getIdContrato() != null ? contrato.getIdContrato().getStringValor() : null,
         contrato.getFuncionario() != null ? contrato.getFuncionario().getExternalId().getStringValor() : null,
         contrato.getDepartamento() != null ? contrato.getDepartamento().getIdDepartamento().getStringValor() : null,
         contrato.getCargo() != null ? contrato.getCargo().getIdCargo().getStringValor() : null,

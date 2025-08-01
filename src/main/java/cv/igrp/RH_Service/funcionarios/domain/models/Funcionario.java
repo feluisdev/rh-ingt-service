@@ -224,7 +224,7 @@ public class Funcionario {
 
   public Contrato getContratoByExternalId(ExternalID externalId) {
     return contratos.stream()
-        .filter(c -> c.getExternalId().equals(externalId))
+        .filter(c -> c.getIdContrato().equals(externalId))
         .findFirst()
         .orElse(null);
   }

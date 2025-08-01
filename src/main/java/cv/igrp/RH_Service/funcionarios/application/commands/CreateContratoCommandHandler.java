@@ -79,7 +79,7 @@ public class CreateContratoCommandHandler implements CommandHandler<CreateContra
       var tipoDocumento = tipoDocumentoRepository.getByExternalId(ExternalID.from(docDto.getIdTipodocumento()))
           .orElseThrow(() -> IgrpResponseStatusException.notFound("Tipo documento not found with id:: "+docDto.getIdTipodocumento()));
 
-      var documento = documentoMapper.toDocumentoDomain(ObjetoTipo.CONTRATO, contrato.getExternalId(), docDto, tipoDocumento);
+      var documento = documentoMapper.toDocumentoDomain(ObjetoTipo.CONTRATO, contrato.getIdContrato(), docDto, tipoDocumento);
       contrato.adicionarDocumento(documento);
 
     }
@@ -87,7 +87,7 @@ public class CreateContratoCommandHandler implements CommandHandler<CreateContra
 
     var contratoSaved = contratoRepository.save(contrato);
 
-    return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("Contrato criado com sucesso!",contratoSaved.getExternalId()));
+    return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("Contrato criado com sucesso!",contratoSaved.getIdContrato()));
   }
 
 }

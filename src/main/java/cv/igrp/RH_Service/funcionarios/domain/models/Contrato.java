@@ -13,9 +13,7 @@ import java.util.Objects;
 @Getter
 public class Contrato {
 
-  private Integer id; // gerado pelo banco
-  private ExternalID externalId;
-
+  private ExternalID idContrato;
   private TipoContrato tipoContrato;
   private LocalDate dataInicio;
   private LocalDate dataFim;
@@ -30,13 +28,12 @@ public class Contrato {
 
   private Documento contratoAnexo;
 
-  private Contrato(Integer id, ExternalID externalId, TipoContrato tipoContrato,
+  private Contrato(ExternalID idContrato, TipoContrato tipoContrato,
                    LocalDate dataInicio, LocalDate dataFim, BigDecimal salario,
                    Integer cargaHoraria, String observacoes, Estado estado,
                    Departamento departamento, Funcionario funcionario, Cargo cargo, Documento contratoAnexo) {
 
-    this.id = id;
-    this.externalId = externalId;
+    this.idContrato = idContrato;
     this.tipoContrato = tipoContrato;
     this.dataInicio = dataInicio;
     this.dataFim = dataFim;
@@ -67,7 +64,6 @@ public class Contrato {
     }
 
     return new Contrato(
-        null,
         ExternalID.gerarNovo(),
         tipoContrato,
         dataInicio,
@@ -100,7 +96,6 @@ public class Contrato {
     }
 
     return new Contrato(
-        null,
         ExternalID.gerarNovo(),
         tipoContrato,
         dataInicio,
@@ -117,19 +112,17 @@ public class Contrato {
   }
 
   // ===== MÉTODO RECONSTRUIR =====
-  public static Contrato reconstruir(Integer id, ExternalID externalId, TipoContrato tipoContrato,
+  public static Contrato reconstruir(ExternalID idContrato, TipoContrato tipoContrato,
                                      LocalDate dataInicio, LocalDate dataFim, BigDecimal salario,
                                      Integer cargaHoraria, String observacoes, Estado estado,
                                      Departamento departamento, Funcionario funcionario, Cargo cargo, Documento contratoAnexo) {
 
-    Objects.requireNonNull(id, "ID é obrigatório");
-    Objects.requireNonNull(externalId, "ExternalID é obrigatório");
+    Objects.requireNonNull(idContrato, "idContrato é obrigatório");
     Objects.requireNonNull(dataInicio, "Data de início é obrigatória");
     Objects.requireNonNull(estado, "Estado é obrigatório");
 
     return new Contrato(
-        id,
-        externalId,
+        idContrato,
         tipoContrato,
         dataInicio,
         dataFim,
@@ -145,19 +138,17 @@ public class Contrato {
   }
 
   // ===== MÉTODO RECONSTRUIR =====
-  public static Contrato reconstruir(Integer id, ExternalID externalId, TipoContrato tipoContrato,
+  public static Contrato reconstruir(ExternalID idContrato, TipoContrato tipoContrato,
                                      LocalDate dataInicio, LocalDate dataFim, BigDecimal salario,
                                      Integer cargaHoraria, String observacoes, Estado estado,
                                      Departamento departamento, Funcionario funcionario, Cargo cargo) {
 
-    Objects.requireNonNull(id, "ID é obrigatório");
-    Objects.requireNonNull(externalId, "ExternalID é obrigatório");
+    Objects.requireNonNull(idContrato, "ExternalID é obrigatório");
     Objects.requireNonNull(dataInicio, "Data de início é obrigatória");
     Objects.requireNonNull(estado, "Estado é obrigatório");
 
     return new Contrato(
-        id,
-        externalId,
+        idContrato,
         tipoContrato,
         dataInicio,
         dataFim,

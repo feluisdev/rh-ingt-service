@@ -7,7 +7,6 @@ import cv.igrp.RH_Service.shared.config.AuditEntity;
 import cv.igrp.framework.stereotype.IgrpEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import cv.igrp.RH_Service.shared.application.constants.TipoContrato;
 import java.time.LocalDate;
@@ -29,12 +28,7 @@ public class ContratoEntity extends AuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", unique = true, nullable = false)
-    private Integer id;
-
-  
-    @NotNull(message = "externalId is mandatory")
-    @Column(name="external_id", nullable = false)
-    private UUID externalId;
+    private UUID id;
 
   
     @Enumerated(EnumType.STRING)
