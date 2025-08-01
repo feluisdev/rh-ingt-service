@@ -33,7 +33,7 @@ public class GetDependenteByIdQueryHandler implements QueryHandler<GetDependente
      var dependenteId = ExternalID.from(query.getDependenteId());
      var funcionarioId = ExternalID.from(query.getFuncionarioId());
 
-     var dependente = dependenteRepository.getByExternalId(dependenteId)
+     var dependente = dependenteRepository.getById(dependenteId)
          .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Dependente não encontrado: " + dependenteId));
 
      if (!dependente.getFuncionario().getIdFuncionario().equals(funcionarioId)) {

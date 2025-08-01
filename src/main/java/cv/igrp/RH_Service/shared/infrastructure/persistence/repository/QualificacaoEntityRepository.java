@@ -18,9 +18,9 @@ public interface QualificacaoEntityRepository extends
     JpaSpecificationExecutor<QualificacaoEntity>
 {
 
-  Optional<QualificacaoEntity> findByExternalId(UUID externalId);
+  Optional<QualificacaoEntity> findById(UUID externalId);
 
   List<QualificacaoEntity> findAllByEstado(Estado estado);
 
-  List<QualificacaoEntity> findAllByIdFuncionario_ExternalId_AndEstado(UUID idFuncionarioExternalId, Estado estado);
+  List<QualificacaoEntity> findAllByIdFuncionario_Id_AndEstado(UUID idFuncionarioExternalId, Estado estado);
 }

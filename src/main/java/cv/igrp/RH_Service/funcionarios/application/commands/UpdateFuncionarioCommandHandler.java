@@ -43,7 +43,7 @@ public class UpdateFuncionarioCommandHandler implements CommandHandler<UpdateFun
    public ResponseEntity<FuncionarioResponseDTO> handle(UpdateFuncionarioCommand command) {
      var funcionarioUuid = ExternalID.from(command.getFuncionarioId());
 
-     var funcionario = funcionarioRepository.getByExternalId(funcionarioUuid).orElseThrow(
+     var funcionario = funcionarioRepository.getById(funcionarioUuid).orElseThrow(
          () -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "funcionario not found")
      );
      var dtoRequest = command.getFuncionariorequest();
@@ -55,7 +55,7 @@ public class UpdateFuncionarioCommandHandler implements CommandHandler<UpdateFun
 
      if (dtoRequest.getAnexos() != null && !dtoRequest.getAnexos().isEmpty()) {
        for (DocumentoRequestDTO docDto : dtoRequest.getAnexos()) {
-         var tipoDocumento = tipoDocumentoRepository.getByExternalId(ExternalID.from(docDto.getIdTipodocumento()))
+         var tipoDocumento = tipoDocumentoRepository.getById(ExternalID.from(docDto.getIdTipodocumento()))
              .orElseThrow(() -> IgrpResponseStatusException.notFound("Tipo documento not found with id:: "+docDto.getIdTipodocumento()));
 
          var documento = documentoMapper.toDocumentoDomain(ObjetoTipo.FUNCIONARIO, funcionario.getIdFuncionario(), docDto, tipoDocumento);

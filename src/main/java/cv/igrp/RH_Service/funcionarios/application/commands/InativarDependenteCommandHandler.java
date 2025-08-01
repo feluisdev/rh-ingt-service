@@ -29,7 +29,7 @@ public class InativarDependenteCommandHandler implements CommandHandler<Inativar
     var externalId = ExternalID.from(command.getDependenteId());
     var funcionarioId = ExternalID.from(command.getFuncionarioId());
 
-    var dependente = dependenteRepository.getByExternalId(externalId)
+    var dependente = dependenteRepository.getById(externalId)
         .orElseThrow(() -> IgrpResponseStatusException.of(
             HttpStatus.NOT_FOUND, "Dependente não encontrado com id: " + externalId.getStringValor()
         ));

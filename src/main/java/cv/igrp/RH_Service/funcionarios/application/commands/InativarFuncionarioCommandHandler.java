@@ -30,7 +30,7 @@ public class InativarFuncionarioCommandHandler implements CommandHandler<Inativa
 
      var funcionarioUuid = ExternalID.from(command.getFuncionarioId());
 
-     var funcionario = funcionarioRepository.getByExternalId(funcionarioUuid).orElseThrow(
+     var funcionario = funcionarioRepository.getById(funcionarioUuid).orElseThrow(
          () -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "funcionario not found")
      );
 

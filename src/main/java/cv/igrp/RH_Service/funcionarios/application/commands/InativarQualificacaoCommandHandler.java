@@ -32,7 +32,7 @@ public class InativarQualificacaoCommandHandler implements CommandHandler<Inativ
      var funcionarioId = ExternalID.from(command.getFuncionarioId());
      var qualificacaoId = ExternalID.from(command.getQualificacaoId());
 
-     var qualificacao = qualificacaoRepository.getByExternalId(qualificacaoId)
+     var qualificacao = qualificacaoRepository.getById(qualificacaoId)
          .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Qualificação não encontrada: " + qualificacaoId.getStringValor()));
 
 

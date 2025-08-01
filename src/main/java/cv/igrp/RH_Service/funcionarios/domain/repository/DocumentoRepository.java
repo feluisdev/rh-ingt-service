@@ -11,5 +11,5 @@ public interface DocumentoRepository {
     Documento save(Documento documento);
     List<Documento> getAll();
     List<Documento> getAll(DocumentoFilter filter);
-    Optional<Documento> getByExternalId(ExternalID externalId);
+    Optional<Documento> getById(ExternalID idDocumento);
 }

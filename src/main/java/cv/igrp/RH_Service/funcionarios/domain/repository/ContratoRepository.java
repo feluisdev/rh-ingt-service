@@ -10,8 +10,8 @@ public interface ContratoRepository {
 
   Contrato save(Contrato contrato);
 
-  Optional<Contrato> getByExternalId(ExternalID externalId);
+  Optional<Contrato> getById(ExternalID contratoId);
 
   List<Contrato> getAll();
-  List<Contrato> getAllByFuncionarioExternalId(ExternalID funcionarioExternalId);
+  List<Contrato> getAllByFuncionariolId(ExternalID funcionarioId);
 }

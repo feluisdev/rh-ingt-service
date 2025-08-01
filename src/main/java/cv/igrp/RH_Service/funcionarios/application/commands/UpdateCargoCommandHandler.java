@@ -31,7 +31,7 @@ public class UpdateCargoCommandHandler implements CommandHandler<UpdateCargoComm
     var dto = command.getCargorequest();
     var cargoId = ExternalID.from(command.getCargoId());
 
-    var cargo = cargoRepository.getByExternalId(cargoId).orElseThrow(
+    var cargo = cargoRepository.getById(cargoId).orElseThrow(
         () -> IgrpResponseStatusException.notFound("Cargo not found with ID: " + cargoId.getStringValor())
     );
 

@@ -22,5 +22,5 @@ public interface DependenteEntityRepository extends
 
   List<DependenteEntity> findAllByEstado(Estado estado);
 
-  List<DependenteEntity> findAllByIdFuncionario_ExternalId_AndEstado(UUID idFuncionarioExternalId, Estado estado);
+  List<DependenteEntity> findAllByIdFuncionario_Id_AndEstado(UUID idFuncionarioExternalId, Estado estado);
 }

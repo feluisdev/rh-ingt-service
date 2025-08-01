@@ -42,8 +42,8 @@ public class ContratoRepositoryImpl implements ContratoRepository {
 
   @Transactional(readOnly = true)
   @Override
-  public Optional<Contrato> getByExternalId(ExternalID externalId) {
-    return contratoEntityRepository.findByExternalId(externalId.getValor())
+  public Optional<Contrato> getById(ExternalID contratoId) {
+    return contratoEntityRepository.findByExternalId(contratoId.getValor())
         .map(entity -> {
           var funcionario = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
           var departamento = departamentoMapper.toDomainWithResponsavel(
@@ -76,8 +76,8 @@ public class ContratoRepositoryImpl implements ContratoRepository {
 
   @Transactional(readOnly = true)
   @Override
-  public List<Contrato> getAllByFuncionarioExternalId(ExternalID funcionarioExternalId) {
-    return contratoEntityRepository.findByIdFuncionario_ExternalId(funcionarioExternalId.getValor())
+  public List<Contrato> getAllByFuncionariolId(ExternalID funcionarioId) {
+    return contratoEntityRepository.findByIdFuncionario_Id(funcionarioId.getValor())
         .stream()
         .map(entity -> {
           var funcionario = funcionarioMapper.toLightDomain(entity.getIdFuncionario());

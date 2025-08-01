@@ -37,7 +37,7 @@ public class CreateDependenteCommandHandler implements CommandHandler<CreateDepe
     var dto = command.getDependenterequest();
     var idFuncionario = ExternalID.from(command.getFuncionarioId());
 
-    var funcionario = funcionarioRepository.getByExternalId(idFuncionario)
+    var funcionario = funcionarioRepository.getById(idFuncionario)
         .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Funcionario not found with id: " + idFuncionario));
 
     var dependente = Dependente.criar(
@@ -47,7 +47,6 @@ public class CreateDependenteCommandHandler implements CommandHandler<CreateDepe
         dto.getCpf(),
         funcionario
     );
-
     var dependenteSalvo = dependenteRepository.save(dependente);
 
     var responseDTO = dependenteMapper.toResponseDTO(dependenteSalvo);

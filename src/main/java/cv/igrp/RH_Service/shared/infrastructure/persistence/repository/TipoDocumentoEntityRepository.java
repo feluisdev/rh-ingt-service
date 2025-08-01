@@ -17,7 +17,7 @@ public interface TipoDocumentoEntityRepository extends
     JpaRepository<TipoDocumentoEntity, Integer>,
     JpaSpecificationExecutor<TipoDocumentoEntity>
 {
-  Optional<TipoDocumentoEntity> findByExternalId(UUID externalId);
+  Optional<TipoDocumentoEntity> findById(UUID externalId);
 
   List<TipoDocumentoEntity> findAllByEstado(Estado estado);
 

@@ -30,7 +30,7 @@ public class GetQualificacoesFuncionariosQueryHandler implements QueryHandler<Ge
    @IgrpQueryHandler
   public ResponseEntity<List<QualificacaoResponseDTO>> handle(GetQualificacoesFuncionariosQuery query) {
      var funcionarioId = ExternalID.from(query.getFuncionarioId());
-     var qualificacoes = qualificacaoRepository.getAllByFuncionarioExternalId(funcionarioId);
+     var qualificacoes = qualificacaoRepository.getAllByFuncionarioId(funcionarioId);
 
      var responseList = qualificacoes.stream()
          .map(qualificacaoMapper::toDTO)

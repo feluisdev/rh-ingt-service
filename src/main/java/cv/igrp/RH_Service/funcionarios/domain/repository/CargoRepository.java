@@ -11,7 +11,7 @@ public interface CargoRepository {
 
   Cargo save(Cargo cargo);
 
-  Optional<Cargo> getByExternalId(ExternalID externalId);
+  Optional<Cargo> getById(ExternalID idCargo);
 
   List<Cargo> getAll();
 

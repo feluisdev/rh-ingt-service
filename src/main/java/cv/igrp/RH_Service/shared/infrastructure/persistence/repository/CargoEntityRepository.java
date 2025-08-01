@@ -17,7 +17,7 @@ public interface CargoEntityRepository extends
     JpaSpecificationExecutor<CargoEntity>
 {
 
-  Optional<CargoEntity> findByExternalId(UUID externalId);
+  Optional<CargoEntity> findById(UUID externalId);
 
   List<CargoEntity> findAllByEstado(Estado estado);
 

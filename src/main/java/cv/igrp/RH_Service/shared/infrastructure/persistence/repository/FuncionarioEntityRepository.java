@@ -19,5 +19,7 @@ public interface FuncionarioEntityRepository extends
 
   List<FuncionarioEntity> findAllByEstado(Estado estado);
 
-  Optional<FuncionarioEntity> findByExternalId(UUID externalId);
+  Optional<FuncionarioEntity> findById(UUID id);
+
+  boolean existsById(UUID id);
 }

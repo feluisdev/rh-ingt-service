@@ -29,7 +29,7 @@ public class GetCargoByIdQueryHandler implements QueryHandler<GetCargoByIdQuery,
   public ResponseEntity<CargoResponseDTO> handle(GetCargoByIdQuery query) {
      var cargoId = ExternalID.from(query.getCargoId());
 
-     var cargo = cargoRepository.getByExternalId(cargoId)
+     var cargo = cargoRepository.getById(cargoId)
          .orElseThrow(() -> IgrpResponseStatusException.notFound("Cargo não encontrado com ID: " + cargoId.getStringValor()));
 
      var dto = cargoMapper.toDTO(cargo);

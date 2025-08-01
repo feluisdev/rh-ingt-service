@@ -77,8 +77,8 @@ public class TipoDocumentoRepositoryImpl implements TipoDocumentoRepository {
 
   @Transactional(readOnly = true)
   @Override
-  public Optional<TipoDocumento> getByExternalId(ExternalID externalId) {
-    return tipoDocumentoEntityRepository.findByExternalId(externalId.getValor())
+  public Optional<TipoDocumento> getById(ExternalID idTipoDocumento) {
+    return tipoDocumentoEntityRepository.findById(idTipoDocumento.getValor())
         .map(tipoDocumentoMapper::toDomain);
   }
 }

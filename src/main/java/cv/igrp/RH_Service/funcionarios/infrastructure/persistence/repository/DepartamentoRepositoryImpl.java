@@ -39,8 +39,8 @@ public class DepartamentoRepositoryImpl implements DepartamentoRepository {
 
   @Transactional(readOnly = true)
   @Override
-  public Optional<Departamento> getByExternalId(ExternalID externalId) {
-    return jpaDepartamentoEntityRepository.findByExternalId(externalId.getValor())
+  public Optional<Departamento> getById(ExternalID departamentoId) {
+    return jpaDepartamentoEntityRepository.findById(departamentoId.getValor())
         .map(entity -> {
           var responsavel = funcionarioMapper.toLightDomain(entity.getResponsavelId());
           return departamentoMapper.toDomainWithResponsavel(entity, responsavel);
@@ -109,7 +109,7 @@ public class DepartamentoRepositoryImpl implements DepartamentoRepository {
   @Transactional(readOnly = true)
   @Override
   public List<Departamento> getAllByResponsavel(ExternalID responsavelId) {
-    return jpaDepartamentoEntityRepository.findAllByResponsavelId_ExternalIdAndEstado(
+    return jpaDepartamentoEntityRepository.findAllByResponsavelId_IdAndEstado(
             responsavelId.getValor(), Estado.A
         ).stream()
         .map(entity -> {

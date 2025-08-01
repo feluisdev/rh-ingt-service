@@ -40,7 +40,7 @@ public class DependenteRepositoryImpl implements DependenteRepository {
 
   @Transactional(readOnly = true)
   @Override
-  public Optional<Dependente> getByExternalId(ExternalID externalId) {
+  public Optional<Dependente> getById(ExternalID externalId) {
 
     return dependenteEntityRepository.findByExternalId(externalId.getValor())
         .map(entity -> {
@@ -102,8 +102,8 @@ public class DependenteRepositoryImpl implements DependenteRepository {
 
   @Transactional(readOnly = true)
   @Override
-  public List<Dependente> getAllByFuncionarioExternalId(ExternalID funcionarioExternalId) {
-    var entities = dependenteEntityRepository.findAllByIdFuncionario_ExternalId_AndEstado(funcionarioExternalId.getValor(), Estado.A);
+  public List<Dependente> getAllByFuncionarioId(ExternalID funcionarioExternalId) {
+    var entities = dependenteEntityRepository.findAllByIdFuncionario_Id_AndEstado(funcionarioExternalId.getValor(), Estado.A);
     return entities.stream()
         .map(entity -> {
           var funcionario = funcionarioMapper.toLightDomain(entity.getIdFuncionario());

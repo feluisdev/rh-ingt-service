@@ -30,7 +30,7 @@ public class GetDepartamentoByIdQueryHandler implements QueryHandler<GetDepartam
   public ResponseEntity<DepartamentoResponseDTO> handle(GetDepartamentoByIdQuery query) {
      var departamentoId = ExternalID.from(query.getDepartamentoId());
 
-     var departamento = departamentoRepository.getByExternalId(departamentoId)
+     var departamento = departamentoRepository.getById(departamentoId)
          .orElseThrow(() -> IgrpResponseStatusException.notFound(
              "Departamento não encontrado com ID: " + departamentoId.getStringValor()
          ));

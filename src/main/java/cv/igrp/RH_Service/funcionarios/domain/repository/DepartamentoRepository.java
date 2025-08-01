@@ -11,7 +11,7 @@ public interface DepartamentoRepository {
 
   Departamento save(Departamento departamento);
 
-  Optional<Departamento> getByExternalId(ExternalID externalId);
+  Optional<Departamento> getById(ExternalID departamantoId);
 
   List<Departamento> getAll();
 

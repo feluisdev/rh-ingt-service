@@ -30,7 +30,7 @@ public class GetDepentesByFuncionarioQueryHandler implements QueryHandler<GetDep
    @IgrpQueryHandler
   public  ResponseEntity<List<DependenteResponseDTO>> handle(GetDepentesByFuncionarioQuery query) {
      var funcionarioId = ExternalID.from(query.getFuncionarioId());
-     var dependentes = dependenteRepository.getAllByFuncionarioExternalId(funcionarioId);
+     var dependentes = dependenteRepository.getAllByFuncionarioId(funcionarioId);
 
      var listaDTO = dependentes.stream()
          .map(dependenteMapper::toResponseDTO)

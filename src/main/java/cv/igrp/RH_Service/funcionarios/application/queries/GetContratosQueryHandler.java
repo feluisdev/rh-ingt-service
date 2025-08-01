@@ -31,7 +31,7 @@ public class GetContratosQueryHandler implements QueryHandler<GetContratosQuery,
    @IgrpQueryHandler
   public ResponseEntity<List<ContratoResponseDTO>> handle(GetContratosQuery query) {
      var funcionarioId = ExternalID.from(query.getFuncionarioId());
-     var contratos = contratoRepository.getAllByFuncionarioExternalId(funcionarioId);
+     var contratos = contratoRepository.getAllByFuncionariolId(funcionarioId);
 
      var listaDTO = contratos.stream()
          .map(contratoMapper::toDTO)

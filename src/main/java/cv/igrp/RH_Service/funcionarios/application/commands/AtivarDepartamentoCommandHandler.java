@@ -28,7 +28,7 @@ public class AtivarDepartamentoCommandHandler implements CommandHandler<AtivarDe
    public ResponseEntity<Map<String, ?>> handle(AtivarDepartamentoCommand command) {
      var departamentoId = ExternalID.from(command.getDepartamentoId());
 
-     var departamento = departamentoRepository.getByExternalId(departamentoId)
+     var departamento = departamentoRepository.getById(departamentoId)
          .orElseThrow(() -> IgrpResponseStatusException.notFound("Departamento não encontrado com ID: " + departamentoId.getStringValor()));
 
      departamento.ativar();

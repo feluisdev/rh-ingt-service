@@ -11,11 +11,11 @@ public interface DependenteRepository {
 
   Dependente save(Dependente dependente);
 
-  Optional<Dependente> getByExternalId(ExternalID externalId);
+  Optional<Dependente> getById(ExternalID dependenteID);
 
   List<Dependente> getAll();
 
   List<Dependente> getAll(DependenteFilter filter);
 
-  List<Dependente> getAllByFuncionarioExternalId(ExternalID funcionarioExternalId);
+  List<Dependente> getAllByFuncionarioId(ExternalID funcionarioId);
 }

@@ -34,7 +34,7 @@ public class CreateDepartamentoCommandHandler implements CommandHandler<CreateDe
 
     var responsavelId = ExternalID.from(dto.getResponsavelId());
 
-    var responsavel = funcionarioRepository.getByExternalId(responsavelId)
+    var responsavel = funcionarioRepository.getById(responsavelId)
         .orElseThrow(() -> IgrpResponseStatusException.notFound("Responsável não encontrado com ID: " + responsavelId.getStringValor()));
 
     var departamento = Departamento.criarNovo(

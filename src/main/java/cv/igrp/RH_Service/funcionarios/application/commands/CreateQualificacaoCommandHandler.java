@@ -44,7 +44,7 @@ public class CreateQualificacaoCommandHandler implements CommandHandler<CreateQu
   public ResponseEntity<Map<String, ?>> handle(CreateQualificacaoCommand command) {
     var funcionarioId = ExternalID.from(command.getFuncionarioId());
 
-    var funcionario = funcionarioRepository.getByExternalId(funcionarioId)
+    var funcionario = funcionarioRepository.getById(funcionarioId)
         .orElseThrow(() -> IgrpResponseStatusException.notFound("Funcionário não encontrado: " + funcionarioId));
 
     var dto = command.getQualificacaorequest();
@@ -63,7 +63,7 @@ public class CreateQualificacaoCommandHandler implements CommandHandler<CreateQu
 
     if (dto.getAnexo() != null){
       var docDto = dto.getAnexo();
-      var tipoDocumento = tipoDocumentoRepository.getByExternalId(ExternalID.from(docDto.getIdTipodocumento()))
+      var tipoDocumento = tipoDocumentoRepository.getById(ExternalID.from(docDto.getIdTipodocumento()))
           .orElseThrow(() -> IgrpResponseStatusException.notFound("Tipo documento not found with id:: "+docDto.getIdTipodocumento()));
 
       var documento = documentoMapper.toDocumentoDomain(ObjetoTipo.QUALIFICACAO, qualificacao.getIdQualificacao(), docDto, tipoDocumento);

@@ -29,7 +29,7 @@ public class DesativarCargoCommandHandler implements CommandHandler<DesativarCar
    public ResponseEntity<Map<String, ?>> handle(DesativarCargoCommand command) {
      var cargoId = ExternalID.from(command.getCargoId());
 
-     Cargo cargo = cargoRepository.getByExternalId(cargoId)
+     Cargo cargo = cargoRepository.getById(cargoId)
          .orElseThrow(() -> IgrpResponseStatusException.notFound("Cargo não encontrado com ID: " + cargoId.getStringValor()));
 
      cargo.inativar();

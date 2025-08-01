@@ -19,7 +19,7 @@ public interface ContratoEntityRepository extends
 
   Optional<ContratoEntity> findByExternalId(UUID externalId);
 
-  List<ContratoEntity> findByIdFuncionario_ExternalId(UUID funcionarioExternalId);
+  List<ContratoEntity> findByIdFuncionario_Id(UUID funcionarioExternalId);
 
   Optional<ContratoEntity> findAllByEstado(Estado estado);
 }

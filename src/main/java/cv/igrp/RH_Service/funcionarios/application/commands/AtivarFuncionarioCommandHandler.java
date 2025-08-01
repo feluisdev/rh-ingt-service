@@ -29,7 +29,7 @@ public class AtivarFuncionarioCommandHandler implements CommandHandler<AtivarFun
    public ResponseEntity<Map<String, ?>> handle(AtivarFuncionarioCommand command) {
      var funcionarioUuid = ExternalID.from(command.getFuncionarioId());
 
-     var funcionario = funcionarioRepository.getByExternalId(funcionarioUuid).orElseThrow(
+     var funcionario = funcionarioRepository.getById(funcionarioUuid).orElseThrow(
          () -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "funcionario not found")
      );
 

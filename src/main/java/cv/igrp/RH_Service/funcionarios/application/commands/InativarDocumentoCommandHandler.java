@@ -34,7 +34,7 @@ public class InativarDocumentoCommandHandler implements CommandHandler<InativarD
       // TODO: Implement the command handling logic here
      var tipoDocumentoId = ExternalID.from(command.getDocumentoId());
 
-     Documento tipoDocumento = documentoRepository.getByExternalId(tipoDocumentoId)
+     Documento tipoDocumento = documentoRepository.getById(tipoDocumentoId)
          .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Documento não encontrada: " + tipoDocumentoId.getStringValor()));
 
 

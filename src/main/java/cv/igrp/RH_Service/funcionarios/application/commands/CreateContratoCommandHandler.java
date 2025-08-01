@@ -48,18 +48,18 @@ public class CreateContratoCommandHandler implements CommandHandler<CreateContra
     var dto = command.getContratorequest();
     var idFuncionario = ExternalID.from(command.getFuncionarioId());
 
-    var funcionario = funcionarioRepository.getByExternalId(idFuncionario)
+    var funcionario = funcionarioRepository.getById(idFuncionario)
         .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Funcionario not found with id: " + idFuncionario));
 
 
     var idDepartamento = ExternalID.from(dto.getDepartamentoId());
-    var departamento = departamentoRepository.getByExternalId(idDepartamento)
+    var departamento = departamentoRepository.getById(idDepartamento)
         .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Departament not found with id: " + idDepartamento));
 
 
     var idCargo  = ExternalID.from(dto.getCargoId());
 
-    var cargo = cargoRepository.getByExternalId(idCargo)
+    var cargo = cargoRepository.getById(idCargo)
         .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Cargo not found with id: " + idCargo));
 
     var contrato = Contrato.criar(
@@ -76,7 +76,7 @@ public class CreateContratoCommandHandler implements CommandHandler<CreateContra
 
     if (dto.getAnexo() != null){
       var docDto = dto.getAnexo();
-      var tipoDocumento = tipoDocumentoRepository.getByExternalId(ExternalID.from(docDto.getIdTipodocumento()))
+      var tipoDocumento = tipoDocumentoRepository.getById(ExternalID.from(docDto.getIdTipodocumento()))
           .orElseThrow(() -> IgrpResponseStatusException.notFound("Tipo documento not found with id:: "+docDto.getIdTipodocumento()));
 
       var documento = documentoMapper.toDocumentoDomain(ObjetoTipo.CONTRATO, contrato.getIdContrato(), docDto, tipoDocumento);

@@ -18,9 +18,9 @@ public interface DepartamentoEntityRepository extends
     JpaSpecificationExecutor<DepartamentoEntity>
 {
 
-  Optional<DepartamentoEntity> findByExternalId(UUID externalId);
+  Optional<DepartamentoEntity> findById(UUID externalId);
 
   List<DepartamentoEntity> findAllByEstado(Estado estado);
 
-  List<DepartamentoEntity> findAllByResponsavelId_ExternalIdAndEstado(UUID responsavelIdExternalId, Estado estado);
+  List<DepartamentoEntity> findAllByResponsavelId_IdAndEstado(UUID responsavelIdExternalId, Estado estado);
 }

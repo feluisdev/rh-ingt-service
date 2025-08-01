@@ -34,7 +34,7 @@ public class GetTipoDocumentoByIdQueryHandler implements QueryHandler<GetTipoDoc
      LOGGER.info("Buscando TipoDocumento com externalId: {}", idTipoDocumento);
 
      var tipoDocumento = tipoDocumentoRepository
-         .getByExternalId(ExternalID.from(idTipoDocumento))
+         .getById(ExternalID.from(idTipoDocumento))
          .orElseThrow(() -> IgrpResponseStatusException.notFound("Tipo de Documento não encontrado"));
 
      var responseDTO = documentoMapper.toDto(tipoDocumento);

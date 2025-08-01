@@ -43,8 +43,8 @@ public class QualificacaoRepositoryImpl implements QualificacaoRepository {
 
   @Transactional(readOnly = true)
   @Override
-  public Optional<Qualificacao> getByExternalId(ExternalID externalId) {
-    return qualificacaoJpaRepository.findByExternalId(externalId.getValor())
+  public Optional<Qualificacao> getById(ExternalID externalId) {
+    return qualificacaoJpaRepository.findById(externalId.getValor())
         .map(entity -> {
           var funcionarioDomain = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
           return qualificacaoMapper.toDomainWithFuncionario(entity, funcionarioDomain);
@@ -72,8 +72,8 @@ public class QualificacaoRepositoryImpl implements QualificacaoRepository {
 
   @Transactional(readOnly = true)
   @Override
-  public List<Qualificacao> getAllByFuncionarioExternalId(ExternalID funcionarioExternalId) {
-    var list = qualificacaoJpaRepository.findAllByIdFuncionario_ExternalId_AndEstado(funcionarioExternalId.getValor(), Estado.A);
+  public List<Qualificacao> getAllByFuncionarioId(ExternalID funcionarioExternalId) {
+    var list = qualificacaoJpaRepository.findAllByIdFuncionario_Id_AndEstado(funcionarioExternalId.getValor(), Estado.A);
     return list.stream()
         .map(entity -> {
           var funcionarioDomain = funcionarioMapper.toLightDomain(entity.getIdFuncionario());

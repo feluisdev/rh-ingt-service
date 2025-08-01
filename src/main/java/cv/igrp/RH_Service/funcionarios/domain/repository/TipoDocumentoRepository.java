@@ -9,5 +9,5 @@ public interface TipoDocumentoRepository {
     TipoDocumento save(TipoDocumento tipoDocumento);
     List<TipoDocumento> getAll();
     List<TipoDocumento> getAll(TipoDocumentoFilter filter);
-    Optional<TipoDocumento> getByExternalId(ExternalID externalId);
+    Optional<TipoDocumento> getById(ExternalID idTipoDocumento);
 }

@@ -34,7 +34,7 @@ public class UpdateQualificacaoCommandHandler implements CommandHandler<UpdateQu
 
      var dto = command.getQualificacaorequest();
 
-     var qualificacao = qualificacaoRepository.getByExternalId(qualificacaoId)
+     var qualificacao = qualificacaoRepository.getById(qualificacaoId)
          .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Qualificação não encontrada: " + qualificacaoId.getStringValor()));
 
      if (!qualificacao.getFuncionario().getIdFuncionario().equals(funcionarioId)) {

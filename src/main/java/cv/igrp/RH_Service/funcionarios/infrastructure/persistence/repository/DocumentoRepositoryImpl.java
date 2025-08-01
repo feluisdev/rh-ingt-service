@@ -76,8 +76,8 @@ public class DocumentoRepositoryImpl implements DocumentoRepository {
 
   @Transactional(readOnly = true)
   @Override
-  public Optional<Documento> getByExternalId(ExternalID externalId) {
-    return documentoEntityRepository.findByExternalId(externalId.getValor())
+  public Optional<Documento> getById(ExternalID idDocumento) {
+    return documentoEntityRepository.findById(idDocumento.getValor())
         .map(documentoMapper::toDomain);
   }
 

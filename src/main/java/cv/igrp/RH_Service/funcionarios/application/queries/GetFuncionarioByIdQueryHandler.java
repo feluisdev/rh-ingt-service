@@ -31,7 +31,7 @@ public class GetFuncionarioByIdQueryHandler implements QueryHandler<GetFuncionar
   public ResponseEntity<FuncionarioResponseDTO> handle(GetFuncionarioByIdQuery query) {
      var funcionarioUuid = ExternalID.from(query.getFuncionarioId());
 
-     var funcionario = funcionarioRepository.getByExternalId(funcionarioUuid).orElseThrow(
+     var funcionario = funcionarioRepository.getById(funcionarioUuid).orElseThrow(
          () -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "funcionario not found")
      );
     return ResponseEntity.ok(funcionarioMapper.toResponseDTO(funcionario));

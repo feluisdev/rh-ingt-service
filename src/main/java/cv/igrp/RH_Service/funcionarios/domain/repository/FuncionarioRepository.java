@@ -11,9 +11,11 @@ public interface FuncionarioRepository {
 
   Funcionario save(Funcionario funcionario);
 
-  Optional<Funcionario> getByExternalId(ExternalID externalId);
+  Optional<Funcionario> getById(ExternalID idFuncionario);
 
   List<Funcionario> getAll(FuncionarioFilter filter);
 
   List<Funcionario> getAll();
+
+  boolean existsById(ExternalID idFuncionario);
 }

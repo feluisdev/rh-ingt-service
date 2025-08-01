@@ -39,24 +39,24 @@ public class UpdateContratoCommandHandler implements CommandHandler<UpdateContra
    public ResponseEntity<ContratoResponseDTO> handle(UpdateContratoCommand command) {
 
      var idContrato = ExternalID.from(command.getContratoId());
-     var contrato = contratoRepository.getByExternalId(idContrato)
+     var contrato = contratoRepository.getById(idContrato)
          .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Contrato not found with id: " + idContrato));
 
      var dto = command.getContratorequest();
      var idFuncionario = ExternalID.from(command.getFuncionarioId());
 
-    funcionarioRepository.getByExternalId(idFuncionario)
+    funcionarioRepository.getById(idFuncionario)
          .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Funcionario not found with id: " + idFuncionario));
 
 
      var idDepartamento = ExternalID.from(dto.getDepartamentoId());
-     var departamento = departamentoRepository.getByExternalId(idDepartamento)
+     var departamento = departamentoRepository.getById(idDepartamento)
          .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Departament not found with id: " + idDepartamento));
 
 
      var idCargo  = ExternalID.from(dto.getCargoId());
 
-     var cargo = cargoRepository.getByExternalId(idCargo)
+     var cargo = cargoRepository.getById(idCargo)
          .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Cargo not found with id: " + idCargo));
 
      contrato.atualizar(

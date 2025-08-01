@@ -35,7 +35,7 @@ public class GetQualificacaoQueryHandler implements QueryHandler<GetQualificacao
      var qualificacaoId = ExternalID.from(query.getQualificacaoId());
 
 
-     var qualificacao = qualificacaoRepository.getByExternalId(qualificacaoId)
+     var qualificacao = qualificacaoRepository.getById(qualificacaoId)
          .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Qualificação não encontrada: " + qualificacaoId.getStringValor()));
 
      if (!qualificacao.getFuncionario().getIdFuncionario().equals(funcionarioId)) {

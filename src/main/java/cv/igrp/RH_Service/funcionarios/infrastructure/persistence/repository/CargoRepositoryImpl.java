@@ -36,8 +36,8 @@ public class CargoRepositoryImpl implements CargoRepository {
 
   @Transactional(readOnly = true)
   @Override
-  public Optional<Cargo> getByExternalId(ExternalID externalId) {
-    return cargoEntityRepository.findByExternalId(externalId.getValor())
+  public Optional<Cargo> getById(ExternalID externalId) {
+    return cargoEntityRepository.findById(externalId.getValor())
         .map(cargoMapper::toDomain);
   }
 

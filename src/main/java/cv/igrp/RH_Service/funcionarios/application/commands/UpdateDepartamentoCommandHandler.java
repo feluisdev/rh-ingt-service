@@ -37,10 +37,10 @@ public class UpdateDepartamentoCommandHandler implements CommandHandler<UpdateDe
 
      var responsavelId = ExternalID.from(dto.getResponsavelId());
 
-     var responsavel = funcionarioRepository.getByExternalId(responsavelId)
+     var responsavel = funcionarioRepository.getById(responsavelId)
          .orElseThrow(() -> IgrpResponseStatusException.notFound("Responsável não encontrado com ID: " + responsavelId.getStringValor()));
 
-      var departamento = departamentoRepository.getByExternalId(departamentoId).orElseThrow(
+      var departamento = departamentoRepository.getById(departamentoId).orElseThrow(
         () -> IgrpResponseStatusException.notFound("Departamento não encontrado com ID: " + departamentoId.getStringValor())
       );
 

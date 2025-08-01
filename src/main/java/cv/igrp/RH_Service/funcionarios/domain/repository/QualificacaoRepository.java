@@ -11,11 +11,11 @@ public interface QualificacaoRepository {
 
   Qualificacao save(Qualificacao qualificacao);
 
-  Optional<Qualificacao> getByExternalId(ExternalID externalId);
+  Optional<Qualificacao> getById(ExternalID idQualificacao);
 
   List<Qualificacao> getAll();
 
   List<Qualificacao> getAll(QualificacaoFilter filter); // todo later if i want extra filtering with speciffications
 
-  List<Qualificacao> getAllByFuncionarioExternalId(ExternalID funcionarioExternalId);
+  List<Qualificacao> getAllByFuncionarioId(ExternalID funcionarioId);
 }

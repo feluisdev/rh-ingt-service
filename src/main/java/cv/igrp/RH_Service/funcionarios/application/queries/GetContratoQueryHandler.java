@@ -37,7 +37,7 @@ public class GetContratoQueryHandler implements QueryHandler<GetContratoQuery, R
      var contratoId = ExternalID.from(query.getContratoId());
      var funcionarioId = ExternalID.from(query.getFuncionarioId());
 
-     var contrato = contratoRepository.getByExternalId(contratoId)
+     var contrato = contratoRepository.getById(contratoId)
          .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Contrato não encontrado: " + contratoId));
 
      if (!contrato.getFuncionario().getIdFuncionario().equals(funcionarioId)) {

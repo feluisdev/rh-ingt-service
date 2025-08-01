@@ -17,7 +17,7 @@ public interface DocumentoEntityRepository extends
     JpaRepository<DocumentoEntity, Integer>,
     JpaSpecificationExecutor<DocumentoEntity>
 {
-  Optional<DocumentoEntity> findByExternalId(UUID externalId);
+  Optional<DocumentoEntity> findById(UUID externalId);
 
   List<DocumentoEntity> findByObjectIdAndObjectoTipo(UUID objectId, ObjetoTipo objectoTipo);
 

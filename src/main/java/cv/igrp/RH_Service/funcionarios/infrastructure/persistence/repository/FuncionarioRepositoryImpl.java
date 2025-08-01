@@ -31,6 +31,7 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
   private final DocumentoEntityRepository documentoEntityRepository;
 
   private final DocumentoMapper documentoMapper;
+  private final FuncionarioEntityRepository funcionarioEntityRepository;
 
   @Transactional
   @Override
@@ -53,10 +54,10 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
 
   @Transactional(readOnly = true)
   @Override
-  public Optional<Funcionario> getByExternalId(ExternalID externalId) {
-    return jpaFuncionarioEntityRepository.findByExternalId(externalId.getValor())
+  public Optional<Funcionario> getById(ExternalID funcionarioId) {
+    return jpaFuncionarioEntityRepository.findById(funcionarioId.getValor())
           .map(entity -> {
-          List<DocumentoEntity> documentos = documentoEntityRepository.findByObjectIdAndObjectoTipo(externalId.getValor(), ObjetoTipo.FUNCIONARIO);
+          List<DocumentoEntity> documentos = documentoEntityRepository.findByObjectIdAndObjectoTipo(funcionarioId.getValor(), ObjetoTipo.FUNCIONARIO);
           return funcionarioMapper.toDomain(entity, documentos);
         });
   }
@@ -114,5 +115,10 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
     return entities.stream()
         .map(funcionarioMapper::toLightDomain)
         .toList();
+  }
+
+  @Override
+  public boolean existsById(ExternalID idFuncionario) {
+    return funcionarioEntityRepository.existsById(idFuncionario.getValor());
   }
 }

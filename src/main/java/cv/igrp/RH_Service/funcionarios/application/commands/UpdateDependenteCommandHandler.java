@@ -38,7 +38,7 @@ public class UpdateDependenteCommandHandler implements CommandHandler<UpdateDepe
      var dependenteId = ExternalID.from(command.getDependenteId());
      var funcionarioId = ExternalID.from(command.getFuncionarioId());
 
-     var funcionario = funcionarioRepository.getByExternalId(funcionarioId)
+     var funcionario = funcionarioRepository.getById(funcionarioId)
          .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Funcionário não encontrado: " + funcionarioId));
 
      var dependente = funcionario.getDependenteByExternalId(dependenteId);
