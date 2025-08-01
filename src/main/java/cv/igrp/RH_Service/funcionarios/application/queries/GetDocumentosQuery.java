@@ -13,15 +13,15 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class GetDocumentosQuery implements Query {
 
-  @NotBlank(message = "The field <external_id> is required.")
-  private String external_id;
-  @NotBlank(message = "The field <url> is required.")
-  private String url;
-  @NotBlank(message = "The field <observacao> is required.")
-  private String observacao;
-  @NotBlank(message = "The field <object_id> is required.")
-  private String object_id;
+  @NotBlank(message = "The field <documentoId> is required.")
+  private String documentoId;
+  @NotBlank(message = "The field <idTipoDocumento> is required.")
+  private String idTipoDocumento;
   @NotBlank(message = "The field <estado> is required.")
   private String estado;
+  @NotBlank(message = "The field <pagina> is required.")
+  private String pagina;
+  @NotBlank(message = "The field <tamanho> is required.")
+  private String tamanho;
 
 }

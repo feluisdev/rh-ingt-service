@@ -2,6 +2,9 @@ package cv.igrp.RH_Service.funcionarios.application.commands;
 
 import cv.igrp.RH_Service.funcionarios.domain.models.Cargo;
 import cv.igrp.RH_Service.funcionarios.domain.repository.CargoRepository;
+import cv.igrp.RH_Service.shared.application.constants.ObjetoTipo;
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +36,7 @@ public class CreateCargoCommandHandler implements CommandHandler<CreateCargoComm
          dto.getSalarioBase(),
          dto.getNivelHierarquico()
      );
+
 
      // Salvar usando repositório
      Cargo salvo = cargoRepository.save(novoCargo);

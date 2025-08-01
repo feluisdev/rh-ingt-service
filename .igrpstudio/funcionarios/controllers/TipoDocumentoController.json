@@ -37,6 +37,11 @@
         },
         {
           "type": "string",
+          "name": "estado",
+          "isRequired": false
+        },
+        {
+          "type": "string",
           "name": "pagina",
           "isRequired": true,
           "value": "0"

@@ -1,11 +1,10 @@
 package cv.igrp.RH_Service.funcionarios.application.commands;
 
 import cv.igrp.RH_Service.funcionarios.domain.models.Contrato;
-import cv.igrp.RH_Service.funcionarios.domain.repository.CargoRepository;
-import cv.igrp.RH_Service.funcionarios.domain.repository.ContratoRepository;
-import cv.igrp.RH_Service.funcionarios.domain.repository.DepartamentoRepository;
-import cv.igrp.RH_Service.funcionarios.domain.repository.FuncionarioRepository;
+import cv.igrp.RH_Service.funcionarios.domain.repository.*;
+import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.DocumentoMapper;
 import cv.igrp.RH_Service.funcionarios.infrastructure.persistence.repository.CargoRepositoryImpl;
+import cv.igrp.RH_Service.shared.application.constants.ObjetoTipo;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.framework.core.domain.CommandHandler;
@@ -30,12 +29,17 @@ public class CreateContratoCommandHandler implements CommandHandler<CreateContra
   private final FuncionarioRepository funcionarioRepository;
   private final DepartamentoRepository departamentoRepository;
   private final CargoRepository cargoRepository;
-  public CreateContratoCommandHandler(ContratoRepository contratoRepository, FuncionarioRepository funcionarioRepository, DepartamentoRepository departamentoRepository, CargoRepository cargoRepository) {
+
+  private final TipoDocumentoRepository tipoDocumentoRepository;
+  private final DocumentoMapper documentoMapper;
+  public CreateContratoCommandHandler(ContratoRepository contratoRepository, FuncionarioRepository funcionarioRepository, DepartamentoRepository departamentoRepository, CargoRepository cargoRepository, TipoDocumentoRepository tipoDocumentoRepository, DocumentoMapper documentoMapper) {
 
     this.contratoRepository = contratoRepository;
     this.funcionarioRepository = funcionarioRepository;
     this.departamentoRepository = departamentoRepository;
     this.cargoRepository = cargoRepository;
+    this.tipoDocumentoRepository = tipoDocumentoRepository;
+    this.documentoMapper = documentoMapper;
   }
 
   @IgrpCommandHandler
@@ -69,6 +73,16 @@ public class CreateContratoCommandHandler implements CommandHandler<CreateContra
         funcionario,
         cargo
     );
+
+    if (dto.getAnexo() != null){
+      var docDto = dto.getAnexo();
+      var tipoDocumento = tipoDocumentoRepository.getByExternalId(ExternalID.from(docDto.getIdTipodocumento()))
+          .orElseThrow(() -> IgrpResponseStatusException.notFound("Tipo documento not found with id:: "+docDto.getIdTipodocumento()));
+
+      var documento = documentoMapper.toDocumentoDomain(ObjetoTipo.CONTRATO, contrato.getExternalId(), docDto, tipoDocumento);
+      contrato.adicionarDocumento(documento);
+
+    }
 
 
     var contratoSaved = contratoRepository.save(contrato);

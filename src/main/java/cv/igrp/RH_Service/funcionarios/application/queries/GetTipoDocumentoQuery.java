@@ -17,6 +17,8 @@ public class GetTipoDocumentoQuery implements Query {
   private String codigo;
   @NotBlank(message = "The field <descricao> is required.")
   private String descricao;
+  @NotBlank(message = "The field <estado> is required.")
+  private String estado;
   @NotBlank(message = "The field <pagina> is required.")
   private String pagina;
   @NotBlank(message = "The field <tamanho> is required.")

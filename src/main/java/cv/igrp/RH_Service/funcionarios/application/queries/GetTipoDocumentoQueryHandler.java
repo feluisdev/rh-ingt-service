@@ -5,6 +5,7 @@ import cv.igrp.RH_Service.funcionarios.application.dto.WrapperListaTipoDocumento
 import cv.igrp.RH_Service.funcionarios.domain.filter.TipoDocumentoFilter;
 import cv.igrp.RH_Service.funcionarios.domain.repository.TipoDocumentoRepository;
 import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.TipoDocumentoMapper;
+import cv.igrp.RH_Service.shared.application.constants.Estado;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import cv.igrp.framework.core.domain.QueryHandler;
@@ -38,6 +39,7 @@ public class GetTipoDocumentoQueryHandler implements QueryHandler<GetTipoDocumen
      TipoDocumentoFilter filter = TipoDocumentoFilter.builder()
          .descricao(query.getDescricao())
          .codigo(query.getCodigo())
+         .estado(query.getEstado()!=null ? Estado.fromCodeOrThrow(query.getEstado()) : null)
          .pageNumber(Integer.parseInt(query.getPagina()))
          .pageSize(Integer.parseInt(query.getTamanho()))
          .build();

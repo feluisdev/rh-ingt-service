@@ -66,6 +66,12 @@ public class TipoDocumentoRepositoryImpl implements TipoDocumentoRepository {
             cb.equal(cb.lower(root.get("codigo")), filter.getCodigo().trim().toLowerCase()));
       }
 
+      if (filter.getEstado() != null) {
+        predicates = cb.and(predicates, cb.equal(root.get("estado"), filter.getEstado()));
+      } else {
+        predicates = cb.and(predicates, cb.equal(root.get("estado"), Estado.A));
+      }
+
 
       return predicates;
     };

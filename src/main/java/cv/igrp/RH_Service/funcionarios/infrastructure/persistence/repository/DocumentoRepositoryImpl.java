@@ -50,42 +50,23 @@ public class DocumentoRepositoryImpl implements DocumentoRepository {
   @Transactional(readOnly = true)
   @Override
   public List<Documento> getAll(DocumentoFilter filter) {
-    var pageable = PageRequest.of(0, 20); // ajustar se houver paginação em DocumentoFilter
+    var pageable = PageRequest.of(filter.getPageNumber(), filter.getPageSize());
 
     Specification<DocumentoEntity> spec = (root, query, cb) -> {
       var predicates = cb.conjunction();
-
-      if (filter.getId() != null) {
-        predicates = cb.and(predicates, cb.equal(root.get("id"), filter.getId()));
-      }
-
-      if (filter.getExternalId() != null) {
-        predicates = cb.and(predicates, cb.equal(root.get("externalId"), filter.getExternalId()));
-      }
-
-      if (filter.getUrl() != null && !filter.getUrl().isBlank()) {
-        predicates = cb.and(predicates,
-            cb.like(cb.lower(root.get("url")), "%" + filter.getUrl().trim().toLowerCase() + "%"));
-      }
-
-      if (filter.getObservacao() != null && !filter.getObservacao().isBlank()) {
-        predicates = cb.and(predicates,
-            cb.like(cb.lower(root.get("observacao")), "%" + filter.getObservacao().trim().toLowerCase() + "%"));
-      }
-
-      if (filter.getObjectoTipo() != null && !filter.getObjectoTipo().isBlank()) {
-        predicates = cb.and(predicates,
-            cb.equal(cb.lower(root.get("objectoTipo")), filter.getObjectoTipo().trim().toLowerCase()));
-      }
-
-      if (filter.getObjectId() != null) {
-        predicates = cb.and(predicates, cb.equal(root.get("objectId"), filter.getObjectId()));
-      }
 
       if (filter.getEstado() != null) {
         predicates = cb.and(predicates, cb.equal(root.get("estado"), filter.getEstado()));
       } else {
         predicates = cb.and(predicates, cb.equal(root.get("estado"), Estado.A));
+      }
+
+      if (filter.getDocumentoId() != null) {
+        predicates = cb.and(predicates, cb.equal(root.get("externalId"), filter.getDocumentoId().getValor()));
+      }
+
+      if (filter.getIdTipoDocumento() != null) {
+        predicates = cb.and(predicates, cb.equal(root.get("idTipoDoc").get("externalId"), filter.getIdTipoDocumento().getValor()));
       }
 
       return predicates;

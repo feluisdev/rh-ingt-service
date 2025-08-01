@@ -22,9 +22,7 @@ import cv.igrp.RH_Service.funcionarios.application.commands.*;
 import cv.igrp.RH_Service.funcionarios.application.queries.*;
 
 
-import cv.igrp.RH_Service.funcionarios.application.dto.DocumentoResponseDTO;
-import cv.igrp.RH_Service.funcionarios.application.dto.DocumentoRequestDTO;
-import java.util.Map;
+import cv.igrp.RH_Service.funcionarios.application.dto.WrapperListaDocumentoDTO;
 
 @IgrpController
 @RestController
@@ -58,177 +56,30 @@ public class DocumentoController {
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = String.class,
-                  type = "String")
-          )
-      )
-    }
-  )
-  
-  public ResponseEntity<String> getDocumentos(
-    @RequestParam(value = "external_id", required = false) String external_id,
-    @RequestParam(value = "url", required = false) String url,
-    @RequestParam(value = "observacao", required = false) String observacao,
-    @RequestParam(value = "object_id", required = false) String object_id,
-    @RequestParam(value = "estado", required = false) String estado)
-  {
-
-      LOGGER.debug("Operation started");
-
-      final var query = new GetDocumentosQuery(external_id, url, observacao, object_id, estado);
-
-      ResponseEntity<String> response = queryBus.handle(query);
-
-      LOGGER.debug("Operation finished");
-
-      return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
-  }
-
-  @GetMapping(
-    value = "{documentoId}"
-  )
-  @Operation(
-    summary = "GET method to handle operations for getDocumentoById",
-    description = "GET method to handle operations for getDocumentoById",
-    responses = {
-      @ApiResponse(
-          responseCode = "200",
-          description = "",
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(
-                  implementation = DocumentoResponseDTO.class,
+                  implementation = WrapperListaDocumentoDTO.class,
                   type = "object")
           )
       )
     }
   )
   
-  public ResponseEntity<DocumentoResponseDTO> getDocumentoById(
-    @PathVariable(value = "documentoId") String documentoId)
+  public ResponseEntity<WrapperListaDocumentoDTO> getDocumentos(
+    @RequestParam(value = "documentoId", required = false) String documentoId,
+    @RequestParam(value = "idTipoDocumento", required = false) String idTipoDocumento,
+    @RequestParam(value = "estado", required = false) String estado,
+    @RequestParam(value = "pagina", defaultValue = "0") String pagina,
+    @RequestParam(value = "tamanho", defaultValue = "20") String tamanho)
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new GetDocumentoByIdQuery(documentoId);
+      final var query = new GetDocumentosQuery(documentoId, idTipoDocumento, estado, pagina, tamanho);
 
-      ResponseEntity<DocumentoResponseDTO> response = queryBus.handle(query);
+      ResponseEntity<WrapperListaDocumentoDTO> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 
       return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
-  }
-
-  @PostMapping(
-  )
-  @Operation(
-    summary = "POST method to handle operations for createDocumento",
-    description = "POST method to handle operations for createDocumento",
-    responses = {
-      @ApiResponse(
-          responseCode = "201",
-          description = "",
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(
-                  implementation = DocumentoResponseDTO.class,
-                  type = "object")
-          )
-      )
-    }
-  )
-  
-  public ResponseEntity<DocumentoResponseDTO> createDocumento(@Valid @RequestBody DocumentoRequestDTO createDocumentoRequest
-    )
-  {
-
-      LOGGER.debug("Operation started");
-
-      final var command = new CreateDocumentoCommand(createDocumentoRequest);
-
-       ResponseEntity<DocumentoResponseDTO> response = commandBus.send(command);
-
-       LOGGER.debug("Operation finished");
-
-        return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
-  }
-
-  @PutMapping(
-    value = "{DocumentoId}"
-  )
-  @Operation(
-    summary = "PUT method to handle operations for updateDocumento",
-    description = "PUT method to handle operations for updateDocumento",
-    responses = {
-      @ApiResponse(
-          responseCode = "200",
-          description = "",
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(
-                  implementation = String.class,
-                  type = "String")
-          )
-      )
-    }
-  )
-  
-  public ResponseEntity<String> updateDocumento(@Valid @RequestBody DocumentoRequestDTO updateDocumentoRequest
-    , @PathVariable(value = "DocumentoId") String DocumentoId)
-  {
-
-      LOGGER.debug("Operation started");
-
-      final var command = new UpdateDocumentoCommand(updateDocumentoRequest, DocumentoId);
-
-       ResponseEntity<String> response = commandBus.send(command);
-
-       LOGGER.debug("Operation finished");
-
-        return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
-  }
-
-  @DeleteMapping(
-    value = "{DocumentoId}"
-  )
-  @Operation(
-    summary = "DELETE method to handle operations for inativarDocumento",
-    description = "DELETE method to handle operations for inativarDocumento",
-    responses = {
-      @ApiResponse(
-          responseCode = "",
-          description = "",
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(
-                  implementation = String.class,
-                  type = "String")
-          )
-      )
-    }
-  )
-  
-  public ResponseEntity<Map<String, ?>> inativarDocumento(
-    @PathVariable(value = "DocumentoId") String DocumentoId)
-  {
-
-      LOGGER.debug("Operation started");
-
-      final var command = new InativarDocumentoCommand(DocumentoId);
-
-       ResponseEntity<Map<String, ?>> response = commandBus.send(command);
-
-       LOGGER.debug("Operation finished");
-
-        return ResponseEntity.status(response.getStatusCode())
               .headers(response.getHeaders())
               .body(response.getBody());
   }

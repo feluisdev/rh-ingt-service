@@ -28,10 +28,12 @@ public class Contrato {
   private Funcionario funcionario;
   private Cargo cargo;
 
+  private Documento contratoAnexo;
+
   private Contrato(Integer id, ExternalID externalId, TipoContrato tipoContrato,
                    LocalDate dataInicio, LocalDate dataFim, BigDecimal salario,
                    Integer cargaHoraria, String observacoes, Estado estado,
-                   Departamento departamento, Funcionario funcionario, Cargo cargo) {
+                   Departamento departamento, Funcionario funcionario, Cargo cargo, Documento contratoAnexo) {
 
     this.id = id;
     this.externalId = externalId;
@@ -45,13 +47,14 @@ public class Contrato {
     this.departamento = departamento;
     this.funcionario = funcionario;
     this.cargo = cargo;
+    this.contratoAnexo = contratoAnexo;
   }
 
   // ===== MÉTODO CRIAR =====
   public static Contrato criar(TipoContrato tipoContrato, LocalDate dataInicio, LocalDate dataFim,
                                BigDecimal salario, Integer cargaHoraria,
                                String observacoes, Departamento departamento,
-                               Funcionario funcionario, Cargo cargo) {
+                               Funcionario funcionario, Cargo cargo, Documento contratoAnexo) {
 
     Objects.requireNonNull(tipoContrato, "Tipo de contrato é obrigatório");
     Objects.requireNonNull(dataInicio, "Data de início é obrigatória");
@@ -75,7 +78,69 @@ public class Contrato {
         Estado.A,
         departamento,
         funcionario,
-        cargo
+        cargo,
+        contratoAnexo
+    );
+  }
+
+  // ===== MÉTODO CRIAR =====
+  public static Contrato criar(TipoContrato tipoContrato, LocalDate dataInicio, LocalDate dataFim,
+                               BigDecimal salario, Integer cargaHoraria,
+                               String observacoes, Departamento departamento,
+                               Funcionario funcionario, Cargo cargo) {
+
+    Objects.requireNonNull(tipoContrato, "Tipo de contrato é obrigatório");
+    Objects.requireNonNull(dataInicio, "Data de início é obrigatória");
+    Objects.requireNonNull(dataFim, "Data fim é obrigatória");
+    Objects.requireNonNull(salario, "Salário é obrigatório");
+    Objects.requireNonNull(funcionario, "Funcionário é obrigatório");
+
+    if (dataFim.isBefore(dataInicio)) {
+      throw IgrpResponseStatusException.badRequest("Data fim não pode ser antes da data de início.");
+    }
+
+    return new Contrato(
+        null,
+        ExternalID.gerarNovo(),
+        tipoContrato,
+        dataInicio,
+        dataFim,
+        salario,
+        cargaHoraria,
+        observacoes,
+        Estado.A,
+        departamento,
+        funcionario,
+        cargo,
+        null
+    );
+  }
+
+  // ===== MÉTODO RECONSTRUIR =====
+  public static Contrato reconstruir(Integer id, ExternalID externalId, TipoContrato tipoContrato,
+                                     LocalDate dataInicio, LocalDate dataFim, BigDecimal salario,
+                                     Integer cargaHoraria, String observacoes, Estado estado,
+                                     Departamento departamento, Funcionario funcionario, Cargo cargo, Documento contratoAnexo) {
+
+    Objects.requireNonNull(id, "ID é obrigatório");
+    Objects.requireNonNull(externalId, "ExternalID é obrigatório");
+    Objects.requireNonNull(dataInicio, "Data de início é obrigatória");
+    Objects.requireNonNull(estado, "Estado é obrigatório");
+
+    return new Contrato(
+        id,
+        externalId,
+        tipoContrato,
+        dataInicio,
+        dataFim,
+        salario,
+        cargaHoraria,
+        observacoes,
+        estado,
+        departamento,
+        funcionario,
+        cargo,
+        contratoAnexo
     );
   }
 
@@ -102,11 +167,41 @@ public class Contrato {
         estado,
         departamento,
         funcionario,
-        cargo
+        cargo,
+        null
     );
   }
 
   // ===== MÉTODO ATUALIZAR =====
+  public void atualizar(TipoContrato tipoContrato, BigDecimal salario,
+                        Integer cargaHoraria, String observacoes,
+                        Departamento departamento, Cargo cargo, LocalDate dataInicio, LocalDate dataFim, Documento contratoAnexo) {
+
+    this.tipoContrato = tipoContrato;
+    this.salario = salario;
+    this.cargaHoraria = cargaHoraria;
+    this.observacoes = observacoes;
+    this.departamento = departamento;
+    this.cargo = cargo;
+    this.dataInicio = dataInicio;
+    this.dataFim = dataFim;
+    this.contratoAnexo = contratoAnexo;
+  }
+
+  public void atualizar(TipoContrato tipoContrato, BigDecimal salario,
+                        Integer cargaHoraria, String observacoes,
+                        Departamento departamento, Cargo cargo, Documento contratoAnexo) {
+
+    this.tipoContrato = tipoContrato;
+    this.salario = salario;
+    this.cargaHoraria = cargaHoraria;
+    this.observacoes = observacoes;
+    this.departamento = departamento;
+    this.cargo = cargo;
+    this.contratoAnexo = contratoAnexo;
+
+  }
+
   public void atualizar(TipoContrato tipoContrato, BigDecimal salario,
                         Integer cargaHoraria, String observacoes,
                         Departamento departamento, Cargo cargo, LocalDate dataInicio, LocalDate dataFim) {
@@ -119,18 +214,6 @@ public class Contrato {
     this.cargo = cargo;
     this.dataInicio = dataInicio;
     this.dataFim = dataFim;
-  }
-
-  public void atualizar(TipoContrato tipoContrato, BigDecimal salario,
-                        Integer cargaHoraria, String observacoes,
-                        Departamento departamento, Cargo cargo) {
-
-    this.tipoContrato = tipoContrato;
-    this.salario = salario;
-    this.cargaHoraria = cargaHoraria;
-    this.observacoes = observacoes;
-    this.departamento = departamento;
-    this.cargo = cargo;
   }
 
   // ===== MÉTODO ATIVAR =====
@@ -158,4 +241,10 @@ public class Contrato {
   public boolean isAtivo() {
     return this.estado == Estado.A;
   }
+
+  public void adicionarDocumento(Documento documento) {
+    Objects.requireNonNull(documento, "Documento não pode ser nulo");
+    this.contratoAnexo = documento;
+  }
+
 }

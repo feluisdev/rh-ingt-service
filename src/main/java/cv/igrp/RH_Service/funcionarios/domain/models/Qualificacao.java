@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -23,6 +24,8 @@ public class Qualificacao {
   private BigDecimal notaFinal;
   private Estado estado;
   private Funcionario funcionario;
+
+  private Documento documento;
 
   private Qualificacao(Integer id, ExternalID externalId, String instituicao, String curso,
                        LocalDate dataInicio, LocalDate dataConclusao, String nivel, String situacao,
@@ -98,4 +101,9 @@ public class Qualificacao {
     this.estado = Estado.I;
   }
 
+  public void adicionarDocumento(Documento documento) {
+    Objects.requireNonNull(documento, "Documento não pode ser nulo");
+    this.documento = documento;
+  }
+  
 }

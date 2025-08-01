@@ -32,6 +32,7 @@ public class QualificacaoMapper {
     );
   }
 
+
   public QualificacaoEntity toEntity(Qualificacao domain, FuncionarioEntity funcionarioEntity) {
     if (domain == null) {
       return null;

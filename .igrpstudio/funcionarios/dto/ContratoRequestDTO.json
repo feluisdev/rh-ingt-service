@@ -101,6 +101,19 @@
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false
+    },
+    {
+      "name": "anexo",
+      "objectType": "dto",
+      "type": "DocumentoRequest",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "module": "funcionarios"
     }
   ],
   "id": "wo2lt4gr0y"

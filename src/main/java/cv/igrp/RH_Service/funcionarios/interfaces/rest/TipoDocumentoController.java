@@ -69,13 +69,14 @@ public class TipoDocumentoController {
   public ResponseEntity<WrapperListaTipoDocumentoDTO> getTipoDocumento(
     @RequestParam(value = "codigo", required = false) String codigo,
     @RequestParam(value = "descricao", required = false) String descricao,
+    @RequestParam(value = "estado", required = false) String estado,
     @RequestParam(value = "pagina", defaultValue = "0") String pagina,
     @RequestParam(value = "tamanho", defaultValue = "20") String tamanho)
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new GetTipoDocumentoQuery(codigo, descricao, pagina, tamanho);
+      final var query = new GetTipoDocumentoQuery(codigo, descricao, estado, pagina, tamanho);
 
       ResponseEntity<WrapperListaTipoDocumentoDTO> response = queryBus.handle(query);
 

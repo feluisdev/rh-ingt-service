@@ -48,12 +48,9 @@ public class DocumentoMapper {
     documentoResponseDto.setObservacao(documento.getObservacao());
     documentoResponseDto.setIdTipoDocumento(documento.getTipoDocumento().getExternalId().getStringValor());
     documentoResponseDto.setTipoDocumento(documento.getTipoDocumento().getDescricao());
-    //documentoResponseDto.setTipoDocumento("adsasdasdasdasdasd");
     documentoResponseDto.setEstado(documento.getEstado().getCode());
     documentoResponseDto.setEstadoDesc(documento.getEstado().getDescription());
-
     return documentoResponseDto;
-
 
   }
 
