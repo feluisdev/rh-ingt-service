@@ -76,7 +76,8 @@ public class ContratoMapper {
         contrato.getCargaHoraria(),
         contrato.getObservacoes(),
         contrato.getEstado().getCode(),
-        contrato.getEstado().getDescription() // Assumindo que existe um getEstadoDescricao()
+        contrato.getEstado().getDescription(), // Assumindo que existe um getEstadoDescricao()
+        null
     );
   }
 }

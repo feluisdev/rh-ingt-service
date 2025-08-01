@@ -138,19 +138,6 @@
       "primaryKey": false
     },
     {
-      "name": "anexo",
-      "objectType": "dto",
-      "type": "DocumentoResponse",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false,
-      "module": "funcionarios"
-    },
-    {
       "name": "estado",
       "objectType": "java",
       "type": "string",
@@ -173,6 +160,19 @@
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false
+    },
+    {
+      "name": "anexo",
+      "objectType": "dto",
+      "type": "DocumentoResponse",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "module": "funcionarios"
     }
   ],
   "id": "uald4rjma"

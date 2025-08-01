@@ -55,13 +55,13 @@ public class ContratoResponseDTO {
   
   private String observacoes ;
   
-  @Valid
-  private DocumentoResponseDTO anexo ;
-  
   
   private String estado ;
   
   
   private String estadoDesc ;
+  
+  @Valid
+  private DocumentoResponseDTO anexo ;
 
 }
