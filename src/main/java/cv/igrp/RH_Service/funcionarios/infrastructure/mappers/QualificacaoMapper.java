@@ -27,7 +27,7 @@ public class QualificacaoMapper {
         entity.getCargaHoraria(),
         entity.getNotaFinal(),
         entity.getEstado(),
-        funcionarioDomain
+        null
     );
   }
 
@@ -51,6 +51,51 @@ public class QualificacaoMapper {
     entity.setIdFuncionario(funcionarioEntity);
 
     return entity;
+  }
+
+
+  public QualificacaoEntity toEntity(Qualificacao domain) {
+    if (domain == null) {
+      return null;
+    }
+
+    QualificacaoEntity entity = new QualificacaoEntity();
+    entity.setId(domain.getIdQualificacao().getValor());
+    entity.setInstituicao(domain.getInstituicao());
+    entity.setCurso(domain.getCurso());
+    entity.setDataInicio(domain.getDataInicio());
+    entity.setDataConclusao(domain.getDataConclusao());
+    entity.setNivel(domain.getNivel());
+    entity.setSituacao(domain.getSituacao());
+    entity.setCargaHoraria(domain.getCargaHoraria());
+    entity.setNotaFinal(domain.getNotaFinal());
+    entity.setEstado(domain.getEstado());
+
+    FuncionarioEntity funcionarioEntity = new FuncionarioEntity();
+    funcionarioEntity.setId(domain.getFuncionarioId().getValor());
+    entity.setIdFuncionario(funcionarioEntity);
+
+    return entity;
+  }
+
+  public Qualificacao toDomain(QualificacaoEntity entity) {
+    if (entity == null) {
+      return null;
+    }
+
+    return Qualificacao.reconstruir(
+        ExternalID.from(entity.getId()),
+        entity.getInstituicao(),
+        entity.getCurso(),
+        entity.getDataInicio(),
+        entity.getDataConclusao(),
+        entity.getNivel(),
+        entity.getSituacao(),
+        entity.getCargaHoraria(),
+        entity.getNotaFinal(),
+        entity.getEstado(),
+        ExternalID.from(entity.getIdFuncionario().getId())
+    );
   }
 
   public QualificacaoResponseDTO toDTO(Qualificacao qualificacao) {

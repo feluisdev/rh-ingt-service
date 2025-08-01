@@ -22,22 +22,17 @@ public class QualificacaoRepositoryImpl implements QualificacaoRepository {
 
   private final QualificacaoEntityRepository qualificacaoJpaRepository;
   private final QualificacaoMapper qualificacaoMapper;
-  private final FuncionarioMapper funcionarioMapper;
 
 
   @Transactional
   @Override
   public Qualificacao save(Qualificacao qualificacao) {
 
-    var funcionarioEntity = funcionarioMapper.toEntity(qualificacao.getFuncionario());
-
-    var entity = qualificacaoMapper.toEntity(qualificacao, funcionarioEntity);
+    var entity = qualificacaoMapper.toEntity(qualificacao);
     var saved = qualificacaoJpaRepository.save(entity);
 
-    var funcionarioDomain = funcionarioMapper.toLightDomain(funcionarioEntity);
 
-
-    return qualificacaoMapper.toDomainWithFuncionario(saved, funcionarioDomain);
+    return qualificacaoMapper.toDomain(saved);
   }
 
 
@@ -45,10 +40,7 @@ public class QualificacaoRepositoryImpl implements QualificacaoRepository {
   @Override
   public Optional<Qualificacao> getById(ExternalID externalId) {
     return qualificacaoJpaRepository.findById(externalId.getValor())
-        .map(entity -> {
-          var funcionarioDomain = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
-          return qualificacaoMapper.toDomainWithFuncionario(entity, funcionarioDomain);
-        });
+        .map(qualificacaoMapper::toDomain);
   }
 
   @Transactional(readOnly = true)
@@ -57,10 +49,7 @@ public class QualificacaoRepositoryImpl implements QualificacaoRepository {
     List<QualificacaoEntity> list = qualificacaoJpaRepository.findAllByEstado(Estado.A);
 
     return list.stream()
-        .map(entity -> {
-          var funcionarioDomain = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
-          return qualificacaoMapper.toDomainWithFuncionario(entity, funcionarioDomain);
-        })
+        .map(qualificacaoMapper::toDomain)
         .toList();
   }
 
@@ -75,10 +64,7 @@ public class QualificacaoRepositoryImpl implements QualificacaoRepository {
   public List<Qualificacao> getAllByFuncionarioId(ExternalID funcionarioExternalId) {
     var list = qualificacaoJpaRepository.findAllByIdFuncionario_Id_AndEstado(funcionarioExternalId.getValor(), Estado.A);
     return list.stream()
-        .map(entity -> {
-          var funcionarioDomain = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
-          return qualificacaoMapper.toDomainWithFuncionario(entity, funcionarioDomain);
-        })
+        .map(qualificacaoMapper::toDomain)
         .toList();
   }
 }

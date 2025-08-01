@@ -37,7 +37,7 @@ public class InativarQualificacaoCommandHandler implements CommandHandler<Inativ
 
 
      // Verifica se a qualificação pertence ao funcionário correto
-     if (!qualificacao.getFuncionario().getIdFuncionario().equals(funcionarioId)) {
+     if (!qualificacao.getFuncionarioId().equals(funcionarioId)) {
        throw IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST, "Qualificação não pertence ao funcionário informado.");
      }
 

@@ -44,8 +44,11 @@ public class CreateQualificacaoCommandHandler implements CommandHandler<CreateQu
   public ResponseEntity<Map<String, ?>> handle(CreateQualificacaoCommand command) {
     var funcionarioId = ExternalID.from(command.getFuncionarioId());
 
-    var funcionario = funcionarioRepository.getById(funcionarioId)
-        .orElseThrow(() -> IgrpResponseStatusException.notFound("Funcionário não encontrado: " + funcionarioId));
+    var existeFuncionario = funcionarioRepository.existsById(funcionarioId);
+
+    if(!existeFuncionario)
+      throw IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Funcionario not found with id: " + funcionarioId);
+
 
     var dto = command.getQualificacaorequest();
 
@@ -58,7 +61,7 @@ public class CreateQualificacaoCommandHandler implements CommandHandler<CreateQu
         dto.getSituacao(),
         dto.getCargaHoraria(),
         dto.getNotaFinal(),
-        funcionario
+        funcionarioId
     );
 
     if (dto.getAnexo() != null){

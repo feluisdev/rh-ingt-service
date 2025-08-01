@@ -22,26 +22,11 @@ public class Qualificacao {
   private Integer cargaHoraria;
   private BigDecimal notaFinal;
   private Estado estado;
-  private Funcionario funcionario;
   private ExternalID funcionarioId; // ExternalID do funcionário associado
 
   private Documento documento;
 
-  private Qualificacao(ExternalID idQualificacao, String instituicao, String curso,
-                       LocalDate dataInicio, LocalDate dataConclusao, String nivel, String situacao,
-                       Integer cargaHoraria, BigDecimal notaFinal, Estado estado, Funcionario funcionario) {
-    this.idQualificacao = idQualificacao;
-    this.instituicao = instituicao;
-    this.curso = curso;
-    this.dataInicio = dataInicio;
-    this.dataConclusao = dataConclusao;
-    this.nivel = nivel;
-    this.situacao = situacao;
-    this.cargaHoraria = cargaHoraria;
-    this.notaFinal = notaFinal;
-    this.estado = estado;
-    this.funcionario = funcionario;
-  }
+
 
   private Qualificacao(ExternalID idQualificacao, String instituicao, String curso,
                        LocalDate dataInicio, LocalDate dataConclusao, String nivel, String situacao,
@@ -59,27 +44,6 @@ public class Qualificacao {
     this.funcionarioId = funcionarioId;
   }
 
-  // Factory para criação de nova qualificação
-  public static Qualificacao criar(String instituicao, String curso, LocalDate dataInicio,
-                                   LocalDate dataConclusao, String nivel, String situacao,
-                                   Integer cargaHoraria, BigDecimal notaFinal, Funcionario funcionario) {
-    Objects.requireNonNull(instituicao, "Instituição é obrigatória");
-    Objects.requireNonNull(funcionario, "Funcionario é obrigatório");
-
-    return new Qualificacao(
-        ExternalID.gerarNovo(),
-        instituicao,
-        curso,
-        dataInicio,
-        dataConclusao,
-        nivel,
-        situacao,
-        cargaHoraria,
-        notaFinal,
-        Estado.A,
-        funcionario
-    );
-  }
 
   public static Qualificacao criar(String instituicao, String curso, LocalDate dataInicio,
                                    LocalDate dataConclusao, String nivel, String situacao,
@@ -100,17 +64,6 @@ public class Qualificacao {
         Estado.A,
         funcionarioId
     );
-  }
-
-  // Reconstrução do objeto a partir do banco
-  public static Qualificacao reconstruir(ExternalID idQualificacao, String instituicao, String curso,
-                                         LocalDate dataInicio, LocalDate dataConclusao, String nivel, String situacao,
-                                         Integer cargaHoraria, BigDecimal notaFinal, Estado estado, Funcionario funcionario) {
-    Objects.requireNonNull(idQualificacao, "ExternalID é obrigatório");
-    Objects.requireNonNull(funcionario, "Funcionario é obrigatório");
-
-    return new Qualificacao(idQualificacao, instituicao, curso, dataInicio, dataConclusao,
-        nivel, situacao, cargaHoraria, notaFinal, estado, funcionario);
   }
 
   public static Qualificacao reconstruir(ExternalID idQualificacao, String instituicao, String curso,
