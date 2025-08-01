@@ -47,7 +47,7 @@ public class CreateFuncionarioCommandHandler implements CommandHandler<CreateFun
          dto.getNumSegurado(), dto.getNib(),
          dto.getEmail(), dto.getSexo(), dto.getEstadoCivil(), dto.getEndereco());
 
-     if (dto.getAnexos() != null) {
+     if (dto.getAnexos() != null && !dto.getAnexos().isEmpty()) {
        for (DocumentoRequestDTO docDto : dto.getAnexos()) {
          var tipoDocumento = tipoDocumentoRepository.getByExternalId(ExternalID.from(docDto.getIdTipodocumento()))
              .orElseThrow(() -> IgrpResponseStatusException.notFound("Tipo documento not found with id:: "+docDto.getIdTipodocumento()));

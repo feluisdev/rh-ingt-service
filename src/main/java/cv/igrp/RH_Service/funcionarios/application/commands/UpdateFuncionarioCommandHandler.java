@@ -53,7 +53,7 @@ public class UpdateFuncionarioCommandHandler implements CommandHandler<UpdateFun
          dtoRequest.getSexo(), dtoRequest.getEstadoCivil(), dtoRequest.getEndereco()
          );
 
-     if (dtoRequest.getAnexos() != null) {
+     if (dtoRequest.getAnexos() != null && !dtoRequest.getAnexos().isEmpty()) {
        for (DocumentoRequestDTO docDto : dtoRequest.getAnexos()) {
          var tipoDocumento = tipoDocumentoRepository.getByExternalId(ExternalID.from(docDto.getIdTipodocumento()))
              .orElseThrow(() -> IgrpResponseStatusException.notFound("Tipo documento not found with id:: "+docDto.getIdTipodocumento()));
