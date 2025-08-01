@@ -46,21 +46,23 @@ public class CreateContratoCommandHandler implements CommandHandler<CreateContra
   public ResponseEntity<Map<String, ?>> handle(CreateContratoCommand command) {
 
     var dto = command.getContratorequest();
-    var idFuncionario = ExternalID.from(command.getFuncionarioId());
 
-    var funcionario = funcionarioRepository.getById(idFuncionario)
-        .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Funcionario not found with id: " + idFuncionario));
+    var idFuncionario = ExternalID.from(command.getFuncionarioId());
+    var existeFuncionario = funcionarioRepository.existsById(idFuncionario);
+    if(!existeFuncionario)
+      throw IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Funcionario not found with id: " + idFuncionario);
 
 
     var idDepartamento = ExternalID.from(dto.getDepartamentoId());
-    var departamento = departamentoRepository.getById(idDepartamento)
-        .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Departament not found with id: " + idDepartamento));
+    var existeDepartamento = departamentoRepository.existsById(idDepartamento);
+    if(!existeDepartamento)
+     throw IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Departament not found with id: " + idDepartamento);
 
 
     var idCargo  = ExternalID.from(dto.getCargoId());
-
-    var cargo = cargoRepository.getById(idCargo)
-        .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Cargo not found with id: " + idCargo));
+    var existeCargo = cargoRepository.existsById(idCargo);
+    if(!existeCargo)
+     throw IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Cargo not found with id: " + idCargo);
 
     var contrato = Contrato.criar(
         dto.getTipoContrato(),
@@ -69,9 +71,9 @@ public class CreateContratoCommandHandler implements CommandHandler<CreateContra
         dto.getSalario(),
         dto.getCargaHoraria(),
         dto.getObservacoes(),
-        departamento,
-        funcionario,
-        cargo
+        idDepartamento,
+        idFuncionario,
+        idCargo
     );
 
     if (dto.getAnexo() != null){

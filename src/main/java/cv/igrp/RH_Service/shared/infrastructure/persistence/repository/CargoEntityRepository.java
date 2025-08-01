@@ -21,4 +21,6 @@ public interface CargoEntityRepository extends
 
   List<CargoEntity> findAllByEstado(Estado estado);
 
+  boolean existsById(UUID id);
+
 }

@@ -102,4 +102,9 @@ public class CargoRepositoryImpl implements CargoRepository {
         .toList();
 
   }
+
+  @Override
+  public boolean existsById(ExternalID idCargo) {
+    return cargoEntityRepository.existsById(idCargo.getValor());
+  }
 }

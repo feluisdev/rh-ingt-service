@@ -18,4 +18,6 @@ public interface DepartamentoRepository {
   List<Departamento> getAll(DepartamentoFilter filter);
 
   List<Departamento> getAllByResponsavel(ExternalID responsavelId);
+
+  boolean existsById(ExternalID idDepartamento);
 }

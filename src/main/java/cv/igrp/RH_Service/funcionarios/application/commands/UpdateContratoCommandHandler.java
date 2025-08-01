@@ -43,29 +43,33 @@ public class UpdateContratoCommandHandler implements CommandHandler<UpdateContra
          .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Contrato not found with id: " + idContrato));
 
      var dto = command.getContratorequest();
-     var idFuncionario = ExternalID.from(command.getFuncionarioId());
 
-    funcionarioRepository.getById(idFuncionario)
-         .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Funcionario not found with id: " + idFuncionario));
+
+     var idFuncionario = ExternalID.from(command.getFuncionarioId());
+     var existeFuncionario = funcionarioRepository.existsById(idFuncionario);
+     if(!existeFuncionario)
+       throw IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Funcionario not found with id: " + idFuncionario);
 
 
      var idDepartamento = ExternalID.from(dto.getDepartamentoId());
-     var departamento = departamentoRepository.getById(idDepartamento)
-         .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Departament not found with id: " + idDepartamento));
+     var existeDepartamento = departamentoRepository.existsById(idDepartamento);
+     if(!existeDepartamento)
+       throw IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Departament not found with id: " + idDepartamento);
 
 
      var idCargo  = ExternalID.from(dto.getCargoId());
+     var existeCargo = cargoRepository.existsById(idCargo);
+     if(!existeCargo)
+       throw IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Cargo not found with id: " + idCargo);
 
-     var cargo = cargoRepository.getById(idCargo)
-         .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Cargo not found with id: " + idCargo));
 
      contrato.atualizar(
          dto.getTipoContrato(),
          dto.getSalario(),
          dto.getCargaHoraria(),
          dto.getObservacoes(),
-         departamento,
-         cargo,
+         idDepartamento,
+         idCargo,
           dto.getDataInicio(),
           dto.getDataFim()
      );

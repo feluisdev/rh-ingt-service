@@ -105,4 +105,9 @@ public class DepartamentoRepositoryImpl implements DepartamentoRepository {
         .map(departamentoMapper::toDomain)
         .toList();
   }
+
+  @Override
+  public boolean existsById(ExternalID idDepartamento) {
+    return jpaDepartamentoEntityRepository.existsById(idDepartamento.getValor());
+  }
 }

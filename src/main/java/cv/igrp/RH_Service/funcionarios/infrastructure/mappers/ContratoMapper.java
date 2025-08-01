@@ -31,9 +31,9 @@ public class ContratoMapper {
         entity.getCargaHoraria(),
         entity.getObservacoes(),
         entity.getEstado(),
-        departamento,
-        funcionario,
-        cargo
+        null,
+        null,
+        null
     );
   }
 
@@ -58,14 +58,64 @@ public class ContratoMapper {
     return entity;
   }
 
+
+
+  public Contrato toDomain(ContratoEntity entity) {
+    if (entity == null) return null;
+
+    return Contrato.reconstruir(
+        ExternalID.from( entity.getId()),
+        entity.getTipoContrato(),
+        entity.getDataInicio(),
+        entity.getDataFim(),
+        entity.getSalario(),
+        entity.getCargaHoraria(),
+        entity.getObservacoes(),
+        entity.getEstado(),
+        ExternalID.from(entity.getIdDepartamento().getId()),
+            ExternalID.from(entity.getIdFuncionario().getId()),
+                ExternalID.from(entity.getIdCargo().getId())
+    );
+  }
+
+  // ====== DOMAIN → ENTITY ======
+  public ContratoEntity toEntity(Contrato domain) {
+    if (domain == null) return null;
+
+    ContratoEntity entity = new ContratoEntity();
+    entity.setId(domain.getIdContrato().getValor());
+    entity.setTipoContrato(domain.getTipoContrato());
+    entity.setDataInicio(domain.getDataInicio());
+    entity.setDataFim(domain.getDataFim());
+    entity.setSalario(domain.getSalario());
+    entity.setCargaHoraria(domain.getCargaHoraria());
+    entity.setObservacoes(domain.getObservacoes());
+    entity.setEstado(domain.getEstado());
+
+    DepartamentoEntity departamentoEntity = new DepartamentoEntity();
+    departamentoEntity.setId(domain.getDepartamentoId().getValor());
+    entity.setIdDepartamento(departamentoEntity);
+
+    FuncionarioEntity funcionarioEntity = new FuncionarioEntity();
+    funcionarioEntity.setId(domain.getFuncionarioId().getValor());
+    entity.setIdFuncionario(funcionarioEntity);
+
+    CargoEntity cargoEntity = new CargoEntity();
+    cargoEntity.setId(domain.getCargoId().getValor());
+    entity.setIdCargo(cargoEntity);
+
+    return entity;
+  }
+
+
   public ContratoResponseDTO toDTO(Contrato contrato) {
     if (contrato == null) return null;
 
     return new ContratoResponseDTO(
         contrato.getIdContrato() != null ? contrato.getIdContrato().getStringValor() : null,
-        contrato.getFuncionario() != null ? contrato.getFuncionario().getIdFuncionario().getStringValor() : null,
-        contrato.getDepartamento() != null ? contrato.getDepartamento().getIdDepartamento().getStringValor() : null,
-        contrato.getCargo() != null ? contrato.getCargo().getIdCargo().getStringValor() : null,
+        contrato.getFuncionarioId() != null ? contrato.getFuncionarioId().getStringValor() : null,
+        contrato.getDepartamentoId() != null ? contrato.getDepartamentoId().getStringValor() : null,
+        contrato.getCargoId() != null ? contrato.getCargoId().getStringValor() : null,
         contrato.getTipoContrato().getCode(),
         contrato.getTipoContrato().getDescription(),
         contrato.getDataInicio(),

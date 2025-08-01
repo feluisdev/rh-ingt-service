@@ -23,4 +23,6 @@ public interface DepartamentoEntityRepository extends
   List<DepartamentoEntity> findAllByEstado(Estado estado);
 
   List<DepartamentoEntity> findAllByResponsavelId_IdAndEstado(UUID responsavelIdExternalId, Estado estado);
+
+  boolean existsById(UUID id);
 }

@@ -22,16 +22,16 @@ public class Contrato {
   private String observacoes;
   private Estado estado;
 
-  private Departamento departamento;
-  private Funcionario funcionario;
-  private Cargo cargo;
+  private ExternalID departamentoId;
+  private ExternalID funcionarioId;
+  private ExternalID cargoId;
 
   private Documento contratoAnexo;
 
   private Contrato(ExternalID idContrato, TipoContrato tipoContrato,
                    LocalDate dataInicio, LocalDate dataFim, BigDecimal salario,
                    Integer cargaHoraria, String observacoes, Estado estado,
-                   Departamento departamento, Funcionario funcionario, Cargo cargo, Documento contratoAnexo) {
+                   ExternalID departamentoId, ExternalID funcionarioId, ExternalID cargoId, Documento contratoAnexo) {
 
     this.idContrato = idContrato;
     this.tipoContrato = tipoContrato;
@@ -41,23 +41,23 @@ public class Contrato {
     this.cargaHoraria = cargaHoraria;
     this.observacoes = observacoes;
     this.estado = estado;
-    this.departamento = departamento;
-    this.funcionario = funcionario;
-    this.cargo = cargo;
+    this.departamentoId = departamentoId;
+    this.funcionarioId = funcionarioId;
+    this.cargoId = cargoId;
     this.contratoAnexo = contratoAnexo;
   }
 
   // ===== MÉTODO CRIAR =====
   public static Contrato criar(TipoContrato tipoContrato, LocalDate dataInicio, LocalDate dataFim,
                                BigDecimal salario, Integer cargaHoraria,
-                               String observacoes, Departamento departamento,
-                               Funcionario funcionario, Cargo cargo, Documento contratoAnexo) {
+                               String observacoes, ExternalID departamentoId, ExternalID funcionarioId, ExternalID cargoId,
+                               Documento contratoAnexo) {
 
     Objects.requireNonNull(tipoContrato, "Tipo de contrato é obrigatório");
     Objects.requireNonNull(dataInicio, "Data de início é obrigatória");
     Objects.requireNonNull(dataFim, "Data fim é obrigatória");
     Objects.requireNonNull(salario, "Salário é obrigatório");
-    Objects.requireNonNull(funcionario, "Funcionário é obrigatório");
+    Objects.requireNonNull(funcionarioId, "Funcionário id é obrigatório");
 
    if (dataFim.isBefore(dataInicio)) {
       throw IgrpResponseStatusException.badRequest("Data fim não pode ser antes da data de início.");
@@ -72,9 +72,9 @@ public class Contrato {
         cargaHoraria,
         observacoes,
         Estado.A,
-        departamento,
-        funcionario,
-        cargo,
+        departamentoId,
+        funcionarioId,
+        cargoId,
         contratoAnexo
     );
   }
@@ -82,14 +82,13 @@ public class Contrato {
   // ===== MÉTODO CRIAR =====
   public static Contrato criar(TipoContrato tipoContrato, LocalDate dataInicio, LocalDate dataFim,
                                BigDecimal salario, Integer cargaHoraria,
-                               String observacoes, Departamento departamento,
-                               Funcionario funcionario, Cargo cargo) {
+                               String observacoes, ExternalID departamentoId, ExternalID funcionarioId, ExternalID cargoId) {
 
     Objects.requireNonNull(tipoContrato, "Tipo de contrato é obrigatório");
     Objects.requireNonNull(dataInicio, "Data de início é obrigatória");
     Objects.requireNonNull(dataFim, "Data fim é obrigatória");
     Objects.requireNonNull(salario, "Salário é obrigatório");
-    Objects.requireNonNull(funcionario, "Funcionário é obrigatório");
+    Objects.requireNonNull(funcionarioId, "Funcionário é obrigatório");
 
     if (dataFim.isBefore(dataInicio)) {
       throw IgrpResponseStatusException.badRequest("Data fim não pode ser antes da data de início.");
@@ -104,9 +103,9 @@ public class Contrato {
         cargaHoraria,
         observacoes,
         Estado.A,
-        departamento,
-        funcionario,
-        cargo,
+        departamentoId,
+        funcionarioId,
+        cargoId,
         null
     );
   }
@@ -115,7 +114,7 @@ public class Contrato {
   public static Contrato reconstruir(ExternalID idContrato, TipoContrato tipoContrato,
                                      LocalDate dataInicio, LocalDate dataFim, BigDecimal salario,
                                      Integer cargaHoraria, String observacoes, Estado estado,
-                                     Departamento departamento, Funcionario funcionario, Cargo cargo, Documento contratoAnexo) {
+                                     ExternalID departamentoId, ExternalID funcionarioId, ExternalID cargoId, Documento contratoAnexo) {
 
     Objects.requireNonNull(idContrato, "idContrato é obrigatório");
     Objects.requireNonNull(dataInicio, "Data de início é obrigatória");
@@ -130,9 +129,9 @@ public class Contrato {
         cargaHoraria,
         observacoes,
         estado,
-        departamento,
-        funcionario,
-        cargo,
+        departamentoId,
+        funcionarioId,
+        cargoId,
         contratoAnexo
     );
   }
@@ -141,7 +140,7 @@ public class Contrato {
   public static Contrato reconstruir(ExternalID idContrato, TipoContrato tipoContrato,
                                      LocalDate dataInicio, LocalDate dataFim, BigDecimal salario,
                                      Integer cargaHoraria, String observacoes, Estado estado,
-                                     Departamento departamento, Funcionario funcionario, Cargo cargo) {
+                                     ExternalID departamentoId, ExternalID funcionarioId, ExternalID cargoId) {
 
     Objects.requireNonNull(idContrato, "ExternalID é obrigatório");
     Objects.requireNonNull(dataInicio, "Data de início é obrigatória");
@@ -156,9 +155,9 @@ public class Contrato {
         cargaHoraria,
         observacoes,
         estado,
-        departamento,
-        funcionario,
-        cargo,
+        departamentoId,
+        funcionarioId,
+        cargoId,
         null
     );
   }
@@ -166,14 +165,14 @@ public class Contrato {
   // ===== MÉTODO ATUALIZAR =====
   public void atualizar(TipoContrato tipoContrato, BigDecimal salario,
                         Integer cargaHoraria, String observacoes,
-                        Departamento departamento, Cargo cargo, LocalDate dataInicio, LocalDate dataFim, Documento contratoAnexo) {
+                        ExternalID departamentoId, ExternalID cargoId, LocalDate dataInicio, LocalDate dataFim, Documento contratoAnexo) {
 
     this.tipoContrato = tipoContrato;
     this.salario = salario;
     this.cargaHoraria = cargaHoraria;
     this.observacoes = observacoes;
-    this.departamento = departamento;
-    this.cargo = cargo;
+    this.departamentoId = departamentoId;
+    this.cargoId = cargoId;
     this.dataInicio = dataInicio;
     this.dataFim = dataFim;
     this.contratoAnexo = contratoAnexo;
@@ -181,28 +180,28 @@ public class Contrato {
 
   public void atualizar(TipoContrato tipoContrato, BigDecimal salario,
                         Integer cargaHoraria, String observacoes,
-                        Departamento departamento, Cargo cargo, Documento contratoAnexo) {
+                        ExternalID departamentoId, ExternalID cargoId, Documento contratoAnexo) {
 
     this.tipoContrato = tipoContrato;
     this.salario = salario;
     this.cargaHoraria = cargaHoraria;
     this.observacoes = observacoes;
-    this.departamento = departamento;
-    this.cargo = cargo;
+    this.departamentoId = departamentoId;
+    this.cargoId = cargoId;
     this.contratoAnexo = contratoAnexo;
 
   }
 
   public void atualizar(TipoContrato tipoContrato, BigDecimal salario,
                         Integer cargaHoraria, String observacoes,
-                        Departamento departamento, Cargo cargo, LocalDate dataInicio, LocalDate dataFim) {
+                        ExternalID departamentoId, ExternalID cargoId, LocalDate dataInicio, LocalDate dataFim) {
 
     this.tipoContrato = tipoContrato;
     this.salario = salario;
     this.cargaHoraria = cargaHoraria;
     this.observacoes = observacoes;
-    this.departamento = departamento;
-    this.cargo = cargo;
+    this.departamentoId = departamentoId;
+    this.cargoId = cargoId;
     this.dataInicio = dataInicio;
     this.dataFim = dataFim;
   }

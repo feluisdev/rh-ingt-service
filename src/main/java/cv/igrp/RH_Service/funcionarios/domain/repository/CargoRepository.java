@@ -16,4 +16,6 @@ public interface CargoRepository {
   List<Cargo> getAll();
 
   List<Cargo> getAll(CargoFilter filter);
+
+  boolean existsById(ExternalID idCargo);
 }

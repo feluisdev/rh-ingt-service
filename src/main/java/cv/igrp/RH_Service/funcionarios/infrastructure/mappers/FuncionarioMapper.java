@@ -155,7 +155,7 @@ public class FuncionarioMapper {
 
    if (funcionario.getContratos() != null) {
       var contratosEntities = funcionario.getContratos().stream()
-          .map(c -> contratoMapper.toEntity(c, departamentoMapper.toEntity(c.getDepartamento()), entity, cargoMapper.toEntity(c.getCargo())))
+          .map(contratoMapper::toEntity)
           .toList();
       entity.setContratos(contratosEntities);
     }

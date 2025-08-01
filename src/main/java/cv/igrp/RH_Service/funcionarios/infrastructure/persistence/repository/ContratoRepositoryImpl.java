@@ -29,14 +29,11 @@ public class ContratoRepositoryImpl implements ContratoRepository {
   @Transactional
   @Override
   public Contrato save(Contrato contrato) {
-    var cargoEntity = cargoMapper.toEntity(contrato.getCargo());
-    var funcionarioEntity = funcionarioMapper.toEntity(contrato.getFuncionario());
-    var departamentoEntity = departamentoMapper.toEntity(contrato.getDepartamento(), funcionarioEntity);
 
-    var entity = contratoMapper.toEntity(contrato, departamentoEntity, funcionarioEntity, cargoEntity);
+    var entity = contratoMapper.toEntity(contrato);
     var saved = contratoEntityRepository.save(entity);
 
-    return contratoMapper.toDomainComReferencias(saved, contrato.getDepartamento(), contrato.getFuncionario(), contrato.getCargo());
+    return contratoMapper.toDomain(saved);
   }
 
 
@@ -44,16 +41,7 @@ public class ContratoRepositoryImpl implements ContratoRepository {
   @Override
   public Optional<Contrato> getById(ExternalID contratoId) {
     return contratoEntityRepository.findById(contratoId.getValor())
-        .map(entity -> {
-          var funcionario = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
-          var departamento = departamentoMapper.toDomainWithResponsavel(
-              entity.getIdDepartamento(),
-              funcionarioMapper.toLightDomain(entity.getIdDepartamento().getResponsavelId())
-          );
-          var cargo = cargoMapper.toDomain(entity.getIdCargo());
-
-          return contratoMapper.toDomainComReferencias(entity, departamento, funcionario, cargo);
-        });
+        .map(contratoMapper::toDomain);
   }
 
   @Transactional(readOnly = true)
@@ -61,16 +49,7 @@ public class ContratoRepositoryImpl implements ContratoRepository {
   public List<Contrato> getAll() {
     return contratoEntityRepository.findAllByEstado(Estado.A)
         .stream()
-        .map(entity -> {
-          var funcionario = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
-          var departamento = departamentoMapper.toDomainWithResponsavel(
-              entity.getIdDepartamento(),
-              funcionarioMapper.toLightDomain(entity.getIdDepartamento().getResponsavelId())
-          );
-          var cargo = cargoMapper.toDomain(entity.getIdCargo());
-
-          return contratoMapper.toDomainComReferencias(entity, departamento, funcionario, cargo);
-        })
+        .map(contratoMapper::toDomain)
         .toList();
   }
 
@@ -79,16 +58,7 @@ public class ContratoRepositoryImpl implements ContratoRepository {
   public List<Contrato> getAllByFuncionariolId(ExternalID funcionarioId) {
     return contratoEntityRepository.findByIdFuncionario_Id(funcionarioId.getValor())
         .stream()
-        .map(entity -> {
-          var funcionario = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
-          var departamento = departamentoMapper.toDomainWithResponsavel(
-              entity.getIdDepartamento(),
-              funcionarioMapper.toLightDomain(entity.getIdDepartamento().getResponsavelId())
-          );
-          var cargo = cargoMapper.toDomain(entity.getIdCargo());
-
-          return contratoMapper.toDomainComReferencias(entity, departamento, funcionario, cargo);
-        })
+        .map(contratoMapper::toDomain)
         .toList();
   }
 }
