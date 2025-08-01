@@ -9,7 +9,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import cv.igrp.RH_Service.shared.application.constants.Estado;
+
 
 @Data
 @NoArgsConstructor
@@ -17,28 +17,19 @@ import cv.igrp.RH_Service.shared.application.constants.Estado;
 
 
 @IgrpDTO
-public class DocumentoRequestDTO  {
+public class DocumentoRequestDTO {
 
   
   
-  private Integer id ;
+  private String documentoId ;
   
   
-  private String external_id ;
+  private String idTipodocumento ;
   
   
   private String url ;
   
   
   private String observacao ;
-  
-  
-  private String objecto_tipo ;
-  
-  
-  private String objecto_id ;
-  
-  
-  private Estado estado ;
 
 }

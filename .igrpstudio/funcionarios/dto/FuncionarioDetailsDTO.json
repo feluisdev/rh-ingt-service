@@ -1,10 +1,22 @@
 {
   "type": "dto",
   "module": "funcionarios",
-  "name": "FuncionarioRequest",
+  "name": "FuncionarioDetails",
   "template": "classic",
   "enableCustonValidation": false,
   "attributes": [
+    {
+      "name": "funcionarioId",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
     {
       "name": "numSegurado",
       "objectType": "java",
@@ -61,22 +73,21 @@
       "before": false,
       "after": false,
       "positive": false,
-      "isEmail": true,
+      "isEmail": false,
       "isUrl": false,
       "primaryKey": false
     },
     {
       "name": "sexo",
-      "objectType": "enum",
-      "type": "Sexo",
+      "objectType": "java",
+      "type": "string",
       "required": false,
       "before": false,
       "after": false,
       "positive": false,
       "isEmail": false,
       "isUrl": false,
-      "primaryKey": false,
-      "module": "shared"
+      "primaryKey": false
     },
     {
       "name": "endereco",
@@ -92,21 +103,56 @@
     },
     {
       "name": "estadoCivil",
-      "objectType": "enum",
-      "type": "EstadoCivil",
+      "objectType": "java",
+      "type": "string",
       "required": false,
       "before": false,
       "after": false,
       "positive": false,
       "isEmail": false,
       "isUrl": false,
-      "primaryKey": false,
-      "module": "shared"
+      "primaryKey": false
+    },
+    {
+      "name": "estado",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "estadoDesc",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "createdAt",
+      "objectType": "java",
+      "type": "date",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
     },
     {
       "name": "anexos",
       "objectType": "dto",
-      "type": "DocumentoRequest",
+      "type": "DocumentoResponse",
       "required": false,
       "before": false,
       "after": false,
@@ -114,9 +160,48 @@
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false,
-      "collectionType": "list",
+      "module": "funcionarios",
+      "collectionType": "list"
+    },
+    {
+      "name": "contratoAtual",
+      "objectType": "dto",
+      "type": "ContratoResponse",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "module": "funcionarios"
+    },
+    {
+      "name": "qualificacoes",
+      "objectType": "dto",
+      "type": "QualificacaoResponse",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "module": "funcionarios"
+    },
+    {
+      "name": "dependentes",
+      "objectType": "dto",
+      "type": "DependenteResponse",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
       "module": "funcionarios"
     }
   ],
-  "id": "1ph9m06tpw"
+  "id": "igdw6sfai5_copy"
 }

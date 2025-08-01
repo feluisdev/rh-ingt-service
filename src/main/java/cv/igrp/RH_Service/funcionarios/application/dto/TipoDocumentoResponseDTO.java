@@ -24,7 +24,7 @@ public class TipoDocumentoResponseDTO {
   private Integer id ;
   
   
-  private String externalId ;
+  private String tipoDocumentoId ;
   
   
   private String descricao ;

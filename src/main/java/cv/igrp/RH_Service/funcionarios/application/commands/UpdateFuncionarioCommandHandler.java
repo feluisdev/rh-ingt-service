@@ -1,7 +1,11 @@
 package cv.igrp.RH_Service.funcionarios.application.commands;
 
+import cv.igrp.RH_Service.funcionarios.application.dto.DocumentoRequestDTO;
 import cv.igrp.RH_Service.funcionarios.domain.repository.FuncionarioRepository;
+import cv.igrp.RH_Service.funcionarios.domain.repository.TipoDocumentoRepository;
+import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.DocumentoMapper;
 import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.FuncionarioMapper;
+import cv.igrp.RH_Service.shared.application.constants.ObjetoTipo;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.framework.core.domain.CommandHandler;
@@ -22,11 +26,18 @@ public class UpdateFuncionarioCommandHandler implements CommandHandler<UpdateFun
   private final FuncionarioRepository funcionarioRepository;
   private final FuncionarioMapper funcionarioMapper;
 
-   public UpdateFuncionarioCommandHandler(FuncionarioRepository funcionarioRepository, FuncionarioMapper funcionarioMapper) {
+  private final DocumentoMapper documentoMapper;
+
+  private final TipoDocumentoRepository tipoDocumentoRepository;
+
+
+  public UpdateFuncionarioCommandHandler(FuncionarioRepository funcionarioRepository, FuncionarioMapper funcionarioMapper, DocumentoMapper documentoMapper, TipoDocumentoRepository tipoDocumentoRepository) {
 
      this.funcionarioRepository = funcionarioRepository;
      this.funcionarioMapper = funcionarioMapper;
-   }
+    this.documentoMapper = documentoMapper;
+    this.tipoDocumentoRepository = tipoDocumentoRepository;
+  }
 
    @IgrpCommandHandler
    public ResponseEntity<FuncionarioResponseDTO> handle(UpdateFuncionarioCommand command) {
@@ -41,6 +52,16 @@ public class UpdateFuncionarioCommandHandler implements CommandHandler<UpdateFun
          dtoRequest.getNumSegurado(), dtoRequest.getNib(), dtoRequest.getEmail(),
          dtoRequest.getSexo(), dtoRequest.getEstadoCivil(), dtoRequest.getEndereco()
          );
+
+     if (dtoRequest.getAnexos() != null) {
+       for (DocumentoRequestDTO docDto : dtoRequest.getAnexos()) {
+         var tipoDocumento = tipoDocumentoRepository.getByExternalId(ExternalID.from(docDto.getIdTipodocumento()))
+             .orElseThrow(() -> IgrpResponseStatusException.notFound("Tipo documento not found with id:: "+docDto.getIdTipodocumento()));
+
+         var documento = documentoMapper.toDocumentoDomain(ObjetoTipo.FUNCIONARIO, funcionario.getExternalId(), docDto, tipoDocumento);
+         funcionario.adicionarOuAtualizarDocumento(documento);
+       }
+     }
 
     var updatedFuncionario = funcionarioRepository.save(funcionario);
 

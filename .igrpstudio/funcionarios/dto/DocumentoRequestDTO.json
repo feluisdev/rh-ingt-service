@@ -6,9 +6,9 @@
   "enableCustonValidation": false,
   "attributes": [
     {
-      "name": "id",
+      "name": "documentoId",
       "objectType": "java",
-      "type": "integer",
+      "type": "string",
       "required": false,
       "before": false,
       "after": false,
@@ -18,7 +18,7 @@
       "primaryKey": false
     },
     {
-      "name": "external_id",
+      "name": "idTipodocumento",
       "objectType": "java",
       "type": "string",
       "required": false,
@@ -52,43 +52,6 @@
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false
-    },
-    {
-      "name": "objecto_tipo",
-      "objectType": "java",
-      "type": "string",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false
-    },
-    {
-      "name": "objecto_id",
-      "objectType": "java",
-      "type": "string",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false
-    },
-    {
-      "name": "estado",
-      "objectType": "enum",
-      "type": "Estado",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false,
-      "module": "shared"
     }
   ],
   "id": "qqeeqmhszk"

@@ -29,7 +29,7 @@ public class TipoDocumentoMapper {
         }
         TipoDocumentoResponseDTO dto = new TipoDocumentoResponseDTO();
         dto.setId(tipoDocumento.getId());
-        dto.setExternalId(tipoDocumento.getExternalId().getStringValor());
+        dto.setTipoDocumentoId(tipoDocumento.getExternalId().getStringValor());
         dto.setDescricao(tipoDocumento.getDescricao());
         dto.setCodigo(tipoDocumento.getCodigo());
         dto.setEstado(tipoDocumento.getEstado() != null ? tipoDocumento.getEstado().getCode() : null);

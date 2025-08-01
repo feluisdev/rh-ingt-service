@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.funcionarios.domain.filter.TipoDocumentoFilter;
 import cv.igrp.RH_Service.funcionarios.domain.models.TipoDocumento;
 import cv.igrp.RH_Service.funcionarios.domain.repository.TipoDocumentoRepository;
 import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.TipoDocumentoMapper;
+import cv.igrp.RH_Service.shared.application.constants.Estado;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.TipoDocumentoEntity;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.TipoDocumentoEntityRepository;
@@ -40,7 +41,7 @@ public class TipoDocumentoRepositoryImpl implements TipoDocumentoRepository {
   @Transactional(readOnly = true)
   @Override
   public List<TipoDocumento> getAll() {
-    return tipoDocumentoEntityRepository.findAll()
+    return tipoDocumentoEntityRepository.findAllByEstado(Estado.A)
         .stream()
         .map(tipoDocumentoMapper::toDomain)
         .toList();

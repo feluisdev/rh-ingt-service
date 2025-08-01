@@ -18,7 +18,7 @@
       "primaryKey": false
     },
     {
-      "name": "externalId",
+      "name": "tipoDocumentoId",
       "objectType": "java",
       "type": "string",
       "required": false,

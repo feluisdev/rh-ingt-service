@@ -6,7 +6,7 @@
   "enableCustonValidation": false,
   "attributes": [
     {
-      "name": "externalID",
+      "name": "funcionarioId",
       "objectType": "java",
       "type": "string",
       "required": false,
@@ -160,6 +160,20 @@
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false
+    },
+    {
+      "name": "anexos",
+      "objectType": "dto",
+      "type": "DocumentoResponse",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "collectionType": "list",
+      "module": "funcionarios"
     }
   ],
   "id": "igdw6sfai5"

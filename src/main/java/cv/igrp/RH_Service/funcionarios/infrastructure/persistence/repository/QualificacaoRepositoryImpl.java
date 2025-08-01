@@ -34,7 +34,7 @@ public class QualificacaoRepositoryImpl implements QualificacaoRepository {
     var entity = qualificacaoMapper.toEntity(qualificacao, funcionarioEntity);
     var saved = qualificacaoJpaRepository.save(entity);
 
-    var funcionarioDomain = funcionarioMapper.toDomain(funcionarioEntity);
+    var funcionarioDomain = funcionarioMapper.toLightDomain(funcionarioEntity);
 
 
     return qualificacaoMapper.toDomainWithFuncionario(saved, funcionarioDomain);
@@ -45,7 +45,7 @@ public class QualificacaoRepositoryImpl implements QualificacaoRepository {
   public Optional<Qualificacao> getById(Integer id) {
     return qualificacaoJpaRepository.findById(id)
         .map(entity -> {
-          var funcionarioDomain = funcionarioMapper.toDomain(entity.getIdFuncionario());
+          var funcionarioDomain = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
           return qualificacaoMapper.toDomainWithFuncionario(entity, funcionarioDomain);
         });
   }
@@ -55,7 +55,7 @@ public class QualificacaoRepositoryImpl implements QualificacaoRepository {
   public Optional<Qualificacao> getByExternalId(ExternalID externalId) {
     return qualificacaoJpaRepository.findByExternalId(externalId.getValor())
         .map(entity -> {
-          var funcionarioDomain = funcionarioMapper.toDomain(entity.getIdFuncionario());
+          var funcionarioDomain = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
           return qualificacaoMapper.toDomainWithFuncionario(entity, funcionarioDomain);
         });
   }
@@ -67,7 +67,7 @@ public class QualificacaoRepositoryImpl implements QualificacaoRepository {
 
     return list.stream()
         .map(entity -> {
-          var funcionarioDomain = funcionarioMapper.toDomain(entity.getIdFuncionario());
+          var funcionarioDomain = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
           return qualificacaoMapper.toDomainWithFuncionario(entity, funcionarioDomain);
         })
         .toList();
@@ -85,7 +85,7 @@ public class QualificacaoRepositoryImpl implements QualificacaoRepository {
     var list = qualificacaoJpaRepository.findAllByIdFuncionario_ExternalId_AndEstado(funcionarioExternalId.getValor(), Estado.A);
     return list.stream()
         .map(entity -> {
-          var funcionarioDomain = funcionarioMapper.toDomain(entity.getIdFuncionario());
+          var funcionarioDomain = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
           return qualificacaoMapper.toDomainWithFuncionario(entity, funcionarioDomain);
         })
         .toList();

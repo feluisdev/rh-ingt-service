@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
+import cv.igrp.RH_Service.shared.application.constants.ObjetoTipo;
 import cv.igrp.RH_Service.shared.application.constants.Estado;
 import java.util.List;
 
@@ -42,12 +43,13 @@ public class DocumentoEntity extends AuditEntity {
     private String observacao;
 
   
+    @Enumerated(EnumType.STRING)
     @Column(name="objecto_tipo")
-    private String objectoTipo;
+    private ObjetoTipo objectoTipo;
 
   
     @Column(name="object_id")
-    private Integer objectId;
+    private UUID objectId;
 
   
     @Enumerated(EnumType.STRING)

@@ -3,10 +3,14 @@ package cv.igrp.RH_Service.funcionarios.infrastructure.persistence.repository;
 import cv.igrp.RH_Service.funcionarios.domain.filter.FuncionarioFilter;
 import cv.igrp.RH_Service.funcionarios.domain.models.Funcionario;
 import cv.igrp.RH_Service.funcionarios.domain.repository.FuncionarioRepository;
+import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.DocumentoMapper;
 import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.FuncionarioMapper;
 import cv.igrp.RH_Service.shared.application.constants.Estado;
+import cv.igrp.RH_Service.shared.application.constants.ObjetoTipo;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.DocumentoEntity;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.FuncionarioEntity;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.DocumentoEntityRepository;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.FuncionarioEntityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -23,29 +28,47 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
 
   private final FuncionarioEntityRepository jpaFuncionarioEntityRepository;
   private final FuncionarioMapper funcionarioMapper;
+  private final DocumentoEntityRepository documentoEntityRepository;
+
+  private final DocumentoMapper documentoMapper;
 
   @Transactional
   @Override
   public Funcionario save(Funcionario funcionario) {
     var entity = funcionarioMapper.toEntity(funcionario);
     var saved = jpaFuncionarioEntityRepository.save(entity);
-    return funcionarioMapper.toDomain(saved);
+
+    List<DocumentoEntity> documentoEntities = List.of();
+
+    if(funcionario.getDocumentos() != null && !funcionario.getDocumentos().isEmpty()) {
+       documentoEntities = funcionario.getDocumentos().stream()
+          .map(documentoMapper::toEntity)
+          .collect(Collectors.toList());
+      documentoEntityRepository.saveAll(documentoEntities);
+    }
+
+    return funcionarioMapper.toDomain(saved, documentoEntities);
   }
+
+
+  @Transactional(readOnly = true)
+  @Override
+  public Optional<Funcionario> getByExternalId(ExternalID externalId) {
+    return jpaFuncionarioEntityRepository.findByExternalId(externalId.getValor())
+          .map(entity -> {
+          List<DocumentoEntity> documentos = documentoEntityRepository.findByObjectIdAndObjectoTipo(externalId.getValor(), ObjetoTipo.FUNCIONARIO);
+          return funcionarioMapper.toDomain(entity, documentos);
+        });
+  }
+
 
   @Transactional(readOnly = true)
   @Override
   public Optional<Funcionario> getbyId(Integer id) {
     return jpaFuncionarioEntityRepository.findById(id)
-        .map(funcionarioMapper::toDomain);
+        .map(funcionarioMapper::toLightDomain);
   }
 
-  @Transactional(readOnly = true)
-  @Override
-  public Optional<Funcionario> getByExternalId(ExternalID externalId) {
-    return jpaFuncionarioEntityRepository.findByExternalId(externalId.getValor()).map(
-        funcionarioMapper::toDomain
-    );
-  }
 
   @Transactional(readOnly = true)
   @Override
@@ -87,7 +110,7 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
     var page = jpaFuncionarioEntityRepository.findAll(spec, pageable);
 
     return page.stream()
-        .map(funcionarioMapper::toDomain)
+        .map(funcionarioMapper::toLightDomain)
         .toList();
   }
 
@@ -96,7 +119,7 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
   public List<Funcionario> getAll() {
     List<FuncionarioEntity> entities = jpaFuncionarioEntityRepository.findAllByEstado(Estado.A);
     return entities.stream()
-        .map(funcionarioMapper::toDomain)
+        .map(funcionarioMapper::toLightDomain)
         .toList();
   }
 }

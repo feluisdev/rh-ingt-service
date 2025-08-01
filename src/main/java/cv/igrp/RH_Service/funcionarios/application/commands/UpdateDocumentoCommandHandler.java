@@ -21,6 +21,7 @@ public class UpdateDocumentoCommandHandler implements CommandHandler<UpdateDocum
    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateDocumentoCommandHandler.class);
   private final DocumentoRepository documentoRepository;
   private final DocumentoMapper documentoMapper;
+
    public UpdateDocumentoCommandHandler(DocumentoRepository documentoRepository, DocumentoMapper documentoMapper) {
      this.documentoRepository = documentoRepository;
      this.documentoMapper = documentoMapper;
@@ -29,7 +30,7 @@ public class UpdateDocumentoCommandHandler implements CommandHandler<UpdateDocum
    @IgrpCommandHandler
    public ResponseEntity<DocumentoResponseDTO> handle(UpdateDocumentoCommand command) {
       // TODO: Implement the command handling logic here
-     var dto = command.getDocumentorequest();
+    /* var dto = command.getDocumentorequest();
      var tipoDocumentoId = ExternalID.from(command.getDocumentoId());
 
      var tipoDocumento = documentoRepository.getByExternalId(tipoDocumentoId).orElseThrow(
@@ -47,7 +48,9 @@ public class UpdateDocumentoCommandHandler implements CommandHandler<UpdateDocum
 
      var responseDto = documentoMapper.toDTO(salvo);
 
-     return ResponseEntity.ok(responseDto);
+     return ResponseEntity.ok(responseDto);*/
+
+     return null;
 
    }
 

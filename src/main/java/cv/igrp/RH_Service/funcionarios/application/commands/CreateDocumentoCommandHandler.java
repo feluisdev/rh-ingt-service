@@ -34,7 +34,7 @@ public class CreateDocumentoCommandHandler implements CommandHandler<CreateDocum
   @IgrpCommandHandler
   public ResponseEntity<DocumentoResponseDTO> handle(CreateDocumentoCommand command) {
     // TODO: Implement the command handling logic here
-    DocumentoRequestDTO dto = command.getDocumentorequest();
+   /* DocumentoRequestDTO dto = command.getDocumentorequest();
 
     var documento = Documento.criar(
         dto.getUrl(),
@@ -47,7 +47,9 @@ public class CreateDocumentoCommandHandler implements CommandHandler<CreateDocum
 
     DocumentoResponseDTO responseDTO = documentoMapper.toDTO(saved);
 
-    return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+    return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);*/
+
+    return  null;
 
 
   }

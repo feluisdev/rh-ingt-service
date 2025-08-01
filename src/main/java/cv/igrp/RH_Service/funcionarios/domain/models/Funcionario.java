@@ -33,12 +33,13 @@ public class Funcionario {
   private List<Dependente> dependentes;
   private List<Qualificacao> qualificacoes;
   private List<Contrato> contratos;
+  private List<Documento> documentos;
 
 
   private Funcionario(Integer id, ExternalID externalId, String nome, Nif nif,
                       NumSegurado numSegurado, Nib nib, Email email, Estado estado, Sexo sexo,
                       EstadoCivil estadoCivil, String endereco, List<Dependente> dependentes, List<Qualificacao> qualificacoes,
-                      List<Contrato> contratos) {
+                      List<Contrato> contratos, List<Documento> documentos) {
     this.id = id;
     this.externalId = externalId;
     this.nome = nome;
@@ -53,6 +54,8 @@ public class Funcionario {
     this.dependentes = dependentes != null ? dependentes : new ArrayList<>();
     this.qualificacoes = qualificacoes != null ? qualificacoes : new ArrayList<>();
     this.contratos = contratos != null ? contratos : new ArrayList<>();
+    this.documentos = documentos != null ? documentos : new ArrayList<>();
+
   }
 
   public static Funcionario criar(String nome, String nifRaw,
@@ -71,9 +74,26 @@ public class Funcionario {
     Email email = Email.from(emailRaw);
 
     return new Funcionario(null, ExternalID.gerarNovo(), nome, nif,
-        numSegurado, nib, email, Estado.A, sexo, estadoCivil, endereco, null, null, null);
+        numSegurado, nib, email, Estado.A, sexo, estadoCivil, endereco, null, null, null, null);
   }
 
+
+  public static Funcionario reconstruir(Integer id, ExternalID externalId, String nome,
+                                        String nifRaw, String numSeguradoRaw, String nibRaw,
+                                        String emailRaw, Estado estado, Sexo sexo,
+                                        EstadoCivil estadoCivil, String endereco, List<Documento> documentos) {
+    Objects.requireNonNull(id, "ID é obrigatório");
+    Objects.requireNonNull(externalId, "ExternalID é obrigatório");
+    Objects.requireNonNull(estado, "Estado é obrigatório");
+
+    Nif nif = (nifRaw != null) ? Nif.from(nifRaw) : null;
+    NumSegurado numSegurado = (numSeguradoRaw != null) ? NumSegurado.from(numSeguradoRaw) : null;
+    Nib nib = (nibRaw != null) ? Nib.from(nibRaw) : null;
+    Email email = (emailRaw != null) ? Email.from(emailRaw) : null;
+
+    return new Funcionario(id, externalId, nome, nif,
+        numSegurado, nib, email, estado, sexo, estadoCivil, endereco, null, null, null, documentos);
+  }
 
   public static Funcionario reconstruir(Integer id, ExternalID externalId, String nome,
                                         String nifRaw, String numSeguradoRaw, String nibRaw,
@@ -89,7 +109,32 @@ public class Funcionario {
     Email email = (emailRaw != null) ? Email.from(emailRaw) : null;
 
     return new Funcionario(id, externalId, nome, nif,
-        numSegurado, nib, email, estado, sexo, estadoCivil, endereco, null, null, null);
+        numSegurado, nib, email, estado, sexo, estadoCivil, endereco, null, null, null, null);
+  }
+
+  public void adicionarDocumento(Documento documento) {
+    Objects.requireNonNull(documento, "Documento não pode ser nulo");
+    documentos.add(documento);
+  }
+
+  public void adicionarOuAtualizarDocumento(Documento documento) {
+    Objects.requireNonNull(documento, "Documento não pode ser nulo");
+
+    if(!documentos.isEmpty()) {
+      for (Documento existente : documentos) {
+        System.out.println("existente : "+existente.getExternalId());
+        if (existente.getExternalId().equals(documento.getExternalId())) {
+          existente.atualizar(
+              documento.getUrl(),
+              documento.getObservacao(),
+              documento.getTipoDocumento()
+          );
+          return;
+        }
+      }
+    }
+
+    documentos.add(documento);
   }
 
   public void atualizar(String nome, String nifRaw, String numSeguradoRaw,
@@ -183,5 +228,6 @@ public class Funcionario {
         .findFirst()
         .orElse(null);
   }
+
 
 }

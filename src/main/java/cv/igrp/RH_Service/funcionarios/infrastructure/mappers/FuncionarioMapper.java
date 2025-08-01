@@ -1,11 +1,14 @@
 package cv.igrp.RH_Service.funcionarios.infrastructure.mappers;
 
+import cv.igrp.RH_Service.funcionarios.application.dto.FuncionarioDetailsDTO;
 import cv.igrp.RH_Service.funcionarios.application.dto.FuncionarioResponseDTO;
 import cv.igrp.RH_Service.funcionarios.domain.models.Funcionario;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.DocumentoEntity;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.FuncionarioEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -17,12 +20,15 @@ public class FuncionarioMapper {
   private final DepartamentoMapper departamentoMapper;
   private final CargoMapper cargoMapper;
 
-  public FuncionarioMapper(DependenteMapper dependenteMapper, QualificacaoMapper qualificacaoMapper, ContratoMapper contratoMapper, DepartamentoMapper departamentoMapper, CargoMapper cargoMapper) {
+  private final DocumentoMapper documentoMapper;
+
+  public FuncionarioMapper(DependenteMapper dependenteMapper, QualificacaoMapper qualificacaoMapper, ContratoMapper contratoMapper, DepartamentoMapper departamentoMapper, CargoMapper cargoMapper, DocumentoMapper documentoMapper) {
     this.dependenteMapper = dependenteMapper;
     this.qualificacaoMapper = qualificacaoMapper;
     this.contratoMapper = contratoMapper;
     this.departamentoMapper = departamentoMapper;
     this.cargoMapper = cargoMapper;
+    this.documentoMapper = documentoMapper;
   }
 
 
@@ -47,7 +53,7 @@ public class FuncionarioMapper {
   }
 
 
-  public Funcionario toDomain(FuncionarioEntity entity) {
+  public Funcionario toDomain(FuncionarioEntity entity, List<DocumentoEntity> documentos) {
     if (entity == null) {
       return null;
     }
@@ -87,6 +93,11 @@ public class FuncionarioMapper {
       );
     }
 
+    if (documentos != null && !documentos.isEmpty()) {
+      documentos.stream()
+          .map(documentoMapper::toDomain)
+          .forEach(funcionario::adicionarDocumento);
+    }
 
     return funcionario;
   }
@@ -156,6 +167,7 @@ public class FuncionarioMapper {
       entity.setContratos(contratosEntities);
     }
 
+
     return entity;
   }
 
@@ -165,7 +177,7 @@ public class FuncionarioMapper {
     }
 
     FuncionarioResponseDTO dto = new FuncionarioResponseDTO();
-    dto.setExternalID(funcionario.getExternalId().getStringValor());
+    dto.setFuncionarioId(funcionario.getExternalId().getStringValor());
     dto.setNome(funcionario.getNome());
     dto.setNif(funcionario.getNif() != null ? funcionario.getNif().getValor() : null);
     dto.setNumSegurado(funcionario.getNumSegurado() != null ? funcionario.getNumSegurado().getValor() : null);
@@ -180,6 +192,38 @@ public class FuncionarioMapper {
     // opcional: ajustar caso pegue essas datas da entidade JPA
     dto.setCreatedAt(null); // você pode preencher se tiver isso vindo do Entity
     dto.setUpdatedAt(null);
+
+    if (funcionario.getDocumentos() != null && !funcionario.getDocumentos().isEmpty()) {
+      dto.setAnexos(
+          funcionario.getDocumentos().stream()
+              .map(documentoMapper::toDTO)
+              .toList()
+      );
+    }
+
+    return dto;
+  }
+
+  public FuncionarioDetailsDTO toResponseDetails(Funcionario funcionario) {
+    if (funcionario == null) {
+      return null;
+    }
+
+    var dto = new FuncionarioDetailsDTO();
+    dto.setFuncionarioId(funcionario.getExternalId().getStringValor());
+    dto.setNome(funcionario.getNome());
+    dto.setNif(funcionario.getNif() != null ? funcionario.getNif().getValor() : null);
+    dto.setNumSegurado(funcionario.getNumSegurado() != null ? funcionario.getNumSegurado().getValor() : null);
+    dto.setNib(funcionario.getNib() != null ? funcionario.getNib().getValor() : null);
+    dto.setEmail(funcionario.getEmail() != null ? funcionario.getEmail().getValor() : null);
+    dto.setSexo(funcionario.getSexo() != null ? funcionario.getSexo().name() : null);
+    dto.setEstadoCivil(funcionario.getEstadoCivil() != null ? funcionario.getEstadoCivil().name() : null);
+    dto.setEndereco(funcionario.getEndereco());
+    dto.setEstado(funcionario.getEstado() != null ? funcionario.getEstado().getCode() : null);
+    dto.setEstadoDesc(funcionario.getEstado() != null ? funcionario.getEstado().getDescription() : null);
+
+    // opcional: ajustar caso pegue essas datas da entidade JPA
+    dto.setCreatedAt(null); // você pode preencher se tiver isso vindo do Entity
 
     return dto;
   }

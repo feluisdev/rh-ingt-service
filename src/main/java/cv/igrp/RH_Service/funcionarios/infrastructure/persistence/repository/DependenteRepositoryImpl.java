@@ -34,7 +34,7 @@ public class DependenteRepositoryImpl implements DependenteRepository {
     var entity = dependenteMapper.toEntity(dependente, funcionarioEntity);
     var saved = dependenteEntityRepository.save(entity);
 
-    var funcionarioDomain = funcionarioMapper.toDomain(funcionarioEntity);
+    var funcionarioDomain = funcionarioMapper.toLightDomain(funcionarioEntity);
     return dependenteMapper.toDomainWithFuncionario(saved, funcionarioDomain);
   }
 
@@ -51,7 +51,7 @@ public class DependenteRepositoryImpl implements DependenteRepository {
     return dependenteEntityRepository.findByExternalId(externalId.getValor())
         .map(entity -> {
 
-          var funcionario = funcionarioMapper.toDomain(entity.getIdFuncionario());
+          var funcionario = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
           return dependenteMapper.toDomainWithFuncionario(entity, funcionario);
 
         });
@@ -64,7 +64,7 @@ public class DependenteRepositoryImpl implements DependenteRepository {
     var entities = dependenteEntityRepository.findAllByEstado(Estado.A);
     return entities.stream()
         .map(entity -> {
-          var funcionario = funcionarioMapper.toDomain(entity.getIdFuncionario());
+          var funcionario = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
           return dependenteMapper.toDomainWithFuncionario(entity, funcionario);
         })
         .toList();
@@ -100,7 +100,7 @@ public class DependenteRepositoryImpl implements DependenteRepository {
 
     return page.stream()
         .map(entity -> {
-          var funcionario = funcionarioMapper.toDomain(entity.getIdFuncionario());
+          var funcionario = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
           return dependenteMapper.toDomainWithFuncionario(entity, funcionario);
         })
         .toList();
@@ -112,7 +112,7 @@ public class DependenteRepositoryImpl implements DependenteRepository {
     var entities = dependenteEntityRepository.findAllByIdFuncionario_ExternalId_AndEstado(funcionarioExternalId.getValor(), Estado.A);
     return entities.stream()
         .map(entity -> {
-          var funcionario = funcionarioMapper.toDomain(entity.getIdFuncionario());
+          var funcionario = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
           return dependenteMapper.toDomainWithFuncionario(entity, funcionario);
         })
         .toList();

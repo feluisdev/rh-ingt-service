@@ -44,7 +44,7 @@ public class ContratoRepositoryImpl implements ContratoRepository {
   public Optional<Contrato> getById(Integer id) {
     return contratoEntityRepository.findById(id)
         .map(entity -> {
-          var funcionario = funcionarioMapper.toDomain(entity.getIdFuncionario());
+          var funcionario = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
           var departamento = departamentoMapper.toDomainWithResponsavel(
               entity.getIdDepartamento(),
               funcionarioMapper.toLightDomain(entity.getIdDepartamento().getResponsavelId())
@@ -60,7 +60,7 @@ public class ContratoRepositoryImpl implements ContratoRepository {
   public Optional<Contrato> getByExternalId(ExternalID externalId) {
     return contratoEntityRepository.findByExternalId(externalId.getValor())
         .map(entity -> {
-          var funcionario = funcionarioMapper.toDomain(entity.getIdFuncionario());
+          var funcionario = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
           var departamento = departamentoMapper.toDomainWithResponsavel(
               entity.getIdDepartamento(),
               funcionarioMapper.toLightDomain(entity.getIdDepartamento().getResponsavelId())
@@ -77,7 +77,7 @@ public class ContratoRepositoryImpl implements ContratoRepository {
     return contratoEntityRepository.findAllByEstado(Estado.A)
         .stream()
         .map(entity -> {
-          var funcionario = funcionarioMapper.toDomain(entity.getIdFuncionario());
+          var funcionario = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
           var departamento = departamentoMapper.toDomainWithResponsavel(
               entity.getIdDepartamento(),
               funcionarioMapper.toLightDomain(entity.getIdDepartamento().getResponsavelId())
@@ -95,7 +95,7 @@ public class ContratoRepositoryImpl implements ContratoRepository {
     return contratoEntityRepository.findByIdFuncionario_ExternalId(funcionarioExternalId.getValor())
         .stream()
         .map(entity -> {
-          var funcionario = funcionarioMapper.toDomain(entity.getIdFuncionario());
+          var funcionario = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
           var departamento = departamentoMapper.toDomainWithResponsavel(
               entity.getIdDepartamento(),
               funcionarioMapper.toLightDomain(entity.getIdDepartamento().getResponsavelId())
