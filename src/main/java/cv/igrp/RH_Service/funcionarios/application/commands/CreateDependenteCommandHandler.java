@@ -37,15 +37,17 @@ public class CreateDependenteCommandHandler implements CommandHandler<CreateDepe
     var dto = command.getDependenterequest();
     var idFuncionario = ExternalID.from(command.getFuncionarioId());
 
-    var funcionario = funcionarioRepository.getById(idFuncionario)
-        .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Funcionario not found with id: " + idFuncionario));
+    var existeFuncionario = funcionarioRepository.existsById(idFuncionario);
+
+        if(!existeFuncionario)
+         throw IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Funcionario not found with id: " + idFuncionario);
 
     var dependente = Dependente.criar(
         dto.getNome(),
         dto.getDataNascimento(),
         dto.getParentesco(),
         dto.getCpf(),
-        funcionario
+        idFuncionario
     );
     var dependenteSalvo = dependenteRepository.save(dependente);
 

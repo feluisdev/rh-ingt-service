@@ -36,7 +36,7 @@ public class GetDependenteByIdQueryHandler implements QueryHandler<GetDependente
      var dependente = dependenteRepository.getById(dependenteId)
          .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Dependente não encontrado: " + dependenteId));
 
-     if (!dependente.getFuncionario().getIdFuncionario().equals(funcionarioId)) {
+     if (!dependente.getFuncionarioId().equals(funcionarioId)) {
        throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN, "Dependente não pertence ao funcionário informado.");
      }
 

@@ -17,22 +17,8 @@ public class Dependente {
   private GrauParentesco parentesco;
   private String cpf;
   private Estado estado;
-  private Funcionario funcionario;
-
   private ExternalID funcionarioId; // ExternalID do funcionário associado
 
-  private Dependente(ExternalID idDependente, String nome,
-                     LocalDate dataNascimento, GrauParentesco parentesco,
-                     String cpf, Estado estado, Funcionario funcionario) {
-
-    this.idDependente = idDependente;
-    this.nome = nome;
-    this.dataNascimento = dataNascimento;
-    this.parentesco = parentesco;
-    this.cpf = cpf;
-    this.estado = estado;
-    this.funcionario = funcionario;
-  }
 
   private Dependente(ExternalID idDependente, String nome,
                      LocalDate dataNascimento, GrauParentesco parentesco,
@@ -49,22 +35,6 @@ public class Dependente {
 
 
 
-  public static Dependente criar(String nome, LocalDate dataNascimento, GrauParentesco parentesco,
-                                 String cpf, Funcionario funcionario) {
-    Objects.requireNonNull(nome, "Nome é obrigatório");
-    Objects.requireNonNull(funcionario, "Funcionario é obrigatório");
-
-    return new Dependente(
-        ExternalID.gerarNovo(),
-        nome,
-        dataNascimento,
-        parentesco,
-        cpf,
-        Estado.A,
-        funcionario
-    );
-  }
-
 
   public static Dependente criar(String nome, LocalDate dataNascimento, GrauParentesco parentesco,
                                  String cpf, ExternalID funcionarioId) {
@@ -80,14 +50,6 @@ public class Dependente {
         Estado.A,
         funcionarioId
     );
-  }
-
-  // Reconstituição do usando Funcionario obj
-  public static Dependente reconstruir(ExternalID idDependente, String nome,
-                                       LocalDate dataNascimento, GrauParentesco parentesco,
-                                       String cpf, Estado estado, Funcionario funcionario) {
-    Objects.requireNonNull(idDependente, "idDependente é obrigatório");
-    return new Dependente(idDependente, nome, dataNascimento, parentesco, cpf, estado, funcionario);
   }
 
 

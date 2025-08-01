@@ -24,7 +24,7 @@ public class DependenteMapper {
         entity.getParentesco(),
         entity.getCpf(),
         entity.getEstado(),
-        funcionarioDomain
+        null
     );
   }
 
@@ -47,13 +47,50 @@ public class DependenteMapper {
     return entity;
   }
 
+  public DependenteEntity toEntity(Dependente domain) {
+    if (domain == null) {
+      return null;
+    }
+
+    DependenteEntity entity = new DependenteEntity();
+    entity.setId(domain.getIdDependente().getValor());
+    entity.setNome(domain.getNome());
+    entity.setDataNascimento(domain.getDataNascimento());
+    entity.setParentesco(domain.getParentesco());
+    entity.setCpf(domain.getCpf());
+    entity.setEstado(domain.getEstado());
+
+    //mapp funcionario with id
+    FuncionarioEntity funcionarioEntity = new FuncionarioEntity();
+    entity.setId(domain.getFuncionarioId().getValor());
+    entity.setIdFuncionario(funcionarioEntity);
+
+    return entity;
+  }
+
+  public Dependente toDomain(DependenteEntity entity) {
+    if (entity == null) {
+      return null;
+    }
+
+    return Dependente.reconstruir(
+        ExternalID.from(entity.getId()),
+        entity.getNome(),
+        entity.getDataNascimento(),
+        entity.getParentesco(),
+        entity.getCpf(),
+        entity.getEstado(),
+        ExternalID.from(entity.getIdFuncionario().getId())
+    );
+  }
+
+
   public DependenteResponseDTO toResponseDTO(Dependente dependente) {
     if (dependente == null) return null;
 
     DependenteResponseDTO dto = new DependenteResponseDTO();
     dto.setDependenteId(dependente.getIdDependente().getStringValor());
     dto.setFuncionarioId(dependente.getFuncionarioId() != null ? dependente.getFuncionarioId().getStringValor() : null);
-    //dto.setFuncionarioId(dependente.getFuncionario() != null ? dependente.getFuncionario().getIdFuncionario().getStringValor() : null);
     dto.setNome(dependente.getNome());
     dto.setParentesco(dependente.getParentesco().getCode());
     dto.setParentescoDesc(dependente.getParentesco().getDescription());
