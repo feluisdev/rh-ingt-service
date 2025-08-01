@@ -17,7 +17,6 @@ import java.util.List;
 
 @Getter
 @Setter
-@ToString
 @IgrpEntity
 @Entity
 @NoArgsConstructor
@@ -26,7 +25,6 @@ import java.util.List;
 public class DependenteEntity extends AuditEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
 

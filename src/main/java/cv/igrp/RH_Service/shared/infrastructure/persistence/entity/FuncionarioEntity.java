@@ -18,7 +18,6 @@ import cv.igrp.RH_Service.shared.application.constants.Estado;
 
 @Getter
 @Setter
-@ToString
 @IgrpEntity
 @Entity
 @NoArgsConstructor
@@ -27,7 +26,6 @@ import cv.igrp.RH_Service.shared.application.constants.Estado;
 public class FuncionarioEntity extends AuditEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
 
