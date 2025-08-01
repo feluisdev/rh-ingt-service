@@ -217,7 +217,7 @@ public class Funcionario {
 
   public Qualificacao getQualificacaoByExternalId(ExternalID externalId) {
     return qualificacoes.stream()
-        .filter(q -> q.getExternalId().equals(externalId))
+        .filter(q -> q.getIdQualificacao().equals(externalId))
         .findFirst()
         .orElse(null);
   }

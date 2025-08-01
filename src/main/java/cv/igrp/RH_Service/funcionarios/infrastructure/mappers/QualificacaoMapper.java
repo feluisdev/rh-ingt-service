@@ -17,8 +17,7 @@ public class QualificacaoMapper {
     }
 
     return Qualificacao.reconstruir(
-        entity.getId(),
-        ExternalID.from(entity.getExternalId()),
+        ExternalID.from(entity.getId()),
         entity.getInstituicao(),
         entity.getCurso(),
         entity.getDataInicio(),
@@ -39,9 +38,7 @@ public class QualificacaoMapper {
     }
 
     QualificacaoEntity entity = new QualificacaoEntity();
-
-    entity.setId(domain.getId());
-    entity.setExternalId(domain.getExternalId().getValor());
+    entity.setId(domain.getIdQualificacao().getValor());
     entity.setInstituicao(domain.getInstituicao());
     entity.setCurso(domain.getCurso());
     entity.setDataInicio(domain.getDataInicio());
@@ -63,7 +60,7 @@ public class QualificacaoMapper {
 
     QualificacaoResponseDTO dto = new QualificacaoResponseDTO();
 
-    dto.setQualificacaoId(qualificacao.getExternalId().getStringValor());
+    dto.setQualificacaoId(qualificacao.getIdQualificacao().getStringValor());
     dto.setInstituicao(qualificacao.getInstituicao());
     dto.setCurso(qualificacao.getCurso());
     dto.setDataInicio(qualificacao.getDataInicio());

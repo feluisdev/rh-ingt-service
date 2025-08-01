@@ -66,14 +66,14 @@ public class CreateQualificacaoCommandHandler implements CommandHandler<CreateQu
       var tipoDocumento = tipoDocumentoRepository.getByExternalId(ExternalID.from(docDto.getIdTipodocumento()))
           .orElseThrow(() -> IgrpResponseStatusException.notFound("Tipo documento not found with id:: "+docDto.getIdTipodocumento()));
 
-      var documento = documentoMapper.toDocumentoDomain(ObjetoTipo.QUALIFICACAO, qualificacao.getExternalId(), docDto, tipoDocumento);
+      var documento = documentoMapper.toDocumentoDomain(ObjetoTipo.QUALIFICACAO, qualificacao.getIdQualificacao(), docDto, tipoDocumento);
       qualificacao.adicionarDocumento(documento);
 
     }
 
     var saved = qualificacaoRepository.save(qualificacao);
 
-    Map<String, Object> response = Map.of("qualificacaoId", saved.getExternalId().getStringValor());
+    Map<String, Object> response = Map.of("qualificacaoId", saved.getIdQualificacao().getStringValor());
 
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
