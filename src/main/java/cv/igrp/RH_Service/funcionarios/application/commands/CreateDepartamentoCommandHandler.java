@@ -7,6 +7,7 @@ import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
@@ -34,8 +35,11 @@ public class CreateDepartamentoCommandHandler implements CommandHandler<CreateDe
 
     var responsavelId = ExternalID.from(dto.getResponsavelId());
 
-    var responsavel = funcionarioRepository.getById(responsavelId)
-        .orElseThrow(() -> IgrpResponseStatusException.notFound("Responsável não encontrado com ID: " + responsavelId.getStringValor()));
+    var existeFuncionario = funcionarioRepository.existsById(responsavelId);
+
+    if(!existeFuncionario)
+      throw IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Funcionario not found with id: " + responsavelId);
+
 
     var departamento = Departamento.criarNovo(
         dto.getNome(),
@@ -43,7 +47,7 @@ public class CreateDepartamentoCommandHandler implements CommandHandler<CreateDe
         dto.getDescricao(),
         dto.getLocalizacao(),
         dto.getOrcamento(),
-        responsavel
+        responsavelId
     );
     departamentoRepository.save(departamento);
 

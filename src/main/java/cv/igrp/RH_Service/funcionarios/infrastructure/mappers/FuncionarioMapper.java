@@ -140,7 +140,7 @@ public class FuncionarioMapper {
 
     if (funcionario.getDependentes() != null) {
       var dependentes = funcionario.getDependentes().stream()
-          .map(d -> dependenteMapper.toEntity(d, entity))
+          .map(dependenteMapper::toEntity)
           .collect(Collectors.toList());
 
       entity.setDependentes(dependentes);
@@ -148,14 +148,14 @@ public class FuncionarioMapper {
 
     if (funcionario.getQualificacoes() != null) {
       var qualificacoesEntities = funcionario.getQualificacoes().stream()
-          .map(q -> qualificacaoMapper.toEntity(q, entity))
+          .map(qualificacaoMapper::toEntity)
           .toList();
       entity.setQualificacoes(qualificacoesEntities);
     }
 
-    if (funcionario.getContratos() != null) {
+   if (funcionario.getContratos() != null) {
       var contratosEntities = funcionario.getContratos().stream()
-          .map(c -> contratoMapper.toEntity(c, departamentoMapper.toEntity(c.getDepartamento(), this.toLightEntity(c.getDepartamento().getResponsavel())), entity, cargoMapper.toEntity(c.getCargo())))
+          .map(c -> contratoMapper.toEntity(c, departamentoMapper.toEntity(c.getDepartamento()), entity, cargoMapper.toEntity(c.getCargo())))
           .toList();
       entity.setContratos(contratosEntities);
     }

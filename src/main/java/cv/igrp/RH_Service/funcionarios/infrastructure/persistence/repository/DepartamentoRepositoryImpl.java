@@ -29,11 +29,10 @@ public class DepartamentoRepositoryImpl implements DepartamentoRepository {
   @Transactional
   @Override
   public Departamento save(Departamento departamento) {
-    var funcionarioEntity = funcionarioMapper.toEntity(departamento.getResponsavel());
-    var entity = departamentoMapper.toEntity(departamento, funcionarioEntity);
+    var entity = departamentoMapper.toEntity(departamento);
 
     var saved = jpaDepartamentoEntityRepository.save(entity);
-    return departamentoMapper.toDomainWithResponsavel(saved, funcionarioMapper.toLightDomain(saved.getResponsavelId()));
+    return departamentoMapper.toDomain(saved);
   }
 
 
@@ -41,20 +40,14 @@ public class DepartamentoRepositoryImpl implements DepartamentoRepository {
   @Override
   public Optional<Departamento> getById(ExternalID departamentoId) {
     return jpaDepartamentoEntityRepository.findById(departamentoId.getValor())
-        .map(entity -> {
-          var responsavel = funcionarioMapper.toLightDomain(entity.getResponsavelId());
-          return departamentoMapper.toDomainWithResponsavel(entity, responsavel);
-        });
+        .map(departamentoMapper::toDomain);
   }
 
   @Transactional(readOnly = true)
   @Override
   public List<Departamento> getAll() {
     return jpaDepartamentoEntityRepository.findAllByEstado(Estado.A).stream()
-        .map(entity -> {
-          var responsavel = funcionarioMapper.toLightDomain(entity.getResponsavelId());
-          return departamentoMapper.toDomainWithResponsavel(entity, responsavel);
-        })
+        .map(departamentoMapper::toDomain)
         .toList();
   }
 
@@ -98,10 +91,7 @@ public class DepartamentoRepositoryImpl implements DepartamentoRepository {
 
     return jpaDepartamentoEntityRepository.findAll(spec, pageable)
         .stream()
-        .map(entity -> {
-          var responsavel = funcionarioMapper.toLightDomain(entity.getResponsavelId());
-          return departamentoMapper.toDomainWithResponsavel(entity, responsavel);
-        })
+        .map(departamentoMapper::toDomain)
         .toList();
 
   }
@@ -112,10 +102,7 @@ public class DepartamentoRepositoryImpl implements DepartamentoRepository {
     return jpaDepartamentoEntityRepository.findAllByResponsavelId_IdAndEstado(
             responsavelId.getValor(), Estado.A
         ).stream()
-        .map(entity -> {
-          var responsavel = funcionarioMapper.toLightDomain(entity.getResponsavelId());
-          return departamentoMapper.toDomainWithResponsavel(entity, responsavel);
-        })
+        .map(departamentoMapper::toDomain)
         .toList();
   }
 }

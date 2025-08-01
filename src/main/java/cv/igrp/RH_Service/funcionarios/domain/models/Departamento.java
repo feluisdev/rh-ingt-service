@@ -16,7 +16,7 @@ public class Departamento {
   private String localizacao;
   private BigDecimal orcamento;
   private Estado estado;
-  private Funcionario responsavel;
+  private ExternalID responsavelID; //funcionario id
 
   private Departamento(
       ExternalID idDepartamento,
@@ -26,7 +26,7 @@ public class Departamento {
       String localizacao,
       BigDecimal orcamento,
       Estado estado,
-      Funcionario responsavel
+      ExternalID responsavelID
   ) {
     this.idDepartamento = idDepartamento;
     this.nome = nome;
@@ -35,11 +35,11 @@ public class Departamento {
     this.localizacao = localizacao;
     this.orcamento = orcamento;
     this.estado = estado;
-    this.responsavel = responsavel;
+    this.responsavelID = responsavelID;
   }
 
   public static Departamento criarNovo(String nome, String codigo,String descricao, String localizacao,
-                                       BigDecimal orcamento, Funcionario responsavel) {
+                                       BigDecimal orcamento, ExternalID responsavelID) {
     return new Departamento(
         ExternalID.gerarNovo(),
         nome,
@@ -48,24 +48,24 @@ public class Departamento {
         localizacao,
         orcamento,
         Estado.A,
-        responsavel
+        responsavelID
     );
   }
 
   public static Departamento reconstruir(ExternalID idDepartamento, String nome,String codigo,
                                          String descricao, String localizacao,
                                          BigDecimal orcamento, Estado estado,
-                                         Funcionario responsavel) {
-    return new Departamento(idDepartamento, nome, codigo, descricao, localizacao, orcamento, estado, responsavel);
+                                         ExternalID responsavelID) {
+    return new Departamento(idDepartamento, nome, codigo, descricao, localizacao, orcamento, estado, responsavelID);
   }
 
   public void atualizar(String nome,String codigo, String descricao, String localizacao,
-                        BigDecimal orcamento, Funcionario responsavel) {
+                        BigDecimal orcamento,  ExternalID responsavelID) {
     this.nome = nome;
     this.descricao = descricao;
     this.localizacao = localizacao;
     this.orcamento = orcamento;
-    this.responsavel = responsavel;
+    this.responsavelID = responsavelID;
     this.codigo = codigo;
   }
 
