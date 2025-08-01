@@ -13,11 +13,10 @@ public class TipoDocumentoMapper {
             return null;
         }
         TipoDocumentoEntity entity = new TipoDocumentoEntity();
-        entity.setId(tipoDocumento.getId());
+        entity.setId(tipoDocumento.getIdTipoDocumento().getValor());
         entity.setDescricao(tipoDocumento.getDescricao());
         entity.setEstado(tipoDocumento.getEstado());
         entity.setCodigo(tipoDocumento.getCodigo());
-        entity.setExternalId(tipoDocumento.getExternalId().getValor());
         return entity;
     }
 
@@ -28,7 +27,7 @@ public class TipoDocumentoMapper {
             return null;
         }
         TipoDocumentoResponseDTO dto = new TipoDocumentoResponseDTO();
-        dto.setTipoDocumentoId(tipoDocumento.getExternalId().getStringValor());
+        dto.setTipoDocumentoId(tipoDocumento.getIdTipoDocumento().getStringValor());
         dto.setDescricao(tipoDocumento.getDescricao());
         dto.setCodigo(tipoDocumento.getCodigo());
         dto.setEstado(tipoDocumento.getEstado() != null ? tipoDocumento.getEstado().getCode() : null);
@@ -42,8 +41,7 @@ public class TipoDocumentoMapper {
       return null;
     }
     return TipoDocumento.reconstruir(
-        tipoDocumentoEntity.getId(),
-        ExternalID.from(tipoDocumentoEntity.getExternalId()), // assumindo que o campo é String
+        ExternalID.from(tipoDocumentoEntity.getId()), // assumindo que o campo é String
         tipoDocumentoEntity.getDescricao(),
         tipoDocumentoEntity.getCodigo(),
         tipoDocumentoEntity.getEstado()

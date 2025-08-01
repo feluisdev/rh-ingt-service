@@ -122,8 +122,8 @@ public class Funcionario {
 
     if(!documentos.isEmpty()) {
       for (Documento existente : documentos) {
-        System.out.println("existente : "+existente.getExternalId());
-        if (existente.getExternalId().equals(documento.getExternalId())) {
+        System.out.println("existente : "+existente.getIdDocumento());
+        if (existente.getIdDocumento().equals(documento.getIdDocumento())) {
           existente.atualizar(
               documento.getUrl(),
               documento.getObservacao(),

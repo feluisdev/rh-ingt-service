@@ -10,8 +10,7 @@ import lombok.Getter;
 @Getter
 public class Documento {
 
-  private Integer id;
-  private ExternalID externalId;
+  private ExternalID idDocumento;
   private String url;
   private String observacao;
   private ObjetoTipo objectoTipo;
@@ -19,9 +18,8 @@ public class Documento {
   private Estado estado;
   private TipoDocumento tipoDocumento;
 
-  Documento(Integer id, ExternalID externalId, String url, String observacao, ObjetoTipo objectoTipo, ExternalID objectId, Estado estado, TipoDocumento tipoDocumento) {
-    this.id = id;
-    this.externalId = externalId;
+  Documento(ExternalID idDocumento, String url, String observacao, ObjetoTipo objectoTipo, ExternalID objectId, Estado estado, TipoDocumento tipoDocumento) {
+    this.idDocumento = idDocumento;
     this.url = url;
     this.observacao = observacao;
     this.objectoTipo = objectoTipo;
@@ -30,18 +28,18 @@ public class Documento {
     this.tipoDocumento = tipoDocumento;
   }
 
-  public static Documento reconstruir(Integer id, ExternalID externalId, String url, String observacao, ObjetoTipo objectoTipo,
+  public static Documento reconstruir(ExternalID idDocumento, String url, String observacao, ObjetoTipo objectoTipo,
                                       ExternalID objectId, Estado estado, TipoDocumento tipoDocumento) {
-    return new Documento(id, externalId, url, observacao, objectoTipo, objectId, estado, tipoDocumento);
+    return new Documento(idDocumento, url, observacao, objectoTipo, objectId, estado, tipoDocumento);
   }
 
   public static Documento criar( String url, String observacao, ObjetoTipo objectoTipo, ExternalID objectId, TipoDocumento tipoDocumento) {
-    return new Documento(null, ExternalID.gerarNovo(), url, observacao, objectoTipo, objectId, Estado.A, tipoDocumento);
+    return new Documento(ExternalID.gerarNovo(), url, observacao, objectoTipo, objectId, Estado.A, tipoDocumento);
   }
 
   public static Documento criar( ExternalID externalId, String url, String observacao, ObjetoTipo objectoTipo, ExternalID objectId, TipoDocumento tipoDocumento) {
     var uuidExternal = externalId!=null ? externalId : ExternalID.gerarNovo();
-    return new Documento(null, uuidExternal, url, observacao, objectoTipo, objectId, Estado.A, tipoDocumento);
+    return new Documento(uuidExternal, url, observacao, objectoTipo, objectId, Estado.A, tipoDocumento);
   }
 
   public void atualizar(String url, String observacao, TipoDocumento tipoDocumento) {

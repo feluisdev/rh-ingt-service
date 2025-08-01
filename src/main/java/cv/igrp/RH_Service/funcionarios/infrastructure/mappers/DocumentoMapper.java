@@ -42,10 +42,10 @@ public class DocumentoMapper {
     }
 
     var documentoResponseDto = new DocumentoResponseDTO();
-    documentoResponseDto.setDocumentoId(documento.getExternalId().getStringValor());
+    documentoResponseDto.setDocumentoId(documento.getIdDocumento().getStringValor());
     documentoResponseDto.setUrl(documento.getUrl());
     documentoResponseDto.setObservacao(documento.getObservacao());
-    documentoResponseDto.setIdTipoDocumento(documento.getTipoDocumento().getExternalId().getStringValor());
+    documentoResponseDto.setIdTipoDocumento(documento.getTipoDocumento().getIdTipoDocumento().getStringValor());
     documentoResponseDto.setTipoDocumento(documento.getTipoDocumento().getDescricao());
     documentoResponseDto.setEstado(documento.getEstado().getCode());
     documentoResponseDto.setEstadoDesc(documento.getEstado().getDescription());
@@ -59,8 +59,7 @@ public class DocumentoMapper {
     }
 
     return Documento.reconstruir(
-        entity.getId(),
-        ExternalID.from(entity.getExternalId()),
+        ExternalID.from(entity.getId()),
         entity.getUrl(),
         entity.getObservacao(),
         entity.getObjectoTipo(),
@@ -76,9 +75,7 @@ public class DocumentoMapper {
     }
 
     DocumentoEntity entity = new DocumentoEntity();
-
-    entity.setId(domain.getId());
-    entity.setExternalId(domain.getExternalId().getValor());
+    entity.setId(domain.getIdDocumento().getValor());
     entity.setUrl(domain.getUrl());
     entity.setObjectoTipo(domain.getObjectoTipo());
     entity.setObjectId(domain.getObjectId().getValor());
