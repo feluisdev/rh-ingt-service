@@ -42,7 +42,6 @@ public class DocumentoMapper {
     }
 
     var documentoResponseDto = new DocumentoResponseDTO();
-    documentoResponseDto.setId(documento.getId());
     documentoResponseDto.setDocumentoId(documento.getExternalId().getStringValor());
     documentoResponseDto.setUrl(documento.getUrl());
     documentoResponseDto.setObservacao(documento.getObservacao());

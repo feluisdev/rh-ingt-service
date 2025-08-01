@@ -21,9 +21,6 @@ public class DocumentoResponseDTO {
 
   
   
-  private Integer id ;
-  
-  
   private String documentoId ;
   
   
