@@ -40,9 +40,9 @@ public class DependenteRepositoryImpl implements DependenteRepository {
 
   @Transactional(readOnly = true)
   @Override
-  public Optional<Dependente> getById(ExternalID externalId) {
+  public Optional<Dependente> getById(ExternalID dependenteId) {
 
-    return dependenteEntityRepository.findByExternalId(externalId.getValor())
+    return dependenteEntityRepository.findById(dependenteId.getValor())
         .map(entity -> {
 
           var funcionario = funcionarioMapper.toLightDomain(entity.getIdFuncionario());

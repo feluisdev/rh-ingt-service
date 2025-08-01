@@ -43,7 +43,7 @@ public class ContratoRepositoryImpl implements ContratoRepository {
   @Transactional(readOnly = true)
   @Override
   public Optional<Contrato> getById(ExternalID contratoId) {
-    return contratoEntityRepository.findByExternalId(contratoId.getValor())
+    return contratoEntityRepository.findById(contratoId.getValor())
         .map(entity -> {
           var funcionario = funcionarioMapper.toLightDomain(entity.getIdFuncionario());
           var departamento = departamentoMapper.toDomainWithResponsavel(

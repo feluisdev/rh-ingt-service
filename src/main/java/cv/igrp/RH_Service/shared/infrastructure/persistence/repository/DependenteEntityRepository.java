@@ -18,7 +18,7 @@ public interface DependenteEntityRepository extends
     JpaSpecificationExecutor<DependenteEntity>
 {
 
-  Optional<DependenteEntity> findByExternalId(UUID externalId);
+  Optional<DependenteEntity> findById(UUID externalId);
 
   List<DependenteEntity> findAllByEstado(Estado estado);
 

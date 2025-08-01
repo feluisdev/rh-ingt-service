@@ -17,7 +17,7 @@ public interface ContratoEntityRepository extends
     JpaSpecificationExecutor<ContratoEntity>
 {
 
-  Optional<ContratoEntity> findByExternalId(UUID externalId);
+  Optional<ContratoEntity> findById(UUID externalId);
 
   List<ContratoEntity> findByIdFuncionario_Id(UUID funcionarioExternalId);
 
