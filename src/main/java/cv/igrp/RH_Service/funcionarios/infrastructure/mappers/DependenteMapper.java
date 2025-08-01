@@ -18,8 +18,7 @@ public class DependenteMapper {
     }
 
     return Dependente.reconstruir(
-        entity.getId(),
-        ExternalID.from(entity.getExternalId()),
+        ExternalID.from(entity.getId()),
         entity.getNome(),
         entity.getDataNascimento(),
         entity.getParentesco(),
@@ -29,40 +28,7 @@ public class DependenteMapper {
     );
   }
 
-  public Dependente toDomaint(DependenteEntity entity) {
-    if (entity == null) {
-      return null;
-    }
 
-    return Dependente.reconstruir(
-        entity.getId(),
-        ExternalID.from(entity.getExternalId()),
-        entity.getNome(),
-        entity.getDataNascimento(),
-        entity.getParentesco(),
-        entity.getCpf(),
-        entity.getEstado(),
-        ExternalID.from(entity.getExternalId())
-    );
-  }
-
-
-  public Dependente toDomain(DependenteEntity entity) {
-    if (entity == null) {
-      return null;
-    }
-
-    return Dependente.reconstruir(
-        entity.getId(),
-        ExternalID.from(entity.getExternalId()),
-        entity.getNome(),
-        entity.getDataNascimento(),
-        entity.getParentesco(),
-        entity.getCpf(),
-        entity.getEstado(),
-        entity.getId()
-    );
-  }
 
   public DependenteEntity toEntity(Dependente domain, FuncionarioEntity funcionarioEntity) {
     if (domain == null) {
@@ -70,10 +36,7 @@ public class DependenteMapper {
     }
 
     DependenteEntity entity = new DependenteEntity();
-    if (domain.getId() != null) {
-      entity.setId(domain.getId());
-    }
-    entity.setExternalId(domain.getExternalId().getValor());
+    entity.setId(domain.getIdDependente().getValor());
     entity.setNome(domain.getNome());
     entity.setDataNascimento(domain.getDataNascimento());
     entity.setParentesco(domain.getParentesco());
@@ -88,8 +51,9 @@ public class DependenteMapper {
     if (dependente == null) return null;
 
     DependenteResponseDTO dto = new DependenteResponseDTO();
-    dto.setDependenteId(dependente.getExternalId().getStringValor());
-    dto.setFuncionarioId(dependente.getFuncionarioExternalId() != null ? dependente.getFuncionarioExternalId().getStringValor() : null);
+    dto.setDependenteId(dependente.getIdDependente().getStringValor());
+    dto.setFuncionarioId(dependente.getFuncionarioId() != null ? dependente.getFuncionarioId().getStringValor() : null);
+    //dto.setFuncionarioId(dependente.getFuncionario() != null ? dependente.getFuncionario().getIdFuncionario().getStringValor() : null);
     dto.setNome(dependente.getNome());
     dto.setParentesco(dependente.getParentesco().getCode());
     dto.setParentescoDesc(dependente.getParentesco().getDescription());

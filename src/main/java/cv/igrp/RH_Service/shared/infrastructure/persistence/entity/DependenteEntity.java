@@ -1,3 +1,6 @@
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+
 package cv.igrp.RH_Service.shared.infrastructure.persistence.entity;
 
 import cv.igrp.RH_Service.shared.config.AuditEntity;
@@ -25,11 +28,7 @@ public class DependenteEntity extends AuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", unique = true, nullable = false)
-    private Integer id;
-
-  
-    @Column(name="external_id")
-    private UUID externalId;
+    private UUID id;
 
   
     @NotBlank(message = "nome is mandatory")

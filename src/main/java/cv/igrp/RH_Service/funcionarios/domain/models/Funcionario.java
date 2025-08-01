@@ -208,9 +208,9 @@ public class Funcionario {
     contratos.add(contrato);
   }
 
-  public Dependente getDependenteByExternalId(ExternalID externalId) {
+  public Dependente getDependenteByExternalId(ExternalID idDependente) {
     return dependentes.stream()
-        .filter(d -> d.getExternalId().equals(externalId))
+        .filter(d -> d.getIdDependente().equals(externalId))
         .findFirst()
         .orElse(null);
   }
