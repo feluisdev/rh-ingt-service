@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.funcionarios.domain.repository;
 
 import cv.igrp.RH_Service.funcionarios.domain.filter.DepartamentoFilter;
 import cv.igrp.RH_Service.funcionarios.domain.models.Departamento;
+import cv.igrp.RH_Service.funcionarios.domain.models.read.DepartamentoRead;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 
 import java.util.List;
@@ -16,6 +17,8 @@ public interface DepartamentoRepository {
   List<Departamento> getAll();
 
   List<Departamento> getAll(DepartamentoFilter filter);
+
+  List<DepartamentoRead> getAllForRead(DepartamentoFilter filter);
 
   List<Departamento> getAllByResponsavel(ExternalID responsavelId);
 

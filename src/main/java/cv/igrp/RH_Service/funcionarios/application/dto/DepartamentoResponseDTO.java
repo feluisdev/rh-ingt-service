@@ -16,29 +16,31 @@ import java.math.BigDecimal;
 @IgrpDTO
 public class DepartamentoResponseDTO {
 
-  
-  
+
   private String departamentoId ;
-  
-  
+
+
   private String responsavelId ;
-  
-  
+
+
+  private String nomeResponsavel;
+
+
   private String nome ;
-  
-  
+
+
   private String descricao ;
-  
-  
+
+
   private String codigo ;
-  
-  
+
+
   private BigDecimal orcamento ;
-  
-  
+
+
   private String estado ;
-  
-  
+
+
   private String estadoDesc ;
 
 }

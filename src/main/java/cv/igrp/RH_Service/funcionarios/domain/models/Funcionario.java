@@ -76,6 +76,15 @@ public class Funcionario {
   }
 
 
+  public static Funcionario reconstruirResponsavel(ExternalID idFuncionario, String nome) {
+
+    Objects.requireNonNull(idFuncionario, "idFuncionario é obrigatório");
+
+    return new Funcionario(idFuncionario, null, null,
+        null, null, null, null,
+        null, null, null, null, null, null, null);
+  }
+
   public static Funcionario reconstruir(ExternalID idFuncionario, String nome,
                                         String nifRaw, String numSeguradoRaw, String nibRaw,
                                         String emailRaw, Estado estado, Sexo sexo,

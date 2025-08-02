@@ -38,7 +38,7 @@ public class GetDepartamentosQueryHandler implements QueryHandler<GetDepartament
          .pageSize(Integer.parseInt(query.getTamanho()))
          .build();
 
-     var departamentos = departamentoRepository.getAll(filter);
+     var departamentos = departamentoRepository.getAllForRead(filter);
 
      var dtoList = departamentos.stream()
          .map(departamentoMapper::toDTO)

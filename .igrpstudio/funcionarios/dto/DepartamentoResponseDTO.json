@@ -30,6 +30,18 @@
       "primaryKey": false
     },
     {
+      "name": "nomeResponsavel",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
       "name": "nome",
       "objectType": "java",
       "type": "string",

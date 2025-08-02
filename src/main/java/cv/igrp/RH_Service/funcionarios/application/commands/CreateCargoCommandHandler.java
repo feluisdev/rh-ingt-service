@@ -31,8 +31,8 @@ public class CreateCargoCommandHandler implements CommandHandler<CreateCargoComm
 
      Cargo novoCargo = Cargo.criarNovo(
          dto.getNome(),
-         dto.getDescricao(),
          dto.getCodigo(),
+         dto.getDescricao(),
          dto.getSalarioBase(),
          dto.getNivelHierarquico()
      );

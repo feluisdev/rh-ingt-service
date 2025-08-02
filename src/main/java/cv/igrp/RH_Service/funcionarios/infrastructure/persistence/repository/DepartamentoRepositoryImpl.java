@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.funcionarios.infrastructure.persistence.repository;
 
 import cv.igrp.RH_Service.funcionarios.domain.filter.DepartamentoFilter;
 import cv.igrp.RH_Service.funcionarios.domain.models.Departamento;
+import cv.igrp.RH_Service.funcionarios.domain.models.read.DepartamentoRead;
 import cv.igrp.RH_Service.funcionarios.domain.repository.DepartamentoRepository;
 import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.DepartamentoMapper;
 import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.FuncionarioMapper;
@@ -94,6 +95,50 @@ public class DepartamentoRepositoryImpl implements DepartamentoRepository {
         .map(departamentoMapper::toDomain)
         .toList();
 
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public List<DepartamentoRead> getAllForRead(DepartamentoFilter filter) {
+    var pageable = PageRequest.of(
+        filter.getPageNumber() != null ? filter.getPageNumber() : 0,
+        filter.getPageSize() != null ? filter.getPageSize() : 20
+    );
+
+    Specification<DepartamentoEntity> spec = (root, query, cb) -> {
+      var predicates = cb.conjunction();
+
+      if (filter.getNome() != null && !filter.getNome().isBlank()) {
+        predicates = cb.and(predicates,
+            cb.like(cb.lower(root.get("nome")), "%" + filter.getNome().trim().toLowerCase() + "%"));
+      }
+
+      if (filter.getResponsavelId() != null) {
+        predicates = cb.and(predicates,
+            cb.equal(root.get("responsavelId").get("externalId"), filter.getResponsavelId().getValor()));
+      }
+
+      if (filter.getCodigo() != null) {
+        predicates = cb.and(predicates,
+            cb.equal(root.get("codigo"), filter.getCodigo()));
+      }
+
+      if (filter.getEstado() != null) {
+        predicates = cb.and(predicates,
+            cb.equal(root.get("estado"), filter.getEstado()));
+      } else {
+        // opcional: filtrar apenas ativos por padrão
+        predicates = cb.and(predicates,
+            cb.equal(root.get("estado"), Estado.A));
+      }
+
+      return predicates;
+    };
+
+    return jpaDepartamentoEntityRepository.findAll(spec, pageable)
+        .stream()
+        .map(departamentoMapper::toReadDomain)
+        .toList();
   }
 
   @Transactional(readOnly = true)
