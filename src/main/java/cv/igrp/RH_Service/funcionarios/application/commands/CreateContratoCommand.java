@@ -14,7 +14,7 @@ public class CreateContratoCommand implements Command {
 
   
   private ContratoRequestDTO contratorequest;
-  @NotBlank(message = "The field <funcionarioId> is required.")
+  @NotBlank(message = "The field <funcionarioId> is required")
   private String funcionarioId;
 
 }

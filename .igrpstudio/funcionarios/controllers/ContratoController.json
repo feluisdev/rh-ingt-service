@@ -7,7 +7,7 @@
   "actions": [
     {
       "actionName": "getContrato",
-      "path": "{funcionarioId}/contratos/{contratoId}",
+      "path": "contratos/{contratoId}",
       "method": "GET",
       "responses": {
         "200": {
@@ -26,11 +26,6 @@
         }
       },
       "pathVariables": [
-        {
-          "name": "funcionarioId",
-          "type": "string",
-          "isRequired": true
-        },
         {
           "name": "contratoId",
           "type": "string",
@@ -107,7 +102,7 @@
     },
     {
       "actionName": "updateContrato",
-      "path": "{funcionarioId}/contratos/{contratoId}",
+      "path": "contratos/{contratoId}",
       "method": "PUT",
       "requestBody": {
         "content": {
@@ -140,11 +135,6 @@
       },
       "pathVariables": [
         {
-          "name": "funcionarioId",
-          "type": "string",
-          "isRequired": true
-        },
-        {
           "name": "contratoId",
           "type": "string",
           "isRequired": true
@@ -153,7 +143,7 @@
     },
     {
       "actionName": "inativarContrato",
-      "path": "{funcionarioId}/contratos/{contratoId}/desativar",
+      "path": "{contratoId}/desativar",
       "method": "PATCH",
       "responses": {
         "200": {
@@ -170,11 +160,6 @@
         }
       },
       "pathVariables": [
-        {
-          "name": "funcionarioId",
-          "type": "string",
-          "isRequired": true
-        },
         {
           "name": "contratoId",
           "type": "string",
@@ -184,7 +169,7 @@
     },
     {
       "actionName": "ativarContrato",
-      "path": "{funcionarioId}/contratos/{contratoId}/ativar",
+      "path": "contratos/{contratoId}/ativar",
       "method": "PATCH",
       "responses": {
         "200": {
@@ -201,11 +186,6 @@
         }
       },
       "pathVariables": [
-        {
-          "name": "funcionarioId",
-          "type": "string",
-          "isRequired": true
-        },
         {
           "name": "contratoId",
           "type": "string",

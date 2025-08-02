@@ -14,9 +14,7 @@ public class UpdateDependenteCommand implements Command {
 
   
   private DependenteRequestDTO dependenterequest;
-  @NotBlank(message = "The field <funcionarioId> is required.")
-  private String funcionarioId;
-  @NotBlank(message = "The field <dependenteId> is required.")
+  @NotBlank(message = "The field <dependenteId> is required")
   private String dependenteId;
 
 }

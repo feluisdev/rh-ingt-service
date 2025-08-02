@@ -45,12 +45,6 @@ public class UpdateContratoCommandHandler implements CommandHandler<UpdateContra
      var dto = command.getContratorequest();
 
 
-     var idFuncionario = ExternalID.from(command.getFuncionarioId());
-     var existeFuncionario = funcionarioRepository.existsById(idFuncionario);
-     if(!existeFuncionario)
-       throw IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Funcionario not found with id: " + idFuncionario);
-
-
      var idDepartamento = ExternalID.from(dto.getDepartamentoId());
      var existeDepartamento = departamentoRepository.existsById(idDepartamento);
      if(!existeDepartamento)

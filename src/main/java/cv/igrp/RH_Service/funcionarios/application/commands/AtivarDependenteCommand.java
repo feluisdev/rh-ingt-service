@@ -12,9 +12,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class AtivarDependenteCommand implements Command {
 
-  @NotBlank(message = "The field <funcionarioId> is required.")
-  private String funcionarioId;
-  @NotBlank(message = "The field <dependenteId> is required.")
+  @NotBlank(message = "The field <dependenteId> is required")
   private String dependenteId;
 
 }

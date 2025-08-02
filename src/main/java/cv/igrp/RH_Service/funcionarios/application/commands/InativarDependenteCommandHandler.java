@@ -27,16 +27,12 @@ public class InativarDependenteCommandHandler implements CommandHandler<Inativar
   @IgrpCommandHandler
   public ResponseEntity<Map<String, ?>> handle(InativarDependenteCommand command) {
     var externalId = ExternalID.from(command.getDependenteId());
-    var funcionarioId = ExternalID.from(command.getFuncionarioId());
 
     var dependente = dependenteRepository.getById(externalId)
         .orElseThrow(() -> IgrpResponseStatusException.of(
             HttpStatus.NOT_FOUND, "Dependente não encontrado com id: " + externalId.getStringValor()
         ));
 
-    if (!dependente.getFuncionarioId().equals(funcionarioId)) {
-      throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN, "Dependente não pertence ao funcionário informado.");
-    }
 
     dependente.desativar();
 

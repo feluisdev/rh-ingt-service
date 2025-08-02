@@ -12,9 +12,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class AtivarContratoCommand implements Command {
 
-  @NotBlank(message = "The field <funcionarioId> is required.")
-  private String funcionarioId;
-  @NotBlank(message = "The field <contratoId> is required.")
+  @NotBlank(message = "The field <contratoId> is required")
   private String contratoId;
 
 }

@@ -76,7 +76,7 @@
     },
     {
       "actionName": "getDependenteById",
-      "path": "{funcionarioId}/dependentes/{dependenteId}",
+      "path": "dependentes/{dependenteId}",
       "method": "GET",
       "responses": {
         "200": {
@@ -96,11 +96,6 @@
       },
       "pathVariables": [
         {
-          "name": "funcionarioId",
-          "type": "string",
-          "isRequired": true
-        },
-        {
           "name": "dependenteId",
           "type": "string",
           "isRequired": true
@@ -109,8 +104,21 @@
     },
     {
       "actionName": "updateDependente",
-      "path": "{funcionarioId}/dependentes/{dependenteId}",
+      "path": "dependentes/{dependenteId}",
       "method": "PUT",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "DependenteRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "funcionarios"
+            }
+          }
+        }
+      },
       "responses": {
         "200": {
           "name": "OK",
@@ -129,33 +137,15 @@
       },
       "pathVariables": [
         {
-          "name": "funcionarioId",
-          "type": "string",
-          "isRequired": true
-        },
-        {
           "name": "dependenteId",
           "type": "string",
           "isRequired": true
         }
-      ],
-      "requestBody": {
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "DependenteRequest",
-              "collectionType": "none",
-              "name": "data",
-              "objectType": "dto",
-              "module": "funcionarios"
-            }
-          }
-        }
-      }
+      ]
     },
     {
       "actionName": "inativarDependente",
-      "path": "{funcionarioId}/dependentes/{dependenteId}",
+      "path": "dependentes/{dependenteId}",
       "method": "DELETE",
       "responses": {
         "200": {
@@ -173,11 +163,6 @@
       },
       "pathVariables": [
         {
-          "name": "funcionarioId",
-          "type": "string",
-          "isRequired": true
-        },
-        {
           "name": "dependenteId",
           "type": "string",
           "isRequired": true
@@ -186,7 +171,7 @@
     },
     {
       "actionName": "ativarDependente",
-      "path": "{funcionarioId}/dependentes/{dependenteId}",
+      "path": "dependentes/{dependenteId}",
       "method": "PATCH",
       "responses": {
         "200": {
@@ -203,11 +188,6 @@
         }
       },
       "pathVariables": [
-        {
-          "name": "funcionarioId",
-          "type": "string",
-          "isRequired": true
-        },
         {
           "name": "dependenteId",
           "type": "string",

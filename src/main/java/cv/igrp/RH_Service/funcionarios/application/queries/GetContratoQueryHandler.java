@@ -35,14 +35,10 @@ public class GetContratoQueryHandler implements QueryHandler<GetContratoQuery, R
    @IgrpQueryHandler
   public ResponseEntity<ContratoResponseDTO> handle(GetContratoQuery query) {
      var contratoId = ExternalID.from(query.getContratoId());
-     var funcionarioId = ExternalID.from(query.getFuncionarioId());
 
      var contrato = contratoRepository.getById(contratoId)
          .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Contrato não encontrado: " + contratoId));
 
-     if (!contrato.getFuncionarioId().equals(funcionarioId)) {
-       throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN, "Contrato não pertence ao funcionário informado.");
-     }
 
      var dto = contratoMapper.toDTO(contrato);
      return ResponseEntity.ok(dto);

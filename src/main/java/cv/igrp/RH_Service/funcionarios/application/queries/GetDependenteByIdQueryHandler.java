@@ -31,14 +31,10 @@ public class GetDependenteByIdQueryHandler implements QueryHandler<GetDependente
   public ResponseEntity<DependenteResponseDTO> handle(GetDependenteByIdQuery query) {
 
      var dependenteId = ExternalID.from(query.getDependenteId());
-     var funcionarioId = ExternalID.from(query.getFuncionarioId());
 
      var dependente = dependenteRepository.getById(dependenteId)
          .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Dependente não encontrado: " + dependenteId));
 
-     if (!dependente.getFuncionarioId().equals(funcionarioId)) {
-       throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN, "Dependente não pertence ao funcionário informado.");
-     }
 
      var dto = dependenteMapper.toResponseDTO(dependente);
      return ResponseEntity.ok(dto);

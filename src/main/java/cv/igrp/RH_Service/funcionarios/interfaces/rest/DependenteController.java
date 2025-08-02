@@ -1,3 +1,6 @@
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+
 package cv.igrp.RH_Service.funcionarios.interfaces.rest;
 
 import cv.igrp.framework.stereotype.IgrpController;
@@ -119,7 +122,7 @@ public class DependenteController {
   }
 
   @GetMapping(
-    value = "{funcionarioId}/dependentes/{dependenteId}"
+    value = "dependentes/{dependenteId}"
   )
   @Operation(
     summary = "GET method to handle operations for getDependenteById",
@@ -139,12 +142,12 @@ public class DependenteController {
   )
   
   public ResponseEntity<DependenteResponseDTO> getDependenteById(
-    @PathVariable(value = "funcionarioId") String funcionarioId,@PathVariable(value = "dependenteId") String dependenteId)
+    @PathVariable(value = "dependenteId") String dependenteId)
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new GetDependenteByIdQuery(funcionarioId, dependenteId);
+      final var query = new GetDependenteByIdQuery(dependenteId);
 
       ResponseEntity<DependenteResponseDTO> response = queryBus.handle(query);
 
@@ -156,7 +159,7 @@ public class DependenteController {
   }
 
   @PutMapping(
-    value = "{funcionarioId}/dependentes/{dependenteId}"
+    value = "dependentes/{dependenteId}"
   )
   @Operation(
     summary = "PUT method to handle operations for updateDependente",
@@ -176,12 +179,12 @@ public class DependenteController {
   )
   
   public ResponseEntity<DependenteResponseDTO> updateDependente(@Valid @RequestBody DependenteRequestDTO updateDependenteRequest
-    , @PathVariable(value = "funcionarioId") String funcionarioId,@PathVariable(value = "dependenteId") String dependenteId)
+    , @PathVariable(value = "dependenteId") String dependenteId)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new UpdateDependenteCommand(updateDependenteRequest, funcionarioId, dependenteId);
+      final var command = new UpdateDependenteCommand(updateDependenteRequest, dependenteId);
 
        ResponseEntity<DependenteResponseDTO> response = commandBus.send(command);
 
@@ -193,7 +196,7 @@ public class DependenteController {
   }
 
   @DeleteMapping(
-    value = "{funcionarioId}/dependentes/{dependenteId}"
+    value = "dependentes/{dependenteId}"
   )
   @Operation(
     summary = "DELETE method to handle operations for inativarDependente",
@@ -213,12 +216,12 @@ public class DependenteController {
   )
   
   public ResponseEntity<Map<String, ?>> inativarDependente(
-    @PathVariable(value = "funcionarioId") String funcionarioId,@PathVariable(value = "dependenteId") String dependenteId)
+    @PathVariable(value = "dependenteId") String dependenteId)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new InativarDependenteCommand(funcionarioId, dependenteId);
+      final var command = new InativarDependenteCommand(dependenteId);
 
        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
 
@@ -230,7 +233,7 @@ public class DependenteController {
   }
 
   @PatchMapping(
-    value = "{funcionarioId}/dependentes/{dependenteId}"
+    value = "dependentes/{dependenteId}"
   )
   @Operation(
     summary = "PATCH method to handle operations for ativarDependente",
@@ -250,12 +253,12 @@ public class DependenteController {
   )
   
   public ResponseEntity<Map<String, ?>> ativarDependente(
-    @PathVariable(value = "funcionarioId") String funcionarioId,@PathVariable(value = "dependenteId") String dependenteId)
+    @PathVariable(value = "dependenteId") String dependenteId)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new AtivarDependenteCommand(funcionarioId, dependenteId);
+      final var command = new AtivarDependenteCommand(dependenteId);
 
        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
 

@@ -14,7 +14,7 @@ public class CreateDependenteCommand implements Command {
 
   
   private DependenteRequestDTO dependenterequest;
-  @NotBlank(message = "The field <funcionarioId> is required.")
+  @NotBlank(message = "The field <funcionarioId> is required")
   private String funcionarioId;
 
 }

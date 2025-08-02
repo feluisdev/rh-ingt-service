@@ -30,16 +30,12 @@ public class InativarContratoCommandHandler implements CommandHandler<InativarCo
    public ResponseEntity<Map<String, ?>> handle(InativarContratoCommand command) {
      var externalId = ExternalID.from(command.getContratoId());
 
-     var funcionarioId = ExternalID.from(command.getFuncionarioId());
 
      var contrato = contratoRepository.getById(externalId)
          .orElseThrow(() -> IgrpResponseStatusException.of(
              HttpStatus.NOT_FOUND, "contrato não encontrado com id: " + externalId.getStringValor()
          ));
 
-     if (!contrato.getFuncionarioId().equals(funcionarioId)) {
-       throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN, "Contrato não pertence ao funcionário informado.");
-     }
 
      contrato.desativar(LocalDate.now());
 

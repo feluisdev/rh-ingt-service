@@ -36,38 +36,12 @@ public class UpdateDependenteCommandHandler implements CommandHandler<UpdateDepe
    public ResponseEntity<DependenteResponseDTO> handle(UpdateDependenteCommand command) {
 
      var dependenteId = ExternalID.from(command.getDependenteId());
-     var funcionarioId = ExternalID.from(command.getFuncionarioId());
 
-     var funcionario = funcionarioRepository.getById(funcionarioId)
-         .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Funcionário não encontrado: " + funcionarioId));
-
-     var dependente = funcionario.getDependenteByExternalId(dependenteId);
+     var dependente = dependenteRepository.getById(dependenteId)
+         .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Dependente não encontrado: " + dependenteId));
 
      if(dependente == null) {
        throw IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Dependente não encontrado: " + dependenteId);
-     }
-
-     dependente.atualizarDados(
-         command.getDependenterequest().getNome(),
-         command.getDependenterequest().getDataNascimento(),
-         command.getDependenterequest().getParentesco(),
-         command.getDependenterequest().getCpf()
-     );
-
-     funcionarioRepository.save(funcionario);
-
-     var responseDTO = dependenteMapper.toResponseDTO(dependente);
-
-     return ResponseEntity.ok(responseDTO);
-
-     /*var dependenteId = ExternalID.from(command.getDependenteId());
-     var funcionarioId = ExternalID.from(command.getFuncionarioId());
-
-     var dependente = dependenteRepository.getByExternalId(dependenteId)
-         .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Dependente não encontrado: " + dependenteId));
-
-     if (!dependente.getFuncionario().getExternalId().equals(funcionarioId)) {
-       throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN, "Dependente não pertence ao funcionário informado.");
      }
 
      dependente.atualizarDados(
@@ -81,7 +55,8 @@ public class UpdateDependenteCommandHandler implements CommandHandler<UpdateDepe
 
      var responseDTO = dependenteMapper.toResponseDTO(dependente);
 
-     return ResponseEntity.ok(responseDTO);*/
+     return ResponseEntity.ok(responseDTO);
+
    }
 
 }

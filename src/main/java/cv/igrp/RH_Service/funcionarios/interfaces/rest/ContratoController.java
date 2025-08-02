@@ -1,3 +1,6 @@
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+
 package cv.igrp.RH_Service.funcionarios.interfaces.rest;
 
 import cv.igrp.framework.stereotype.IgrpController;
@@ -32,11 +35,11 @@ public class ContratoController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ContratoController.class);
 
-
+  
   private final CommandBus commandBus;
   private final QueryBus queryBus;
 
-
+  
   public ContratoController(
     CommandBus commandBus, QueryBus queryBus
   ) {
@@ -45,7 +48,7 @@ public class ContratoController {
   }
 
   @GetMapping(
-    value = "{funcionarioId}/contratos/{contratoId}"
+    value = "contratos/{contratoId}"
   )
   @Operation(
     summary = "GET method to handle operations for getContrato",
@@ -63,14 +66,14 @@ public class ContratoController {
       )
     }
   )
-
+  
   public ResponseEntity<ContratoResponseDTO> getContrato(
-    @PathVariable(value = "funcionarioId") String funcionarioId,@PathVariable(value = "contratoId") String contratoId)
+    @PathVariable(value = "contratoId") String contratoId)
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new GetContratoQuery(funcionarioId, contratoId);
+      final var query = new GetContratoQuery(contratoId);
 
       ResponseEntity<ContratoResponseDTO> response = queryBus.handle(query);
 
@@ -100,7 +103,7 @@ public class ContratoController {
       )
     }
   )
-
+  
   public ResponseEntity<List<ContratoResponseDTO>> getContratos(
     @PathVariable(value = "funcionarioId") String funcionarioId)
   {
@@ -137,7 +140,7 @@ public class ContratoController {
       )
     }
   )
-
+  
   public ResponseEntity<Map<String, ?>> createContrato(@Valid @RequestBody ContratoRequestDTO createContratoRequest
     , @PathVariable(value = "funcionarioId") String funcionarioId)
   {
@@ -156,7 +159,7 @@ public class ContratoController {
   }
 
   @PutMapping(
-    value = "{funcionarioId}/contratos/{contratoId}"
+    value = "contratos/{contratoId}"
   )
   @Operation(
     summary = "PUT method to handle operations for updateContrato",
@@ -174,14 +177,14 @@ public class ContratoController {
       )
     }
   )
-
+  
   public ResponseEntity<ContratoResponseDTO> updateContrato(@Valid @RequestBody ContratoRequestDTO updateContratoRequest
-    , @PathVariable(value = "funcionarioId") String funcionarioId,@PathVariable(value = "contratoId") String contratoId)
+    , @PathVariable(value = "contratoId") String contratoId)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new UpdateContratoCommand(updateContratoRequest, funcionarioId, contratoId);
+      final var command = new UpdateContratoCommand(updateContratoRequest, contratoId);
 
        ResponseEntity<ContratoResponseDTO> response = commandBus.send(command);
 
@@ -193,7 +196,7 @@ public class ContratoController {
   }
 
   @PatchMapping(
-    value = "{funcionarioId}/contratos/{contratoId}/desativar"
+    value = "{contratoId}/desativar"
   )
   @Operation(
     summary = "PATCH method to handle operations for inativarContrato",
@@ -211,14 +214,14 @@ public class ContratoController {
       )
     }
   )
-
+  
   public ResponseEntity<Map<String, ?>> inativarContrato(
-    @PathVariable(value = "funcionarioId") String funcionarioId,@PathVariable(value = "contratoId") String contratoId)
+    @PathVariable(value = "contratoId") String contratoId)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new InativarContratoCommand(funcionarioId, contratoId);
+      final var command = new InativarContratoCommand(contratoId);
 
        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
 
@@ -230,7 +233,7 @@ public class ContratoController {
   }
 
   @PatchMapping(
-    value = "{funcionarioId}/contratos/{contratoId}/ativar"
+    value = "contratos/{contratoId}/ativar"
   )
   @Operation(
     summary = "PATCH method to handle operations for ativarContrato",
@@ -248,14 +251,14 @@ public class ContratoController {
       )
     }
   )
-
+  
   public ResponseEntity<Map<String, ?>> ativarContrato(
-    @PathVariable(value = "funcionarioId") String funcionarioId,@PathVariable(value = "contratoId") String contratoId)
+    @PathVariable(value = "contratoId") String contratoId)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new AtivarContratoCommand(funcionarioId, contratoId);
+      final var command = new AtivarContratoCommand(contratoId);
 
        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
 
