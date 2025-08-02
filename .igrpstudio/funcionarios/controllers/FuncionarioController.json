@@ -215,7 +215,7 @@
     },
     {
       "actionName": "getFuncionarioDetails",
-      "path": "{idFuncionario}/detalhes",
+      "path": "{funcionarioId}/detalhes",
       "method": "GET",
       "responses": {
         "200": {
@@ -235,7 +235,7 @@
       },
       "pathVariables": [
         {
-          "name": "idFuncionario",
+          "name": "funcionarioId",
           "type": "string",
           "isRequired": true
         }

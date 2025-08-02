@@ -274,7 +274,7 @@ public class FuncionarioController {
   }
 
   @GetMapping(
-    value = "{idFuncionario}/detalhes"
+    value = "{funcionarioId}/detalhes"
   )
   @Operation(
     summary = "GET method to handle operations for getFuncionarioDetails",
@@ -294,12 +294,12 @@ public class FuncionarioController {
   )
   
   public ResponseEntity<FuncionarioDetailsDTO> getFuncionarioDetails(
-    @PathVariable(value = "idFuncionario") String idFuncionario)
+    @PathVariable(value = "funcionarioId") String funcionarioId)
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new GetFuncionarioDetailsQuery(idFuncionario);
+      final var query = new GetFuncionarioDetailsQuery(funcionarioId);
 
       ResponseEntity<FuncionarioDetailsDTO> response = queryBus.handle(query);
 

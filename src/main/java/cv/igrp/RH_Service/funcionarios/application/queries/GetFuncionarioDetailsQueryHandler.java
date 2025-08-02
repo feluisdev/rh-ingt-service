@@ -1,5 +1,8 @@
 package cv.igrp.RH_Service.funcionarios.application.queries;
 
+import cv.igrp.RH_Service.funcionarios.domain.repository.FuncionarioRepository;
+import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.FuncionarioMapper;
+import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import cv.igrp.framework.core.domain.QueryHandler;
@@ -16,13 +19,18 @@ public class GetFuncionarioDetailsQueryHandler implements QueryHandler<GetFuncio
   private static final Logger LOGGER = LoggerFactory.getLogger(GetFuncionarioDetailsQueryHandler.class);
 
 
-  public GetFuncionarioDetailsQueryHandler() {
+  private final FuncionarioRepository funcionarioRepository;
+  private final FuncionarioMapper funcionarioMapper;
 
+  public GetFuncionarioDetailsQueryHandler(FuncionarioRepository funcionarioRepository, FuncionarioMapper funcionarioMapper) {
+
+    this.funcionarioRepository = funcionarioRepository;
+    this.funcionarioMapper = funcionarioMapper;
   }
 
    @IgrpQueryHandler
   public ResponseEntity<FuncionarioDetailsDTO> handle(GetFuncionarioDetailsQuery query) {
-    // TODO: Implement the query handling logic here
+     var funcionarioUuid = ExternalID.from(query.getFuncionarioId());
     return null;
   }
 
