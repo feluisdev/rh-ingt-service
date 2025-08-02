@@ -9,7 +9,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import cv.igrp.RH_Service.funcionarios.application.dto.DependenteResponseDTO;
+import cv.igrp.RH_Service.funcionarios.application.dto.ContratoResponseDTO;
 import cv.igrp.RH_Service.shared.application.dto.PageDTO;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +20,10 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @IgrpDTO
-public class WrapperListaDependenteDTO extends PageDTO {
+public class WrapperListaContratoDTO extends PageDTO {
 
   
   @Valid
-  private List<DependenteResponseDTO> content = new ArrayList<>();
+  private List<ContratoResponseDTO> content = new ArrayList<>();
 
 }
