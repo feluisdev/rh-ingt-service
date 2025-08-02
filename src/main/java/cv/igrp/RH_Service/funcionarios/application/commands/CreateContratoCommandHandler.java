@@ -47,6 +47,9 @@ public class CreateContratoCommandHandler implements CommandHandler<CreateContra
 
     var dto = command.getContratorequest();
 
+    LOGGER.info("handlerRRRRRRRRRRRRRRRRRRRRRRRRRRRRRr : {}", dto.getAnexo());
+
+
     var idFuncionario = ExternalID.from(command.getFuncionarioId());
     var existeFuncionario = funcionarioRepository.existsById(idFuncionario);
     if(!existeFuncionario)
@@ -77,6 +80,7 @@ public class CreateContratoCommandHandler implements CommandHandler<CreateContra
     );
 
     if (dto.getAnexo() != null){
+      System.out.println("handler:: "+dto.getAnexo());
       var docDto = dto.getAnexo();
       var tipoDocumento = tipoDocumentoRepository.getById(ExternalID.from(docDto.getIdTipodocumento()))
           .orElseThrow(() -> IgrpResponseStatusException.notFound("Tipo documento not found with id:: "+docDto.getIdTipodocumento()));

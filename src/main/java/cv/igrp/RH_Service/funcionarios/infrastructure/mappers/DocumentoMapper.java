@@ -25,7 +25,7 @@ public class DocumentoMapper {
   public Documento toDocumentoDomain(ObjetoTipo objetoTipo, ExternalID idObjeto, DocumentoRequestDTO dto, TipoDocumento tipoDocumento) {
      var documentIdExternal = dto.getDocumentoId() != null ? ExternalID.from(dto.getDocumentoId()) : null;
 
-    return Documento.criar(
+    var documento =  Documento.criar(
         documentIdExternal,
         dto.getUrl(),
         dto.getObservacao(),
@@ -33,6 +33,9 @@ public class DocumentoMapper {
         idObjeto,
         tipoDocumento
     );
+    System.out.println("mapper:: "+documento);
+
+    return documento;
   }
 
 

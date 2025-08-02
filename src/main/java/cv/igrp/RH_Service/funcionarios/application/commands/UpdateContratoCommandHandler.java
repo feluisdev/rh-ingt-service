@@ -3,6 +3,8 @@ package cv.igrp.RH_Service.funcionarios.application.commands;
 import cv.igrp.RH_Service.funcionarios.domain.repository.*;
 import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.ContratoMapper;
 import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.DependenteMapper;
+import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.DocumentoMapper;
+import cv.igrp.RH_Service.shared.application.constants.ObjetoTipo;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.framework.core.domain.CommandHandler;
@@ -25,14 +27,17 @@ public class UpdateContratoCommandHandler implements CommandHandler<UpdateContra
   private final CargoRepository cargoRepository;
 
   private final ContratoMapper contratoMapper;
-
-  public UpdateContratoCommandHandler(ContratoRepository contratoRepository, FuncionarioRepository funcionarioRepository, DepartamentoRepository departamentoRepository, CargoRepository cargoRepository, ContratoMapper contratoMapper) {
+  private final TipoDocumentoRepository tipoDocumentoRepository;
+  private final DocumentoMapper documentoMapper;
+  public UpdateContratoCommandHandler(ContratoRepository contratoRepository, FuncionarioRepository funcionarioRepository, DepartamentoRepository departamentoRepository, CargoRepository cargoRepository, ContratoMapper contratoMapper, TipoDocumentoRepository tipoDocumentoRepository, DocumentoMapper documentoMapper) {
 
      this.contratoRepository = contratoRepository;
      this.funcionarioRepository = funcionarioRepository;
      this.departamentoRepository = departamentoRepository;
      this.cargoRepository = cargoRepository;
     this.contratoMapper = contratoMapper;
+    this.tipoDocumentoRepository = tipoDocumentoRepository;
+    this.documentoMapper = documentoMapper;
   }
 
    @IgrpCommandHandler
@@ -67,6 +72,17 @@ public class UpdateContratoCommandHandler implements CommandHandler<UpdateContra
           dto.getDataInicio(),
           dto.getDataFim()
      );
+
+     if (dto.getAnexo() != null){
+       System.out.println("handler:: "+dto.getAnexo());
+       var docDto = dto.getAnexo();
+       var tipoDocumento = tipoDocumentoRepository.getById(ExternalID.from(docDto.getIdTipodocumento()))
+           .orElseThrow(() -> IgrpResponseStatusException.notFound("Tipo documento not found with id:: "+docDto.getIdTipodocumento()));
+
+       var documento = documentoMapper.toDocumentoDomain(ObjetoTipo.CONTRATO, contrato.getIdContrato(), docDto, tipoDocumento);
+       contrato.adicionarDocumento(documento);
+
+     }
 
      contratoRepository.save(contrato);
 
