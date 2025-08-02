@@ -13,17 +13,17 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class GetFuncionariosQuery implements Query {
 
-  @NotBlank(message = "The field <nome> is required.")
+  @NotBlank(message = "The field <nome> is required")
   private String nome;
-  @NotBlank(message = "The field <email> is required.")
+  @NotBlank(message = "The field <email> is required")
   private String email;
-  @NotBlank(message = "The field <numSegurado> is required.")
+  @NotBlank(message = "The field <numSegurado> is required")
   private String numSegurado;
-  @NotBlank(message = "The field <nif> is required.")
+  @NotBlank(message = "The field <nif> is required")
   private String nif;
-  @NotBlank(message = "The field <pagina> is required.")
+  @NotBlank(message = "The field <pagina> is required")
   private String pagina;
-  @NotBlank(message = "The field <tamanho> is required.")
+  @NotBlank(message = "The field <tamanho> is required")
   private String tamanho;
 
 }

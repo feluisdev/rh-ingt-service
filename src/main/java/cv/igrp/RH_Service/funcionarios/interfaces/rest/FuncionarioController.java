@@ -1,3 +1,6 @@
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+
 package cv.igrp.RH_Service.funcionarios.interfaces.rest;
 
 import cv.igrp.framework.stereotype.IgrpController;
@@ -23,6 +26,7 @@ import cv.igrp.RH_Service.funcionarios.application.dto.FuncionarioRequestDTO;
 import cv.igrp.RH_Service.funcionarios.application.dto.FuncionarioResponseDTO;
 import cv.igrp.RH_Service.funcionarios.application.dto.WrapperListaFuncionarioDTO;
 import java.util.Map;
+import cv.igrp.RH_Service.funcionarios.application.dto.FuncionarioDetailsDTO;
 
 @IgrpController
 @RestController
@@ -265,6 +269,43 @@ public class FuncionarioController {
        LOGGER.debug("Operation finished");
 
         return ResponseEntity.status(response.getStatusCode())
+              .headers(response.getHeaders())
+              .body(response.getBody());
+  }
+
+  @GetMapping(
+    value = "{idFuncionario}/detalhes"
+  )
+  @Operation(
+    summary = "GET method to handle operations for getFuncionarioDetails",
+    description = "GET method to handle operations for getFuncionarioDetails",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = FuncionarioDetailsDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<FuncionarioDetailsDTO> getFuncionarioDetails(
+    @PathVariable(value = "idFuncionario") String idFuncionario)
+  {
+
+      LOGGER.debug("Operation started");
+
+      final var query = new GetFuncionarioDetailsQuery(idFuncionario);
+
+      ResponseEntity<FuncionarioDetailsDTO> response = queryBus.handle(query);
+
+      LOGGER.debug("Operation finished");
+
+      return ResponseEntity.status(response.getStatusCode())
               .headers(response.getHeaders())
               .body(response.getBody());
   }

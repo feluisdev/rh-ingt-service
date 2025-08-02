@@ -11,9 +11,9 @@ import lombok.AllArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetFuncionarioByIdQuery implements Query {
+public class GetFuncionarioDetailsQuery implements Query {
 
-  @NotBlank(message = "The field <funcionarioId> is required")
-  private String funcionarioId;
+  @NotBlank(message = "The field <idFuncionario> is required")
+  private String idFuncionario;
 
 }

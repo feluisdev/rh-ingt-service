@@ -14,7 +14,7 @@ public class UpdateFuncionarioCommand implements Command {
 
   
   private FuncionarioRequestDTO funcionariorequest;
-  @NotBlank(message = "The field <funcionarioId> is required.")
+  @NotBlank(message = "The field <funcionarioId> is required")
   private String funcionarioId;
 
 }

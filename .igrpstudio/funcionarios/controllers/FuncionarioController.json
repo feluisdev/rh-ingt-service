@@ -212,6 +212,34 @@
           "isRequired": true
         }
       ]
+    },
+    {
+      "actionName": "getFuncionarioDetails",
+      "path": "{idFuncionario}/detalhes",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "FuncionarioDetails",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "funcionarios"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "idFuncionario",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     }
   ],
   "id": "m0wjsk7q8b-CONTROLLER-CONTROLLER-CONTROLLER-CONTROLLER-CONTROLLER"
