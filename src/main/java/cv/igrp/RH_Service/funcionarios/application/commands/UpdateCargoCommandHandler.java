@@ -37,8 +37,8 @@ public class UpdateCargoCommandHandler implements CommandHandler<UpdateCargoComm
 
     cargo.atualizar(
         dto.getNome(),
-        dto.getDescricao(),
         dto.getCodigo(),
+        dto.getDescricao(),
         dto.getSalarioBase(),
         dto.getNivelHierarquico()
     );
