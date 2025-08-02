@@ -1,20 +1,19 @@
 package cv.igrp.RH_Service.funcionarios.infrastructure.mappers;
 
 import cv.igrp.RH_Service.funcionarios.application.dto.ContratoResponseDTO;
-import cv.igrp.RH_Service.funcionarios.domain.models.Cargo;
-import cv.igrp.RH_Service.funcionarios.domain.models.Contrato;
-import cv.igrp.RH_Service.funcionarios.domain.models.Departamento;
-import cv.igrp.RH_Service.funcionarios.domain.models.Funcionario;
+import cv.igrp.RH_Service.funcionarios.domain.models.*;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.CargoEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.ContratoEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.DepartamentoEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.FuncionarioEntity;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.*;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ContratoMapper {
 
+  private final DocumentoMapper documentoMapper;
+
+  public ContratoMapper(DocumentoMapper documentoMapper) {
+    this.documentoMapper = documentoMapper;
+  }
 
 
   public Contrato toDomain(ContratoEntity entity) {
@@ -34,6 +33,30 @@ public class ContratoMapper {
                 ExternalID.from(entity.getIdCargo().getId())
     );
   }
+
+  public Contrato toDomain(ContratoEntity entity, DocumentoEntity documentoEntity) {
+    if (entity == null) return null;
+
+    Documento contratoAnexo = documentoEntity != null
+        ? documentoMapper.toDomain(documentoEntity)
+        : null;
+
+    return Contrato.reconstruir(
+        ExternalID.from( entity.getId()),
+        entity.getTipoContrato(),
+        entity.getDataInicio(),
+        entity.getDataFim(),
+        entity.getSalario(),
+        entity.getCargaHoraria(),
+        entity.getObservacoes(),
+        entity.getEstado(),
+        ExternalID.from(entity.getIdDepartamento().getId()),
+        ExternalID.from(entity.getIdFuncionario().getId()),
+        ExternalID.from(entity.getIdCargo().getId()),
+        contratoAnexo
+    );
+  }
+
 
   // ====== DOMAIN → ENTITY ======
   public ContratoEntity toEntity(Contrato domain) {
@@ -68,21 +91,27 @@ public class ContratoMapper {
   public ContratoResponseDTO toDTO(Contrato contrato) {
     if (contrato == null) return null;
 
-    return new ContratoResponseDTO(
-        contrato.getIdContrato() != null ? contrato.getIdContrato().getStringValor() : null,
-        contrato.getFuncionarioId() != null ? contrato.getFuncionarioId().getStringValor() : null,
-        contrato.getDepartamentoId() != null ? contrato.getDepartamentoId().getStringValor() : null,
-        contrato.getCargoId() != null ? contrato.getCargoId().getStringValor() : null,
-        contrato.getTipoContrato().getCode(),
-        contrato.getTipoContrato().getDescription(),
-        contrato.getDataInicio(),
-        contrato.getDataFim(),
-        contrato.getSalario(),
-        contrato.getCargaHoraria(),
-        contrato.getObservacoes(),
-        contrato.getEstado().getCode(),
-        contrato.getEstado().getDescription(), // Assumindo que existe um getEstadoDescricao()
-        null
-    );
+    var dto = new ContratoResponseDTO();
+
+    dto.setContratoId(contrato.getIdContrato().getStringValor());
+    dto.setFuncionarioId(contrato.getFuncionarioId().getStringValor());
+    dto.setDepartamentoId(contrato.getDepartamentoId().getStringValor());
+    dto.setCargoId(contrato.getCargoId().getStringValor());
+    dto.setTipoContrato(contrato.getTipoContrato().getCode());
+    dto.setTipoContratoDesc(contrato.getTipoContrato().getDescription());
+    dto.setDataInicio(contrato.getDataInicio());
+    dto.setDataFim(contrato.getDataFim());
+    dto.setSalario(contrato.getSalario());
+    dto.setCargaHoraria(contrato.getCargaHoraria());
+    dto.setObservacoes(contrato.getObservacoes());
+    dto.setEstado(contrato.getEstado().getCode());
+    dto.setEstadoDesc(contrato.getEstado().getDescription());
+
+    if (contrato.getContratoAnexo() != null) {
+      dto.setAnexo(documentoMapper.toDTO(contrato.getContratoAnexo()));
+    }
+
+    return dto;
   }
+
 }

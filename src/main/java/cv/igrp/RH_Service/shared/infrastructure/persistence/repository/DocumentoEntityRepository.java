@@ -23,4 +23,7 @@ public interface DocumentoEntityRepository extends
 
   List<DocumentoEntity> findByObjectId(UUID objectId);
 
+  Optional<DocumentoEntity> findFirstByObjectIdAndObjectoTipo(UUID objectId, ObjetoTipo objectoTipo);
+
+
 }

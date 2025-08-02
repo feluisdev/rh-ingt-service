@@ -2,19 +2,20 @@ package cv.igrp.RH_Service.funcionarios.infrastructure.persistence.repository;
 
 import cv.igrp.RH_Service.funcionarios.domain.models.Contrato;
 import cv.igrp.RH_Service.funcionarios.domain.repository.ContratoRepository;
-import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.CargoMapper;
-import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.ContratoMapper;
-import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.DepartamentoMapper;
-import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.FuncionarioMapper;
+import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.*;
 import cv.igrp.RH_Service.shared.application.constants.Estado;
+import cv.igrp.RH_Service.shared.application.constants.ObjetoTipo;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.DocumentoEntity;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.ContratoEntityRepository;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.DocumentoEntityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -26,6 +27,10 @@ public class ContratoRepositoryImpl implements ContratoRepository {
   private final FuncionarioMapper funcionarioMapper;
   private final CargoMapper cargoMapper;
 
+
+  private final DocumentoEntityRepository documentoEntityRepository;
+  private final DocumentoMapper documentoMapper;
+
   @Transactional
   @Override
   public Contrato save(Contrato contrato) {
@@ -33,15 +38,33 @@ public class ContratoRepositoryImpl implements ContratoRepository {
     var entity = contratoMapper.toEntity(contrato);
     var saved = contratoEntityRepository.save(entity);
 
-    return contratoMapper.toDomain(saved);
+     DocumentoEntity documentoEntity = null;
+
+    if(contrato.getContratoAnexo() != null) {
+      documentoEntity = documentoMapper.toEntity(contrato.getContratoAnexo());
+      documentoEntityRepository.save(documentoEntity);
+    }
+
+    return contratoMapper.toDomain(saved, documentoEntity);
   }
 
 
   @Transactional(readOnly = true)
   @Override
   public Optional<Contrato> getById(ExternalID contratoId) {
-    return contratoEntityRepository.findById(contratoId.getValor())
-        .map(contratoMapper::toDomain);
+    var contratoOpt = contratoEntityRepository.findById(contratoId.getValor());
+
+    if (contratoOpt.isEmpty()) return Optional.empty();
+
+    var contratoEntity = contratoOpt.get();
+
+    var documentoOpt = documentoEntityRepository.findFirstByObjectIdAndObjectoTipo(
+        contratoEntity.getId(), ObjetoTipo.CONTRATO
+    );
+
+    return Optional.of(
+        contratoMapper.toDomain(contratoEntity, documentoOpt.orElse(null))
+    );
   }
 
   @Transactional(readOnly = true)
