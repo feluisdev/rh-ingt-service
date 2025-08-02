@@ -23,7 +23,7 @@ import java.util.List;
 
 
 @IgrpDTO
-public class FuncionarioDetailsDTO {
+public class FuncionarioDetailsDTO  {
 
   
   
@@ -69,9 +69,9 @@ public class FuncionarioDetailsDTO {
   private ContratoResponseDTO contratoAtual ;
   
   @Valid
-  private QualificacaoResponseDTO qualificacoes ;
+  private List<QualificacaoResponseDTO> qualificacoes = new ArrayList<>();
   
   @Valid
-  private DependenteResponseDTO dependentes ;
+  private List<DependenteResponseDTO> dependentes = new ArrayList<>();
 
 }

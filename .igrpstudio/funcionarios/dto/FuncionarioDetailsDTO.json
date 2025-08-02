@@ -187,7 +187,8 @@
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false,
-      "module": "funcionarios"
+      "module": "funcionarios",
+      "collectionType": "list"
     },
     {
       "name": "dependentes",
@@ -200,7 +201,8 @@
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false,
-      "module": "funcionarios"
+      "module": "funcionarios",
+      "collectionType": "list"
     }
   ],
   "id": "igdw6sfai5_copy"

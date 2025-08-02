@@ -216,6 +216,39 @@ public class FuncionarioMapper {
     // opcional: ajustar caso pegue essas datas da entidade JPA
     dto.setCreatedAt(null); // você pode preencher se tiver isso vindo do Entity
 
+    if (funcionario.getQualificacoes() != null) {
+      dto.setQualificacoes(
+          funcionario.getQualificacoes().stream()
+              .map(qualificacaoMapper::toDTO)
+              .toList()
+      );
+
+    }
+
+    if (funcionario.getDependentes() != null) {
+      dto.setDependentes(
+          funcionario.getDependentes().stream()
+              .map(dependenteMapper::toResponseDTO)
+              .toList()
+      );
+    }
+
+    // Contrato atual (supondo que o último da lista seja o atual)
+    if (funcionario.getContratos() != null && !funcionario.getContratos().isEmpty()) {
+      var contratoAtual = funcionario.getContratos()
+          .getLast(); // ou criar regra no domínio para pegar o "ativo"
+      dto.setContratoAtual(contratoMapper.toDTO(contratoAtual));
+    }
+
+    if (funcionario.getDocumentos() != null) {
+      dto.setAnexos(
+          funcionario.getDocumentos().stream()
+              .map(documentoMapper::toDTO)
+              .toList()
+      );
+    }
+
+
     return dto;
   }
 }

@@ -62,6 +62,15 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
         });
   }
 
+  @Transactional(readOnly = true)
+  @Override
+  public Optional<Funcionario> getByIdWithDetails(ExternalID idFuncionario) {
+    return jpaFuncionarioEntityRepository.findById(idFuncionario.getValor())
+        .map(entity -> {
+          List<DocumentoEntity> documentos = documentoEntityRepository.findByObjectIdAndObjectoTipo(idFuncionario.getValor(), ObjetoTipo.FUNCIONARIO);
+          return funcionarioMapper.toDomain(entity, documentos);
+        });
+  }
 
 
   @Transactional(readOnly = true)

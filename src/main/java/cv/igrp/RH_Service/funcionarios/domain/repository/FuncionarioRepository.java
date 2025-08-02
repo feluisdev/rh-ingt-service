@@ -13,6 +13,8 @@ public interface FuncionarioRepository {
 
   Optional<Funcionario> getById(ExternalID idFuncionario);
 
+  Optional<Funcionario> getByIdWithDetails(ExternalID idFuncionario);
+
   List<Funcionario> getAll(FuncionarioFilter filter);
 
   List<Funcionario> getAll();
