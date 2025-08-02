@@ -7,6 +7,7 @@ import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.DocumentoMapper;
 import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.FuncionarioMapper;
 import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.QualificacaoMapper;
 import cv.igrp.RH_Service.shared.application.constants.Estado;
+import cv.igrp.RH_Service.shared.application.constants.ObjetoTipo;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.DocumentoEntity;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.QualificacaoEntity;
@@ -52,9 +53,21 @@ public class QualificacaoRepositoryImpl implements QualificacaoRepository {
   @Transactional(readOnly = true)
   @Override
   public Optional<Qualificacao> getById(ExternalID externalId) {
-    return qualificacaoJpaRepository.findById(externalId.getValor())
-        .map(qualificacaoMapper::toDomain);
+    var qualificacaoOpt = qualificacaoJpaRepository.findById(externalId.getValor());
+
+    if (qualificacaoOpt.isEmpty()) return Optional.empty();
+
+    var qualificacaoEntity = qualificacaoOpt.get();
+
+    var documentoOpt = documentoEntityRepository.findFirstByObjectIdAndObjectoTipo(
+        qualificacaoEntity.getId(), ObjetoTipo.QUALIFICACAO
+    );
+
+    return Optional.of(
+        qualificacaoMapper.toDomain(qualificacaoEntity, documentoOpt.orElse(null))
+    );
   }
+
 
   @Transactional(readOnly = true)
   @Override

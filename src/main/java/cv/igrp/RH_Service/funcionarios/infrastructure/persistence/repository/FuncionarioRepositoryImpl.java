@@ -18,6 +18,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -67,8 +68,30 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
   public Optional<Funcionario> getByIdWithDetails(ExternalID idFuncionario) {
     return jpaFuncionarioEntityRepository.findById(idFuncionario.getValor())
         .map(entity -> {
-          List<DocumentoEntity> documentos = documentoEntityRepository.findByObjectIdAndObjectoTipo(idFuncionario.getValor(), ObjetoTipo.FUNCIONARIO);
-          return funcionarioMapper.toDomain(entity, documentos);
+          var funcionarioId = idFuncionario.getValor();
+
+          // Documentos do FUNCIONARIO
+          List<DocumentoEntity> documentosFuncionario =
+              documentoEntityRepository.findByObjectIdAndObjectoTipo(funcionarioId, ObjetoTipo.FUNCIONARIO);
+
+          // Documentos dos CONTRATOS do funcionario
+          List<DocumentoEntity> documentosContratos = entity.getContratos().stream()
+              .flatMap(contrato ->
+                  documentoEntityRepository.findByObjectIdAndObjectoTipo(contrato.getId(), ObjetoTipo.CONTRATO).stream()
+              ).toList();
+
+          // Documentos das QUALIFICACOES do funcionario
+          List<DocumentoEntity> documentosQualificacoes = entity.getQualificacoes().stream()
+              .flatMap(qualificacao ->
+                  documentoEntityRepository.findByObjectIdAndObjectoTipo(qualificacao.getId(), ObjetoTipo.QUALIFICACAO).stream()
+              ).toList();
+
+          List<DocumentoEntity> todosDocumentos = new ArrayList<>();
+          todosDocumentos.addAll(documentosFuncionario);
+          todosDocumentos.addAll(documentosContratos);
+          todosDocumentos.addAll(documentosQualificacoes);
+
+          return funcionarioMapper.toDomain(entity, todosDocumentos);
         });
   }
 
