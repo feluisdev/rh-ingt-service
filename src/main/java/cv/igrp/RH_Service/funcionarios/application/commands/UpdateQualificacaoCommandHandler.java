@@ -29,7 +29,6 @@ public class UpdateQualificacaoCommandHandler implements CommandHandler<UpdateQu
 
    @IgrpCommandHandler
    public ResponseEntity<QualificacaoResponseDTO> handle(UpdateQualificacaoCommand command) {
-     var funcionarioId = ExternalID.from(command.getFuncionarioId());
      var qualificacaoId = ExternalID.from(command.getQualificacaoId());
 
      var dto = command.getQualificacaorequest();
@@ -37,9 +36,6 @@ public class UpdateQualificacaoCommandHandler implements CommandHandler<UpdateQu
      var qualificacao = qualificacaoRepository.getById(qualificacaoId)
          .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Qualificação não encontrada: " + qualificacaoId.getStringValor()));
 
-     if (!qualificacao.getFuncionarioId().equals(funcionarioId)) {
-       throw IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST, "Qualificação não pertence ao funcionário informado.");
-     }
 
      // Atualiza os campos
      qualificacao.atualizar(

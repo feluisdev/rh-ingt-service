@@ -1,3 +1,6 @@
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+
 package cv.igrp.RH_Service.funcionarios.interfaces.rest;
 
 import cv.igrp.framework.stereotype.IgrpController;
@@ -119,7 +122,7 @@ public class QualificacaoController {
   }
 
   @GetMapping(
-    value = "{funcionarioId}/qualificacoes/{qualificacaoId}"
+    value = "qualificacoes/{qualificacaoId}"
   )
   @Operation(
     summary = "GET method to handle operations for getQualificacao",
@@ -139,12 +142,12 @@ public class QualificacaoController {
   )
   
   public ResponseEntity<QualificacaoResponseDTO> getQualificacao(
-    @PathVariable(value = "funcionarioId") String funcionarioId,@PathVariable(value = "qualificacaoId") String qualificacaoId)
+    @PathVariable(value = "qualificacaoId") String qualificacaoId)
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new GetQualificacaoQuery(funcionarioId, qualificacaoId);
+      final var query = new GetQualificacaoQuery(qualificacaoId);
 
       ResponseEntity<QualificacaoResponseDTO> response = queryBus.handle(query);
 
@@ -156,7 +159,7 @@ public class QualificacaoController {
   }
 
   @PutMapping(
-    value = "{funcionarioId}/qualificacoes/{qualificacaoId}"
+    value = "qualificacoes/{qualificacaoId}"
   )
   @Operation(
     summary = "PUT method to handle operations for updateQualificacao",
@@ -176,12 +179,12 @@ public class QualificacaoController {
   )
   
   public ResponseEntity<QualificacaoResponseDTO> updateQualificacao(@Valid @RequestBody QualificacaoRequestDTO updateQualificacaoRequest
-    , @PathVariable(value = "funcionarioId") String funcionarioId,@PathVariable(value = "qualificacaoId") String qualificacaoId)
+    , @PathVariable(value = "qualificacaoId") String qualificacaoId)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new UpdateQualificacaoCommand(updateQualificacaoRequest, funcionarioId, qualificacaoId);
+      final var command = new UpdateQualificacaoCommand(updateQualificacaoRequest, qualificacaoId);
 
        ResponseEntity<QualificacaoResponseDTO> response = commandBus.send(command);
 
@@ -193,7 +196,7 @@ public class QualificacaoController {
   }
 
   @DeleteMapping(
-    value = "{funcionarioId}/qualificacoes/{qualificacaoId}"
+    value = "qualificacoes/{qualificacaoId}"
   )
   @Operation(
     summary = "DELETE method to handle operations for inativarQualificacao",
@@ -213,12 +216,12 @@ public class QualificacaoController {
   )
   
   public ResponseEntity<Map<String, ?>> inativarQualificacao(
-    @PathVariable(value = "funcionarioId") String funcionarioId,@PathVariable(value = "qualificacaoId") String qualificacaoId)
+    @PathVariable(value = "qualificacaoId") String qualificacaoId)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new InativarQualificacaoCommand(funcionarioId, qualificacaoId);
+      final var command = new InativarQualificacaoCommand(qualificacaoId);
 
        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
 
@@ -230,7 +233,7 @@ public class QualificacaoController {
   }
 
   @PatchMapping(
-    value = "{funcionarioId}/qualificacoes/{qualificacaoId}"
+    value = "qualificacoes/{qualificacaoId}"
   )
   @Operation(
     summary = "PATCH method to handle operations for ativarQualificacao",
@@ -250,12 +253,12 @@ public class QualificacaoController {
   )
   
   public ResponseEntity<Map<String, ?>> ativarQualificacao(
-    @PathVariable(value = "funcionarioId") String funcionarioId,@PathVariable(value = "qualificacaoId") String qualificacaoId)
+    @PathVariable(value = "qualificacaoId") String qualificacaoId)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new AtivarQualificacaoCommand(funcionarioId, qualificacaoId);
+      final var command = new AtivarQualificacaoCommand(qualificacaoId);
 
        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
 

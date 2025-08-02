@@ -13,9 +13,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class GetQualificacaoQuery implements Query {
 
-  @NotBlank(message = "The field <funcionarioId> is required.")
-  private String funcionarioId;
-  @NotBlank(message = "The field <qualificacaoId> is required.")
+  @NotBlank(message = "The field <qualificacaoId> is required")
   private String qualificacaoId;
 
 }

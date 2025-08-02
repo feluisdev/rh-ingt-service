@@ -14,7 +14,7 @@ public class CreateQualificacaoCommand implements Command {
 
   
   private QualificacaoRequestDTO qualificacaorequest;
-  @NotBlank(message = "The field <funcionarioId> is required.")
+  @NotBlank(message = "The field <funcionarioId> is required")
   private String funcionarioId;
 
 }

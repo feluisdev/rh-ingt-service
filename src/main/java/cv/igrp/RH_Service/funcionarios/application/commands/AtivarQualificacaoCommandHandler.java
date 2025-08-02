@@ -26,17 +26,11 @@ public class AtivarQualificacaoCommandHandler implements CommandHandler<AtivarQu
 
    @IgrpCommandHandler
    public ResponseEntity<Map<String, ?>> handle(AtivarQualificacaoCommand command) {
-     var funcionarioId = ExternalID.from(command.getFuncionarioId());
      var qualificacaoId = ExternalID.from(command.getQualificacaoId());
 
      var qualificacao = qualificacaoRepository.getById(qualificacaoId)
          .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Qualificação não encontrada: " + qualificacaoId.getStringValor()));
 
-
-     // Verifica se a qualificação pertence ao funcionário correto
-     if (!qualificacao.getFuncionarioId().equals(funcionarioId)) {
-       throw IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST, "Qualificação não pertence ao funcionário informado.");
-     }
 
      qualificacao.ativar();
      qualificacaoRepository.save(qualificacao);

@@ -12,9 +12,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class InativarQualificacaoCommand implements Command {
 
-  @NotBlank(message = "The field <funcionarioId> is required.")
-  private String funcionarioId;
-  @NotBlank(message = "The field <qualificacaoId> is required.")
+  @NotBlank(message = "The field <qualificacaoId> is required")
   private String qualificacaoId;
 
 }

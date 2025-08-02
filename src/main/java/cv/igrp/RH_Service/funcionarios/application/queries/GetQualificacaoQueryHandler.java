@@ -31,16 +31,10 @@ public class GetQualificacaoQueryHandler implements QueryHandler<GetQualificacao
 
    @IgrpQueryHandler
   public ResponseEntity<QualificacaoResponseDTO> handle(GetQualificacaoQuery query) {
-     var funcionarioId = ExternalID.from(query.getFuncionarioId());
      var qualificacaoId = ExternalID.from(query.getQualificacaoId());
-
 
      var qualificacao = qualificacaoRepository.getById(qualificacaoId)
          .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Qualificação não encontrada: " + qualificacaoId.getStringValor()));
-
-     if (!qualificacao.getFuncionarioId().equals(funcionarioId)) {
-       throw IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST, "Qualificação não pertence ao funcionário informado.");
-     }
 
      var responseDTO = qualificacaoMapper.toDTO(qualificacao);
      return ResponseEntity.ok(responseDTO);
