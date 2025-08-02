@@ -30,7 +30,8 @@ public class Qualificacao {
 
   private Qualificacao(ExternalID idQualificacao, String instituicao, String curso,
                        LocalDate dataInicio, LocalDate dataConclusao, String nivel, String situacao,
-                       Integer cargaHoraria, BigDecimal notaFinal, Estado estado, ExternalID funcionarioId) {
+                       Integer cargaHoraria, BigDecimal notaFinal, Estado estado, ExternalID funcionarioId,
+                       Documento documento) {
     this.idQualificacao = idQualificacao;
     this.instituicao = instituicao;
     this.curso = curso;
@@ -42,6 +43,7 @@ public class Qualificacao {
     this.notaFinal = notaFinal;
     this.estado = estado;
     this.funcionarioId = funcionarioId;
+    this.documento = documento;
   }
 
 
@@ -62,7 +64,8 @@ public class Qualificacao {
         cargaHoraria,
         notaFinal,
         Estado.A,
-        funcionarioId
+        funcionarioId,
+        null
     );
   }
 
@@ -73,7 +76,18 @@ public class Qualificacao {
     Objects.requireNonNull(funcionarioId, "Funcionario é obrigatório");
 
     return new Qualificacao(idQualificacao, instituicao, curso, dataInicio, dataConclusao,
-        nivel, situacao, cargaHoraria, notaFinal, estado, funcionarioId);
+        nivel, situacao, cargaHoraria, notaFinal, estado, funcionarioId, null);
+  }
+
+  public static Qualificacao reconstruir(ExternalID idQualificacao, String instituicao, String curso,
+                                         LocalDate dataInicio, LocalDate dataConclusao, String nivel, String situacao,
+                                         Integer cargaHoraria, BigDecimal notaFinal, Estado estado, ExternalID funcionarioId,
+  Documento documento) {
+    Objects.requireNonNull(idQualificacao, "ExternalID é obrigatório");
+    Objects.requireNonNull(funcionarioId, "Funcionario é obrigatório");
+
+    return new Qualificacao(idQualificacao, instituicao, curso, dataInicio, dataConclusao,
+        nivel, situacao, cargaHoraria, notaFinal, estado, funcionarioId, documento);
   }
 
   // Atualizar campos

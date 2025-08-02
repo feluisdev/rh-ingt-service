@@ -2,7 +2,10 @@ package cv.igrp.RH_Service.funcionarios.application.commands;
 
 import cv.igrp.RH_Service.funcionarios.application.dto.QualificacaoResponseDTO;
 import cv.igrp.RH_Service.funcionarios.domain.repository.QualificacaoRepository;
+import cv.igrp.RH_Service.funcionarios.domain.repository.TipoDocumentoRepository;
+import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.DocumentoMapper;
 import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.QualificacaoMapper;
+import cv.igrp.RH_Service.shared.application.constants.ObjetoTipo;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.framework.core.domain.CommandHandler;
@@ -21,10 +24,15 @@ public class UpdateQualificacaoCommandHandler implements CommandHandler<UpdateQu
   private final QualificacaoRepository qualificacaoRepository;
   private final QualificacaoMapper qualificacaoMapper;
 
-  public UpdateQualificacaoCommandHandler(QualificacaoRepository qualificacaoRepository, QualificacaoMapper qualificacaoMapper) {
+  private final TipoDocumentoRepository tipoDocumentoRepository;
+  private final DocumentoMapper documentoMapper;
+
+  public UpdateQualificacaoCommandHandler(QualificacaoRepository qualificacaoRepository, QualificacaoMapper qualificacaoMapper, TipoDocumentoRepository tipoDocumentoRepository, DocumentoMapper documentoMapper) {
 
     this.qualificacaoRepository = qualificacaoRepository;
     this.qualificacaoMapper = qualificacaoMapper;
+    this.tipoDocumentoRepository = tipoDocumentoRepository;
+    this.documentoMapper = documentoMapper;
   }
 
    @IgrpCommandHandler
@@ -48,6 +56,16 @@ public class UpdateQualificacaoCommandHandler implements CommandHandler<UpdateQu
          dto.getCargaHoraria(),
          dto.getNotaFinal()
      );
+
+     if (dto.getAnexo() != null){
+       var docDto = dto.getAnexo();
+       var tipoDocumento = tipoDocumentoRepository.getById(ExternalID.from(docDto.getIdTipodocumento()))
+           .orElseThrow(() -> IgrpResponseStatusException.notFound("Tipo documento not found with id:: "+docDto.getIdTipodocumento()));
+
+       var documento = documentoMapper.toDocumentoDomain(ObjetoTipo.QUALIFICACAO, qualificacao.getIdQualificacao(), docDto, tipoDocumento);
+       qualificacao.adicionarDocumento(documento);
+
+     }
 
      var atualizado = qualificacaoRepository.save(qualificacao);
 
