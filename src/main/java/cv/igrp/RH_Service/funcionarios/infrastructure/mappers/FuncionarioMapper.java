@@ -3,12 +3,14 @@ package cv.igrp.RH_Service.funcionarios.infrastructure.mappers;
 import cv.igrp.RH_Service.funcionarios.application.dto.FuncionarioDetailsDTO;
 import cv.igrp.RH_Service.funcionarios.application.dto.FuncionarioResponseDTO;
 import cv.igrp.RH_Service.funcionarios.domain.models.Funcionario;
+import cv.igrp.RH_Service.shared.application.constants.ObjetoTipo;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.DocumentoEntity;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.FuncionarioEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -76,26 +78,54 @@ public class FuncionarioMapper {
           funcionario.adicionarDependente(dependenteMapper.toDomain(dep)));
     }
 
-    if (entity.getQualificacoes() != null) {
+    /*if (entity.getQualificacoes() != null) {
       entity.getQualificacoes().forEach(q ->
           funcionario.adicionarQualificacao(qualificacaoMapper.toDomain(q))
       );
-    }
+    }*/
 
-    if (entity.getContratos() != null) {
+    /*if (entity.getContratos() != null) {
       entity.getContratos().forEach(c ->
           funcionario.adicionarContrato(
               contratoMapper.toDomain(c))
       );
+    }*/
+
+    // Qualificações COM anexo
+    if (entity.getQualificacoes() != null) {
+      entity.getQualificacoes().forEach(qualificacao -> {
+        DocumentoEntity anexoQualificacao = findDocumentoByObjectIdAndTipo(documentos, qualificacao.getId(), ObjetoTipo.QUALIFICACAO);
+        funcionario.adicionarQualificacao(qualificacaoMapper.toDomain(qualificacao, anexoQualificacao));
+      });
     }
 
+    if (entity.getContratos() != null) {
+      entity.getContratos().forEach(contrato -> {
+        // Encontra o documento do contrato na lista geral
+        DocumentoEntity anexoContrato = findDocumentoByObjectIdAndTipo(documentos, contrato.getId(), ObjetoTipo.CONTRATO);
+        // Mapeia passando o anexo (ajuste o contratoMapper para suportar isso)
+        funcionario.adicionarContrato(contratoMapper.toDomain(contrato, anexoContrato));
+      });
+    }
+
+    // Apenas os documentos do FUNCIONARIO
     if (documentos != null && !documentos.isEmpty()) {
       documentos.stream()
+          .filter(doc -> doc.getObjectoTipo() == ObjetoTipo.FUNCIONARIO)
           .map(documentoMapper::toDomain)
           .forEach(funcionario::adicionarDocumento);
     }
 
     return funcionario;
+  }
+
+  // Método auxiliar para achar documento na lista (retorna null se não achar)
+  private DocumentoEntity findDocumentoByObjectIdAndTipo(List<DocumentoEntity> documentos, UUID objectId, ObjetoTipo tipo) {
+    if (documentos == null || documentos.isEmpty()) return null;
+    return documentos.stream()
+        .filter(doc -> doc.getObjectoTipo() == tipo && doc.getObjectId().equals(objectId))
+        .findFirst()
+        .orElse(null);
   }
 
   public FuncionarioEntity toLightEntity(Funcionario funcionario) {

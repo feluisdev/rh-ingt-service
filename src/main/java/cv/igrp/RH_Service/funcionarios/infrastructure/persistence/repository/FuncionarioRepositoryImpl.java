@@ -74,17 +74,21 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
           List<DocumentoEntity> documentosFuncionario =
               documentoEntityRepository.findByObjectIdAndObjectoTipo(funcionarioId, ObjetoTipo.FUNCIONARIO);
 
-          // Documentos dos CONTRATOS do funcionario
+          // Documento de cada CONTRATO do funcionario (1 anexo por contrato)
           List<DocumentoEntity> documentosContratos = entity.getContratos().stream()
-              .flatMap(contrato ->
-                  documentoEntityRepository.findByObjectIdAndObjectoTipo(contrato.getId(), ObjetoTipo.CONTRATO).stream()
-              ).toList();
+              .map(contrato ->
+                  documentoEntityRepository.findFirstByObjectIdAndObjectoTipo(contrato.getId(), ObjetoTipo.CONTRATO)
+              )
+              .flatMap(Optional::stream) // só pega os presentes
+              .toList();
 
-          // Documentos das QUALIFICACOES do funcionario
+          // Documento de cada QUALIFICACAO do funcionario (1 anexo por qualificacao)
           List<DocumentoEntity> documentosQualificacoes = entity.getQualificacoes().stream()
-              .flatMap(qualificacao ->
-                  documentoEntityRepository.findByObjectIdAndObjectoTipo(qualificacao.getId(), ObjetoTipo.QUALIFICACAO).stream()
-              ).toList();
+              .map(qualificacao ->
+                  documentoEntityRepository.findFirstByObjectIdAndObjectoTipo(qualificacao.getId(), ObjetoTipo.QUALIFICACAO)
+              )
+              .flatMap(Optional::stream)
+              .toList();
 
           List<DocumentoEntity> todosDocumentos = new ArrayList<>();
           todosDocumentos.addAll(documentosFuncionario);

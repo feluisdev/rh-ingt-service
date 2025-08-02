@@ -107,6 +107,10 @@ public class QualificacaoMapper {
     dto.setEstado(qualificacao.getEstado().getCode());
     dto.setEstadoDesc(qualificacao.getEstado().getDescription());
 
+    if (qualificacao.getDocumento() != null) {
+      dto.setAnexo(documentoMapper.toDTO(qualificacao.getDocumento()));
+    }
+
     return dto;
   }
 
