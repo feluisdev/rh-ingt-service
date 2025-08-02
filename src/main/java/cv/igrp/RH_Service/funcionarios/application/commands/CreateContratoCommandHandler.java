@@ -89,7 +89,7 @@ public class CreateContratoCommandHandler implements CommandHandler<CreateContra
 
     var contratoSaved = contratoRepository.save(contrato);
 
-    return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("Contrato criado com sucesso!",contratoSaved.getIdContrato()));
+    return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("Contrato criado com sucesso!",contratoSaved.getIdContrato().getStringValor()));
   }
 
 }
