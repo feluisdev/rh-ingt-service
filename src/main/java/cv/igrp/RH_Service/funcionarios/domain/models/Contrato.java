@@ -22,16 +22,17 @@ public class Contrato {
   private String observacoes;
   private Estado estado;
 
-  private ExternalID departamentoId;
   private ExternalID funcionarioId;
-  private ExternalID cargoId;
-
   private Documento contratoAnexo;
+
+  private Departamento departamento;
+  private Cargo cargo;
+
 
   private Contrato(ExternalID idContrato, TipoContrato tipoContrato,
                    LocalDate dataInicio, LocalDate dataFim, BigDecimal salario,
-                   Integer cargaHoraria, String observacoes, Estado estado,
-                   ExternalID departamentoId, ExternalID funcionarioId, ExternalID cargoId, Documento contratoAnexo) {
+                   Integer cargaHoraria, String observacoes, Estado estado,ExternalID funcionarioId,
+                   Departamento departamento, Cargo cargo, Documento contratoAnexo) {
 
     this.idContrato = idContrato;
     this.tipoContrato = tipoContrato;
@@ -41,17 +42,16 @@ public class Contrato {
     this.cargaHoraria = cargaHoraria;
     this.observacoes = observacoes;
     this.estado = estado;
-    this.departamentoId = departamentoId;
     this.funcionarioId = funcionarioId;
-    this.cargoId = cargoId;
+    this.departamento = departamento;
+    this.cargo = cargo;
     this.contratoAnexo = contratoAnexo;
   }
 
   // ===== MÉTODO CRIAR =====
   public static Contrato criar(TipoContrato tipoContrato, LocalDate dataInicio, LocalDate dataFim,
                                BigDecimal salario, Integer cargaHoraria,
-                               String observacoes, ExternalID departamentoId, ExternalID funcionarioId, ExternalID cargoId,
-                               Documento contratoAnexo) {
+                               String observacoes, ExternalID funcionarioId, Cargo cargo, Departamento departamento) {
 
     Objects.requireNonNull(tipoContrato, "Tipo de contrato é obrigatório");
     Objects.requireNonNull(dataInicio, "Data de início é obrigatória");
@@ -59,8 +59,13 @@ public class Contrato {
     Objects.requireNonNull(salario, "Salário é obrigatório");
     Objects.requireNonNull(funcionarioId, "Funcionário id é obrigatório");
 
-   if (dataFim.isBefore(dataInicio)) {
-      throw IgrpResponseStatusException.badRequest("Data fim não pode ser antes da data de início.");
+    if (dataInicio.isAfter(dataFim)) {
+      throw IgrpResponseStatusException.badRequest("Data de início não pode ser posterior à data fim.");
+    }
+
+    // Validação: data fim não pode ser no passado (opcional)
+    if (dataFim.isBefore(LocalDate.now())) {
+      throw IgrpResponseStatusException.badRequest("Data fim não pode estar no passado.");
     }
 
     return new Contrato(
@@ -72,136 +77,65 @@ public class Contrato {
         cargaHoraria,
         observacoes,
         Estado.A,
-        departamentoId,
         funcionarioId,
-        cargoId,
+        departamento,
+        cargo,
+        null
+    );
+  }
+
+
+  // ===== MÉTODO RECONSTRUIR =====
+  public static Contrato reconstruir(ExternalID idContrato, TipoContrato tipoContrato,
+                                     LocalDate dataInicio, LocalDate dataFim, BigDecimal salario,
+                                     Integer cargaHoraria, String observacoes, Estado estado,
+                                     ExternalID funcionarioId, Cargo cargo, Departamento departamento, Documento contratoAnexo) {
+
+
+    return new Contrato(
+        ExternalID.gerarNovo(),
+        tipoContrato,
+        dataInicio,
+        dataFim,
+        salario,
+        cargaHoraria,
+        observacoes,
+        Estado.A,
+        funcionarioId,
+        departamento,
+        cargo,
         contratoAnexo
     );
   }
 
-  // ===== MÉTODO CRIAR =====
-  public static Contrato criar(TipoContrato tipoContrato, LocalDate dataInicio, LocalDate dataFim,
-                               BigDecimal salario, Integer cargaHoraria,
-                               String observacoes, ExternalID departamentoId, ExternalID funcionarioId, ExternalID cargoId) {
+
+
+  public void atualizar(TipoContrato tipoContrato, BigDecimal salario,
+                        Integer cargaHoraria, String observacoes,
+                        Departamento departamento, Cargo cargo, LocalDate dataInicio, LocalDate dataFim) {
 
     Objects.requireNonNull(tipoContrato, "Tipo de contrato é obrigatório");
     Objects.requireNonNull(dataInicio, "Data de início é obrigatória");
     Objects.requireNonNull(dataFim, "Data fim é obrigatória");
     Objects.requireNonNull(salario, "Salário é obrigatório");
-    Objects.requireNonNull(funcionarioId, "Funcionário é obrigatório");
 
-    if (dataFim.isBefore(dataInicio)) {
-      throw IgrpResponseStatusException.badRequest("Data fim não pode ser antes da data de início.");
+    // Validação: data início não pode ser depois da data fim
+    if (dataInicio.isAfter(dataFim)) {
+      throw IgrpResponseStatusException.badRequest("Data de início não pode ser posterior à data fim.");
     }
 
-    return new Contrato(
-        ExternalID.gerarNovo(),
-        tipoContrato,
-        dataInicio,
-        dataFim,
-        salario,
-        cargaHoraria,
-        observacoes,
-        Estado.A,
-        departamentoId,
-        funcionarioId,
-        cargoId,
-        null
-    );
-  }
+    // Validação: data fim não pode ser no passado (opcional)
+    if (dataFim.isBefore(LocalDate.now())) {
+      throw IgrpResponseStatusException.badRequest("Data fim não pode estar no passado.");
+    }
 
-  // ===== MÉTODO RECONSTRUIR =====
-  public static Contrato reconstruir(ExternalID idContrato, TipoContrato tipoContrato,
-                                     LocalDate dataInicio, LocalDate dataFim, BigDecimal salario,
-                                     Integer cargaHoraria, String observacoes, Estado estado,
-                                     ExternalID departamentoId, ExternalID funcionarioId, ExternalID cargoId, Documento contratoAnexo) {
-
-    Objects.requireNonNull(idContrato, "idContrato é obrigatório");
-    Objects.requireNonNull(dataInicio, "Data de início é obrigatória");
-    Objects.requireNonNull(estado, "Estado é obrigatório");
-
-    return new Contrato(
-        idContrato,
-        tipoContrato,
-        dataInicio,
-        dataFim,
-        salario,
-        cargaHoraria,
-        observacoes,
-        estado,
-        departamentoId,
-        funcionarioId,
-        cargoId,
-        contratoAnexo
-    );
-  }
-
-  // ===== MÉTODO RECONSTRUIR =====
-  public static Contrato reconstruir(ExternalID idContrato, TipoContrato tipoContrato,
-                                     LocalDate dataInicio, LocalDate dataFim, BigDecimal salario,
-                                     Integer cargaHoraria, String observacoes, Estado estado,
-                                     ExternalID departamentoId, ExternalID funcionarioId, ExternalID cargoId) {
-
-    Objects.requireNonNull(idContrato, "ExternalID é obrigatório");
-    Objects.requireNonNull(dataInicio, "Data de início é obrigatória");
-    Objects.requireNonNull(estado, "Estado é obrigatório");
-
-    return new Contrato(
-        idContrato,
-        tipoContrato,
-        dataInicio,
-        dataFim,
-        salario,
-        cargaHoraria,
-        observacoes,
-        estado,
-        departamentoId,
-        funcionarioId,
-        cargoId,
-        null
-    );
-  }
-
-  // ===== MÉTODO ATUALIZAR =====
-  public void atualizar(TipoContrato tipoContrato, BigDecimal salario,
-                        Integer cargaHoraria, String observacoes,
-                        ExternalID departamentoId, ExternalID cargoId, LocalDate dataInicio, LocalDate dataFim, Documento contratoAnexo) {
 
     this.tipoContrato = tipoContrato;
     this.salario = salario;
     this.cargaHoraria = cargaHoraria;
     this.observacoes = observacoes;
-    this.departamentoId = departamentoId;
-    this.cargoId = cargoId;
-    this.dataInicio = dataInicio;
-    this.dataFim = dataFim;
-    this.contratoAnexo = contratoAnexo;
-  }
-
-  public void atualizar(TipoContrato tipoContrato, BigDecimal salario,
-                        Integer cargaHoraria, String observacoes,
-                        ExternalID departamentoId, ExternalID cargoId, Documento contratoAnexo) {
-
-    this.tipoContrato = tipoContrato;
-    this.salario = salario;
-    this.cargaHoraria = cargaHoraria;
-    this.observacoes = observacoes;
-    this.departamentoId = departamentoId;
-    this.cargoId = cargoId;
-    this.contratoAnexo = contratoAnexo;
-
-  }
-
-  public void atualizar(TipoContrato tipoContrato, BigDecimal salario,
-                        Integer cargaHoraria, String observacoes,
-                        ExternalID departamentoId, ExternalID cargoId, LocalDate dataInicio, LocalDate dataFim) {
-
-    this.tipoContrato = tipoContrato;
-    this.salario = salario;
-    this.cargaHoraria = cargaHoraria;
-    this.observacoes = observacoes;
-    this.departamentoId = departamentoId;
-    this.cargoId = cargoId;
+    this.departamento = departamento;
+    this.cargo = cargo;
     this.dataInicio = dataInicio;
     this.dataFim = dataFim;
   }

@@ -10,9 +10,7 @@ import cv.igrp.RH_Service.shared.domain.valueobject.Nib;
 import cv.igrp.RH_Service.shared.domain.valueobject.Nif;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Getter
 public class Funcionario {
@@ -233,6 +231,14 @@ public class Funcionario {
         .findFirst()
         .orElse(null);
   }
+
+  public Optional<Contrato> getContratoAtivoMaisRecente() {
+    return contratos.stream()
+        .filter(c -> c.isAtivo() && c.getDataInicio() != null)
+        .max(Comparator.comparing(Contrato::getDataInicio));
+  }
+
+
 
 
 }

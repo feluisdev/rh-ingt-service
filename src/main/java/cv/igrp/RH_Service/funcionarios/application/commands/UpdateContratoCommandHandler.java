@@ -51,15 +51,23 @@ public class UpdateContratoCommandHandler implements CommandHandler<UpdateContra
 
 
      var idDepartamento = ExternalID.from(dto.getDepartamentoId());
-     var existeDepartamento = departamentoRepository.existsById(idDepartamento);
+     /*var existeDepartamento = departamentoRepository.existsById(idDepartamento);
      if(!existeDepartamento)
-       throw IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Departament not found with id: " + idDepartamento);
+       throw IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Departament not found with id: " + idDepartamento);*/
 
 
      var idCargo  = ExternalID.from(dto.getCargoId());
-     var existeCargo = cargoRepository.existsById(idCargo);
+    /* var existeCargo = cargoRepository.existsById(idCargo);
      if(!existeCargo)
-       throw IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Cargo not found with id: " + idCargo);
+       throw IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Cargo not found with id: " + idCargo);*/
+
+     var departamento = departamentoRepository.getById(idDepartamento).orElseThrow(
+         () -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Departament not found ")
+     );
+
+     var cargo = cargoRepository.getById(idCargo).orElseThrow(
+         () -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "cargo not found ")
+     );
 
 
      contrato.atualizar(
@@ -67,8 +75,8 @@ public class UpdateContratoCommandHandler implements CommandHandler<UpdateContra
          dto.getSalario(),
          dto.getCargaHoraria(),
          dto.getObservacoes(),
-         idDepartamento,
-         idCargo,
+         departamento,
+         cargo,
           dto.getDataInicio(),
           dto.getDataFim()
      );

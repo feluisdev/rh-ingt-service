@@ -46,26 +46,35 @@ public class CreateContratoCommandHandler implements CommandHandler<CreateContra
   public ResponseEntity<Map<String, ?>> handle(CreateContratoCommand command) {
 
     var dto = command.getContratorequest();
-
-    LOGGER.info("handlerRRRRRRRRRRRRRRRRRRRRRRRRRRRRRr : {}", dto.getAnexo());
-
-
     var idFuncionario = ExternalID.from(command.getFuncionarioId());
+
+
+    LOGGER.info("dto : {}", dto.getAnexo());
+
+    var contratosFuncionario = contratoRepository.getAllByFuncionariolId(idFuncionario);
+
+    boolean existeContratoAtivo = contratosFuncionario.stream()
+        .anyMatch(Contrato::isAtivo);
+
+    if (existeContratoAtivo) {
+      throw IgrpResponseStatusException.badRequest("Funcionário já possui um contrato ativo.");
+    }
+
     var existeFuncionario = funcionarioRepository.existsById(idFuncionario);
     if(!existeFuncionario)
       throw IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Funcionario not found with id: " + idFuncionario);
 
-
     var idDepartamento = ExternalID.from(dto.getDepartamentoId());
-    var existeDepartamento = departamentoRepository.existsById(idDepartamento);
-    if(!existeDepartamento)
-     throw IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Departament not found with id: " + idDepartamento);
-
-
     var idCargo  = ExternalID.from(dto.getCargoId());
-    var existeCargo = cargoRepository.existsById(idCargo);
-    if(!existeCargo)
-     throw IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Cargo not found with id: " + idCargo);
+
+
+    var departamento = departamentoRepository.getById(idDepartamento).orElseThrow(
+        () -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Departament not found ")
+    );
+
+    var cargo = cargoRepository.getById(idCargo).orElseThrow(
+        () -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "cargo not found ")
+    );
 
     var contrato = Contrato.criar(
         dto.getTipoContrato(),
@@ -74,9 +83,9 @@ public class CreateContratoCommandHandler implements CommandHandler<CreateContra
         dto.getSalario(),
         dto.getCargaHoraria(),
         dto.getObservacoes(),
-        idDepartamento,
         idFuncionario,
-        idCargo
+        cargo,
+        departamento
     );
 
     if (dto.getAnexo() != null){

@@ -2,6 +2,9 @@ package cv.igrp.RH_Service.funcionarios.infrastructure.mappers;
 
 import cv.igrp.RH_Service.funcionarios.application.dto.FuncionarioDetailsDTO;
 import cv.igrp.RH_Service.funcionarios.application.dto.FuncionarioResponseDTO;
+import cv.igrp.RH_Service.funcionarios.domain.models.Cargo;
+import cv.igrp.RH_Service.funcionarios.domain.models.Contrato;
+import cv.igrp.RH_Service.funcionarios.domain.models.Departamento;
 import cv.igrp.RH_Service.funcionarios.domain.models.Funcionario;
 import cv.igrp.RH_Service.shared.application.constants.ObjetoTipo;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
@@ -209,6 +212,19 @@ public class FuncionarioMapper {
     dto.setEndereco(funcionario.getEndereco());
     dto.setEstado(funcionario.getEstado() != null ? funcionario.getEstado().getCode() : null);
     dto.setEstadoDesc(funcionario.getEstado() != null ? funcionario.getEstado().getDescription() : null);
+    dto.setDepartamento(
+        funcionario.getContratoAtivoMaisRecente()
+            .map(Contrato::getDepartamento)
+            .map(Departamento::getNome)
+            .orElse("")
+    );
+
+    dto.setCargo(
+        funcionario.getContratoAtivoMaisRecente()
+            .map(Contrato::getCargo)
+            .map(Cargo::getNome)
+            .orElse("")
+    );
 
     // opcional: ajustar caso pegue essas datas da entidade JPA
     dto.setCreatedAt(null); // você pode preencher se tiver isso vindo do Entity
@@ -242,6 +258,20 @@ public class FuncionarioMapper {
     dto.setEndereco(funcionario.getEndereco());
     dto.setEstado(funcionario.getEstado() != null ? funcionario.getEstado().getCode() : null);
     dto.setEstadoDesc(funcionario.getEstado() != null ? funcionario.getEstado().getDescription() : null);
+
+    dto.setDepartamento(
+        funcionario.getContratoAtivoMaisRecente()
+            .map(Contrato::getDepartamento)
+            .map(Departamento::getNome)
+            .orElse("")
+    );
+
+    dto.setCargo(
+        funcionario.getContratoAtivoMaisRecente()
+            .map(Contrato::getCargo)
+            .map(Cargo::getNome)
+            .orElse("")
+    );
 
     // opcional: ajustar caso pegue essas datas da entidade JPA
     dto.setCreatedAt(null); // você pode preencher se tiver isso vindo do Entity

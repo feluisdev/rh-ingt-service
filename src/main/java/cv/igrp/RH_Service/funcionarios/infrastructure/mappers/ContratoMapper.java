@@ -11,9 +11,15 @@ public class ContratoMapper {
 
   private final DocumentoMapper documentoMapper;
 
-  public ContratoMapper(DocumentoMapper documentoMapper) {
+  private final DepartamentoMapper departamentoMapper;
+  private final CargoMapper cargoMapper;
+
+  public ContratoMapper(DocumentoMapper documentoMapper, DepartamentoMapper departamentoMapper, CargoMapper cargoMapper) {
     this.documentoMapper = documentoMapper;
+    this.departamentoMapper = departamentoMapper;
+    this.cargoMapper = cargoMapper;
   }
+
 
 
   public Contrato toDomain(ContratoEntity entity) {
@@ -28,9 +34,10 @@ public class ContratoMapper {
         entity.getCargaHoraria(),
         entity.getObservacoes(),
         entity.getEstado(),
-        ExternalID.from(entity.getIdDepartamento().getId()),
-            ExternalID.from(entity.getIdFuncionario().getId()),
-                ExternalID.from(entity.getIdCargo().getId())
+        ExternalID.from(entity.getIdFuncionario().getId()),
+        cargoMapper.toDomain(entity.getIdCargo()),
+        departamentoMapper.toDomain(entity.getIdDepartamento()),
+        null
     );
   }
 
@@ -50,9 +57,9 @@ public class ContratoMapper {
         entity.getCargaHoraria(),
         entity.getObservacoes(),
         entity.getEstado(),
-        ExternalID.from(entity.getIdDepartamento().getId()),
         ExternalID.from(entity.getIdFuncionario().getId()),
-        ExternalID.from(entity.getIdCargo().getId()),
+        cargoMapper.toDomain(entity.getIdCargo()),
+        departamentoMapper.toDomain(entity.getIdDepartamento()),
         contratoAnexo
     );
   }
@@ -72,17 +79,12 @@ public class ContratoMapper {
     entity.setObservacoes(domain.getObservacoes());
     entity.setEstado(domain.getEstado());
 
-    DepartamentoEntity departamentoEntity = new DepartamentoEntity();
-    departamentoEntity.setId(domain.getDepartamentoId().getValor());
-    entity.setIdDepartamento(departamentoEntity);
+    entity.setIdDepartamento(departamentoMapper.toEntity(domain.getDepartamento()));
+    entity.setIdCargo(cargoMapper.toEntity(domain.getCargo()));
 
     FuncionarioEntity funcionarioEntity = new FuncionarioEntity();
     funcionarioEntity.setId(domain.getFuncionarioId().getValor());
     entity.setIdFuncionario(funcionarioEntity);
-
-    CargoEntity cargoEntity = new CargoEntity();
-    cargoEntity.setId(domain.getCargoId().getValor());
-    entity.setIdCargo(cargoEntity);
 
     return entity;
   }
@@ -95,8 +97,8 @@ public class ContratoMapper {
 
     dto.setContratoId(contrato.getIdContrato().getStringValor());
     dto.setFuncionarioId(contrato.getFuncionarioId().getStringValor());
-    dto.setDepartamentoId(contrato.getDepartamentoId().getStringValor());
-    dto.setCargoId(contrato.getCargoId().getStringValor());
+    dto.setDepartamentoId(contrato.getDepartamento().getIdDepartamento().getStringValor());
+    dto.setCargoId(contrato.getCargo().getIdCargo().getStringValor());
     dto.setTipoContrato(contrato.getTipoContrato().getCode());
     dto.setTipoContratoDesc(contrato.getTipoContrato().getDescription());
     dto.setDataInicio(contrato.getDataInicio());
