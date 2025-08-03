@@ -51,6 +51,12 @@ public class FuncionarioDetailsDTO  {
   private String endereco ;
   
   
+  private String departamento ;
+  
+  
+  private String cargo ;
+  
+  
   private String estadoCivil ;
   
   
