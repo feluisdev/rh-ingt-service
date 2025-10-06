@@ -1,5 +1,9 @@
 package cv.igrp.RH_Service.options.application.queries;
 
+import cv.igrp.RH_Service.options.domain.repository.OptionRepository;
+import cv.igrp.RH_Service.options.domain.valueobject.OptionId;
+import cv.igrp.RH_Service.options.infrastructure.mappers.OptionMapper;
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import cv.igrp.framework.core.domain.QueryHandler;
@@ -14,16 +18,29 @@ import cv.igrp.RH_Service.options.application.dto.OptionResponseDTO;
 public class GetOptionByIdQueryHandler implements QueryHandler<GetOptionByIdQuery, ResponseEntity<OptionResponseDTO>>{
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GetOptionByIdQueryHandler.class);
+  private final OptionRepository optionRepository;
+  private final OptionMapper optionMapper;
 
-
-  public GetOptionByIdQueryHandler() {
-
+  public GetOptionByIdQueryHandler(OptionRepository optionRepository, OptionMapper optionMapper) {
+    this.optionRepository = optionRepository;
+    this.optionMapper = optionMapper;
   }
 
-   @IgrpQueryHandler
+  @IgrpQueryHandler
   public ResponseEntity<OptionResponseDTO> handle(GetOptionByIdQuery query) {
-    // TODO: Implement the query handling logic here
-    return null;
+
+    var optionId = query.getOptionId();
+
+    if (optionId == null || optionId.isBlank()) {
+      throw IgrpResponseStatusException.badRequest("The field <optionId> is required");
+    }
+    var sector = optionRepository.findById(OptionId.from(optionId))
+        .orElseThrow(() -> IgrpResponseStatusException.notFound(
+            "Sector with id '" + optionId + "' not found"));
+
+    var responseDTO = optionMapper.toResponseDTO(sector);
+
+    return ResponseEntity.ok(responseDTO);
   }
 
 }
