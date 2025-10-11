@@ -42,7 +42,31 @@
       "primaryKey": false
     },
     {
+      "name": "departamento",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
       "name": "cargoId",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "cargo",
       "objectType": "java",
       "type": "string",
       "required": false,

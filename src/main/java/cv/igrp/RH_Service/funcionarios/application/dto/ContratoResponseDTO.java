@@ -21,46 +21,48 @@ import java.time.LocalDate;
 @IgrpDTO
 public class ContratoResponseDTO {
 
-  
-  
+
+
   private String contratoId ;
-  
-  
+
+
   private String funcionarioId ;
-  
-  
+
+
   private String departamentoId ;
-  
-  
+
+  private String departamento;
+
   private String cargoId ;
-  
-  
+
+  private String cargo;
+
   private String tipoContrato ;
-  
-  
+
+
   private String tipoContratoDesc ;
-  
-  
+
+
   private LocalDate dataInicio ;
-  
-  
+
+
   private LocalDate dataFim ;
-  
-  
+
+
   private BigDecimal salario ;
-  
-  
+
+
   private Integer cargaHoraria ;
-  
-  
+
+
   private String observacoes ;
-  
-  
+
+
   private String estado ;
-  
-  
+
+
   private String estadoDesc ;
-  
+
   @Valid
   private DocumentoResponseDTO anexo ;
 
