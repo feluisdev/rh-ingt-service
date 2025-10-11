@@ -198,7 +198,8 @@
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false,
-      "module": "funcionarios"
+      "module": "funcionarios",
+      "collectionType": "list"
     },
     {
       "name": "qualificacoes",

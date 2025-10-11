@@ -294,10 +294,18 @@ public class FuncionarioMapper {
     }
 
     // Contrato atual (supondo que o último da lista seja o atual)
-    if (funcionario.getContratos() != null && !funcionario.getContratos().isEmpty()) {
+    /*if (funcionario.getContratos() != null && !funcionario.getContratos().isEmpty()) {
       var contratoAtual = funcionario.getContratos()
           .getLast(); // ou criar regra no domínio para pegar o "ativo"
       dto.setContratoAtual(contratoMapper.toDTO(contratoAtual));
+    }*/
+
+    if (funcionario.getContratos() != null) {
+      dto.setContratos(
+          funcionario.getContratos().stream()
+              .map(contratoMapper::toDTO)
+              .toList()
+      );
     }
 
     if (funcionario.getDocumentos() != null) {
