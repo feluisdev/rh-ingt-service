@@ -93,7 +93,7 @@ public class Contrato {
 
 
     return new Contrato(
-        ExternalID.gerarNovo(),
+        idContrato,
         tipoContrato,
         dataInicio,
         dataFim,

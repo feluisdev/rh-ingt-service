@@ -52,7 +52,7 @@ public enum DocumentoFolder implements IgrpEnum<String> {
   /**
   * Finds the enum value associated with the given code or throws an exception if not found.
   * @param code The code to look up
-  * @return The enum value for the given code
+  * @return The <enum> value for the given code
   * @throws IllegalArgumentException if no enum value exists for the given code
   */
   public static DocumentoFolder fromCodeOrThrow(String code) {

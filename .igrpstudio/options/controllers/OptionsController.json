@@ -1,0 +1,307 @@
+{
+  "type": "controller",
+  "name": "Options",
+  "module": "options",
+  "description": "Gestão de opções",
+  "basePath": "api/v1/options",
+  "actions": [
+    {
+      "actionName": "getListOptions",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListOptions",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "options"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "ccode",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "ckey",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "cvalue",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "locale",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "sortOrder",
+          "isRequired": false
+        },
+        {
+          "type": "boolean",
+          "name": "active",
+          "value": "true",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "pageNumber",
+          "value": "0",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "pageSize",
+          "value": "20",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "getOptionById",
+      "path": "{optionId}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "OptionResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "options"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "optionId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "createOptions",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "OptionRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "options"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "OptionResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "options"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "disableOption",
+      "path": "{optionId}/disable",
+      "method": "PATCH",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "optionId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "updateOption",
+      "path": "{optionId}",
+      "method": "PUT",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "OptionRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "options"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "OptionResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "options"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "optionId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "enableOption",
+      "path": "{optionId}/enable",
+      "method": "PATCH",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "optionId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "findByCcode",
+      "path": "{ccode}/findByCcode",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "OptionCodeResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "options"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "locale",
+          "isRequired": false
+        },
+        {
+          "type": "boolean",
+          "name": "includeInactive",
+          "isRequired": false,
+          "value": "1"
+        },
+        {
+          "type": "string",
+          "name": "format",
+          "value": "list",
+          "isRequired": false
+        }
+      ],
+      "pathVariables": [
+        {
+          "name": "ccode",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "existsByCcodeAndCkey",
+      "path": "{ccode}/{ckey}/exists",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "boolean",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "ccode",
+          "type": "string",
+          "isRequired": true
+        },
+        {
+          "name": "ckey",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    }
+  ],
+  "id": "emdd38ed0u-CONTROLLER-getListOptions-getOptionById-createOptions-disableOption-updateOption-enableOption-findByCcode-existsByCcodeAndCkey"
+}

@@ -98,7 +98,9 @@ public class ContratoMapper {
     dto.setContratoId(contrato.getIdContrato().getStringValor());
     dto.setFuncionarioId(contrato.getFuncionarioId().getStringValor());
     dto.setDepartamentoId(contrato.getDepartamento().getIdDepartamento().getStringValor());
+    dto.setDepartamento(contrato.getDepartamento().getNome());
     dto.setCargoId(contrato.getCargo().getIdCargo().getStringValor());
+    dto.setCargo(contrato.getCargo().getNome());
     dto.setTipoContrato(contrato.getTipoContrato().getCode());
     dto.setTipoContratoDesc(contrato.getTipoContrato().getDescription());
     dto.setDataInicio(contrato.getDataInicio());

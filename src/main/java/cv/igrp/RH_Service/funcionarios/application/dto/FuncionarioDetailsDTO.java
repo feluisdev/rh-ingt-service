@@ -25,58 +25,58 @@ import java.util.List;
 @IgrpDTO
 public class FuncionarioDetailsDTO  {
 
-  
-  
+
+
   private String funcionarioId ;
-  
-  
+
+
   private String numSegurado ;
-  
-  
+
+
   private String nome ;
-  
-  
+
+
   private String nif ;
-  
-  
+
+
   private String nib ;
-  
-  
+
+
   private String email ;
-  
-  
+
+
   private String sexo ;
-  
-  
+
+
   private String endereco ;
-  
-  
+
+
   private String departamento ;
-  
-  
+
+
   private String cargo ;
-  
-  
+
+
   private String estadoCivil ;
-  
-  
+
+
   private String estado ;
-  
-  
+
+
   private String estadoDesc ;
-  
-  
+
+
   private LocalDate createdAt ;
-  
+
   @Valid
   private List<DocumentoResponseDTO> anexos = new ArrayList<>();
-  
+
   @Valid
-  private ContratoResponseDTO contratoAtual ;
-  
+  private List<ContratoResponseDTO> contratos ;
+
   @Valid
   private List<QualificacaoResponseDTO> qualificacoes = new ArrayList<>();
-  
+
   @Valid
   private List<DependenteResponseDTO> dependentes = new ArrayList<>();
 
