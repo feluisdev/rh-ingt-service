@@ -5,14 +5,16 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-
+import cv.igrp.RH_Service.funcionarios.application.dto.OptionRequestDTO;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DesativarCargoCommand implements Command {
+public class UpdateOptionCommand implements Command {
 
-  @NotBlank(message = "The field <cargoId> is required")
-  private String cargoId;
+  
+  private OptionRequestDTO optionrequest;
+  @NotBlank(message = "The field <optionId> is required")
+  private String optionId;
 
 }

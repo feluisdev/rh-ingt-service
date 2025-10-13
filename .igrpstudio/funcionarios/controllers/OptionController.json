@@ -1,0 +1,276 @@
+{
+  "type": "controller",
+  "name": "Option",
+  "module": "funcionarios",
+  "description": "gestao de opcoes",
+  "basePath": "api/v1/options",
+  "actions": [
+    {
+      "actionName": "getOptions",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaOption",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "funcionarios"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "ccode",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "ckey",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "cvalue",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "locale",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "sort_order",
+          "isRequired": false
+        },
+        {
+          "type": "boolean",
+          "name": "active",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "description",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "pageNumber",
+          "value": "0",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "pageSize",
+          "value": "20",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "createOption",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "collectionType": "none",
+              "name": "data",
+              "type": "OptionRequest",
+              "objectType": "dto",
+              "module": "funcionarios"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "updateOption",
+      "path": "{optionId}",
+      "method": "PUT",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "OptionRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "funcionarios"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "optionId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "getOptionById",
+      "path": "{optionId}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "OptionResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "funcionarios"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "optionId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "ativarOption",
+      "path": "{optionId}/ativar",
+      "method": "PATCH",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "optionId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "desativarOption",
+      "path": "{optionId}/desativar",
+      "method": "PATCH",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "optionId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "findByCcode",
+      "path": "{ccode}/findByCcode",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "OptionCodeResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "funcionarios"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "locale",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "includeInactive",
+          "value": "1",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "format",
+          "value": "list",
+          "isRequired": true
+        }
+      ],
+      "pathVariables": [
+        {
+          "name": "ccode",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    }
+  ],
+  "id": "vn8iswrlly-getOptions-createOption-ativarOption-desativarOption-getOptions"
+}

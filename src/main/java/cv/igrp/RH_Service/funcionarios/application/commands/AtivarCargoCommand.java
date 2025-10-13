@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class AtivarCargoCommand implements Command {
 
-  @NotBlank(message = "The field <cargoId> is required.")
+  @NotBlank(message = "The field <cargoId> is required")
   private String cargoId;
 
 }

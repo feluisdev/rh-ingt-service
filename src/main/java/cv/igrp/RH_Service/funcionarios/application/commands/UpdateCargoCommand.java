@@ -14,7 +14,7 @@ public class UpdateCargoCommand implements Command {
 
   
   private CargoRequestDTO cargorequest;
-  @NotBlank(message = "The field <cargoId> is required.")
+  @NotBlank(message = "The field <cargoId> is required")
   private String cargoId;
 
 }

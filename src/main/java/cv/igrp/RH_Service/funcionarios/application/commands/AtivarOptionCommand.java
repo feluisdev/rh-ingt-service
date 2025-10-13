@@ -10,9 +10,9 @@ import lombok.AllArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DesativarCargoCommand implements Command {
+public class AtivarOptionCommand implements Command {
 
-  @NotBlank(message = "The field <cargoId> is required")
-  private String cargoId;
+  @NotBlank(message = "The field <optionId> is required")
+  private String optionId;
 
 }

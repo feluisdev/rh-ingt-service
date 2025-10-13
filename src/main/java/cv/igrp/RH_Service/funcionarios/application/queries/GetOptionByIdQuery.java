@@ -11,9 +11,9 @@ import lombok.AllArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetCargoByIdQuery implements Query {
+public class GetOptionByIdQuery implements Query {
 
-  @NotBlank(message = "The field <cargoId> is required")
-  private String cargoId;
+  @NotBlank(message = "The field <optionId> is required")
+  private String optionId;
 
 }

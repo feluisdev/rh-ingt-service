@@ -1,3 +1,6 @@
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+
 package cv.igrp.RH_Service.funcionarios.interfaces.rest;
 
 import cv.igrp.framework.stereotype.IgrpController;
@@ -13,16 +16,16 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import cv.igrp.framework.core.domain.CommandBus;
 import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.RH_Service.funcionarios.application.commands.*;
 import cv.igrp.RH_Service.funcionarios.application.queries.*;
 
-
 import cv.igrp.RH_Service.funcionarios.application.dto.WrapperListaCargoDTO;
 import java.util.Map;
-import cv.igrp.RH_Service.funcionarios.application.dto.CargoRequestDTO;
 import cv.igrp.RH_Service.funcionarios.application.dto.CargoResponseDTO;
+import cv.igrp.RH_Service.funcionarios.application.dto.CargoRequestDTO;
 
 @IgrpController
 @RestController
@@ -32,11 +35,11 @@ public class CargoController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CargoController.class);
 
-
+  
   private final CommandBus commandBus;
   private final QueryBus queryBus;
 
-
+  
   public CargoController(
     CommandBus commandBus, QueryBus queryBus
   ) {
@@ -62,7 +65,7 @@ public class CargoController {
       )
     }
   )
-
+  
   public ResponseEntity<WrapperListaCargoDTO> getCargos(
     @RequestParam(value = "nome", required = false) String nome,
     @RequestParam(value = "codigo", required = false) String codigo,
@@ -106,7 +109,7 @@ public class CargoController {
       )
     }
   )
-
+  
   public ResponseEntity<Map<String, ?>> ativarCargo(
     @PathVariable(value = "cargoId") String cargoId)
   {
@@ -143,7 +146,7 @@ public class CargoController {
       )
     }
   )
-
+  
   public ResponseEntity<Map<String, ?>> desativarCargo(
     @PathVariable(value = "cargoId") String cargoId)
   {
@@ -180,8 +183,9 @@ public class CargoController {
       )
     }
   )
-
-  public ResponseEntity<CargoResponseDTO> getCargoById(@PathVariable(value = "cargoId") String cargoId)
+  
+  public ResponseEntity<CargoResponseDTO> getCargoById(
+    @PathVariable(value = "cargoId") String cargoId)
   {
 
       LOGGER.debug("Operation started");
@@ -215,7 +219,7 @@ public class CargoController {
       )
     }
   )
-
+  
   public ResponseEntity<Map<String, ?>> createCargo(@Valid @RequestBody CargoRequestDTO createCargoRequest
     )
   {
@@ -252,7 +256,7 @@ public class CargoController {
       )
     }
   )
-
+  
   public ResponseEntity<CargoResponseDTO> updateCargo(@Valid @RequestBody CargoRequestDTO updateCargoRequest
     , @PathVariable(value = "cargoId") String cargoId)
   {
