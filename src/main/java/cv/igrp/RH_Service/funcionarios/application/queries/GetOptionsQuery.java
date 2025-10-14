@@ -23,8 +23,8 @@ public class GetOptionsQuery implements Query {
   private String locale;
   @NotNull(message = "The field <sort_order> is required")
   private Integer sort_order;
-  @NotNull(message = "The field <active> is required")
-  private boolean active;
+  @NotBlank(message = "The field <active> is required")
+  private String active;
   @NotBlank(message = "The field <description> is required")
   private String description;
   @NotBlank(message = "The field <pageNumber> is required")

@@ -51,7 +51,7 @@
           "isRequired": false
         },
         {
-          "type": "boolean",
+          "type": "string",
           "name": "active",
           "isRequired": false
         },
@@ -272,5 +272,5 @@
       ]
     }
   ],
-  "id": "vn8iswrlly-getOptions-createOption-ativarOption-desativarOption-getOptions"
+  "id": "vn8iswrlly-getOptions-createOption-ativarOption-desativarOption-getOptions-getOptions"
 }

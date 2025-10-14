@@ -31,7 +31,28 @@ public class GetOptionsQueryHandler implements QueryHandler<GetOptionsQuery, Res
 
    @IgrpQueryHandler
   public ResponseEntity<WrapperListaOptionDTO> handle(GetOptionsQuery query) {
+
+    var active = true;
+
+     String activeStr = query.getActive();
+
+     if (activeStr != null && !activeStr.isEmpty()) {
+       activeStr = activeStr.trim().toLowerCase();
+
+       if (activeStr.equals("true") || activeStr.equals("1") || activeStr.equals("yes") || activeStr.equals("sim")) {
+         active = true;
+       } else if (activeStr.equals("false") || activeStr.equals("0") || activeStr.equals("no") || activeStr.equals("nao")) {
+         active = false;
+       }
+     }
+     
     OptionFilter filter = OptionFilter.builder()
+        .ccode(query.getCcode())
+        .ckey(query.getCkey())
+        .cvalue(query.getCvalue())
+        .locale(query.getLocale() != null ? query.getLocale() : "pt-CV")
+        //.locale(query.getLocale() )
+        .active(active)
         .pageNumber(0)
         .pageSize(20)
         .build();

@@ -73,7 +73,7 @@ public class OptionController {
     @RequestParam(value = "cvalue", required = false) String cvalue,
     @RequestParam(value = "locale", required = false) String locale,
     @RequestParam(value = "sort_order", required = false) Integer sort_order,
-    @RequestParam(value = "active", required = false) boolean active,
+    @RequestParam(value = "active", required = false) String active,
     @RequestParam(value = "description", required = false) String description,
     @RequestParam(value = "pageNumber", defaultValue = "0") String pageNumber,
     @RequestParam(value = "pageSize", defaultValue = "20") String pageSize)
