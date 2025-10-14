@@ -33,18 +33,18 @@ services:
         exec minio $0 "$@"
       '
 
-  postgres_rh_ingt:
-      image: postgres:17-alpine
-      container_name: postgres_rh_ingt
-      environment:
-        POSTGRES_USER: ${POSTGRES_USER}
-        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-        POSTGRES_DB: ${POSTGRES_DATABASE}
-      ports:
-        - ${POSTGRES_PORT}:${POSTGRES_PORT}
-      volumes:
-        - postgres-data-17:/var/lib/postgresql/data
-      restart: unless-stopped
+  postgres:
+    image: postgres:17-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+    ports:
+      - ${POSTGRES_EXTERNAL_PORT}:${POSTGRES_INTERNAL_PORT}
+    volumes:
+      - postgres-data-17:/var/lib/postgresql/data
+    restart: unless-stopped
   recursoshumanos-service:
     build:
       context: .
@@ -53,12 +53,12 @@ services:
     env_file:
       - .env
     depends_on:
-      - postgres_rh_ingt
+      - postgres
     environment:
       - SERVER_PORT=${SERVICE_PORT}
       - SERVICE_NAME=recursoshumanos-service
       - SPRING_ACTIVE_PROFILE=${SERVICE_PROFILE}
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:${POSTGRES_PORT}/${POSTGRES_DATABASE}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:${POSTGRES_INTERNAL_PORT}/${POSTGRES_DATABASE}
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - ENABLE_SWAGGER=${ENABLE_SWAGGER}
