@@ -45,7 +45,7 @@ public class GetOptionsQueryHandler implements QueryHandler<GetOptionsQuery, Res
          active = false;
        }
      }
-     
+
     OptionFilter filter = OptionFilter.builder()
         .ccode(query.getCcode())
         .ckey(query.getCkey())
