@@ -50,12 +50,15 @@ public class GetOptionsQueryHandler implements QueryHandler<GetOptionsQuery, Res
         .ccode(query.getCcode())
         .ckey(query.getCkey())
         .cvalue(query.getCvalue())
-        .locale(query.getLocale() != null ? query.getLocale() : "pt-CV")
-        //.locale(query.getLocale() )
+        //.locale(query.getLocale() != null ? query.getLocale() : "pt-CV")
+        .locale(query.getLocale() )
         .active(active)
         .pageNumber(0)
         .pageSize(20)
         .build();
+
+
+
 
     List<OptionResponseDTO> lista = optionRepository.getAll(filter)
         .stream()
