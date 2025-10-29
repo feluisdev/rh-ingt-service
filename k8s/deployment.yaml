@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: spring-engine
+  name: sipprog-rh-backend
   labels:
-    app: spring-engine
+    app: sipprog-rh-backend
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: spring-engine
+      app: sipprog-rh-backend
   template:
     metadata:
       labels:
-        app: spring-engine
+        app: sipprog-rh-backend
     spec:
       containers:
-        - name: spring-engine
-          image: ${REGISTRY_URL}/${REGISTRY_PROJECT}/spring-engine:${RESOURCE_NAME_FINAL}
+        - name: sipprog-rh-backend
+          image: registry.nosi.cv/igrp-sipprog-servico/sipprog-rh-backend:latest
           ports:
             - containerPort: 8080
           resources:
@@ -28,9 +28,9 @@ spec:
               memory: "1Gi"
           env:
             - name: SPRING_DATASOURCE_URL
-              value: "jdbc:postgresql://<postgres-service-name>:5432/mydatabase"
+              value: "jdbc:postgresql://sumpleu-cnpg-cluster-rw:5432/sipprog_rh_db"
             - name: SPRING_DATASOURCE_USERNAME
-              value: "myuser"
+              value: "postgres"
             - name: SPRING_DATASOURCE_PASSWORD
-              value: "mypassword"
+              value: "postgres"
           
