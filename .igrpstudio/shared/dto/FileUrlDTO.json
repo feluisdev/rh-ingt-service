@@ -1,0 +1,22 @@
+{
+  "type": "dto",
+  "module": "shared",
+  "name": "FileUrl",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    {
+      "name": "url",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    }
+  ],
+  "id": "mxxtbl7mob"
+}

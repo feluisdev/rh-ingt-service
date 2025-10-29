@@ -1,0 +1,52 @@
+{
+  "type": "enum",
+  "module": "shared",
+  "name": "EstadoCivil",
+  "values": [
+    {
+      "name": "SOLTEIRO",
+      "attributes": [
+        "SOLTEIRO",
+        "SOLTEIRO"
+      ]
+    },
+    {
+      "name": "CASADO",
+      "attributes": [
+        "CASADO",
+        "CASADO"
+      ]
+    },
+    {
+      "name": "DIVORCIADO",
+      "attributes": [
+        "DIVORCIADO",
+        "DIVORCIADO"
+      ]
+    },
+    {
+      "name": "VIUVO",
+      "attributes": [
+        "VIUVO",
+        "VIUVO"
+      ]
+    },
+    {
+      "name": "UNIAO_ESTAVEL",
+      "attributes": [
+        "UNIAO_ESTAVEL",
+        "UNIAO_ESTAVEL"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "type": "controller",
+  "name": "Documento",
+  "module": "funcionarios",
+  "description": "GetDocumento",
+  "basePath": "api/v1/Documento",
+  "actions": [
+    {
+      "actionName": "getDocumentos",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaDocumento",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "funcionarios"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "documentoId",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "idTipoDocumento",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "estado",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "pagina",
+          "value": "0",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "tamanho",
+          "value": "20",
+          "isRequired": true
+        }
+      ]
+    }
+  ],
+  "id": "p6ilaup5z6-CONTROLLER"
+}

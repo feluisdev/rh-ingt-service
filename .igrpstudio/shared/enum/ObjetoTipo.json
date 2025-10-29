@@ -1,0 +1,38 @@
+{
+  "type": "enum",
+  "module": "shared",
+  "name": "ObjetoTipo",
+  "values": [
+    {
+      "name": "FUNCIONARIO",
+      "attributes": [
+        "FUNCIONARIO",
+        "FUNCIONARIO"
+      ]
+    },
+    {
+      "name": "CONTRATO",
+      "attributes": [
+        "CONTRATO",
+        "CONTRATO"
+      ]
+    },
+    {
+      "name": "QUALIFICACAO",
+      "attributes": [
+        "QUALIFICACAO",
+        "QUALIFICACAO"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}

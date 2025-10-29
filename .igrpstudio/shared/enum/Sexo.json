@@ -1,0 +1,31 @@
+{
+  "type": "enum",
+  "module": "shared",
+  "name": "Sexo",
+  "values": [
+    {
+      "name": "MASCULINO",
+      "attributes": [
+        "MASCULINO",
+        "masculino"
+      ]
+    },
+    {
+      "name": "FEMININO",
+      "attributes": [
+        "FEMININO",
+        "feminino"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}

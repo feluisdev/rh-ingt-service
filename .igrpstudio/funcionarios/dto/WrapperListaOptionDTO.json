@@ -1,0 +1,28 @@
+{
+  "type": "dto",
+  "module": "funcionarios",
+  "name": "WrapperListaOption",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "extends": {
+    "name": "Page",
+    "module": "shared"
+  },
+  "attributes": [
+    {
+      "name": "content",
+      "objectType": "dto",
+      "type": "OptionResponse",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "module": "funcionarios",
+      "collectionType": "list"
+    }
+  ],
+  "id": "rmcm9dzlq1"
+}

@@ -1,0 +1,45 @@
+{
+  "type": "enum",
+  "module": "shared",
+  "name": "GrauParentesco",
+  "values": [
+    {
+      "name": "ASC",
+      "attributes": [
+        "ASC",
+        "Ascendente"
+      ]
+    },
+    {
+      "name": "DESC",
+      "attributes": [
+        "DESC",
+        "descendente"
+      ]
+    },
+    {
+      "name": "CONJUGE",
+      "attributes": [
+        "CONJUGE",
+        "conjuge"
+      ]
+    },
+    {
+      "name": "OUTRO",
+      "attributes": [
+        "OUTRO",
+        "outro"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}

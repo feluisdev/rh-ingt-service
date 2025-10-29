@@ -1,0 +1,24 @@
+{
+  "type": "enum",
+  "module": "shared",
+  "name": "DocumentoFolder",
+  "values": [
+    {
+      "name": "Funcionario",
+      "attributes": [
+        "funcionario_documents",
+        "funcionario_documents"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}

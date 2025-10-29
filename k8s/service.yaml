@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: spring-engine-service
+  name: sipprog-rh-backend-service
   labels:
-    app: spring-engine
+    app: sipprog-rh-backend
 spec:
   selector:
-    app: spring-engine
+    app: sipprog-rh-backend
   ports:
     - protocol: TCP
       port: 8080

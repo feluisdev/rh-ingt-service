@@ -1,0 +1,140 @@
+package cv.igrp.RH_Service.funcionarios.infrastructure.mappers;
+
+import cv.igrp.RH_Service.funcionarios.application.dto.DepartamentoResponseDTO;
+import cv.igrp.RH_Service.funcionarios.domain.models.Departamento;
+import cv.igrp.RH_Service.funcionarios.domain.models.Funcionario;
+import cv.igrp.RH_Service.funcionarios.domain.models.read.DepartamentoRead;
+import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.DepartamentoEntity;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.FuncionarioEntity;
+import org.springframework.stereotype.Component;
+
+@Component
+public class DepartamentoMapper {
+
+
+  public DepartamentoEntity toEntity(Departamento domain, FuncionarioEntity responsavelEntity) {
+    if (domain == null) return null;
+
+    DepartamentoEntity entity = new DepartamentoEntity();
+
+    entity.setId(domain.getIdDepartamento().getValor());
+    entity.setNome(domain.getNome());
+    entity.setCodigo(domain.getCodigo());
+    entity.setDescricao(domain.getDescricao());
+    entity.setLocalizacao(domain.getLocalizacao());
+    entity.setOrcamento(domain.getOrcamento());
+    entity.setEstado(domain.getEstado());
+    entity.setResponsavelId(responsavelEntity);
+
+    return entity;
+  }
+
+  public DepartamentoEntity toEntity(Departamento domain) {
+    if (domain == null) return null;
+
+    DepartamentoEntity entity = new DepartamentoEntity();
+
+    entity.setId(domain.getIdDepartamento().getValor());
+    entity.setNome(domain.getNome());
+    entity.setCodigo(domain.getCodigo());
+    entity.setDescricao(domain.getDescricao());
+    entity.setLocalizacao(domain.getLocalizacao());
+    entity.setOrcamento(domain.getOrcamento());
+    entity.setEstado(domain.getEstado());
+
+    FuncionarioEntity responsavelEntity = new FuncionarioEntity();
+    responsavelEntity.setId(domain.getResponsavelID().getValor());
+    entity.setResponsavelId(responsavelEntity);
+
+    return entity;
+  }
+
+  public Departamento toDomain(DepartamentoEntity entity) {
+    if (entity == null) return null;
+
+    return Departamento.reconstruir(
+        ExternalID.from(entity.getId()),
+        entity.getNome(),
+        entity.getCodigo(),
+        entity.getDescricao(),
+        entity.getLocalizacao(),
+        entity.getOrcamento(),
+        entity.getEstado(),
+        ExternalID.from(entity.getResponsavelId().getId())
+    );
+  }
+
+  public DepartamentoRead toReadDomain(DepartamentoEntity entity) {
+    if (entity == null) return null;
+
+    var departamentoRead = new DepartamentoRead();
+    departamentoRead.setNome(entity.getNome());
+    departamentoRead.setCodigo(entity.getCodigo());
+    departamentoRead.setDescricao(entity.getDescricao());
+    departamentoRead.setLocalizacao(entity.getLocalizacao());
+    departamentoRead.setOrcamento(entity.getOrcamento());
+    departamentoRead.setEstado(entity.getEstado());
+    departamentoRead.setIdDepartamento(ExternalID.from(entity.getId()));
+    departamentoRead.setResponsavelID(ExternalID.from(entity.getResponsavelId().getId()));
+    departamentoRead.setNomeResponsavel(entity.getResponsavelId().getNome());
+
+    return departamentoRead;
+
+  }
+
+
+  public DepartamentoResponseDTO toDTO(Departamento departamento) {
+    if (departamento == null) {
+      return null;
+    }
+
+    DepartamentoResponseDTO dto = new DepartamentoResponseDTO();
+
+    dto.setDepartamentoId(departamento.getIdDepartamento() != null ? departamento.getIdDepartamento().getStringValor() : null);
+
+    dto.setResponsavelId(
+        departamento.getResponsavelID() != null
+            ? departamento.getResponsavelID().getStringValor()
+            : null
+    );
+
+    dto.setNome(departamento.getNome());
+    dto.setDescricao(departamento.getDescricao());
+    dto.setCodigo(departamento.getCodigo());
+    dto.setOrcamento(departamento.getOrcamento());
+
+    dto.setEstado(departamento.getEstado() != null ? departamento.getEstado().name() : null);
+    dto.setEstadoDesc(departamento.getEstado() != null ? departamento.getEstado().getDescription() : null);
+
+    return dto;
+  }
+
+  public DepartamentoResponseDTO toDTO(DepartamentoRead departamento) {
+    if (departamento == null) {
+      return null;
+    }
+
+    DepartamentoResponseDTO dto = new DepartamentoResponseDTO();
+
+    dto.setDepartamentoId(departamento.getIdDepartamento() != null ? departamento.getIdDepartamento().getStringValor() : null);
+
+    dto.setResponsavelId(
+        departamento.getResponsavelID() != null
+            ? departamento.getResponsavelID().getStringValor()
+            : null
+    );
+
+    dto.setNome(departamento.getNome());
+    dto.setDescricao(departamento.getDescricao());
+    dto.setCodigo(departamento.getCodigo());
+    dto.setOrcamento(departamento.getOrcamento());
+    dto.setNomeResponsavel(departamento.getNomeResponsavel());
+
+    dto.setEstado(departamento.getEstado() != null ? departamento.getEstado().name() : null);
+    dto.setEstadoDesc(departamento.getEstado() != null ? departamento.getEstado().getDescription() : null);
+
+    return dto;
+  }
+
+}
