@@ -1,16 +1,40 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sumpleu-cnpg-superuser
+type: Opaque
+stringData:
+  username: postgres
+  password: postgres
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sumpleu-cnpg-app-secret
+type: Opaque
+stringData:
+  username: sipprog_rh_u_user
+  password: mypassword
+---
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: my-cnpg-cluster
+  name: sumpleu-cnpg-cluster
 spec:
   instances: 3
-  image: ghcr.io/cloudnative-pg/postgresql:16.2
-  storage:
-    size: 10Gi
-  bootstrap:
-    initdb:
-      database: mydatabase
-      owner: myuser
-  postgresql:
+  configuration:
+    image: ghcr.io/cloudnative-pg/postgresql:16.2
     parameters:
       shared_preload_libraries: 'pgaudit'
+  storage:
+    size: 10Gi 
+  
+  superuserSecret:
+    name: sumpleu-cnpg-superuser
+
+  bootstrap:
+    initdb:
+      database: sipprog_rh_db
+      owner: postgres
+      secret:
+        name: sumpleu-cnpg-superuser
