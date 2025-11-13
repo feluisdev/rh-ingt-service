@@ -20,6 +20,8 @@ stages:
 
 build_docker_image_dev:
   stage: build
+  tags:
+    - nosi-runner
   only:
     - master
     #- version/demo-stable
