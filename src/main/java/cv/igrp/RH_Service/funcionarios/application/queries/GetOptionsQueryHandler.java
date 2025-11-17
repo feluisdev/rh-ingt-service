@@ -53,11 +53,15 @@ public class GetOptionsQueryHandler implements QueryHandler<GetOptionsQuery, Res
         //.locale(query.getLocale() != null ? query.getLocale() : "pt-CV")
         .locale(query.getLocale() )
         .active(active)
-        .pageNumber(0)
-        .pageSize(20)
+//        .pageNumber(Integer.parseInt(query.getPageNumber()))
+//        .pageSize(Integer.parseInt(query.getPageSize()))
         .build();
 
 
+     if(query.getPageNumber() != null)
+       filter=filter.withPageNumber( Integer.parseInt(query.getPageNumber()) );
+     if(query.getPageSize() != null )
+       filter=filter.withPageSize( Integer.parseInt(query.getPageSize()));
 
 
     List<OptionResponseDTO> lista = optionRepository.getAll(filter)
