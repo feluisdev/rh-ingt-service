@@ -9,8 +9,8 @@ variables:
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
   DOCKER_HOST: tcp://docker:2375
-  REGISTRY_URL: "registry.nosi.cv/v2"
-  REGISTRY_PROJECT: "sipprogsv"
+  REGISTRY_URL: "registry.nosi.cv"
+  REGISTRY_PROJECT: "ingt"
   IMAGE_NAME: "sipprog-rh-backend"
   GIT_STRATEGY: none
 
@@ -20,12 +20,14 @@ stages:
 
 build_docker_image_dev:
   stage: build
+  tags:
+    - nosi-runner
   only:
     - master
     #- version/demo-stable
   script:
-    - apk add --no-cache git 
-    - git clone https://$GIT_USERNAME:$GIT_PASSWORD@git.nosi.cv/sipprog-servico/backends/sipprog-rh-backend.git .
+    - apk add --no-cache git
+    - git clone https://$GIT_USERNAME:$GIT_PASSWORD@git.nosi.cv/sipprog/backends/sipprog-rh-backend.git .
     - docker login $REGISTRY_URL -u "$REGISTRY_USERNAME" -p "$REGISTRY_PASSWORD" 
     - docker build -t $REGISTRY_URL/$REGISTRY_PROJECT/$IMAGE_NAME:$CI_PIPELINE_ID .
     - docker tag $REGISTRY_URL/$REGISTRY_PROJECT/$IMAGE_NAME:$CI_PIPELINE_ID $REGISTRY_URL/$REGISTRY_PROJECT/$IMAGE_NAME:latest
