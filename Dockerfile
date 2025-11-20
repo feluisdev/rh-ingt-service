@@ -1,7 +1,7 @@
 FROM cgr.dev/chainguard/maven:latest-dev AS build
 WORKDIR /app
 
-COPY pom.xml ./
+COPY pom.xml ./pom.xml
 RUN mvn -B -q dependency:go-offline
 
 COPY src ./src
