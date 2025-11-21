@@ -179,6 +179,11 @@
         </dependencies>
     </dependencyManagement>
 
+    <dependency>
+    <groupId>org.hibernate.orm</groupId>
+    <artifactId>hibernate-envers</artifactId>
+</dependency>
+
     <!-- BUILD -->
     <build>
         <plugins>
