@@ -39,7 +39,7 @@ public class CreateFuncionarioCommandHandler implements CommandHandler<CreateFun
 
    @IgrpCommandHandler
    public ResponseEntity<FuncionarioResponseDTO> handle(CreateFuncionarioCommand command) {
-      // TODO: Implement the command handling logic here
+     LOGGER.info("CreateFuncionarioCommandHandler :: command: {}", command);
      var dto = command.getFuncionariorequest();
 
 

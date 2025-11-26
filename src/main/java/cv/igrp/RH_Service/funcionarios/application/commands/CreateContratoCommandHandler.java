@@ -44,7 +44,7 @@ public class CreateContratoCommandHandler implements CommandHandler<CreateContra
 
   @IgrpCommandHandler
   public ResponseEntity<Map<String, ?>> handle(CreateContratoCommand command) {
-
+     LOGGER.info("CreateContratoCommandHandler :: command: {}", command);
     var dto = command.getContratorequest();
     var idFuncionario = ExternalID.from(command.getFuncionarioId());
 
