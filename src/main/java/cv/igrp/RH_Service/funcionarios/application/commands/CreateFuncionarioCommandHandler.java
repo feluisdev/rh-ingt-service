@@ -49,10 +49,8 @@ public class CreateFuncionarioCommandHandler implements CommandHandler<CreateFun
 
      if (dto.getAnexos() != null && !dto.getAnexos().isEmpty()) {
        for (DocumentoRequestDTO docDto : dto.getAnexos()) {
-         var tipoDocumento = tipoDocumentoRepository.getById(ExternalID.from(docDto.getIdTipodocumento()))
-             .orElseThrow(() -> IgrpResponseStatusException.notFound("Tipo documento not found with id:: "+docDto.getIdTipodocumento()));
 
-         var documento = documentoMapper.toDocumentoDomain(ObjetoTipo.FUNCIONARIO, funcionario.getIdFuncionario(), docDto, tipoDocumento);
+         var documento = documentoMapper.toDocumentoDomain(ObjetoTipo.FUNCIONARIO, funcionario.getIdFuncionario(), docDto);
          funcionario.adicionarDocumento(documento);
        }
      }

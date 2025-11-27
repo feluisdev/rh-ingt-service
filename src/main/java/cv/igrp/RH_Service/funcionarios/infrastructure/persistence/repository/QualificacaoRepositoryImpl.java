@@ -41,7 +41,7 @@ public class QualificacaoRepositoryImpl implements QualificacaoRepository {
     DocumentoEntity documentoEntity = null;
 
     if(qualificacao.getDocumento() != null) {
-      System.out.println("repo:: "+qualificacao.getDocumento() .getTipoDocumento().getDescricao());
+      System.out.println("repo:: "+qualificacao.getDocumento() .getTipoDocumento());
       documentoEntity = documentoMapper.toEntity(qualificacao.getDocumento() );
       documentoEntityRepository.save(documentoEntity);
     }

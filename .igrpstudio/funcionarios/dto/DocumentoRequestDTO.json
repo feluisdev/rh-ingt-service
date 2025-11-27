@@ -18,7 +18,7 @@
       "primaryKey": false
     },
     {
-      "name": "idTipodocumento",
+      "name": "tipoDocumento",
       "objectType": "java",
       "type": "string",
       "required": false,

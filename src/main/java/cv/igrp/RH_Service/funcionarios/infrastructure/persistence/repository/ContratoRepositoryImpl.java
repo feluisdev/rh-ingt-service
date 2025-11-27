@@ -41,7 +41,7 @@ public class ContratoRepositoryImpl implements ContratoRepository {
      DocumentoEntity documentoEntity = null;
 
     if(contrato.getContratoAnexo() != null) {
-      System.out.println("repo:: "+contrato.getContratoAnexo().getTipoDocumento().getDescricao());
+      System.out.println("repo:: "+contrato.getContratoAnexo().getTipoDocumento());
       documentoEntity = documentoMapper.toEntity(contrato.getContratoAnexo());
       documentoEntityRepository.save(documentoEntity);
     }

@@ -16,9 +16,9 @@ public class Documento {
   private ObjetoTipo objectoTipo;
   private ExternalID objectId;
   private Estado estado;
-  private TipoDocumento tipoDocumento;
+  private String tipoDocumento;
 
-  Documento(ExternalID idDocumento, String url, String observacao, ObjetoTipo objectoTipo, ExternalID objectId, Estado estado, TipoDocumento tipoDocumento) {
+  Documento(ExternalID idDocumento, String url, String observacao, ObjetoTipo objectoTipo, ExternalID objectId, Estado estado, String tipoDocumento) {
     this.idDocumento = idDocumento;
     this.url = url;
     this.observacao = observacao;
@@ -29,20 +29,20 @@ public class Documento {
   }
 
   public static Documento reconstruir(ExternalID idDocumento, String url, String observacao, ObjetoTipo objectoTipo,
-                                      ExternalID objectId, Estado estado, TipoDocumento tipoDocumento) {
+                                      ExternalID objectId, Estado estado, String tipoDocumento) {
     return new Documento(idDocumento, url, observacao, objectoTipo, objectId, estado, tipoDocumento);
   }
 
-  public static Documento criar( String url, String observacao, ObjetoTipo objectoTipo, ExternalID objectId, TipoDocumento tipoDocumento) {
+  public static Documento criar( String url, String observacao, ObjetoTipo objectoTipo, ExternalID objectId, String tipoDocumento) {
     return new Documento(ExternalID.gerarNovo(), url, observacao, objectoTipo, objectId, Estado.A, tipoDocumento);
   }
 
-  public static Documento criar( ExternalID externalId, String url, String observacao, ObjetoTipo objectoTipo, ExternalID objectId, TipoDocumento tipoDocumento) {
+  public static Documento criar( ExternalID externalId, String url, String observacao, ObjetoTipo objectoTipo, ExternalID objectId, String tipoDocumento) {
     var uuidExternal = externalId!=null ? externalId : ExternalID.gerarNovo();
     return new Documento(uuidExternal, url, observacao, objectoTipo, objectId, Estado.A, tipoDocumento);
   }
 
-  public void atualizar(String url, String observacao, TipoDocumento tipoDocumento) {
+  public void atualizar(String url, String observacao, String tipoDocumento) {
     this.url = url;
     this.observacao = observacao;
     this.tipoDocumento = tipoDocumento;

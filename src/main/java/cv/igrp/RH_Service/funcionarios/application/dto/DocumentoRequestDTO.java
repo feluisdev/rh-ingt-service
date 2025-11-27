@@ -19,17 +19,17 @@ import lombok.AllArgsConstructor;
 @IgrpDTO
 public class DocumentoRequestDTO {
 
-  
-  
+
+
   private String documentoId ;
-  
-  
-  private String idTipodocumento ;
-  
-  
+
+
+  private String tipoDocumento ;
+
+
   private String url ;
-  
-  
+
+
   private String observacao ;
 
 }
