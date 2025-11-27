@@ -16,13 +16,7 @@ import java.util.List;
 public class DocumentoMapper {
 
 
-  private final TipoDocumentoMapper tipoDocumentoMapper;
-
-  public DocumentoMapper(TipoDocumentoMapper tipoDocumentoMapper) {
-    this.tipoDocumentoMapper = tipoDocumentoMapper;
-  }
-
-  public Documento toDocumentoDomain(ObjetoTipo objetoTipo, ExternalID idObjeto, DocumentoRequestDTO dto, TipoDocumento tipoDocumento) {
+  public Documento toDocumentoDomain(ObjetoTipo objetoTipo, ExternalID idObjeto, DocumentoRequestDTO dto) {
      var documentIdExternal = dto.getDocumentoId() != null ? ExternalID.from(dto.getDocumentoId()) : null;
 
     var documento =  Documento.criar(
@@ -31,7 +25,7 @@ public class DocumentoMapper {
         dto.getObservacao(),
         objetoTipo,
         idObjeto,
-        tipoDocumento
+        dto.getTipoDocumento()
     );
     System.out.println("mapper:: "+documento);
 
@@ -48,8 +42,7 @@ public class DocumentoMapper {
     documentoResponseDto.setDocumentoId(documento.getIdDocumento().getStringValor());
     documentoResponseDto.setUrl(documento.getUrl());
     documentoResponseDto.setObservacao(documento.getObservacao());
-    documentoResponseDto.setIdTipoDocumento(documento.getTipoDocumento().getIdTipoDocumento().getStringValor());
-    documentoResponseDto.setTipoDocumento(documento.getTipoDocumento().getDescricao());
+    documentoResponseDto.setTipoDocumento(documento.getTipoDocumento());
     documentoResponseDto.setEstado(documento.getEstado().getCode());
     documentoResponseDto.setEstadoDesc(documento.getEstado().getDescription());
     return documentoResponseDto;
@@ -68,7 +61,7 @@ public class DocumentoMapper {
         entity.getObjectoTipo(),
         ExternalID.from(entity.getObjectId()),
         entity.getEstado(),
-           tipoDocumentoMapper.toDomain(entity.getIdTipoDoc())
+        entity.getTipoDocumento()
     );
   }
 
@@ -83,8 +76,7 @@ public class DocumentoMapper {
     entity.setObjectoTipo(domain.getObjectoTipo());
     entity.setObjectId(domain.getObjectId().getValor());
     entity.setEstado(domain.getEstado());
-    entity.setEstado(domain.getEstado());
-    entity.setIdTipoDoc(tipoDocumentoMapper.toEntity(domain.getTipoDocumento()));
+    entity.setTipoDocumento(domain.getTipoDocumento());
     entity.setObservacao(domain.getObservacao());
     return entity;
   }

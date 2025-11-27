@@ -7,9 +7,12 @@ import cv.igrp.RH_Service.shared.config.AuditEntity;
 import cv.igrp.framework.stereotype.IgrpEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.util.UUID;
+
 import cv.igrp.RH_Service.shared.application.constants.ObjetoTipo;
 import cv.igrp.RH_Service.shared.application.constants.Estado;
+
 import java.util.List;
 
 
@@ -22,35 +25,35 @@ import java.util.List;
 @Table(name = "t_documento")
 public class DocumentoEntity extends AuditEntity {
 
-    @Id
-    @Column(name = "id", unique = true, nullable = false)
-    private UUID id;
+  @Id
+  @Column(name = "id", unique = true, nullable = false)
+  private UUID id;
 
-  
-    @Column(name="url")
-    private String url;
 
-  
-    @Column(name="observacao")
-    private String observacao;
+  @Column(name = "url")
+  private String url;
 
-  
-    @Enumerated(EnumType.STRING)
-    @Column(name="objecto_tipo")
-    private ObjetoTipo objectoTipo;
 
-  
-    @Column(name="object_id")
-    private UUID objectId;
+  @Column(name = "observacao")
+  private String observacao;
 
-  
-    @Enumerated(EnumType.STRING)
-    @Column(name="estado")
-    private Estado estado;
 
-     @ManyToOne(fetch = FetchType.LAZY)
-   @JoinColumn(name = "id_tipo_doc")
-   private TipoDocumentoEntity idTipoDoc;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "objecto_tipo")
+  private ObjetoTipo objectoTipo;
+
+
+  @Column(name = "object_id")
+  private UUID objectId;
+
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "estado")
+  private Estado estado;
+
+
+  @Column(name = "tipo_documento")
+  private String tipoDocumento;
 
 
 }

@@ -7,8 +7,10 @@ import cv.igrp.RH_Service.shared.config.AuditEntity;
 import cv.igrp.framework.stereotype.IgrpEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.util.UUID;
 import java.util.List;
+
 import cv.igrp.RH_Service.shared.application.constants.Estado;
 
 
@@ -21,26 +23,23 @@ import cv.igrp.RH_Service.shared.application.constants.Estado;
 @Table(name = "t_tipo_documento")
 public class TipoDocumentoEntity extends AuditEntity {
 
-    @Id
-    @Column(name = "id", unique = true, nullable = false)
-    private UUID id;
-
-  
-    @Column(name="descricao")
-    private String descricao;
-
-  
-    @Column(name="codigo", unique = true)
-    private String codigo;
-
-  
+  @Id
+  @Column(name = "id", unique = true, nullable = false)
+  private UUID id;
 
 
-  @OneToMany(mappedBy = "idTipoDoc", fetch = FetchType.LAZY)
-private List<DocumentoEntity> documentos;
-    @Enumerated(EnumType.STRING)
-    @Column(name="estado")
-    private Estado estado;
+  @Column(name = "descricao")
+  private String descricao;
 
-  
+
+  @Column(name = "codigo", unique = true)
+  private String codigo;
+
+
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "estado")
+  private Estado estado;
+
+
 }

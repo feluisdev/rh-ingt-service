@@ -59,10 +59,8 @@ public class UpdateQualificacaoCommandHandler implements CommandHandler<UpdateQu
 
      if (dto.getAnexo() != null){
        var docDto = dto.getAnexo();
-       var tipoDocumento = tipoDocumentoRepository.getById(ExternalID.from(docDto.getIdTipodocumento()))
-           .orElseThrow(() -> IgrpResponseStatusException.notFound("Tipo documento not found with id:: "+docDto.getIdTipodocumento()));
 
-       var documento = documentoMapper.toDocumentoDomain(ObjetoTipo.QUALIFICACAO, qualificacao.getIdQualificacao(), docDto, tipoDocumento);
+       var documento = documentoMapper.toDocumentoDomain(ObjetoTipo.QUALIFICACAO, qualificacao.getIdQualificacao(), docDto);
        qualificacao.adicionarDocumento(documento);
 
      }
