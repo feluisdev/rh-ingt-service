@@ -33,10 +33,6 @@ public class Documento {
     return new Documento(idDocumento, url, observacao, objectoTipo, objectId, estado, tipoDocumento);
   }
 
-  public static Documento criar( String url, String observacao, ObjetoTipo objectoTipo, ExternalID objectId, String tipoDocumento) {
-    return new Documento(ExternalID.gerarNovo(), url, observacao, objectoTipo, objectId, Estado.A, tipoDocumento);
-  }
-
   public static Documento criar( ExternalID externalId, String url, String observacao, ObjetoTipo objectoTipo, ExternalID objectId, String tipoDocumento) {
     var uuidExternal = externalId!=null ? externalId : ExternalID.gerarNovo();
     return new Documento(uuidExternal, url, observacao, objectoTipo, objectId, Estado.A, tipoDocumento);
