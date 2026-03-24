@@ -1,10 +1,9 @@
-package cv.igrp.RH_Service.funcionarios.infrastructure.persistence.repository;
+package cv.igrp.RH_Service.funcionarios.infrastructure.persistence.adapter;
 
 import cv.igrp.RH_Service.funcionarios.domain.filter.QualificacaoFilter;
 import cv.igrp.RH_Service.funcionarios.domain.models.Qualificacao;
 import cv.igrp.RH_Service.funcionarios.domain.repository.QualificacaoRepository;
 import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.DocumentoMapper;
-import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.FuncionarioMapper;
 import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.QualificacaoMapper;
 import cv.igrp.RH_Service.shared.application.constants.Estado;
 import cv.igrp.RH_Service.shared.application.constants.ObjetoTipo;

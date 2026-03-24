@@ -1,4 +1,4 @@
-package cv.igrp.RH_Service.funcionarios.infrastructure.persistence.repository;
+package cv.igrp.RH_Service.funcionarios.infrastructure.persistence.adapter;
 
 import cv.igrp.RH_Service.funcionarios.domain.models.Contrato;
 import cv.igrp.RH_Service.funcionarios.domain.repository.ContratoRepository;
@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor

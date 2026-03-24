@@ -1,4 +1,4 @@
-package cv.igrp.RH_Service.funcionarios.infrastructure.persistence.repository;
+package cv.igrp.RH_Service.funcionarios.infrastructure.persistence.adapter;
 
 import cv.igrp.RH_Service.funcionarios.domain.filter.FuncionarioFilter;
 import cv.igrp.RH_Service.funcionarios.domain.models.Funcionario;

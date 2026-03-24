@@ -1,11 +1,10 @@
-package cv.igrp.RH_Service.funcionarios.infrastructure.persistence.repository;
+package cv.igrp.RH_Service.funcionarios.infrastructure.persistence.adapter;
 
 import cv.igrp.RH_Service.funcionarios.domain.filter.CargoFilter;
 import cv.igrp.RH_Service.funcionarios.domain.models.Cargo;
 import cv.igrp.RH_Service.funcionarios.domain.repository.CargoRepository;
 import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.CargoMapper;
 import cv.igrp.RH_Service.shared.application.constants.Estado;
-import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.CargoEntity;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.CargoEntityRepository;

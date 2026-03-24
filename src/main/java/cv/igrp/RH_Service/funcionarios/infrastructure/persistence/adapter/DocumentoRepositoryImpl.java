@@ -1,7 +1,6 @@
-package cv.igrp.RH_Service.funcionarios.infrastructure.persistence.repository;
+package cv.igrp.RH_Service.funcionarios.infrastructure.persistence.adapter;
 
 import cv.igrp.RH_Service.funcionarios.domain.filter.DocumentoFilter;
-import cv.igrp.RH_Service.funcionarios.domain.models.Contrato;
 import cv.igrp.RH_Service.funcionarios.domain.models.Documento;
 import cv.igrp.RH_Service.funcionarios.domain.repository.DocumentoRepository;
 import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.DocumentoMapper;
