@@ -66,4 +66,34 @@ public class StrategyController {
 
   }
 
+   @PutMapping(
+   value = "identities/{id}/activate"
+  )
+  @Operation(
+    summary = "Activate identitie",
+    description = "Activate identitie",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = IdentityResponseDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<IdentityResponseDTO> activateIdentitie(
+    @PathVariable(value = "id") String id)
+  {
+
+      final var command = new ActivateIdentitieCommand(id);
+
+      return commandBus.send(command);
+
+  }
+
 }

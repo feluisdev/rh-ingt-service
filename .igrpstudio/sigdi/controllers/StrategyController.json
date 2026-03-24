@@ -38,6 +38,34 @@
           }
         }
       }
+    },
+    {
+      "actionName": "activateIdentitie",
+      "path": "identities/{id}/activate",
+      "method": "PUT",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "IdentityResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     }
   ],
   "id": "za41idl434-createIdentitie"
