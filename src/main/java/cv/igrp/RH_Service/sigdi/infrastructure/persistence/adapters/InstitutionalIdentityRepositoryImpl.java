@@ -30,4 +30,10 @@ public class InstitutionalIdentityRepositoryImpl implements InstitutionalIdentit
     return jpaRepository.findById(id.getValor().getValor())
         .map(mapper::toDomain);
   }
+
+  @Override
+  public Optional<InstitutionalIdentity> findByIdFull(InstitutionalIdentityId id) {
+    return jpaRepository.findById(id.getValor().getValor())
+        .map(mapper::toDomainFull);
+  }
 }

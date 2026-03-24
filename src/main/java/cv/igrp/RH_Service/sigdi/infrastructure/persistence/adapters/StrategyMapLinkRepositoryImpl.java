@@ -21,35 +21,18 @@ import java.util.Optional;
 public class StrategyMapLinkRepositoryImpl implements StrategyMapLinkRepository {
 
   private final StrategyMapLinkEntityRepository jpaRepository;
-  private final StrategyMapLinkMapper linkMapper;
-  private final StrategicGoalMapper goalMapper;
-  private final InstitutionalIdentityMapper identityMapper;
+  private final StrategyMapLinkMapper mapper;
 
   @Override
   public StrategyMapLink save(StrategyMapLink link) {
-    var entity = linkMapper.toEntity(link);
-    var saved = jpaRepository.save(entity);
-
-    // Reutiliza os goals já disponíveis no domain object
-    return linkMapper.toDomain(saved, link.getSourceGoalId(), link.getTargetGoalId());
+    StrategyMapLinkEntity entity = mapper.toEntity(link);
+    StrategyMapLinkEntity saved = jpaRepository.save(entity);
+    return mapper.toDomain(saved);
   }
 
   @Override
   public Optional<StrategyMapLink> findById(StrategyMapLinkId id) {
     return jpaRepository.findById(id.getValor().getValor())
-        .map(entity -> {
-          // Orquestra: source
-          StrategicGoalEntity sourceEntity = entity.getSourceGoalId();
-          InstitutionalIdentity sourceIdentity = identityMapper.toDomain(sourceEntity.getIdentityId());
-          StrategicGoal sourceGoal = goalMapper.toDomain(sourceEntity, sourceIdentity);
-
-          // Orquestra: target
-          StrategicGoalEntity targetEntity = entity.getTargetGoalId();
-          InstitutionalIdentity targetIdentity = identityMapper.toDomain(targetEntity.getIdentityId());
-          StrategicGoal targetGoal = goalMapper.toDomain(targetEntity, targetIdentity);
-
-          return linkMapper.toDomain(entity, sourceGoal, targetGoal);
-        });
+        .map(mapper::toDomain);
   }
-
 }

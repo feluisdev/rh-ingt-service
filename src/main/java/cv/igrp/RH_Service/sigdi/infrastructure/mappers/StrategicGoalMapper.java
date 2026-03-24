@@ -7,6 +7,7 @@ import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategicGoal
 import cv.igrp.RH_Service.sigdi.application.constants.StrategicGoalsPerspective;
 import cv.igrp.RH_Service.sigdi.domain.models.InstitutionalIdentity;
 import cv.igrp.RH_Service.sigdi.domain.models.StrategicGoal;
+import cv.igrp.RH_Service.sigdi.domain.valueobject.InstitutionalIdentityId;
 import cv.igrp.RH_Service.sigdi.domain.valueobject.StrategicGoalId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -15,15 +16,13 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class StrategicGoalMapper {
 
-  private final InstitutionalIdentityMapper identityMapper;
 
-
-  public StrategicGoal toDomain(StrategicGoalEntity entity, InstitutionalIdentity identity) {
+  public StrategicGoal toDomain(StrategicGoalEntity entity) {
     if (entity == null) return null;
 
     return StrategicGoal.reconstruct(
         StrategicGoalId.from(entity.getId()),
-        identity,
+        InstitutionalIdentityId.from(entity.getIdentityId().getId()),
         entity.getTitle(),
         StrategicGoalsPerspective.fromCodeOrThrow(entity.getPerspective()),
         entity.getWeight(),
@@ -32,9 +31,6 @@ public class StrategicGoalMapper {
     );
   }
 
-  /**
-   * Domain Model → Entity (persistência)
-   */
   public StrategicGoalEntity toEntity(StrategicGoal domain) {
     if (domain == null) return null;
 
@@ -46,11 +42,9 @@ public class StrategicGoalMapper {
     entity.setStatus(domain.getStatus().getCode());
     entity.setDescription(domain.getDescription());
 
-    if (domain.getIdentity() != null) {
-      InstitutionalIdentityEntity identityRef = new InstitutionalIdentityEntity();
-      identityRef.setId(domain.getIdentity().getId().getValor().getValor());
-      entity.setIdentityId(identityRef);
-    }
+    InstitutionalIdentityEntity identityRef = new InstitutionalIdentityEntity();
+    identityRef.setId(domain.getIdentityId().getValor().getValor());
+    entity.setIdentityId(identityRef);
 
     return entity;
   }

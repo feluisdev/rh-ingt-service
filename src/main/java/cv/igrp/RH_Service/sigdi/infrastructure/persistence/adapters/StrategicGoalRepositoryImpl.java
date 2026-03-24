@@ -19,25 +19,18 @@ import java.util.Optional;
 public class StrategicGoalRepositoryImpl implements StrategicGoalRepository {
 
   private final StrategicGoalEntityRepository jpaRepository;
-  private final StrategicGoalMapper goalMapper;
-  private final InstitutionalIdentityMapper identityMapper;
+  private final StrategicGoalMapper mapper;
 
   @Override
   public StrategicGoal save(StrategicGoal goal) {
-    StrategicGoalEntity entity = goalMapper.toEntity(goal);
+    StrategicGoalEntity entity = mapper.toEntity(goal);
     StrategicGoalEntity saved = jpaRepository.save(entity);
-
-    InstitutionalIdentity identity = goal.getIdentity();
-    return goalMapper.toDomain(saved, identity);
+    return mapper.toDomain(saved);
   }
 
   @Override
   public Optional<StrategicGoal> findById(StrategicGoalId id) {
     return jpaRepository.findById(id.getValor().getValor())
-        .map(entity -> {
-          InstitutionalIdentityEntity identityEntity = entity.getIdentityId();
-          InstitutionalIdentity identity = identityMapper.toDomain(identityEntity);
-          return goalMapper.toDomain(entity, identity);
-        });
+        .map(mapper::toDomain);
   }
 }

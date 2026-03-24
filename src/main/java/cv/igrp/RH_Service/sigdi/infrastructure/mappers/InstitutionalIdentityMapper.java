@@ -3,16 +3,25 @@ package cv.igrp.RH_Service.sigdi.infrastructure.mappers;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.InstitutionalIdentityEntity;
 import cv.igrp.RH_Service.sigdi.domain.models.InstitutionalIdentity;
+import cv.igrp.RH_Service.sigdi.domain.models.StrategicGoal;
 import cv.igrp.RH_Service.sigdi.domain.valueobject.InstitutionalIdentityId;
 import cv.igrp.RH_Service.sigdi.domain.valueobject.InstitutionalValues;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class InstitutionalIdentityMapper {
 
+  private final StrategicGoalMapper goalMapper;
 
+  /**
+   * Entity → Domain (sem goals)
+   */
   public InstitutionalIdentity toDomain(InstitutionalIdentityEntity entity) {
     if (entity == null) return null;
 
@@ -21,14 +30,39 @@ public class InstitutionalIdentityMapper {
         entity.getCycleYear(),
         entity.getMission(),
         entity.getVision(),
-        InstitutionalValues.of(entity.getValuesJson()),  // String JSON → VO
+        InstitutionalValues.of(entity.getValuesJson()),
         entity.getVersionComment(),
         entity.isActive(),
-        new ArrayList<>() // goals carregados separadamente (evitar N+1)
+        new ArrayList<>()
     );
   }
 
+  /**
+   * Entity → Domain com goals (aggregate completo)
+   * Usa os goals já carregados via @OneToMany da entity
+   */
+  public InstitutionalIdentity toDomainFull(InstitutionalIdentityEntity entity) {
+    if (entity == null) return null;
 
+    List<StrategicGoal> goals = entity.getGoals().stream()
+        .map(goalMapper::toDomain)
+        .collect(Collectors.toList());
+
+    return InstitutionalIdentity.reconstruct(
+        InstitutionalIdentityId.from(entity.getId()),
+        entity.getCycleYear(),
+        entity.getMission(),
+        entity.getVision(),
+        InstitutionalValues.of(entity.getValuesJson()),
+        entity.getVersionComment(),
+        entity.isActive(),
+        goals
+    );
+  }
+
+  /**
+   * Domain → Entity
+   */
   public InstitutionalIdentityEntity toEntity(InstitutionalIdentity domain) {
     if (domain == null) return null;
 
@@ -37,7 +71,7 @@ public class InstitutionalIdentityMapper {
     entity.setCycleYear(domain.getCycleYear());
     entity.setMission(domain.getMission());
     entity.setVision(domain.getVision());
-    entity.setValuesJson(domain.getValues().toJson());     // VO → String JSON
+    entity.setValuesJson(domain.getValues().toJson());
     entity.setVersionComment(domain.getVersionComment());
     entity.setActive(domain.isActive());
     return entity;

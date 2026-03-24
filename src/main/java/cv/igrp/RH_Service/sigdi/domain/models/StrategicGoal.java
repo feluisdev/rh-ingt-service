@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.sigdi.domain.models;
 
 import cv.igrp.RH_Service.shared.application.constants.Estado;
 import cv.igrp.RH_Service.sigdi.application.constants.StrategicGoalsPerspective;
+import cv.igrp.RH_Service.sigdi.domain.valueobject.InstitutionalIdentityId;
 import cv.igrp.RH_Service.sigdi.domain.valueobject.StrategicGoalId;
 import lombok.Getter;
 
@@ -11,21 +12,24 @@ import java.math.BigDecimal;
 public class StrategicGoal {
 
   private final StrategicGoalId id;
-  private final InstitutionalIdentity identity;
+  private final InstitutionalIdentityId identityId; // referência por ID, não objeto completo
   private final String title;
   private final StrategicGoalsPerspective perspective;
   private final BigDecimal weight;
   private final Estado status;
   private final String description;
 
-  private StrategicGoal(StrategicGoalId id, InstitutionalIdentity identity, String title,
-                        StrategicGoalsPerspective perspective, BigDecimal weight, Estado status, String description) {
-
+  private StrategicGoal(StrategicGoalId id, InstitutionalIdentityId identityId, String title,
+                        StrategicGoalsPerspective perspective, BigDecimal weight, Estado status,
+                        String description) {
     if (title == null || title.trim().isEmpty()) {
       throw new IllegalArgumentException("title é obrigatório");
     }
+    if (identityId == null) {
+      throw new IllegalArgumentException("identityId é obrigatório");
+    }
     this.id = id;
-    this.identity = identity;
+    this.identityId = identityId;
     this.title = title;
     this.perspective = perspective;
     this.weight = (weight != null) ? weight : BigDecimal.valueOf(1.0);
@@ -33,11 +37,12 @@ public class StrategicGoal {
     this.description = description;
   }
 
-  public static StrategicGoal create(InstitutionalIdentity identity, String title, StrategicGoalsPerspective perspective,
-                                     BigDecimal weight, String description) {
+  public static StrategicGoal create(InstitutionalIdentityId identityId, String title,
+                                     StrategicGoalsPerspective perspective, BigDecimal weight,
+                                     String description) {
     return new StrategicGoal(
         StrategicGoalId.gerarNovo(),
-        identity,
+        identityId,
         title,
         perspective,
         weight,
@@ -46,14 +51,18 @@ public class StrategicGoal {
     );
   }
 
-  public static StrategicGoal reconstruct(StrategicGoalId id, InstitutionalIdentity identity, String title,
-                                          StrategicGoalsPerspective perspective, BigDecimal weight, Estado status, String description) {
-    return new StrategicGoal(id, identity, title, perspective, weight, status, description);
+  public static StrategicGoal reconstruct(StrategicGoalId id, InstitutionalIdentityId identityId,
+                                          String title, StrategicGoalsPerspective perspective,
+                                          BigDecimal weight, Estado status, String description) {
+    return new StrategicGoal(id, identityId, title, perspective, weight, status, description);
+  }
+
+  public boolean isActive() {
+    return Estado.A.equals(this.status);
   }
 
   public boolean isFinancial() {
     return StrategicGoalsPerspective.FINANCIAL.equals(this.perspective);
   }
-
 
 }

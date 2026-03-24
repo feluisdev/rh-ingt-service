@@ -5,6 +5,7 @@ import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategyMapLi
 import cv.igrp.RH_Service.sigdi.application.constants.StrategyMapRelationshipType;
 import cv.igrp.RH_Service.sigdi.domain.models.StrategicGoal;
 import cv.igrp.RH_Service.sigdi.domain.models.StrategyMapLink;
+import cv.igrp.RH_Service.sigdi.domain.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.valueobject.StrategyMapLinkId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -13,16 +14,13 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class StrategyMapLinkMapper {
 
-
-  public StrategyMapLink toDomain(StrategyMapLinkEntity entity,
-                                  StrategicGoal sourceGoal,
-                                  StrategicGoal targetGoal) {
+  public StrategyMapLink toDomain(StrategyMapLinkEntity entity) {
     if (entity == null) return null;
 
     return StrategyMapLink.reconstruct(
         StrategyMapLinkId.from(entity.getId()),
-        sourceGoal,
-        targetGoal,
+        StrategicGoalId.from(entity.getSourceGoalId().getId()), // só o ID
+        StrategicGoalId.from(entity.getTargetGoalId().getId()), // só o ID
         StrategyMapRelationshipType.fromCodeOrThrow(entity.getRelationshipType())
     );
   }
@@ -34,12 +32,13 @@ public class StrategyMapLinkMapper {
     entity.setId(domain.getId().getValor().getValor());
     entity.setRelationshipType(domain.getRelationshipType().getCode());
 
+    // Referências leves — só os IDs
     StrategicGoalEntity sourceRef = new StrategicGoalEntity();
-    sourceRef.setId(domain.getSourceGoalId().getId().getValor().getValor());
+    sourceRef.setId(domain.getSourceGoalId().getValor().getValor());
     entity.setSourceGoalId(sourceRef);
 
     StrategicGoalEntity targetRef = new StrategicGoalEntity();
-    targetRef.setId(domain.getTargetGoalId().getId().getValor().getValor());
+    targetRef.setId(domain.getTargetGoalId().getValor().getValor());
     entity.setTargetGoalId(targetRef);
 
     return entity;
