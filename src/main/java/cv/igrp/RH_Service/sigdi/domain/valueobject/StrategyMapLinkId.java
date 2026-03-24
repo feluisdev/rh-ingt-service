@@ -4,6 +4,8 @@ import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import lombok.Getter;
 
+import java.util.UUID;
+
 @Getter
 public class StrategyMapLinkId {
 
@@ -17,8 +19,8 @@ public class StrategyMapLinkId {
   }
 
   // Factory method a partir de ExternalID existente
-  public static StrategyMapLinkId from(ExternalID externalID) {
-    return new StrategyMapLinkId(externalID);
+  public static StrategyMapLinkId from(UUID uuid) {
+    return new StrategyMapLinkId(ExternalID.from(uuid));
   }
 
   // Factory method a partir de String UUID

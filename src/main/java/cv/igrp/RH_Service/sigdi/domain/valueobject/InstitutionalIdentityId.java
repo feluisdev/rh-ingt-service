@@ -3,6 +3,8 @@ package cv.igrp.RH_Service.sigdi.domain.valueobject;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import lombok.Getter;
 
+import java.util.UUID;
+
 @Getter
 public class InstitutionalIdentityId {
 
@@ -15,9 +17,8 @@ public class InstitutionalIdentityId {
     this.valor = valor;
   }
 
-  // Factory a partir de ExternalID existente
-  public static InstitutionalIdentityId from(ExternalID externalID) {
-    return new InstitutionalIdentityId(externalID);
+  public static InstitutionalIdentityId from(UUID uuid) {
+    return new InstitutionalIdentityId(ExternalID.from(uuid));
   }
 
   // Factory a partir de String UUID

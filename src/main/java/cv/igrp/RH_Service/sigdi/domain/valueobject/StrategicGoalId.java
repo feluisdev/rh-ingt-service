@@ -3,6 +3,8 @@ package cv.igrp.RH_Service.sigdi.domain.valueobject;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import lombok.Getter;
 
+import java.util.UUID;
+
 @Getter
 public class StrategicGoalId {
 
@@ -15,9 +17,10 @@ public class StrategicGoalId {
     this.valor = valor;
   }
 
+
   // Factory method a partir de ExternalID existente
-  public static StrategicGoalId from(ExternalID externalID) {
-    return new StrategicGoalId(externalID);
+  public static StrategicGoalId from(UUID uuid) {
+    return new StrategicGoalId(ExternalID.from(uuid));
   }
 
   // Factory method a partir de String UUID
