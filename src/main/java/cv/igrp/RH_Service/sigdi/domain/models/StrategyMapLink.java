@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.sigdi.domain.models;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.sigdi.application.constants.StrategyMapRelationshipType;
 import cv.igrp.RH_Service.sigdi.domain.valueobject.StrategyMapLinkId;
 import lombok.Getter;
 
@@ -10,9 +11,9 @@ public class StrategyMapLink {
   private final StrategyMapLinkId id;
   private final StrategicGoal sourceGoalId;
   private final StrategicGoal targetGoalId;
-  private final String relationshipType;
+  private final StrategyMapRelationshipType relationshipType;
 
-  private StrategyMapLink(StrategyMapLinkId id, StrategicGoal sourceGoalId, StrategicGoal targetGoalId, String relationshipType) {
+  private StrategyMapLink(StrategyMapLinkId id, StrategicGoal sourceGoalId, StrategicGoal targetGoalId, StrategyMapRelationshipType  relationshipType) {
     if (sourceGoalId.getId().equals(targetGoalId.getId())) {
       throw IgrpResponseStatusException.badRequest("O link não pode ter source igual ao target");
     }
@@ -28,15 +29,16 @@ public class StrategyMapLink {
         StrategyMapLinkId.gerarNovo(),
         sourceGoalId,
         targetGoalId,
-        "CAUSE_EFFECT"
+        StrategyMapRelationshipType.CAUSE_EFFECT
     );
   }
 
-  public static StrategyMapLink reconstruct(StrategyMapLinkId id, StrategicGoal sourceGoalId, StrategicGoal targetGoalId, String relationshipType) {
+  public static StrategyMapLink reconstruct(StrategyMapLinkId id, StrategicGoal sourceGoalId,
+                                            StrategicGoal targetGoalId, StrategyMapRelationshipType relationshipType) {
     return new StrategyMapLink(id, sourceGoalId, targetGoalId, relationshipType);
   }
 
   public boolean isCauseEffect() {
-    return "CAUSE_EFFECT".equalsIgnoreCase(relationshipType);
+    return StrategyMapRelationshipType.CAUSE_EFFECT.equals(relationshipType);
   }
 }

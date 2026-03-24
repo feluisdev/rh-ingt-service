@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -32,13 +33,15 @@ public class InstitutionalIdentityEntity extends AuditEntity {
     private Integer cycleYear;
 
   
+    @NotBlank(message = "mission is mandatory")
     @Lob
-    @Column(name="mission", columnDefinition="TEXT")
+    @Column(name="mission", nullable = false, columnDefinition="TEXT")
     private String mission;
 
   
+    @NotBlank(message = "vision is mandatory")
     @Lob
-    @Column(name="vision", columnDefinition="TEXT")
+    @Column(name="vision", nullable = false, columnDefinition="TEXT")
     private String vision;
 
   

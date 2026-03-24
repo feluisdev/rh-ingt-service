@@ -39,6 +39,7 @@ public class StrategyMapLinkEntity extends AuditEntity {
   @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "source_goal_id", referencedColumnName = "id")
     private StrategicGoalEntity sourceGoalId;
+    @NotNull(message = "targetGoalId is mandatory")
 
 
   @ManyToOne(fetch = FetchType.LAZY)

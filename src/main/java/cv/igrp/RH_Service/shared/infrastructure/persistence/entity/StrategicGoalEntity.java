@@ -44,6 +44,11 @@ public class StrategicGoalEntity extends AuditEntity {
     @Column(name="status")
     private String status;
 
+  
+    @Lob
+    @Column(name="description", columnDefinition="TEXT")
+    private String description;
+
      @ManyToOne(fetch = FetchType.LAZY)
    @JoinColumn(name = "identity_id")
    private InstitutionalIdentityEntity identityId;
