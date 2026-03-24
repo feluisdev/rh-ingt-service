@@ -1,5 +1,7 @@
 package cv.igrp.RH_Service.shared.domain.valueobject;
 
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+
 import java.util.UUID;
 
 
@@ -14,7 +16,7 @@ public class ExternalID {
      */
     private ExternalID(UUID valor) {
         if (valor == null) {
-            throw new IllegalArgumentException("O valor do identificador não pode ser nulo.");
+            throw IgrpResponseStatusException.badRequest("O valor do identificador não pode ser nulo.");
         }
         this.valor = valor;
     }

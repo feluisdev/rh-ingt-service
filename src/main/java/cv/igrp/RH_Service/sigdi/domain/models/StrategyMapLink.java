@@ -1,0 +1,42 @@
+package cv.igrp.RH_Service.sigdi.domain.models;
+
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.sigdi.domain.valueobject.StrategyMapLinkId;
+import lombok.Getter;
+
+@Getter
+public class StrategyMapLink {
+
+  private final StrategyMapLinkId id;
+  private final StrategicGoal sourceGoalId;
+  private final StrategicGoal targetGoalId;
+  private final String relationshipType;
+
+  private StrategyMapLink(StrategyMapLinkId id, StrategicGoal sourceGoalId, StrategicGoal targetGoalId, String relationshipType) {
+    if (sourceGoalId.getId().equals(targetGoalId.getId())) {
+      throw IgrpResponseStatusException.badRequest("O link não pode ter source igual ao target");
+    }
+    this.id = id;
+    this.sourceGoalId = sourceGoalId;
+    this.targetGoalId = targetGoalId;
+    this.relationshipType = relationshipType;
+  }
+
+  // Factory method para criar novo link
+  public static StrategyMapLink create(StrategicGoal sourceGoalId, StrategicGoal targetGoalId) {
+    return new StrategyMapLink(
+        StrategyMapLinkId.gerarNovo(),
+        sourceGoalId,
+        targetGoalId,
+        "CAUSE_EFFECT"
+    );
+  }
+
+  public static StrategyMapLink reconstruct(StrategyMapLinkId id, StrategicGoal sourceGoalId, StrategicGoal targetGoalId, String relationshipType) {
+    return new StrategyMapLink(id, sourceGoalId, targetGoalId, relationshipType);
+  }
+
+  public boolean isCauseEffect() {
+    return "CAUSE_EFFECT".equalsIgnoreCase(relationshipType);
+  }
+}
