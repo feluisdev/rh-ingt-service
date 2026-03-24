@@ -39,5 +39,8 @@ public class IdentityResponseDTO  {
   
   
   private boolean isActive ;
+  
+  
+  private Integer cycleYear ;
 
 }

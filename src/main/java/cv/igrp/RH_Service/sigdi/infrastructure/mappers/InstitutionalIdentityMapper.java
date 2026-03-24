@@ -2,6 +2,8 @@ package cv.igrp.RH_Service.sigdi.infrastructure.mappers;
 
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.InstitutionalIdentityEntity;
+import cv.igrp.RH_Service.sigdi.application.dto.CreateIdentityRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.IdentityResponseDTO;
 import cv.igrp.RH_Service.sigdi.domain.models.InstitutionalIdentity;
 import cv.igrp.RH_Service.sigdi.domain.models.StrategicGoal;
 import cv.igrp.RH_Service.sigdi.domain.valueobject.InstitutionalIdentityId;
@@ -76,4 +78,23 @@ public class InstitutionalIdentityMapper {
     entity.setActive(domain.isActive());
     return entity;
   }
+
+  public IdentityResponseDTO toResponse(InstitutionalIdentity domain) {
+    if (domain == null) return null;
+
+    IdentityResponseDTO response = new IdentityResponseDTO();
+    response.setId(domain.getId().getValor().getValor());
+    response.setCycleYear(domain.getCycleYear());
+    response.setMission(domain.getMission());
+    response.setVision(domain.getVision());
+    response.setValues(domain.getValues().getValores());
+    response.setVersionComment(domain.getVersionComment());
+    response.setActive(domain.isActive());
+    return response;
+  }
+
+  public InstitutionalValues toValues(CreateIdentityRequestDTO dto) {
+    return InstitutionalValues.of(dto.getValues());
+  }
+
 }

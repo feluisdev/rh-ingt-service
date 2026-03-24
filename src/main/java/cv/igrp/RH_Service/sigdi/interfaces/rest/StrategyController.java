@@ -44,7 +44,7 @@ public class StrategyController {
     description = "Create identitie",
     responses = {
       @ApiResponse(
-          responseCode = "200",
+          responseCode = "201",
           
           content = @Content(
               mediaType = "application/json",

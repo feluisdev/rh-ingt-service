@@ -23,8 +23,8 @@
         }
       },
       "responses": {
-        "200": {
-          "name": "OK",
+        "201": {
+          "name": "CREATED",
           "content": {
             "application/json": {
               "schema": {
@@ -40,5 +40,5 @@
       }
     }
   ],
-  "id": "za41idl434"
+  "id": "za41idl434-createIdentitie"
 }
