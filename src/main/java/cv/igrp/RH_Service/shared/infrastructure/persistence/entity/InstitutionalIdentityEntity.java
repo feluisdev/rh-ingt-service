@@ -9,6 +9,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
+import java.util.ArrayList;
 
 
 @Getter
@@ -53,4 +55,8 @@ public class InstitutionalIdentityEntity extends AuditEntity {
     private boolean isActive;
 
   
+
+
+  @OneToMany(mappedBy = "identityId", fetch = FetchType.LAZY)
+private List<StrategicGoalEntity> goals = new ArrayList<>();
 }
