@@ -1,0 +1,44 @@
+{
+  "type": "controller",
+  "name": "Strategy",
+  "module": "sigdi",
+  "description": "gest strategies",
+  "basePath": "ap1/v1strategy",
+  "actions": [
+    {
+      "actionName": "createIdentitie",
+      "path": "identities",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CreateIdentityRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "IdentityResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "id": "za41idl434"
+}
