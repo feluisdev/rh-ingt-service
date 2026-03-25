@@ -11,6 +11,8 @@ import java.util.UUID;
 import java.math.BigDecimal;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Getter
@@ -44,5 +46,9 @@ public class KeyResultsCheckinEntity extends AuditEntity {
     @Column(name="checkin_date")
     private LocalDateTime checkinDate;
 
-  
+     @ManyToOne(fetch = FetchType.LAZY)
+   @JoinColumn(name = "key_result_id")
+   private KeyResultsEntity keyResultId;
+
+
 }
