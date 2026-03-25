@@ -5,7 +5,7 @@ import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.Strategic
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
-import cv.igrp.RH_Service.sigdi.infrastructure.mappers.StrategicGoalMapper;
+import cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.StrategicGoalMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

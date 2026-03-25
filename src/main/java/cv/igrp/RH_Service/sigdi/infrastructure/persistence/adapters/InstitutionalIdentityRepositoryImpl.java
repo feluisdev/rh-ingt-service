@@ -5,7 +5,7 @@ import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.Instituti
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.InstitutionalIdentity;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.InstitutionalIdentityRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentityId;
-import cv.igrp.RH_Service.sigdi.infrastructure.mappers.InstitutionalIdentityMapper;
+import cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.InstitutionalIdentityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

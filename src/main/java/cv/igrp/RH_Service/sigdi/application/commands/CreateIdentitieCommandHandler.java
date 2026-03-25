@@ -2,7 +2,7 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.InstitutionalIdentity;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.InstitutionalIdentityRepository;
-import cv.igrp.RH_Service.sigdi.infrastructure.mappers.InstitutionalIdentityMapper;
+import cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.InstitutionalIdentityMapper;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import org.springframework.http.ResponseEntity;

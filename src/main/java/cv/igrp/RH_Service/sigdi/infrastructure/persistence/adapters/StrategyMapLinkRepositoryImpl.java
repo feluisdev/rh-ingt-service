@@ -5,7 +5,7 @@ import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.StrategyM
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategyMapLink;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategyMapLinkRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategyMapLinkId;
-import cv.igrp.RH_Service.sigdi.infrastructure.mappers.StrategyMapLinkMapper;
+import cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.StrategyMapLinkMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
