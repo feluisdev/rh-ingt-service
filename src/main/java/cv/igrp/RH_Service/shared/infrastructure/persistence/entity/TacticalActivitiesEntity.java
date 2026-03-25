@@ -11,6 +11,8 @@ import java.util.UUID;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.ArrayList;
 
 
 @Getter
@@ -87,4 +89,8 @@ public class TacticalActivitiesEntity extends AuditEntity {
     private Integer version;
 
   
+
+
+  @OneToMany(mappedBy = "activityId", fetch = FetchType.LAZY)
+private List<KeyResultsEntity> keyResults = new ArrayList<>();
 }

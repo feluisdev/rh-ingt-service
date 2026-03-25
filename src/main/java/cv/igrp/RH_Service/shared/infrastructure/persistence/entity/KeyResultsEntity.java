@@ -10,6 +10,8 @@ import lombok.*;
 import java.util.UUID;
 import jakarta.validation.constraints.NotBlank;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Getter
@@ -42,5 +44,9 @@ public class KeyResultsEntity extends AuditEntity {
     @Column(name="metric_unit")
     private String metricUnit;
 
-  
+     @ManyToOne(fetch = FetchType.LAZY)
+   @JoinColumn(name = "activity_id")
+   private TacticalActivitiesEntity activityId;
+
+
 }
