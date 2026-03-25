@@ -18,24 +18,10 @@
       "primaryKey": false
     },
     {
-      "name": "title",
-      "objectType": "java",
-      "type": "string",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "minLength": 5,
-      "maxLength": 100,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false
-    },
-    {
       "name": "perspective",
       "objectType": "java",
       "type": "string",
-      "required": true,
+      "required": false,
       "before": false,
       "after": false,
       "positive": false,
@@ -44,15 +30,13 @@
       "primaryKey": false
     },
     {
-      "name": "description",
+      "name": "perspectiveDesc",
       "objectType": "java",
       "type": "string",
       "required": false,
       "before": false,
       "after": false,
       "positive": false,
-      "minLength": 1,
-      "maxLength": 500,
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false
@@ -70,7 +54,43 @@
       "primaryKey": false
     },
     {
+      "name": "title",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "description",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
       "name": "status",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "statusDesc",
       "objectType": "java",
       "type": "string",
       "required": false,

@@ -23,22 +23,26 @@ public class StategicGoalResponseDTO  {
   
   
   private UUID id ;
-  @Size(min = 5, message = "The field length <title> must be at least 5 characters")
-	@Size(max = 100, message = "The field length <title> cannot be more than 100 characters")
   
-  private String title ;
-  @NotBlank(message = "The field <perspective> is required")
   
   private String perspective ;
-  @Size(min = 1, message = "The field length <description> must be at least 1 characters")
-	@Size(max = 500, message = "The field length <description> cannot be more than 500 characters")
   
-  private String description ;
+  
+  private String perspectiveDesc ;
   
   
   private BigDecimal weight ;
   
   
+  private String title ;
+  
+  
+  private String description ;
+  
+  
   private String status ;
+  
+  
+  private String statusDesc ;
 
 }

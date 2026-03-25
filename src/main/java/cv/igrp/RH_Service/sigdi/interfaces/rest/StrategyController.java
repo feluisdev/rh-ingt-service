@@ -19,6 +19,8 @@ import cv.igrp.framework.core.domain.CommandBus;
 import cv.igrp.RH_Service.sigdi.application.commands.*;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateIdentityRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.IdentityResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.CreateStategicGoalDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.StategicGoalResponseDTO;
 
 @IgrpController
 @RestController
@@ -91,6 +93,36 @@ public class StrategyController {
   {
 
       final var command = new ActivateIdentitieCommand(id);
+
+      return commandBus.send(command);
+
+  }
+
+   @PostMapping(
+   value = "goals"
+  )
+  @Operation(
+    summary = "Create strategic goal",
+    description = "Create strategic goal",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = StategicGoalResponseDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<StategicGoalResponseDTO> createStrategicGoal(@Valid @RequestBody CreateStategicGoalDTO createStrategicGoalRequest
+    )
+  {
+
+      final var command = new CreateStrategicGoalCommand(createStrategicGoalRequest);
 
       return commandBus.send(command);
 
