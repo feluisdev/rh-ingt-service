@@ -1,0 +1,52 @@
+{
+  "type": "enum",
+  "module": "sigdi",
+  "name": "TacticalActivityStatus",
+  "values": [
+    {
+      "name": "DRAFT",
+      "attributes": [
+        "DRAFT",
+        "DRAFT"
+      ]
+    },
+    {
+      "name": "PENDING",
+      "attributes": [
+        "PENDING",
+        "PENDING"
+      ]
+    },
+    {
+      "name": "APPROVED",
+      "attributes": [
+        "APPROVED",
+        "APPROVED"
+      ]
+    },
+    {
+      "name": "REJECTED",
+      "attributes": [
+        "REJECTED",
+        "REJECTED"
+      ]
+    },
+    {
+      "name": "CANCELLED",
+      "attributes": [
+        "CANCELLED",
+        "CANCELLED"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}

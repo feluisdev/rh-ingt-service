@@ -5,10 +5,9 @@ import cv.igrp.RH_Service.shared.application.constants.Estado;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.InstitutionalIdentityEntity;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategicGoalEntity;
 import cv.igrp.RH_Service.sigdi.application.constants.StrategicGoalsPerspective;
-import cv.igrp.RH_Service.sigdi.domain.models.InstitutionalIdentity;
-import cv.igrp.RH_Service.sigdi.domain.models.StrategicGoal;
-import cv.igrp.RH_Service.sigdi.domain.valueobject.InstitutionalIdentityId;
-import cv.igrp.RH_Service.sigdi.domain.valueobject.StrategicGoalId;
+import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
+import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentityId;
+import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

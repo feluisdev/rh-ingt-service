@@ -1,4 +1,4 @@
-package cv.igrp.RH_Service.sigdi.domain.valueobject;
+package cv.igrp.RH_Service.sigdi.domain.strategy.valueobject;
 
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import lombok.Getter;

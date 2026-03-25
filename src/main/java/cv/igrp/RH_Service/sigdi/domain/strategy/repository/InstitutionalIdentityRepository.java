@@ -1,7 +1,7 @@
-package cv.igrp.RH_Service.sigdi.domain.repository;
+package cv.igrp.RH_Service.sigdi.domain.strategy.repository;
 
-import cv.igrp.RH_Service.sigdi.domain.models.InstitutionalIdentity;
-import cv.igrp.RH_Service.sigdi.domain.valueobject.InstitutionalIdentityId;
+import cv.igrp.RH_Service.sigdi.domain.strategy.models.InstitutionalIdentity;
+import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentityId;
 
 import java.util.Optional;
 

@@ -1,7 +1,7 @@
-package cv.igrp.RH_Service.sigdi.domain.models;
+package cv.igrp.RH_Service.sigdi.domain.strategy.models;
 
-import cv.igrp.RH_Service.sigdi.domain.valueobject.InstitutionalIdentityId;
-import cv.igrp.RH_Service.sigdi.domain.valueobject.InstitutionalValues;
+import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentityId;
+import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalValues;
 import lombok.Getter;
 
 import java.util.ArrayList;

@@ -1,9 +1,9 @@
-package cv.igrp.RH_Service.sigdi.domain.models;
+package cv.igrp.RH_Service.sigdi.domain.strategy.models;
 
 import cv.igrp.RH_Service.shared.application.constants.Estado;
 import cv.igrp.RH_Service.sigdi.application.constants.StrategicGoalsPerspective;
-import cv.igrp.RH_Service.sigdi.domain.valueobject.InstitutionalIdentityId;
-import cv.igrp.RH_Service.sigdi.domain.valueobject.StrategicGoalId;
+import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentityId;
+import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import lombok.Getter;
 
 import java.math.BigDecimal;

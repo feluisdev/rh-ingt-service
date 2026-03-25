@@ -1,13 +1,12 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.mappers;
 
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.InstitutionalIdentityEntity;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateIdentityRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.IdentityResponseDTO;
-import cv.igrp.RH_Service.sigdi.domain.models.InstitutionalIdentity;
-import cv.igrp.RH_Service.sigdi.domain.models.StrategicGoal;
-import cv.igrp.RH_Service.sigdi.domain.valueobject.InstitutionalIdentityId;
-import cv.igrp.RH_Service.sigdi.domain.valueobject.InstitutionalValues;
+import cv.igrp.RH_Service.sigdi.domain.strategy.models.InstitutionalIdentity;
+import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
+import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentityId;
+import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalValues;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

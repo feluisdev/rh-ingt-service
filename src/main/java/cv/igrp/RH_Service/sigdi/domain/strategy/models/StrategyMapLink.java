@@ -1,9 +1,9 @@
-package cv.igrp.RH_Service.sigdi.domain.models;
+package cv.igrp.RH_Service.sigdi.domain.strategy.models;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.StrategyMapRelationshipType;
-import cv.igrp.RH_Service.sigdi.domain.valueobject.StrategicGoalId;
-import cv.igrp.RH_Service.sigdi.domain.valueobject.StrategyMapLinkId;
+import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
+import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategyMapLinkId;
 import lombok.Getter;
 
 @Getter

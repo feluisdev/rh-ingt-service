@@ -1,9 +1,8 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.sigdi.domain.models.InstitutionalIdentity;
-import cv.igrp.RH_Service.sigdi.domain.repository.InstitutionalIdentityRepository;
-import cv.igrp.RH_Service.sigdi.domain.valueobject.InstitutionalIdentityId;
+import cv.igrp.RH_Service.sigdi.domain.strategy.repository.InstitutionalIdentityRepository;
+import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentityId;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.InstitutionalIdentityMapper;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;

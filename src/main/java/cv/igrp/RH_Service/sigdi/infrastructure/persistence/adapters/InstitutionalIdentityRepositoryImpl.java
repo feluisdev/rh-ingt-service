@@ -2,9 +2,9 @@ package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters;
 
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.InstitutionalIdentityEntity;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.InstitutionalIdentityEntityRepository;
-import cv.igrp.RH_Service.sigdi.domain.models.InstitutionalIdentity;
-import cv.igrp.RH_Service.sigdi.domain.repository.InstitutionalIdentityRepository;
-import cv.igrp.RH_Service.sigdi.domain.valueobject.InstitutionalIdentityId;
+import cv.igrp.RH_Service.sigdi.domain.strategy.models.InstitutionalIdentity;
+import cv.igrp.RH_Service.sigdi.domain.strategy.repository.InstitutionalIdentityRepository;
+import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentityId;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.InstitutionalIdentityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

@@ -1,13 +1,10 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.InstitutionalIdentityEntity;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategicGoalEntity;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.StrategicGoalEntityRepository;
-import cv.igrp.RH_Service.sigdi.domain.models.InstitutionalIdentity;
-import cv.igrp.RH_Service.sigdi.domain.models.StrategicGoal;
-import cv.igrp.RH_Service.sigdi.domain.repository.StrategicGoalRepository;
-import cv.igrp.RH_Service.sigdi.domain.valueobject.StrategicGoalId;
-import cv.igrp.RH_Service.sigdi.infrastructure.mappers.InstitutionalIdentityMapper;
+import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
+import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
+import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.StrategicGoalMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

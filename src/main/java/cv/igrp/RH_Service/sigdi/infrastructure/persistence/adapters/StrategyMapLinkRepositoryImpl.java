@@ -1,15 +1,10 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategicGoalEntity;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategyMapLinkEntity;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.StrategyMapLinkEntityRepository;
-import cv.igrp.RH_Service.sigdi.domain.models.InstitutionalIdentity;
-import cv.igrp.RH_Service.sigdi.domain.models.StrategicGoal;
-import cv.igrp.RH_Service.sigdi.domain.models.StrategyMapLink;
-import cv.igrp.RH_Service.sigdi.domain.repository.StrategyMapLinkRepository;
-import cv.igrp.RH_Service.sigdi.domain.valueobject.StrategyMapLinkId;
-import cv.igrp.RH_Service.sigdi.infrastructure.mappers.InstitutionalIdentityMapper;
-import cv.igrp.RH_Service.sigdi.infrastructure.mappers.StrategicGoalMapper;
+import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategyMapLink;
+import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategyMapLinkRepository;
+import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategyMapLinkId;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.StrategyMapLinkMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

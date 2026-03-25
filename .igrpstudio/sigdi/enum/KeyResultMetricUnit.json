@@ -1,0 +1,38 @@
+{
+  "type": "enum",
+  "module": "sigdi",
+  "name": "KeyResultMetricUnit",
+  "values": [
+    {
+      "name": "PERCENT",
+      "attributes": [
+        "PERCENT",
+        "PERCENT"
+      ]
+    },
+    {
+      "name": "NUMBER",
+      "attributes": [
+        "NUMBER",
+        "NUMBER"
+      ]
+    },
+    {
+      "name": "CURRENCY",
+      "attributes": [
+        "CURRENCY",
+        "CURRENCY"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}
