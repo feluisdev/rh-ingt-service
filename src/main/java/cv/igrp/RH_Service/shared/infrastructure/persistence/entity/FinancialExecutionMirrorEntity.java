@@ -20,7 +20,15 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "t_financial_execution_mirror")
+@Table(name = "t_financial_execution_mirror",
+  uniqueConstraints = {
+    @UniqueConstraint(
+      name = "uq_fin_exec_classifier_unit_year",
+      columnNames = {
+        "classifier","organic_unit","fiscal_year"
+      }
+    )
+  })
 public class FinancialExecutionMirrorEntity extends AuditEntity {
 
     @Id

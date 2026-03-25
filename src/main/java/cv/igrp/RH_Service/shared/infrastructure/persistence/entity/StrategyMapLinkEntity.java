@@ -20,7 +20,7 @@ import jakarta.validation.constraints.NotNull;
 @Table(name = "t_strategy_map_links",
   uniqueConstraints = {
     @UniqueConstraint(
-      name = "t_strategy_map_links",
+      name = "uq_strategy_link_source_target",
       columnNames = {
         "source_goal_id","target_goal_id"
       }
