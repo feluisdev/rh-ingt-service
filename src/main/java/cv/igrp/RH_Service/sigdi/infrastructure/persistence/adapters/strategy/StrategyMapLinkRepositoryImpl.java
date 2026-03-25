@@ -1,4 +1,4 @@
-package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters;
+package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.strategy;
 
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategyMapLinkEntity;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.StrategyMapLinkEntityRepository;
