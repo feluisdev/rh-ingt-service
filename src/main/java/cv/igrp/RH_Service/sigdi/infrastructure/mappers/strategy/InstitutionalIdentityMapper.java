@@ -1,4 +1,4 @@
-package cv.igrp.RH_Service.sigdi.infrastructure.mappers;
+package cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy;
 
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.InstitutionalIdentityEntity;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateIdentityRequestDTO;

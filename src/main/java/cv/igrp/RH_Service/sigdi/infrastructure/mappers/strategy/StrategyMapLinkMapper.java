@@ -1,4 +1,4 @@
-package cv.igrp.RH_Service.sigdi.infrastructure.mappers;
+package cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy;
 
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategicGoalEntity;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategyMapLinkEntity;
