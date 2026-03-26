@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.sigdi.domain.tatical.valueobject;
 
+import cv.igrp.RH_Service.sigdi.domain.shared.valueobject.EconomicClassifier;
 import lombok.Getter;
 
 import java.math.BigDecimal;

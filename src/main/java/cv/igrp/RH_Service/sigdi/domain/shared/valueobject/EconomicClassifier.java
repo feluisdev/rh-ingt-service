@@ -1,4 +1,4 @@
-package cv.igrp.RH_Service.sigdi.domain.tatical.valueobject;
+package cv.igrp.RH_Service.sigdi.domain.shared.valueobject;
 
 import lombok.Getter;
 

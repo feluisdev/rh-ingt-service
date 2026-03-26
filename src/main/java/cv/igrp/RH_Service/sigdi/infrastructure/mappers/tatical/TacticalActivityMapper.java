@@ -7,7 +7,7 @@ import cv.igrp.RH_Service.sigdi.domain.tatical.models.KeyResult;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.Budget;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.DateRange;
-import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.EconomicClassifier;
+import cv.igrp.RH_Service.sigdi.domain.shared.valueobject.EconomicClassifier;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.TacticalActivityId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
