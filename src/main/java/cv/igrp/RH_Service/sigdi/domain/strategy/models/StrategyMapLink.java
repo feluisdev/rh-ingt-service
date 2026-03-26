@@ -34,6 +34,16 @@ public class StrategyMapLink {
     );
   }
 
+  public static StrategyMapLink create(StrategicGoalId sourceGoalId, StrategicGoalId targetGoalId,
+                                      StrategyMapRelationshipType relationshipType) {
+    return new StrategyMapLink(
+        StrategyMapLinkId.gerarNovo(),
+        sourceGoalId,
+        targetGoalId,
+        relationshipType
+    );
+  }
+
   public static StrategyMapLink reconstruct(StrategyMapLinkId id, StrategicGoalId sourceGoalId,
                                             StrategicGoalId targetGoalId,
                                             StrategyMapRelationshipType relationshipType) {

@@ -15,6 +15,7 @@ public interface StrategyMapLinkEntityRepository extends
     JpaRepository<StrategyMapLinkEntity, UUID>,
     JpaSpecificationExecutor<StrategyMapLinkEntity>
 {
+      Optional<StrategyMapLinkEntity> findBySourceGoalId_IdAndTargetGoalId_IdAndRelationshipType(UUID sourceGoalId, UUID targetGoalId, String relationshipType);
 
       default StrategyMapLinkEntity findByIdOrThrow(UUID id) {
           return this.findById(id)
