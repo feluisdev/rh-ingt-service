@@ -24,7 +24,8 @@ public class InstitutionalIdentityMapper {
    * Entity → Domain (sem goals)
    */
   public InstitutionalIdentity toDomain(InstitutionalIdentityEntity entity) {
-    if (entity == null) return null;
+    if (entity == null)
+      return null;
 
     return InstitutionalIdentity.reconstruct(
         InstitutionalIdentityId.from(entity.getId()),
@@ -34,8 +35,8 @@ public class InstitutionalIdentityMapper {
         InstitutionalValues.of(entity.getValuesJson()),
         entity.getVersionComment(),
         entity.isActive(),
-        new ArrayList<>()
-    );
+        entity.isArchived(),
+        new ArrayList<StrategicGoal>());
   }
 
   /**
@@ -43,7 +44,8 @@ public class InstitutionalIdentityMapper {
    * Usa os goals já carregados via @OneToMany da entity
    */
   public InstitutionalIdentity toDomainFull(InstitutionalIdentityEntity entity) {
-    if (entity == null) return null;
+    if (entity == null)
+      return null;
 
     List<StrategicGoal> goals = entity.getGoals().stream()
         .map(goalMapper::toDomain)
@@ -57,15 +59,16 @@ public class InstitutionalIdentityMapper {
         InstitutionalValues.of(entity.getValuesJson()),
         entity.getVersionComment(),
         entity.isActive(),
-        goals
-    );
+        entity.isArchived(),
+        goals);
   }
 
   /**
    * Domain → Entity
    */
   public InstitutionalIdentityEntity toEntity(InstitutionalIdentity domain) {
-    if (domain == null) return null;
+    if (domain == null)
+      return null;
 
     InstitutionalIdentityEntity entity = new InstitutionalIdentityEntity();
     entity.setId(domain.getId().getValor().getValor());
@@ -75,11 +78,13 @@ public class InstitutionalIdentityMapper {
     entity.setValuesJson(domain.getValues().toJson());
     entity.setVersionComment(domain.getVersionComment());
     entity.setActive(domain.isActive());
+    entity.setArchived(domain.isArchived());
     return entity;
   }
 
   public IdentityResponseDTO toResponse(InstitutionalIdentity domain) {
-    if (domain == null) return null;
+    if (domain == null)
+      return null;
 
     IdentityResponseDTO response = new IdentityResponseDTO();
     response.setId(domain.getId().getValor().getValor());

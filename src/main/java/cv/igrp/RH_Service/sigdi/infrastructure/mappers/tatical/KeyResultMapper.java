@@ -21,7 +21,8 @@ public class KeyResultMapper {
   private final KeyResultCheckinMapper checkinMapper;
 
   public KeyResult toDomain(KeyResultsEntity entity) {
-    if (entity == null) return null;
+    if (entity == null)
+      return null;
 
     return KeyResult.reconstruct(
         KeyResultId.from(entity.getId()),
@@ -30,12 +31,14 @@ public class KeyResultMapper {
         entity.getTargetValue(),
         entity.getCurrentValue(),
         KeyResultMetricUnit.fromCodeOrThrow(entity.getMetricUnit()),
-        new ArrayList<>() // checkins carregados via toDomainFull
+        entity.getWeight(),
+        new ArrayList<KeyResultCheckin>() // checkins carregados via toDomainFull
     );
   }
 
   public KeyResult toDomainFull(KeyResultsEntity entity) {
-    if (entity == null) return null;
+    if (entity == null)
+      return null;
 
     List<KeyResultCheckin> checkins = entity.getKeyResultCheckins().stream()
         .map(checkinMapper::toDomain)
@@ -48,18 +51,20 @@ public class KeyResultMapper {
         entity.getTargetValue(),
         entity.getCurrentValue(),
         KeyResultMetricUnit.fromCodeOrThrow(entity.getMetricUnit()),
-        checkins
-    );
+        entity.getWeight(),
+        checkins);
   }
 
   public KeyResultsEntity toEntity(KeyResult domain) {
-    if (domain == null) return null;
+    if (domain == null)
+      return null;
 
     KeyResultsEntity entity = new KeyResultsEntity();
     entity.setId(domain.getId().getValor().getValor());
     entity.setTitle(domain.getTitle());
     entity.setTargetValue(domain.getTargetValue());
     entity.setCurrentValue(domain.getCurrentValue());
+    entity.setWeight(domain.getWeight());
     entity.setMetricUnit(domain.getMetricUnit().getCode());
 
     // Referência leve — só o ID
