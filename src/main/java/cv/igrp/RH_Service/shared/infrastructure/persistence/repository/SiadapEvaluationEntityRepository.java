@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.http.HttpStatus;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,6 +16,9 @@ public interface SiadapEvaluationEntityRepository extends
     JpaRepository<SiadapEvaluationEntity, UUID>,
     JpaSpecificationExecutor<SiadapEvaluationEntity>
 {
+      List<SiadapEvaluationEntity> findByYear(String year);
+
+      Optional<SiadapEvaluationEntity> findByEmployeeIdAndYear(String employeeId, String year);
 
       default SiadapEvaluationEntity findByIdOrThrow(UUID id) {
           return this.findById(id)

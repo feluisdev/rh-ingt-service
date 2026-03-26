@@ -1,0 +1,38 @@
+{
+    "type": "enum",
+    "module": "sigdi",
+    "name": "SiadapMeritRating",
+    "values": [
+        {
+            "name": "EXCELLENT",
+            "attributes": [
+                "EXCELLENT",
+                "EXCELLENT"
+            ]
+        },
+        {
+            "name": "GOOD",
+            "attributes": [
+                "GOOD",
+                "GOOD"
+            ]
+        },
+        {
+            "name": "REGULAR",
+            "attributes": [
+                "REGULAR",
+                "REGULAR"
+            ]
+        }
+    ],
+    "attributes": [
+        {
+            "type": "string",
+            "name": "Code"
+        },
+        {
+            "type": "string",
+            "name": "Description"
+        }
+    ]
+}
