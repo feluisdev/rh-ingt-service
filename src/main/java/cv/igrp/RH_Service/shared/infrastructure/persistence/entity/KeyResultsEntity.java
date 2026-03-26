@@ -41,6 +41,10 @@ public class KeyResultsEntity extends AuditEntity {
     private BigDecimal currentValue;
 
   
+    @Column(name="weight")
+    private BigDecimal weight;
+
+  
     @Column(name="metric_unit")
     private String metricUnit;
 

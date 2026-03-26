@@ -58,6 +58,10 @@ public class InstitutionalIdentityEntity extends AuditEntity {
     private boolean isActive;
 
   
+    @Column(name="is_archived")
+    private boolean isArchived;
+
+  
 
 
   @OneToMany(mappedBy = "identityId", fetch = FetchType.LAZY)
