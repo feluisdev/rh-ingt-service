@@ -10,6 +10,7 @@ import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.TacticalActivityId;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.List;
 public class TacticalActivity {
 
   private final TacticalActivityId id;
-  private final StrategicGoalId strategicGoalId;  // referência por ID (domínio strategy)
+  private final StrategicGoalId strategicGoalId;
   private final String organicUnitId;
   private final String title;
   private final String descriptionWhat;
@@ -38,21 +39,12 @@ public class TacticalActivity {
                            String methodologyHow, DateRange dateRange, Budget budget,
                            TacticalActivityStatus status, Integer version,
                            List<KeyResult> keyResults) {
-    if (strategicGoalId == null) {
-      throw new IllegalArgumentException("strategicGoalId é obrigatório");
-    }
-    if (organicUnitId == null || organicUnitId.isBlank()) {
-      throw new IllegalArgumentException("organicUnitId é obrigatório");
-    }
-    if (title == null || title.isBlank()) {
-      throw new IllegalArgumentException("title é obrigatório");
-    }
-    if (dateRange == null) {
-      throw new IllegalArgumentException("dateRange é obrigatório");
-    }
-    if (budget == null) {
-      throw new IllegalArgumentException("budget é obrigatório");
-    }
+    if (strategicGoalId == null) throw new IllegalArgumentException("strategicGoalId é obrigatório");
+    if (organicUnitId == null || organicUnitId.isBlank()) throw new IllegalArgumentException("organicUnitId é obrigatório");
+    if (title == null || title.isBlank()) throw new IllegalArgumentException("title é obrigatório");
+    if (dateRange == null) throw new IllegalArgumentException("dateRange é obrigatório");
+    if (budget == null) throw new IllegalArgumentException("budget é obrigatório");
+
     this.id = id;
     this.strategicGoalId = strategicGoalId;
     this.organicUnitId = organicUnitId;
@@ -73,22 +65,10 @@ public class TacticalActivity {
                                         String title, String descriptionWhat, String justificationWhy,
                                         String locationWhere, String responsibleWho,
                                         String methodologyHow, DateRange dateRange, Budget budget) {
-    return new TacticalActivity(
-        TacticalActivityId.gerarNovo(),
-        strategicGoalId,
-        organicUnitId,
-        title,
-        descriptionWhat,
-        justificationWhy,
-        locationWhere,
-        responsibleWho,
-        methodologyHow,
-        dateRange,
-        budget,
-        TacticalActivityStatus.DRAFT,
-        0,
-        new ArrayList<>()
-    );
+    return new TacticalActivity(TacticalActivityId.gerarNovo(), strategicGoalId, organicUnitId,
+        title, descriptionWhat, justificationWhy, locationWhere,
+        responsibleWho, methodologyHow, dateRange, budget,
+        TacticalActivityStatus.DRAFT, 0, new ArrayList<>());
   }
 
   public static TacticalActivity reconstruct(TacticalActivityId id, StrategicGoalId strategicGoalId,
@@ -107,54 +87,87 @@ public class TacticalActivity {
     return Collections.unmodifiableList(keyResults);
   }
 
-  // ── Regras de negócio ─────────────────────────────────────────────
+  // ── Workflow de status ────────────────────────────────────────────
 
-  public KeyResult addKeyResult(String title, BigDecimal targetValue, KeyResultMetricUnit metricUnit) {
-    KeyResult kr = KeyResult.create(this.id, title, targetValue, metricUnit);
-    keyResults.add(kr);
-    return kr;
+  public TacticalActivity submit() {
+    if (!TacticalActivityStatus.DRAFT.equals(this.status))
+      throw IgrpResponseStatusException.badRequest("Apenas atividades DRAFT podem ser submetidas");
+    return changeStatus(TacticalActivityStatus.PENDING);
   }
 
   public TacticalActivity approve() {
-    if (!TacticalActivityStatus.PENDING.equals(this.status)) {
-      throw IgrpResponseStatusException.badRequest(
-          "Apenas atividades com status PENDING podem ser aprovadas");
-    }
+    if (!TacticalActivityStatus.PENDING.equals(this.status))
+      throw IgrpResponseStatusException.badRequest("Apenas atividades PENDING podem ser aprovadas");
     return changeStatus(TacticalActivityStatus.APPROVED);
   }
 
   public TacticalActivity reject() {
-    if (!TacticalActivityStatus.PENDING.equals(this.status)) {
-      throw IgrpResponseStatusException.badRequest(
-          "Apenas atividades com status PENDING podem ser rejeitadas");
-    }
+    if (!TacticalActivityStatus.PENDING.equals(this.status))
+      throw IgrpResponseStatusException.badRequest("Apenas atividades PENDING podem ser rejeitadas");
     return changeStatus(TacticalActivityStatus.REJECTED);
-  }
-
-  public TacticalActivity submit() {
-    if (!TacticalActivityStatus.DRAFT.equals(this.status)) {
-      throw IgrpResponseStatusException.badRequest(
-          "Apenas atividades com status DRAFT podem ser submetidas");
-    }
-    return changeStatus(TacticalActivityStatus.PENDING);
   }
 
   public TacticalActivity cancel() {
     if (TacticalActivityStatus.CANCELLED.equals(this.status) ||
-        TacticalActivityStatus.APPROVED.equals(this.status)) {
+        TacticalActivityStatus.APPROVED.equals(this.status))
       throw IgrpResponseStatusException.badRequest(
-          "Atividade não pode ser cancelada no status atual: " + this.status.getCode());
-    }
+          "Atividade não pode ser cancelada no status: " + this.status.getCode());
     return changeStatus(TacticalActivityStatus.CANCELLED);
   }
 
-  public boolean isApproved() {
-    return TacticalActivityStatus.APPROVED.equals(this.status);
+  // ── RN05 — Imutabilidade pós-aprovação ───────────────────────────
+
+  /**
+   * RN05 — Após aprovação, qualquer alteração requer justificativa (Change Request)
+   */
+  public TacticalActivity requestChange(Budget newBudget, DateRange newDateRange,
+                                        String changeJustification) {
+    if (!TacticalActivityStatus.APPROVED.equals(this.status))
+      throw IgrpResponseStatusException.badRequest(
+          "Change Request só é permitido em atividades APPROVED");
+    if (changeJustification == null || changeJustification.isBlank())
+      throw new IllegalArgumentException("Justificativa é obrigatória para Change Request");
+
+    // Volta para PENDING com novos dados — auditoria feita pelo AuditEntity
+    return new TacticalActivity(this.id, this.strategicGoalId, this.organicUnitId, this.title,
+        this.descriptionWhat, this.justificationWhy, this.locationWhere,
+        this.responsibleWho, this.methodologyHow, newDateRange,
+        newBudget, TacticalActivityStatus.PENDING,
+        this.version + 1, this.keyResults);
   }
 
-  public boolean isDraft() {
-    return TacticalActivityStatus.DRAFT.equals(this.status);
+  // ── RN02 — Progresso agregado ─────────────────────────────────────
+
+  /**
+   * RN02 — Progresso da atividade = média ponderada dos KeyResults
+   */
+  public BigDecimal getWeightedProgress() {
+    if (keyResults.isEmpty()) return BigDecimal.ZERO;
+
+    BigDecimal totalWeight = keyResults.stream()
+        .map(KeyResult::getWeight)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+    if (totalWeight.compareTo(BigDecimal.ZERO) == 0) return BigDecimal.ZERO;
+
+    BigDecimal weightedSum = keyResults.stream()
+        .map(kr -> kr.getProgressPercentage().multiply(kr.getWeight()))
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+    return weightedSum.divide(totalWeight, 2, RoundingMode.HALF_UP);
   }
+
+  // ── Gestão de KeyResults ──────────────────────────────────────────
+
+  public KeyResult addKeyResult(String title, BigDecimal targetValue,
+                                KeyResultMetricUnit metricUnit, BigDecimal weight) {
+    KeyResult kr = KeyResult.create(this.id, title, targetValue, metricUnit, weight);
+    keyResults.add(kr);
+    return kr;
+  }
+
+  public boolean isApproved() { return TacticalActivityStatus.APPROVED.equals(this.status); }
+  public boolean isDraft() { return TacticalActivityStatus.DRAFT.equals(this.status); }
 
   private TacticalActivity changeStatus(TacticalActivityStatus newStatus) {
     return new TacticalActivity(this.id, this.strategicGoalId, this.organicUnitId, this.title,

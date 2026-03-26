@@ -1,0 +1,31 @@
+{
+  "type": "enum",
+  "module": "sigdi",
+  "name": "CostDriverType",
+  "values": [
+    {
+      "name": "PER_DIEM",
+      "attributes": [
+        "PER_DIEM",
+        "Ajudas de Custo"
+      ]
+    },
+    {
+      "name": "FUEL",
+      "attributes": [
+        "FUEL",
+        "Combustível"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}
