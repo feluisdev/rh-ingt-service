@@ -15,6 +15,7 @@ public interface FinancialExecutionMirrorEntityRepository extends
     JpaRepository<FinancialExecutionMirrorEntity, UUID>,
     JpaSpecificationExecutor<FinancialExecutionMirrorEntity>
 {
+      Optional<FinancialExecutionMirrorEntity> findByClassifierAndOrganicUnitAndFiscalYear(String classifier, String organicUnit, Integer fiscalYear);
 
       default FinancialExecutionMirrorEntity findByIdOrThrow(UUID id) {
           return this.findById(id)
