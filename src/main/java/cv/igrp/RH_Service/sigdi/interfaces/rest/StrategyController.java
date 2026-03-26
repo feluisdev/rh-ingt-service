@@ -27,7 +27,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.StategicGoalResponseDTO;
 
 @IgrpController
 @RestController
-@RequestMapping(path = "ap1/v1strategy")
+@RequestMapping(path = "ap1/v1/strategy")
 @Tag(
     name = "Sigdi",
     description = "gest strategies"

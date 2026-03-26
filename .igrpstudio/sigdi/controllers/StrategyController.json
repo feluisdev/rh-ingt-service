@@ -3,7 +3,7 @@
   "name": "Strategy",
   "module": "sigdi",
   "description": "gest strategies",
-  "basePath": "ap1/v1strategy",
+  "basePath": "ap1/v1/strategy",
   "actions": [
     {
       "actionName": "createIdentitie",
@@ -95,5 +95,5 @@
       }
     }
   ],
-  "id": "za41idl434-createIdentitie-createIdentitie-createIdentitie"
+  "id": "za41idl434-createIdentitie-createIdentitie-createIdentitie-createIdentitie"
 }
