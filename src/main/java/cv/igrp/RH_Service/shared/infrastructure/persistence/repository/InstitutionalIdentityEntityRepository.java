@@ -15,6 +15,7 @@ public interface InstitutionalIdentityEntityRepository extends
     JpaRepository<InstitutionalIdentityEntity, UUID>,
     JpaSpecificationExecutor<InstitutionalIdentityEntity>
 {
+      Optional<InstitutionalIdentityEntity> findFirstByIsActiveTrue();
 
       default InstitutionalIdentityEntity findByIdOrThrow(UUID id) {
           return this.findById(id)

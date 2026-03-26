@@ -9,15 +9,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import cv.igrp.RH_Service.sigdi.application.dto.IdentityResponseDTO;
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.sigdi.domain.strategy.repository.InstitutionalIdentityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.InstitutionalIdentityMapper;
 
 @Component
 public class GetCurrentIdentitieQueryHandler implements QueryHandler<GetCurrentIdentitieQuery, ResponseEntity<IdentityResponseDTO>>{
 
+
   private static final Logger LOGGER = LoggerFactory.getLogger(GetCurrentIdentitieQueryHandler.class);
 
 
-  public GetCurrentIdentitieQueryHandler() {
+  private final InstitutionalIdentityRepository identityRepository;
+  private final InstitutionalIdentityMapper identityMapper;
 
+  public GetCurrentIdentitieQueryHandler(InstitutionalIdentityRepository identityRepository,
+                                        InstitutionalIdentityMapper identityMapper) {
+    this.identityRepository = identityRepository;
+    this.identityMapper = identityMapper;
   }
 
    @IgrpQueryHandler
@@ -25,8 +34,10 @@ public class GetCurrentIdentitieQueryHandler implements QueryHandler<GetCurrentI
 
     LOGGER.debug("GetCurrentIdentitieQuery: {}", query);
 
-    // TODO: Implement the query handling logic here
-    return null;
+    var current = identityRepository.findActive()
+        .orElseThrow(() -> IgrpResponseStatusException.notFound("Identidade Institucional ativa não encontrada"));
+
+    return ResponseEntity.ok(identityMapper.toResponse(current));
   }
 
 }

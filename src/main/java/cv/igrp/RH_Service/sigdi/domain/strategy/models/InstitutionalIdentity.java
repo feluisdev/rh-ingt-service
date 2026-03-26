@@ -46,7 +46,7 @@ public class InstitutionalIdentity {
   public static InstitutionalIdentity create(Integer cycleYear, String mission, String vision,
       InstitutionalValues values, String versionComment) {
     return new InstitutionalIdentity(InstitutionalIdentityId.gerarNovo(), cycleYear, mission,
-        vision, values, versionComment, false, new ArrayList<>());
+        vision, values, versionComment, true, new ArrayList<>());
   }
 
   public static InstitutionalIdentity reconstruct(InstitutionalIdentityId id, Integer cycleYear,
@@ -64,6 +64,11 @@ public class InstitutionalIdentity {
   public InstitutionalIdentity activate() {
     return new InstitutionalIdentity(this.id, this.cycleYear, this.mission, this.vision,
         this.values, this.versionComment, true, this.goals);
+  }
+
+  public InstitutionalIdentity deactivate() {
+    return new InstitutionalIdentity(this.id, this.cycleYear, this.mission, this.vision,
+        this.values, this.versionComment, false, this.goals);
   }
 
   public StrategicGoal addGoal(String title, StrategicGoalsPerspective perspective,

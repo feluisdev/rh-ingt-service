@@ -36,4 +36,10 @@ public class InstitutionalIdentityRepositoryImpl implements InstitutionalIdentit
     return jpaRepository.findById(id.getValor().getValor())
         .map(mapper::toDomainFull);
   }
+
+  @Override
+  public Optional<InstitutionalIdentity> findActive() {
+    return jpaRepository.findFirstByIsActiveTrue()
+        .map(mapper::toDomain);
+  }
 }

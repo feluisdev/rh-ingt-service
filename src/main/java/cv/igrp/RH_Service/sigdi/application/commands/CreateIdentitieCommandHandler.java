@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 import cv.igrp.RH_Service.sigdi.application.dto.IdentityResponseDTO;
 
@@ -29,6 +30,7 @@ public class CreateIdentitieCommandHandler implements CommandHandler<CreateIdent
   }
 
    @IgrpCommandHandler
+   @Transactional
    public ResponseEntity<IdentityResponseDTO> handle(CreateIdentitieCommand command) {
 
       LOGGER.debug("CreateIdentitieCommand : {}", command);
@@ -38,7 +40,9 @@ public class CreateIdentitieCommandHandler implements CommandHandler<CreateIdent
      // Constrói o VO de values a partir do request
      var values = identityMapper.toValues(request);
 
-     // Cria o aggregate — cycleYear extraído automaticamente do ano atual
+     identityRepository.findActive()
+         .ifPresent(active -> identityRepository.save(active.deactivate()));
+
      var identity = InstitutionalIdentity.create(
          Year.now().getValue(),
          request.getMission(),

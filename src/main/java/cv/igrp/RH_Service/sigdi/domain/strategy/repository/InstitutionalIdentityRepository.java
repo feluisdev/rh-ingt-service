@@ -13,4 +13,6 @@ public interface InstitutionalIdentityRepository {
 
   Optional<InstitutionalIdentity> findByIdFull(InstitutionalIdentityId id);
 
+  Optional<InstitutionalIdentity> findActive();
+
 }
