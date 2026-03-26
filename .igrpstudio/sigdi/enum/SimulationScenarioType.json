@@ -1,0 +1,25 @@
+{
+  "type": "enum",
+  "module": "sigdi",
+  "name": "SimulationScenarioType",
+  "values": [
+    {
+      "name": "BUDGET_CUT",
+      "attributes": [
+        "BUDGET_CUT",
+        "BUDGET_CUT"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}
+

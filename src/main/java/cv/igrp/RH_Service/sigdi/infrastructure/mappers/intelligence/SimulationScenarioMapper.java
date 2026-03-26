@@ -5,6 +5,7 @@ import cv.igrp.RH_Service.sigdi.application.constants.SimulationScenarioStatus;
 import cv.igrp.RH_Service.sigdi.domain.intelligence.models.SimulationResult;
 import cv.igrp.RH_Service.sigdi.domain.intelligence.models.SimulationScenario;
 import cv.igrp.RH_Service.sigdi.domain.intelligence.valueobject.SimulationScenarioId;
+import cv.igrp.RH_Service.sigdi.domain.intelligence.valueobject.SimulationScenarioParameters;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -18,19 +19,20 @@ public class SimulationScenarioMapper {
   private final SimulationResultMapper resultMapper;
 
   public SimulationScenario toDomain(SimulationScenariosEntity entity) {
-    if (entity == null) return null;
+    if (entity == null)
+      return null;
 
     return SimulationScenario.reconstruct(
         SimulationScenarioId.from(entity.getId()),
         entity.getName(),
-        entity.getParameters(),
+        SimulationScenarioParameters.fromJson(entity.getParameters()),
         entity.getStatus() != null ? SimulationScenarioStatus.fromCodeOrThrow(entity.getStatus()) : null,
-        List.of()
-    );
+        List.of());
   }
 
   public SimulationScenario toDomainFull(SimulationScenariosEntity entity) {
-    if (entity == null) return null;
+    if (entity == null)
+      return null;
 
     List<SimulationResult> results = entity.getSimulationResults().stream()
         .map(resultMapper::toDomain)
@@ -39,14 +41,14 @@ public class SimulationScenarioMapper {
     return SimulationScenario.reconstruct(
         SimulationScenarioId.from(entity.getId()),
         entity.getName(),
-        entity.getParameters(),
+        SimulationScenarioParameters.fromJson(entity.getParameters()),
         entity.getStatus() != null ? SimulationScenarioStatus.fromCodeOrThrow(entity.getStatus()) : null,
-        results
-    );
+        results);
   }
 
   public SimulationScenariosEntity toEntity(SimulationScenario domain) {
-    if (domain == null) return null;
+    if (domain == null)
+      return null;
 
     SimulationScenariosEntity entity = new SimulationScenariosEntity();
     entity.setId(domain.getId().getValor().getValor());
@@ -56,4 +58,3 @@ public class SimulationScenarioMapper {
     return entity;
   }
 }
-
