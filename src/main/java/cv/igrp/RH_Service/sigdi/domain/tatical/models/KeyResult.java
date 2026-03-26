@@ -24,12 +24,11 @@ public class KeyResult {
   private final BigDecimal targetValue;
   private final BigDecimal currentValue;
   private final KeyResultMetricUnit metricUnit;
-  private final BigDecimal weight; // RN02 — peso para média ponderada
   private final List<KeyResultCheckin> checkins;
 
   private KeyResult(KeyResultId id, TacticalActivityId activityId, String title,
                     BigDecimal targetValue, BigDecimal currentValue,
-                    KeyResultMetricUnit metricUnit, BigDecimal weight,
+                    KeyResultMetricUnit metricUnit,
                     List<KeyResultCheckin> checkins) {
     if (title == null || title.isBlank()) throw new IllegalArgumentException("title é obrigatório");
     if (targetValue == null || targetValue.compareTo(BigDecimal.ZERO) <= 0)
@@ -42,23 +41,21 @@ public class KeyResult {
     this.targetValue = targetValue;
     this.currentValue = (currentValue != null) ? currentValue : BigDecimal.ZERO;
     this.metricUnit = metricUnit;
-    this.weight = (weight != null) ? weight : BigDecimal.ONE;
     this.checkins = (checkins != null) ? new ArrayList<>(checkins) : new ArrayList<>();
   }
 
   public static KeyResult create(TacticalActivityId activityId, String title,
-                                 BigDecimal targetValue, KeyResultMetricUnit metricUnit,
-                                 BigDecimal weight) {
+                                 BigDecimal targetValue, KeyResultMetricUnit metricUnit) {
     return new KeyResult(KeyResultId.gerarNovo(), activityId, title, targetValue,
-        BigDecimal.ZERO, metricUnit, weight, new ArrayList<>());
+        BigDecimal.ZERO, metricUnit, new ArrayList<>());
   }
 
   public static KeyResult reconstruct(KeyResultId id, TacticalActivityId activityId, String title,
                                       BigDecimal targetValue, BigDecimal currentValue,
-                                      KeyResultMetricUnit metricUnit, BigDecimal weight,
+                                      KeyResultMetricUnit metricUnit,
                                       List<KeyResultCheckin> checkins) {
     return new KeyResult(id, activityId, title, targetValue, currentValue,
-        metricUnit, weight, checkins);
+        metricUnit, checkins);
   }
 
   public List<KeyResultCheckin> getCheckins() {
@@ -104,6 +101,6 @@ public class KeyResult {
   public KeyResult applyCheckin(BigDecimal valueAdded) {
     BigDecimal newValue = this.currentValue.add(valueAdded);
     return new KeyResult(this.id, this.activityId, this.title, this.targetValue,
-        newValue, this.metricUnit, this.weight, this.checkins);
+        newValue, this.metricUnit, this.checkins);
   }
 }

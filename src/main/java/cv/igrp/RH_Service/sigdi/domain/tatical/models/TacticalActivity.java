@@ -139,29 +139,23 @@ public class TacticalActivity {
   // ── RN02 — Progresso agregado ─────────────────────────────────────
 
   /**
-   * RN02 — Progresso da atividade = média ponderada dos KeyResults
+   * RN02 — Progresso da atividade = média dos KeyResults
    */
   public BigDecimal getWeightedProgress() {
     if (keyResults.isEmpty()) return BigDecimal.ZERO;
 
-    BigDecimal totalWeight = keyResults.stream()
-        .map(KeyResult::getWeight)
+    BigDecimal sum = keyResults.stream()
+        .map(KeyResult::getProgressPercentage)
         .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-    if (totalWeight.compareTo(BigDecimal.ZERO) == 0) return BigDecimal.ZERO;
-
-    BigDecimal weightedSum = keyResults.stream()
-        .map(kr -> kr.getProgressPercentage().multiply(kr.getWeight()))
-        .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-    return weightedSum.divide(totalWeight, 2, RoundingMode.HALF_UP);
+    return sum.divide(BigDecimal.valueOf(keyResults.size()), 2, RoundingMode.HALF_UP);
   }
 
   // ── Gestão de KeyResults ──────────────────────────────────────────
 
   public KeyResult addKeyResult(String title, BigDecimal targetValue,
-                                KeyResultMetricUnit metricUnit, BigDecimal weight) {
-    KeyResult kr = KeyResult.create(this.id, title, targetValue, metricUnit, weight);
+                                KeyResultMetricUnit metricUnit) {
+    KeyResult kr = KeyResult.create(this.id, title, targetValue, metricUnit);
     keyResults.add(kr);
     return kr;
   }

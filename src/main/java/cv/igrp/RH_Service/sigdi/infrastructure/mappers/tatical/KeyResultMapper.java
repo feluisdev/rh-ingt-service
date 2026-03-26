@@ -31,7 +31,6 @@ public class KeyResultMapper {
         entity.getTargetValue(),
         entity.getCurrentValue(),
         KeyResultMetricUnit.fromCodeOrThrow(entity.getMetricUnit()),
-        entity.getWeight(),
         new ArrayList<KeyResultCheckin>() // checkins carregados via toDomainFull
     );
   }
@@ -51,7 +50,6 @@ public class KeyResultMapper {
         entity.getTargetValue(),
         entity.getCurrentValue(),
         KeyResultMetricUnit.fromCodeOrThrow(entity.getMetricUnit()),
-        entity.getWeight(),
         checkins);
   }
 
@@ -64,7 +62,6 @@ public class KeyResultMapper {
     entity.setTitle(domain.getTitle());
     entity.setTargetValue(domain.getTargetValue());
     entity.setCurrentValue(domain.getCurrentValue());
-    entity.setWeight(domain.getWeight());
     entity.setMetricUnit(domain.getMetricUnit().getCode());
 
     // Referência leve — só o ID

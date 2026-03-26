@@ -35,7 +35,6 @@ public class InstitutionalIdentityMapper {
         InstitutionalValues.of(entity.getValuesJson()),
         entity.getVersionComment(),
         entity.isActive(),
-        entity.isArchived(),
         new ArrayList<StrategicGoal>());
   }
 
@@ -59,7 +58,6 @@ public class InstitutionalIdentityMapper {
         InstitutionalValues.of(entity.getValuesJson()),
         entity.getVersionComment(),
         entity.isActive(),
-        entity.isArchived(),
         goals);
   }
 
@@ -78,7 +76,6 @@ public class InstitutionalIdentityMapper {
     entity.setValuesJson(domain.getValues().toJson());
     entity.setVersionComment(domain.getVersionComment());
     entity.setActive(domain.isActive());
-    entity.setArchived(domain.isArchived());
     return entity;
   }
 

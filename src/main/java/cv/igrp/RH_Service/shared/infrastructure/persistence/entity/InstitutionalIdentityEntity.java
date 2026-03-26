@@ -13,7 +13,6 @@ import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.ArrayList;
 
-
 @Getter
 @Setter
 @IgrpEntity
@@ -23,47 +22,34 @@ import java.util.ArrayList;
 @Table(name = "t_institutional_identity")
 public class InstitutionalIdentityEntity extends AuditEntity {
 
-    @Id
-    @Column(name = "id", unique = true, nullable = false)
-    private UUID id;
+  @Id
+  @Column(name = "id", unique = true, nullable = false)
+  private UUID id;
 
-  
-    @NotNull(message = "cycleYear is mandatory")
-    @Column(name="cycle_year", nullable = false)
-    private Integer cycleYear;
+  @NotNull(message = "cycleYear is mandatory")
+  @Column(name = "cycle_year", nullable = false)
+  private Integer cycleYear;
 
-  
-    @NotBlank(message = "mission is mandatory")
-    @Lob
-    @Column(name="mission", nullable = false, columnDefinition="TEXT")
-    private String mission;
+  @NotBlank(message = "mission is mandatory")
+  @Lob
+  @Column(name = "mission", nullable = false, columnDefinition = "TEXT")
+  private String mission;
 
-  
-    @NotBlank(message = "vision is mandatory")
-    @Lob
-    @Column(name="vision", nullable = false, columnDefinition="TEXT")
-    private String vision;
+  @NotBlank(message = "vision is mandatory")
+  @Lob
+  @Column(name = "vision", nullable = false, columnDefinition = "TEXT")
+  private String vision;
 
-  
-    @Lob
-    @Column(name="values_json", columnDefinition="TEXT")
-    private String valuesJson;
+  @Lob
+  @Column(name = "values_json", columnDefinition = "TEXT")
+  private String valuesJson;
 
-  
-    @Column(name="version_comment")
-    private String versionComment;
+  @Column(name = "version_comment")
+  private String versionComment;
 
-  
-    @Column(name="is_active")
-    private boolean isActive;
-
-  
-    @Column(name="is_archived")
-    private boolean isArchived;
-
-  
-
+  @Column(name = "is_active")
+  private boolean isActive;
 
   @OneToMany(mappedBy = "identityId", fetch = FetchType.LAZY)
-private List<StrategicGoalEntity> goals = new ArrayList<>();
+  private List<StrategicGoalEntity> goals = new ArrayList<>();
 }
