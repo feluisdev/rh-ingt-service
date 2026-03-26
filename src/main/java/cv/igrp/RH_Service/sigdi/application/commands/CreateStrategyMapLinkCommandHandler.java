@@ -19,7 +19,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class CreateStrategyMapLinkCommandHandler implements CommandHandler<CreateStrategyMapLinkCommand, ResponseEntity<StrategyMapLinkResponseDTO>> {
+public class CreateStrategyMapLinkCommandHandler
+    implements CommandHandler<CreateStrategyMapLinkCommand, ResponseEntity<StrategyMapLinkResponseDTO>> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CreateStrategyMapLinkCommandHandler.class);
 
@@ -28,8 +29,8 @@ public class CreateStrategyMapLinkCommandHandler implements CommandHandler<Creat
   private final StrategyMapLinkRepository linkRepository;
 
   public CreateStrategyMapLinkCommandHandler(InstitutionalIdentityRepository identityRepository,
-                                             StrategicGoalRepository goalRepository,
-                                             StrategyMapLinkRepository linkRepository) {
+      StrategicGoalRepository goalRepository,
+      StrategyMapLinkRepository linkRepository) {
     this.identityRepository = identityRepository;
     this.goalRepository = goalRepository;
     this.linkRepository = linkRepository;
@@ -57,13 +58,14 @@ public class CreateStrategyMapLinkCommandHandler implements CommandHandler<Creat
     var targetGoal = goalRepository.findById(targetId)
         .orElseThrow(() -> IgrpResponseStatusException.badRequest("targetGoalId inválido"));
 
-    if (!activeIdentity.getId().equals(sourceGoal.getIdentityId()) || !activeIdentity.getId().equals(targetGoal.getIdentityId())) {
+    if (!activeIdentity.getId().equals(sourceGoal.getIdentityId())
+        || !activeIdentity.getId().equals(targetGoal.getIdentityId())) {
       throw IgrpResponseStatusException.badRequest("Os goals devem pertencer à identity ativa");
     }
 
-    linkRepository.findBySourceTargetAndType(sourceId, targetId, type)
+    linkRepository.findBySourceAndTarget(sourceId, targetId)
         .ifPresent(existing -> {
-          throw IgrpResponseStatusException.badRequest("Já existe um link com os mesmos goals e relationshipType");
+          throw IgrpResponseStatusException.badRequest("Já existe um link com os mesmos goals");
         });
 
     StrategyMapLink link = StrategyMapLink.create(sourceId, targetId, type);
@@ -78,4 +80,3 @@ public class CreateStrategyMapLinkCommandHandler implements CommandHandler<Creat
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 }
-

@@ -25,6 +25,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.IdentityResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateStategicGoalDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.StategicGoalResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.StrategyLinkDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.StrategyMapDataDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.StrategyMapLinkResponseDTO;
 
 @IgrpController
@@ -161,6 +162,36 @@ public class StrategyController {
       final var command = new CreateStrategyMapLinkCommand(createStrategyMapLinkRequest);
 
       return commandBus.send(command);
+
+  }
+
+   @GetMapping(
+   value = "map/current"
+  )
+  @Operation(
+    summary = "Get current strategy map",
+    description = "Get current strategy map",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = StrategyMapDataDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<StrategyMapDataDTO> getCurrentStrategyMap(
+    )
+  {
+
+      final var query = new GetCurrentStrategyMapQuery();
+
+      return queryBus.handle(query);
 
   }
 

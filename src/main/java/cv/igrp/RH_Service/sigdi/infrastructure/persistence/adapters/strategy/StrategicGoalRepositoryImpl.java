@@ -4,11 +4,13 @@ import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategicGoal
 import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.StrategicGoalEntityRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
+import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentityId;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.StrategicGoalMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -29,5 +31,12 @@ public class StrategicGoalRepositoryImpl implements StrategicGoalRepository {
   public Optional<StrategicGoal> findById(StrategicGoalId id) {
     return jpaRepository.findById(id.getValor().getValor())
         .map(mapper::toDomain);
+  }
+
+  @Override
+  public List<StrategicGoal> findByIdentityId(InstitutionalIdentityId identityId) {
+    return jpaRepository.findByIdentityId_Id(identityId.getValor().getValor()).stream()
+        .map(mapper::toDomain)
+        .toList();
   }
 }

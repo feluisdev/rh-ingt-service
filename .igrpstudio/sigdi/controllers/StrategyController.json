@@ -127,6 +127,27 @@
           }
         }
       }
+    },
+    {
+      "actionName": "getCurrentStrategyMap",
+      "path": "map/current",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "StrategyMapData",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
     }
   ],
   "id": "za41idl434-createIdentitie-createIdentitie-createIdentitie-createIdentitie"

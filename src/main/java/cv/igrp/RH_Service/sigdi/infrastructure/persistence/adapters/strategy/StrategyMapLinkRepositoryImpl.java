@@ -2,15 +2,16 @@ package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.strategy;
 
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategyMapLinkEntity;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.StrategyMapLinkEntityRepository;
-import cv.igrp.RH_Service.sigdi.application.constants.StrategyMapRelationshipType;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategyMapLink;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategyMapLinkRepository;
+import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentityId;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategyMapLinkId;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.StrategyMapLinkMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -34,12 +35,20 @@ public class StrategyMapLinkRepositoryImpl implements StrategyMapLinkRepository 
   }
 
   @Override
-  public Optional<StrategyMapLink> findBySourceTargetAndType(StrategicGoalId sourceGoalId, StrategicGoalId targetGoalId,
-      StrategyMapRelationshipType relationshipType) {
-    return jpaRepository.findBySourceGoalId_IdAndTargetGoalId_IdAndRelationshipType(
+  public Optional<StrategyMapLink> findBySourceAndTarget(StrategicGoalId sourceGoalId, StrategicGoalId targetGoalId) {
+    return jpaRepository.findBySourceGoalId_IdAndTargetGoalId_Id(
         sourceGoalId.getValor().getValor(),
-        targetGoalId.getValor().getValor(),
-        relationshipType.getCode())
-        .map(mapper::toDomain);
+        targetGoalId.getValor().getValor()
+    ).map(mapper::toDomain);
+  }
+
+  @Override
+  public List<StrategyMapLink> findByIdentityId(InstitutionalIdentityId identityId) {
+    return jpaRepository.findBySourceGoalId_IdentityId_IdAndTargetGoalId_IdentityId_Id(
+            identityId.getValor().getValor(),
+            identityId.getValor().getValor()
+        ).stream()
+        .map(mapper::toDomain)
+        .toList();
   }
 }

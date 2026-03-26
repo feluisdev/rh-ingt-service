@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.http.HttpStatus;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,6 +16,7 @@ public interface StrategicGoalEntityRepository extends
     JpaRepository<StrategicGoalEntity, UUID>,
     JpaSpecificationExecutor<StrategicGoalEntity>
 {
+      List<StrategicGoalEntity> findByIdentityId_Id(UUID identityId);
 
       default StrategicGoalEntity findByIdOrThrow(UUID id) {
           return this.findById(id)
