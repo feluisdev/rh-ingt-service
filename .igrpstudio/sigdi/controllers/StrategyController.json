@@ -7,8 +7,8 @@
   "actions": [
     {
       "actionName": "createIdentitie",
-      "path": "identities",
-      "method": "POST",
+      "path": "identities/current",
+      "method": "PUT",
       "requestBody": {
         "content": {
           "application/json": {
@@ -38,34 +38,6 @@
           }
         }
       }
-    },
-    {
-      "actionName": "activateIdentitie",
-      "path": "identities/{id}/activate",
-      "method": "PUT",
-      "responses": {
-        "200": {
-          "name": "OK",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "IdentityResponse",
-                "objectType": "dto",
-                "name": "data",
-                "collectionType": "none",
-                "module": "sigdi"
-              }
-            }
-          }
-        }
-      },
-      "pathVariables": [
-        {
-          "name": "id",
-          "type": "string",
-          "isRequired": true
-        }
-      ]
     },
     {
       "actionName": "createStrategicGoal",
@@ -100,7 +72,28 @@
           }
         }
       }
+    },
+    {
+      "actionName": "getCurrentIdentitie",
+      "path": "identities/current",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "IdentityResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
     }
   ],
-  "id": "za41idl434-createIdentitie"
+  "id": "za41idl434-createIdentitie-createIdentitie-createIdentitie"
 }

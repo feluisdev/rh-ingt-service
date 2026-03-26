@@ -15,6 +15,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
+
+import cv.igrp.framework.core.domain.QueryBus;
+import cv.igrp.RH_Service.sigdi.application.queries.*;
 import cv.igrp.framework.core.domain.CommandBus;
 import cv.igrp.RH_Service.sigdi.application.commands.*;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateIdentityRequestDTO;
@@ -32,14 +35,15 @@ import cv.igrp.RH_Service.sigdi.application.dto.StategicGoalResponseDTO;
 public class StrategyController {
 
   
+  private final QueryBus queryBus;
   private final CommandBus commandBus;
 
-  public StrategyController(CommandBus commandBus) {
-          
+  public StrategyController(QueryBus queryBus, CommandBus commandBus) {
+          this.queryBus = queryBus;
           this.commandBus = commandBus;
   }
-   @PostMapping(
-   value = "identities"
+   @PutMapping(
+   value = "identities/current"
   )
   @Operation(
     summary = "Create identitie",
@@ -63,36 +67,6 @@ public class StrategyController {
   {
 
       final var command = new CreateIdentitieCommand(createIdentitieRequest);
-
-      return commandBus.send(command);
-
-  }
-
-   @PutMapping(
-   value = "identities/{id}/activate"
-  )
-  @Operation(
-    summary = "Activate identitie",
-    description = "Activate identitie",
-    responses = {
-      @ApiResponse(
-          responseCode = "200",
-          
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(
-                  implementation = IdentityResponseDTO.class,
-                  type = "object")
-          )
-      )
-    }
-  )
-  
-  public ResponseEntity<IdentityResponseDTO> activateIdentitie(
-    @PathVariable(value = "id") String id)
-  {
-
-      final var command = new ActivateIdentitieCommand(id);
 
       return commandBus.send(command);
 
@@ -125,6 +99,36 @@ public class StrategyController {
       final var command = new CreateStrategicGoalCommand(createStrategicGoalRequest);
 
       return commandBus.send(command);
+
+  }
+
+   @GetMapping(
+   value = "identities/current"
+  )
+  @Operation(
+    summary = "Get current identitie",
+    description = "Get current identitie",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = IdentityResponseDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<IdentityResponseDTO> getCurrentIdentitie(
+    )
+  {
+
+      final var query = new GetCurrentIdentitieQuery();
+
+      return queryBus.handle(query);
 
   }
 
