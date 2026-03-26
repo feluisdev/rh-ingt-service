@@ -53,6 +53,7 @@ public class CreateStrategicGoalCommandHandler
 
       StategicGoalResponseDTO response = new StategicGoalResponseDTO();
       response.setId(saved.getId().getValor().getValor());
+      response.setIdentityId(saved.getIdentityId().getValor().getValor());
       response.setPerspective(saved.getPerspective().getCode());
       response.setPerspectiveDesc(saved.getPerspective().getDescription());
       response.setWeight(saved.getWeight());

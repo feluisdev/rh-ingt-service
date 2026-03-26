@@ -18,6 +18,18 @@
       "primaryKey": false
     },
     {
+      "name": "identityId",
+      "objectType": "java",
+      "type": "uuid",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
       "name": "perspective",
       "objectType": "java",
       "type": "string",

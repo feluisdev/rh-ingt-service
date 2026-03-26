@@ -25,6 +25,9 @@ public class StategicGoalResponseDTO  {
   private UUID id ;
   
   
+  private UUID identityId ;
+  
+  
   private String perspective ;
   
   
