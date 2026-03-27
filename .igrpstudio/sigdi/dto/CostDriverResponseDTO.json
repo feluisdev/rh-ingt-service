@@ -1,0 +1,26 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "CostDriverResponse",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    {
+      "name": "id",
+      "objectType": "java",
+      "type": "uuid",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    }
+  ],
+  "id": "bxc1lyt89l_copy",
+  "extends": {
+    "name": "CostDriverRequest",
+    "module": "sigdi"
+  }
+}

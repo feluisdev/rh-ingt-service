@@ -22,6 +22,9 @@ import cv.igrp.framework.core.domain.CommandBus;
 import cv.igrp.RH_Service.sigdi.application.commands.*;
 import cv.igrp.RH_Service.sigdi.application.dto.BudgetInfoDTO;
 import java.util.Map;
+import cv.igrp.RH_Service.sigdi.application.dto.CostDriverResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.WrapperCostDriverListDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.CostDriverRequestDTO;
 
 @IgrpController
 @RestController
@@ -95,6 +98,127 @@ public class BudgetController {
   {
 
       final var command = new SyncSigofCommand();
+
+      return commandBus.send(command);
+
+  }
+
+   @GetMapping(
+   value = "cost_drivers/{id}"
+  )
+  @Operation(
+    summary = "Get cost driver",
+    description = "Get cost driver",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = CostDriverResponseDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<CostDriverResponseDTO> getCostDriver(
+    @PathVariable(value = "id") String id)
+  {
+
+      final var query = new GetCostDriverQuery(id);
+
+      return queryBus.handle(query);
+
+  }
+
+   @GetMapping(
+   value = "cost_drivers"
+  )
+  @Operation(
+    summary = "Get all cost drivers",
+    description = "Get all cost drivers",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = WrapperCostDriverListDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<WrapperCostDriverListDTO> getAllCostDrivers(
+    @RequestParam(value = "pageNumber", required = false, defaultValue = "0") String pageNumber,
+    @RequestParam(value = "pageSize", required = false, defaultValue = "20") String pageSize)
+  {
+
+      final var query = new GetAllCostDriversQuery(pageNumber, pageSize);
+
+      return queryBus.handle(query);
+
+  }
+
+   @PutMapping(
+   value = "cost_drivers/{id}"
+  )
+  @Operation(
+    summary = "Update cost driver",
+    description = "Update cost driver",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = CostDriverResponseDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<CostDriverResponseDTO> updateCostDriver(@Valid @RequestBody CostDriverRequestDTO updateCostDriverRequest
+    , @PathVariable(value = "id") String id)
+  {
+
+      final var command = new UpdateCostDriverCommand(updateCostDriverRequest, id);
+
+      return commandBus.send(command);
+
+  }
+
+   @PostMapping(
+   value = "cost_drivers"
+  )
+  @Operation(
+    summary = "Add cost driver",
+    description = "Add cost driver",
+    responses = {
+      @ApiResponse(
+          responseCode = "201",
+          
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = CostDriverResponseDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<CostDriverResponseDTO> addCostDriver(@Valid @RequestBody CostDriverRequestDTO addCostDriverRequest
+    )
+  {
+
+      final var command = new AddCostDriverCommand(addCostDriverRequest);
 
       return commandBus.send(command);
 
