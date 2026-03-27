@@ -181,4 +181,28 @@ public class TacticalActivity {
         this.responsibleWho, this.methodologyHow, this.dateRange,
         this.budget, newStatus, this.version, this.keyResults);
   }
+
+  public TacticalActivity updateKeyResult(KeyResult updated) {
+
+    List<KeyResult> updatedList = keyResults.stream()
+        .map(kr -> kr.getId().equals(updated.getId()) ? updated : kr)
+        .toList();
+
+    return new TacticalActivity(
+        this.id,
+        this.strategicGoalId,
+        this.organicUnitId,
+        this.title,
+        this.descriptionWhat,
+        this.justificationWhy,
+        this.locationWhere,
+        this.responsibleWho,
+        this.methodologyHow,
+        this.dateRange,
+        this.budget,
+        this.status,
+        this.version,
+        updatedList
+    );
+  }
 }

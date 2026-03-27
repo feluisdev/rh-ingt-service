@@ -26,10 +26,11 @@ import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.BudgetInfoDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.TaticalActivityStatusDTO;
 import java.util.Map;
+import cv.igrp.RH_Service.sigdi.application.dto.KeyResultCheckinRequestDTO;
 
 @IgrpController
 @RestController
-@RequestMapping(path = "tactical/activities")
+@RequestMapping(path = "tactical")
 @Tag(
     name = "Sigdi",
     description = "gest strategies"
@@ -45,6 +46,7 @@ public class TaticalController {
           this.commandBus = commandBus;
   }
    @GetMapping(
+   value = "activities"
   )
   @Operation(
     summary = "Get tatical activities",
@@ -75,6 +77,7 @@ public class TaticalController {
   }
 
    @PostMapping(
+   value = "activities"
   )
   @Operation(
     summary = "Create tactical activity",
@@ -134,7 +137,7 @@ public class TaticalController {
   }
 
    @PatchMapping(
-   value = "{id}/status"
+   value = "activities/{id}/status"
   )
   @Operation(
     summary = "Change status tactical activity",
@@ -158,6 +161,36 @@ public class TaticalController {
   {
 
       final var command = new ChangeStatusTacticalActivityCommand(changeStatusTacticalActivityRequest, id);
+
+      return commandBus.send(command);
+
+  }
+
+   @PostMapping(
+   value = "krs/{id}/checkin"
+  )
+  @Operation(
+    summary = "Registra processo kr",
+    description = "Registra processo kr",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<String> registraProcessoKr(@Valid @RequestBody KeyResultCheckinRequestDTO registraProcessoKrRequest
+    , @PathVariable(value = "id") String id)
+  {
+
+      final var command = new RegistraProcessoKrCommand(registraProcessoKrRequest, id);
 
       return commandBus.send(command);
 

@@ -1,9 +1,11 @@
 package cv.igrp.RH_Service.sigdi.domain.tatical.models;
 
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.KeyResultMetricUnit;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.KeyResultId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.TacticalActivityId;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -41,7 +43,7 @@ public class KeyResult {
     this.targetValue = targetValue;
     this.currentValue = (currentValue != null) ? currentValue : BigDecimal.ZERO;
     this.metricUnit = metricUnit;
-    this.checkins = (checkins != null) ? new ArrayList<>(checkins) : new ArrayList<>();
+    this.checkins = (checkins != null) ? checkins : new ArrayList<>();
   }
 
   public static KeyResult create(TacticalActivityId activityId, String title,
@@ -58,17 +60,6 @@ public class KeyResult {
         metricUnit, checkins);
   }
 
-  public List<KeyResultCheckin> getCheckins() {
-    return Collections.unmodifiableList(checkins);
-  }
-
-  // ── Regras de negócio ─────────────────────────────────────────────
-
-  public KeyResultCheckin addCheckin(BigDecimal valueAdded, String evidenceUrl, String comment) {
-    KeyResultCheckin checkin = KeyResultCheckin.create(this.id, valueAdded, evidenceUrl, comment);
-    checkins.add(checkin);
-    return checkin;
-  }
 
   /**
    * RN02 — Progresso percentual do KR: currentValue / targetValue
@@ -95,12 +86,33 @@ public class KeyResult {
     return isLastMonth && isBelowThreshold;
   }
 
-  /**
-   * Retorna nova instância com currentValue atualizado
-   */
-  public KeyResult applyCheckin(BigDecimal valueAdded) {
+  public KeyResult applyCheckin(BigDecimal valueAdded, String evidenceUrl, String comment) {
+
     BigDecimal newValue = this.currentValue.add(valueAdded);
-    return new KeyResult(this.id, this.activityId, this.title, this.targetValue,
-        newValue, this.metricUnit, this.checkins);
+
+    if (newValue.compareTo(this.targetValue) > 0) {
+      throw IgrpResponseStatusException.of(
+          HttpStatus.UNPROCESSABLE_ENTITY,
+          "Target exceeded"
+      );
+    }
+
+    KeyResultCheckin checkin =
+        KeyResultCheckin.create(this.id, valueAdded, evidenceUrl, comment);
+
+    List<KeyResultCheckin> newCheckins = new ArrayList<>(this.checkins);
+    newCheckins.add(checkin);
+
+    return new KeyResult(
+        this.id,
+        this.activityId,
+        this.title,
+        this.targetValue,
+        newValue,
+        this.metricUnit,
+        newCheckins
+    );
   }
+
+
 }
