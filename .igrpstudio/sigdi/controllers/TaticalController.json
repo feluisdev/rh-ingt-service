@@ -36,6 +36,21 @@
           "type": "string",
           "name": "pageSize",
           "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "status",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "unidade",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "data",
+          "isRequired": false
         }
       ]
     },
@@ -180,5 +195,5 @@
       ]
     }
   ],
-  "id": "es9tjmyaqg-getTaticalActivities-createTacticalActivity-changeStatusTacticalActivity-registraProcessoKr"
+  "id": "es9tjmyaqg-getTaticalActivities-createTacticalActivity-changeStatusTacticalActivity-registraProcessoKr-getTaticalActivities"
 }

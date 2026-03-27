@@ -17,5 +17,11 @@ public class GetTaticalActivitiesQuery implements Query {
   private String pageNumber;
   @NotBlank(message = "The field <pageSize> is required")
   private String pageSize;
+  @NotBlank(message = "The field <status> is required")
+  private String status;
+  @NotBlank(message = "The field <unidade> is required")
+  private String unidade;
+  @NotBlank(message = "The field <data> is required")
+  private String data;
 
 }

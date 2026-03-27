@@ -67,10 +67,13 @@ public class TaticalController {
   
   public ResponseEntity<WrapperListTaticalActivityDTO> getTaticalActivities(
     @RequestParam(value = "pageNumber", required = false, defaultValue = "0") String pageNumber,
-    @RequestParam(value = "pageSize", required = false) String pageSize)
+    @RequestParam(value = "pageSize", required = false) String pageSize,
+    @RequestParam(value = "status", required = false) String status,
+    @RequestParam(value = "unidade", required = false) String unidade,
+    @RequestParam(value = "data", required = false) String data)
   {
 
-      final var query = new GetTaticalActivitiesQuery(pageNumber, pageSize);
+      final var query = new GetTaticalActivitiesQuery(pageNumber, pageSize, status, unidade, data);
 
       return queryBus.handle(query);
 
