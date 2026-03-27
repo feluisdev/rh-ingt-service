@@ -1,0 +1,76 @@
+{
+  "type": "controller",
+  "name": "Tatical",
+  "module": "sigdi",
+  "description": "gest strategies",
+  "basePath": "tactical/activities",
+  "actions": [
+    {
+      "actionName": "getTaticalActivities",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListTaticalActivity",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "pageNumber",
+          "value": "0",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "pageSize",
+          "isRequired": false
+        }
+      ]
+    },
+    {
+      "actionName": "createTacticalActivity",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CreateTacticalActivity",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "CREATED",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TacticalActivityResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "id": "es9tjmyaqg"
+}
