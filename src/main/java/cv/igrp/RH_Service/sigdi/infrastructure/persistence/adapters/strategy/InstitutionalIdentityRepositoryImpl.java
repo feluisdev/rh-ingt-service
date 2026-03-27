@@ -8,6 +8,7 @@ import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentit
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.InstitutionalIdentityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -18,6 +19,7 @@ public class InstitutionalIdentityRepositoryImpl implements InstitutionalIdentit
   private final InstitutionalIdentityEntityRepository jpaRepository;
   private final InstitutionalIdentityMapper mapper;
 
+  @Transactional
   @Override
   public InstitutionalIdentity save(InstitutionalIdentity identity) {
     InstitutionalIdentityEntity entity = mapper.toEntity(identity);
@@ -25,18 +27,21 @@ public class InstitutionalIdentityRepositoryImpl implements InstitutionalIdentit
     return mapper.toDomain(saved);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<InstitutionalIdentity> findById(InstitutionalIdentityId id) {
     return jpaRepository.findById(id.getValor().getValor())
         .map(mapper::toDomain);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<InstitutionalIdentity> findByIdFull(InstitutionalIdentityId id) {
     return jpaRepository.findById(id.getValor().getValor())
         .map(mapper::toDomainFull);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<InstitutionalIdentity> findActive() {
     return jpaRepository.findFirstByIsActiveTrue()

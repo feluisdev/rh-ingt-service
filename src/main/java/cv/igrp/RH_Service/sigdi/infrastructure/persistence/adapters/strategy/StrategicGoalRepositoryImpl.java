@@ -9,6 +9,7 @@ import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.StrategicGoalMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +21,7 @@ public class StrategicGoalRepositoryImpl implements StrategicGoalRepository {
   private final StrategicGoalEntityRepository jpaRepository;
   private final StrategicGoalMapper mapper;
 
+  @Transactional
   @Override
   public StrategicGoal save(StrategicGoal goal) {
     StrategicGoalEntity entity = mapper.toEntity(goal);
@@ -27,12 +29,14 @@ public class StrategicGoalRepositoryImpl implements StrategicGoalRepository {
     return mapper.toDomain(saved);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<StrategicGoal> findById(StrategicGoalId id) {
     return jpaRepository.findById(id.getValor().getValor())
         .map(mapper::toDomain);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<StrategicGoal> findByIdentityId(InstitutionalIdentityId identityId) {
     return jpaRepository.findByIdentityId_Id(identityId.getValor().getValor()).stream()

@@ -10,6 +10,7 @@ import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategyMapLinkId;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.StrategyMapLinkMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +22,7 @@ public class StrategyMapLinkRepositoryImpl implements StrategyMapLinkRepository 
   private final StrategyMapLinkEntityRepository jpaRepository;
   private final StrategyMapLinkMapper mapper;
 
+  @Transactional
   @Override
   public StrategyMapLink save(StrategyMapLink link) {
     StrategyMapLinkEntity entity = mapper.toEntity(link);
@@ -28,12 +30,14 @@ public class StrategyMapLinkRepositoryImpl implements StrategyMapLinkRepository 
     return mapper.toDomain(saved);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<StrategyMapLink> findById(StrategyMapLinkId id) {
     return jpaRepository.findById(id.getValor().getValor())
         .map(mapper::toDomain);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<StrategyMapLink> findBySourceAndTarget(StrategicGoalId sourceGoalId, StrategicGoalId targetGoalId) {
     return jpaRepository.findBySourceGoalId_IdAndTargetGoalId_Id(
@@ -42,6 +46,7 @@ public class StrategyMapLinkRepositoryImpl implements StrategyMapLinkRepository 
     ).map(mapper::toDomain);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<StrategyMapLink> findByIdentityId(InstitutionalIdentityId identityId) {
     return jpaRepository.findBySourceGoalId_IdentityId_IdAndTargetGoalId_IdentityId_Id(

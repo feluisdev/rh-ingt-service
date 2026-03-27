@@ -8,6 +8,7 @@ import cv.igrp.RH_Service.sigdi.domain.intelligence.valueobject.SimulationScenar
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.intelligence.SimulationScenarioMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -18,6 +19,7 @@ public class SimulationScenarioRepositoryImpl implements SimulationScenarioRepos
   private final SimulationScenariosEntityRepository jpaRepository;
   private final SimulationScenarioMapper mapper;
 
+  @Transactional
   @Override
   public SimulationScenario save(SimulationScenario scenario) {
     SimulationScenariosEntity entity = mapper.toEntity(scenario);
@@ -25,12 +27,14 @@ public class SimulationScenarioRepositoryImpl implements SimulationScenarioRepos
     return mapper.toDomain(saved);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<SimulationScenario> findById(SimulationScenarioId id) {
     return jpaRepository.findById(id.getValor().getValor())
         .map(mapper::toDomain);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<SimulationScenario> findByIdFull(SimulationScenarioId id) {
     return jpaRepository.findById(id.getValor().getValor())

@@ -8,6 +8,7 @@ import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.KeyResultId;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.tatical.KeyResultMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -18,6 +19,7 @@ public class KeyResultRepositoryImpl implements KeyResultRepository {
   private final KeyResultsEntityRepository jpaRepository;
   private final KeyResultMapper mapper;
 
+  @Transactional
   @Override
   public KeyResult save(KeyResult keyResult) {
     KeyResultsEntity entity = mapper.toEntity(keyResult);
@@ -25,12 +27,14 @@ public class KeyResultRepositoryImpl implements KeyResultRepository {
     return mapper.toDomain(saved);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<KeyResult> findById(KeyResultId id) {
     return jpaRepository.findById(id.getValor().getValor())
         .map(mapper::toDomain);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<KeyResult> findByIdFull(KeyResultId id) {
     return jpaRepository.findById(id.getValor().getValor())

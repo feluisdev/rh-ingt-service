@@ -9,6 +9,7 @@ import cv.igrp.RH_Service.sigdi.domain.shared.valueobject.EconomicClassifier;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.budget.FinancialExecutionMirrorMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -19,6 +20,7 @@ public class FinancialExecutionMirrorRepositoryImpl implements FinancialExecutio
   private final FinancialExecutionMirrorEntityRepository jpaRepository;
   private final FinancialExecutionMirrorMapper mapper;
 
+  @Transactional
   @Override
   public FinancialExecutionMirror save(FinancialExecutionMirror mirror) {
     FinancialExecutionMirrorEntity entity = mapper.toEntity(mirror);
@@ -26,12 +28,14 @@ public class FinancialExecutionMirrorRepositoryImpl implements FinancialExecutio
     return mapper.toDomain(saved);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<FinancialExecutionMirror> findById(FinancialExecutionMirrorId id) {
     return jpaRepository.findById(id.getValor().getValor())
         .map(mapper::toDomain);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<FinancialExecutionMirror> findByKey(EconomicClassifier classifier, String organicUnit, Integer fiscalYear) {
     if (classifier == null || organicUnit == null || organicUnit.isBlank() || fiscalYear == null) {

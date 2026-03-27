@@ -8,6 +8,7 @@ import cv.igrp.RH_Service.sigdi.domain.compliance.valueobject.NotificationLogId;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.compliance.NotificationLogMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,7 @@ public class NotificationLogRepositoryImpl implements NotificationLogRepository 
   private final NotificationLogEntityRepository jpaRepository;
   private final NotificationLogMapper mapper;
 
+  @Transactional
   @Override
   public NotificationLog save(NotificationLog log) {
     NotificationLogEntity entity = mapper.toEntity(log);
@@ -26,12 +28,14 @@ public class NotificationLogRepositoryImpl implements NotificationLogRepository 
     return mapper.toDomain(saved);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<NotificationLog> findById(NotificationLogId id) {
     return jpaRepository.findById(id.getValor().getValor())
         .map(mapper::toDomain);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<NotificationLog> findByRecipient(String recipient) {
     if (recipient == null || recipient.isBlank()) return List.of();

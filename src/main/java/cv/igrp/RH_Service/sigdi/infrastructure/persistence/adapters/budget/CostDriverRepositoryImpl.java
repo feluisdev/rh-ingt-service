@@ -9,6 +9,7 @@ import cv.igrp.RH_Service.sigdi.domain.budget.valueobject.CostDriverId;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.budget.CostDriverMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -21,6 +22,7 @@ public class CostDriverRepositoryImpl implements CostDriverRepository {
   private final CostDriverEntityRepository jpaRepository;
   private final CostDriverMapper mapper;
 
+  @Transactional
   @Override
   public CostDriver save(CostDriver costDriver) {
     CostDriverEntity entity = mapper.toEntity(costDriver);
@@ -28,12 +30,14 @@ public class CostDriverRepositoryImpl implements CostDriverRepository {
     return mapper.toDomain(saved);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<CostDriver> findById(CostDriverId id) {
     return jpaRepository.findById(id.getValor().getValor())
         .map(mapper::toDomain);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<CostDriver> findByType(CostDriverType type) {
     return jpaRepository.findByDriverType(type.getCode()).stream()
@@ -41,6 +45,7 @@ public class CostDriverRepositoryImpl implements CostDriverRepository {
         .toList();
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<CostDriver> findActiveByType(CostDriverType type, LocalDate referenceDate) {
     LocalDate date = (referenceDate != null) ? referenceDate : LocalDate.now();

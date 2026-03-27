@@ -8,6 +8,7 @@ import cv.igrp.RH_Service.sigdi.domain.compliance.valueobject.SiadapEvaluationId
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.compliance.SiadapEvaluationMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,7 @@ public class SiadapEvaluationRepositoryImpl implements SiadapEvaluationRepositor
   private final SiadapEvaluationEntityRepository jpaRepository;
   private final SiadapEvaluationMapper mapper;
 
+  @Transactional
   @Override
   public SiadapEvaluation save(SiadapEvaluation evaluation) {
     SiadapEvaluationEntity entity = mapper.toEntity(evaluation);
@@ -26,12 +28,14 @@ public class SiadapEvaluationRepositoryImpl implements SiadapEvaluationRepositor
     return mapper.toDomain(saved);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<SiadapEvaluation> findById(SiadapEvaluationId id) {
     return jpaRepository.findById(id.getValor().getValor())
         .map(mapper::toDomain);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Optional<SiadapEvaluation> findByEmployeeAndYear(String employeeId, Integer year) {
     if (employeeId == null || employeeId.isBlank() || year == null) return Optional.empty();
@@ -39,6 +43,7 @@ public class SiadapEvaluationRepositoryImpl implements SiadapEvaluationRepositor
         .map(mapper::toDomain);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<SiadapEvaluation> findByYear(Integer year) {
     if (year == null) return List.of();
