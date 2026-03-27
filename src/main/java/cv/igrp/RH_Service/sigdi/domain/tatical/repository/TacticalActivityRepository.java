@@ -1,5 +1,7 @@
 package cv.igrp.RH_Service.sigdi.domain.tatical.repository;
 
+import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
+import cv.igrp.RH_Service.sigdi.domain.tatical.filter.TaticalActivityFilter;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.TacticalActivityId;
 
@@ -12,4 +14,6 @@ public interface TacticalActivityRepository {
   Optional<TacticalActivity> findById(TacticalActivityId id);
 
   Optional<TacticalActivity> findByIdFull(TacticalActivityId id);
+
+  PageResult<TacticalActivity> findAll(TaticalActivityFilter filter);
 }
