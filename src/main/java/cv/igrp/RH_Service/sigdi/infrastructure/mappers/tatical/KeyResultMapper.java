@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.mappers.tatical;
 
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.KeyResultsEntity;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.KeyResultsCheckinEntity;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.TacticalActivitiesEntity;
 import cv.igrp.RH_Service.sigdi.application.constants.KeyResultMetricUnit;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.KeyResult;
@@ -68,6 +69,13 @@ public class KeyResultMapper {
     TacticalActivitiesEntity activityRef = new TacticalActivitiesEntity();
     activityRef.setId(domain.getActivityId().getValor().getValor());
     entity.setActivityId(activityRef);
+
+    List<KeyResultsCheckinEntity> checkins = domain.getCheckins().stream()
+        .map(checkinMapper::toEntity)
+        .collect(Collectors.toList());
+
+    checkins.forEach(c -> c.setKeyResultId(entity));
+    entity.setKeyResultCheckins(checkins);
 
     return entity;
 

@@ -1,11 +1,17 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.sigdi.application.constants.TacticalActivityStatus;
+import cv.igrp.RH_Service.sigdi.application.dto.TaticalActivityStatusDTO;
+import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
+import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.TacticalActivityId;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
@@ -14,17 +20,41 @@ public class ChangeStatusTacticalActivityCommandHandler implements CommandHandle
 
    private static final Logger LOGGER = LoggerFactory.getLogger(ChangeStatusTacticalActivityCommandHandler.class);
 
-   public ChangeStatusTacticalActivityCommandHandler() {
+   private final TacticalActivityRepository repository;
 
+   public ChangeStatusTacticalActivityCommandHandler(TacticalActivityRepository repository) {
+     this.repository = repository;
    }
 
    @IgrpCommandHandler
+   @Transactional
    public ResponseEntity<Map<String, ?>> handle(ChangeStatusTacticalActivityCommand command) {
 
       LOGGER.debug("ChangeStatusTacticalActivityCommand : {}", command);
 
-      // TODO: Implement the command handling logic here
-      return null;
+      TaticalActivityStatusDTO request = command.getTaticalactivitystatus();
+      TacticalActivityId id = TacticalActivityId.from(command.getId());
+
+      var activity = repository.findByIdFull(id)
+          .orElseThrow(() -> IgrpResponseStatusException.notFound("TacticalActivity não encontrada"));
+
+      TacticalActivityStatus desiredStatus = TacticalActivityStatus.fromCodeOrThrow(request.getStatus());
+
+      var updated = switch (desiredStatus) {
+        case APPROVED -> activity.approve();
+        case REJECTED -> activity.reject();
+        case CANCELLED -> activity.cancel();
+        case PENDING -> activity.submit();
+        case DRAFT -> throw IgrpResponseStatusException.badRequest("Não é permitido mudar status para DRAFT");
+      };
+
+      repository.save(updated);
+
+      return ResponseEntity.ok(Map.of(
+          "id", updated.getId().getValor().getValor(),
+          "status", updated.getStatus().getCode(),
+          "statusDesc", updated.getStatus().getDescription()
+      ));
    }
 
 }

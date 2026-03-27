@@ -12,6 +12,8 @@ import jakarta.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.ArrayList;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 
 @Getter
@@ -47,7 +49,8 @@ public class KeyResultsEntity extends AuditEntity {
   
 
 
-  @OneToMany(mappedBy = "keyResultId", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "keyResultId", fetch = FetchType.LAZY, cascade = { CascadeType.ALL }, orphanRemoval = true)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
 private List<KeyResultsCheckinEntity> keyResultCheckins = new ArrayList<>();   @ManyToOne(fetch = FetchType.LAZY)
    @JoinColumn(name = "activity_id")
    private TacticalActivitiesEntity activityId;
