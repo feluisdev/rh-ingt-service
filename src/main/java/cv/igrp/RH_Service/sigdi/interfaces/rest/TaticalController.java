@@ -24,6 +24,8 @@ import cv.igrp.RH_Service.sigdi.application.dto.WrapperListTaticalActivityDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateTacticalActivityDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.BudgetInfoDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.TaticalActivityStatusDTO;
+import java.util.Map;
 
 @IgrpController
 @RestController
@@ -128,6 +130,36 @@ public class TaticalController {
       final var query = new GetBudgetQuery(economicClassifier);
 
       return queryBus.handle(query);
+
+  }
+
+   @PatchMapping(
+   value = "{id}/status"
+  )
+  @Operation(
+    summary = "Change status tactical activity",
+    description = "Change status tactical activity",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<Map<String, ?>> changeStatusTacticalActivity(@Valid @RequestBody TaticalActivityStatusDTO changeStatusTacticalActivityRequest
+    , @PathVariable(value = "id") String id)
+  {
+
+      final var command = new ChangeStatusTacticalActivityCommand(changeStatusTacticalActivityRequest, id);
+
+      return commandBus.send(command);
 
   }
 

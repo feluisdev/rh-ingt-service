@@ -98,6 +98,45 @@
           "isRequired": true
         }
       ]
+    },
+    {
+      "actionName": "changeStatusTacticalActivity",
+      "path": "{id}/status",
+      "method": "PATCH",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "TaticalActivityStatus",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     }
   ],
   "id": "es9tjmyaqg"
