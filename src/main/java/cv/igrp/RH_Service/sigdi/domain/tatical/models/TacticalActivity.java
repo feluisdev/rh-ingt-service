@@ -34,16 +34,21 @@ public class TacticalActivity {
   private final List<KeyResult> keyResults;
 
   private TacticalActivity(TacticalActivityId id, StrategicGoalId strategicGoalId,
-                           String organicUnitId, String title, String descriptionWhat,
-                           String justificationWhy, String locationWhere, String responsibleWho,
-                           String methodologyHow, DateRange dateRange, Budget budget,
-                           TacticalActivityStatus status, Integer version,
-                           List<KeyResult> keyResults) {
-    if (strategicGoalId == null) throw new IllegalArgumentException("strategicGoalId é obrigatório");
-    if (organicUnitId == null || organicUnitId.isBlank()) throw new IllegalArgumentException("organicUnitId é obrigatório");
-    if (title == null || title.isBlank()) throw new IllegalArgumentException("title é obrigatório");
-    if (dateRange == null) throw new IllegalArgumentException("dateRange é obrigatório");
-    if (budget == null) throw new IllegalArgumentException("budget é obrigatório");
+      String organicUnitId, String title, String descriptionWhat,
+      String justificationWhy, String locationWhere, String responsibleWho,
+      String methodologyHow, DateRange dateRange, Budget budget,
+      TacticalActivityStatus status, Integer version,
+      List<KeyResult> keyResults) {
+    if (strategicGoalId == null)
+      throw new IllegalArgumentException("strategicGoalId é obrigatório");
+    if (organicUnitId == null || organicUnitId.isBlank())
+      throw new IllegalArgumentException("organicUnitId é obrigatório");
+    if (title == null || title.isBlank())
+      throw new IllegalArgumentException("title é obrigatório");
+    if (dateRange == null)
+      throw new IllegalArgumentException("dateRange é obrigatório");
+    if (budget == null)
+      throw new IllegalArgumentException("budget é obrigatório");
 
     this.id = id;
     this.strategicGoalId = strategicGoalId;
@@ -62,22 +67,22 @@ public class TacticalActivity {
   }
 
   public static TacticalActivity create(StrategicGoalId strategicGoalId, String organicUnitId,
-                                        String title, String descriptionWhat, String justificationWhy,
-                                        String locationWhere, String responsibleWho,
-                                        String methodologyHow, DateRange dateRange, Budget budget) {
+      String title, String descriptionWhat, String justificationWhy,
+      String locationWhere, String responsibleWho,
+      String methodologyHow, DateRange dateRange, Budget budget) {
     return new TacticalActivity(TacticalActivityId.gerarNovo(), strategicGoalId, organicUnitId,
         title, descriptionWhat, justificationWhy, locationWhere,
         responsibleWho, methodologyHow, dateRange, budget,
-        TacticalActivityStatus.DRAFT, 0, new ArrayList<>());
+        TacticalActivityStatus.PENDING, 0, new ArrayList<>());
   }
 
   public static TacticalActivity reconstruct(TacticalActivityId id, StrategicGoalId strategicGoalId,
-                                             String organicUnitId, String title, String descriptionWhat,
-                                             String justificationWhy, String locationWhere,
-                                             String responsibleWho, String methodologyHow,
-                                             DateRange dateRange, Budget budget,
-                                             TacticalActivityStatus status, Integer version,
-                                             List<KeyResult> keyResults) {
+      String organicUnitId, String title, String descriptionWhat,
+      String justificationWhy, String locationWhere,
+      String responsibleWho, String methodologyHow,
+      DateRange dateRange, Budget budget,
+      TacticalActivityStatus status, Integer version,
+      List<KeyResult> keyResults) {
     return new TacticalActivity(id, strategicGoalId, organicUnitId, title, descriptionWhat,
         justificationWhy, locationWhere, responsibleWho, methodologyHow,
         dateRange, budget, status, version, keyResults);
@@ -118,10 +123,11 @@ public class TacticalActivity {
   // ── RN05 — Imutabilidade pós-aprovação ───────────────────────────
 
   /**
-   * RN05 — Após aprovação, qualquer alteração requer justificativa (Change Request)
+   * RN05 — Após aprovação, qualquer alteração requer justificativa (Change
+   * Request)
    */
   public TacticalActivity requestChange(Budget newBudget, DateRange newDateRange,
-                                        String changeJustification) {
+      String changeJustification) {
     if (!TacticalActivityStatus.APPROVED.equals(this.status))
       throw IgrpResponseStatusException.badRequest(
           "Change Request só é permitido em atividades APPROVED");
@@ -142,7 +148,8 @@ public class TacticalActivity {
    * RN02 — Progresso da atividade = média dos KeyResults
    */
   public BigDecimal getWeightedProgress() {
-    if (keyResults.isEmpty()) return BigDecimal.ZERO;
+    if (keyResults.isEmpty())
+      return BigDecimal.ZERO;
 
     BigDecimal sum = keyResults.stream()
         .map(KeyResult::getProgressPercentage)
@@ -154,14 +161,19 @@ public class TacticalActivity {
   // ── Gestão de KeyResults ──────────────────────────────────────────
 
   public KeyResult addKeyResult(String title, BigDecimal targetValue,
-                                KeyResultMetricUnit metricUnit) {
+      KeyResultMetricUnit metricUnit) {
     KeyResult kr = KeyResult.create(this.id, title, targetValue, metricUnit);
     keyResults.add(kr);
     return kr;
   }
 
-  public boolean isApproved() { return TacticalActivityStatus.APPROVED.equals(this.status); }
-  public boolean isDraft() { return TacticalActivityStatus.DRAFT.equals(this.status); }
+  public boolean isApproved() {
+    return TacticalActivityStatus.APPROVED.equals(this.status);
+  }
+
+  public boolean isDraft() {
+    return TacticalActivityStatus.DRAFT.equals(this.status);
+  }
 
   private TacticalActivity changeStatus(TacticalActivityStatus newStatus) {
     return new TacticalActivity(this.id, this.strategicGoalId, this.organicUnitId, this.title,
