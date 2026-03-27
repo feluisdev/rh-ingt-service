@@ -58,10 +58,11 @@ public class CreateTacticalActivityDTO  {
   @NotNull(message = "The field <endDate> is required")
   
   private LocalDate endDate ;
-  
+  @NotNull(message = "The field <budgetEstimated> is required")
   
   private BigDecimal budgetEstimated ;
-  @Size(min = 1, message = "The field length <economicClassifier> must be at least 1 characters")
+  @NotBlank(message = "The field <economicClassifier> is required")
+	@Size(min = 1, message = "The field length <economicClassifier> must be at least 1 characters")
 	@Size(max = 50, message = "The field length <economicClassifier> cannot be more than 50 characters")
   
   private String economicClassifier ;
