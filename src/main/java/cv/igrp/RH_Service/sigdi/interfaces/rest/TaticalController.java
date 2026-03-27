@@ -23,7 +23,6 @@ import cv.igrp.RH_Service.sigdi.application.commands.*;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperListTaticalActivityDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateTacticalActivityDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityResponseDTO;
-import cv.igrp.RH_Service.sigdi.application.dto.BudgetInfoDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.TaticalActivityStatusDTO;
 import java.util.Map;
 import cv.igrp.RH_Service.sigdi.application.dto.KeyResultCheckinRequestDTO;
@@ -106,36 +105,6 @@ public class TaticalController {
       final var command = new CreateTacticalActivityCommand(createTacticalActivityRequest);
 
       return commandBus.send(command);
-
-  }
-
-   @GetMapping(
-   value = "budget"
-  )
-  @Operation(
-    summary = "Get budget",
-    description = "Get budget",
-    responses = {
-      @ApiResponse(
-          responseCode = "200",
-          
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(
-                  implementation = BudgetInfoDTO.class,
-                  type = "object")
-          )
-      )
-    }
-  )
-  
-  public ResponseEntity<BudgetInfoDTO> getBudget(
-    @RequestParam(value = "economicClassifier") String economicClassifier)
-  {
-
-      final var query = new GetBudgetQuery(economicClassifier);
-
-      return queryBus.handle(query);
 
   }
 

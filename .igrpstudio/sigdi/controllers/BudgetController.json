@@ -1,0 +1,38 @@
+{
+  "type": "controller",
+  "name": "Budget",
+  "module": "sigdi",
+  "description": "gest",
+  "basePath": "api/v1/budget",
+  "actions": [
+    {
+      "actionName": "getBudget",
+      "path": "availability",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "BudgetInfo",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "economicClassifier",
+          "isRequired": true
+        }
+      ]
+    }
+  ],
+  "id": "v0mht4rael"
+}

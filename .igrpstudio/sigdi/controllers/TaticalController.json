@@ -89,34 +89,6 @@
       }
     },
     {
-      "actionName": "getBudget",
-      "path": "budget",
-      "method": "GET",
-      "responses": {
-        "200": {
-          "name": "OK",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "BudgetInfo",
-                "objectType": "dto",
-                "name": "data",
-                "collectionType": "none",
-                "module": "sigdi"
-              }
-            }
-          }
-        }
-      },
-      "requestParams": [
-        {
-          "type": "string",
-          "name": "economicClassifier",
-          "isRequired": true
-        }
-      ]
-    },
-    {
       "actionName": "changeStatusTacticalActivity",
       "path": "activities/{id}/status",
       "method": "PATCH",
