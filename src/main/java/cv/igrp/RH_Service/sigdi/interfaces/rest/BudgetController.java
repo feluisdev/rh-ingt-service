@@ -224,4 +224,34 @@ public class BudgetController {
 
   }
 
+   @PostMapping(
+   value = "calculator/simulate"
+  )
+  @Operation(
+    summary = "Simulate cost based drivers",
+    description = "Simulate cost based drivers",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<String> simulateCostBasedDrivers(
+    )
+  {
+
+      final var command = new SimulateCostBasedDriversCommand();
+
+      return commandBus.send(command);
+
+  }
+
 }

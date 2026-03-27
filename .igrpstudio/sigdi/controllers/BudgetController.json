@@ -189,6 +189,25 @@
           }
         }
       }
+    },
+    {
+      "actionName": "simulateCostBasedDrivers",
+      "path": "calculator/simulate",
+      "method": "POST",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      }
     }
   ],
   "id": "v0mht4rael"
