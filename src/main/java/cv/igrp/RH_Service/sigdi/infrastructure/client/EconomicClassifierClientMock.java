@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,6 +37,6 @@ public class EconomicClassifierClientMock implements EconomicClassifierPort {
     }
 
     BigDecimal available = BUDGETS.get(economicClassifier);
-    return new BudgetInfoDTO(economicClassifier, available);
+    return new BudgetInfoDTO(economicClassifier, available, "CVE", LocalDate.now());
   }
 }

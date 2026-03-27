@@ -7,11 +7,16 @@ import cv.igrp.framework.stereotype.IgrpDTO;
 import jakarta.validation.*;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @IgrpDTO
 public record BudgetInfoDTO (
   
   String economicClassifier, 
   
-  BigDecimal availableBudget
+  BigDecimal availableBudget, 
+  
+  String currency, 
+  
+  LocalDate lastSync
 ){}

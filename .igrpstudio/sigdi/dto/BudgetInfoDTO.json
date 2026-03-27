@@ -28,6 +28,30 @@
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false
+    },
+    {
+      "name": "currency",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "lastSync",
+      "objectType": "java",
+      "type": "date",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
     }
   ],
   "id": "i0k37jzvbn"
