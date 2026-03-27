@@ -9,7 +9,7 @@
       "name": "id",
       "objectType": "java",
       "type": "uuid",
-      "required": true,
+      "required": false,
       "before": false,
       "after": false,
       "positive": false,

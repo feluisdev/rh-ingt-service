@@ -9,7 +9,10 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import java.util.UUID;
+import cv.igrp.RH_Service.shared.application.dto.PageDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.KeyResultResponseDTO;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 @Data
 @NoArgsConstructor
@@ -17,10 +20,10 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @IgrpDTO
-public class KeyResultResponseDTO extends KeyResultRequestDTO {
+public class WrapperKeyResultListDTO extends PageDTO {
 
   
-  
-  private UUID id ;
+  @Valid
+  private List<KeyResultResponseDTO> data = new ArrayList<>();
 
 }

@@ -1,0 +1,28 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "WrapperKeyResultList",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "extends": {
+    "name": "Page",
+    "module": "shared"
+  },
+  "attributes": [
+    {
+      "name": "data",
+      "objectType": "dto",
+      "type": "KeyResultResponse",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "collectionType": "list",
+      "module": "sigdi"
+    }
+  ],
+  "id": "qs60dqn5lc"
+}

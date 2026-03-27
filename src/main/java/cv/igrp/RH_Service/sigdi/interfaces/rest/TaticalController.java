@@ -26,6 +26,9 @@ import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.TaticalActivityStatusDTO;
 import java.util.Map;
 import cv.igrp.RH_Service.sigdi.application.dto.KeyResultCheckinRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.KeyResultRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.KeyResultResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.WrapperKeyResultListDTO;
 
 @IgrpController
 @RestController
@@ -163,6 +166,127 @@ public class TaticalController {
   {
 
       final var command = new RegistraProcessoKrCommand(registraProcessoKrRequest, id);
+
+      return commandBus.send(command);
+
+  }
+
+   @PostMapping(
+   value = "krs"
+  )
+  @Operation(
+    summary = "Create key result",
+    description = "Create key result",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = KeyResultResponseDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<KeyResultResponseDTO> createKeyResult(@Valid @RequestBody KeyResultRequestDTO createKeyResultRequest
+    )
+  {
+
+      final var command = new CreateKeyResultCommand(createKeyResultRequest);
+
+      return commandBus.send(command);
+
+  }
+
+   @GetMapping(
+   value = "krs/{id}"
+  )
+  @Operation(
+    summary = "Get key result",
+    description = "Get key result",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = KeyResultResponseDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<KeyResultResponseDTO> getKeyResult(
+    @PathVariable(value = "id") String id)
+  {
+
+      final var query = new GetKeyResultQuery(id);
+
+      return queryBus.handle(query);
+
+  }
+
+   @GetMapping(
+   value = "krs"
+  )
+  @Operation(
+    summary = "Get all key results",
+    description = "Get all key results",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = WrapperKeyResultListDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<WrapperKeyResultListDTO> getAllKeyResults(
+    @RequestParam(value = "pageNumber", required = false, defaultValue = "0") String pageNumber,
+    @RequestParam(value = "pageSize", required = false, defaultValue = "20") String pageSize)
+  {
+
+      final var query = new GetAllKeyResultsQuery(pageNumber, pageSize);
+
+      return queryBus.handle(query);
+
+  }
+
+   @PutMapping(
+   value = "krs/{id}"
+  )
+  @Operation(
+    summary = "Update key result",
+    description = "Update key result",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = KeyResultResponseDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<KeyResultResponseDTO> updateKeyResult(@Valid @RequestBody KeyResultRequestDTO updateKeyResultRequest
+    , @PathVariable(value = "id") String id)
+  {
+
+      final var command = new UpdateKeyResultCommand(updateKeyResultRequest, id);
 
       return commandBus.send(command);
 
