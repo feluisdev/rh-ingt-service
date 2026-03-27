@@ -1,15 +1,15 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.client;
 
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.dto.BudgetInfoDTO;
 import cv.igrp.RH_Service.sigdi.application.port.EconomicClassifierPort;
-import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
-import java.util.Set;
 
 @Component
 @Slf4j
@@ -28,15 +28,25 @@ public class EconomicClassifierClientMock implements EconomicClassifierPort {
     log.info("[MOCK] EconomicClassifier getBudget called for: {}", economicClassifier);
 
     if (!BUDGETS.containsKey(economicClassifier)) {
-      // lista todas as rubricas conhecidas
-      Set<String> availableRubrics = BUDGETS.keySet();
-      throw IgrpResponseStatusException.notFound(
-          "Rubrica econômica não encontrada: " + economicClassifier +
-              ". Rubricas disponíveis: " + availableRubrics
+      log.warn("[MOCK] Rubrica não encontrada: {}", economicClassifier);
+
+      throw IgrpResponseStatusException.of(
+          HttpStatus.NOT_FOUND,
+          "Rubrica econômica não encontrada",
+          Map.of(
+              "requested", economicClassifier,
+              "available", BUDGETS.keySet()
+          )
       );
     }
 
     BigDecimal available = BUDGETS.get(economicClassifier);
-    return new BudgetInfoDTO(economicClassifier, available, "CVE", LocalDate.now());
+
+    return new BudgetInfoDTO(
+        economicClassifier,
+        available,
+        "CVE",
+        LocalDate.now() // ou Instant.now()
+    );
   }
 }

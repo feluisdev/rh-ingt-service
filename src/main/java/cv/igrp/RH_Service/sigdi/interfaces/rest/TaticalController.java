@@ -23,8 +23,7 @@ import cv.igrp.RH_Service.sigdi.application.commands.*;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperListTaticalActivityDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateTacticalActivityDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityResponseDTO;
-import cv.igrp.RH_Service.sigdi.application.dto.BudgetValidationRequestDTO;
-import java.util.Map;
+import cv.igrp.RH_Service.sigdi.application.dto.BudgetInfoDTO;
 
 @IgrpController
 @RestController
@@ -102,12 +101,12 @@ public class TaticalController {
 
   }
 
-   @PostMapping(
-   value = "budget/validate"
+   @GetMapping(
+   value = "budget"
   )
   @Operation(
-    summary = "Validate budget",
-    description = "Validate budget",
+    summary = "Get budget",
+    description = "Get budget",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -115,20 +114,20 @@ public class TaticalController {
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = String.class,
-                  type = "String")
+                  implementation = BudgetInfoDTO.class,
+                  type = "object")
           )
       )
     }
   )
   
-  public ResponseEntity<Map<String, ?>> validateBudget(@Valid @RequestBody BudgetValidationRequestDTO validateBudgetRequest
-    )
+  public ResponseEntity<BudgetInfoDTO> getBudget(
+    @RequestParam(value = "economicClassifier") String economicClassifier)
   {
 
-      final var command = new ValidateBudgetCommand(validateBudgetRequest);
+      final var query = new GetBudgetQuery(economicClassifier);
 
-      return commandBus.send(command);
+      return queryBus.handle(query);
 
   }
 

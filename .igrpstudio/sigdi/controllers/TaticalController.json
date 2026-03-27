@@ -72,36 +72,32 @@
       }
     },
     {
-      "actionName": "validateBudget",
-      "path": "budget/validate",
-      "method": "POST",
-      "requestBody": {
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "BudgetValidationRequest",
-              "collectionType": "none",
-              "name": "data",
-              "objectType": "dto",
-              "module": "sigdi"
-            }
-          }
-        }
-      },
+      "actionName": "getBudget",
+      "path": "budget",
+      "method": "GET",
       "responses": {
         "200": {
           "name": "OK",
           "content": {
             "application/json": {
               "schema": {
-                "type": "string",
+                "type": "BudgetInfo",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "map"
+                "collectionType": "none",
+                "module": "sigdi"
               }
             }
           }
         }
-      }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "economicClassifier",
+          "isRequired": true
+        }
+      ]
     }
   ],
   "id": "es9tjmyaqg"
