@@ -18,8 +18,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.RH_Service.sigdi.application.queries.*;
-
+import cv.igrp.framework.core.domain.CommandBus;
+import cv.igrp.RH_Service.sigdi.application.commands.*;
 import cv.igrp.RH_Service.sigdi.application.dto.BudgetInfoDTO;
+import java.util.Map;
 
 @IgrpController
 @RestController
@@ -32,10 +34,11 @@ public class BudgetController {
 
   
   private final QueryBus queryBus;
+  private final CommandBus commandBus;
 
-  public BudgetController(QueryBus queryBus) {
+  public BudgetController(QueryBus queryBus, CommandBus commandBus) {
           this.queryBus = queryBus;
-          
+          this.commandBus = commandBus;
   }
    @GetMapping(
    value = "availability"
@@ -64,6 +67,36 @@ public class BudgetController {
       final var query = new GetBudgetQuery(economicClassifier);
 
       return queryBus.handle(query);
+
+  }
+
+   @PostMapping(
+   value = "sync/sigof"
+  )
+  @Operation(
+    summary = "Sync sigof",
+    description = "Sync sigof",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<Map<String, ?>> syncSigof(
+    )
+  {
+
+      final var command = new SyncSigofCommand();
+
+      return commandBus.send(command);
 
   }
 
