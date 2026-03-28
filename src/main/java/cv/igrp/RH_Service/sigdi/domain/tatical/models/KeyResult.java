@@ -29,13 +29,15 @@ public class KeyResult {
   private final List<KeyResultCheckin> checkins;
 
   private KeyResult(KeyResultId id, TacticalActivityId activityId, String title,
-                    BigDecimal targetValue, BigDecimal currentValue,
-                    KeyResultMetricUnit metricUnit,
-                    List<KeyResultCheckin> checkins) {
-    if (title == null || title.isBlank()) throw new IllegalArgumentException("title é obrigatório");
+      BigDecimal targetValue, BigDecimal currentValue,
+      KeyResultMetricUnit metricUnit,
+      List<KeyResultCheckin> checkins) {
+    if (title == null || title.isBlank())
+      throw new IllegalArgumentException("title é obrigatório");
     if (targetValue == null || targetValue.compareTo(BigDecimal.ZERO) <= 0)
       throw new IllegalArgumentException("targetValue deve ser maior que zero");
-    if (activityId == null) throw new IllegalArgumentException("activityId é obrigatório");
+    if (activityId == null)
+      throw new IllegalArgumentException("activityId é obrigatório");
 
     this.id = id;
     this.activityId = activityId;
@@ -47,25 +49,25 @@ public class KeyResult {
   }
 
   public static KeyResult create(TacticalActivityId activityId, String title,
-                                 BigDecimal targetValue, KeyResultMetricUnit metricUnit) {
+      BigDecimal targetValue, KeyResultMetricUnit metricUnit) {
     return new KeyResult(KeyResultId.gerarNovo(), activityId, title, targetValue,
         BigDecimal.ZERO, metricUnit, new ArrayList<>());
   }
 
   public static KeyResult reconstruct(KeyResultId id, TacticalActivityId activityId, String title,
-                                      BigDecimal targetValue, BigDecimal currentValue,
-                                      KeyResultMetricUnit metricUnit,
-                                      List<KeyResultCheckin> checkins) {
+      BigDecimal targetValue, BigDecimal currentValue,
+      KeyResultMetricUnit metricUnit,
+      List<KeyResultCheckin> checkins) {
     return new KeyResult(id, activityId, title, targetValue, currentValue,
         metricUnit, checkins);
   }
-
 
   /**
    * RN02 — Progresso percentual do KR: currentValue / targetValue
    */
   public BigDecimal getProgressPercentage() {
-    if (targetValue.compareTo(BigDecimal.ZERO) == 0) return BigDecimal.ZERO;
+    if (targetValue.compareTo(BigDecimal.ZERO) == 0)
+      return BigDecimal.ZERO;
     return currentValue.divide(targetValue, 4, RoundingMode.HALF_UP)
         .multiply(BigDecimal.valueOf(100));
   }
@@ -93,12 +95,10 @@ public class KeyResult {
     if (newValue.compareTo(this.targetValue) > 0) {
       throw IgrpResponseStatusException.of(
           HttpStatus.UNPROCESSABLE_ENTITY,
-          "Target exceeded"
-      );
+          "Target exceeded");
     }
 
-    KeyResultCheckin checkin =
-        KeyResultCheckin.create(this.id, valueAdded, evidenceUrl, comment);
+    KeyResultCheckin checkin = KeyResultCheckin.create(this.id, valueAdded, evidenceUrl, comment);
 
     List<KeyResultCheckin> newCheckins = new ArrayList<>(this.checkins);
     newCheckins.add(checkin);
@@ -110,9 +110,27 @@ public class KeyResult {
         this.targetValue,
         newValue,
         this.metricUnit,
-        newCheckins
-    );
+        newCheckins);
   }
 
+  public KeyResult updateDetails(String title, BigDecimal targetValue, KeyResultMetricUnit metricUnit) {
+    if (title == null || title.isBlank())
+      throw new IllegalArgumentException("title é obrigatório");
+    if (targetValue == null || targetValue.compareTo(BigDecimal.ZERO) <= 0) {
+      throw new IllegalArgumentException("targetValue deve ser maior que zero");
+    }
+    if (this.currentValue.compareTo(targetValue) > 0) {
+      throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+          "Target cannot be lower than current value");
+    }
+    return new KeyResult(
+        this.id,
+        this.activityId,
+        title,
+        targetValue,
+        this.currentValue,
+        metricUnit,
+        this.checkins);
+  }
 
 }

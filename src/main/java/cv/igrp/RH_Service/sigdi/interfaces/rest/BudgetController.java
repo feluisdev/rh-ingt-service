@@ -25,6 +25,8 @@ import java.util.Map;
 import cv.igrp.RH_Service.sigdi.application.dto.CostDriverResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperCostDriverListDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.CostDriverRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.CostDriverSimulateReqDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.CostDriverSimulateResponseDTO;
 
 @IgrpController
 @RestController
@@ -237,18 +239,18 @@ public class BudgetController {
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = String.class,
-                  type = "String")
+                  implementation = CostDriverSimulateResponseDTO.class,
+                  type = "object")
           )
       )
     }
   )
   
-  public ResponseEntity<String> simulateCostBasedDrivers(
+  public ResponseEntity<CostDriverSimulateResponseDTO> simulateCostBasedDrivers(@Valid @RequestBody CostDriverSimulateReqDTO simulateCostBasedDriversRequest
     )
   {
 
-      final var command = new SimulateCostBasedDriversCommand();
+      final var command = new SimulateCostBasedDriversCommand(simulateCostBasedDriversRequest);
 
       return commandBus.send(command);
 

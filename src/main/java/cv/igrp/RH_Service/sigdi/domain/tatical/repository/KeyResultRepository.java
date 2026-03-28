@@ -1,5 +1,7 @@
 package cv.igrp.RH_Service.sigdi.domain.tatical.repository;
 
+import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
+import cv.igrp.RH_Service.sigdi.domain.tatical.filter.KeyResultFilter;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.KeyResult;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.KeyResultId;
 
@@ -12,4 +14,6 @@ public interface KeyResultRepository {
   Optional<KeyResult> findById(KeyResultId id);
 
   Optional<KeyResult> findByIdFull(KeyResultId id);
+
+  PageResult<KeyResult> findAll(KeyResultFilter filter);
 }

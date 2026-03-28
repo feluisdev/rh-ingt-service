@@ -194,15 +194,30 @@
       "actionName": "simulateCostBasedDrivers",
       "path": "calculator/simulate",
       "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CostDriverSimulateReq",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
       "responses": {
         "200": {
           "name": "OK",
           "content": {
             "application/json": {
               "schema": {
-                "type": "string",
+                "type": "CostDriverSimulateResponse",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "none"
+                "collectionType": "none",
+                "module": "sigdi"
               }
             }
           }
@@ -210,5 +225,5 @@
       }
     }
   ],
-  "id": "v0mht4rael"
+  "id": "v0mht4rael-simulateCostBasedDrivers-simulateCostBasedDrivers"
 }
