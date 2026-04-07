@@ -238,6 +238,47 @@
           "isRequired": false
         }
       ]
+    },
+    {
+      "actionName": "updateStrategicGoals",
+      "path": "goals/{id}",
+      "method": "PATCH",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "UpdateStategicGoal",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "StategicGoalResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     }
   ],
   "id": "za41idl434-createIdentitie-createIdentitie-createIdentitie-createIdentitie-createIdentitie"

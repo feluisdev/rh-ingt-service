@@ -29,6 +29,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.StrategyMapLinkResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.StrategyMapDataDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperListIdentitieDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperListStrategyGoalsDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.UpdateStategicGoalDTO;
 
 @IgrpController
 @RestController
@@ -260,6 +261,36 @@ public class StrategyController {
       final var query = new GetListStrategicGoalsQuery(perspective, status, parentGoalId, pageNumber, pageSize);
 
       return queryBus.handle(query);
+
+  }
+
+   @PatchMapping(
+   value = "goals/{id}"
+  )
+  @Operation(
+    summary = "Update strategic goals",
+    description = "Update strategic goals",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = StategicGoalResponseDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<StategicGoalResponseDTO> updateStrategicGoals(@Valid @RequestBody UpdateStategicGoalDTO updateStrategicGoalsRequest
+    , @PathVariable(value = "id") String id)
+  {
+
+      final var command = new UpdateStrategicGoalsCommand(updateStrategicGoalsRequest, id);
+
+      return commandBus.send(command);
 
   }
 
