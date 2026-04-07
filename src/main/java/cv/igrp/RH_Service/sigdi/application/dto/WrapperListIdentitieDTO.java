@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import cv.igrp.RH_Service.shared.application.dto.PageDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.IdentityResponseDTO;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -22,7 +23,7 @@ import lombok.EqualsAndHashCode;
 public class WrapperListIdentitieDTO extends PageDTO {
 
   
-  
-  private List<String> data = new ArrayList<>();
+  @Valid
+  private List<IdentityResponseDTO> data = new ArrayList<>();
 
 }
