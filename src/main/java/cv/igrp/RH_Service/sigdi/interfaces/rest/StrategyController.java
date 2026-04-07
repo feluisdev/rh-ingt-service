@@ -294,4 +294,34 @@ public class StrategyController {
 
   }
 
+   @DeleteMapping(
+   value = "map/links/{id}"
+  )
+  @Operation(
+    summary = "Delete strategy map link",
+    description = "Delete strategy map link",
+    responses = {
+      @ApiResponse(
+          responseCode = "204",
+          
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<String> deleteStrategyMapLink(
+    @PathVariable(value = "id") String id)
+  {
+
+      final var command = new DeleteStrategyMapLinkCommand(id);
+
+      return commandBus.send(command);
+
+  }
+
 }
