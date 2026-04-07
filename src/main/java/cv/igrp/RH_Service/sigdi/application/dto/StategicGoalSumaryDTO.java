@@ -9,10 +9,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import cv.igrp.RH_Service.sigdi.application.dto.ChildGoalsDTO;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -21,46 +18,31 @@ import java.util.UUID;
 
 
 @IgrpDTO
-public class StategicGoalResponseDTO  {
+public class StategicGoalSumaryDTO  {
 
   
   
   private UUID id ;
   
   
-  private UUID identityId ;
+  private String title ;
   
   
   private String perspective ;
   
   
-  private String perspectiveDesc ;
-  
-  
   private BigDecimal weight ;
-  
-  
-  private String title ;
-  
-  
-  private String description ;
-  
-  @Valid
-  private List<ChildGoalsDTO> childGoals = new ArrayList<>();
-  
-  
-  private UUID parentGoalId ;
-  
-  
-  private Integer linkedActivities ;
-  
-  
-  private Double progress ;
   
   
   private String status ;
   
   
-  private String statusDesc ;
+  private String statusDes ;
+  
+  
+  private Double progress ;
+  
+  
+  private Integer linkedActivities ;
 
 }

@@ -1,7 +1,7 @@
 {
   "type": "dto",
   "module": "sigdi",
-  "name": "StategicGoalResponse",
+  "name": "StategicGoalSumary",
   "template": "classic",
   "enableCustonValidation": false,
   "attributes": [
@@ -18,19 +18,7 @@
       "primaryKey": false
     },
     {
-      "name": "identityId",
-      "objectType": "java",
-      "type": "uuid",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false
-    },
-    {
-      "name": "perspective",
+      "name": "title",
       "objectType": "java",
       "type": "string",
       "required": false,
@@ -42,7 +30,7 @@
       "primaryKey": false
     },
     {
-      "name": "perspectiveDesc",
+      "name": "perspective",
       "objectType": "java",
       "type": "string",
       "required": false,
@@ -66,7 +54,7 @@
       "primaryKey": false
     },
     {
-      "name": "title",
+      "name": "status",
       "objectType": "java",
       "type": "string",
       "required": false,
@@ -78,47 +66,9 @@
       "primaryKey": false
     },
     {
-      "name": "description",
+      "name": "statusDes",
       "objectType": "java",
       "type": "string",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false
-    },
-    {
-      "name": "childGoals",
-      "objectType": "dto",
-      "type": "ChildGoals",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false,
-      "collectionType": "list",
-      "module": "sigdi"
-    },
-    {
-      "name": "parentGoalId",
-      "objectType": "java",
-      "type": "uuid",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false
-    },
-    {
-      "name": "linkedActivities",
-      "objectType": "java",
-      "type": "integer",
       "required": false,
       "before": false,
       "after": false,
@@ -140,21 +90,9 @@
       "primaryKey": false
     },
     {
-      "name": "status",
+      "name": "linkedActivities",
       "objectType": "java",
-      "type": "string",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false
-    },
-    {
-      "name": "statusDesc",
-      "objectType": "java",
-      "type": "string",
+      "type": "integer",
       "required": false,
       "before": false,
       "after": false,
@@ -164,5 +102,5 @@
       "primaryKey": false
     }
   ],
-  "id": "zn6123cdef_copy"
+  "id": "f6qvpz6vhj"
 }
