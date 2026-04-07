@@ -8,7 +8,7 @@
     {
       "actionName": "createIdentitie",
       "path": "identities/current",
-      "method": "PUT",
+      "method": "POST",
       "requestBody": {
         "content": {
           "application/json": {
@@ -148,7 +148,47 @@
           }
         }
       }
+    },
+    {
+      "actionName": "getListIdentitie",
+      "path": "identities",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListIdentitie",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "cicleYear",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "pageNumber",
+          "value": "0",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "pageSize",
+          "value": "20",
+          "isRequired": false
+        }
+      ]
     }
   ],
-  "id": "za41idl434-createIdentitie-createIdentitie-createIdentitie-createIdentitie"
+  "id": "za41idl434-createIdentitie-createIdentitie-createIdentitie-createIdentitie-createIdentitie"
 }

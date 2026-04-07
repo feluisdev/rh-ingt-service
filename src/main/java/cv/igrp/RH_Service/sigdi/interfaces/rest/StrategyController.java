@@ -25,8 +25,9 @@ import cv.igrp.RH_Service.sigdi.application.dto.IdentityResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateStategicGoalDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.StategicGoalResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.StrategyLinkDTO;
-import cv.igrp.RH_Service.sigdi.application.dto.StrategyMapDataDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.StrategyMapLinkResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.StrategyMapDataDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.WrapperListIdentitieDTO;
 
 @IgrpController
 @RestController
@@ -45,7 +46,7 @@ public class StrategyController {
           this.queryBus = queryBus;
           this.commandBus = commandBus;
   }
-   @PutMapping(
+   @PostMapping(
    value = "identities/current"
   )
   @Operation(
@@ -190,6 +191,38 @@ public class StrategyController {
   {
 
       final var query = new GetCurrentStrategyMapQuery();
+
+      return queryBus.handle(query);
+
+  }
+
+   @GetMapping(
+   value = "identities"
+  )
+  @Operation(
+    summary = "Get list identitie",
+    description = "Get list identitie",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = WrapperListIdentitieDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<WrapperListIdentitieDTO> getListIdentitie(
+    @RequestParam(value = "cicleYear", required = false) String cicleYear,
+    @RequestParam(value = "pageNumber", required = false, defaultValue = "0") String pageNumber,
+    @RequestParam(value = "pageSize", required = false, defaultValue = "20") String pageSize)
+  {
+
+      final var query = new GetListIdentitieQuery(cicleYear, pageNumber, pageSize);
 
       return queryBus.handle(query);
 
