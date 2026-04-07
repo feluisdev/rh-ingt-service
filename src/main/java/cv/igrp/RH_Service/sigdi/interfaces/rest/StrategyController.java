@@ -28,6 +28,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.StrategyLinkDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.StrategyMapLinkResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.StrategyMapDataDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperListIdentitieDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.WrapperListStrategyGoalsDTO;
 
 @IgrpController
 @RestController
@@ -223,6 +224,40 @@ public class StrategyController {
   {
 
       final var query = new GetListIdentitieQuery(cicleYear, pageNumber, pageSize);
+
+      return queryBus.handle(query);
+
+  }
+
+   @GetMapping(
+   value = "goals"
+  )
+  @Operation(
+    summary = "Get list strategic goals",
+    description = "Get list strategic goals",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = WrapperListStrategyGoalsDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<WrapperListStrategyGoalsDTO> getListStrategicGoals(
+    @RequestParam(value = "perspective", required = false) String perspective,
+    @RequestParam(value = "status", required = false) String status,
+    @RequestParam(value = "parentGoalId", required = false) String parentGoalId,
+    @RequestParam(value = "pageNumber", required = false, defaultValue = "0") String pageNumber,
+    @RequestParam(value = "pageSize", required = false, defaultValue = "20") String pageSize)
+  {
+
+      final var query = new GetListStrategicGoalsQuery(perspective, status, parentGoalId, pageNumber, pageSize);
 
       return queryBus.handle(query);
 

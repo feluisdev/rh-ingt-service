@@ -188,6 +188,56 @@
           "isRequired": false
         }
       ]
+    },
+    {
+      "actionName": "getListStrategicGoals",
+      "path": "goals",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListStrategyGoals",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "perspective",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "status",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "parentGoalId",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "pageNumber",
+          "value": "0",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "pageSize",
+          "value": "20",
+          "isRequired": false
+        }
+      ]
     }
   ],
   "id": "za41idl434-createIdentitie-createIdentitie-createIdentitie-createIdentitie-createIdentitie"
