@@ -19,7 +19,7 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "t_cost_drivers")
+@Table(name = "t_budget_drivers")
 public class CostDriverEntity extends AuditEntity {
 
     @Id
@@ -45,6 +45,10 @@ public class CostDriverEntity extends AuditEntity {
   
     @Column(name="valid_until")
     private LocalDate validUntil;
+
+  
+    @Column(name="currency")
+    private String currency;
 
   
 }
