@@ -28,12 +28,12 @@ public class TacticalActivityMapper {
     return TacticalActivity.reconstruct(
         TacticalActivityId.from(entity.getId()),
         StrategicGoalId.from(entity.getStrategicGoalId()),  // UUID direto → VO
-        entity.getOrganicUnitId(),
+        null/*entity.getOrganicUnitId()*/,
         entity.getTitle(),
         entity.getDescriptionWhat(),
         entity.getJustificationWhy(),
         entity.getLocationWhere(),
-        entity.getResponsibleWho(),
+        null/*entity.getResponsibleWho()*/,
         entity.getMethodologyHow(),
         DateRange.of(entity.getStartDate(), entity.getEndDate()),
         Budget.of(entity.getBudgetEstimated(), EconomicClassifier.of(entity.getEconomicClassifier())),
@@ -53,12 +53,12 @@ public class TacticalActivityMapper {
     return TacticalActivity.reconstruct(
         TacticalActivityId.from(entity.getId()),
         StrategicGoalId.from(entity.getStrategicGoalId()),
-        entity.getOrganicUnitId(),
+        null/*entity.getOrganicUnitId()*/,
         entity.getTitle(),
         entity.getDescriptionWhat(),
         entity.getJustificationWhy(),
         entity.getLocationWhere(),
-        entity.getResponsibleWho(),
+        null /*entity.getResponsibleWho()*/,
         entity.getMethodologyHow(),
         DateRange.of(entity.getStartDate(), entity.getEndDate()),
         Budget.of(entity.getBudgetEstimated(), EconomicClassifier.of(entity.getEconomicClassifier())),
@@ -74,12 +74,12 @@ public class TacticalActivityMapper {
     TacticalActivitiesEntity entity = new TacticalActivitiesEntity();
     entity.setId(domain.getId().getValor().getValor());
     entity.setStrategicGoalId(domain.getStrategicGoalId().getValor().getValor()); // VO → UUID
-    entity.setOrganicUnitId(domain.getOrganicUnitId());
+    //entity.setOrganicUnitId(domain.getOrganicUnitId());
     entity.setTitle(domain.getTitle());
     entity.setDescriptionWhat(domain.getDescriptionWhat());
     entity.setJustificationWhy(domain.getJustificationWhy());
     entity.setLocationWhere(domain.getLocationWhere());
-    entity.setResponsibleWho(domain.getResponsibleWho());
+   // entity.setResponsibleWho(domain.getResponsibleWho());
     entity.setMethodologyHow(domain.getMethodologyHow());
     entity.setStartDate(domain.getDateRange().getStartDate());
     entity.setEndDate(domain.getDateRange().getEndDate());
