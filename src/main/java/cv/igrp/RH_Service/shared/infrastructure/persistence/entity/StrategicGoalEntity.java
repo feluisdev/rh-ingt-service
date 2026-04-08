@@ -10,8 +10,8 @@ import lombok.*;
 import java.util.UUID;
 import jakarta.validation.constraints.NotBlank;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
 
 @Getter
@@ -26,6 +26,10 @@ public class StrategicGoalEntity extends AuditEntity {
     @Id
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
+
+  
+    @Column(name="institution_id")
+    private UUID institutionId;
 
   
     @NotBlank(message = "title is mandatory")
@@ -49,9 +53,17 @@ public class StrategicGoalEntity extends AuditEntity {
     @Column(name="description", columnDefinition="TEXT")
     private String description;
 
-     @ManyToOne(fetch = FetchType.LAZY)
+  
+
+
+  @OneToMany(mappedBy = "parentGoalId", fetch = FetchType.LAZY)
+private List<StrategicGoalEntity> stategyGoals = new ArrayList<>();   @ManyToOne(fetch = FetchType.LAZY)
    @JoinColumn(name = "identity_id")
    private InstitutionalIdentityEntity identityId;
+
+   @ManyToOne(fetch = FetchType.LAZY)
+   @JoinColumn(name = "parent_goal_id")
+   private StrategicGoalEntity parentGoalId;
 
 
 }

@@ -17,7 +17,7 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "t_strategy_map_links",
+@Table(name = "t_goal_relationships",
   uniqueConstraints = {
     @UniqueConstraint(
       name = "uq_strategy_link_source_target",
@@ -31,6 +31,10 @@ public class StrategyMapLinkEntity extends AuditEntity {
     @Id
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
+
+  
+    @Column(name="institution_id")
+    private UUID institutionId;
 
   
     @NotNull(message = "sourceGoalId is mandatory")

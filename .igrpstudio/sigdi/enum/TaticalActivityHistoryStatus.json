@@ -1,0 +1,52 @@
+{
+  "type": "enum",
+  "module": "sigdi",
+  "name": "TaticalActivityHistoryStatus",
+  "values": [
+    {
+      "name": "SUBMITTED",
+      "attributes": [
+        "SUBMITTED",
+        "SUBMITTED"
+      ]
+    },
+    {
+      "name": "APPROVED",
+      "attributes": [
+        "APPROVED",
+        "APPROVED"
+      ]
+    },
+    {
+      "name": "REJECTED",
+      "attributes": [
+        "REJECTED",
+        "REJECTED"
+      ]
+    },
+    {
+      "name": "ESCALATED",
+      "attributes": [
+        "ESCALATED",
+        "ESCALATED"
+      ]
+    },
+    {
+      "name": "DELEGATED",
+      "attributes": [
+        "DELEGATED",
+        "DELEGATED"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}
