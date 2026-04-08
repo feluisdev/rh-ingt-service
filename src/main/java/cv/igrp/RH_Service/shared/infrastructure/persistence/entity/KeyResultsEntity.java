@@ -35,6 +35,10 @@ public class KeyResultsEntity extends AuditEntity {
     private String title;
 
   
+    @Column(name="institution_id")
+    private UUID institutionId;
+
+  
     @Column(name="target_value")
     private BigDecimal targetValue;
 
@@ -51,9 +55,21 @@ public class KeyResultsEntity extends AuditEntity {
 
   @OneToMany(mappedBy = "keyResultId", fetch = FetchType.LAZY, cascade = { CascadeType.ALL }, orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.SET_NULL)
-private List<KeyResultsCheckinEntity> keyResultCheckins = new ArrayList<>();   @ManyToOne(fetch = FetchType.LAZY)
+private List<KeyResultsCheckinEntity> keyResultCheckins = new ArrayList<>();
+    @Column(name="unit")
+    private String unit;
+
+  
+    @Column(name="weight")
+    private BigDecimal weight;
+
+     @ManyToOne(fetch = FetchType.LAZY)
    @JoinColumn(name = "activity_id")
    private TacticalActivitiesEntity activityId;
+
+   @ManyToOne(fetch = FetchType.LAZY)
+   @JoinColumn(name = "okr_id")
+   private OkrEntity okrId;
 
 
 }

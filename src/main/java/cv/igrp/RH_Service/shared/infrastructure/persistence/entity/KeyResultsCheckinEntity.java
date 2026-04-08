@@ -46,6 +46,10 @@ public class KeyResultsCheckinEntity extends AuditEntity {
     @Column(name="checkin_date")
     private LocalDateTime checkinDate;
 
+  
+    @Column(name="institution_id")
+    private UUID institutionId;
+
      @ManyToOne(fetch = FetchType.LAZY)
    @JoinColumn(name = "key_result_id")
    private KeyResultsEntity keyResultId;

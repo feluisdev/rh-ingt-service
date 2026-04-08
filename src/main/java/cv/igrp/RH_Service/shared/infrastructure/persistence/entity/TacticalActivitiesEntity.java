@@ -117,4 +117,8 @@ private List<KeyResultsEntity> keyResults = new ArrayList<>();
 
   @OneToMany(mappedBy = "activityId", fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
 private List<TaticalActivityHistoryEntity> historicals = new ArrayList<>();
+
+
+  @OneToMany(mappedBy = "activityId", fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
+private List<ChangeRequestEntity> changeRequests = new ArrayList<>();
 }
