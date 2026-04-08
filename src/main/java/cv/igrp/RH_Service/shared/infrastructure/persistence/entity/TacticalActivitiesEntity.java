@@ -34,8 +34,12 @@ public class TacticalActivitiesEntity extends AuditEntity {
     private UUID strategicGoalId;
 
   
+    @Column(name="institution_id")
+    private UUID institutionId;
+
+  
     @Column(name="organic_unit_id")
-    private String organicUnitId;
+    private UUID organicUnitId;
 
   
     @Column(name="title")
@@ -57,7 +61,7 @@ public class TacticalActivitiesEntity extends AuditEntity {
 
   
     @Column(name="responsible_who")
-    private String responsibleWho;
+    private UUID responsibleWho;
 
   
     @Lob
@@ -75,6 +79,22 @@ public class TacticalActivitiesEntity extends AuditEntity {
   
     @Column(name="budget_estimated")
     private BigDecimal budgetEstimated;
+
+  
+    @Column(name="budget_committed")
+    private BigDecimal budgetCommitted;
+
+  
+    @Column(name="budget_liquidated")
+    private BigDecimal budgetLiquidated;
+
+  
+    @Column(name="budget_paid")
+    private BigDecimal budgetPaid;
+
+  
+    @Column(name="fiscal_year")
+    private Integer fiscalYear;
 
   
     @Column(name="economic_classifier")
