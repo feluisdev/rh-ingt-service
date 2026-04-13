@@ -26,7 +26,7 @@ public class InstitutionEntity extends AuditEntity {
 
   
     @NotBlank(message = "code is mandatory")
-    @Column(name="code", nullable = false)
+    @Column(name="code", unique = true, nullable = false)
     private String code;
 
   

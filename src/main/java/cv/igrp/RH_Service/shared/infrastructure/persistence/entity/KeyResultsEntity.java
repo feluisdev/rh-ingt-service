@@ -56,10 +56,6 @@ public class KeyResultsEntity extends AuditEntity {
   @OneToMany(mappedBy = "keyResultId", fetch = FetchType.LAZY, cascade = { CascadeType.ALL }, orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.SET_NULL)
 private List<KeyResultsCheckinEntity> keyResultCheckins = new ArrayList<>();
-    @Column(name="unit")
-    private String unit;
-
-  
     @Column(name="weight")
     private BigDecimal weight;
 
