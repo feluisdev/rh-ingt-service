@@ -3,7 +3,7 @@
   "name": "Tatical",
   "module": "sigdi",
   "description": "gest strategies",
-  "basePath": "tactical",
+  "basePath": "api/v1/tactical",
   "actions": [
     {
       "actionName": "getTaticalActivities",

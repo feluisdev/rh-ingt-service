@@ -15,11 +15,12 @@ import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 
 public enum TacticalActivityStatus implements IgrpEnum<String> {
 
-  DRAFT("DRAFT", "DRAFT"),
-    PENDING("PENDING", "PENDING"),
-    APPROVED("APPROVED", "APPROVED"),
-    REJECTED("REJECTED", "REJECTED"),
-    CANCELLED("CANCELLED", "CANCELLED")
+  DRAFT("DRAFT", "Rascunho"),
+    PENDING_TACTICAL("PENDING_TACTICAL", "Pendente de aprovação tática"),
+    PENDING_STRATEGIC("PENDING_STRATEGIC", "Pendente de aprovação estratégica"),
+    APPROVED("APPROVED", "Aprovado"),
+    REJECTED("REJECTED", "Rejeitado"),
+    CANCELLED("CANCELLED", "Cancelado")
   ;
 
   private final String code;

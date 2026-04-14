@@ -33,7 +33,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.UpdateStategicGoalDTO;
 
 @IgrpController
 @RestController
-@RequestMapping(path = "ap1/v1/strategy")
+@RequestMapping(path = "api/v1/strategy")
 @Tag(
     name = "Sigdi",
     description = "gest strategies"
@@ -49,7 +49,7 @@ public class StrategyController {
           this.commandBus = commandBus;
   }
    @PostMapping(
-   value = "identities/current"
+   value = "identities"
   )
   @Operation(
     summary = "Create identitie",

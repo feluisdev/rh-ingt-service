@@ -3,11 +3,11 @@
   "name": "Strategy",
   "module": "sigdi",
   "description": "gest strategies",
-  "basePath": "ap1/v1/strategy",
+  "basePath": "api/v1/strategy",
   "actions": [
     {
       "actionName": "createIdentitie",
-      "path": "identities/current",
+      "path": "identities",
       "method": "POST",
       "requestBody": {
         "content": {

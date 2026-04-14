@@ -7,35 +7,42 @@
       "name": "DRAFT",
       "attributes": [
         "DRAFT",
-        "DRAFT"
+        "Rascunho"
       ]
     },
     {
-      "name": "PENDING",
+      "name": "PENDING_TACTICAL",
       "attributes": [
-        "PENDING",
-        "PENDING"
+        "PENDING_TACTICAL",
+        "Pendente de aprovação tática"
+      ]
+    },
+    {
+      "name": "PENDING_STRATEGIC",
+      "attributes": [
+        "PENDING_STRATEGIC",
+        "Pendente de aprovação estratégica"
       ]
     },
     {
       "name": "APPROVED",
       "attributes": [
         "APPROVED",
-        "APPROVED"
+        "Aprovado"
       ]
     },
     {
       "name": "REJECTED",
       "attributes": [
         "REJECTED",
-        "REJECTED"
+        "Rejeitado"
       ]
     },
     {
       "name": "CANCELLED",
       "attributes": [
         "CANCELLED",
-        "CANCELLED"
+        "Cancelado"
       ]
     }
   ],

@@ -73,7 +73,7 @@ public class TacticalActivity {
     return new TacticalActivity(TacticalActivityId.gerarNovo(), strategicGoalId, organicUnitId,
         title, descriptionWhat, justificationWhy, locationWhere,
         responsibleWho, methodologyHow, dateRange, budget,
-        TacticalActivityStatus.PENDING, 0, new ArrayList<>());
+        TacticalActivityStatus.DRAFT, 0, new ArrayList<>());
   }
 
   public static TacticalActivity reconstruct(TacticalActivityId id, StrategicGoalId strategicGoalId,
@@ -94,22 +94,35 @@ public class TacticalActivity {
 
   // ── Workflow de status ────────────────────────────────────────────
 
+  /** DRAFT → PENDING_TACTICAL */
   public TacticalActivity submit() {
     if (!TacticalActivityStatus.DRAFT.equals(this.status))
       throw IgrpResponseStatusException.badRequest("Apenas atividades DRAFT podem ser submetidas");
-    return changeStatus(TacticalActivityStatus.PENDING);
+    return changeStatus(TacticalActivityStatus.PENDING_TACTICAL);
   }
 
+  /**
+   * Aprovação pelo gestor tático: PENDING_TACTICAL → PENDING_STRATEGIC.
+   * Aprovação pelo gestor estratégico: PENDING_STRATEGIC → APPROVED.
+   */
   public TacticalActivity approve() {
-    if (!TacticalActivityStatus.PENDING.equals(this.status))
-      throw IgrpResponseStatusException.badRequest("Apenas atividades PENDING podem ser aprovadas");
-    return changeStatus(TacticalActivityStatus.APPROVED);
+    if (TacticalActivityStatus.PENDING_TACTICAL.equals(this.status))
+      return changeStatus(TacticalActivityStatus.PENDING_STRATEGIC);
+    if (TacticalActivityStatus.PENDING_STRATEGIC.equals(this.status))
+      return changeStatus(TacticalActivityStatus.APPROVED);
+    throw IgrpResponseStatusException.badRequest(
+        "Atividade não está em estado pendente para aprovação. Status atual: " + this.status.getCode());
   }
 
+  /**
+   * Rejeição devolve a atividade ao estado DRAFT (per spec: o criador revê e resubmete).
+   */
   public TacticalActivity reject() {
-    if (!TacticalActivityStatus.PENDING.equals(this.status))
-      throw IgrpResponseStatusException.badRequest("Apenas atividades PENDING podem ser rejeitadas");
-    return changeStatus(TacticalActivityStatus.REJECTED);
+    if (!TacticalActivityStatus.PENDING_TACTICAL.equals(this.status) &&
+        !TacticalActivityStatus.PENDING_STRATEGIC.equals(this.status))
+      throw IgrpResponseStatusException.badRequest(
+          "Apenas atividades pendentes podem ser rejeitadas. Status atual: " + this.status.getCode());
+    return changeStatus(TacticalActivityStatus.DRAFT);
   }
 
   public TacticalActivity cancel() {
@@ -138,7 +151,7 @@ public class TacticalActivity {
     return new TacticalActivity(this.id, this.strategicGoalId, this.organicUnitId, this.title,
         this.descriptionWhat, this.justificationWhy, this.locationWhere,
         this.responsibleWho, this.methodologyHow, newDateRange,
-        newBudget, TacticalActivityStatus.PENDING,
+        newBudget, TacticalActivityStatus.PENDING_TACTICAL,
         this.version + 1, this.keyResults);
   }
 

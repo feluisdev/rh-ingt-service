@@ -32,7 +32,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.WrapperKeyResultListDTO;
 
 @IgrpController
 @RestController
-@RequestMapping(path = "tactical")
+@RequestMapping(path = "api/v1/tactical")
 @Tag(
     name = "Sigdi",
     description = "gest strategies"
