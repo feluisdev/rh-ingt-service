@@ -17,4 +17,6 @@ public interface StrategyMapLinkRepository {
   public Optional<StrategyMapLink> findBySourceAndTarget(StrategicGoalId sourceGoalId, StrategicGoalId targetGoalId);
 
   public List<StrategyMapLink> findByIdentityId(InstitutionalIdentityId identityId);
+
+  void delete(StrategyMapLinkId id);
 }

@@ -55,7 +55,7 @@ public class CreateIdentitieCommandHandler implements CommandHandler<CreateIdent
 
      IdentityResponseDTO response = identityMapper.toResponse(saved);
 
-     return ResponseEntity.ok(response);
+     return ResponseEntity.status(201).body(response);
    }
 
 }

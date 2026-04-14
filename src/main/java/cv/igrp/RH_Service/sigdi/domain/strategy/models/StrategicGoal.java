@@ -57,6 +57,14 @@ public class StrategicGoal {
     return new StrategicGoal(id, identityId, title, perspective, weight, status, description);
   }
 
+  /** Atualiza apenas title, description e weight — perspective é imutável. */
+  public StrategicGoal update(String newTitle, String newDescription, BigDecimal newWeight) {
+    String title = (newTitle != null && !newTitle.isBlank()) ? newTitle : this.title;
+    String description = newDescription != null ? newDescription : this.description;
+    BigDecimal weight = newWeight != null ? newWeight : this.weight;
+    return StrategicGoal.reconstruct(this.id, this.identityId, title, this.perspective, weight, this.status, description);
+  }
+
   public boolean isActive() {
     return Estado.A.equals(this.status);
   }

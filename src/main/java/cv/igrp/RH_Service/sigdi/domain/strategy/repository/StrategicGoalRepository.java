@@ -9,9 +9,15 @@ import java.util.Optional;
 
 public interface StrategicGoalRepository {
 
-  public StrategicGoal save(StrategicGoal goal);
+  StrategicGoal save(StrategicGoal goal);
 
-  public Optional<StrategicGoal> findById(StrategicGoalId id);
+  Optional<StrategicGoal> findById(StrategicGoalId id);
 
-  public List<StrategicGoal> findByIdentityId(InstitutionalIdentityId identityId);
+  List<StrategicGoal> findByIdentityId(InstitutionalIdentityId identityId);
+
+  List<StrategicGoal> findAll(InstitutionalIdentityId identityId, String perspective,
+      String status, String parentGoalId, int page, int size);
+
+  long countAll(InstitutionalIdentityId identityId, String perspective,
+      String status, String parentGoalId);
 }

@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.sigdi.domain.strategy.repository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.InstitutionalIdentity;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentityId;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface InstitutionalIdentityRepository {
@@ -14,5 +15,9 @@ public interface InstitutionalIdentityRepository {
   Optional<InstitutionalIdentity> findByIdFull(InstitutionalIdentityId id);
 
   Optional<InstitutionalIdentity> findActive();
+
+  List<InstitutionalIdentity> findAll(Integer cycleYear, int page, int size);
+
+  long countAll(Integer cycleYear);
 
 }

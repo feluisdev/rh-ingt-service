@@ -10,6 +10,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -46,5 +52,30 @@ public class InstitutionalIdentityRepositoryImpl implements InstitutionalIdentit
   public Optional<InstitutionalIdentity> findActive() {
     return jpaRepository.findFirstByIsActiveTrue()
         .map(mapper::toDomain);
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public List<InstitutionalIdentity> findAll(Integer cycleYear, int page, int size) {
+    Specification<InstitutionalIdentityEntity> spec = buildSpec(cycleYear);
+    return jpaRepository.findAll(spec, PageRequest.of(page, size))
+        .stream()
+        .map(mapper::toDomain)
+        .toList();
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public long countAll(Integer cycleYear) {
+    return jpaRepository.count(buildSpec(cycleYear));
+  }
+
+  private Specification<InstitutionalIdentityEntity> buildSpec(Integer cycleYear) {
+    return (root, query, cb) -> {
+      List<Predicate> predicates = new ArrayList<>();
+      if (cycleYear != null)
+        predicates.add(cb.equal(root.get("cycleYear"), cycleYear));
+      return cb.and(predicates.toArray(new Predicate[0]));
+    };
   }
 }

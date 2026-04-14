@@ -56,4 +56,10 @@ public class StrategyMapLinkRepositoryImpl implements StrategyMapLinkRepository 
         .map(mapper::toDomain)
         .toList();
   }
+
+  @Transactional
+  @Override
+  public void delete(StrategyMapLinkId id) {
+    jpaRepository.deleteById(id.getValor().getValor());
+  }
 }
