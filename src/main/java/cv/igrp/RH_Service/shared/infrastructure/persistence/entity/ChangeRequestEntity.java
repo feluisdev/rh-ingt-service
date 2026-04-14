@@ -56,6 +56,10 @@ public class ChangeRequestEntity extends AuditEntity {
 
   
     @Lob
+    @Column(name="proposed_value", columnDefinition="TEXT")
+    private String proposedValue;
+
+    @Lob
     @Column(name="reviewer_comment", columnDefinition="TEXT")
     private String reviewerComment;
 

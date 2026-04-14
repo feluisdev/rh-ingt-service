@@ -303,6 +303,228 @@
           "isRequired": true
         }
       ]
+    },
+    {
+      "actionName": "submitTacticalActivity",
+      "path": "activities/{id}/submit",
+      "method": "POST",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ActivityWorkflowResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [{ "name": "id", "type": "string", "isRequired": true }]
+    },
+    {
+      "actionName": "approveTacticalActivity",
+      "path": "activities/{id}/approve",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "WorkflowComment",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ActivityWorkflowResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [{ "name": "id", "type": "string", "isRequired": true }]
+    },
+    {
+      "actionName": "rejectTacticalActivity",
+      "path": "activities/{id}/reject",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "WorkflowComment",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ActivityWorkflowResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [{ "name": "id", "type": "string", "isRequired": true }]
+    },
+    {
+      "actionName": "getWorkflowInbox",
+      "path": "workflow/inbox",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperWorkflowInbox",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        { "type": "string", "name": "pageNumber", "value": "0", "isRequired": false },
+        { "type": "string", "name": "pageSize", "value": "20", "isRequired": false }
+      ]
+    },
+    {
+      "actionName": "createChangeRequest",
+      "path": "activities/{activityId}/change-requests",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ChangeRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "CREATED",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ChangeRequestResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [{ "name": "activityId", "type": "string", "isRequired": true }]
+    },
+    {
+      "actionName": "approveChangeRequest",
+      "path": "change-requests/{id}/approve",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "WorkflowComment",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ChangeRequestResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [{ "name": "id", "type": "string", "isRequired": true }]
+    },
+    {
+      "actionName": "rejectChangeRequest",
+      "path": "change-requests/{id}/reject",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "WorkflowComment",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ChangeRequestResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [{ "name": "id", "type": "string", "isRequired": true }]
     }
   ],
   "id": "es9tjmyaqg-getTaticalActivities-createTacticalActivity-changeStatusTacticalActivity-registraProcessoKr-getTaticalActivities-getKeyResult-updateKeyResult-getKeyResult"

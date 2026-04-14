@@ -29,6 +29,11 @@ import cv.igrp.RH_Service.sigdi.application.dto.KeyResultCheckinRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.KeyResultRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.KeyResultResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperKeyResultListDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.ActivityWorkflowResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.WorkflowCommentDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.ChangeRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.ChangeRequestResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.WrapperWorkflowInboxDTO;
 
 @IgrpController
 @RestController
@@ -271,7 +276,7 @@ public class TaticalController {
     responses = {
       @ApiResponse(
           responseCode = "200",
-          
+
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
@@ -281,7 +286,7 @@ public class TaticalController {
       )
     }
   )
-  
+
   public ResponseEntity<KeyResultResponseDTO> updateKeyResult(@Valid @RequestBody KeyResultRequestDTO updateKeyResultRequest
     , @PathVariable(value = "id") String id)
   {
@@ -290,6 +295,173 @@ public class TaticalController {
 
       return commandBus.send(command);
 
+  }
+
+   @PostMapping(
+   value = "activities/{id}/submit"
+  )
+  @Operation(
+    summary = "Submit tactical activity",
+    description = "Submete uma atividade DRAFT para aprovação",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = ActivityWorkflowResponseDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<ActivityWorkflowResponseDTO> submitTacticalActivity(
+    @PathVariable(value = "id") String id)
+  {
+      final var command = new SubmitTacticalActivityCommand(id);
+      return commandBus.send(command);
+  }
+
+   @PostMapping(
+   value = "activities/{id}/approve"
+  )
+  @Operation(
+    summary = "Approve tactical activity",
+    description = "Aprova uma atividade no nível de workflow do utilizador autenticado",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = ActivityWorkflowResponseDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<ActivityWorkflowResponseDTO> approveTacticalActivity(
+    @RequestBody(required = false) WorkflowCommentDTO approveRequest,
+    @PathVariable(value = "id") String id)
+  {
+      final var command = new ApproveTacticalActivityCommand(approveRequest, id);
+      return commandBus.send(command);
+  }
+
+   @PostMapping(
+   value = "activities/{id}/reject"
+  )
+  @Operation(
+    summary = "Reject tactical activity",
+    description = "Rejeita uma atividade com comentário obrigatório",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = ActivityWorkflowResponseDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<ActivityWorkflowResponseDTO> rejectTacticalActivity(
+    @Valid @RequestBody WorkflowCommentDTO rejectRequest,
+    @PathVariable(value = "id") String id)
+  {
+      final var command = new RejectTacticalActivityCommand(rejectRequest, id);
+      return commandBus.send(command);
+  }
+
+   @GetMapping(
+   value = "workflow/inbox"
+  )
+  @Operation(
+    summary = "Get workflow inbox",
+    description = "Retorna as pendências de aprovação do utilizador autenticado",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = WrapperWorkflowInboxDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<WrapperWorkflowInboxDTO> getWorkflowInbox(
+    @RequestParam(value = "pageNumber", required = false, defaultValue = "0") String pageNumber,
+    @RequestParam(value = "pageSize", required = false, defaultValue = "20") String pageSize)
+  {
+      final var query = new GetWorkflowInboxQuery(pageNumber, pageSize);
+      return queryBus.handle(query);
+  }
+
+   @PostMapping(
+   value = "activities/{activityId}/change-requests"
+  )
+  @Operation(
+    summary = "Create change request",
+    description = "Solicita alteração de um campo numa atividade APPROVED",
+    responses = {
+      @ApiResponse(
+          responseCode = "201",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = ChangeRequestResponseDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<ChangeRequestResponseDTO> createChangeRequest(
+    @Valid @RequestBody ChangeRequestDTO changeRequestBody,
+    @PathVariable(value = "activityId") String activityId)
+  {
+      final var command = new CreateChangeRequestCommand(changeRequestBody, activityId);
+      return commandBus.send(command);
+  }
+
+   @PostMapping(
+   value = "change-requests/{id}/approve"
+  )
+  @Operation(
+    summary = "Approve change request",
+    description = "Aprova um Change Request aplicando a alteração à atividade",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = ChangeRequestResponseDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<ChangeRequestResponseDTO> approveChangeRequest(
+    @RequestBody(required = false) WorkflowCommentDTO approveRequest,
+    @PathVariable(value = "id") String id)
+  {
+      final var command = new ApproveChangeRequestCommand(approveRequest, id);
+      return commandBus.send(command);
+  }
+
+   @PostMapping(
+   value = "change-requests/{id}/reject"
+  )
+  @Operation(
+    summary = "Reject change request",
+    description = "Rejeita um Change Request",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = ChangeRequestResponseDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<ChangeRequestResponseDTO> rejectChangeRequest(
+    @Valid @RequestBody WorkflowCommentDTO rejectRequest,
+    @PathVariable(value = "id") String id)
+  {
+      final var command = new RejectChangeRequestCommand(rejectRequest, id);
+      return commandBus.send(command);
   }
 
 }

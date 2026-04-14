@@ -1,1 +1,114 @@
-{"type":"model","module":"shared","name":"ChangeRequestEntity","tableName":"t_change_requests","audit":true,"crud":false,"revision":false,"attributes":[{"name":"id","type":"uuid","length":255,"nullable":true,"unique":false,"primaryKey":true,"generationType":"NONE","skipFieldRevision":false,"objectType":"java"},{"name":"institution_id","type":"uuid","length":255,"nullable":false,"unique":false,"primaryKey":false,"skipFieldRevision":false,"objectType":"java"},{"name":"field_name","type":"text","length":255,"nullable":true,"unique":false,"primaryKey":false,"skipFieldRevision":false,"objectType":"java"},{"name":"current_value","type":"text","length":255,"nullable":true,"unique":false,"primaryKey":false,"skipFieldRevision":false,"objectType":"java"},{"name":"justification","type":"text","length":255,"nullable":true,"unique":false,"primaryKey":false,"skipFieldRevision":false,"objectType":"java"},{"name":"status","type":"string","length":255,"nullable":true,"unique":false,"primaryKey":false,"skipFieldRevision":false},{"name":"reviewer_id","type":"uuid","length":255,"nullable":true,"unique":false,"primaryKey":false,"skipFieldRevision":false,"objectType":"java"},{"name":"reviewer_comment","type":"text","length":255,"nullable":true,"unique":false,"primaryKey":false,"skipFieldRevision":false,"objectType":"java"}],"id":"qlcuu9gb1v","relationReference":[{"type":"OneToMany","entity":"TacticalActivitiesEntity","fetchType":"lazy","fieldName":"activity_id","mappedBy":"change_requests","module":"shared"}],"uniqueConstraints":[],"indexes":[]}
+{
+  "type": "model",
+  "module": "shared",
+  "name": "ChangeRequestEntity",
+  "tableName": "t_change_requests",
+  "audit": true,
+  "crud": false,
+  "revision": false,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": true,
+      "generationType": "NONE",
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "institution_id",
+      "type": "uuid",
+      "length": 255,
+      "nullable": false,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "field_name",
+      "type": "text",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "current_value",
+      "type": "text",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "justification",
+      "type": "text",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "status",
+      "type": "string",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false
+    },
+    {
+      "name": "reviewer_id",
+      "type": "uuid",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "proposed_value",
+      "type": "text",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "reviewer_comment",
+      "type": "text",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    }
+  ],
+  "id": "qlcuu9gb1v",
+  "relationReference": [
+    {
+      "type": "OneToMany",
+      "entity": "TacticalActivitiesEntity",
+      "fetchType": "lazy",
+      "fieldName": "activity_id",
+      "mappedBy": "change_requests",
+      "module": "shared"
+    }
+  ],
+  "uniqueConstraints": [],
+  "indexes": []
+}
