@@ -305,6 +305,73 @@
           "isRequired": true
         }
       ]
+    },
+    {
+      "actionName": "cancelStrategicGoal",
+      "path": "goals/{id}",
+      "method": "DELETE",
+      "responses": {
+        "204": {
+          "name": "NO_CONTENT",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "updateGoalPosition",
+      "path": "map/nodes/{goalId}/position",
+      "method": "PATCH",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "GoalPositionRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "GoalPositionResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "goalId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     }
   ],
   "id": "za41idl434-createIdentitie-createIdentitie-createIdentitie-createIdentitie-createIdentitie"

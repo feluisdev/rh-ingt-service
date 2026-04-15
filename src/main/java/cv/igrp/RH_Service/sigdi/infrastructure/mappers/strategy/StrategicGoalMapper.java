@@ -28,7 +28,9 @@ public class StrategicGoalMapper {
         StrategicGoalsPerspective.fromCodeOrThrow(entity.getPerspective()),
         entity.getWeight(),
         Estado.fromCodeOrThrow(entity.getStatus()),
-        entity.getDescription()
+        entity.getDescription(),
+        entity.getPositionX(),
+        entity.getPositionY()
     );
   }
 
@@ -73,6 +75,8 @@ public class StrategicGoalMapper {
     entity.setWeight(domain.getWeight());
     entity.setStatus(domain.getStatus().getCode());
     entity.setDescription(domain.getDescription());
+    entity.setPositionX(domain.getPositionX());
+    entity.setPositionY(domain.getPositionY());
 
     InstitutionalIdentityEntity identityRef = new InstitutionalIdentityEntity();
     identityRef.setId(domain.getIdentityId().getValor().getValor());

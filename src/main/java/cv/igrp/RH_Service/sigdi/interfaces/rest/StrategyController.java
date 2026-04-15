@@ -30,6 +30,8 @@ import cv.igrp.RH_Service.sigdi.application.dto.StrategyMapDataDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperListIdentitieDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperListStrategyGoalsDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.UpdateStategicGoalDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.GoalPositionRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.GoalPositionResponseDTO;
 
 @IgrpController
 @RestController
@@ -40,7 +42,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.UpdateStategicGoalDTO;
 )
 public class StrategyController {
 
-  
+
   private final QueryBus queryBus;
   private final CommandBus commandBus;
 
@@ -57,7 +59,7 @@ public class StrategyController {
     responses = {
       @ApiResponse(
           responseCode = "201",
-          
+
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
@@ -67,7 +69,7 @@ public class StrategyController {
       )
     }
   )
-  
+
   public ResponseEntity<IdentityResponseDTO> createIdentitie(@Valid @RequestBody CreateIdentityRequestDTO createIdentitieRequest
     )
   {
@@ -87,7 +89,7 @@ public class StrategyController {
     responses = {
       @ApiResponse(
           responseCode = "200",
-          
+
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
@@ -97,7 +99,7 @@ public class StrategyController {
       )
     }
   )
-  
+
   public ResponseEntity<StategicGoalResponseDTO> createStrategicGoal(@Valid @RequestBody CreateStategicGoalDTO createStrategicGoalRequest
     )
   {
@@ -117,7 +119,7 @@ public class StrategyController {
     responses = {
       @ApiResponse(
           responseCode = "200",
-          
+
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
@@ -127,7 +129,7 @@ public class StrategyController {
       )
     }
   )
-  
+
   public ResponseEntity<IdentityResponseDTO> getCurrentIdentitie(
     )
   {
@@ -147,7 +149,7 @@ public class StrategyController {
     responses = {
       @ApiResponse(
           responseCode = "201",
-          
+
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
@@ -157,7 +159,7 @@ public class StrategyController {
       )
     }
   )
-  
+
   public ResponseEntity<StrategyMapLinkResponseDTO> createStrategyMapLink(@Valid @RequestBody StrategyLinkDTO createStrategyMapLinkRequest
     )
   {
@@ -177,7 +179,7 @@ public class StrategyController {
     responses = {
       @ApiResponse(
           responseCode = "200",
-          
+
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
@@ -187,7 +189,7 @@ public class StrategyController {
       )
     }
   )
-  
+
   public ResponseEntity<StrategyMapDataDTO> getCurrentStrategyMap(
     )
   {
@@ -207,7 +209,7 @@ public class StrategyController {
     responses = {
       @ApiResponse(
           responseCode = "200",
-          
+
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
@@ -217,7 +219,7 @@ public class StrategyController {
       )
     }
   )
-  
+
   public ResponseEntity<WrapperListIdentitieDTO> getListIdentitie(
     @RequestParam(value = "cicleYear", required = false) String cicleYear,
     @RequestParam(value = "pageNumber", required = false, defaultValue = "0") String pageNumber,
@@ -239,7 +241,7 @@ public class StrategyController {
     responses = {
       @ApiResponse(
           responseCode = "200",
-          
+
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
@@ -249,7 +251,7 @@ public class StrategyController {
       )
     }
   )
-  
+
   public ResponseEntity<WrapperListStrategyGoalsDTO> getListStrategicGoals(
     @RequestParam(value = "perspective", required = false) String perspective,
     @RequestParam(value = "status", required = false) String status,
@@ -273,7 +275,7 @@ public class StrategyController {
     responses = {
       @ApiResponse(
           responseCode = "200",
-          
+
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
@@ -283,7 +285,7 @@ public class StrategyController {
       )
     }
   )
-  
+
   public ResponseEntity<StategicGoalResponseDTO> updateStrategicGoals(@Valid @RequestBody UpdateStategicGoalDTO updateStrategicGoalsRequest
     , @PathVariable(value = "id") String id)
   {
@@ -303,7 +305,7 @@ public class StrategyController {
     responses = {
       @ApiResponse(
           responseCode = "204",
-          
+
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
@@ -313,12 +315,72 @@ public class StrategyController {
       )
     }
   )
-  
+
   public ResponseEntity<String> deleteStrategyMapLink(
     @PathVariable(value = "id") String id)
   {
 
       final var command = new DeleteStrategyMapLinkCommand(id);
+
+      return commandBus.send(command);
+
+  }
+
+   @DeleteMapping(
+   value = "goals/{id}"
+  )
+  @Operation(
+    summary = "Cancel strategic goal",
+    description = "Soft-cancels a strategic goal. Returns 422 if active PAA activities are linked.",
+    responses = {
+      @ApiResponse(
+          responseCode = "204",
+
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+
+  public ResponseEntity<String> cancelStrategicGoal(
+    @PathVariable(value = "id") String id)
+  {
+
+      final var command = new CancelStrategicGoalCommand(id);
+
+      return commandBus.send(command);
+
+  }
+
+   @PatchMapping(
+   value = "map/nodes/{goalId}/position"
+  )
+  @Operation(
+    summary = "Update goal position on canvas",
+    description = "Updates the visual X/Y position of a strategic goal node on the BSC canvas. No business effect.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = GoalPositionResponseDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+
+  public ResponseEntity<GoalPositionResponseDTO> updateGoalPosition(@Valid @RequestBody GoalPositionRequestDTO updateGoalPositionRequest
+    , @PathVariable(value = "goalId") String goalId)
+  {
+
+      final var command = new UpdateGoalPositionCommand(updateGoalPositionRequest, goalId);
 
       return commandBus.send(command);
 

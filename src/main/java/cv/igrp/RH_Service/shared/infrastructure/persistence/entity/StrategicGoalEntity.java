@@ -53,6 +53,14 @@ public class StrategicGoalEntity extends AuditEntity {
     @Column(name="description", columnDefinition="TEXT")
     private String description;
 
+
+    @Column(name="position_x")
+    private Double positionX;
+
+
+    @Column(name="position_y")
+    private Double positionY;
+
   
 
 
