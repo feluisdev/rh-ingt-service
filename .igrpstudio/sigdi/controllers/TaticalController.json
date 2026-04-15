@@ -492,6 +492,40 @@
       "pathVariables": [{ "name": "id", "type": "string", "isRequired": true }]
     },
     {
+      "actionName": "createOkr",
+      "path": "okrs",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CreateOkr",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "CREATED",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "OkrResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "actionName": "getTacticalActivityById",
       "path": "activities/{id}",
       "method": "GET",

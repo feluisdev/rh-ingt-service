@@ -33,6 +33,8 @@ import cv.igrp.RH_Service.sigdi.application.dto.ActivityWorkflowResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WorkflowCommentDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.ChangeRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.ChangeRequestResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.CreateOkrDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.OkrResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityDetailDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperWorkflowInboxDTO;
 
@@ -296,6 +298,31 @@ public class TaticalController {
 
       return commandBus.send(command);
 
+  }
+
+   @PostMapping(
+   value = "okrs"
+  )
+  @Operation(
+    summary = "Create okr",
+    description = "Create okr",
+    responses = {
+      @ApiResponse(
+          responseCode = "201",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = OkrResponseDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<OkrResponseDTO> createOkr(@Valid @RequestBody CreateOkrDTO createOkrRequest
+    )
+  {
+      final var command = new CreateOkrCommand(createOkrRequest);
+      return commandBus.send(command);
   }
 
    @GetMapping(

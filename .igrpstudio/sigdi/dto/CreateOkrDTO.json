@@ -1,0 +1,12 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "CreateOkr",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    { "name": "strategicGoalId", "objectType": "java", "type": "string", "required": true,  "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "title",           "objectType": "java", "type": "string", "required": true,  "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "cycle",           "objectType": "java", "type": "string", "required": true,  "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false }
+  ]
+}
