@@ -492,6 +492,34 @@
       "pathVariables": [{ "name": "id", "type": "string", "isRequired": true }]
     },
     {
+      "actionName": "getTacticalActivityById",
+      "path": "activities/{id}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TacticalActivityDetail",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
       "actionName": "rejectChangeRequest",
       "path": "change-requests/{id}/reject",
       "method": "POST",

@@ -33,6 +33,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.ActivityWorkflowResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WorkflowCommentDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.ChangeRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.ChangeRequestResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityDetailDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperWorkflowInboxDTO;
 
 @IgrpController
@@ -295,6 +296,31 @@ public class TaticalController {
 
       return commandBus.send(command);
 
+  }
+
+   @GetMapping(
+   value = "activities/{id}"
+  )
+  @Operation(
+    summary = "Get tactical activity by id",
+    description = "Get tactical activity by id",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = TacticalActivityDetailDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<TacticalActivityDetailDTO> getTacticalActivityById(
+    @PathVariable(value = "id") String id)
+  {
+      final var query = new GetTacticalActivityByIdQuery(id);
+      return queryBus.handle(query);
   }
 
    @PostMapping(

@@ -28,12 +28,12 @@ public class TacticalActivityMapper {
     return TacticalActivity.reconstruct(
         TacticalActivityId.from(entity.getId()),
         StrategicGoalId.from(entity.getStrategicGoalId()),  // UUID direto → VO
-        null/*entity.getOrganicUnitId()*/,
+        entity.getOrganicUnitId() != null ? entity.getOrganicUnitId().toString() : null,
         entity.getTitle(),
         entity.getDescriptionWhat(),
         entity.getJustificationWhy(),
         entity.getLocationWhere(),
-        null/*entity.getResponsibleWho()*/,
+        entity.getResponsibleWho() != null ? entity.getResponsibleWho().toString() : null,
         entity.getMethodologyHow(),
         DateRange.of(entity.getStartDate(), entity.getEndDate()),
         Budget.of(entity.getBudgetEstimated(), EconomicClassifier.of(entity.getEconomicClassifier())),
@@ -53,12 +53,12 @@ public class TacticalActivityMapper {
     return TacticalActivity.reconstruct(
         TacticalActivityId.from(entity.getId()),
         StrategicGoalId.from(entity.getStrategicGoalId()),
-        null/*entity.getOrganicUnitId()*/,
+        entity.getOrganicUnitId() != null ? entity.getOrganicUnitId().toString() : null,
         entity.getTitle(),
         entity.getDescriptionWhat(),
         entity.getJustificationWhy(),
         entity.getLocationWhere(),
-        null /*entity.getResponsibleWho()*/,
+        entity.getResponsibleWho() != null ? entity.getResponsibleWho().toString() : null,
         entity.getMethodologyHow(),
         DateRange.of(entity.getStartDate(), entity.getEndDate()),
         Budget.of(entity.getBudgetEstimated(), EconomicClassifier.of(entity.getEconomicClassifier())),
@@ -74,12 +74,12 @@ public class TacticalActivityMapper {
     TacticalActivitiesEntity entity = new TacticalActivitiesEntity();
     entity.setId(domain.getId().getValor().getValor());
     entity.setStrategicGoalId(domain.getStrategicGoalId().getValor().getValor()); // VO → UUID
-    //entity.setOrganicUnitId(domain.getOrganicUnitId());
+    entity.setOrganicUnitId(domain.getOrganicUnitId() != null ? java.util.UUID.fromString(domain.getOrganicUnitId()) : null);
     entity.setTitle(domain.getTitle());
     entity.setDescriptionWhat(domain.getDescriptionWhat());
     entity.setJustificationWhy(domain.getJustificationWhy());
     entity.setLocationWhere(domain.getLocationWhere());
-   // entity.setResponsibleWho(domain.getResponsibleWho());
+    entity.setResponsibleWho(domain.getResponsibleWho() != null ? java.util.UUID.fromString(domain.getResponsibleWho()) : null);
     entity.setMethodologyHow(domain.getMethodologyHow());
     entity.setStartDate(domain.getDateRange().getStartDate());
     entity.setEndDate(domain.getDateRange().getEndDate());
