@@ -1,0 +1,10 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "BudgetSummaryResponse",
+  "template": "classic",
+  "attributes": [
+    { "name": "institutionId", "type": "string", "objectType": "java", "required": false },
+    { "name": "fiscalYear", "type": "integer", "objectType": "java", "required": false }
+  ]
+}

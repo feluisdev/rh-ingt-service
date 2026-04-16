@@ -9,6 +9,9 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @Data
@@ -19,11 +22,32 @@ import lombok.AllArgsConstructor;
 @IgrpDTO
 public class CostDriverSimulateResponseDTO  {
 
-  
-  
-  private Object estimatedCost ;
-  
-  
+
+
+  private String driverType ;
+
+
+  private BigDecimal unitCost ;
+
+
   private String currency ;
+
+
+  private BigDecimal totalCost ;
+
+
+  private String driverVersion ;
+
+
+  private String driverSource ;
+
+
+  private String calculatedAt ;
+
+
+  private Map<String, Object> params = new HashMap<>();
+
+
+  private Map<String, Object> breakdown = new HashMap<>();
 
 }

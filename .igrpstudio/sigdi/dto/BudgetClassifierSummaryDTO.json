@@ -1,0 +1,18 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "BudgetClassifierSummary",
+  "template": "classic",
+  "attributes": [
+    { "name": "classifier", "type": "string", "objectType": "java", "required": false },
+    { "name": "description", "type": "string", "objectType": "java", "required": false },
+    { "name": "allocated", "type": "decimal", "objectType": "java", "required": false },
+    { "name": "committed", "type": "decimal", "objectType": "java", "required": false },
+    { "name": "liquidated", "type": "decimal", "objectType": "java", "required": false },
+    { "name": "paid", "type": "decimal", "objectType": "java", "required": false },
+    { "name": "available", "type": "decimal", "objectType": "java", "required": false },
+    { "name": "executionRate", "type": "decimal", "objectType": "java", "required": false },
+    { "name": "alertLevel", "type": "string", "objectType": "java", "required": false },
+    { "name": "activitiesCount", "type": "integer", "objectType": "java", "required": false }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "BudgetAlertItem",
+  "template": "classic",
+  "attributes": [
+    { "name": "classifier", "type": "string", "objectType": "java", "required": false },
+    { "name": "description", "type": "string", "objectType": "java", "required": false },
+    { "name": "alertLevel", "type": "string", "objectType": "java", "required": false },
+    { "name": "liquidatedPct", "type": "decimal", "objectType": "java", "required": false },
+    { "name": "message", "type": "string", "objectType": "java", "required": false }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "SyncJobResponse",
+  "template": "classic",
+  "attributes": [
+    { "name": "syncJobId", "type": "string", "objectType": "java", "required": false },
+    { "name": "status", "type": "string", "objectType": "java", "required": false },
+    { "name": "estimatedDurationSeconds", "type": "integer", "objectType": "java", "required": false },
+    { "name": "startedAt", "type": "string", "objectType": "java", "required": false }
+  ]
+}

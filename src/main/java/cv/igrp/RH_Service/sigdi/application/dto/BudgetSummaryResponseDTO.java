@@ -9,9 +9,8 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import java.util.HashMap;
-import java.util.Map;
-
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -19,14 +18,25 @@ import java.util.Map;
 
 
 @IgrpDTO
-public class CostDriverSimulateReqDTO  {
+public class BudgetSummaryResponseDTO  {
 
-  @NotBlank(message = "The field <driverType> is required")
 
-  private String driverType ;
 
-  @NotNull(message = "The field <params> is required")
+  private String institutionId ;
 
-  private Map<String, Object> params = new HashMap<>();
+
+  private Integer fiscalYear ;
+
+
+  private BudgetSummaryTotalsDTO totals ;
+
+
+  private SigofStatusDTO sigofStatus ;
+
+
+  private List<BudgetClassifierSummaryDTO> byClassifier = new ArrayList<>();
+
+
+  private List<BudgetAlertItemDTO> alerts = new ArrayList<>();
 
 }

@@ -9,9 +9,6 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import java.util.HashMap;
-import java.util.Map;
-
 
 @Data
 @NoArgsConstructor
@@ -19,14 +16,13 @@ import java.util.Map;
 
 
 @IgrpDTO
-public class CostDriverSimulateReqDTO  {
+public class SyncSigofRequestDTO  {
 
-  @NotBlank(message = "The field <driverType> is required")
+  @NotNull(message = "The field <fiscalYear> is required")
 
-  private String driverType ;
+  private Integer fiscalYear ;
+  @NotBlank(message = "The field <scope> is required")
 
-  @NotNull(message = "The field <params> is required")
-
-  private Map<String, Object> params = new HashMap<>();
+  private String scope ;
 
 }

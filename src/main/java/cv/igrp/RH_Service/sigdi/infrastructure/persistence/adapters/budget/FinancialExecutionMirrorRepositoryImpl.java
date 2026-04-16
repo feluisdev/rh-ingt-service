@@ -11,7 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -43,6 +45,22 @@ public class FinancialExecutionMirrorRepositoryImpl implements FinancialExecutio
     }
     return jpaRepository.findByClassifierAndOrganicUnitAndFiscalYear(classifier.getCode(), organicUnit, fiscalYear)
         .map(mapper::toDomain);
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public List<FinancialExecutionMirror> findAllByFiscalYear(Integer fiscalYear) {
+    return jpaRepository.findAllByFiscalYear(fiscalYear).stream()
+        .map(mapper::toDomain)
+        .collect(Collectors.toList());
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public List<FinancialExecutionMirror> findAllByFiscalYearAndOrganicUnit(Integer fiscalYear, String organicUnit) {
+    return jpaRepository.findAllByFiscalYearAndOrganicUnit(fiscalYear, organicUnit).stream()
+        .map(mapper::toDomain)
+        .collect(Collectors.toList());
   }
 }
 

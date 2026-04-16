@@ -1,0 +1,14 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "BudgetSummaryTotals",
+  "template": "classic",
+  "attributes": [
+    { "name": "allocated", "type": "decimal", "objectType": "java", "required": false },
+    { "name": "committed", "type": "decimal", "objectType": "java", "required": false },
+    { "name": "liquidated", "type": "decimal", "objectType": "java", "required": false },
+    { "name": "paid", "type": "decimal", "objectType": "java", "required": false },
+    { "name": "available", "type": "decimal", "objectType": "java", "required": false },
+    { "name": "globalExecutionRate", "type": "decimal", "objectType": "java", "required": false }
+  ]
+}

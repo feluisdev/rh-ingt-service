@@ -9,9 +9,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import java.util.HashMap;
-import java.util.Map;
-
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
@@ -19,14 +17,22 @@ import java.util.Map;
 
 
 @IgrpDTO
-public class CostDriverSimulateReqDTO  {
+public class BudgetAlertItemDTO  {
 
-  @NotBlank(message = "The field <driverType> is required")
 
-  private String driverType ;
 
-  @NotNull(message = "The field <params> is required")
+  private String classifier ;
 
-  private Map<String, Object> params = new HashMap<>();
+
+  private String description ;
+
+
+  private String alertLevel ;
+
+
+  private BigDecimal liquidatedPct ;
+
+
+  private String message ;
 
 }
