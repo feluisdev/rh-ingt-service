@@ -1,27 +1,24 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
-import cv.igrp.framework.core.domain.CommandHandler;
-import cv.igrp.framework.stereotype.IgrpCommandHandler;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.KeyResultsEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.OkrEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.KeyResultsEntityRepository;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.OkrEntityRepository;
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.sigdi.application.constants.KeyResultMetricUnit;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateOkrDTO;
-import cv.igrp.RH_Service.sigdi.application.dto.OkrKeyResultRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.OkrKeyResultResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.OkrResponseDTO;
+import cv.igrp.RH_Service.sigdi.domain.strategy.repository.InstitutionalIdentityRepository;
+import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
+import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
+import cv.igrp.RH_Service.sigdi.domain.tatical.models.Okr;
+import cv.igrp.RH_Service.sigdi.domain.tatical.repository.OkrRepository;
+import cv.igrp.framework.core.domain.CommandHandler;
+import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Component
 public class CreateOkrCommandHandler
@@ -29,80 +26,79 @@ public class CreateOkrCommandHandler
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CreateOkrCommandHandler.class);
 
-  private final OkrEntityRepository okrRepository;
-  private final KeyResultsEntityRepository keyResultsRepository;
+  private final InstitutionalIdentityRepository identityRepository;
+  private final StrategicGoalRepository goalRepository;
+  private final OkrRepository okrRepository;
 
-  public CreateOkrCommandHandler(OkrEntityRepository okrRepository,
-                                  KeyResultsEntityRepository keyResultsRepository) {
+  public CreateOkrCommandHandler(InstitutionalIdentityRepository identityRepository,
+      StrategicGoalRepository goalRepository,
+      OkrRepository okrRepository) {
+    this.identityRepository = identityRepository;
+    this.goalRepository = goalRepository;
     this.okrRepository = okrRepository;
-    this.keyResultsRepository = keyResultsRepository;
   }
 
   @IgrpCommandHandler
-  @Transactional
   public ResponseEntity<OkrResponseDTO> handle(CreateOkrCommand command) {
     LOGGER.debug("CreateOkrCommand: {}", command);
 
-    CreateOkrDTO dto = command.getData();
+    CreateOkrDTO request = command.getData();
 
-    OkrEntity okr = new OkrEntity();
-    okr.setId(UUID.randomUUID());
-    okr.setStrategicGoalId(UUID.fromString(dto.getStrategicGoalId()));
-    okr.setTitle(dto.getTitle());
-    okr.setCycle(dto.getCycle());
-    okr.setStatus("ACTIVE");
-    okrRepository.save(okr);
+    var activeIdentity = identityRepository.findActive()
+        .orElseThrow(() -> IgrpResponseStatusException.notFound("Identidade Institucional ativa não encontrada"));
 
-    List<KeyResultsEntity> savedKrs = new ArrayList<>();
-    for (OkrKeyResultRequestDTO krDto : dto.getKeyResults()) {
-      KeyResultsEntity kr = new KeyResultsEntity();
-      kr.setId(UUID.randomUUID());
-      kr.setTitle(krDto.getTitle());
-      kr.setTargetValue(krDto.getTargetValue());
-      kr.setCurrentValue(BigDecimal.ZERO);
-      kr.setMetricUnit(krDto.getUnit());
-      kr.setWeight(krDto.getWeight());
-      kr.setOkrId(okr);
-      savedKrs.add(keyResultsRepository.save(kr));
-    }
+    StrategicGoalId strategicGoalId = StrategicGoalId.from(request.getStrategicGoalId());
+    goalRepository.findById(strategicGoalId)
+        .orElseThrow(() -> IgrpResponseStatusException.badRequest("strategicGoalId inválido"));
 
-    OkrResponseDTO response = toResponseDTO(okr, savedKrs);
+    List<Okr.KeyResultData> krData = request.getKeyResults().stream()
+        .map(dto -> new Okr.KeyResultData(
+            dto.getTitle(),
+            dto.getTargetValue(),
+            KeyResultMetricUnit.fromCodeOrThrow(dto.getUnit()),
+            dto.getWeight()))
+        .toList();
+
+    Okr okr = Okr.create(
+        activeIdentity.getId(),
+        strategicGoalId,
+        request.getTitle(),
+        request.getCycle(),
+        krData);
+
+    Okr saved = okrRepository.save(okr);
+
+    OkrResponseDTO response = new OkrResponseDTO();
+    response.setId(saved.getId().getStringValor());
+    response.setInstitutionId(saved.getInstitutionId() != null
+        ? saved.getInstitutionId().getStringValor()
+        : null);
+    response.setStrategicGoalId(saved.getStrategicGoalId() != null
+        ? saved.getStrategicGoalId().getStringValor()
+        : null);
+    response.setTitle(saved.getTitle());
+    response.setCycle(saved.getCycle());
+    response.setStatus(saved.getStatus());
+    response.setProgress(saved.getProgressPercentage());
+    response.setCreatedAt(null);
+
+    List<OkrKeyResultResponseDTO> krResponses = saved.getKeyResults().stream()
+        .map(kr -> {
+          OkrKeyResultResponseDTO krDto = new OkrKeyResultResponseDTO();
+          krDto.setId(kr.getId().getStringValor());
+          krDto.setTitle(kr.getTitle());
+          krDto.setTargetValue(kr.getTargetValue());
+          krDto.setCurrentValue(kr.getCurrentValue());
+          krDto.setProgress(kr.getProgressPercentage());
+          krDto.setUnit(kr.getUnit().getCode());
+          krDto.setWeight(kr.getWeight());
+          krDto.setRiskLevel("NONE");
+          return krDto;
+        })
+        .toList();
+
+    response.setKeyResults(krResponses);
+
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
-  }
-
-  private OkrResponseDTO toResponseDTO(OkrEntity okr, List<KeyResultsEntity> krs) {
-    OkrResponseDTO dto = new OkrResponseDTO();
-    dto.setId(okr.getId().toString());
-    dto.setInstitutionId(okr.getInstitutionId() != null ? okr.getInstitutionId().toString() : null);
-    dto.setStrategicGoalId(okr.getStrategicGoalId() != null ? okr.getStrategicGoalId().toString() : null);
-    dto.setTitle(okr.getTitle());
-    dto.setCycle(okr.getCycle());
-    dto.setStatus(okr.getStatus());
-    dto.setProgress(BigDecimal.ZERO);
-    dto.setCreatedAt(okr.getCreatedDate() != null ? okr.getCreatedDate().toString() : null);
-
-    List<OkrKeyResultResponseDTO> krResponses = krs.stream().map(kr -> {
-      OkrKeyResultResponseDTO krDto = new OkrKeyResultResponseDTO();
-      krDto.setId(kr.getId().toString());
-      krDto.setTitle(kr.getTitle());
-      krDto.setTargetValue(kr.getTargetValue());
-      krDto.setCurrentValue(kr.getCurrentValue());
-      krDto.setProgress(computeProgress(kr.getCurrentValue(), kr.getTargetValue()));
-      krDto.setUnit(kr.getMetricUnit());
-      krDto.setWeight(kr.getWeight());
-      krDto.setRiskLevel("NONE");
-      return krDto;
-    }).toList();
-
-    dto.setKeyResults(krResponses);
-    return dto;
-  }
-
-  private BigDecimal computeProgress(BigDecimal current, BigDecimal target) {
-    if (target == null || target.compareTo(BigDecimal.ZERO) == 0) return BigDecimal.ZERO;
-    if (current == null) return BigDecimal.ZERO;
-    return current.divide(target, 4, RoundingMode.HALF_UP)
-        .multiply(BigDecimal.valueOf(100))
-        .setScale(1, RoundingMode.HALF_UP);
   }
 }
