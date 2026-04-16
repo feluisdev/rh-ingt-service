@@ -1,0 +1,19 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "SiadapConfigResponse",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    { "name": "year",                        "objectType": "java", "type": "integer", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "goodScore",                   "objectType": "java", "type": "decimal", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "excellentScore",              "objectType": "java", "type": "decimal", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "excellentQuota",              "objectType": "java", "type": "decimal", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "goodQuota",                   "objectType": "java", "type": "decimal", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "minimumCollaboratorsForQuota","objectType": "java", "type": "integer", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "resultsWeight",               "objectType": "java", "type": "decimal", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "competenciesWeight",          "objectType": "java", "type": "decimal", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "source",                      "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "updatedAt",                   "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false }
+  ]
+}

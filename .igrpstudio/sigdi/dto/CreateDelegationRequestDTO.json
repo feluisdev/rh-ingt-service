@@ -1,0 +1,14 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "CreateDelegationRequest",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    { "name": "delegateUserId", "objectType": "java", "type": "string", "required": true,  "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "scope",          "objectType": "java", "type": "string", "required": true,  "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "startDate",      "objectType": "java", "type": "string", "required": true,  "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "endDate",        "objectType": "java", "type": "string", "required": true,  "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "reason",         "objectType": "java", "type": "string", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false }
+  ]
+}

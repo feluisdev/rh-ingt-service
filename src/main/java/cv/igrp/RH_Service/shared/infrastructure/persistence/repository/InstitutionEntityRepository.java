@@ -16,6 +16,8 @@ public interface InstitutionEntityRepository extends
     JpaSpecificationExecutor<InstitutionEntity>
 {
 
+      Optional<InstitutionEntity> findByCode(String code);
+
       default InstitutionEntity findByIdOrThrow(UUID id) {
           return this.findById(id)
           .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND,"InstitutionEntity not found for id: " + id));
