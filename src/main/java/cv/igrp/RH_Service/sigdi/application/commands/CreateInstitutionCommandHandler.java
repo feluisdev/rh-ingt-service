@@ -1,10 +1,10 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.InstitutionEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.InstitutionEntityRepository;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateInstitutionRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.InstitutionResponseDTO;
+import cv.igrp.RH_Service.sigdi.domain.admin.models.Institution;
+import cv.igrp.RH_Service.sigdi.domain.admin.repository.InstitutionRepository;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import org.slf4j.Logger;
@@ -13,17 +13,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
-
 @Component
 public class CreateInstitutionCommandHandler
     implements CommandHandler<CreateInstitutionCommand, ResponseEntity<InstitutionResponseDTO>> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CreateInstitutionCommandHandler.class);
 
-  private final InstitutionEntityRepository institutionRepository;
+  private final InstitutionRepository institutionRepository;
 
-  public CreateInstitutionCommandHandler(InstitutionEntityRepository institutionRepository) {
+  public CreateInstitutionCommandHandler(InstitutionRepository institutionRepository) {
     this.institutionRepository = institutionRepository;
   }
 
@@ -39,23 +37,17 @@ public class CreateInstitutionCommandHandler
           "SIGDI-ADM-001: Institution with code '" + req.getCode() + "' already exists.");
     });
 
-    InstitutionEntity entity = new InstitutionEntity();
-    entity.setId(UUID.randomUUID());
-    entity.setCode(req.getCode());
-    entity.setName(req.getName());
-    entity.setType(req.getType());
-    entity.setActive(true);
-
-    InstitutionEntity saved = institutionRepository.save(entity);
+    Institution institution = Institution.create(req.getCode(), req.getName(), req.getType());
+    Institution saved = institutionRepository.save(institution);
 
     InstitutionResponseDTO response = new InstitutionResponseDTO();
-    response.setId(saved.getId().toString());
+    response.setId(saved.getId().getStringValor());
     response.setCode(saved.getCode());
     response.setName(saved.getName());
     response.setType(saved.getType());
     response.setIsActive(saved.isActive());
     response.setContactEmail(null);
-    response.setCreatedAt(saved.getCreatedDate() != null ? saved.getCreatedDate().toString() : null);
+    response.setCreatedAt(null);
 
     return ResponseEntity.status(201).body(response);
   }

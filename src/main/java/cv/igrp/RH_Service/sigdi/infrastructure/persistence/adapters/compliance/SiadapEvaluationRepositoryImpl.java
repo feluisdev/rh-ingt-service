@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -50,6 +51,16 @@ public class SiadapEvaluationRepositoryImpl implements SiadapEvaluationRepositor
     return jpaRepository.findByYear(year.toString()).stream()
         .map(mapper::toDomain)
         .toList();
+  }
+
+  @Transactional
+  @Override
+  public List<SiadapEvaluation> saveAll(List<SiadapEvaluation> evaluations) {
+    List<SiadapEvaluationEntity> entities = evaluations.stream()
+        .map(mapper::toEntity)
+        .collect(Collectors.toList());
+    List<SiadapEvaluationEntity> saved = jpaRepository.saveAll(entities);
+    return saved.stream().map(mapper::toDomain).collect(Collectors.toList());
   }
 }
 

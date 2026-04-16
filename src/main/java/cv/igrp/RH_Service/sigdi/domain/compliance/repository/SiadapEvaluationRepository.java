@@ -15,5 +15,7 @@ public interface SiadapEvaluationRepository {
   Optional<SiadapEvaluation> findByEmployeeAndYear(String employeeId, Integer year);
 
   List<SiadapEvaluation> findByYear(Integer year);
+
+  List<SiadapEvaluation> saveAll(List<SiadapEvaluation> evaluations);
 }
 

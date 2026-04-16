@@ -1,9 +1,9 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.SiadapConfigEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.SiadapConfigEntityRepository;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapConfigRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapConfigResponseDTO;
+import cv.igrp.RH_Service.sigdi.domain.admin.models.SiadapConfig;
+import cv.igrp.RH_Service.sigdi.domain.admin.repository.SiadapConfigRepository;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import org.slf4j.Logger;
@@ -12,17 +12,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
-
 @Component
 public class UpsertSiadapConfigCommandHandler
     implements CommandHandler<UpsertSiadapConfigCommand, ResponseEntity<SiadapConfigResponseDTO>> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(UpsertSiadapConfigCommandHandler.class);
 
-  private final SiadapConfigEntityRepository configRepository;
+  private final SiadapConfigRepository configRepository;
 
-  public UpsertSiadapConfigCommandHandler(SiadapConfigEntityRepository configRepository) {
+  public UpsertSiadapConfigCommandHandler(SiadapConfigRepository configRepository) {
     this.configRepository = configRepository;
   }
 
@@ -34,22 +32,24 @@ public class UpsertSiadapConfigCommandHandler
     Integer year = command.getYear();
     SiadapConfigRequestDTO req = command.getBody();
 
-    SiadapConfigEntity entity = configRepository.findByFiscalYear(year)
-        .orElseGet(() -> {
-          SiadapConfigEntity e = new SiadapConfigEntity();
-          e.setId(UUID.randomUUID());
-          e.setFiscalYear(year);
-          return e;
-        });
+    SiadapConfig config = configRepository.findByFiscalYear(year)
+        .map(existing -> existing.update(
+            req.getGoodScore(),
+            req.getExcellentScore(),
+            req.getExcellentQuota(),
+            req.getMinimumCollaboratorsForQuota(),
+            req.getResultsWeight(),
+            req.getCompetenciesWeight()))
+        .orElseGet(() -> SiadapConfig.create(
+            year,
+            req.getGoodScore(),
+            req.getExcellentScore(),
+            req.getExcellentQuota(),
+            req.getMinimumCollaboratorsForQuota(),
+            req.getResultsWeight(),
+            req.getCompetenciesWeight()));
 
-    entity.setGoodScore(req.getGoodScore());
-    entity.setExcellentScore(req.getExcellentScore());
-    entity.setExcellentQuota(req.getExcellentQuota());
-    entity.setMinCollaboratorsForQuota(req.getMinimumCollaboratorsForQuota());
-    entity.setResultsWeight(req.getResultsWeight());
-    entity.setCompetenciesWeight(req.getCompetenciesWeight());
-
-    SiadapConfigEntity saved = configRepository.save(entity);
+    SiadapConfig saved = configRepository.save(config);
 
     SiadapConfigResponseDTO response = new SiadapConfigResponseDTO();
     response.setYear(saved.getFiscalYear());
@@ -61,7 +61,7 @@ public class UpsertSiadapConfigCommandHandler
     response.setResultsWeight(saved.getResultsWeight());
     response.setCompetenciesWeight(saved.getCompetenciesWeight());
     response.setSource("MANUAL");
-    response.setUpdatedAt(saved.getLastModifiedDate() != null ? saved.getLastModifiedDate().toString() : null);
+    response.setUpdatedAt(null);
 
     return ResponseEntity.ok(response);
   }

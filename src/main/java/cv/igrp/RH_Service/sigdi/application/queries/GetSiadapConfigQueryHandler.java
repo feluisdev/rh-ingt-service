@@ -1,9 +1,9 @@
 package cv.igrp.RH_Service.sigdi.application.queries;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.SiadapConfigEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.SiadapConfigEntityRepository;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapConfigResponseDTO;
+import cv.igrp.RH_Service.sigdi.domain.admin.models.SiadapConfig;
+import cv.igrp.RH_Service.sigdi.domain.admin.repository.SiadapConfigRepository;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import org.slf4j.Logger;
@@ -20,9 +20,9 @@ public class GetSiadapConfigQueryHandler
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GetSiadapConfigQueryHandler.class);
 
-  private final SiadapConfigEntityRepository configRepository;
+  private final SiadapConfigRepository configRepository;
 
-  public GetSiadapConfigQueryHandler(SiadapConfigEntityRepository configRepository) {
+  public GetSiadapConfigQueryHandler(SiadapConfigRepository configRepository) {
     this.configRepository = configRepository;
   }
 
@@ -34,28 +34,30 @@ public class GetSiadapConfigQueryHandler
     Integer year = query.getYear();
 
     // Try exact year first, then fall back to previous year
-    Optional<SiadapConfigEntity> entityOpt = configRepository.findByFiscalYear(year);
-    if (entityOpt.isEmpty()) {
-      entityOpt = configRepository.findByFiscalYear(year - 1);
+    Optional<SiadapConfig> configOpt = configRepository.findByFiscalYear(year);
+    if (configOpt.isEmpty()) {
+      configOpt = configRepository.findByFiscalYear(year - 1);
     }
 
-    SiadapConfigEntity entity = entityOpt.orElseThrow(() ->
+    SiadapConfig config = configOpt.orElseThrow(() ->
         IgrpResponseStatusException.notFound(
             "No SIADAP configuration found for year " + year + " or " + (year - 1)));
 
-    String source = entity.getFiscalYear().equals(year) ? "MANUAL" : "INHERITED_FROM_" + entity.getFiscalYear();
+    String source = config.getFiscalYear().equals(year)
+        ? "CONFIGURED"
+        : "FALLBACK_FROM_PREVIOUS_YEAR";
 
     SiadapConfigResponseDTO response = new SiadapConfigResponseDTO();
-    response.setYear(entity.getFiscalYear());
-    response.setGoodScore(entity.getGoodScore());
-    response.setExcellentScore(entity.getExcellentScore());
-    response.setExcellentQuota(entity.getExcellentQuota());
+    response.setYear(config.getFiscalYear());
+    response.setGoodScore(config.getGoodScore());
+    response.setExcellentScore(config.getExcellentScore());
+    response.setExcellentQuota(config.getExcellentQuota());
     response.setGoodQuota(null);
-    response.setMinimumCollaboratorsForQuota(entity.getMinCollaboratorsForQuota());
-    response.setResultsWeight(entity.getResultsWeight());
-    response.setCompetenciesWeight(entity.getCompetenciesWeight());
+    response.setMinimumCollaboratorsForQuota(config.getMinCollaboratorsForQuota());
+    response.setResultsWeight(config.getResultsWeight());
+    response.setCompetenciesWeight(config.getCompetenciesWeight());
     response.setSource(source);
-    response.setUpdatedAt(entity.getLastModifiedDate() != null ? entity.getLastModifiedDate().toString() : null);
+    response.setUpdatedAt(null);
 
     return ResponseEntity.ok(response);
   }
