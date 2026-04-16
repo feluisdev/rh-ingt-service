@@ -2,6 +2,8 @@ package cv.igrp.RH_Service.shared.infrastructure.persistence.repository;
 
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.SiadapEvaluationEntity;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -17,6 +19,12 @@ public interface SiadapEvaluationEntityRepository extends
     JpaSpecificationExecutor<SiadapEvaluationEntity>
 {
       List<SiadapEvaluationEntity> findByYear(String year);
+
+      Page<SiadapEvaluationEntity> findByYear(String year, Pageable pageable);
+
+      long countByYear(String year);
+
+      long countByYearAndMeritRating(String year, String meritRating);
 
       Optional<SiadapEvaluationEntity> findByEmployeeIdAndYear(String employeeId, String year);
 

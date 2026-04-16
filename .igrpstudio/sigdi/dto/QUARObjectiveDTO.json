@@ -1,0 +1,19 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "QUARObjective",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    { "name": "id",            "objectType": "java", "type": "string",         "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "title",         "objectType": "java", "type": "string",         "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "perspective",   "objectType": "java", "type": "string",         "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "weight",        "objectType": "java", "type": "decimal",        "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "planned",       "objectType": "java", "type": "decimal",        "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "realized",      "objectType": "java", "type": "decimal",        "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "deviation",     "objectType": "java", "type": "decimal",        "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "deviationPct",  "objectType": "java", "type": "decimal",        "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "rating",        "objectType": "java", "type": "string",         "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "keyResults",    "objectType": "dto",  "type": "QUARKeyResultDTO","required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false, "collectionType": "list" }
+  ]
+}

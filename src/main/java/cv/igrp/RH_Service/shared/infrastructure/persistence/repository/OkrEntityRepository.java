@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.http.HttpStatus;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,6 +16,10 @@ public interface OkrEntityRepository extends
     JpaRepository<OkrEntity, UUID>,
     JpaSpecificationExecutor<OkrEntity>
 {
+
+      List<OkrEntity> findAllByInstitutionId(UUID institutionId);
+
+      List<OkrEntity> findAllByInstitutionIdAndCycle(UUID institutionId, String cycle);
 
       default OkrEntity findByIdOrThrow(UUID id) {
           return this.findById(id)

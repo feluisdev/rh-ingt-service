@@ -1,0 +1,14 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "QuotaViolation",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    { "name": "type",     "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "rating",   "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "allowed",  "objectType": "java", "type": "integer", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "assigned", "objectType": "java", "type": "integer", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "message",  "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false }
+  ]
+}

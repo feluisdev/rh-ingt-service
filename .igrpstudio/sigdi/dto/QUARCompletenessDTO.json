@@ -1,0 +1,12 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "QUARCompleteness",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    { "name": "totalObjectives",         "objectType": "java", "type": "integer",            "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "objectivesWithCheckins",  "objectType": "java", "type": "integer",            "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "missingCheckins",         "objectType": "dto",  "type": "QUARMissingCheckinDTO","required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false, "collectionType": "list" }
+  ]
+}

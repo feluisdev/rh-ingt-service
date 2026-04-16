@@ -16,6 +16,8 @@ public interface SiadapConfigEntityRepository extends
     JpaSpecificationExecutor<SiadapConfigEntity>
 {
 
+      Optional<SiadapConfigEntity> findByFiscalYear(Integer fiscalYear);
+
       default SiadapConfigEntity findByIdOrThrow(UUID id) {
           return this.findById(id)
           .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND,"SiadapConfigEntity not found for id: " + id));
