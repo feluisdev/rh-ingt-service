@@ -7,10 +7,13 @@ import cv.igrp.RH_Service.sigdi.domain.intelligence.repository.SimulationScenari
 import cv.igrp.RH_Service.sigdi.domain.intelligence.valueobject.SimulationScenarioId;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.intelligence.SimulationScenarioMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -39,6 +42,21 @@ public class SimulationScenarioRepositoryImpl implements SimulationScenarioRepos
   public Optional<SimulationScenario> findByIdFull(SimulationScenarioId id) {
     return jpaRepository.findById(id.getValor().getValor())
         .map(mapper::toDomainFull);
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public List<SimulationScenario> findAll(int page, int size) {
+    return jpaRepository.findAll(PageRequest.of(page, size))
+        .stream()
+        .map(mapper::toDomain)
+        .collect(Collectors.toList());
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public long count() {
+    return jpaRepository.count();
   }
 }
 

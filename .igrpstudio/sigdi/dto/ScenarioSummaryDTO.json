@@ -1,0 +1,16 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "ScenarioSummary",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    { "name": "totalActivities",      "objectType": "java", "type": "integer", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "activitiesViable",     "objectType": "java", "type": "integer", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "activitiesAtRisk",     "objectType": "java", "type": "integer", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "activitiesInfeasible", "objectType": "java", "type": "integer", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "totalBudgetBefore",    "objectType": "java", "type": "decimal", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "totalBudgetAfter",     "objectType": "java", "type": "decimal", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "totalSaving",          "objectType": "java", "type": "decimal", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false }
+  ]
+}

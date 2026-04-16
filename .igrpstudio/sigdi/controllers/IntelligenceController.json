@@ -1,0 +1,41 @@
+{
+  "type": "controller",
+  "name": "IntelligenceController",
+  "module": "sigdi",
+  "basePath": "api/v1/intelligence",
+  "description": "Intelligence module — scenario simulation and impact analysis",
+  "actions": [
+    {
+      "actionName": "createScenario",
+      "method": "POST",
+      "path": "scenarios",
+      "requestBody": { "name": "CreateScenarioRequest", "module": "sigdi" },
+      "responses": [{ "status": 200 }, { "status": 202 }]
+    },
+    {
+      "actionName": "getScenario",
+      "method": "GET",
+      "path": "scenarios/{id}",
+      "pathVariables": [{ "type": "string", "name": "id", "isRequired": true }],
+      "responses": [{ "status": 200 }]
+    },
+    {
+      "actionName": "exportScenario",
+      "method": "GET",
+      "path": "scenarios/{id}/export",
+      "pathVariables": [{ "type": "string", "name": "id", "isRequired": true }],
+      "requestParams": [{ "type": "string", "name": "format", "isRequired": false }],
+      "responses": [{ "status": 200 }]
+    },
+    {
+      "actionName": "listScenarios",
+      "method": "GET",
+      "path": "scenarios",
+      "requestParams": [
+        { "type": "string", "name": "pageNumber", "isRequired": false },
+        { "type": "string", "name": "pageSize",   "isRequired": false }
+      ],
+      "responses": [{ "status": 200 }]
+    }
+  ]
+}
