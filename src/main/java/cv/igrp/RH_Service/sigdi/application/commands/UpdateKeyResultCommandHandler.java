@@ -42,7 +42,8 @@ public class UpdateKeyResultCommandHandler implements CommandHandler<UpdateKeyRe
         throw IgrpResponseStatusException.badRequest("currentValue só pode ser alterado via check-in");
       }
 
-      if (request.getActivityId() != null && !current.getActivityId().getValor().getValor().equals(request.getActivityId())) {
+      if (request.getActivityId() != null && current.getActivityId() != null
+          && !current.getActivityId().getValor().getValor().equals(request.getActivityId())) {
         throw IgrpResponseStatusException.badRequest("activityId não pode ser alterado");
       }
 
@@ -63,7 +64,7 @@ public class UpdateKeyResultCommandHandler implements CommandHandler<UpdateKeyRe
      dto.setTargetValue(kr.getTargetValue());
      dto.setCurrentValue(kr.getCurrentValue());
      dto.setMetricUnit(kr.getMetricUnit() != null ? kr.getMetricUnit().getCode() : null);
-     dto.setActivityId(kr.getActivityId().getValor().getValor());
+     dto.setActivityId(kr.getActivityId() != null ? kr.getActivityId().getValor().getValor() : null);
      return dto;
    }
 

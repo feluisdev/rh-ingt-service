@@ -83,7 +83,7 @@ public class GetAllKeyResultsQueryHandler
     dto.setTargetValue(kr.getTargetValue());
     dto.setCurrentValue(kr.getCurrentValue());
     dto.setMetricUnit(kr.getMetricUnit() != null ? kr.getMetricUnit().getCode() : null);
-    dto.setActivityId(kr.getActivityId().getValor().getValor());
+    dto.setActivityId(kr.getActivityId() != null ? kr.getActivityId().getValor().getValor() : null);
     return dto;
   }
 
