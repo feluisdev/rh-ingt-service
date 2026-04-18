@@ -24,10 +24,13 @@ public class KeyResultMapper {
   public KeyResult toDomain(KeyResultsEntity entity) {
     if (entity == null) return null;
 
+    TacticalActivityId activityId = entity.getActivityId() != null
+        ? TacticalActivityId.from(entity.getActivityId().getId()) : null;
+
     return KeyResult.reconstruct(
         KeyResultId.from(entity.getId()),
         entity.getInstitutionId(),
-        TacticalActivityId.from(entity.getActivityId().getId()),
+        activityId,
         entity.getTitle(),
         entity.getTargetValue(),
         entity.getCurrentValue(),
@@ -43,10 +46,13 @@ public class KeyResultMapper {
         .map(checkinMapper::toDomain)
         .collect(Collectors.toList());
 
+    TacticalActivityId activityId = entity.getActivityId() != null
+        ? TacticalActivityId.from(entity.getActivityId().getId()) : null;
+
     return KeyResult.reconstruct(
         KeyResultId.from(entity.getId()),
         entity.getInstitutionId(),
-        TacticalActivityId.from(entity.getActivityId().getId()),
+        activityId,
         entity.getTitle(),
         entity.getTargetValue(),
         entity.getCurrentValue(),
@@ -65,9 +71,11 @@ public class KeyResultMapper {
     entity.setCurrentValue(domain.getCurrentValue());
     entity.setMetricUnit(domain.getMetricUnit().getCode());
 
-    TacticalActivitiesEntity activityRef = new TacticalActivitiesEntity();
-    activityRef.setId(domain.getActivityId().getValor().getValor());
-    entity.setActivityId(activityRef);
+    if (domain.getActivityId() != null) {
+      TacticalActivitiesEntity activityRef = new TacticalActivitiesEntity();
+      activityRef.setId(domain.getActivityId().getValor().getValor());
+      entity.setActivityId(activityRef);
+    }
 
     List<KeyResultsCheckinEntity> checkins = domain.getCheckins().stream()
         .map(checkinMapper::toEntity)

@@ -37,8 +37,7 @@ public class KeyResult {
       throw new IllegalArgumentException("title é obrigatório");
     if (targetValue == null || targetValue.compareTo(BigDecimal.ZERO) <= 0)
       throw new IllegalArgumentException("targetValue deve ser maior que zero");
-    if (activityId == null)
-      throw new IllegalArgumentException("activityId é obrigatório");
+    // activityId is null for OKR-bound key results (belong to an OKR, not a TacticalActivity)
 
     this.id = id;
     this.institutionId = institutionId;

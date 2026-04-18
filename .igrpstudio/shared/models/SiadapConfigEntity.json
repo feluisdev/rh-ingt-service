@@ -59,6 +59,16 @@
       "objectType": "java"
     },
     {
+      "name": "good_quota",
+      "type": "decimal",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
       "name": "min_collaborators_for_quota",
       "type": "integer",
       "length": 255,
