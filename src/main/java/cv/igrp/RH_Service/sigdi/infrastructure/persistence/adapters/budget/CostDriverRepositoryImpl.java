@@ -53,7 +53,6 @@ public class CostDriverRepositoryImpl implements CostDriverRepository {
     return jpaRepository.findByDriverType(type.getCode()).stream()
         .map(mapper::toDomain)
         .filter(driver -> !date.isBefore(driver.getValidFrom()))
-        .filter(driver -> driver.getValidUntil() == null || !date.isAfter(driver.getValidUntil()))
         .findFirst();
   }
 }

@@ -57,8 +57,7 @@ public class InstitutionalIdentityRepositoryImpl implements InstitutionalIdentit
   @Transactional(readOnly = true)
   @Override
   public List<InstitutionalIdentity> findAll(Integer cycleYear, int page, int size) {
-    Specification<InstitutionalIdentityEntity> spec = buildSpec(cycleYear);
-    return jpaRepository.findAll(spec, PageRequest.of(page, size))
+    return jpaRepository.findAll(buildSpec(cycleYear), PageRequest.of(page, size))
         .stream()
         .map(mapper::toDomain)
         .toList();

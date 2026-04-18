@@ -12,6 +12,7 @@ import java.util.UUID;
 public class ChangeRequest {
 
   private final ChangeRequestId id;
+  private final UUID institutionId;
   private final TacticalActivityId activityId;
   private final String fieldName;
   private final String currentValue;
@@ -21,14 +22,16 @@ public class ChangeRequest {
   private final UUID reviewerId;
   private final String reviewerComment;
 
-  private ChangeRequest(ChangeRequestId id, TacticalActivityId activityId, String fieldName,
-                        String currentValue, String proposedValue, String justification,
-                        ChangeRequestStatus status, UUID reviewerId, String reviewerComment) {
+  private ChangeRequest(ChangeRequestId id, UUID institutionId, TacticalActivityId activityId,
+                        String fieldName, String currentValue, String proposedValue,
+                        String justification, ChangeRequestStatus status, UUID reviewerId,
+                        String reviewerComment) {
     if (activityId == null) throw new IllegalArgumentException("activityId é obrigatório");
     if (fieldName == null || fieldName.isBlank()) throw new IllegalArgumentException("fieldName é obrigatório");
     if (justification == null || justification.isBlank()) throw new IllegalArgumentException("justification é obrigatória");
 
     this.id = id;
+    this.institutionId = institutionId;
     this.activityId = activityId;
     this.fieldName = fieldName;
     this.currentValue = currentValue;
@@ -39,25 +42,28 @@ public class ChangeRequest {
     this.reviewerComment = reviewerComment;
   }
 
-  public static ChangeRequest create(TacticalActivityId activityId, String fieldName,
-                                     String currentValue, String proposedValue, String justification) {
-    return new ChangeRequest(ChangeRequestId.gerarNovo(), activityId, fieldName,
+  public static ChangeRequest create(UUID institutionId, TacticalActivityId activityId,
+                                     String fieldName, String currentValue, String proposedValue,
+                                     String justification) {
+    return new ChangeRequest(ChangeRequestId.gerarNovo(), institutionId, activityId, fieldName,
         currentValue, proposedValue, justification, ChangeRequestStatus.PENDING, null, null);
   }
 
-  public static ChangeRequest reconstruct(ChangeRequestId id, TacticalActivityId activityId,
-                                          String fieldName, String currentValue, String proposedValue,
+  public static ChangeRequest reconstruct(ChangeRequestId id, UUID institutionId,
+                                          TacticalActivityId activityId, String fieldName,
+                                          String currentValue, String proposedValue,
                                           String justification, ChangeRequestStatus status,
                                           UUID reviewerId, String reviewerComment) {
-    return new ChangeRequest(id, activityId, fieldName, currentValue, proposedValue,
+    return new ChangeRequest(id, institutionId, activityId, fieldName, currentValue, proposedValue,
         justification, status, reviewerId, reviewerComment);
   }
 
   public ChangeRequest approve(String comment) {
     if (!ChangeRequestStatus.PENDING.equals(this.status))
       throw IgrpResponseStatusException.badRequest("Change Request não está pendente");
-    return new ChangeRequest(this.id, this.activityId, this.fieldName, this.currentValue,
-        this.proposedValue, this.justification, ChangeRequestStatus.APPROVED, null, comment);
+    return new ChangeRequest(this.id, this.institutionId, this.activityId, this.fieldName,
+        this.currentValue, this.proposedValue, this.justification,
+        ChangeRequestStatus.APPROVED, null, comment);
   }
 
   public ChangeRequest reject(String comment) {
@@ -65,8 +71,9 @@ public class ChangeRequest {
       throw IgrpResponseStatusException.badRequest("Change Request não está pendente");
     if (comment == null || comment.isBlank())
       throw IgrpResponseStatusException.badRequest("Comentário é obrigatório para rejeitar");
-    return new ChangeRequest(this.id, this.activityId, this.fieldName, this.currentValue,
-        this.proposedValue, this.justification, ChangeRequestStatus.REJECTED, null, comment);
+    return new ChangeRequest(this.id, this.institutionId, this.activityId, this.fieldName,
+        this.currentValue, this.proposedValue, this.justification,
+        ChangeRequestStatus.REJECTED, null, comment);
   }
 
   public boolean isPending() {

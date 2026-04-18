@@ -73,22 +73,14 @@ public class TacticalActivityRepositoryImpl implements TacticalActivityRepositor
     int pageSize = (filter != null && filter.getPageSize() != null) ? filter.getPageSize() : 20;
 
     Pageable pageable = PageRequest.of(pageNumber, pageSize);
-
-    Specification<TacticalActivitiesEntity> specification = (root, query, cb) -> cb.conjunction(); // a espera de futuras implementacoes
+    Specification<TacticalActivitiesEntity> specification = (root, query, cb) -> cb.conjunction();
 
     var page = jpaRepository.findAll(specification, pageable);
     List<TacticalActivity> data = page.getContent().stream()
         .map(mapper::toDomain)
         .toList();
 
-    return new PageResult<>(
-        data,
-        page.getNumber(),
-        page.getSize(),
-        page.getTotalElements(),
-        page.getTotalPages(),
-        page.isFirst(),
-        page.isLast()
-    );
+    return new PageResult<>(data, page.getNumber(), page.getSize(), page.getTotalElements(),
+        page.getTotalPages(), page.isFirst(), page.isLast());
   }
 }

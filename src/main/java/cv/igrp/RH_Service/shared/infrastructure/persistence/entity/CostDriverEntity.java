@@ -26,29 +26,29 @@ public class CostDriverEntity extends AuditEntity {
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
 
-  
+
     @NotBlank(message = "driverType is mandatory")
     @Column(name="driver_type", nullable = false)
     private String driverType;
 
-  
-    @NotBlank(message = "parameters is mandatory")
-    @Lob
-    @Column(name="parameters", nullable = false, columnDefinition="TEXT")
-    private String parameters;
 
-  
+    @NotBlank(message = "params is mandatory")
+    @Column(name="params", nullable = false, columnDefinition = "jsonb")
+    private String params;
+
+
     @NotNull(message = "validFrom is mandatory")
     @Column(name="valid_from", nullable = false)
     private LocalDate validFrom;
 
-  
-    @Column(name="valid_until")
-    private LocalDate validUntil;
 
-  
-    @Column(name="currency")
-    private String currency;
+    @NotBlank(message = "currency is mandatory")
+    @Column(name="currency", nullable = false)
+    private String currency = "CVE";
 
-  
+
+    @Column(name="legal_reference")
+    private String legalReference;
+
+
 }

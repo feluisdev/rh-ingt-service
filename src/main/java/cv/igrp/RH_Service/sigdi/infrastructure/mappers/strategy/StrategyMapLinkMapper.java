@@ -18,8 +18,9 @@ public class StrategyMapLinkMapper {
 
     return StrategyMapLink.reconstruct(
         StrategyMapLinkId.from(entity.getId()),
-        StrategicGoalId.from(entity.getSourceGoalId().getId()), // só o ID
-        StrategicGoalId.from(entity.getTargetGoalId().getId()), // só o ID
+        entity.getInstitutionId(),
+        StrategicGoalId.from(entity.getSourceGoalId().getId()),
+        StrategicGoalId.from(entity.getTargetGoalId().getId()),
         StrategyMapRelationshipType.fromCodeOrThrow(entity.getRelationshipType())
     );
   }
@@ -29,9 +30,9 @@ public class StrategyMapLinkMapper {
 
     StrategyMapLinkEntity entity = new StrategyMapLinkEntity();
     entity.setId(domain.getId().getValor().getValor());
+    entity.setInstitutionId(domain.getInstitutionId());
     entity.setRelationshipType(domain.getRelationshipType().getCode());
 
-    // Referências leves — só os IDs
     StrategicGoalEntity sourceRef = new StrategicGoalEntity();
     sourceRef.setId(domain.getSourceGoalId().getValor().getValor());
     entity.setSourceGoalId(sourceRef);

@@ -16,9 +16,10 @@ public class CostDriverMapper {
     return CostDriver.reconstruct(
         CostDriverId.from(entity.getId()),
         CostDriverType.fromCodeOrThrow(entity.getDriverType()),
-        CostDriverParams.fromJson(entity.getDriverType(), entity.getParameters()),
+        CostDriverParams.fromJson(entity.getDriverType(), entity.getParams()),
         entity.getValidFrom(),
-        entity.getValidUntil()
+        entity.getCurrency(),
+        entity.getLegalReference()
     );
   }
 
@@ -28,10 +29,10 @@ public class CostDriverMapper {
     CostDriverEntity entity = new CostDriverEntity();
     entity.setId(domain.getId().getValor().getValor());
     entity.setDriverType(domain.getDriverType().getCode());
-    entity.setParameters(domain.getParameters().toJson());
+    entity.setParams(domain.getParameters().toJson());
     entity.setValidFrom(domain.getValidFrom());
-    entity.setValidUntil(domain.getValidUntil());
+    entity.setCurrency(domain.getCurrency());
+    entity.setLegalReference(domain.getLegalReference());
     return entity;
   }
 }
-

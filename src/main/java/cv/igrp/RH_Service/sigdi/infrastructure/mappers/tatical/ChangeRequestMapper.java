@@ -16,6 +16,7 @@ public class ChangeRequestMapper {
 
     return ChangeRequest.reconstruct(
         ChangeRequestId.from(entity.getId()),
+        entity.getInstitutionId(),
         TacticalActivityId.from(entity.getActivityId().getId()),
         entity.getFieldName(),
         entity.getCurrentValue(),
@@ -32,6 +33,7 @@ public class ChangeRequestMapper {
 
     ChangeRequestEntity entity = new ChangeRequestEntity();
     entity.setId(domain.getId().getValor().getValor());
+    entity.setInstitutionId(domain.getInstitutionId());
     entity.setFieldName(domain.getFieldName());
     entity.setCurrentValue(domain.getCurrentValue());
     entity.setProposedValue(domain.getProposedValue());

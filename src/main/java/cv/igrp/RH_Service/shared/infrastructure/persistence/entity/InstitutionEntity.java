@@ -7,6 +7,7 @@ import cv.igrp.RH_Service.shared.config.AuditEntity;
 import cv.igrp.framework.stereotype.IgrpEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 import jakarta.validation.constraints.NotBlank;
 
@@ -41,5 +42,13 @@ public class InstitutionEntity extends AuditEntity {
     @Column(name="is_active")
     private boolean isActive;
 
-  
+
+    @Column(name="deactivated_at")
+    private OffsetDateTime deactivatedAt;
+
+
+    @Column(name="contact_email", length = 255)
+    private String contactEmail;
+
+
 }

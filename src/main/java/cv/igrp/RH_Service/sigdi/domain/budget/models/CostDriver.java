@@ -15,45 +15,38 @@ public class CostDriver {
   private final CostDriverType driverType;
   private final CostDriverParams parameters;
   private final LocalDate validFrom;
-  private final LocalDate validUntil;
+  private final String currency;
+  private final String legalReference;
 
   private CostDriver(CostDriverId id, CostDriverType driverType, CostDriverParams parameters,
-                     LocalDate validFrom, LocalDate validUntil) {
-    if (driverType == null) {
-      throw new IllegalArgumentException("driverType é obrigatório");
-    }
-    if (parameters == null) {
-      throw new IllegalArgumentException("parameters é obrigatório");
-    }
-    if (validFrom == null) {
-      throw new IllegalArgumentException("validFrom é obrigatório");
-    }
-    if (validUntil != null && validUntil.isBefore(validFrom)) {
-      throw new IllegalArgumentException("validUntil não pode ser anterior ao validFrom");
-    }
+                     LocalDate validFrom, String currency, String legalReference) {
+    if (driverType == null) throw new IllegalArgumentException("driverType é obrigatório");
+    if (parameters == null) throw new IllegalArgumentException("parameters é obrigatório");
+    if (validFrom == null) throw new IllegalArgumentException("validFrom é obrigatório");
+    if (currency == null || currency.isBlank()) throw new IllegalArgumentException("currency é obrigatório");
     this.id = id;
     this.driverType = driverType;
     this.parameters = parameters;
     this.validFrom = validFrom;
-    this.validUntil = validUntil;
+    this.currency = currency;
+    this.legalReference = legalReference;
   }
 
   public static CostDriver create(CostDriverType driverType, CostDriverParams parameters,
-                                  LocalDate validFrom, LocalDate validUntil) {
-    return new CostDriver(CostDriverId.gerarNovo(), driverType, parameters, validFrom, validUntil);
+                                  LocalDate validFrom, String currency, String legalReference) {
+    return new CostDriver(CostDriverId.gerarNovo(), driverType, parameters, validFrom,
+        currency != null ? currency : "CVE", legalReference);
   }
 
   public static CostDriver reconstruct(CostDriverId id, CostDriverType driverType,
                                        CostDriverParams parameters, LocalDate validFrom,
-                                       LocalDate validUntil) {
-    return new CostDriver(id, driverType, parameters, validFrom, validUntil);
+                                       String currency, String legalReference) {
+    return new CostDriver(id, driverType, parameters, validFrom,
+        currency != null ? currency : "CVE", legalReference);
   }
 
-  // Regras de negócio
   public boolean isValid() {
-    LocalDate today = LocalDate.now();
-    return !today.isBefore(validFrom) &&
-        (validUntil == null || !today.isAfter(validUntil));
+    return !LocalDate.now().isBefore(validFrom);
   }
 
   public BigDecimal simulate(int quantity) {
@@ -63,4 +56,3 @@ public class CostDriver {
     return parameters.calculate(quantity);
   }
 }
-

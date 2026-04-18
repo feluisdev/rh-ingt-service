@@ -8,11 +8,13 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 public class InstitutionalIdentity {
 
   private final InstitutionalIdentityId id;
+  private final UUID institutionId;
   private final Integer cycleYear;
   private final String mission;
   private final String vision;
@@ -21,8 +23,8 @@ public class InstitutionalIdentity {
   private final boolean isActive;
   private final List<StrategicGoal> goals;
 
-  private InstitutionalIdentity(InstitutionalIdentityId id, Integer cycleYear, String mission,
-      String vision, InstitutionalValues values, String versionComment,
+  private InstitutionalIdentity(InstitutionalIdentityId id, UUID institutionId, Integer cycleYear,
+      String mission, String vision, InstitutionalValues values, String versionComment,
       boolean isActive, List<StrategicGoal> goals) {
     if (cycleYear == null)
       throw new IllegalArgumentException("cycleYear é obrigatório");
@@ -34,6 +36,7 @@ public class InstitutionalIdentity {
       throw new IllegalArgumentException("values é obrigatório");
 
     this.id = id;
+    this.institutionId = institutionId;
     this.cycleYear = cycleYear;
     this.mission = mission;
     this.vision = vision;
@@ -43,18 +46,17 @@ public class InstitutionalIdentity {
     this.goals = (goals != null) ? new ArrayList<>(goals) : new ArrayList<>();
   }
 
-  public static InstitutionalIdentity create(Integer cycleYear, String mission, String vision,
-      InstitutionalValues values, String versionComment) {
-    return new InstitutionalIdentity(InstitutionalIdentityId.gerarNovo(), cycleYear, mission,
-        vision, values, versionComment, true, new ArrayList<>());
+  public static InstitutionalIdentity create(UUID institutionId, Integer cycleYear, String mission,
+      String vision, InstitutionalValues values, String versionComment) {
+    return new InstitutionalIdentity(InstitutionalIdentityId.gerarNovo(), institutionId, cycleYear,
+        mission, vision, values, versionComment, true, new ArrayList<>());
   }
 
-  public static InstitutionalIdentity reconstruct(InstitutionalIdentityId id, Integer cycleYear,
-      String mission, String vision, InstitutionalValues values,
-      String versionComment, boolean isActive,
-      List<StrategicGoal> goals) {
-    return new InstitutionalIdentity(id, cycleYear, mission, vision, values, versionComment,
-        isActive, goals);
+  public static InstitutionalIdentity reconstruct(InstitutionalIdentityId id, UUID institutionId,
+      Integer cycleYear, String mission, String vision, InstitutionalValues values,
+      String versionComment, boolean isActive, List<StrategicGoal> goals) {
+    return new InstitutionalIdentity(id, institutionId, cycleYear, mission, vision, values,
+        versionComment, isActive, goals);
   }
 
   public List<StrategicGoal> getGoals() {
@@ -62,18 +64,19 @@ public class InstitutionalIdentity {
   }
 
   public InstitutionalIdentity activate() {
-    return new InstitutionalIdentity(this.id, this.cycleYear, this.mission, this.vision,
-        this.values, this.versionComment, true, this.goals);
+    return new InstitutionalIdentity(this.id, this.institutionId, this.cycleYear, this.mission,
+        this.vision, this.values, this.versionComment, true, this.goals);
   }
 
   public InstitutionalIdentity deactivate() {
-    return new InstitutionalIdentity(this.id, this.cycleYear, this.mission, this.vision,
-        this.values, this.versionComment, false, this.goals);
+    return new InstitutionalIdentity(this.id, this.institutionId, this.cycleYear, this.mission,
+        this.vision, this.values, this.versionComment, false, this.goals);
   }
 
   public StrategicGoal addGoal(String title, StrategicGoalsPerspective perspective,
       java.math.BigDecimal weight, String description) {
-    StrategicGoal goal = StrategicGoal.create(this.id, title, perspective, weight, description);
+    StrategicGoal goal = StrategicGoal.create(this.institutionId, this.id, title, perspective,
+        weight, description);
     goals.add(goal);
     return goal;
   }

@@ -27,7 +27,8 @@ public class TacticalActivityMapper {
 
     return TacticalActivity.reconstruct(
         TacticalActivityId.from(entity.getId()),
-        StrategicGoalId.from(entity.getStrategicGoalId()),  // UUID direto → VO
+        entity.getInstitutionId(),
+        StrategicGoalId.from(entity.getStrategicGoalId()),
         entity.getOrganicUnitId() != null ? entity.getOrganicUnitId().toString() : null,
         entity.getTitle(),
         entity.getDescriptionWhat(),
@@ -39,7 +40,7 @@ public class TacticalActivityMapper {
         Budget.of(entity.getBudgetEstimated(), EconomicClassifier.of(entity.getEconomicClassifier())),
         TacticalActivityStatus.fromCodeOrThrow(entity.getStatus()),
         entity.getVersion(),
-        new ArrayList<>() // keyResults carregados via toDomainFull
+        new ArrayList<>()
     );
   }
 
@@ -52,6 +53,7 @@ public class TacticalActivityMapper {
 
     return TacticalActivity.reconstruct(
         TacticalActivityId.from(entity.getId()),
+        entity.getInstitutionId(),
         StrategicGoalId.from(entity.getStrategicGoalId()),
         entity.getOrganicUnitId() != null ? entity.getOrganicUnitId().toString() : null,
         entity.getTitle(),
@@ -73,7 +75,8 @@ public class TacticalActivityMapper {
 
     TacticalActivitiesEntity entity = new TacticalActivitiesEntity();
     entity.setId(domain.getId().getValor().getValor());
-    entity.setStrategicGoalId(domain.getStrategicGoalId().getValor().getValor()); // VO → UUID
+    entity.setInstitutionId(domain.getInstitutionId());
+    entity.setStrategicGoalId(domain.getStrategicGoalId().getValor().getValor());
     entity.setOrganicUnitId(domain.getOrganicUnitId() != null ? java.util.UUID.fromString(domain.getOrganicUnitId()) : null);
     entity.setTitle(domain.getTitle());
     entity.setDescriptionWhat(domain.getDescriptionWhat());

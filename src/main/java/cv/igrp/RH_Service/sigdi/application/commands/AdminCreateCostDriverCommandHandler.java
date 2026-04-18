@@ -64,15 +64,15 @@ public class AdminCreateCostDriverCommandHandler
 
     CostDriverParams params = CostDriverParams.fromJson(driverType.getCode(), paramsJson);
 
-    CostDriver costDriver = CostDriver.create(driverType, params, validFrom, null);
+    CostDriver costDriver = CostDriver.create(driverType, params, validFrom, req.getCurrency(), req.getLegalReference());
     CostDriver saved = costDriverRepository.save(costDriver);
 
     AdminCostDriverResponseDTO response = new AdminCostDriverResponseDTO();
     response.setId(saved.getId().getStringValor());
     response.setDriverType(saved.getDriverType().getCode());
     response.setValidFrom(saved.getValidFrom().toString());
-    response.setCurrency(req.getCurrency());
-    response.setLegalReference(req.getLegalReference());
+    response.setCurrency(saved.getCurrency());
+    response.setLegalReference(saved.getLegalReference());
     response.setCreatedAt(LocalDate.now().toString());
     response.setAffectedActivities(0);
 

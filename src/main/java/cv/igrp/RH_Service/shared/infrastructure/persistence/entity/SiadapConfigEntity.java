@@ -27,7 +27,7 @@ public class SiadapConfigEntity extends AuditEntity {
 
   
     @NotNull(message = "fiscalYear is mandatory")
-    @Column(name="fiscal_year", nullable = false)
+    @Column(name="fiscal_year", nullable = false, unique = true)
     private Integer fiscalYear;
 
   

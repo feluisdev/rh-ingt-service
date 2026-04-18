@@ -6,48 +6,47 @@ import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategyMapLinkId;
 import lombok.Getter;
 
+import java.util.UUID;
+
 @Getter
 public class StrategyMapLink {
 
   private final StrategyMapLinkId id;
-  private final StrategicGoalId sourceGoalId; // referência por ID, não objeto completo
-  private final StrategicGoalId targetGoalId; // referência por ID, não objeto completo
+  private final UUID institutionId;
+  private final StrategicGoalId sourceGoalId;
+  private final StrategicGoalId targetGoalId;
   private final StrategyMapRelationshipType relationshipType;
 
-  private StrategyMapLink(StrategyMapLinkId id, StrategicGoalId sourceGoalId,
-                          StrategicGoalId targetGoalId, StrategyMapRelationshipType relationshipType) {
-    if (sourceGoalId.equals(targetGoalId)) {
+  private StrategyMapLink(StrategyMapLinkId id, UUID institutionId, StrategicGoalId sourceGoalId,
+                          StrategicGoalId targetGoalId,
+                          StrategyMapRelationshipType relationshipType) {
+    if (sourceGoalId.equals(targetGoalId))
       throw IgrpResponseStatusException.badRequest("O link não pode ter source igual ao target");
-    }
     this.id = id;
+    this.institutionId = institutionId;
     this.sourceGoalId = sourceGoalId;
     this.targetGoalId = targetGoalId;
     this.relationshipType = relationshipType;
   }
 
-  public static StrategyMapLink create(StrategicGoalId sourceGoalId, StrategicGoalId targetGoalId) {
-    return new StrategyMapLink(
-        StrategyMapLinkId.gerarNovo(),
-        sourceGoalId,
-        targetGoalId,
-        StrategyMapRelationshipType.CAUSE_EFFECT
-    );
+  public static StrategyMapLink create(UUID institutionId, StrategicGoalId sourceGoalId,
+                                       StrategicGoalId targetGoalId) {
+    return new StrategyMapLink(StrategyMapLinkId.gerarNovo(), institutionId, sourceGoalId,
+        targetGoalId, StrategyMapRelationshipType.CAUSE_EFFECT);
   }
 
-  public static StrategyMapLink create(StrategicGoalId sourceGoalId, StrategicGoalId targetGoalId,
-                                      StrategyMapRelationshipType relationshipType) {
-    return new StrategyMapLink(
-        StrategyMapLinkId.gerarNovo(),
-        sourceGoalId,
-        targetGoalId,
-        relationshipType
-    );
+  public static StrategyMapLink create(UUID institutionId, StrategicGoalId sourceGoalId,
+                                       StrategicGoalId targetGoalId,
+                                       StrategyMapRelationshipType relationshipType) {
+    return new StrategyMapLink(StrategyMapLinkId.gerarNovo(), institutionId, sourceGoalId,
+        targetGoalId, relationshipType);
   }
 
-  public static StrategyMapLink reconstruct(StrategyMapLinkId id, StrategicGoalId sourceGoalId,
+  public static StrategyMapLink reconstruct(StrategyMapLinkId id, UUID institutionId,
+                                            StrategicGoalId sourceGoalId,
                                             StrategicGoalId targetGoalId,
                                             StrategyMapRelationshipType relationshipType) {
-    return new StrategyMapLink(id, sourceGoalId, targetGoalId, relationshipType);
+    return new StrategyMapLink(id, institutionId, sourceGoalId, targetGoalId, relationshipType);
   }
 
   public boolean isCauseEffect() {

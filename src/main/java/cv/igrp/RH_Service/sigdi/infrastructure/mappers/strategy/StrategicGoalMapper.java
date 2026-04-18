@@ -1,6 +1,5 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy;
 
-
 import cv.igrp.RH_Service.shared.application.constants.Estado;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.InstitutionalIdentityEntity;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategicGoalEntity;
@@ -17,12 +16,12 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class StrategicGoalMapper {
 
-
   public StrategicGoal toDomain(StrategicGoalEntity entity) {
     if (entity == null) return null;
 
     return StrategicGoal.reconstruct(
         StrategicGoalId.from(entity.getId()),
+        entity.getInstitutionId(),
         InstitutionalIdentityId.from(entity.getIdentityId().getId()),
         entity.getTitle(),
         StrategicGoalsPerspective.fromCodeOrThrow(entity.getPerspective()),
@@ -70,6 +69,7 @@ public class StrategicGoalMapper {
 
     StrategicGoalEntity entity = new StrategicGoalEntity();
     entity.setId(domain.getId().getValor().getValor());
+    entity.setInstitutionId(domain.getInstitutionId());
     entity.setTitle(domain.getTitle());
     entity.setPerspective(domain.getPerspective().getCode());
     entity.setWeight(domain.getWeight());

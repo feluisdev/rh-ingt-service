@@ -39,7 +39,8 @@ public class StrategyMapLinkRepositoryImpl implements StrategyMapLinkRepository 
 
   @Transactional(readOnly = true)
   @Override
-  public Optional<StrategyMapLink> findBySourceAndTarget(StrategicGoalId sourceGoalId, StrategicGoalId targetGoalId) {
+  public Optional<StrategyMapLink> findBySourceAndTarget(StrategicGoalId sourceGoalId,
+      StrategicGoalId targetGoalId) {
     return jpaRepository.findBySourceGoalId_IdAndTargetGoalId_Id(
         sourceGoalId.getValor().getValor(),
         targetGoalId.getValor().getValor()

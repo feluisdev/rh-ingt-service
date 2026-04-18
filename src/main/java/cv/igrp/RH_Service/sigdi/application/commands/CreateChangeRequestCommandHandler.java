@@ -43,12 +43,14 @@ public class CreateChangeRequestCommandHandler
         .orElseThrow(() -> IgrpResponseStatusException.notFound("TacticalActivity não encontrada"));
 
     if (!activity.isApproved()) {
-      throw IgrpResponseStatusException.badRequest("Change Request só é permitido em atividades APPROVED");
+      throw IgrpResponseStatusException.badRequest(
+          "Change Request só é permitido em atividades APPROVED");
     }
 
     ChangeRequestDTO dto = command.getChangerequest();
 
     ChangeRequest changeRequest = ChangeRequest.create(
+        activity.getInstitutionId(),
         activityId,
         dto.getFieldName(),
         dto.getCurrentValue(),

@@ -13,14 +13,15 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 public class KeyResult {
 
-  // US004 — alerta crítico quando progresso < 30% no último mês do trimestre
   private static final BigDecimal RISK_THRESHOLD = new BigDecimal("0.30");
 
   private final KeyResultId id;
+  private final UUID institutionId;
   private final TacticalActivityId activityId;
   private final String title;
   private final BigDecimal targetValue;
@@ -28,7 +29,7 @@ public class KeyResult {
   private final KeyResultMetricUnit metricUnit;
   private final List<KeyResultCheckin> checkins;
 
-  private KeyResult(KeyResultId id, TacticalActivityId activityId, String title,
+  private KeyResult(KeyResultId id, UUID institutionId, TacticalActivityId activityId, String title,
       BigDecimal targetValue, BigDecimal currentValue,
       KeyResultMetricUnit metricUnit,
       List<KeyResultCheckin> checkins) {
@@ -40,6 +41,7 @@ public class KeyResult {
       throw new IllegalArgumentException("activityId é obrigatório");
 
     this.id = id;
+    this.institutionId = institutionId;
     this.activityId = activityId;
     this.title = title;
     this.targetValue = targetValue;
@@ -48,23 +50,25 @@ public class KeyResult {
     this.checkins = (checkins != null) ? checkins : new ArrayList<>();
   }
 
-  public static KeyResult create(TacticalActivityId activityId, String title,
+  public static KeyResult create(UUID institutionId, TacticalActivityId activityId, String title,
       BigDecimal targetValue, KeyResultMetricUnit metricUnit) {
-    return new KeyResult(KeyResultId.gerarNovo(), activityId, title, targetValue,
+    return new KeyResult(KeyResultId.gerarNovo(), institutionId, activityId, title, targetValue,
         BigDecimal.ZERO, metricUnit, new ArrayList<>());
   }
 
-  public static KeyResult reconstruct(KeyResultId id, TacticalActivityId activityId, String title,
+  public static KeyResult reconstruct(KeyResultId id, UUID institutionId,
+      TacticalActivityId activityId, String title,
       BigDecimal targetValue, BigDecimal currentValue,
       KeyResultMetricUnit metricUnit,
       List<KeyResultCheckin> checkins) {
-    return new KeyResult(id, activityId, title, targetValue, currentValue,
+    return new KeyResult(id, institutionId, activityId, title, targetValue, currentValue,
         metricUnit, checkins);
   }
 
-  /**
-   * RN02 — Progresso percentual do KR: currentValue / targetValue
-   */
+  public List<KeyResultCheckin> getCheckins() {
+    return Collections.unmodifiableList(checkins);
+  }
+
   public BigDecimal getProgressPercentage() {
     if (targetValue.compareTo(BigDecimal.ZERO) == 0)
       return BigDecimal.ZERO;
@@ -76,9 +80,6 @@ public class KeyResult {
     return currentValue.compareTo(targetValue) >= 0;
   }
 
-  /**
-   * US004 — Alerta crítico: progresso < 30% no último mês do período
-   */
   public boolean isCriticalRisk(LocalDate periodEndDate) {
     LocalDate oneMonthBefore = periodEndDate.minusMonths(1);
     boolean isLastMonth = !LocalDate.now().isBefore(oneMonthBefore);
@@ -89,13 +90,10 @@ public class KeyResult {
   }
 
   public KeyResult applyCheckin(BigDecimal valueAdded, String evidenceUrl, String comment) {
-
     BigDecimal newValue = this.currentValue.add(valueAdded);
 
     if (newValue.compareTo(this.targetValue) > 0) {
-      throw IgrpResponseStatusException.of(
-          HttpStatus.UNPROCESSABLE_ENTITY,
-          "Target exceeded");
+      throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY, "Target exceeded");
     }
 
     KeyResultCheckin checkin = KeyResultCheckin.create(this.id, valueAdded, evidenceUrl, comment);
@@ -103,34 +101,20 @@ public class KeyResult {
     List<KeyResultCheckin> newCheckins = new ArrayList<>(this.checkins);
     newCheckins.add(checkin);
 
-    return new KeyResult(
-        this.id,
-        this.activityId,
-        this.title,
-        this.targetValue,
-        newValue,
-        this.metricUnit,
-        newCheckins);
+    return new KeyResult(this.id, this.institutionId, this.activityId, this.title,
+        this.targetValue, newValue, this.metricUnit, newCheckins);
   }
 
   public KeyResult updateDetails(String title, BigDecimal targetValue, KeyResultMetricUnit metricUnit) {
     if (title == null || title.isBlank())
       throw new IllegalArgumentException("title é obrigatório");
-    if (targetValue == null || targetValue.compareTo(BigDecimal.ZERO) <= 0) {
+    if (targetValue == null || targetValue.compareTo(BigDecimal.ZERO) <= 0)
       throw new IllegalArgumentException("targetValue deve ser maior que zero");
-    }
     if (this.currentValue.compareTo(targetValue) > 0) {
       throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
           "Target cannot be lower than current value");
     }
-    return new KeyResult(
-        this.id,
-        this.activityId,
-        title,
-        targetValue,
-        this.currentValue,
-        metricUnit,
-        this.checkins);
+    return new KeyResult(this.id, this.institutionId, this.activityId, title, targetValue,
+        this.currentValue, metricUnit, this.checkins);
   }
-
 }

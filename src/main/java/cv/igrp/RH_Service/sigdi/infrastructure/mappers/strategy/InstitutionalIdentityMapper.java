@@ -20,15 +20,12 @@ public class InstitutionalIdentityMapper {
 
   private final StrategicGoalMapper goalMapper;
 
-  /**
-   * Entity → Domain (sem goals)
-   */
   public InstitutionalIdentity toDomain(InstitutionalIdentityEntity entity) {
-    if (entity == null)
-      return null;
+    if (entity == null) return null;
 
     return InstitutionalIdentity.reconstruct(
         InstitutionalIdentityId.from(entity.getId()),
+        entity.getInstitutionId(),
         entity.getCycleYear(),
         entity.getMission(),
         entity.getVision(),
@@ -38,13 +35,8 @@ public class InstitutionalIdentityMapper {
         new ArrayList<StrategicGoal>());
   }
 
-  /**
-   * Entity → Domain com goals (aggregate completo)
-   * Usa os goals já carregados via @OneToMany da entity
-   */
   public InstitutionalIdentity toDomainFull(InstitutionalIdentityEntity entity) {
-    if (entity == null)
-      return null;
+    if (entity == null) return null;
 
     List<StrategicGoal> goals = entity.getGoals().stream()
         .map(goalMapper::toDomain)
@@ -52,6 +44,7 @@ public class InstitutionalIdentityMapper {
 
     return InstitutionalIdentity.reconstruct(
         InstitutionalIdentityId.from(entity.getId()),
+        entity.getInstitutionId(),
         entity.getCycleYear(),
         entity.getMission(),
         entity.getVision(),
@@ -61,15 +54,12 @@ public class InstitutionalIdentityMapper {
         goals);
   }
 
-  /**
-   * Domain → Entity
-   */
   public InstitutionalIdentityEntity toEntity(InstitutionalIdentity domain) {
-    if (domain == null)
-      return null;
+    if (domain == null) return null;
 
     InstitutionalIdentityEntity entity = new InstitutionalIdentityEntity();
     entity.setId(domain.getId().getValor().getValor());
+    entity.setInstitutionId(domain.getInstitutionId());
     entity.setCycleYear(domain.getCycleYear());
     entity.setMission(domain.getMission());
     entity.setVision(domain.getVision());
@@ -80,8 +70,7 @@ public class InstitutionalIdentityMapper {
   }
 
   public IdentityResponseDTO toResponse(InstitutionalIdentity domain) {
-    if (domain == null)
-      return null;
+    if (domain == null) return null;
 
     IdentityResponseDTO response = new IdentityResponseDTO();
     response.setId(domain.getId().getValor().getValor());
@@ -97,5 +86,4 @@ public class InstitutionalIdentityMapper {
   public InstitutionalValues toValues(CreateIdentityRequestDTO dto) {
     return InstitutionalValues.of(dto.getValues());
   }
-
 }

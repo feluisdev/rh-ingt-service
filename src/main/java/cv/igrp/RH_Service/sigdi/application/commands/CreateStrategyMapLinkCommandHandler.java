@@ -47,11 +47,13 @@ public class CreateStrategyMapLinkCommandHandler
     }
 
     var activeIdentity = identityRepository.findActive()
-        .orElseThrow(() -> IgrpResponseStatusException.badRequest("Identidade Institucional ativa não encontrada"));
+        .orElseThrow(() -> IgrpResponseStatusException.badRequest(
+            "Identidade Institucional ativa não encontrada"));
 
     StrategicGoalId sourceId = StrategicGoalId.from(request.getSourceGoalId());
     StrategicGoalId targetId = StrategicGoalId.from(request.getTargetGoalId());
-    StrategyMapRelationshipType type = StrategyMapRelationshipType.fromCodeOrThrow(request.getRelationshipType());
+    StrategyMapRelationshipType type =
+        StrategyMapRelationshipType.fromCodeOrThrow(request.getRelationshipType());
 
     var sourceGoal = goalRepository.findById(sourceId)
         .orElseThrow(() -> IgrpResponseStatusException.badRequest("sourceGoalId inválido"));
@@ -68,7 +70,8 @@ public class CreateStrategyMapLinkCommandHandler
           throw IgrpResponseStatusException.badRequest("Já existe um link com os mesmos goals");
         });
 
-    StrategyMapLink link = StrategyMapLink.create(sourceId, targetId, type);
+    StrategyMapLink link = StrategyMapLink.create(
+        activeIdentity.getInstitutionId(), sourceId, targetId, type);
     StrategyMapLink saved = linkRepository.save(link);
 
     StrategyMapLinkResponseDTO response = new StrategyMapLinkResponseDTO();

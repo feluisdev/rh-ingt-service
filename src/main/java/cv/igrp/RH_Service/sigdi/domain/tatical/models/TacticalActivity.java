@@ -14,11 +14,13 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 public class TacticalActivity {
 
   private final TacticalActivityId id;
+  private final UUID institutionId;
   private final StrategicGoalId strategicGoalId;
   private final String organicUnitId;
   private final String title;
@@ -33,7 +35,8 @@ public class TacticalActivity {
   private final Integer version;
   private final List<KeyResult> keyResults;
 
-  private TacticalActivity(TacticalActivityId id, StrategicGoalId strategicGoalId,
+  private TacticalActivity(TacticalActivityId id, UUID institutionId,
+      StrategicGoalId strategicGoalId,
       String organicUnitId, String title, String descriptionWhat,
       String justificationWhy, String locationWhere, String responsibleWho,
       String methodologyHow, DateRange dateRange, Budget budget,
@@ -51,6 +54,7 @@ public class TacticalActivity {
       throw new IllegalArgumentException("budget é obrigatório");
 
     this.id = id;
+    this.institutionId = institutionId;
     this.strategicGoalId = strategicGoalId;
     this.organicUnitId = organicUnitId;
     this.title = title;
@@ -66,25 +70,26 @@ public class TacticalActivity {
     this.keyResults = (keyResults != null) ? new ArrayList<>(keyResults) : new ArrayList<>();
   }
 
-  public static TacticalActivity create(StrategicGoalId strategicGoalId, String organicUnitId,
-      String title, String descriptionWhat, String justificationWhy,
+  public static TacticalActivity create(UUID institutionId, StrategicGoalId strategicGoalId,
+      String organicUnitId, String title, String descriptionWhat, String justificationWhy,
       String locationWhere, String responsibleWho,
       String methodologyHow, DateRange dateRange, Budget budget) {
-    return new TacticalActivity(TacticalActivityId.gerarNovo(), strategicGoalId, organicUnitId,
-        title, descriptionWhat, justificationWhy, locationWhere,
+    return new TacticalActivity(TacticalActivityId.gerarNovo(), institutionId, strategicGoalId,
+        organicUnitId, title, descriptionWhat, justificationWhy, locationWhere,
         responsibleWho, methodologyHow, dateRange, budget,
         TacticalActivityStatus.DRAFT, 0, new ArrayList<>());
   }
 
-  public static TacticalActivity reconstruct(TacticalActivityId id, StrategicGoalId strategicGoalId,
+  public static TacticalActivity reconstruct(TacticalActivityId id, UUID institutionId,
+      StrategicGoalId strategicGoalId,
       String organicUnitId, String title, String descriptionWhat,
       String justificationWhy, String locationWhere,
       String responsibleWho, String methodologyHow,
       DateRange dateRange, Budget budget,
       TacticalActivityStatus status, Integer version,
       List<KeyResult> keyResults) {
-    return new TacticalActivity(id, strategicGoalId, organicUnitId, title, descriptionWhat,
-        justificationWhy, locationWhere, responsibleWho, methodologyHow,
+    return new TacticalActivity(id, institutionId, strategicGoalId, organicUnitId, title,
+        descriptionWhat, justificationWhy, locationWhere, responsibleWho, methodologyHow,
         dateRange, budget, status, version, keyResults);
   }
 
@@ -92,19 +97,12 @@ public class TacticalActivity {
     return Collections.unmodifiableList(keyResults);
   }
 
-  // ── Workflow de status ────────────────────────────────────────────
-
-  /** DRAFT → PENDING_TACTICAL */
   public TacticalActivity submit() {
     if (!TacticalActivityStatus.DRAFT.equals(this.status))
       throw IgrpResponseStatusException.badRequest("Apenas atividades DRAFT podem ser submetidas");
     return changeStatus(TacticalActivityStatus.PENDING_TACTICAL);
   }
 
-  /**
-   * Aprovação pelo gestor tático: PENDING_TACTICAL → PENDING_STRATEGIC.
-   * Aprovação pelo gestor estratégico: PENDING_STRATEGIC → APPROVED.
-   */
   public TacticalActivity approve() {
     if (TacticalActivityStatus.PENDING_TACTICAL.equals(this.status))
       return changeStatus(TacticalActivityStatus.PENDING_STRATEGIC);
@@ -114,9 +112,6 @@ public class TacticalActivity {
         "Atividade não está em estado pendente para aprovação. Status atual: " + this.status.getCode());
   }
 
-  /**
-   * Rejeição devolve a atividade ao estado DRAFT (per spec: o criador revê e resubmete).
-   */
   public TacticalActivity reject() {
     if (!TacticalActivityStatus.PENDING_TACTICAL.equals(this.status) &&
         !TacticalActivityStatus.PENDING_STRATEGIC.equals(this.status))
@@ -133,12 +128,6 @@ public class TacticalActivity {
     return changeStatus(TacticalActivityStatus.CANCELLED);
   }
 
-  // ── RN05 — Imutabilidade pós-aprovação ───────────────────────────
-
-  /**
-   * RN05 — Após aprovação, qualquer alteração requer justificativa (Change
-   * Request)
-   */
   public TacticalActivity requestChange(Budget newBudget, DateRange newDateRange,
       String changeJustification) {
     if (!TacticalActivityStatus.APPROVED.equals(this.status))
@@ -147,19 +136,14 @@ public class TacticalActivity {
     if (changeJustification == null || changeJustification.isBlank())
       throw new IllegalArgumentException("Justificativa é obrigatória para Change Request");
 
-    // Volta para PENDING com novos dados — auditoria feita pelo AuditEntity
-    return new TacticalActivity(this.id, this.strategicGoalId, this.organicUnitId, this.title,
+    return new TacticalActivity(this.id, this.institutionId, this.strategicGoalId,
+        this.organicUnitId, this.title,
         this.descriptionWhat, this.justificationWhy, this.locationWhere,
         this.responsibleWho, this.methodologyHow, newDateRange,
         newBudget, TacticalActivityStatus.PENDING_TACTICAL,
         this.version + 1, this.keyResults);
   }
 
-  // ── RN02 — Progresso agregado ─────────────────────────────────────
-
-  /**
-   * RN02 — Progresso da atividade = média dos KeyResults
-   */
   public BigDecimal getWeightedProgress() {
     if (keyResults.isEmpty())
       return BigDecimal.ZERO;
@@ -171,11 +155,9 @@ public class TacticalActivity {
     return sum.divide(BigDecimal.valueOf(keyResults.size()), 2, RoundingMode.HALF_UP);
   }
 
-  // ── Gestão de KeyResults ──────────────────────────────────────────
-
   public KeyResult addKeyResult(String title, BigDecimal targetValue,
       KeyResultMetricUnit metricUnit) {
-    KeyResult kr = KeyResult.create(this.id, title, targetValue, metricUnit);
+    KeyResult kr = KeyResult.create(this.institutionId, this.id, title, targetValue, metricUnit);
     keyResults.add(kr);
     return kr;
   }
@@ -189,33 +171,22 @@ public class TacticalActivity {
   }
 
   private TacticalActivity changeStatus(TacticalActivityStatus newStatus) {
-    return new TacticalActivity(this.id, this.strategicGoalId, this.organicUnitId, this.title,
+    return new TacticalActivity(this.id, this.institutionId, this.strategicGoalId,
+        this.organicUnitId, this.title,
         this.descriptionWhat, this.justificationWhy, this.locationWhere,
         this.responsibleWho, this.methodologyHow, this.dateRange,
         this.budget, newStatus, this.version, this.keyResults);
   }
 
   public TacticalActivity updateKeyResult(KeyResult updated) {
-
     List<KeyResult> updatedList = keyResults.stream()
         .map(kr -> kr.getId().equals(updated.getId()) ? updated : kr)
         .toList();
 
-    return new TacticalActivity(
-        this.id,
-        this.strategicGoalId,
-        this.organicUnitId,
-        this.title,
-        this.descriptionWhat,
-        this.justificationWhy,
-        this.locationWhere,
-        this.responsibleWho,
-        this.methodologyHow,
-        this.dateRange,
-        this.budget,
-        this.status,
-        this.version,
-        updatedList
-    );
+    return new TacticalActivity(this.id, this.institutionId, this.strategicGoalId,
+        this.organicUnitId, this.title,
+        this.descriptionWhat, this.justificationWhy, this.locationWhere,
+        this.responsibleWho, this.methodologyHow,
+        this.dateRange, this.budget, this.status, this.version, updatedList);
   }
 }

@@ -54,7 +54,6 @@ public class KeyResultRepositoryImpl implements KeyResultRepository {
     int pageSize = (filter != null && filter.getPageSize() != null) ? filter.getPageSize() : 20;
 
     Pageable pageable = PageRequest.of(pageNumber, pageSize);
-
     Specification<KeyResultsEntity> specification = (root, query, cb) -> cb.conjunction();
 
     var page = jpaRepository.findAll(specification, pageable);
@@ -62,14 +61,7 @@ public class KeyResultRepositoryImpl implements KeyResultRepository {
         .map(mapper::toDomain)
         .toList();
 
-    return new PageResult<>(
-        data,
-        page.getNumber(),
-        page.getSize(),
-        page.getTotalElements(),
-        page.getTotalPages(),
-        page.isFirst(),
-        page.isLast()
-    );
+    return new PageResult<>(data, page.getNumber(), page.getSize(), page.getTotalElements(),
+        page.getTotalPages(), page.isFirst(), page.isLast());
   }
 }

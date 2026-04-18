@@ -16,7 +16,9 @@ public class InstitutionMapper {
         entity.getCode(),
         entity.getName(),
         entity.getType(),
-        entity.isActive()
+        entity.isActive(),
+        entity.getDeactivatedAt(),
+        entity.getContactEmail()
     );
   }
 
@@ -29,6 +31,8 @@ public class InstitutionMapper {
     entity.setName(domain.getName());
     entity.setType(domain.getType());
     entity.setActive(domain.isActive());
+    entity.setDeactivatedAt(domain.getDeactivatedAt());
+    entity.setContactEmail(domain.getContactEmail());
     return entity;
   }
 }

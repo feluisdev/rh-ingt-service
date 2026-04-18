@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.security.SecurityContextHelper;
 import cv.igrp.RH_Service.sigdi.application.dto.BudgetInfoDTO;
 import cv.igrp.RH_Service.sigdi.application.port.EconomicClassifierPort;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
@@ -28,35 +29,33 @@ public class CreateTacticalActivityCommandHandler
   private final EconomicClassifierPort economicClassifierPort;
   private final StrategicGoalRepository goalRepository;
   private final TacticalActivityRepository activityRepository;
+  private final SecurityContextHelper securityContextHelper;
 
   public CreateTacticalActivityCommandHandler(EconomicClassifierPort economicClassifierPort,
       StrategicGoalRepository goalRepository,
-      TacticalActivityRepository activityRepository) {
-
+      TacticalActivityRepository activityRepository,
+      SecurityContextHelper securityContextHelper) {
     this.economicClassifierPort = economicClassifierPort;
     this.goalRepository = goalRepository;
     this.activityRepository = activityRepository;
+    this.securityContextHelper = securityContextHelper;
   }
 
   @IgrpCommandHandler
   public ResponseEntity<TacticalActivityResponseDTO> handle(CreateTacticalActivityCommand command) {
-
     LOGGER.debug("CreateTacticalActivityCommand : {}", command);
 
     var request = command.getCreatetacticalactivity();
-
     var economicClassifier = request.getEconomicClassifier();
 
     BudgetInfoDTO budgetInfo = economicClassifierPort.getBudget(economicClassifier);
 
     if (request.getBudgetEstimated().compareTo(budgetInfo.availableBudget()) > 0) {
-      throw IgrpResponseStatusException.of(
-          HttpStatus.UNPROCESSABLE_ENTITY,
+      throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
           "Budget limit exceeded for this classifier. Available: " + budgetInfo.availableBudget());
     }
 
     StrategicGoalId strategicGoalId = StrategicGoalId.from(request.getStrategicGoalId());
-
     goalRepository.findById(strategicGoalId)
         .orElseThrow(() -> IgrpResponseStatusException.badRequest("strategicGoalId inválido"));
 
@@ -64,6 +63,7 @@ public class CreateTacticalActivityCommandHandler
     Budget budget = Budget.of(request.getBudgetEstimated(), request.getEconomicClassifier());
 
     TacticalActivity activity = TacticalActivity.create(
+        securityContextHelper.getCurrentInstitutionId(),
         strategicGoalId,
         request.getOrganicUnitId(),
         request.getTitle(),
@@ -97,5 +97,4 @@ public class CreateTacticalActivityCommandHandler
 
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
-
 }

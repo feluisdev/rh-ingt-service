@@ -106,9 +106,9 @@ services:
         exec minio $0 "$@"
       '
 
-  postgres:
+  postgres-ingt-rh:
     image: postgres:17-alpine
-    container_name: postgres
+    container_name: postgres-ingt-rh
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -126,12 +126,12 @@ services:
     env_file:
       - .env
     depends_on:
-      - postgres
+      - postgres-ingt-rh
     environment:
       - SERVER_PORT=${SERVICE_PORT}
       - SERVICE_NAME=recursoshumanos-service
       - SPRING_ACTIVE_PROFILE=${SERVICE_PROFILE}
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:${POSTGRES_INTERNAL_PORT}/${POSTGRES_DATABASE}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-ingt-rh:${POSTGRES_INTERNAL_PORT}/${POSTGRES_DATABASE}
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - OTEL_TRACES_EXPORTER=${OTEL_TRACES_EXPORTER}

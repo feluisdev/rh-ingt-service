@@ -37,7 +37,7 @@ public class CreateInstitutionCommandHandler
           "SIGDI-ADM-001: Institution with code '" + req.getCode() + "' already exists.");
     });
 
-    Institution institution = Institution.create(req.getCode(), req.getName(), req.getType());
+    Institution institution = Institution.create(req.getCode(), req.getName(), req.getType(), req.getContactEmail());
     Institution saved = institutionRepository.save(institution);
 
     InstitutionResponseDTO response = new InstitutionResponseDTO();
@@ -46,7 +46,7 @@ public class CreateInstitutionCommandHandler
     response.setName(saved.getName());
     response.setType(saved.getType());
     response.setIsActive(saved.isActive());
-    response.setContactEmail(null);
+    response.setContactEmail(saved.getContactEmail());
     response.setCreatedAt(null);
 
     return ResponseEntity.status(201).body(response);

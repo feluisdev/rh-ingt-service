@@ -22,23 +22,22 @@ public class KeyResultMapper {
   private final KeyResultCheckinMapper checkinMapper;
 
   public KeyResult toDomain(KeyResultsEntity entity) {
-    if (entity == null)
-      return null;
+    if (entity == null) return null;
 
     return KeyResult.reconstruct(
         KeyResultId.from(entity.getId()),
+        entity.getInstitutionId(),
         TacticalActivityId.from(entity.getActivityId().getId()),
         entity.getTitle(),
         entity.getTargetValue(),
         entity.getCurrentValue(),
         KeyResultMetricUnit.fromCodeOrThrow(entity.getMetricUnit()),
-        new ArrayList<KeyResultCheckin>() // checkins carregados via toDomainFull
+        new ArrayList<KeyResultCheckin>()
     );
   }
 
   public KeyResult toDomainFull(KeyResultsEntity entity) {
-    if (entity == null)
-      return null;
+    if (entity == null) return null;
 
     List<KeyResultCheckin> checkins = entity.getKeyResultCheckins().stream()
         .map(checkinMapper::toDomain)
@@ -46,6 +45,7 @@ public class KeyResultMapper {
 
     return KeyResult.reconstruct(
         KeyResultId.from(entity.getId()),
+        entity.getInstitutionId(),
         TacticalActivityId.from(entity.getActivityId().getId()),
         entity.getTitle(),
         entity.getTargetValue(),
@@ -55,17 +55,16 @@ public class KeyResultMapper {
   }
 
   public KeyResultsEntity toEntity(KeyResult domain) {
-    if (domain == null)
-      return null;
+    if (domain == null) return null;
 
     KeyResultsEntity entity = new KeyResultsEntity();
     entity.setId(domain.getId().getValor().getValor());
+    entity.setInstitutionId(domain.getInstitutionId());
     entity.setTitle(domain.getTitle());
     entity.setTargetValue(domain.getTargetValue());
     entity.setCurrentValue(domain.getCurrentValue());
     entity.setMetricUnit(domain.getMetricUnit().getCode());
 
-    // Referência leve — só o ID
     TacticalActivitiesEntity activityRef = new TacticalActivitiesEntity();
     activityRef.setId(domain.getActivityId().getValor().getValor());
     entity.setActivityId(activityRef);
@@ -78,6 +77,5 @@ public class KeyResultMapper {
     entity.setKeyResultCheckins(checkins);
 
     return entity;
-
   }
 }

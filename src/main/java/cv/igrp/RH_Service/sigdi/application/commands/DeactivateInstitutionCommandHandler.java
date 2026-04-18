@@ -13,8 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 @Component
 public class DeactivateInstitutionCommandHandler
     implements CommandHandler<DeactivateInstitutionCommand, ResponseEntity<DeactivateInstitutionResponseDTO>> {
@@ -49,7 +47,8 @@ public class DeactivateInstitutionCommandHandler
     DeactivateInstitutionResponseDTO response = new DeactivateInstitutionResponseDTO();
     response.setInstitutionId(deactivated.getId().getStringValor());
     response.setIsActive(false);
-    response.setDeactivatedAt(LocalDateTime.now().toString());
+    response.setDeactivatedAt(deactivated.getDeactivatedAt() != null
+        ? deactivated.getDeactivatedAt().toString() : null);
     response.setAffectedUsers(0);
 
     return ResponseEntity.ok(response);
