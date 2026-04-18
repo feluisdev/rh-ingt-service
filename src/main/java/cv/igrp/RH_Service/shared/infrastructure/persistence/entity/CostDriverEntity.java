@@ -11,6 +11,8 @@ import java.util.UUID;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 
 @Getter
@@ -33,6 +35,7 @@ public class CostDriverEntity extends AuditEntity {
 
 
     @NotBlank(message = "params is mandatory")
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name="params", nullable = false, columnDefinition = "jsonb")
     private String params;
 

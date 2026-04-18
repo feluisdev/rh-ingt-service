@@ -13,9 +13,14 @@ public class SecurityContextHelper {
   @Value("${spring.profiles.active}")
   private String activeProfile;
 
+  // Fixed UUID used in development/staging when no real JWT is present.
+  // Ensures @NotNull constraints on institution_id are satisfied without Keycloak.
+  private static final UUID DEV_INSTITUTION_ID =
+      UUID.fromString("00000000-0000-0000-0000-000000000001");
+
   public UUID getCurrentInstitutionId() {
     if ("development".equals(activeProfile) || "staging".equals(activeProfile)) {
-      return null;
+      return DEV_INSTITUTION_ID;
     }
     var authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication == null || !authentication.isAuthenticated()

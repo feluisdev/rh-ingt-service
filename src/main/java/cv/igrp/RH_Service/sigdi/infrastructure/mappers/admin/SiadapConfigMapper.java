@@ -16,6 +16,7 @@ public class SiadapConfigMapper {
         entity.getGoodScore(),
         entity.getExcellentScore(),
         entity.getExcellentQuota(),
+        entity.getGoodQuota(),
         entity.getMinCollaboratorsForQuota(),
         entity.getResultsWeight(),
         entity.getCompetenciesWeight()
@@ -31,6 +32,7 @@ public class SiadapConfigMapper {
     entity.setGoodScore(domain.getGoodScore());
     entity.setExcellentScore(domain.getExcellentScore());
     entity.setExcellentQuota(domain.getExcellentQuota());
+    entity.setGoodQuota(domain.getGoodQuota());
     entity.setMinCollaboratorsForQuota(domain.getMinCollaboratorsForQuota());
     entity.setResultsWeight(domain.getResultsWeight());
     entity.setCompetenciesWeight(domain.getCompetenciesWeight());

@@ -37,6 +37,7 @@ public class UpsertSiadapConfigCommandHandler
             req.getGoodScore(),
             req.getExcellentScore(),
             req.getExcellentQuota(),
+            req.getGoodQuota(),
             req.getMinimumCollaboratorsForQuota(),
             req.getResultsWeight(),
             req.getCompetenciesWeight()))
@@ -45,6 +46,7 @@ public class UpsertSiadapConfigCommandHandler
             req.getGoodScore(),
             req.getExcellentScore(),
             req.getExcellentQuota(),
+            req.getGoodQuota(),
             req.getMinimumCollaboratorsForQuota(),
             req.getResultsWeight(),
             req.getCompetenciesWeight()));
@@ -56,7 +58,7 @@ public class UpsertSiadapConfigCommandHandler
     response.setGoodScore(saved.getGoodScore());
     response.setExcellentScore(saved.getExcellentScore());
     response.setExcellentQuota(saved.getExcellentQuota());
-    response.setGoodQuota(null);
+    response.setGoodQuota(saved.getGoodQuota());
     response.setMinimumCollaboratorsForQuota(saved.getMinCollaboratorsForQuota());
     response.setResultsWeight(saved.getResultsWeight());
     response.setCompetenciesWeight(saved.getCompetenciesWeight());

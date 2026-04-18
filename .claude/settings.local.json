@@ -2,7 +2,23 @@
   "permissions": {
     "allow": [
       "Bash(./mvnw compile *)",
-      "Bash(mvn compile *)"
+      "Bash(mvn compile *)",
+      "Bash(JAVA_HOME=\"/c/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot\" mvn compile -Dmaven.compiler.source=25 -Dmaven.compiler.target=25 -q)",
+      "Bash(curl -s -w '\\\\nHTTP: %{http_code}' -X POST http://localhost:8091/api/v1/admin/cost-drivers -H 'Content-Type: application/json' -d '{\"driverType\":\"DAILY_ALLOWANCE\",\"validFrom\":\"2026-01-01\",\"parameters\":{\"baseAmount\":5000},\"currency\":\"CVE\",\"legalReference\":\"Decreto-Lei 10/2024\"}')",
+      "Bash(curl -s -w '\\\\nHTTP: %{http_code}' -X POST http://localhost:8091/api/v1/admin/cost-drivers -H 'Content-Type: application/json' -d '{\"driverType\":\"INEXISTENTE\",\"validFrom\":\"2026-01-01\",\"parameters\":{},\"currency\":\"CVE\"}')",
+      "Bash(find /c/Users/ivanick.santos/Nick-personal/ta-workspace/projects/Recursos_Humanos/src -name \"CostDriverType.java\" -exec cat {} \\\\;)",
+      "Bash(find /c/Users/ivanick.santos/Nick-personal/ta-workspace/projects/Recursos_Humanos/src -name \"CostDriverParams.java\" -exec cat {} \\\\;)",
+      "Bash(find /c/Users/ivanick.santos/Nick-personal/ta-workspace/projects/Recursos_Humanos/src -name \"PerDiemParams.java\" -exec cat {} \\\\;)",
+      "Bash(find /c/Users/ivanick.santos/Nick-personal/ta-workspace/projects/Recursos_Humanos/src -name \"AdminCreateCostDriverRequestDTO.java\" -exec cat {} \\\\;)",
+      "Bash(find /c/Users/ivanick.santos/Nick-personal/ta-workspace/projects/Recursos_Humanos/src -name \"AdminCreateCostDriverCommandHandler.java\" -exec cat {} \\\\;)",
+      "Bash(find /c/Users/ivanick.santos/Nick-personal/ta-workspace/projects/Recursos_Humanos/src -name \"FuelParams.java\" -exec cat {} \\\\;)",
+      "Bash(curl -s -v -X POST http://localhost:8091/api/v1/admin/cost-drivers -H 'Content-Type: application/json' -d '{\"driverType\":\"PER_DIEM\",\"validFrom\":\"2026-01-01\",\"params\":{\"island\":\"SANTIAGO\",\"level\":\"TECNICO\",\"value\":5000},\"currency\":\"CVE\"}')",
+      "Bash(find /c/Users/ivanick.santos/Nick-personal/ta-workspace/projects/Recursos_Humanos/src -name \"AdminCostDriverResponseDTO.java\" -exec cat {} \\\\;)",
+      "Bash(PGPASSWORD=postgres psql -h localhost -p 5436 -U postgres -d recursoshumanos_db -c \"\\\\d t_budget_drivers\")",
+      "Bash(PGPASSWORD=postgres \"/c/Program Files/PostgreSQL/17/bin/psql.exe\" -h localhost -p 5436 -U postgres -d recursoshumanos_db -c \"\\\\d t_budget_drivers\")",
+      "Bash(find /c/Users/ivanick.santos/Nick-personal/ta-workspace/projects/Recursos_Humanos/src -name \"CostDriverRequestDTO.java\" -exec cat {} \\\\;)",
+      "Bash(PGPASSWORD=postgres \"/c/Program Files/PostgreSQL/17/bin/psql.exe\" -h localhost -p 5436 -U postgres -d recursoshumanos_db -c \"SELECT COUNT\\(*\\) FROM t_budget_drivers;\")",
+      "Bash('/c/Program Files/PostgreSQL/17/bin/psql.exe' -h localhost -p 5436 -U postgres -d recursoshumanos_db -c ' *)"
     ]
   }
 }

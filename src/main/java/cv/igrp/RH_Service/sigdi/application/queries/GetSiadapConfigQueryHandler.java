@@ -52,7 +52,7 @@ public class GetSiadapConfigQueryHandler
     response.setGoodScore(config.getGoodScore());
     response.setExcellentScore(config.getExcellentScore());
     response.setExcellentQuota(config.getExcellentQuota());
-    response.setGoodQuota(null);
+    response.setGoodQuota(config.getGoodQuota());
     response.setMinimumCollaboratorsForQuota(config.getMinCollaboratorsForQuota());
     response.setResultsWeight(config.getResultsWeight());
     response.setCompetenciesWeight(config.getCompetenciesWeight());

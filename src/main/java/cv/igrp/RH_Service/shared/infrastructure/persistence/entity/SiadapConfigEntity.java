@@ -42,7 +42,11 @@ public class SiadapConfigEntity extends AuditEntity {
     @Column(name="excellent_quota")
     private BigDecimal excellentQuota;
 
-  
+
+    @Column(name="good_quota")
+    private BigDecimal goodQuota;
+
+
     @Column(name="min_collaborators_for_quota")
     private Integer minCollaboratorsForQuota;
 
