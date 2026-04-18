@@ -10,11 +10,11 @@
 
 ## Resumo Executivo
 
-Foram testados **54 endpoints** do módulo SIGDI, cobrindo os controladores de Administração, Orçamento, Estratégia, Tática, Conformidade e Inteligência. Foram identificados e corrigidos **5 bugs** que impediam a execução correcta do sistema, incluindo erros HTTP 500 (falhas internas), dados silenciosamente descartados e falhas de validação por dados em falta. Após as correcções, **todos os 54 endpoints passaram nos testes**.
+Foram testados **53 endpoints** do módulo SIGDI, cobrindo os controladores de Administração, Orçamento, Estratégia, Tática, Conformidade e Inteligência. Foram identificados e corrigidos **5 bugs** que impediam a execução correcta do sistema, incluindo erros HTTP 500 (falhas internas), dados silenciosamente descartados e falhas de validação por dados em falta. Após as correcções, **todos os 53 endpoints passaram nos testes**.
 
 | Total de endpoints testados | Bugs encontrados | Bugs corrigidos | Endpoints com falha (pós-fix) |
 |-----------------------------|------------------|-----------------|-------------------------------|
-| 54 | 5 | 5 | 0 |
+| 53 | 5 | 5 | 0 |
 
 ---
 
@@ -30,7 +30,7 @@ Os testes cobriram os seguintes controladores REST:
 | TaticalController | `/api/v1/tactical` | 17 |
 | ComplianceController | `/api/v1/compliance` | 6 |
 | IntelligenceController | `/api/v1/intelligence` | 4 |
-| **Total** | | **54** |
+| **Total** | | **53** |
 
 Para cada endpoint foram testados:
 - **Caso positivo** — payload válido, resposta e código HTTP esperados
@@ -97,7 +97,7 @@ Para cada endpoint foram testados:
 | Atributo | Detalhe |
 |----------|---------|
 | **Severidade** | Alta |
-| **Endpoint** | `POST /tactical/krs/{id}/checkin` / `GET /tactical/krs/{id}` / `GET /tactical/krs` |
+| **Endpoint** | `POST /api/v1/tactical/krs/{id}/checkin` / `GET /api/v1/tactical/krs/{id}` / `GET /api/v1/tactical/krs` |
 | **Sintoma** | Qualquer operação sobre Key Results criados via OKR retornava HTTP 500. |
 | **Causa Raiz** | Um Key Result pode pertencer a um OKR (campo `okr_id`) ou a uma TacticalActivity (campo `activity_id`). Quando pertence a um OKR, `activityId` é `null`. O mapper (`KeyResultMapper`) e vários handlers chamavam `entity.getActivityId().getId()` e `kr.getActivityId().getValor().getValor()` sem verificação de nulidade, causando `NullPointerException`. Adicionalmente, o modelo de domínio `KeyResult` rejeitava `activityId = null` com `IllegalArgumentException`. |
 | **Correcção** | Null guards adicionados em: `KeyResultMapper`, `KeyResult` (domínio), `GetKeyResultQueryHandler`, `GetAllKeyResultsQueryHandler`, `CreateKeyResultCommandHandler`, `UpdateKeyResultCommandHandler`. |
@@ -201,6 +201,7 @@ Estas questões não impedem o funcionamento do sistema mas devem ser considerad
 | OBS-01 | `POST /strategy/goals` | Retorna HTTP 200 em vez de HTTP 201 (Created). Não cumpre a convenção REST para criação de recursos. |
 | OBS-02 | `GET /budget/summary` | O campo `institutionId` retorna `null` na resposta — o contexto de segurança não está a ser injectado no query handler. |
 | OBS-03 | `POST /budget/cost_drivers` vs `POST /admin/cost-drivers` | Inconsistência de nomenclatura: o endpoint de budget usa o campo `parameters` enquanto o de admin usa `params` para o mesmo conceito. |
+| OBS-04 | `POST /intelligence/scenarios` | Retorna HTTP 200 em vez de HTTP 201 (Created). Não cumpre a convenção REST para criação de recursos. |
 
 ---
 
