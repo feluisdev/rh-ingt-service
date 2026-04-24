@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Repository
 public interface DependenteEntityRepository extends
-    JpaRepository<DependenteEntity, Integer>,
+    JpaRepository<DependenteEntity, UUID>,
     JpaSpecificationExecutor<DependenteEntity>
 {
 

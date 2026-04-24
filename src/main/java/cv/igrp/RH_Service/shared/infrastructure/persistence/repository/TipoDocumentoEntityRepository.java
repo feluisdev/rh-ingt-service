@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Repository
 public interface TipoDocumentoEntityRepository extends
-    JpaRepository<TipoDocumentoEntity, Integer>,
+    JpaRepository<TipoDocumentoEntity, UUID>,
     JpaSpecificationExecutor<TipoDocumentoEntity>
 {
   Optional<TipoDocumentoEntity> findById(UUID externalId);

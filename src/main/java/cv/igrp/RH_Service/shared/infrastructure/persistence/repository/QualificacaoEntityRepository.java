@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Repository
 public interface QualificacaoEntityRepository extends
-    JpaRepository<QualificacaoEntity, Integer>,
+    JpaRepository<QualificacaoEntity, UUID>,
     JpaSpecificationExecutor<QualificacaoEntity>
 {
 

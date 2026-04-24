@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Repository
 public interface FuncionarioEntityRepository extends
-    JpaRepository<FuncionarioEntity, Integer>,
+    JpaRepository<FuncionarioEntity, UUID>,
     JpaSpecificationExecutor<FuncionarioEntity>
 {
 
