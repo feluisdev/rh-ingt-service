@@ -32,7 +32,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.SiadapConfigResponseDTO;
 @RestController
 @RequestMapping(path = "api/v1/admin")
 @Tag(
-    name = "Admin",
+    name = "SIGDI-Admin",
     description = "Administration: institutions, delegations, SIADAP configuration and cost drivers"
 )
 public class AdminController {

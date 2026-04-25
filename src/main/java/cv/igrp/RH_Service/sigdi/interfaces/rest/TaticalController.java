@@ -42,8 +42,8 @@ import cv.igrp.RH_Service.sigdi.application.dto.WrapperWorkflowInboxDTO;
 @RestController
 @RequestMapping(path = "api/v1/tactical")
 @Tag(
-    name = "Sigdi",
-    description = "gest strategies"
+    name = "SIGDI-Tatical",
+    description = "gest tatical activities"
 )
 public class TaticalController {
 
