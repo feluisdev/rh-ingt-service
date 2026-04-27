@@ -1,50 +1,95 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+  Sync Impact Report
+  Versão: 0.0.0 → 1.0.0
+  - Constituição inicial do projeto RH-Service (criada a partir do template)
+  - Princípios derivados do CLAUDE.md e arquitetura documentada do projeto
+  - Adicionados: Princípios I–V, Restrições Técnicas, Convenções de Desenvolvimento, Governação
+  - Removidos: placeholders de exemplo sem substituição
+  - Templates verificados:
+      ✅ .specify/templates/plan-template.md — secção "Constitution Check" genérica, compatível
+      ✅ .specify/templates/spec-template.md — sem referências a princípios específicos, compatível
+      ✅ .specify/templates/tasks-template.md — estrutura por user story, compatível
+  - Deferred:
+      TODO(RATIFICATION_DATE): data de ratificação original desconhecida; marcar quando acordada com a equipa
+-->
 
-## Core Principles
+# RH-Service Constitution
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+## Princípios Fundamentais
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### I. Arquitetura Hexagonal (NÃO NEGOCIÁVEL)
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+Todo o código de domínio DEVE ser isolado de detalhes de infraestrutura. A estrutura de cada módulo DEVE seguir estritamente as seguintes camadas:
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+- `interfaces/rest/` — controllers gerados automaticamente pelo IGRP Studio (nunca editar)
+- `application/` — handlers de comandos/queries e DTOs
+- `domain/` — modelos de domínio puros e lógica de negócio (sem dependências de infraestrutura)
+- `infrastructure/` — repositórios JPA e adaptadores externos
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+**Proibido**: lógica de negócio em controllers; acesso direto à base de dados a partir da camada de domínio; dependências circulares entre camadas; importar classes de `infrastructure` a partir de `domain`.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### II. CQRS — Handlers como Única Fonte de Lógica de Negócio
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+A lógica de negócio DEVE residir exclusivamente nos handlers anotados com `@IgrpCommandHandler`. Controllers anotados com `@IgrpController` NUNCA devem conter lógica de negócio. Qualquer operação de escrita DEVE ser modelada como um Command; qualquer operação de leitura DEVE ser modelada como uma Query. Esta separação é obrigatória e não admite exceções.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+### III. IGRP Studio — Controllers São Gerados, Nunca Editados
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+Controllers em `interfaces/rest/` são gerados automaticamente a partir de manifests em `.igrpstudio/<módulo>/` e estão marcados com `/* THIS FILE WAS GENERATED AUTOMATICALLY */`. Regenerar um manifest sobrescreve o controller — qualquer edição manual será perdida. Para adicionar novos endpoints ou módulos, DEVE usar-se o skill `igrp-spring-generator` e atualizar os manifests correspondentes.
 
-## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+### IV. Auditoria Obrigatória por Hibernate Envers
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+Todas as entidades persistidas DEVEM ser auditadas via Hibernate Envers. Os campos de rastreio (`createdAt`, `updatedAt`, utilizador atuante) DEVEM ser preenchidos automaticamente através de `ApplicationAuditorAware`, que lê o contexto de segurança via `SecurityContextHelper`. Nenhuma entidade de domínio escrita pode ficar isenta de auditoria.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+### V. Segurança Estrita por Perfil de Execução
+
+O comportamento de segurança DEVE variar exclusivamente com base no perfil ativo (`SERVICE_PROFILE`):
+
+| Perfil | Comportamento |
+|---|---|
+| `development` / `staging` | Segurança totalmente desativada, CORS permissivo |
+| `production` | OAuth2 Resource Server com validação JWT via Keycloak obrigatória |
+
+NUNCA assumir que a ausência de segurança em `development` representa o comportamento de produção. Fluxos de autenticação DEVEM ser testados apenas contra um ambiente com o perfil `production` ativo.
+
+## Restrições Técnicas
+
+As seguintes restrições são não negociáveis e DEVEM ser respeitadas em todas as features:
+
+- **Linguagem**: Java 23 — sem downgrade
+- **Framework**: Spring Boot 3.5.3 + Spring Cloud 2025.0.0
+- **Base de Dados**: PostgreSQL 17 via JPA/Hibernate — único ORM permitido; sem SQL nativo exceto onde Hibernate seja insuficiente e devidamente justificado
+- **Chave Primária**: Todas as entidades DEVEM usar `ExternalID` (wrapper UUID) como identificador primário — sem chaves inteiras auto-incrementadas
+- **Armazenamento de Ficheiros**: MinIO (S3-compatible) — sem alternativa para armazenamento de ficheiros
+- **Autenticação**: Keycloak com OAuth2/JWT — proibido implementar autenticação própria
+- **Idioma dos Artefactos**: Todos os artefactos SpecKit (specs, planos, tasks, checklists) DEVEM ser escritos em Português Europeu (pt-PT)
+
+## Convenções de Desenvolvimento
+
+- **Commits**: Conventional Commits com scope por módulo
+  ```
+  feat(funcionarios): ...
+  fix(sigdi): ...
+  refactor(security): ...
+  docs(sigdi): ...
+  ```
+- **Novos endpoints/módulos**: Sempre via skill `igrp-spring-generator` com atualização dos manifests em `.igrpstudio/`
+- **Testes**: `mvn test` para execução completa; `mvn test -Dtest=NomeDaClasse` para classe individual
+- **Configuração**: Variáveis de ambiente definidas em `.env` para desenvolvimento local; NUNCA hardcoded no código fonte
+- **Swagger**: Disponível em `http://localhost:8091/swagger-ui.html` quando `ENABLE_SWAGGER=true`
+
+## Governação
+
+Esta constituição é o documento de referência para todas as decisões de arquitetura e desenvolvimento do RH-Service. Qualquer desvio aos princípios DEVE ser explicitamente justificado, documentado e aprovado antes de ser implementado.
+
+**Procedimento de Emenda**:
+1. Propor alteração com justificação técnica clara
+2. Documentar o impacto nos templates SpecKit e artefactos existentes
+3. Incrementar a versão segundo semver:
+   - MAJOR: remoção ou redefinição incompatível de princípio
+   - MINOR: novo princípio ou secção adicionada
+   - PATCH: clarificação, reformulação ou correção tipográfica
+4. Atualizar `LAST_AMENDED_DATE` para a data de aprovação
+
+**Revisão de Conformidade**: A conformidade com esta constituição DEVE ser verificada na secção "Constitution Check" de cada `plan.md` gerado por `/speckit-plan`, e em cada revisão de Pull Request.
+
+**Versão**: 1.0.0 | **Ratificada**: TODO(RATIFICATION_DATE): data desconhecida — confirmar com a equipa | **Última Alteração**: 2026-04-27

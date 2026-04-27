@@ -99,6 +99,10 @@ ENABLE_SWAGGER=true
 
 Shared value objects: `ExternalID` (UUID wrapper), `Estado` enum (ATIVO/INATIVO).
 
+## Language
+
+All SpecKit artifacts (specs, plans, tasks, checklists) must be written in European Portuguese (pt-PT).
+
 ## Commit Convention
 
 Follows conventional commits scoped by module:
