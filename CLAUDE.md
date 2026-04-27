@@ -58,7 +58,7 @@ The project uses a custom IGRP framework (`cv.igrp.framework:core`) for command/
 
 **Critical:** Controllers in `interfaces/rest/` are auto-generated from manifests in `.igrpstudio/` and are marked `/* THIS FILE WAS GENERATED AUTOMATICALLY */`. Regeneration overwrites them — keep business logic in handlers.
 
-To add new endpoints or modules, use the `igrp-spring-generator` Claude Code skill (see `.trae/skills/igrp-spring-generator/` for documentation).
+To add new endpoints or modules, use the `igrp-spring-generator` Claude Code skill. Manifests are stored under `.igrpstudio/<module>/` — see `.claude/skills/igrp-spring-generator/` for full reference.
 
 ### Security Profile Behavior
 
