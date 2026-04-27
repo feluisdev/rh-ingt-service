@@ -87,6 +87,27 @@ public class AdminController {
     return commandBus.send(command);
   }
 
+  @GetMapping(value = "institutions/{id}")
+  @Operation(
+    summary = "Get institution by ID",
+    description = "Obtém uma instituição pelo seu identificador único.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = InstitutionResponseDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<InstitutionResponseDTO> getInstitutionById(
+    @PathVariable(value = "id") String id)
+  {
+    final var query = new GetInstitutionByIdQuery(id);
+    return queryBus.handle(query);
+  }
+
   @PostMapping(value = "delegations")
   @Operation(
     summary = "Create delegation",
