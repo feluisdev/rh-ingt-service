@@ -115,3 +115,8 @@ docs(sigdi): ...
 - `/docs/05-Infraestrutura-e-Persistencia.md` — Database and infrastructure design
 - `/docs/05.01-Spec-Tecnica-Backend-api.md` — Technical API spec
 - `/endpoints.md` — Full auto-documented API endpoint list
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+<!-- SPECKIT END -->
