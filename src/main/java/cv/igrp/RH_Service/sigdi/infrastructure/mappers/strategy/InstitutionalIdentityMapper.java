@@ -74,6 +74,7 @@ public class InstitutionalIdentityMapper {
 
     IdentityResponseDTO response = new IdentityResponseDTO();
     response.setId(domain.getId().getValor().getValor());
+    response.setInstitutionId(domain.getInstitutionId());
     response.setCycleYear(domain.getCycleYear());
     response.setMission(domain.getMission());
     response.setVision(domain.getVision());
