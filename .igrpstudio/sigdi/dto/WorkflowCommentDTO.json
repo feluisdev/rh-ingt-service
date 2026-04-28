@@ -1,0 +1,24 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "WorkflowComment",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    {
+      "name": "comment",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "minLength": 10,
+      "maxLength": 500,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    }
+  ],
+  "id": "wfcomment01"
+}

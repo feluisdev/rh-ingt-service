@@ -1,0 +1,45 @@
+{
+  "type": "enum",
+  "module": "sigdi",
+  "name": "SigofSyncLogStatus",
+  "values": [
+    {
+      "name": "RUNNING",
+      "attributes": [
+        "RUNNING",
+        "RUNNING"
+      ]
+    },
+    {
+      "name": "SUCCESS",
+      "attributes": [
+        "SUCCESS",
+        "SUCCESS"
+      ]
+    },
+    {
+      "name": "PARTIAL",
+      "attributes": [
+        "PARTIAL",
+        "PARTIAL"
+      ]
+    },
+    {
+      "name": "FAILED",
+      "attributes": [
+        "FAILED",
+        "FAILED"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}

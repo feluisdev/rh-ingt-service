@@ -1,0 +1,14 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "CloseEvaluationsResponse",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    { "name": "organicUnitId",     "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "organicUnitName",   "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "year",              "objectType": "java", "type": "integer", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "evaluationsClosed", "objectType": "java", "type": "integer", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "closedAt",          "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false }
+  ]
+}

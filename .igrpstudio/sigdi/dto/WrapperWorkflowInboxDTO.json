@@ -1,0 +1,28 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "WrapperWorkflowInbox",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "extends": {
+    "name": "PageDTO",
+    "module": "shared"
+  },
+  "attributes": [
+    {
+      "name": "data",
+      "objectType": "dto",
+      "type": "WorkflowInboxItem",
+      "module": "sigdi",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "collectionType": "list"
+    }
+  ],
+  "id": "wrapperwfInboxdto01"
+}

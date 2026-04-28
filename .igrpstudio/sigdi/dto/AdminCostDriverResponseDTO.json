@@ -1,0 +1,16 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "AdminCostDriverResponse",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    { "name": "id",                 "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "driverType",         "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "validFrom",          "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "currency",           "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "legalReference",     "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "createdAt",          "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "affectedActivities", "objectType": "java", "type": "integer", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false }
+  ]
+}

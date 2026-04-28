@@ -1,0 +1,32 @@
+{
+  "type": "enum",
+  "module": "sigdi",
+  "name": "NotificationChannel",
+  "values": [
+    {
+      "name": "EMAIL",
+      "attributes": [
+        "EMAIL",
+        "EMAIL"
+      ]
+    },
+    {
+      "name": "PUSH",
+      "attributes": [
+        "PUSH",
+        "PUSH"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}
+

@@ -1,0 +1,32 @@
+{
+  "type": "enum",
+  "module": "sigdi",
+  "name": "SimulationScenarioStatus",
+  "values": [
+    {
+      "name": "PROCESSING",
+      "attributes": [
+        "PROCESSING",
+        "PROCESSING"
+      ]
+    },
+    {
+      "name": "COMPLETED",
+      "attributes": [
+        "COMPLETED",
+        "COMPLETED"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}
+

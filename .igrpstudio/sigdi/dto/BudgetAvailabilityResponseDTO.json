@@ -1,0 +1,24 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "BudgetAvailabilityResponse",
+  "template": "classic",
+  "attributes": [
+    { "name": "classifier", "type": "string", "objectType": "java", "required": false },
+    { "name": "classifierDescription", "type": "string", "objectType": "java", "required": false },
+    { "name": "organicUnitId", "type": "string", "objectType": "java", "required": false },
+    { "name": "organicUnitName", "type": "string", "objectType": "java", "required": false },
+    { "name": "fiscalYear", "type": "integer", "objectType": "java", "required": false },
+    { "name": "budgetAllocated", "type": "decimal", "objectType": "java", "required": false },
+    { "name": "committed", "type": "decimal", "objectType": "java", "required": false },
+    { "name": "liquidated", "type": "decimal", "objectType": "java", "required": false },
+    { "name": "paid", "type": "decimal", "objectType": "java", "required": false },
+    { "name": "available", "type": "decimal", "objectType": "java", "required": false },
+    { "name": "executionRate", "type": "decimal", "objectType": "java", "required": false },
+    { "name": "alertLevel", "type": "string", "objectType": "java", "required": false },
+    { "name": "dataSource", "type": "string", "objectType": "java", "required": false },
+    { "name": "lastSyncAt", "type": "string", "objectType": "java", "required": false },
+    { "name": "requestedAmountFeasible", "type": "boolean", "objectType": "java", "required": false },
+    { "name": "requestedAmount", "type": "decimal", "objectType": "java", "required": false }
+  ]
+}

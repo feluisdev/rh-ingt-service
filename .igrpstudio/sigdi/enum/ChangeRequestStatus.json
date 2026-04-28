@@ -1,0 +1,38 @@
+{
+  "type": "enum",
+  "module": "sigdi",
+  "name": "ChangeRequestStatus",
+  "values": [
+    {
+      "name": "PENDING",
+      "attributes": [
+        "PENDING",
+        "PENDING"
+      ]
+    },
+    {
+      "name": "APPROVED",
+      "attributes": [
+        "APPROVED",
+        "APPROVED"
+      ]
+    },
+    {
+      "name": "REJECTED",
+      "attributes": [
+        "REJECTED",
+        "REJECTED"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}

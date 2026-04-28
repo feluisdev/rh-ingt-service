@@ -1,0 +1,10 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "SyncSigofRequest",
+  "template": "classic",
+  "attributes": [
+    { "name": "fiscalYear", "type": "integer", "objectType": "java", "required": true },
+    { "name": "scope", "type": "string", "objectType": "java", "required": true }
+  ]
+}

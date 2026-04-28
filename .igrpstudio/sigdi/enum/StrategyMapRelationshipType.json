@@ -1,0 +1,24 @@
+{
+  "type": "enum",
+  "module": "sigdi",
+  "name": "StrategyMapRelationshipType",
+  "values": [
+    {
+      "name": "CAUSE_EFFECT",
+      "attributes": [
+        "CAUSE_EFFECT",
+        "Causa e Efeito"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}

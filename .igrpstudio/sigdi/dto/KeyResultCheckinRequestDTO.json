@@ -1,0 +1,46 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "KeyResultCheckinRequest",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    {
+      "name": "valuedAdded",
+      "objectType": "java",
+      "type": "decimal",
+      "required": true,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "comment",
+      "objectType": "java",
+      "type": "string",
+      "required": true,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "evidenceUrl",
+      "objectType": "java",
+      "type": "string",
+      "required": true,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    }
+  ],
+  "id": "bbyynlb6ii"
+}

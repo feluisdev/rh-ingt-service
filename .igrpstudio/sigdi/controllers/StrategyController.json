@@ -1,0 +1,378 @@
+{
+  "type": "controller",
+  "name": "Strategy",
+  "module": "sigdi",
+  "description": "gest strategies",
+  "basePath": "api/v1/strategy",
+  "actions": [
+    {
+      "actionName": "createIdentitie",
+      "path": "identities",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CreateIdentityRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "CREATED",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "IdentityResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "createStrategicGoal",
+      "path": "goals",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CreateStategicGoal",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "StategicGoalResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getCurrentIdentitie",
+      "path": "identities/current",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "IdentityResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "createStrategyMapLink",
+      "path": "map/links",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "StrategyLink",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "CREATED",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "StrategyMapLinkResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getCurrentStrategyMap",
+      "path": "map/current",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "StrategyMapData",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getListIdentitie",
+      "path": "identities",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListIdentitie",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "cicleYear",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "pageNumber",
+          "value": "0",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "pageSize",
+          "value": "20",
+          "isRequired": false
+        }
+      ]
+    },
+    {
+      "actionName": "getListStrategicGoals",
+      "path": "goals",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListStrategyGoals",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "perspective",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "status",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "parentGoalId",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "pageNumber",
+          "value": "0",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "pageSize",
+          "value": "20",
+          "isRequired": false
+        }
+      ]
+    },
+    {
+      "actionName": "updateStrategicGoals",
+      "path": "goals/{id}",
+      "method": "PATCH",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "UpdateStategicGoal",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "StategicGoalResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "deleteStrategyMapLink",
+      "path": "map/links/{id}",
+      "method": "DELETE",
+      "responses": {
+        "204": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "cancelStrategicGoal",
+      "path": "goals/{id}",
+      "method": "DELETE",
+      "responses": {
+        "204": {
+          "name": "NO_CONTENT",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "updateGoalPosition",
+      "path": "map/nodes/{goalId}/position",
+      "method": "PATCH",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "GoalPositionRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "GoalPositionResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "goalId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    }
+  ],
+  "id": "za41idl434-createIdentitie-createIdentitie-createIdentitie-createIdentitie-createIdentitie"
+}

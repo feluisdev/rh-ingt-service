@@ -1,0 +1,16 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "CreateScenarioRequest",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    { "name": "name",             "objectType": "java", "type": "string",  "required": true,  "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "type",             "objectType": "java", "type": "string",  "required": true,  "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "percentage",       "objectType": "java", "type": "decimal", "required": true,  "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "scope",            "objectType": "java", "type": "string",  "required": true,  "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "fiscalYear",       "objectType": "java", "type": "integer", "required": true,  "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "priorityCriteria", "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "excludeObligatory","objectType": "java", "type": "boolean", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false }
+  ]
+}

@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Repository
 public interface CargoEntityRepository extends
-    JpaRepository<CargoEntity, Integer>,
+    JpaRepository<CargoEntity, UUID>,
     JpaSpecificationExecutor<CargoEntity>
 {
 

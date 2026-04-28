@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' -X POST http://localhost:8091/api/v1/admin/delegations -H 'Content-Type: application/json' -d '{ *)",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' -X POST 'http://localhost:8091/api/v1/admin/delegations?delegatorUserId=00000000-0000-0000-0000-000000000001' -H 'Content-Type: application/json' -d '{ *)",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\" \"http://localhost:8091/api/v1/budget/availability?institutionId=00000000-0000-0000-0000-000000000001&fiscalYear=2025\")",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\" \"http://localhost:8091/api/v1/budget/availability?classifier=01.01.01&organicUnitId=00000000-0000-0000-0000-000000000010&fiscalYear=2025\")",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\" \"http://localhost:8091/api/v1/budget/summary?fiscalYear=2025\")",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\" -X POST \"http://localhost:8091/api/v1/budget/sync/sigof?fiscalYear=2025\")",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' -X POST http://localhost:8091/api/v1/budget/sync/sigof -H 'Content-Type: application/json' -d '{\"fiscalYear\": 2025, \"scope\": \"ALL\"}')",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' -X POST http://localhost:8091/api/v1/budget/calculator/simulate -H 'Content-Type: application/json' -d '{ *)",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\" \"http://localhost:8091/api/v1/compliance/quar/preview?fiscalYear=2025&quarter=Q1\")",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\" \"http://localhost:8091/api/v1/compliance/quar/preview?year=2025\")",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\" \"http://localhost:8091/api/v1/compliance/quar/export?year=2025\" -o /dev/null)",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\" \"http://localhost:8091/api/v1/compliance/siadap/evaluations?fiscalYear=2025\")",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\" \"http://localhost:8091/api/v1/compliance/siadap/evaluations?year=2025\")",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\" \"http://localhost:8091/api/v1/compliance/siadap/quota-validation?year=2025\")",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' -X POST http://localhost:8091/api/v1/compliance/siadap/evaluations/close -H 'Content-Type: application/json' -d '{\"year\": 2025}')",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' -X POST http://localhost:8091/api/v1/compliance/siadap/evaluations/close -H 'Content-Type: application/json' -d '{\"year\": 2025, \"organicUnitId\": \"00000000-0000-0000-0000-000000000010\"}')",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\" \"http://localhost:8091/api/v1/compliance/siadap/export?year=2025\" -o /dev/null)",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' -X POST http://localhost:8091/api/v1/intelligence/scenarios -H 'Content-Type: application/json' -d '{ *)",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' http://localhost:8091/api/v1/intelligence/scenarios/188f5537-a109-45e4-a84c-5fba6be14774)",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\" \"http://localhost:8091/api/v1/intelligence/scenarios?fiscalYear=2025\")",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' http://localhost:8091/api/v1/intelligence/scenarios/188f5537-a109-45e4-a84c-5fba6be14774/export -o /dev/null)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:8091/api/v1/strategy/goals -H 'Content-Type: application/json' -d '{\"title\":\"Test Goal 2\",\"perspective\":\"FINANCIAL\",\"fiscalYear\":2025,\"targetValue\":100.0,\"metricUnit\":\"PERCENT\"}')",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\" \"http://localhost:8091/api/v1/strategy/goals?fiscalYear=2025\")",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\" \"http://localhost:8091/api/v1/tactical/activities\")",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\" \"http://localhost:8091/api/v1/tactical/activities?pageSize=20&pageNumber=0\")",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' http://localhost:8091/api/v1/tactical/activities/3ae07731-b802-4e2b-9709-8d300f9d2e2b)",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\" \"http://localhost:8091/api/v1/admin/cost-drivers\")",
+      "Bash(curl -s -o /dev/null -w \"DELETE institution: %{http_code}\\\\n\" -X DELETE \"http://localhost:8091/api/v1/admin/institutions/00000000-0000-0000-0000-000000000099\")",
+      "Bash(curl -s -w 'POST institution: %{http_code}\\\\n' -X POST http://localhost:8091/api/v1/admin/institutions -H 'Content-Type: application/json' -d '{\"name\":\"Test Institution\",\"mission\":\"Test\",\"acronym\":\"TI\",\"type\":\"PUBLIC\"}' -o /dev/null)",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' -X POST http://localhost:8091/api/v1/admin/institutions -H 'Content-Type: application/json' -d '{\"code\":\"INST001\",\"name\":\"Test Institution\",\"type\":\"PUBLIC\",\"contactEmail\":\"test@inst.cv\"}')",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' -X DELETE http://localhost:8091/api/v1/admin/institutions/8737fd71-3b66-4f63-bfac-df8120d55228)",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\" \"http://localhost:8091/api/v1/budget/cost_drivers\")",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' http://localhost:8091/api/v1/budget/cost_drivers/a0d63c53-f568-48b5-b663-e4eef73d32d5)",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' -X PUT http://localhost:8091/api/v1/budget/cost_drivers/a0d63c53-f568-48b5-b663-e4eef73d32d5 -H 'Content-Type: application/json' -d '{\"driverType\":\"FUEL\",\"parameters\":{\"pricePerLiter\":2.00,\"consumptionRate\":10.0},\"valid_from\":\"2025-06-01\",\"currency\":\"CVE\"}')",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' http://localhost:8091/api/v1/budget/sync/sigof/ab5e5274-28cc-48cc-8c54-c3b4beba938a)",
+      "Bash(xargs grep *)"
+    ]
+  }
+}

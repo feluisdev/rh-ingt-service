@@ -1,0 +1,45 @@
+{
+  "type": "enum",
+  "module": "sigdi",
+  "name": "StrategicGoalsPerspective",
+  "values": [
+    {
+      "name": "FINANCIAL",
+      "attributes": [
+        "FINANCIAL",
+        "FINANCIAL"
+      ]
+    },
+    {
+      "name": "CUSTOMER",
+      "attributes": [
+        "CUSTOMER",
+        "CUSTOMER"
+      ]
+    },
+    {
+      "name": "LEARNING",
+      "attributes": [
+        "LEARNING",
+        "LEARNING"
+      ]
+    },
+    {
+      "name": "PROCESS",
+      "attributes": [
+        "PROCESS",
+        "PROCESS"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}

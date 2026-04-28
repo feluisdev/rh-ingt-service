@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Repository
 public interface ContratoEntityRepository extends
-    JpaRepository<ContratoEntity, Integer>,
+    JpaRepository<ContratoEntity, UUID>,
     JpaSpecificationExecutor<ContratoEntity>
 {
 

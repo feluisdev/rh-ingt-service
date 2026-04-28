@@ -1,0 +1,17 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "ScenarioListItem",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    { "name": "id",                   "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "name",                 "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "type",                 "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "percentage",           "objectType": "java", "type": "decimal", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "status",               "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "activitiesInfeasible", "objectType": "java", "type": "integer", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "totalSaving",          "objectType": "java", "type": "decimal", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "createdAt",            "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false }
+  ]
+}

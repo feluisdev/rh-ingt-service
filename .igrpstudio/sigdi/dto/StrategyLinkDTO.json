@@ -1,0 +1,46 @@
+{
+    "type": "dto",
+    "module": "sigdi",
+    "name": "StrategyLink",
+    "template": "classic",
+    "enableCustonValidation": false,
+    "attributes": [
+        {
+            "name": "sourceGoalId",
+            "objectType": "java",
+            "type": "string",
+            "required": true,
+            "before": false,
+            "after": false,
+            "positive": false,
+            "isEmail": false,
+            "isUrl": false,
+            "primaryKey": false
+        },
+        {
+            "name": "targetGoalId",
+            "objectType": "java",
+            "type": "string",
+            "required": true,
+            "before": false,
+            "after": false,
+            "positive": false,
+            "isEmail": false,
+            "isUrl": false,
+            "primaryKey": false
+        },
+        {
+            "name": "relationshipType",
+            "objectType": "java",
+            "type": "string",
+            "required": true,
+            "before": false,
+            "after": false,
+            "positive": false,
+            "isEmail": false,
+            "isUrl": false,
+            "primaryKey": false
+        }
+    ],
+    "id": "strategy-link-dto"
+}

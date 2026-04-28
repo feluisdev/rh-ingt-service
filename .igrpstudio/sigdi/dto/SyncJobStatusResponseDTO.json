@@ -1,0 +1,13 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "SyncJobStatusResponse",
+  "template": "classic",
+  "attributes": [
+    { "name": "syncJobId", "type": "string", "objectType": "java", "required": false },
+    { "name": "status", "type": "string", "objectType": "java", "required": false },
+    { "name": "recordsUpdated", "type": "integer", "objectType": "java", "required": false },
+    { "name": "startedAt", "type": "string", "objectType": "java", "required": false },
+    { "name": "completedAt", "type": "string", "objectType": "java", "required": false }
+  ]
+}

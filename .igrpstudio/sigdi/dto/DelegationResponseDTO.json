@@ -1,0 +1,18 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "DelegationResponse",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    { "name": "id",          "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "delegatorId", "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "delegateId",  "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "scope",       "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "startDate",   "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "endDate",     "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "reason",      "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "isActive",    "objectType": "java", "type": "boolean", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "createdAt",   "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false }
+  ]
+}

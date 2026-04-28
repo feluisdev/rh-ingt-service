@@ -14,7 +14,7 @@ import java.util.zip.ZipFile;
 
 @Repository
 public interface DepartamentoEntityRepository extends
-    JpaRepository<DepartamentoEntity, Integer>,
+    JpaRepository<DepartamentoEntity, UUID>,
     JpaSpecificationExecutor<DepartamentoEntity>
 {
 

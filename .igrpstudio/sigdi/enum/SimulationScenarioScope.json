@@ -1,0 +1,31 @@
+{
+    "type": "enum",
+    "module": "sigdi",
+    "name": "SimulationScenarioScope",
+    "values": [
+        {
+            "name": "GLOBAL",
+            "attributes": [
+                "GLOBAL",
+                "GLOBAL"
+            ]
+        },
+        {
+            "name": "DEPARTMENT_ID",
+            "attributes": [
+                "DEPARTMENT_ID",
+                "DEPARTMENT_ID"
+            ]
+        }
+    ],
+    "attributes": [
+        {
+            "type": "string",
+            "name": "Code"
+        },
+        {
+            "type": "string",
+            "name": "Description"
+        }
+    ]
+}

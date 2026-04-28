@@ -1,0 +1,11 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "SigofStatus",
+  "template": "classic",
+  "attributes": [
+    { "name": "status", "type": "string", "objectType": "java", "required": false },
+    { "name": "lastSyncAt", "type": "string", "objectType": "java", "required": false },
+    { "name": "nextSyncAt", "type": "string", "objectType": "java", "required": false }
+  ]
+}

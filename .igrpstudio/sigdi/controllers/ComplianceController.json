@@ -1,0 +1,71 @@
+{
+  "type": "controller",
+  "name": "ComplianceController",
+  "module": "sigdi",
+  "basePath": "api/v1/compliance",
+  "description": "Compliance module — QUAR generation, SIADAP evaluations, quota validation",
+  "actions": [
+    {
+      "actionName": "getQUARPreview",
+      "method": "GET",
+      "path": "quar/preview",
+      "requestParams": [
+        { "type": "integer", "name": "year",          "isRequired": true  },
+        { "type": "string",  "name": "organicUnitId", "isRequired": false }
+      ],
+      "responses": [{ "status": 200 }]
+    },
+    {
+      "actionName": "exportQUAR",
+      "method": "GET",
+      "path": "quar/export",
+      "requestParams": [
+        { "type": "integer", "name": "year",          "isRequired": true  },
+        { "type": "string",  "name": "format",        "isRequired": false },
+        { "type": "string",  "name": "organicUnitId", "isRequired": false },
+        { "type": "boolean", "name": "force",         "isRequired": false }
+      ],
+      "responses": [{ "status": 200 }]
+    },
+    {
+      "actionName": "listEvaluations",
+      "method": "GET",
+      "path": "siadap/evaluations",
+      "requestParams": [
+        { "type": "integer", "name": "year",          "isRequired": true  },
+        { "type": "string",  "name": "organicUnitId", "isRequired": false },
+        { "type": "string",  "name": "status",        "isRequired": false },
+        { "type": "string",  "name": "pageNumber",    "isRequired": false },
+        { "type": "string",  "name": "pageSize",      "isRequired": false }
+      ],
+      "responses": [{ "status": 200 }]
+    },
+    {
+      "actionName": "quotaValidation",
+      "method": "GET",
+      "path": "siadap/quota-validation",
+      "requestParams": [
+        { "type": "integer", "name": "year", "isRequired": true }
+      ],
+      "responses": [{ "status": 200 }]
+    },
+    {
+      "actionName": "closeEvaluations",
+      "method": "POST",
+      "path": "siadap/evaluations/close",
+      "requestBody": { "name": "CloseEvaluationsRequest", "module": "sigdi" },
+      "responses": [{ "status": 200 }]
+    },
+    {
+      "actionName": "exportSiadap",
+      "method": "GET",
+      "path": "siadap/export",
+      "requestParams": [
+        { "type": "integer", "name": "year",          "isRequired": true  },
+        { "type": "string",  "name": "organicUnitId", "isRequired": false },
+        { "type": "string",  "name": "format",        "isRequired": false }
+      ],
+      "responses": [{ "status": 200 }]
+    }
+  ]
+}

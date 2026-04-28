@@ -1,0 +1,38 @@
+{
+    "type": "enum",
+    "module": "sigdi",
+    "name": "SimulationRecommendation",
+    "values": [
+        {
+            "name": "CANCEL",
+            "attributes": [
+                "CANCEL",
+                "CANCEL"
+            ]
+        },
+        {
+            "name": "DELAY",
+            "attributes": [
+                "DELAY",
+                "DELAY"
+            ]
+        },
+        {
+            "name": "REDUCE_SCOPE",
+            "attributes": [
+                "REDUCE_SCOPE",
+                "REDUCE_SCOPE"
+            ]
+        }
+    ],
+    "attributes": [
+        {
+            "type": "string",
+            "name": "Code"
+        },
+        {
+            "type": "string",
+            "name": "Description"
+        }
+    ]
+}

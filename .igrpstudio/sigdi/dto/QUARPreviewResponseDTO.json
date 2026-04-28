@@ -1,0 +1,16 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "QUARPreviewResponse",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    { "name": "institutionId",   "objectType": "java", "type": "string",            "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "institutionName", "objectType": "java", "type": "string",            "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "year",            "objectType": "java", "type": "integer",           "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "generatedAt",     "objectType": "java", "type": "string",            "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "completeness",    "objectType": "dto",  "type": "QUARCompletenessDTO","required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "objectives",      "objectType": "dto",  "type": "QUARObjectiveDTO",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false, "collectionType": "list" },
+    { "name": "budgetSummary",   "objectType": "dto",  "type": "QUARBudgetSummaryDTO","required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false }
+  ]
+}

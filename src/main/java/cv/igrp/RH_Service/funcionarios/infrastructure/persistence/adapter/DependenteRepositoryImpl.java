@@ -1,0 +1,96 @@
+package cv.igrp.RH_Service.funcionarios.infrastructure.persistence.adapter;
+
+import cv.igrp.RH_Service.funcionarios.domain.filter.DependenteFilter;
+import cv.igrp.RH_Service.funcionarios.domain.models.Dependente;
+import cv.igrp.RH_Service.funcionarios.domain.repository.DependenteRepository;
+import cv.igrp.RH_Service.funcionarios.infrastructure.mappers.DependenteMapper;
+import cv.igrp.RH_Service.shared.application.constants.Estado;
+import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.DependenteEntity;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.DependenteEntityRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+@RequiredArgsConstructor
+public class DependenteRepositoryImpl implements DependenteRepository {
+
+  private final DependenteMapper dependenteMapper;
+  private final DependenteEntityRepository dependenteEntityRepository;
+
+
+  @Transactional
+  @Override
+  public Dependente save(Dependente dependente) {
+    var entity = dependenteMapper.toEntity(dependente);
+    var saved = dependenteEntityRepository.save(entity);
+
+    return dependenteMapper.toDomain(saved);
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public Optional<Dependente> getById(ExternalID dependenteId) {
+
+    return dependenteEntityRepository.findById(dependenteId.getValor())
+        .map(dependenteMapper::toDomain);
+  }
+
+
+  @Transactional(readOnly = true)
+  @Override
+  public List<Dependente> getAll() {
+    var entities = dependenteEntityRepository.findAllByEstado(Estado.A);
+    return entities.stream()
+        .map(dependenteMapper::toDomain)
+        .toList();
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public List<Dependente> getAll(DependenteFilter filter) {
+    var pageable = PageRequest.of(
+        filter.getPageNumber() != null ? filter.getPageNumber() : 0,
+        filter.getPageSize() != null ? filter.getPageSize() : 20
+    );
+
+    Specification<DependenteEntity> spec = (root, query, cb) -> {
+      var predicates = cb.conjunction();
+
+      if (filter.getFuncionarioExternalId() != null) {
+        predicates = cb.and(predicates,
+            cb.equal(root.get("idFuncionario").get("externalId"), filter.getFuncionarioExternalId().getValor()));
+      }
+
+      if (filter.getNome() != null && !filter.getNome().isBlank()) {
+        predicates = cb.and(predicates,
+            cb.like(cb.lower(root.get("nome")), "%" + filter.getNome().trim().toLowerCase() + "%"));
+      }
+
+      predicates = cb.and(predicates, cb.equal(root.get("estado"), Estado.A));
+
+      return predicates;
+    };
+
+    var page = dependenteEntityRepository.findAll(spec, pageable);
+
+    return page.stream()
+        .map(dependenteMapper::toDomain)
+        .toList();
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public List<Dependente> getAllByFuncionarioId(ExternalID funcionarioExternalId) {
+    var entities = dependenteEntityRepository.findAllByIdFuncionario_Id_AndEstado(funcionarioExternalId.getValor(), Estado.A);
+    return entities.stream()
+        .map(dependenteMapper::toDomain)
+        .toList();
+  }
+}
