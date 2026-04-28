@@ -21,7 +21,7 @@ Emulate the reference generator behavior without the library: take IGRP Studio-c
 This skill supports three input modes:
 
 ### Mode A: Intent-only (no manifest provided)
-If the user asks something like "create a DTO/controller/model/enum/module" or "initialize a new API" without providing a manifest:
+If the user asks something like “create a DTO/controller/model/enum/module” or “initialize a new API” without providing a manifest:
 1) Collect the required fields for the corresponding manifest type (ask the user for required fields, do not guess them).
 2) Produce a valid manifest JSON (structure compatible, no extra fields).
 3) Write the manifest to the correct `.igrpstudio/**.json` path.
@@ -63,13 +63,13 @@ Always report:
 
 ## References (progressive disclosure)
 Keep this SKILL.md short. Read the following files only when you need their rules:
-- [paths.md](.trae/skills/igrp-spring-generator/references/paths.md): naming normalization, manifest paths, Java base paths, and package derivation.
-- [newApi.md](.trae/skills/igrp-spring-generator/references/newApi.md): byte-for-byte rules for initializing a project from BaseApiConfig.
-- [addDTO.md](.trae/skills/igrp-spring-generator/references/addDTO.md): byte-for-byte rules for DTO manifests and Java generation (including helper algorithms).
-- [addEnum.md](.trae/skills/igrp-spring-generator/references/addEnum.md): byte-for-byte rules for enum manifests and Java generation.
-- [addModule.md](.trae/skills/igrp-spring-generator/references/addModule.md): byte-for-byte rules for module manifest and scaffolding.
-- [addController.md](.trae/skills/igrp-spring-generator/references/addController.md): byte-for-byte rules for controller manifest and Java generation.
-- [addModel.md](.trae/skills/igrp-spring-generator/references/addModel.md): byte-for-byte rules for model manifest, entity, relations, and repositories.
+- [paths.md](./references/paths.md): naming normalization, manifest paths, Java base paths, and package derivation.
+- [newApi.md](./references/newApi.md): byte-for-byte rules for initializing a project from BaseApiConfig.
+- [addDTO.md](./references/addDTO.md): byte-for-byte rules for DTO manifests and Java generation (including helper algorithms).
+- [addEnum.md](./references/addEnum.md): byte-for-byte rules for enum manifests and Java generation.
+- [addModule.md](./references/addModule.md): byte-for-byte rules for module manifest and scaffolding.
+- [addController.md](./references/addController.md): byte-for-byte rules for controller manifest and Java generation.
+- [addModel.md](./references/addModel.md): byte-for-byte rules for model manifest, entity, relations, and repositories.
 
 ## Minimal examples
 
@@ -110,3 +110,9 @@ Input (DTOConfig):
 Expected outputs:
 - `<basePath>/.igrpstudio/shared/dto/UserDTO.json`
 - `<basePath>/src/main/java/<group-path>/<packageName>/dto/UserDTO.java` (technical)
+
+## Suggested trigger test prompts
+Use these prompts to verify the skill triggers and follows the workflow:
+1) "Initialize a new API project from this BaseApiConfig JSON and write the generated files."
+2) "Create a DTO from this DTOConfig JSON and save both the .igrpstudio manifest and the Java file."
+3) "I have an IGRP Studio manifest for a DTO. Generate the Spring Boot Java code and the .igrpstudio JSON."

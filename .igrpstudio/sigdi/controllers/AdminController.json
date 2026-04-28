@@ -1,0 +1,70 @@
+{
+  "type": "controller",
+  "name": "AdminController",
+  "module": "sigdi",
+  "basePath": "api/v1/admin",
+  "description": "Administration: institutions, delegations, SIADAP configuration and cost drivers",
+  "actions": [
+    {
+      "actionName": "createInstitution",
+      "method": "POST",
+      "path": "institutions",
+      "requestBody": { "name": "CreateInstitutionRequest", "module": "sigdi" },
+      "responses": [{ "status": 201 }]
+    },
+    {
+      "actionName": "deactivateInstitution",
+      "method": "DELETE",
+      "path": "institutions/{id}",
+      "pathVariables": [
+        { "type": "string", "name": "id", "isRequired": true }
+      ],
+      "responses": [{ "status": 200 }]
+    },
+    {
+      "actionName": "getInstitutionById",
+      "method": "GET",
+      "path": "institutions/{id}",
+      "pathVariables": [
+        { "type": "string", "name": "id", "isRequired": true }
+      ],
+      "responses": [{ "status": 200 }]
+    },
+    {
+      "actionName": "createDelegation",
+      "method": "POST",
+      "path": "delegations",
+      "requestParams": [
+        { "type": "string", "name": "delegatorUserId", "isRequired": false }
+      ],
+      "requestBody": { "name": "CreateDelegationRequest", "module": "sigdi" },
+      "responses": [{ "status": 201 }]
+    },
+    {
+      "actionName": "upsertSiadapConfig",
+      "method": "PUT",
+      "path": "siadap-config/{year}",
+      "pathVariables": [
+        { "type": "integer", "name": "year", "isRequired": true }
+      ],
+      "requestBody": { "name": "SiadapConfigRequest", "module": "sigdi" },
+      "responses": [{ "status": 200 }]
+    },
+    {
+      "actionName": "getSiadapConfig",
+      "method": "GET",
+      "path": "siadap-config/{year}",
+      "pathVariables": [
+        { "type": "integer", "name": "year", "isRequired": true }
+      ],
+      "responses": [{ "status": 200 }]
+    },
+    {
+      "actionName": "createCostDriver",
+      "method": "POST",
+      "path": "cost-drivers",
+      "requestBody": { "name": "AdminCreateCostDriverRequest", "module": "sigdi" },
+      "responses": [{ "status": 201 }]
+    }
+  ]
+}
