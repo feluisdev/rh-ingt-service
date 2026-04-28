@@ -19,6 +19,25 @@ public class StrategicGoalMapper {
   public StrategicGoal toDomain(StrategicGoalEntity entity) {
     if (entity == null) return null;
 
+    java.util.List<cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicIndicator> domainIndicators = new java.util.ArrayList<>();
+    if (entity.getIndicators() != null && !entity.getIndicators().isEmpty()) {
+      domainIndicators = entity.getIndicators().stream().map(indEntity -> 
+        cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicIndicator.reconstruct(
+          indEntity.getId(),
+          indEntity.getTitle(),
+          indEntity.getFormula(),
+          indEntity.getTarget(),
+          indEntity.getEvaluationCriteria(),
+          indEntity.getInfoSource(),
+          indEntity.getWeight(),
+          indEntity.getCriteriaSuperado(),
+          indEntity.getCriteriaSeguranca(),
+          indEntity.getCriteriaAlcancado(),
+          indEntity.getCriteriaInsuficiente()
+        )
+      ).collect(java.util.stream.Collectors.toList());
+    }
+
     return StrategicGoal.reconstruct(
         StrategicGoalId.from(entity.getId()),
         entity.getInstitutionId(),
@@ -29,7 +48,8 @@ public class StrategicGoalMapper {
         Estado.fromCodeOrThrow(entity.getStatus()),
         entity.getDescription(),
         entity.getPositionX(),
-        entity.getPositionY()
+        entity.getPositionY(),
+        domainIndicators
     );
   }
 
@@ -47,6 +67,26 @@ public class StrategicGoalMapper {
     dto.setStatusDesc(domain.getStatus().getDescription());
     dto.setProgress(0.0);
     dto.setLinkedActivities(0);
+
+    if (domain.getIndicators() != null && !domain.getIndicators().isEmpty()) {
+      java.util.List<cv.igrp.RH_Service.sigdi.application.dto.StrategicIndicatorDTO> indicatorDTOs = domain.getIndicators().stream().map(ind -> {
+        cv.igrp.RH_Service.sigdi.application.dto.StrategicIndicatorDTO indDTO = new cv.igrp.RH_Service.sigdi.application.dto.StrategicIndicatorDTO();
+        indDTO.setId(ind.getId());
+        indDTO.setTitle(ind.getTitle());
+        indDTO.setFormula(ind.getFormula());
+        indDTO.setTarget(ind.getTarget());
+        indDTO.setEvaluationCriteria(ind.getEvaluationCriteria());
+        indDTO.setInfoSource(ind.getInfoSource());
+        indDTO.setWeight(ind.getWeight());
+        indDTO.setCriteriaSuperado(ind.getCriteriaSuperado());
+        indDTO.setCriteriaSeguranca(ind.getCriteriaSeguranca());
+        indDTO.setCriteriaAlcancado(ind.getCriteriaAlcancado());
+        indDTO.setCriteriaInsuficiente(ind.getCriteriaInsuficiente());
+        return indDTO;
+      }).collect(java.util.stream.Collectors.toList());
+      dto.setIndicators(indicatorDTOs);
+    }
+
     return dto;
   }
 
@@ -81,6 +121,26 @@ public class StrategicGoalMapper {
     InstitutionalIdentityEntity identityRef = new InstitutionalIdentityEntity();
     identityRef.setId(domain.getIdentityId().getValor().getValor());
     entity.setIdentityId(identityRef);
+
+    if (domain.getIndicators() != null && !domain.getIndicators().isEmpty()) {
+      java.util.List<cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategicIndicatorEntity> indicatorEntities = domain.getIndicators().stream().map(ind -> {
+        cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategicIndicatorEntity indEntity = new cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategicIndicatorEntity();
+        indEntity.setId(ind.getId());
+        indEntity.setTitle(ind.getTitle());
+        indEntity.setFormula(ind.getFormula());
+        indEntity.setTarget(ind.getTarget());
+        indEntity.setEvaluationCriteria(ind.getEvaluationCriteria());
+        indEntity.setInfoSource(ind.getInfoSource());
+        indEntity.setWeight(ind.getWeight());
+        indEntity.setCriteriaSuperado(ind.getCriteriaSuperado());
+        indEntity.setCriteriaSeguranca(ind.getCriteriaSeguranca());
+        indEntity.setCriteriaAlcancado(ind.getCriteriaAlcancado());
+        indEntity.setCriteriaInsuficiente(ind.getCriteriaInsuficiente());
+        indEntity.setGoal(entity);
+        return indEntity;
+      }).collect(java.util.stream.Collectors.toList());
+      entity.setIndicators(indicatorEntities);
+    }
 
     return entity;
   }

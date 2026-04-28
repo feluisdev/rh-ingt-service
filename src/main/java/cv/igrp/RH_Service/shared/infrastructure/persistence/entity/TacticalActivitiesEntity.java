@@ -108,6 +108,14 @@ public class TacticalActivitiesEntity extends AuditEntity {
     @Column(name="version")
     private Integer version;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organic_unit_id", insertable = false, updatable = false)
+    private DepartamentoEntity organicUnit;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "responsible_who", insertable = false, updatable = false)
+    private FuncionarioEntity responsible;
+
   
 
 

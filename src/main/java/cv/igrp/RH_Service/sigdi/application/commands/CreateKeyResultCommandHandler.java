@@ -56,7 +56,11 @@ public class CreateKeyResultCommandHandler
         activityId,
         request.getTitle(),
         request.getTargetValue(),
-        metricUnit
+        metricUnit,
+        request.getCriteriaSuperado(),
+        request.getCriteriaSeguranca(),
+        request.getCriteriaAlcancado(),
+        request.getCriteriaInsuficiente()
     );
 
     KeyResult saved = keyResultRepository.save(keyResult);

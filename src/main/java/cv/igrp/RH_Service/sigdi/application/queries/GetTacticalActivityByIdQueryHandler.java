@@ -50,9 +50,11 @@ public class GetTacticalActivityByIdQueryHandler
     dto.setId(entity.getId().toString());
     dto.setStrategicGoalId(entity.getStrategicGoalId() != null ? entity.getStrategicGoalId().toString() : null);
     dto.setOrganicUnitId(entity.getOrganicUnitId() != null ? entity.getOrganicUnitId().toString() : null);
+    dto.setOrganicUnitName(entity.getOrganicUnit() != null ? entity.getOrganicUnit().getNome() : null);
     dto.setTitle(entity.getTitle());
     dto.setJustificationWhy(entity.getJustificationWhy());
     dto.setResponsibleWho(entity.getResponsibleWho() != null ? entity.getResponsibleWho().toString() : null);
+    dto.setResponsibleName(entity.getResponsible() != null ? entity.getResponsible().getNome() : null);
     dto.setLocationWhere(entity.getLocationWhere());
     dto.setMethodologyHow(entity.getMethodologyHow());
     dto.setStartDate(entity.getStartDate() != null ? entity.getStartDate().toString() : null);

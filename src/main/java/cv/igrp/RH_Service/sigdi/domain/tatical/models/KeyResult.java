@@ -28,11 +28,17 @@ public class KeyResult {
   private final BigDecimal currentValue;
   private final KeyResultMetricUnit metricUnit;
   private final List<KeyResultCheckin> checkins;
+  private final String criteriaSuperado;
+  private final String criteriaSeguranca;
+  private final String criteriaAlcancado;
+  private final String criteriaInsuficiente;
 
   private KeyResult(KeyResultId id, UUID institutionId, TacticalActivityId activityId, String title,
       BigDecimal targetValue, BigDecimal currentValue,
       KeyResultMetricUnit metricUnit,
-      List<KeyResultCheckin> checkins) {
+      List<KeyResultCheckin> checkins,
+      String criteriaSuperado, String criteriaSeguranca,
+      String criteriaAlcancado, String criteriaInsuficiente) {
     if (title == null || title.isBlank())
       throw new IllegalArgumentException("title é obrigatório");
     if (targetValue == null || targetValue.compareTo(BigDecimal.ZERO) <= 0)
@@ -47,21 +53,30 @@ public class KeyResult {
     this.currentValue = (currentValue != null) ? currentValue : BigDecimal.ZERO;
     this.metricUnit = metricUnit;
     this.checkins = (checkins != null) ? checkins : new ArrayList<>();
+    this.criteriaSuperado = criteriaSuperado;
+    this.criteriaSeguranca = criteriaSeguranca;
+    this.criteriaAlcancado = criteriaAlcancado;
+    this.criteriaInsuficiente = criteriaInsuficiente;
   }
 
   public static KeyResult create(UUID institutionId, TacticalActivityId activityId, String title,
-      BigDecimal targetValue, KeyResultMetricUnit metricUnit) {
+      BigDecimal targetValue, KeyResultMetricUnit metricUnit,
+      String criteriaSuperado, String criteriaSeguranca,
+      String criteriaAlcancado, String criteriaInsuficiente) {
     return new KeyResult(KeyResultId.gerarNovo(), institutionId, activityId, title, targetValue,
-        BigDecimal.ZERO, metricUnit, new ArrayList<>());
+        BigDecimal.ZERO, metricUnit, new ArrayList<>(), 
+        criteriaSuperado, criteriaSeguranca, criteriaAlcancado, criteriaInsuficiente);
   }
-
+ 
   public static KeyResult reconstruct(KeyResultId id, UUID institutionId,
       TacticalActivityId activityId, String title,
       BigDecimal targetValue, BigDecimal currentValue,
       KeyResultMetricUnit metricUnit,
-      List<KeyResultCheckin> checkins) {
+      List<KeyResultCheckin> checkins,
+      String criteriaSuperado, String criteriaSeguranca,
+      String criteriaAlcancado, String criteriaInsuficiente) {
     return new KeyResult(id, institutionId, activityId, title, targetValue, currentValue,
-        metricUnit, checkins);
+        metricUnit, checkins, criteriaSuperado, criteriaSeguranca, criteriaAlcancado, criteriaInsuficiente);
   }
 
   public List<KeyResultCheckin> getCheckins() {
@@ -101,7 +116,8 @@ public class KeyResult {
     newCheckins.add(checkin);
 
     return new KeyResult(this.id, this.institutionId, this.activityId, this.title,
-        this.targetValue, newValue, this.metricUnit, newCheckins);
+        this.targetValue, newValue, this.metricUnit, newCheckins,
+        this.criteriaSuperado, this.criteriaSeguranca, this.criteriaAlcancado, this.criteriaInsuficiente);
   }
 
   public KeyResult updateDetails(String title, BigDecimal targetValue, KeyResultMetricUnit metricUnit) {
@@ -114,6 +130,7 @@ public class KeyResult {
           "Target cannot be lower than current value");
     }
     return new KeyResult(this.id, this.institutionId, this.activityId, title, targetValue,
-        this.currentValue, metricUnit, this.checkins);
+        this.currentValue, metricUnit, this.checkins,
+        this.criteriaSuperado, this.criteriaSeguranca, this.criteriaAlcancado, this.criteriaInsuficiente);
   }
 }

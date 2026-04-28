@@ -32,6 +32,12 @@ public class TaticalActivityResumeDTO  {
   
   
   private String responsible_who ;
+
+  private String responsibleName ;
+
+  private String organicUnitId ;
+
+  private String organicUnitName ;
   
   
   private BigDecimal budget_estimated ;

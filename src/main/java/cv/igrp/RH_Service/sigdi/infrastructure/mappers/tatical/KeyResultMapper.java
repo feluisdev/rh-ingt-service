@@ -35,7 +35,11 @@ public class KeyResultMapper {
         entity.getTargetValue(),
         entity.getCurrentValue(),
         KeyResultMetricUnit.fromCodeOrThrow(entity.getMetricUnit()),
-        new ArrayList<KeyResultCheckin>()
+        new ArrayList<KeyResultCheckin>(),
+        entity.getCriteriaSuperado(),
+        entity.getCriteriaSeguranca(),
+        entity.getCriteriaAlcancado(),
+        entity.getCriteriaInsuficiente()
     );
   }
 
@@ -57,7 +61,11 @@ public class KeyResultMapper {
         entity.getTargetValue(),
         entity.getCurrentValue(),
         KeyResultMetricUnit.fromCodeOrThrow(entity.getMetricUnit()),
-        checkins);
+        checkins,
+        entity.getCriteriaSuperado(),
+        entity.getCriteriaSeguranca(),
+        entity.getCriteriaAlcancado(),
+        entity.getCriteriaInsuficiente());
   }
 
   public KeyResultsEntity toEntity(KeyResult domain) {
@@ -70,6 +78,10 @@ public class KeyResultMapper {
     entity.setTargetValue(domain.getTargetValue());
     entity.setCurrentValue(domain.getCurrentValue());
     entity.setMetricUnit(domain.getMetricUnit().getCode());
+    entity.setCriteriaSuperado(domain.getCriteriaSuperado());
+    entity.setCriteriaSeguranca(domain.getCriteriaSeguranca());
+    entity.setCriteriaAlcancado(domain.getCriteriaAlcancado());
+    entity.setCriteriaInsuficiente(domain.getCriteriaInsuficiente());
 
     if (domain.getActivityId() != null) {
       TacticalActivitiesEntity activityRef = new TacticalActivitiesEntity();
