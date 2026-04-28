@@ -24,9 +24,9 @@ public class CreateTacticalActivityDTO  {
   @NotNull(message = "The field <strategicGoalId> is required")
   
   private UUID strategicGoalId ;
-  @NotBlank(message = "The field <organicUnitId> is required")
+  @NotNull(message = "The field <organicUnitId> is required")
   
-  private String organicUnitId ;
+  private UUID organicUnitId ;
   @NotBlank(message = "The field <title> is required")
 	@Size(min = 5, message = "The field length <title> must be at least 5 characters")
 	@Size(max = 200, message = "The field length <title> cannot be more than 200 characters")
@@ -44,10 +44,9 @@ public class CreateTacticalActivityDTO  {
 	@Size(max = 2000, message = "The field length <locationWhere> cannot be more than 2000 characters")
   
   private String locationWhere ;
-  @Size(min = 1, message = "The field length <responsibleWho> must be at least 1 characters")
-	@Size(max = 255, message = "The field length <responsibleWho> cannot be more than 255 characters")
+  @NotNull(message = "The field <responsibleWho> is required")
   
-  private String responsibleWho ;
+  private UUID responsibleWho ;
   @Size(min = 1, message = "The field length <methodologyHow> must be at least 1 characters")
 	@Size(max = 2000, message = "The field length <methodologyHow> cannot be more than 2000 characters")
   
@@ -58,13 +57,7 @@ public class CreateTacticalActivityDTO  {
   @NotNull(message = "The field <endDate> is required")
   
   private LocalDate endDate ;
-  @NotNull(message = "The field <budgetEstimated> is required")
-  
   private BigDecimal budgetEstimated ;
-  @NotBlank(message = "The field <economicClassifier> is required")
-	@Size(min = 1, message = "The field length <economicClassifier> must be at least 1 characters")
-	@Size(max = 50, message = "The field length <economicClassifier> cannot be more than 50 characters")
-  
   private String economicClassifier ;
 
 }

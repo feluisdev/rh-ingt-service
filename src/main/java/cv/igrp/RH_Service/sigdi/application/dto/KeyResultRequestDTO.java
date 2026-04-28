@@ -36,4 +36,9 @@ public class KeyResultRequestDTO  {
   
   private UUID activityId ;
 
+  private String criteriaSuperado;
+  private String criteriaSeguranca;
+  private String criteriaAlcancado;
+  private String criteriaInsuficiente;
+
 }

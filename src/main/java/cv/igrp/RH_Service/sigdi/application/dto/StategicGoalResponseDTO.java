@@ -60,7 +60,8 @@ public class StategicGoalResponseDTO  {
   
   private String status ;
   
-  
   private String statusDesc ;
+
+  private List<StrategicIndicatorDTO> indicators = new ArrayList<>();
 
 }

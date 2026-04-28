@@ -28,7 +28,8 @@ public class UpdateStategicGoalDTO  {
   
   private String description ;
   
-  
   private BigDecimal weight ;
+
+  private java.util.List<StrategicIndicatorDTO> indicators = new java.util.ArrayList<>();
 
 }

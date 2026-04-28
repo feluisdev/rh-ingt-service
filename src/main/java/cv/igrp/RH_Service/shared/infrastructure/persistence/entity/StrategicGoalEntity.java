@@ -64,8 +64,12 @@ public class StrategicGoalEntity extends AuditEntity {
   
 
 
-  @OneToMany(mappedBy = "parentGoalId", fetch = FetchType.LAZY)
-private List<StrategicGoalEntity> stategyGoals = new ArrayList<>();   @ManyToOne(fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "parentGoalId", fetch = FetchType.LAZY)
+    private List<StrategicGoalEntity> stategyGoals = new ArrayList<>();
+
+    @OneToMany(mappedBy = "goal", fetch = FetchType.LAZY, cascade = { CascadeType.ALL }, orphanRemoval = true)
+    private List<StrategicIndicatorEntity> indicators = new ArrayList<>();
+   @ManyToOne(fetch = FetchType.LAZY)
    @JoinColumn(name = "identity_id")
    private InstitutionalIdentityEntity identityId;
 

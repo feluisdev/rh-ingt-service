@@ -76,7 +76,7 @@ public class InstitutionalIdentity {
   public StrategicGoal addGoal(String title, StrategicGoalsPerspective perspective,
       java.math.BigDecimal weight, String description) {
     StrategicGoal goal = StrategicGoal.create(this.institutionId, this.id, title, perspective,
-        weight, description);
+        weight, description, new ArrayList<>());
     goals.add(goal);
     return goal;
   }

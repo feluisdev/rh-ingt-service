@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cv.igrp.RH_Service.sigdi.application.dto.StategicGoalResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.StrategicIndicatorDTO;
 
 @Component
 public class CreateStrategicGoalCommandHandler
@@ -43,26 +44,37 @@ public class CreateStrategicGoalCommandHandler
     StrategicGoalsPerspective perspective =
         StrategicGoalsPerspective.fromCodeOrThrow(request.getPerspective());
 
+    java.util.List<cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicIndicator> domainIndicators = new java.util.ArrayList<>();
+    if (request.getIndicators() != null && !request.getIndicators().isEmpty()) {
+        domainIndicators = request.getIndicators().stream().map(dto -> 
+            cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicIndicator.create(
+                dto.getTitle(),
+                dto.getFormula(),
+                dto.getTarget(),
+                dto.getEvaluationCriteria(),
+                dto.getInfoSource(),
+                dto.getWeight(),
+                dto.getCriteriaSuperado(),
+                dto.getCriteriaSeguranca(),
+                dto.getCriteriaAlcancado(),
+                dto.getCriteriaInsuficiente()
+            )
+        ).collect(java.util.stream.Collectors.toList());
+    }
+
     StrategicGoal goal = StrategicGoal.create(
         activeIdentity.getInstitutionId(),
         activeIdentity.getId(),
         request.getTitle(),
         perspective,
         request.getWeight(),
-        request.getDescription());
+        request.getDescription(),
+        domainIndicators);
 
     StrategicGoal saved = goalRepository.save(goal);
 
-    StategicGoalResponseDTO response = new StategicGoalResponseDTO();
-    response.setId(saved.getId().getValor().getValor());
-    response.setIdentityId(saved.getIdentityId().getValor().getValor());
-    response.setPerspective(saved.getPerspective().getCode());
-    response.setPerspectiveDesc(saved.getPerspective().getDescription());
-    response.setWeight(saved.getWeight());
-    response.setTitle(saved.getTitle());
-    response.setDescription(saved.getDescription());
-    response.setStatus(saved.getStatus().getCode());
-    response.setStatusDesc(saved.getStatus().getDescription());
+    cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.StrategicGoalMapper mapper = new cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.StrategicGoalMapper();
+    StategicGoalResponseDTO response = mapper.toResponse(saved);
 
     return ResponseEntity.ok(response);
   }
