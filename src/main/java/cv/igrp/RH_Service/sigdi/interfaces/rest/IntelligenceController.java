@@ -26,7 +26,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.WrapperScenarioListDTO;
 @RestController
 @RequestMapping(path = "api/v1/intelligence")
 @Tag(
-    name = "Intelligence",
+    name = "SIGDI-Intelligence",
     description = "Scenario simulation and impact analysis"
 )
 public class IntelligenceController {

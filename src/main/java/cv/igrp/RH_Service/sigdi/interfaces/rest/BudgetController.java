@@ -33,7 +33,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.WrapperCostDriverListDTO;
 @RestController
 @RequestMapping(path = "api/v1/budget")
 @Tag(
-    name = "Sigdi",
+    name = "SIGDI-Budget",
     description = "Budget management"
 )
 public class BudgetController {

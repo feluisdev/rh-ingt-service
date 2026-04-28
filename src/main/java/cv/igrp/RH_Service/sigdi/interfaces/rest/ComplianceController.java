@@ -28,7 +28,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.WrapperSiadapEvaluationListDTO;
 @RestController
 @RequestMapping(path = "api/v1/compliance")
 @Tag(
-    name = "Compliance",
+    name = "SIGDI-Compliance",
     description = "QUAR generation, SIADAP evaluations and quota validation"
 )
 public class ComplianceController {
