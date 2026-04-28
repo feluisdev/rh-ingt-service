@@ -7,8 +7,10 @@ import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import cv.igrp.RH_Service.sigdi.application.dto.IdentityResponseDTO;
+import cv.igrp.RH_Service.shared.security.SecurityContextHelper;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.InstitutionalIdentityRepository;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.InstitutionalIdentityMapper;
@@ -22,20 +24,25 @@ public class GetCurrentIdentitieQueryHandler implements QueryHandler<GetCurrentI
 
   private final InstitutionalIdentityRepository identityRepository;
   private final InstitutionalIdentityMapper identityMapper;
+  private final SecurityContextHelper securityContextHelper;
 
   public GetCurrentIdentitieQueryHandler(InstitutionalIdentityRepository identityRepository,
-                                        InstitutionalIdentityMapper identityMapper) {
+                                        InstitutionalIdentityMapper identityMapper,
+                                        SecurityContextHelper securityContextHelper) {
     this.identityRepository = identityRepository;
     this.identityMapper = identityMapper;
+    this.securityContextHelper = securityContextHelper;
   }
 
    @IgrpQueryHandler
+  @Transactional(readOnly = true)
   public ResponseEntity<IdentityResponseDTO> handle(GetCurrentIdentitieQuery query) {
-
-    LOGGER.debug("GetCurrentIdentitieQuery: {}", query);
+    var instId = securityContextHelper.getCurrentInstitutionId();
+    LOGGER.debug("GetCurrentIdentitieQuery: institutionId={}", instId);
 
     var current = identityRepository.findActive()
-        .orElseThrow(() -> IgrpResponseStatusException.notFound("Identidade Institucional ativa não encontrada"));
+        .orElseThrow(() -> IgrpResponseStatusException.notFound(
+            "Identidade Institucional ativa não encontrada para a instituição: " + instId));
 
     return ResponseEntity.ok(identityMapper.toResponse(current));
   }
