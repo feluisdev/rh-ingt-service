@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("funcionariosUpdateOptionCommandHandler")
 public class UpdateOptionCommandHandler implements CommandHandler<UpdateOptionCommand, ResponseEntity<String>> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(UpdateOptionCommandHandler.class);

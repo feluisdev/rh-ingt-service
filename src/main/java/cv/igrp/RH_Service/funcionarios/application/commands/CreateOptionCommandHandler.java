@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-@Component
+@Component("funcionariosCreateOptionCommandHandler")
 public class CreateOptionCommandHandler implements CommandHandler<CreateOptionCommand, ResponseEntity<Map<String, ?>>> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CreateOptionCommandHandler.class);

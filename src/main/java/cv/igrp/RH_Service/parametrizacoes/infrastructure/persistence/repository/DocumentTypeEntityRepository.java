@@ -15,5 +15,7 @@ public interface DocumentTypeEntityRepository extends
 {
     Optional<DocumentTypeEntity> findByCodigo(String codigo);
 
+    boolean existsByCodigo(String codigo);
+
     java.util.List<DocumentTypeEntity> findAllByIsActive(Boolean isActive);
 }

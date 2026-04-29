@@ -6,7 +6,7 @@ import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.OptionEntity;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("funcionariosOptionMapper")
 public class OptionMapper {
 
   public Option toDomain(OptionEntity entity) {

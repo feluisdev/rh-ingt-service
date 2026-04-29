@@ -1,6 +1,26 @@
 -- Seed do "kit Cabo Verde" para os 11 grupos de etiquetas
 -- Idempotente: ON CONFLICT DO NOTHING
 
+-- Garante UNIQUE (ccode, ckey, locale) necessário para ON CONFLICT abaixo.
+-- t_option_entity pode ter sido criada pelo Hibernate sem este constraint.
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.table_constraints
+        WHERE constraint_name = 'uq_option_ccode_ckey_locale'
+          AND table_name = 't_option_entity'
+    ) THEN
+        ALTER TABLE t_option_entity
+            ADD CONSTRAINT uq_option_ccode_ckey_locale UNIQUE (ccode, ckey, locale);
+    END IF;
+END $$;
+
+-- t_option_entity foi criada pelo Hibernate com colunas de auditoria NOT NULL.
+-- Garante defaults para que os INSERTs do seed não precisem de as especificar.
+ALTER TABLE t_option_entity
+    ALTER COLUMN created_date SET DEFAULT NOW(),
+    ALTER COLUMN created_by   SET DEFAULT 'seed';
+
 -- MARITAL_STATUS (5 entradas)
 INSERT INTO t_option_entity (id, ccode, ckey, cvalue, locale, sort_order, active) VALUES
     (gen_random_uuid(), 'MARITAL_STATUS', 'SINGLE',    'Solteiro(a)',          'pt-CV', 1, true),
