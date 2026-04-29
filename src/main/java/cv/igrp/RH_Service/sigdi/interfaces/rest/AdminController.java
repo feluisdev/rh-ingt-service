@@ -27,6 +27,9 @@ import cv.igrp.RH_Service.sigdi.application.dto.DelegationResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.InstitutionResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapConfigRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapConfigResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.UpdateInstitutionRequestDTO;
+
+import java.util.List;
 
 @IgrpController
 @RestController
@@ -43,6 +46,51 @@ public class AdminController {
   public AdminController(QueryBus queryBus, CommandBus commandBus) {
     this.queryBus = queryBus;
     this.commandBus = commandBus;
+  }
+
+  @GetMapping(value = "institutions")
+  @Operation(
+    summary = "List institutions",
+    description = "Lista todas as instituições, com filtros opcionais por nome, tipo e estado.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = InstitutionResponseDTO.class, type = "array")
+          )
+      )
+    }
+  )
+  public ResponseEntity<List<InstitutionResponseDTO>> listInstitutions(
+    @RequestParam(value = "name", required = false) String name,
+    @RequestParam(value = "type", required = false) String type,
+    @RequestParam(value = "isActive", required = false) Boolean isActive)
+  {
+    final var query = new GetListInstitutionsQuery(name, type, isActive);
+    return queryBus.handle(query);
+  }
+
+  @PutMapping(value = "institutions/{id}")
+  @Operation(
+    summary = "Update institution",
+    description = "Actualiza os dados de uma instituição existente.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = InstitutionResponseDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<InstitutionResponseDTO> updateInstitution(
+    @PathVariable(value = "id") String id,
+    @Valid @RequestBody UpdateInstitutionRequestDTO body)
+  {
+    final var command = new UpdateInstitutionCommand(id, body);
+    return commandBus.send(command);
   }
 
   @PostMapping(value = "institutions")
