@@ -12,7 +12,11 @@ public interface CostDriverRepository {
 
     CostDriver save(CostDriver costDriver);
 
+    CostDriver update(CostDriver costDriver);
+
     Optional<CostDriver> findById(CostDriverId id);
+
+    List<CostDriver> findAll();
 
     List<CostDriver> findByType(CostDriverType type);
 
