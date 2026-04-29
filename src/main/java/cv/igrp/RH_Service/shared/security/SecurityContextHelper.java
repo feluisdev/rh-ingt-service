@@ -4,13 +4,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.core.env.Environment;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
-import org.springframework.core.env.Environment;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -67,7 +67,7 @@ public class SecurityContextHelper {
     return null;
   }
 
-  private boolean isNonProduction() {
+  public boolean isNonProduction() {
     return environment.acceptsProfiles(org.springframework.core.env.Profiles.of("development", "staging", "dev", "local"));
   }
 
