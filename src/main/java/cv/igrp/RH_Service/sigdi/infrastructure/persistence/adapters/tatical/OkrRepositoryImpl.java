@@ -1,9 +1,9 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.tatical;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.KeyResultsEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.OkrEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.KeyResultsEntityRepository;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.OkrEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.KeyResultsEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.OkrEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.KeyResultsEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.OkrEntityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.Okr;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.OkrKeyResult;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.OkrRepository;

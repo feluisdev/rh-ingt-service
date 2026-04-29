@@ -2,10 +2,10 @@ package cv.igrp.RH_Service.sigdi.application.queries;
 
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.ChangeRequestEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.TacticalActivitiesEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.TaticalActivityHistoryEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.TacticalActivitiesEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.ChangeRequestEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.TacticalActivitiesEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.TaticalActivityHistoryEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.TacticalActivitiesEntityRepository;
 import cv.igrp.RH_Service.sigdi.application.constants.TacticalActivityStatus;
 import cv.igrp.RH_Service.sigdi.application.dto.ChangeRequestResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityDetailDTO;
@@ -50,11 +50,11 @@ public class GetTacticalActivityByIdQueryHandler
     dto.setId(entity.getId().toString());
     dto.setStrategicGoalId(entity.getStrategicGoalId() != null ? entity.getStrategicGoalId().toString() : null);
     dto.setOrganicUnitId(entity.getOrganicUnitId() != null ? entity.getOrganicUnitId().toString() : null);
-    dto.setOrganicUnitName(entity.getOrganicUnit() != null ? entity.getOrganicUnit().getNome() : null);
+    dto.setOrganicUnitName(null);
     dto.setTitle(entity.getTitle());
     dto.setJustificationWhy(entity.getJustificationWhy());
     dto.setResponsibleWho(entity.getResponsibleWho() != null ? entity.getResponsibleWho().toString() : null);
-    dto.setResponsibleName(entity.getResponsible() != null ? entity.getResponsible().getNome() : null);
+    dto.setResponsibleName(null);
     dto.setLocationWhere(entity.getLocationWhere());
     dto.setMethodologyHow(entity.getMethodologyHow());
     dto.setStartDate(entity.getStartDate() != null ? entity.getStartDate().toString() : null);

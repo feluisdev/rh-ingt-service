@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategicGoalEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategyMapLinkEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.StrategicGoalEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.StrategyMapLinkEntity;
 import cv.igrp.RH_Service.sigdi.application.constants.StrategyMapRelationshipType;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategyMapLink;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;

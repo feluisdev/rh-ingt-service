@@ -1,11 +1,11 @@
 package cv.igrp.RH_Service.sigdi.application.queries;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.InstitutionalIdentityEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.KeyResultsEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.OkrEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.InstitutionalIdentityEntityRepository;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.OkrEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.InstitutionalIdentityEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.KeyResultsEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.OkrEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.InstitutionalIdentityEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.OkrEntityRepository;
 import cv.igrp.RH_Service.sigdi.application.dto.QUARBudgetSummaryDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.QUARCompletenessDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.QUARKeyResultDTO;

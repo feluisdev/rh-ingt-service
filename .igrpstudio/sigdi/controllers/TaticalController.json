@@ -554,6 +554,41 @@
       ]
     },
     {
+      "actionName": "assignBudget",
+      "path": "activities/{id}/assign-budget",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AssignBudget",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TacticalActivityResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [{ "name": "id", "type": "string", "isRequired": true }]
+    },
+    {
       "actionName": "rejectChangeRequest",
       "path": "change-requests/{id}/reject",
       "method": "POST",

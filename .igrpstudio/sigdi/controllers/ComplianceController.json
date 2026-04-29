@@ -13,7 +13,22 @@
         { "type": "integer", "name": "year",          "isRequired": true  },
         { "type": "string",  "name": "organicUnitId", "isRequired": false }
       ],
-      "responses": [{ "status": 200 }]
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "QUARPreviewResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "exportQUAR",
@@ -25,7 +40,19 @@
         { "type": "string",  "name": "organicUnitId", "isRequired": false },
         { "type": "boolean", "name": "force",         "isRequired": false }
       ],
-      "responses": [{ "status": 200 }]
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "listEvaluations",
@@ -38,7 +65,22 @@
         { "type": "string",  "name": "pageNumber",    "isRequired": false },
         { "type": "string",  "name": "pageSize",      "isRequired": false }
       ],
-      "responses": [{ "status": 200 }]
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperSiadapEvaluationList",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "quotaValidation",
@@ -47,14 +89,56 @@
       "requestParams": [
         { "type": "integer", "name": "year", "isRequired": true }
       ],
-      "responses": [{ "status": 200 }]
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "QuotaValidationResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "closeEvaluations",
       "method": "POST",
       "path": "siadap/evaluations/close",
-      "requestBody": { "name": "CloseEvaluationsRequest", "module": "sigdi" },
-      "responses": [{ "status": 200 }]
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CloseEvaluationsRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "CloseEvaluationsResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "exportSiadap",
@@ -65,7 +149,19 @@
         { "type": "string",  "name": "organicUnitId", "isRequired": false },
         { "type": "string",  "name": "format",        "isRequired": false }
       ],
-      "responses": [{ "status": 200 }]
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

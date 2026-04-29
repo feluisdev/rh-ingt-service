@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.mappers.tatical;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.ChangeRequestEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.TacticalActivitiesEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.ChangeRequestEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.TacticalActivitiesEntity;
 import cv.igrp.RH_Service.sigdi.application.constants.ChangeRequestStatus;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.ChangeRequest;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.ChangeRequestId;

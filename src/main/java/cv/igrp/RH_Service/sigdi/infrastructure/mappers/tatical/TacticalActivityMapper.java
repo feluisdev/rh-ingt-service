@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.mappers.tatical;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.TacticalActivitiesEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.TacticalActivitiesEntity;
 import cv.igrp.RH_Service.sigdi.application.constants.TacticalActivityStatus;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.KeyResult;
@@ -30,16 +30,14 @@ public class TacticalActivityMapper {
         entity.getInstitutionId(),
         StrategicGoalId.from(entity.getStrategicGoalId()),
         entity.getOrganicUnitId(),
-        entity.getOrganicUnit() != null ? entity.getOrganicUnit().getNome() : null,
         entity.getTitle(),
         entity.getDescriptionWhat(),
         entity.getJustificationWhy(),
         entity.getLocationWhere(),
         entity.getResponsibleWho(),
-        entity.getResponsible() != null ? entity.getResponsible().getNome() : null,
         entity.getMethodologyHow(),
         DateRange.of(entity.getStartDate(), entity.getEndDate()),
-        (entity.getBudgetEstimated() != null && entity.getEconomicClassifier() != null) ? 
+        (entity.getBudgetEstimated() != null && entity.getEconomicClassifier() != null) ?
             Budget.of(entity.getBudgetEstimated(), entity.getEconomicClassifier()) : null,
         TacticalActivityStatus.fromCodeOrThrow(entity.getStatus()),
         entity.getVersion(),
@@ -59,13 +57,11 @@ public class TacticalActivityMapper {
         entity.getInstitutionId(),
         StrategicGoalId.from(entity.getStrategicGoalId()),
         entity.getOrganicUnitId(),
-        entity.getOrganicUnit() != null ? entity.getOrganicUnit().getNome() : null,
         entity.getTitle(),
         entity.getDescriptionWhat(),
         entity.getJustificationWhy(),
         entity.getLocationWhere(),
         entity.getResponsibleWho(),
-        entity.getResponsible() != null ? entity.getResponsible().getNome() : null,
         entity.getMethodologyHow(),
         DateRange.of(entity.getStartDate(), entity.getEndDate()),
         (entity.getBudgetEstimated() != null && entity.getEconomicClassifier() != null) ? 

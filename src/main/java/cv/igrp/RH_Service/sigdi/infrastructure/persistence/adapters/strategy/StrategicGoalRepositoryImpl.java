@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.strategy;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategicGoalEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.StrategicGoalEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.StrategicGoalEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.StrategicGoalEntityRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentityId;

@@ -1,0 +1,26 @@
+{
+  "type": "dto",
+  "template": "classic",
+  "module": "sigdi",
+  "name": "UpdateInstitutionRequestDTO",
+  "attributes": [
+    {
+      "name": "name",
+      "type": "string",
+      "objectType": "java",
+      "required": true
+    },
+    {
+      "name": "type",
+      "type": "string",
+      "objectType": "java",
+      "required": true
+    },
+    {
+      "name": "contactEmail",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

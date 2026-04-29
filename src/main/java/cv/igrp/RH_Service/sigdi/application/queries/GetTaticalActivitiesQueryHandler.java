@@ -88,12 +88,10 @@ public class GetTaticalActivitiesQueryHandler implements QueryHandler<GetTatical
     if (activity.getResponsibleWho() != null) {
       dto.setResponsible_who(activity.getResponsibleWho().toString());
     }
-    dto.setResponsibleName(activity.getResponsibleName());
-    
+
     if (activity.getOrganicUnitId() != null) {
       dto.setOrganicUnitId(activity.getOrganicUnitId().toString());
     }
-    dto.setOrganicUnitName(activity.getOrganicUnitName());
     
     if (activity.getBudget() != null) {
       dto.setBudget_estimated(activity.getBudget().getEstimatedAmount());

@@ -1,8 +1,8 @@
 package cv.igrp.RH_Service.sigdi.application.queries;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.InstitutionalIdentityEntityRepository;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.OkrEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.InstitutionalIdentityEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.OkrEntityRepository;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import org.slf4j.Logger;

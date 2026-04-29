@@ -9,8 +9,6 @@ import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.Budget;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.DepartamentoEntityRepository;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.FuncionarioEntityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.DateRange;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
@@ -32,21 +30,15 @@ public class CreateTacticalActivityCommandHandler
   private final StrategicGoalRepository goalRepository;
   private final TacticalActivityRepository activityRepository;
   private final SecurityContextHelper securityContextHelper;
-  private final DepartamentoEntityRepository departamentoRepository;
-  private final FuncionarioEntityRepository funcionarioRepository;
 
   public CreateTacticalActivityCommandHandler(EconomicClassifierPort economicClassifierPort,
       StrategicGoalRepository goalRepository,
       TacticalActivityRepository activityRepository,
-      SecurityContextHelper securityContextHelper,
-      DepartamentoEntityRepository departamentoRepository,
-      FuncionarioEntityRepository funcionarioRepository) {
+      SecurityContextHelper securityContextHelper) {
     this.economicClassifierPort = economicClassifierPort;
     this.goalRepository = goalRepository;
     this.activityRepository = activityRepository;
     this.securityContextHelper = securityContextHelper;
-    this.departamentoRepository = departamentoRepository;
-    this.funcionarioRepository = funcionarioRepository;
   }
 
   @IgrpCommandHandler
@@ -57,14 +49,6 @@ public class CreateTacticalActivityCommandHandler
     StrategicGoalId strategicGoalId = StrategicGoalId.from(request.getStrategicGoalId());
     goalRepository.findById(strategicGoalId)
         .orElseThrow(() -> IgrpResponseStatusException.badRequest("strategicGoalId inválido"));
-
-    if (!departamentoRepository.existsById(request.getOrganicUnitId())) {
-      throw IgrpResponseStatusException.badRequest("organicUnitId (Departamento) inválido ou não encontrado");
-    }
-
-    if (!funcionarioRepository.existsById(request.getResponsibleWho())) {
-      throw IgrpResponseStatusException.badRequest("responsibleWho (Funcionário) inválido ou não encontrado");
-    }
 
     DateRange dateRange = DateRange.of(request.getStartDate(), request.getEndDate());
     
@@ -117,8 +101,6 @@ public class CreateTacticalActivityCommandHandler
     response.setVersion(saved.getVersion());
     response.setStatus(saved.getStatus().getCode());
     response.setStatusDesc(saved.getStatus().getDescription());
-    response.setOrganicUnitName(saved.getOrganicUnitName());
-    response.setResponsibleName(saved.getResponsibleName());
 
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }

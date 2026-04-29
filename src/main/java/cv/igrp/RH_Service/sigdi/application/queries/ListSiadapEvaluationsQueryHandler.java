@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.sigdi.application.queries;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.SiadapEvaluationEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.SiadapEvaluationEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.SiadapEvaluationEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.SiadapEvaluationEntityRepository;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapEvaluationDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperSiadapEvaluationListDTO;
 import cv.igrp.framework.core.domain.QueryHandler;
