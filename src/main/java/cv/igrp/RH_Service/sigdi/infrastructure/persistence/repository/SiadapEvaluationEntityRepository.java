@@ -1,0 +1,36 @@
+package cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository;
+
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.SiadapEvaluationEntity;
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.http.HttpStatus;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+
+@Repository
+public interface SiadapEvaluationEntityRepository extends
+    JpaRepository<SiadapEvaluationEntity, UUID>,
+    JpaSpecificationExecutor<SiadapEvaluationEntity>
+{
+      List<SiadapEvaluationEntity> findByYear(String year);
+
+      Page<SiadapEvaluationEntity> findByYear(String year, Pageable pageable);
+
+      long countByYear(String year);
+
+      long countByYearAndMeritRating(String year, String meritRating);
+
+      Optional<SiadapEvaluationEntity> findByEmployeeIdAndYear(String employeeId, String year);
+
+      default SiadapEvaluationEntity findByIdOrThrow(UUID id) {
+          return this.findById(id)
+          .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND,"SiadapEvaluationEntity not found for id: " + id));
+      }
+
+}

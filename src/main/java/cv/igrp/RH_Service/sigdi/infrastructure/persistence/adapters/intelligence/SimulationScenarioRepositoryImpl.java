@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.intelligence;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.SimulationScenariosEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.SimulationScenariosEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.SimulationScenariosEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.SimulationScenariosEntityRepository;
 import cv.igrp.RH_Service.sigdi.domain.intelligence.models.SimulationScenario;
 import cv.igrp.RH_Service.sigdi.domain.intelligence.repository.SimulationScenarioRepository;
 import cv.igrp.RH_Service.sigdi.domain.intelligence.valueobject.SimulationScenarioId;

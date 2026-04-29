@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.admin;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.SiadapConfigEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.SiadapConfigEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.SiadapConfigEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.SiadapConfigEntityRepository;
 import cv.igrp.RH_Service.sigdi.domain.admin.models.SiadapConfig;
 import cv.igrp.RH_Service.sigdi.domain.admin.repository.SiadapConfigRepository;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.admin.SiadapConfigMapper;

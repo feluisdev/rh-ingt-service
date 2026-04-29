@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.budget;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.CostDriverEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.CostDriverEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.CostDriverEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.CostDriverEntityRepository;
 import cv.igrp.RH_Service.sigdi.application.constants.CostDriverType;
 import cv.igrp.RH_Service.sigdi.domain.budget.models.CostDriver;
 import cv.igrp.RH_Service.sigdi.domain.budget.repository.CostDriverRepository;

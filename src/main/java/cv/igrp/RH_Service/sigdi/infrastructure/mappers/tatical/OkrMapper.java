@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.mappers.tatical;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.KeyResultsEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.OkrEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.KeyResultsEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.OkrEntity;
 import cv.igrp.RH_Service.sigdi.application.constants.KeyResultMetricUnit;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentityId;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;

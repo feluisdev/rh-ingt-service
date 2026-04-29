@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.mappers.tatical;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.KeyResultsCheckinEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.KeyResultsEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.KeyResultsCheckinEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.KeyResultsEntity;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.KeyResultCheckin;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.KeyResultCheckinId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.KeyResultId;

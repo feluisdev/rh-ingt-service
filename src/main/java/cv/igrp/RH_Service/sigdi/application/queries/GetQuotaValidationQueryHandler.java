@@ -1,8 +1,8 @@
 package cv.igrp.RH_Service.sigdi.application.queries;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.SiadapConfigEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.SiadapConfigEntityRepository;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.SiadapEvaluationEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.SiadapConfigEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.SiadapConfigEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.SiadapEvaluationEntityRepository;
 import cv.igrp.RH_Service.sigdi.application.dto.QuotaUnitDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.QuotaValidationResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.QuotaViolationDTO;

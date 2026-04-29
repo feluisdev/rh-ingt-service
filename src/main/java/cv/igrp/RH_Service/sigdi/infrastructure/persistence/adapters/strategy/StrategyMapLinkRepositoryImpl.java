@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.strategy;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategyMapLinkEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.StrategyMapLinkEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.StrategyMapLinkEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.StrategyMapLinkEntityRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategyMapLink;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategyMapLinkRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentityId;
