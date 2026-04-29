@@ -1,4 +1,4 @@
-package cv.igrp.RH_Service.shared.infrastructure.persistence.entity;
+package cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity;
 
 import cv.igrp.RH_Service.shared.config.AuditEntity;
 import cv.igrp.framework.stereotype.IgrpEntity;

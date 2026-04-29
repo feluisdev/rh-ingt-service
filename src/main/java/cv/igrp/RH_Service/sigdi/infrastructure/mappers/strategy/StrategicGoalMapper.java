@@ -9,6 +9,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.StategicGoalSumaryDTO;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentityId;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.StrategicIndicatorEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +22,7 @@ public class StrategicGoalMapper {
 
     java.util.List<cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicIndicator> domainIndicators = new java.util.ArrayList<>();
     if (entity.getIndicators() != null && !entity.getIndicators().isEmpty()) {
-      domainIndicators = entity.getIndicators().stream().map(indEntity -> 
+      domainIndicators = entity.getIndicators().stream().map(indEntity ->
         cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicIndicator.reconstruct(
           indEntity.getId(),
           indEntity.getTitle(),
@@ -123,8 +124,8 @@ public class StrategicGoalMapper {
     entity.setIdentityId(identityRef);
 
     if (domain.getIndicators() != null && !domain.getIndicators().isEmpty()) {
-      java.util.List<cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategicIndicatorEntity> indicatorEntities = domain.getIndicators().stream().map(ind -> {
-        cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategicIndicatorEntity indEntity = new cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategicIndicatorEntity();
+      java.util.List<StrategicIndicatorEntity> indicatorEntities = domain.getIndicators().stream().map(ind -> {
+        StrategicIndicatorEntity indEntity = new StrategicIndicatorEntity();
         indEntity.setId(ind.getId());
         indEntity.setTitle(ind.getTitle());
         indEntity.setFormula(ind.getFormula());
