@@ -23,11 +23,12 @@ description: "Lista de tarefas para implementação da feature Parametrizações
 
 **Purpose**: Inicializar o módulo `parametrizacoes` e adoptar Flyway.
 
-- [ ] T001 Adicionar dependências Flyway no `pom.xml`: `flyway-core` e `flyway-database-postgresql` (versão alinhada com Spring Boot 3.5.3)
+- [ ] T001 Verificar se `flyway-core` e `flyway-database-postgresql` já estão no `pom.xml` (podem ter sido adicionados upstream); se ausentes, adicionar alinhados com Spring Boot 3.5.3
 - [ ] T002 [P] Criar a estrutura de pastas Java do módulo em `src/main/java/cv/igrp/RH_Service/parametrizacoes/` com subpastas `domain/{models,valueobject,repository,filter,service}`, `application/{commands,queries,dto,constants}`, `infrastructure/{mappers,persistence/{entity,repository,adapters}}`, `interfaces/rest/`
 - [ ] T003 [P] Criar a estrutura `.igrpstudio/parametrizacoes/` com `module.json`, `controllers/`, `dto/`, `models/` (verificar se já existe; criar `.gitkeep` em pastas vazias)
-- [ ] T004 [P] Criar a pasta `src/main/resources/db/migration/` para os scripts Flyway
-- [ ] T005 Configurar `spring.flyway.enabled=true` em `application.properties` e `spring.flyway.baseline-on-migrate=true` para tolerar ambientes pré-existentes
+- [ ] T004 [P] Verificar se `src/main/resources/db/migration/` já existe; criar se ausente
+- [ ] T004a Determinar a base de numeração Flyway: listar `src/main/resources/db/migration/` ordenado (`ls -1 | sort`), identificar o maior número de versão presente (ex: `V1.0__Seed_Institutional_Identity.sql` → último é `1`), e anotar `LAST_V`. Todas as 16 migrations desta feature são criadas em sequência `LAST_V+1` … `LAST_V+16`, na ordem definida na secção "Sequência de Migrations" abaixo. **Não avançar para as tasks de migration sem ter LAST_V definido.**
+- [ ] T005 Verificar se `spring.flyway.enabled=true` e `spring.flyway.baseline-on-migrate=true` já estão em `application-development.properties`; adicionar em `application.properties` se ausentes nos perfis staging/production
 - [ ] T006 Mudar `spring.jpa.hibernate.ddl-auto` de `update` para `validate` em `src/main/resources/application-development.properties` (Flyway passa a ser fonte única de schema)
 - [ ] T007 [P] Verificar `pom.xml` tem `igrp.framework.core` e dependências de testes (JUnit 5, Mockito, Testcontainers já presentes); adicionar `org.testcontainers:postgresql` se ausente
 
@@ -62,8 +63,8 @@ description: "Lista de tarefas para implementação da feature Parametrizações
 
 ### Schema & Seed (Migrations)
 
-- [ ] T018 [P] [US1] Criar `src/main/resources/db/migration/V001__create_option_entity.sql` com `CREATE TABLE IF NOT EXISTS t_option_entity (id UUID PK, ccode, ckey, cvalue, locale, sort_order, active, description, created_at, created_by, updated_at, updated_by)` + `UNIQUE (ccode, ckey, locale)` + index `idx_option_ccode_locale_active`
-- [ ] T019 [P] [US1] Criar `src/main/resources/db/migration/V009__seed_option_entity_pt_cv.sql` com `INSERT ... ON CONFLICT (ccode, ckey, locale) DO NOTHING` para os 11 grupos: `MARITAL_STATUS` (5 entradas), `SEX` (2), `NATIONALITY` (~15), `UNIT_TYPE` (4), `DOC_CATEGORY` (5), `LEAVE_CATEGORY` (4), `QUALIFICATION_LEVEL` (5), `RELATIONSHIP_TYPE` (5), `ISLAND` (10), `CONCELHO` (22), `TRAINING_TYPE` (4) — todos em `locale='pt-CV'`
+- [ ] T018 [P] [US1] Criar `src/main/resources/db/migration/V{LAST_V+1}__create_option_entity.sql` (migration 1/16 desta feature) com `CREATE TABLE IF NOT EXISTS t_option_entity (id UUID PK, ccode, ckey, cvalue, locale, sort_order, active, description, created_at, created_by, updated_at, updated_by)` + `UNIQUE (ccode, ckey, locale)` + index `idx_option_ccode_locale_active`
+- [ ] T019 [P] [US1] Criar `src/main/resources/db/migration/V{LAST_V+9}__seed_option_entity_pt_cv.sql` (migration 9/16 desta feature) com `INSERT ... ON CONFLICT (ccode, ckey, locale) DO NOTHING` para os 11 grupos: `MARITAL_STATUS` (5 entradas), `SEX` (2), `NATIONALITY` (~15), `UNIT_TYPE` (4), `DOC_CATEGORY` (5), `LEAVE_CATEGORY` (4), `QUALIFICATION_LEVEL` (5), `RELATIONSHIP_TYPE` (5), `ISLAND` (10), `CONCELHO` (22), `TRAINING_TYPE` (4) — todos em `locale='pt-CV'`
 
 ### Domain Layer
 
@@ -118,18 +119,18 @@ description: "Lista de tarefas para implementação da feature Parametrizações
 
 ### Schema & Seed Migrations (paralelas — ficheiros distintos)
 
-- [ ] T046 [P] [US2] Criar `V002__create_worker_states.sql` (`t_worker_state` com `is_core BOOLEAN`, UNIQUE `code`)
-- [ ] T047 [P] [US2] Criar `V003__create_professional_situations.sql` (`t_professional_situation`, UNIQUE `code`)
-- [ ] T048 [P] [US2] Criar `V004__create_contract_types.sql` (`t_contract_type`, UNIQUE `code`)
-- [ ] T049 [P] [US2] Criar `V005__create_document_types.sql` — se tabela `t_tipo_documento` existir, `ALTER TABLE` para renomear e adicionar `allowed_extensions VARCHAR(200)`, `category_option_id UUID FK→t_option_entity`; senão `CREATE TABLE t_document_type`
-- [ ] T050 [P] [US2] Criar `V006__create_leave_types.sql` (`t_leave_type` com flags `deducts_balance`, `requires_approval`, `max_days_per_year`, `category_option_id` FK)
-- [ ] T051 [P] [US2] Criar `V007__create_leave_mobility_subtypes.sql` (`t_leave_mobility_subtype` com `record_type`, `affects_pay`, `counts_for_seniority`, `can_self_submit`)
-- [ ] T052 [P] [US2] Criar `V010__seed_worker_states.sql` (3 entradas com `ON CONFLICT (code) DO NOTHING`: ACTIVE/is_core=TRUE, INACTIVE/is_core=TRUE, SUSPENDED/is_core=FALSE)
-- [ ] T053 [P] [US2] Criar `V011__seed_professional_situations.sql` (4: EFETIVO, CONTRATADO, COMISSIONADO, ESTAGIARIO)
-- [ ] T054 [P] [US2] Criar `V012__seed_contract_types.sql` (5 conforme Decreto-Lei 4/2024)
-- [ ] T055 [P] [US2] Criar `V013__seed_document_types.sql` (10 tipos com `allowed_extensions` e `category_option_id` apontando para `t_option_entity` ccode='DOC_CATEGORY')
-- [ ] T056 [P] [US2] Criar `V014__seed_leave_types.sql` (6 tipos da Lei 20/X/2023 com flags pré-configuradas)
-- [ ] T057 [P] [US2] Criar `V015__seed_leave_mobility_subtypes.sql` (~6 subtipos base)
+- [ ] T046 [P] [US2] Criar `V{LAST_V+2}__create_worker_states.sql` (migration 2/16) em `src/main/resources/db/migration/` — `t_worker_state` com `is_core BOOLEAN`, UNIQUE `code`
+- [ ] T047 [P] [US2] Criar `V{LAST_V+3}__create_professional_situations.sql` (migration 3/16) — `t_professional_situation`, UNIQUE `code`
+- [ ] T048 [P] [US2] Criar `V{LAST_V+4}__create_contract_types.sql` (migration 4/16) — `t_contract_type`, UNIQUE `code`
+- [ ] T049 [P] [US2] Criar `V{LAST_V+5}__create_document_types.sql` (migration 5/16) — se tabela `t_tipo_documento` existir, `ALTER TABLE` para renomear e adicionar `allowed_extensions VARCHAR(200)`, `category_option_id UUID FK→t_option_entity`; senão `CREATE TABLE t_document_type`
+- [ ] T050 [P] [US2] Criar `V{LAST_V+6}__create_leave_types.sql` (migration 6/16) — `t_leave_type` com flags `deducts_balance`, `requires_approval`, `max_days_per_year`, `category_option_id` FK
+- [ ] T051 [P] [US2] Criar `V{LAST_V+7}__create_leave_mobility_subtypes.sql` (migration 7/16) — `t_leave_mobility_subtype` com `record_type`, `affects_pay`, `counts_for_seniority`, `can_self_submit`
+- [ ] T052 [P] [US2] Criar `V{LAST_V+10}__seed_worker_states.sql` (migration 10/16) — 3 entradas com `ON CONFLICT (code) DO NOTHING`: ACTIVE/is_core=TRUE, INACTIVE/is_core=TRUE, SUSPENDED/is_core=FALSE
+- [ ] T053 [P] [US2] Criar `V{LAST_V+11}__seed_professional_situations.sql` (migration 11/16) — 4: EFETIVO, CONTRATADO, COMISSIONADO, ESTAGIARIO
+- [ ] T054 [P] [US2] Criar `V{LAST_V+12}__seed_contract_types.sql` (migration 12/16) — 5 conforme Decreto-Lei 4/2024
+- [ ] T055 [P] [US2] Criar `V{LAST_V+13}__seed_document_types.sql` (migration 13/16) — 10 tipos com `allowed_extensions` e `category_option_id` apontando para `t_option_entity` ccode='DOC_CATEGORY'
+- [ ] T056 [P] [US2] Criar `V{LAST_V+14}__seed_leave_types.sql` (migration 14/16) — 6 tipos da Lei 20/X/2023 com flags pré-configuradas
+- [ ] T057 [P] [US2] Criar `V{LAST_V+15}__seed_leave_mobility_subtypes.sql` (migration 15/16) — ~6 subtipos base
 
 ### Domain Models (paralelos — ficheiros distintos)
 
@@ -194,7 +195,7 @@ description: "Lista de tarefas para implementação da feature Parametrizações
 
 - [ ] T096 [P] [US2] Testes unitários dos 6 domain models — em particular `WorkerStateTest.deactivateCoreThrowsException()`, `DocumentTypeTest.invalidCategoryRejected()`, `LeaveTypeTest.invalidMaxDaysRejected()`
 - [ ] T097 [P] [US2] Testes unitários dos handlers críticos — Create/Update/Desativar de cada catálogo (~12 classes de teste)
-- [ ] T098 [P] [US2] Integration test: migrations V002–V015 idempotentes (Testcontainers) — `MigrationsIdempotencyIT`
+- [ ] T098 [P] [US2] Integration test: migrations de schema e seed do US2 (T046–T057) idempotentes (Testcontainers) — `MigrationsIdempotencyIT`; corre Flyway duas vezes e valida que contagens das 6 tabelas são iguais
 - [ ] T099 [US2] Integration tests dos 6 controllers via MockMvc — cobre 200/201/204/400/404/409 para cada operação
 
 **Checkpoint**: 6 catálogos com comportamento operacionais. Bloqueio de `is_core` validado. Validação cruzada de `category_option_id` validada. Sistema arranca com seed completo.
@@ -207,8 +208,8 @@ description: "Lista de tarefas para implementação da feature Parametrizações
 
 **Independent Test**: Após arranque, `GET /public-holidays?year=2026` devolve ~10 feriados nacionais oficiais; `POST` cria um feriado municipal; tentativa de criar dois nacionais com a mesma data devolve 409.
 
-- [ ] T100 [P] [US3] Migration `V008__create_public_holidays.sql` — `t_public_holiday` com `holiday_date DATE`, `is_national BOOLEAN`; partial unique index `idx_public_holiday_national_date ON t_public_holiday (holiday_date) WHERE is_national = TRUE AND is_active = TRUE`
-- [ ] T101 [P] [US3] Migration `V016__seed_public_holidays_2026.sql` — 10 feriados nacionais oficiais com `ON CONFLICT DO NOTHING`
+- [ ] T100 [P] [US3] Criar `V{LAST_V+8}__create_public_holidays.sql` (migration 8/16) em `src/main/resources/db/migration/` — `t_public_holiday` com `holiday_date DATE`, `is_national BOOLEAN`; partial unique index `idx_public_holiday_national_date ON t_public_holiday (holiday_date) WHERE is_national = TRUE AND is_active = TRUE`
+- [ ] T101 [P] [US3] Criar `V{LAST_V+16}__seed_public_holidays_2026.sql` (migration 16/16) — 10 feriados nacionais oficiais com `ON CONFLICT DO NOTHING`
 - [ ] T102 [P] [US3] Domain model `PublicHoliday.java` em `parametrizacoes/domain/models/`
 - [ ] T103 [P] [US3] Repository `PublicHolidayRepository.java` em `parametrizacoes/domain/repository/`
 - [ ] T104 [P] [US3] Mapper + Adapter em `parametrizacoes/infrastructure/`
@@ -260,6 +261,34 @@ description: "Lista de tarefas para implementação da feature Parametrizações
 - [ ] T129 [P] Actualizar `endpoints.md` na raiz do projecto com os ~30 endpoints novos do módulo `parametrizacoes`
 - [ ] T130 [P] Actualizar `CLAUDE.md` em "Key Domain Models" com as 8 entidades novas
 - [ ] T131 Final Constitution Check — re-validar os 5 princípios + restrições técnicas após implementação completa; documentar em `plan.md` na secção "Constitution Re-check (post-implementation)"
+
+---
+
+## Sequência de Migrations
+
+> Referência para resolver `V{LAST_V+N}__` — executar T004a primeiro para descobrir `LAST_V`.
+> A ordem numérica deve ser respeitada: schemas (offsets 1–8) antes de seeds (offsets 9–16).
+
+| Offset | Task | Nome do ficheiro (sem prefixo Vnnn) | Tipo |
+|--------|------|--------------------------------------|------|
+| +1  | T018 | `create_option_entity.sql`            | Schema |
+| +2  | T046 | `create_worker_states.sql`            | Schema |
+| +3  | T047 | `create_professional_situations.sql`  | Schema |
+| +4  | T048 | `create_contract_types.sql`           | Schema |
+| +5  | T049 | `create_document_types.sql`           | Schema |
+| +6  | T050 | `create_leave_types.sql`              | Schema |
+| +7  | T051 | `create_leave_mobility_subtypes.sql`  | Schema |
+| +8  | T100 | `create_public_holidays.sql`          | Schema |
+| +9  | T019 | `seed_option_entity_pt_cv.sql`        | Seed |
+| +10 | T052 | `seed_worker_states.sql`              | Seed |
+| +11 | T053 | `seed_professional_situations.sql`    | Seed |
+| +12 | T054 | `seed_contract_types.sql`             | Seed |
+| +13 | T055 | `seed_document_types.sql`             | Seed |
+| +14 | T056 | `seed_leave_types.sql`                | Seed |
+| +15 | T057 | `seed_leave_mobility_subtypes.sql`    | Seed |
+| +16 | T101 | `seed_public_holidays_2026.sql`       | Seed |
+
+**Exemplo**: se `LAST_V = 1` (apenas `V1.0__Seed_Institutional_Identity.sql` existe), então migration 1/16 = `V2__create_option_entity.sql`, ..., migration 16/16 = `V17__seed_public_holidays_2026.sql`.
 
 ---
 
