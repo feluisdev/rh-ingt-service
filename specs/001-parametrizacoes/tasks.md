@@ -109,7 +109,7 @@ description: "Lista de tarefas para implementação da feature Parametrizações
 
 - [x] T045a Correr `mvn clean compile` — BUILD SUCCESS obrigatório; corrigir qualquer erro antes de avançar
 - [x] T045b Correr `mvn test` — 20 novos testes passam (unit); ControllerIT e MigrationIT requerem contexto Spring/Docker (excluídos de unit run)
-- [ ] T045c Commit da fase: `git commit -m "feat(parametrizacoes): implement option entity catalog (US1)"`
+- [x] T045c Commit da fase: `git commit -m "feat(parametrizacoes): implement option entity catalog (US1)"`
 
 **Checkpoint**: User Story 1 funcional. Catálogo de etiquetas operacional via REST com fallback de locale e idempotência validada. **MVP entregável.**
 
