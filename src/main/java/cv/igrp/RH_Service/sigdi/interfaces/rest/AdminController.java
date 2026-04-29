@@ -156,6 +156,29 @@ public class AdminController {
     return queryBus.handle(query);
   }
 
+  @GetMapping(value = "delegations")
+  @Operation(
+    summary = "List delegations",
+    description = "Lista delegações com filtros opcionais por delegatorUserId, scope e estado activo.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = DelegationResponseDTO.class, type = "array")
+          )
+      )
+    }
+  )
+  public ResponseEntity<List<DelegationResponseDTO>> listDelegations(
+    @RequestParam(value = "delegatorUserId", required = false) String delegatorUserId,
+    @RequestParam(value = "scope", required = false) String scope,
+    @RequestParam(value = "isActive", required = false) Boolean isActive)
+  {
+    final var query = new GetListDelegationsQuery(delegatorUserId, scope, isActive);
+    return queryBus.handle(query);
+  }
+
   @PostMapping(value = "delegations")
   @Operation(
     summary = "Create delegation",
@@ -175,6 +198,27 @@ public class AdminController {
     @Valid @RequestBody CreateDelegationRequestDTO body)
   {
     final var command = new CreateDelegationCommand(delegatorUserId, body);
+    return commandBus.send(command);
+  }
+
+  @PatchMapping(value = "delegations/{id}/revoke")
+  @Operation(
+    summary = "Revoke delegation",
+    description = "Revoga uma delegação activa, marcando-a como inactiva.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = DelegationResponseDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<DelegationResponseDTO> revokeDelegation(
+    @PathVariable(value = "id") String id)
+  {
+    final var command = new RevokeDelegationCommand(id);
     return commandBus.send(command);
   }
 
