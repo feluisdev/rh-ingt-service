@@ -110,15 +110,11 @@ public class TacticalActivitiesEntity extends AuditEntity {
     @Column(name="version")
     private Integer version;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organic_unit_id", insertable = false, updatable = false)
-    private DepartamentoEntity organicUnit;
+    private UUID organicUnit;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "responsible_who", insertable = false, updatable = false)
-    private FuncionarioEntity responsible;
-
-
+    private UUID responsible;
 
 
   @OneToMany(mappedBy = "activityId", fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
