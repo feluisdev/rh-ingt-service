@@ -16,10 +16,11 @@ public class Delegation {
   private final String scope;
   private final LocalDate startDate;
   private final LocalDate endDate;
+  private final String reason;
   private final boolean active;
 
   private Delegation(DelegationId id, UUID institutionId, UUID delegatorId, UUID delegateId,
-                     String scope, LocalDate startDate, LocalDate endDate, boolean active) {
+                     String scope, LocalDate startDate, LocalDate endDate, String reason, boolean active) {
     if (delegatorId == null) throw new IllegalArgumentException("delegatorId é obrigatório");
     if (delegateId == null) throw new IllegalArgumentException("delegateId é obrigatório");
     if (delegatorId.equals(delegateId))
@@ -37,18 +38,27 @@ public class Delegation {
     this.scope = scope;
     this.startDate = startDate;
     this.endDate = endDate;
+    this.reason = reason;
     this.active = active;
   }
 
   public static Delegation create(UUID institutionId, UUID delegatorId, UUID delegateId,
-                                   String scope, LocalDate startDate, LocalDate endDate) {
+                                   String scope, LocalDate startDate, LocalDate endDate, String reason) {
     return new Delegation(DelegationId.gerarNovo(), institutionId, delegatorId, delegateId,
-        scope, startDate, endDate, true);
+        scope, startDate, endDate, reason, true);
   }
 
   public static Delegation reconstruct(DelegationId id, UUID institutionId, UUID delegatorId,
                                         UUID delegateId, String scope, LocalDate startDate,
-                                        LocalDate endDate, boolean active) {
-    return new Delegation(id, institutionId, delegatorId, delegateId, scope, startDate, endDate, active);
+                                        LocalDate endDate, String reason, boolean active) {
+    return new Delegation(id, institutionId, delegatorId, delegateId, scope, startDate, endDate, reason, active);
+  }
+
+  /**
+   * Returns a new Delegation instance with active = false (revoked state).
+   */
+  public Delegation revoke() {
+    return new Delegation(this.id, this.institutionId, this.delegatorId, this.delegateId,
+        this.scope, this.startDate, this.endDate, this.reason, false);
   }
 }

@@ -1,0 +1,128 @@
+{
+  "type": "model",
+  "module": "sigdi",
+  "name": "StrategicIndicatorEntity",
+  "tableName": "t_strategic_indicators",
+  "audit": true,
+  "crud": false,
+  "revision": false,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "nullable": true,
+      "unique": false,
+      "primaryKey": true,
+      "generationType": "NONE",
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "length": 255,
+      "nullable": false,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false
+    },
+    {
+      "name": "formula",
+      "type": "string",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false
+    },
+    {
+      "name": "target",
+      "type": "decimal",
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "evaluation_criteria",
+      "type": "text",
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "info_source",
+      "type": "string",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false
+    },
+    {
+      "name": "weight",
+      "type": "decimal",
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "criteria_superado",
+      "type": "string",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false
+    },
+    {
+      "name": "criteria_seguranca",
+      "type": "string",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false
+    },
+    {
+      "name": "criteria_alcancado",
+      "type": "string",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false
+    },
+    {
+      "name": "criteria_insuficiente",
+      "type": "string",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false
+    },
+    {
+      "name": "goal_id",
+      "type": "relation",
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "relation": {
+        "type": "ManyToOne",
+        "entity": "StrategicGoalEntity",
+        "fetchType": "lazy",
+        "joinColumn": "goal_id",
+        "module": "sigdi"
+      }
+    }
+  ],
+  "uniqueConstraints": [],
+  "indexes": []
+}

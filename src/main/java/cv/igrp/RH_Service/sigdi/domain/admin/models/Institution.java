@@ -44,4 +44,9 @@ public class Institution {
     return new Institution(this.id, this.code, this.name, this.type, false,
         OffsetDateTime.now(), this.contactEmail);
   }
+
+  public Institution update(String name, String type, String contactEmail) {
+    return new Institution(this.id, this.code, name, type, this.active,
+        this.deactivatedAt, contactEmail);
+  }
 }

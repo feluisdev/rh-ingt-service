@@ -20,6 +20,7 @@ import cv.igrp.framework.core.domain.CommandBus;
 import cv.igrp.RH_Service.sigdi.application.commands.*;
 import cv.igrp.RH_Service.sigdi.application.dto.AdminCostDriverResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.AdminCreateCostDriverRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.queries.GetAdminCostDriversQuery;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateDelegationRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateInstitutionRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.DeactivateInstitutionResponseDTO;
@@ -27,6 +28,9 @@ import cv.igrp.RH_Service.sigdi.application.dto.DelegationResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.InstitutionResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapConfigRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapConfigResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.UpdateInstitutionRequestDTO;
+
+import java.util.List;
 
 @IgrpController
 @RestController
@@ -43,6 +47,51 @@ public class AdminController {
   public AdminController(QueryBus queryBus, CommandBus commandBus) {
     this.queryBus = queryBus;
     this.commandBus = commandBus;
+  }
+
+  @GetMapping(value = "institutions")
+  @Operation(
+    summary = "List institutions",
+    description = "Lista todas as instituições, com filtros opcionais por nome, tipo e estado.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = InstitutionResponseDTO.class, type = "array")
+          )
+      )
+    }
+  )
+  public ResponseEntity<List<InstitutionResponseDTO>> listInstitutions(
+    @RequestParam(value = "name", required = false) String name,
+    @RequestParam(value = "type", required = false) String type,
+    @RequestParam(value = "isActive", required = false) Boolean isActive)
+  {
+    final var query = new GetListInstitutionsQuery(name, type, isActive);
+    return queryBus.handle(query);
+  }
+
+  @PutMapping(value = "institutions/{id}")
+  @Operation(
+    summary = "Update institution",
+    description = "Actualiza os dados de uma instituição existente.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = InstitutionResponseDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<InstitutionResponseDTO> updateInstitution(
+    @PathVariable(value = "id") String id,
+    @Valid @RequestBody UpdateInstitutionRequestDTO body)
+  {
+    final var command = new UpdateInstitutionCommand(id, body);
+    return commandBus.send(command);
   }
 
   @PostMapping(value = "institutions")
@@ -108,6 +157,29 @@ public class AdminController {
     return queryBus.handle(query);
   }
 
+  @GetMapping(value = "delegations")
+  @Operation(
+    summary = "List delegations",
+    description = "Lista delegações com filtros opcionais por delegatorUserId, scope e estado activo.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = DelegationResponseDTO.class, type = "array")
+          )
+      )
+    }
+  )
+  public ResponseEntity<List<DelegationResponseDTO>> listDelegations(
+    @RequestParam(value = "delegatorUserId", required = false) String delegatorUserId,
+    @RequestParam(value = "scope", required = false) String scope,
+    @RequestParam(value = "isActive", required = false) Boolean isActive)
+  {
+    final var query = new GetListDelegationsQuery(delegatorUserId, scope, isActive);
+    return queryBus.handle(query);
+  }
+
   @PostMapping(value = "delegations")
   @Operation(
     summary = "Create delegation",
@@ -127,6 +199,27 @@ public class AdminController {
     @Valid @RequestBody CreateDelegationRequestDTO body)
   {
     final var command = new CreateDelegationCommand(delegatorUserId, body);
+    return commandBus.send(command);
+  }
+
+  @PatchMapping(value = "delegations/{id}/revoke")
+  @Operation(
+    summary = "Revoke delegation",
+    description = "Revoga uma delegação activa, marcando-a como inactiva.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = DelegationResponseDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<DelegationResponseDTO> revokeDelegation(
+    @PathVariable(value = "id") String id)
+  {
+    final var command = new RevokeDelegationCommand(id);
     return commandBus.send(command);
   }
 
@@ -173,6 +266,27 @@ public class AdminController {
     return queryBus.handle(query);
   }
 
+  @GetMapping(value = "cost-drivers")
+  @Operation(
+    summary = "List cost drivers",
+    description = "Lista todos os drivers de custo registados.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = AdminCostDriverResponseDTO.class, type = "array")
+          )
+      )
+    }
+  )
+  public ResponseEntity<List<AdminCostDriverResponseDTO>> listCostDrivers(
+    @RequestParam(value = "driverType", required = false) String driverType)
+  {
+    final var query = new GetAdminCostDriversQuery(driverType);
+    return queryBus.handle(query);
+  }
+
   @PostMapping(value = "cost-drivers")
   @Operation(
     summary = "Create cost driver",
@@ -191,6 +305,28 @@ public class AdminController {
     @Valid @RequestBody AdminCreateCostDriverRequestDTO body)
   {
     final var command = new AdminCreateCostDriverCommand(body);
+    return commandBus.send(command);
+  }
+
+  @PutMapping(value = "cost-drivers/{id}")
+  @Operation(
+    summary = "Update cost driver",
+    description = "Actualiza um driver de custo existente.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = AdminCostDriverResponseDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<AdminCostDriverResponseDTO> updateCostDriver(
+    @PathVariable(value = "id") String id,
+    @Valid @RequestBody AdminCreateCostDriverRequestDTO body)
+  {
+    final var command = new AdminUpdateCostDriverCommand(id, body);
     return commandBus.send(command);
   }
 }

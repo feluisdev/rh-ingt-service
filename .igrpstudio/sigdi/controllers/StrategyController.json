@@ -240,6 +240,34 @@
       ]
     },
     {
+      "actionName": "getStrategicGoalById",
+      "path": "goals/{id}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "StategicGoalResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
       "actionName": "updateStrategicGoals",
       "path": "goals/{id}",
       "method": "PATCH",

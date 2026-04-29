@@ -61,6 +61,21 @@ public class GetCurrentStrategyMapQueryHandler implements QueryHandler<GetCurren
     dto.setDescription(goal.getDescription());
     dto.setStatus(goal.getStatus().getCode());
     dto.setStatusDesc(goal.getStatus().getDescription());
+    
+    if (goal.getIndicators() != null) {
+      dto.setIndicators(goal.getIndicators().stream().map(ind -> {
+        cv.igrp.RH_Service.sigdi.application.dto.StrategicIndicatorDTO indDto = new cv.igrp.RH_Service.sigdi.application.dto.StrategicIndicatorDTO();
+        indDto.setId(ind.getId());
+        indDto.setTitle(ind.getTitle());
+        indDto.setFormula(ind.getFormula());
+        indDto.setTarget(ind.getTarget());
+        indDto.setEvaluationCriteria(ind.getEvaluationCriteria());
+        indDto.setInfoSource(ind.getInfoSource());
+        indDto.setWeight(ind.getWeight());
+        return indDto;
+      }).toList());
+    }
+    
     return dto;
   }
 

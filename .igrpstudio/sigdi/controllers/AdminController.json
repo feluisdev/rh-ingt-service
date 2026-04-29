@@ -6,20 +6,64 @@
   "description": "Administration: institutions, delegations, SIADAP configuration and cost drivers",
   "actions": [
     {
+      "actionName": "listInstitutions",
+      "method": "GET",
+      "path": "institutions",
+      "requestParams": [
+        { "type": "string",  "name": "name",     "isRequired": false },
+        { "type": "string",  "name": "type",     "isRequired": false },
+        { "type": "boolean", "name": "isActive", "isRequired": false }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "InstitutionResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "actionName": "createInstitution",
       "method": "POST",
       "path": "institutions",
-      "requestBody": { "name": "CreateInstitutionRequest", "module": "sigdi" },
-      "responses": [{ "status": 201 }]
-    },
-    {
-      "actionName": "deactivateInstitution",
-      "method": "DELETE",
-      "path": "institutions/{id}",
-      "pathVariables": [
-        { "type": "string", "name": "id", "isRequired": true }
-      ],
-      "responses": [{ "status": 200 }]
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CreateInstitutionRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "CREATED",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "InstitutionResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "getInstitutionById",
@@ -28,7 +72,109 @@
       "pathVariables": [
         { "type": "string", "name": "id", "isRequired": true }
       ],
-      "responses": [{ "status": 200 }]
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "InstitutionResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "updateInstitution",
+      "method": "PUT",
+      "path": "institutions/{id}",
+      "pathVariables": [
+        { "type": "string", "name": "id", "isRequired": true }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "UpdateInstitutionRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "InstitutionResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "deactivateInstitution",
+      "method": "DELETE",
+      "path": "institutions/{id}",
+      "pathVariables": [
+        { "type": "string", "name": "id", "isRequired": true }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "DeactivateInstitutionResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "listDelegations",
+      "method": "GET",
+      "path": "delegations",
+      "requestParams": [
+        { "type": "string",  "name": "delegatorUserId", "isRequired": false },
+        { "type": "string",  "name": "scope",           "isRequired": false },
+        { "type": "boolean", "name": "isActive",        "isRequired": false }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "DelegationResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "createDelegation",
@@ -37,8 +183,59 @@
       "requestParams": [
         { "type": "string", "name": "delegatorUserId", "isRequired": false }
       ],
-      "requestBody": { "name": "CreateDelegationRequest", "module": "sigdi" },
-      "responses": [{ "status": 201 }]
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CreateDelegationRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "CREATED",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "DelegationResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "revokeDelegation",
+      "method": "PATCH",
+      "path": "delegations/{id}/revoke",
+      "pathVariables": [
+        { "type": "string", "name": "id", "isRequired": true }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "DelegationResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "upsertSiadapConfig",
@@ -47,8 +244,35 @@
       "pathVariables": [
         { "type": "integer", "name": "year", "isRequired": true }
       ],
-      "requestBody": { "name": "SiadapConfigRequest", "module": "sigdi" },
-      "responses": [{ "status": 200 }]
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "SiadapConfigRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SiadapConfigResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "getSiadapConfig",
@@ -57,14 +281,117 @@
       "pathVariables": [
         { "type": "integer", "name": "year", "isRequired": true }
       ],
-      "responses": [{ "status": 200 }]
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SiadapConfigResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "listCostDrivers",
+      "method": "GET",
+      "path": "cost-drivers",
+      "requestParams": [
+        { "type": "string", "name": "driverType", "isRequired": false }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AdminCostDriverResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "createCostDriver",
       "method": "POST",
       "path": "cost-drivers",
-      "requestBody": { "name": "AdminCreateCostDriverRequest", "module": "sigdi" },
-      "responses": [{ "status": 201 }]
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AdminCreateCostDriverRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "CREATED",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AdminCostDriverResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "updateCostDriver",
+      "method": "PUT",
+      "path": "cost-drivers/{id}",
+      "pathVariables": [
+        { "type": "string", "name": "id", "isRequired": true }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AdminCreateCostDriverRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AdminCostDriverResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

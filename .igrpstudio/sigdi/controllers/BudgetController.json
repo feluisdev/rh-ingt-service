@@ -6,7 +6,7 @@
   "basePath": "api/v1/budget",
   "actions": [
     {
-      "actionName": "getBudget",
+      "actionName": "getBudgetAvailability",
       "path": "availability",
       "method": "GET",
       "responses": {
@@ -15,7 +15,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "BudgetInfo",
+                "type": "BudgetAvailabilityResponse",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -26,31 +26,92 @@
         }
       },
       "requestParams": [
-        {
-          "type": "string",
-          "name": "economicClassifier",
-          "isRequired": true
+        { "type": "string",  "name": "classifier",      "isRequired": true  },
+        { "type": "string",  "name": "organicUnitId",   "isRequired": true  },
+        { "type": "integer", "name": "fiscalYear",      "isRequired": true  },
+        { "type": "string",  "name": "requestedAmount", "isRequired": false }
+      ]
+    },
+    {
+      "actionName": "getBudgetSummary",
+      "path": "summary",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "BudgetSummaryResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
         }
+      },
+      "requestParams": [
+        { "type": "string", "name": "fiscalYear",    "isRequired": false },
+        { "type": "string", "name": "organicUnitId", "isRequired": false }
       ]
     },
     {
       "actionName": "syncSigof",
       "path": "sync/sigof",
       "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "SyncSigofRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
       "responses": {
-        "200": {
-          "name": "SUCESS",
+        "202": {
+          "name": "ACCEPTED",
           "content": {
             "application/json": {
               "schema": {
-                "type": "string",
+                "type": "SyncJobResponse",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "map"
+                "collectionType": "none",
+                "module": "sigdi"
               }
             }
           }
         }
       }
+    },
+    {
+      "actionName": "getSyncJobStatus",
+      "path": "sync/sigof/{jobId}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SyncJobStatusResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [{ "name": "jobId", "type": "string", "isRequired": true }]
     },
     {
       "actionName": "getCostDriver",

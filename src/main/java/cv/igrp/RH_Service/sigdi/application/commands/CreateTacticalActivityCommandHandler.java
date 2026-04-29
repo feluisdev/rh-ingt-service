@@ -46,21 +46,25 @@ public class CreateTacticalActivityCommandHandler
     LOGGER.debug("CreateTacticalActivityCommand : {}", command);
 
     var request = command.getCreatetacticalactivity();
-    var economicClassifier = request.getEconomicClassifier();
-
-    BudgetInfoDTO budgetInfo = economicClassifierPort.getBudget(economicClassifier);
-
-    if (request.getBudgetEstimated().compareTo(budgetInfo.availableBudget()) > 0) {
-      throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
-          "Budget limit exceeded for this classifier. Available: " + budgetInfo.availableBudget());
-    }
-
     StrategicGoalId strategicGoalId = StrategicGoalId.from(request.getStrategicGoalId());
     goalRepository.findById(strategicGoalId)
         .orElseThrow(() -> IgrpResponseStatusException.badRequest("strategicGoalId inválido"));
 
     DateRange dateRange = DateRange.of(request.getStartDate(), request.getEndDate());
-    Budget budget = Budget.of(request.getBudgetEstimated(), request.getEconomicClassifier());
+    
+    Budget budget = null;
+    if (request.getEconomicClassifier() != null && !request.getEconomicClassifier().isBlank() 
+        && request.getBudgetEstimated() != null) {
+      
+      BudgetInfoDTO budgetInfo = economicClassifierPort.getBudget(request.getEconomicClassifier());
+
+      if (request.getBudgetEstimated().compareTo(budgetInfo.availableBudget()) > 0) {
+        throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+            "Budget limit exceeded for this classifier. Available: " + budgetInfo.availableBudget());
+      }
+      
+      budget = Budget.of(request.getBudgetEstimated(), request.getEconomicClassifier());
+    }
 
     TacticalActivity activity = TacticalActivity.create(
         securityContextHelper.getCurrentInstitutionId(),
@@ -89,8 +93,11 @@ public class CreateTacticalActivityCommandHandler
     response.setMethodologyHow(saved.getMethodologyHow());
     response.setStartDate(saved.getDateRange().getStartDate());
     response.setEndDate(saved.getDateRange().getEndDate());
-    response.setBudgetEstimated(saved.getBudget().getEstimatedAmount());
-    response.setEconomicClassifier(saved.getBudget().getClassifier().getCode());
+    
+    if (saved.getBudget() != null) {
+      response.setBudgetEstimated(saved.getBudget().getEstimatedAmount());
+      response.setEconomicClassifier(saved.getBudget().getClassifier().getCode());
+    }
     response.setVersion(saved.getVersion());
     response.setStatus(saved.getStatus().getCode());
     response.setStatusDesc(saved.getStatus().getDescription());

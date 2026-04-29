@@ -22,12 +22,12 @@ public class TacticalActivity {
   private final TacticalActivityId id;
   private final UUID institutionId;
   private final StrategicGoalId strategicGoalId;
-  private final String organicUnitId;
+  private final UUID organicUnitId;
   private final String title;
   private final String descriptionWhat;
   private final String justificationWhy;
   private final String locationWhere;
-  private final String responsibleWho;
+  private final UUID responsibleWho;
   private final String methodologyHow;
   private final DateRange dateRange;
   private final Budget budget;
@@ -37,21 +37,19 @@ public class TacticalActivity {
 
   private TacticalActivity(TacticalActivityId id, UUID institutionId,
       StrategicGoalId strategicGoalId,
-      String organicUnitId, String title, String descriptionWhat,
-      String justificationWhy, String locationWhere, String responsibleWho,
+      UUID organicUnitId, String title, String descriptionWhat,
+      String justificationWhy, String locationWhere, UUID responsibleWho,
       String methodologyHow, DateRange dateRange, Budget budget,
       TacticalActivityStatus status, Integer version,
       List<KeyResult> keyResults) {
     if (strategicGoalId == null)
       throw new IllegalArgumentException("strategicGoalId é obrigatório");
-    if (organicUnitId == null || organicUnitId.isBlank())
+    if (organicUnitId == null)
       throw new IllegalArgumentException("organicUnitId é obrigatório");
     if (title == null || title.isBlank())
       throw new IllegalArgumentException("title é obrigatório");
     if (dateRange == null)
       throw new IllegalArgumentException("dateRange é obrigatório");
-    if (budget == null)
-      throw new IllegalArgumentException("budget é obrigatório");
 
     this.id = id;
     this.institutionId = institutionId;
@@ -71,20 +69,21 @@ public class TacticalActivity {
   }
 
   public static TacticalActivity create(UUID institutionId, StrategicGoalId strategicGoalId,
-      String organicUnitId, String title, String descriptionWhat, String justificationWhy,
-      String locationWhere, String responsibleWho,
+      UUID organicUnitId, String title, String descriptionWhat, String justificationWhy,
+      String locationWhere, UUID responsibleWho,
       String methodologyHow, DateRange dateRange, Budget budget) {
+    TacticalActivityStatus initialStatus = (budget != null) ? TacticalActivityStatus.DRAFT : TacticalActivityStatus.PENDING_BUDGET;
     return new TacticalActivity(TacticalActivityId.gerarNovo(), institutionId, strategicGoalId,
         organicUnitId, title, descriptionWhat, justificationWhy, locationWhere,
         responsibleWho, methodologyHow, dateRange, budget,
-        TacticalActivityStatus.DRAFT, 0, new ArrayList<>());
+        initialStatus, 0, new ArrayList<>());
   }
 
   public static TacticalActivity reconstruct(TacticalActivityId id, UUID institutionId,
       StrategicGoalId strategicGoalId,
-      String organicUnitId, String title, String descriptionWhat,
+      UUID organicUnitId, String title, String descriptionWhat,
       String justificationWhy, String locationWhere,
-      String responsibleWho, String methodologyHow,
+      UUID responsibleWho, String methodologyHow,
       DateRange dateRange, Budget budget,
       TacticalActivityStatus status, Integer version,
       List<KeyResult> keyResults) {
@@ -144,6 +143,20 @@ public class TacticalActivity {
         this.version + 1, this.keyResults);
   }
 
+  public TacticalActivity assignBudget(Budget budget) {
+    if (budget == null)
+      throw new IllegalArgumentException("Orçamento é obrigatório para esta ação");
+
+    TacticalActivityStatus nextStatus = this.status == TacticalActivityStatus.PENDING_BUDGET ?
+        TacticalActivityStatus.DRAFT : this.status;
+
+    return new TacticalActivity(this.id, this.institutionId, this.strategicGoalId,
+        this.organicUnitId, this.title,
+        this.descriptionWhat, this.justificationWhy, this.locationWhere,
+        this.responsibleWho, this.methodologyHow, this.dateRange,
+        budget, nextStatus, this.version, this.keyResults);
+  }
+
   public BigDecimal getWeightedProgress() {
     if (keyResults.isEmpty())
       return BigDecimal.ZERO;
@@ -157,7 +170,7 @@ public class TacticalActivity {
 
   public KeyResult addKeyResult(String title, BigDecimal targetValue,
       KeyResultMetricUnit metricUnit) {
-    KeyResult kr = KeyResult.create(this.institutionId, this.id, title, targetValue, metricUnit);
+    KeyResult kr = KeyResult.create(this.institutionId, this.id, title, targetValue, metricUnit, null, null, null, null);
     keyResults.add(kr);
     return kr;
   }

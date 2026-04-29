@@ -54,6 +54,9 @@ public class GetTaticalActivitiesQueryHandler implements QueryHandler<GetTatical
   }
 
   private int parsePageNumber(String value) {
+    if (value == null || value.trim().isEmpty()) {
+      return 0;
+    }
     try {
       int parsed = Integer.parseInt(value);
       if (parsed < 0) throw new NumberFormatException("pageNumber must be >= 0");
@@ -64,6 +67,9 @@ public class GetTaticalActivitiesQueryHandler implements QueryHandler<GetTatical
   }
 
   private int parsePageSize(String value) {
+    if (value == null || value.trim().isEmpty()) {
+      return 20;
+    }
     try {
       int parsed = Integer.parseInt(value);
       if (parsed <= 0) throw new NumberFormatException("pageSize must be > 0");
@@ -78,8 +84,19 @@ public class GetTaticalActivitiesQueryHandler implements QueryHandler<GetTatical
     dto.setId(activity.getId().getValor().getValor());
     dto.setStrategicGoalId(activity.getStrategicGoalId().getValor().getValor());
     dto.setTitle(activity.getTitle());
-    dto.setResponsible_who(activity.getResponsibleWho());
-    dto.setBudget_estimated(activity.getBudget().getEstimatedAmount());
+    
+    if (activity.getResponsibleWho() != null) {
+      dto.setResponsible_who(activity.getResponsibleWho().toString());
+    }
+
+    if (activity.getOrganicUnitId() != null) {
+      dto.setOrganicUnitId(activity.getOrganicUnitId().toString());
+    }
+    
+    if (activity.getBudget() != null) {
+      dto.setBudget_estimated(activity.getBudget().getEstimatedAmount());
+    }
+    
     dto.setStart_date(activity.getDateRange().getStartDate().toString());
     dto.setEnd_date(activity.getDateRange().getEndDate().toString());
     dto.setStatus(activity.getStatus().getCode());

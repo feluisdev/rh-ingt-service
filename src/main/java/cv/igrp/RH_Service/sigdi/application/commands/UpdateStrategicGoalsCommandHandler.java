@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.sigdi.application.dto.StategicGoalResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.StrategicIndicatorDTO;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
@@ -40,7 +41,42 @@ public class UpdateStrategicGoalsCommandHandler implements CommandHandler<Update
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Strategic goal not found"));
 
     var dto = command.getUpdatestategicgoal();
-    StrategicGoal updated = goal.update(dto.getTitle(), dto.getDescription(), dto.getWeight());
+
+    java.util.List<cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicIndicator> domainIndicators = goal.getIndicators();
+    if (dto.getIndicators() != null) {
+        domainIndicators = dto.getIndicators().stream().map(indDto -> {
+            if (indDto.getId() != null) {
+                return cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicIndicator.reconstruct(
+                    indDto.getId(),
+                    indDto.getTitle(),
+                    indDto.getFormula(),
+                    indDto.getTarget(),
+                    indDto.getEvaluationCriteria(),
+                    indDto.getInfoSource(),
+                    indDto.getWeight(),
+                    indDto.getCriteriaSuperado(),
+                    indDto.getCriteriaSeguranca(),
+                    indDto.getCriteriaAlcancado(),
+                    indDto.getCriteriaInsuficiente()
+                );
+            } else {
+                return cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicIndicator.create(
+                    indDto.getTitle(),
+                    indDto.getFormula(),
+                    indDto.getTarget(),
+                    indDto.getEvaluationCriteria(),
+                    indDto.getInfoSource(),
+                    indDto.getWeight(),
+                    indDto.getCriteriaSuperado(),
+                    indDto.getCriteriaSeguranca(),
+                    indDto.getCriteriaAlcancado(),
+                    indDto.getCriteriaInsuficiente()
+                );
+            }
+        }).collect(java.util.stream.Collectors.toList());
+    }
+
+    StrategicGoal updated = goal.update(dto.getTitle(), dto.getDescription(), dto.getWeight(), domainIndicators);
     StrategicGoal saved = goalRepository.save(updated);
 
     return ResponseEntity.ok(goalMapper.toResponse(saved));

@@ -9,23 +9,97 @@
       "actionName": "createScenario",
       "method": "POST",
       "path": "scenarios",
-      "requestBody": { "name": "CreateScenarioRequest", "module": "sigdi" },
-      "responses": [{ "status": 200 }, { "status": 202 }]
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CreateScenarioRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ScenarioResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        },
+        "202": {
+          "name": "ACCEPTED",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AsyncScenarioResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "getScenario",
       "method": "GET",
       "path": "scenarios/{id}",
-      "pathVariables": [{ "type": "string", "name": "id", "isRequired": true }],
-      "responses": [{ "status": 200 }]
+      "pathVariables": [
+        { "type": "string", "name": "id", "isRequired": true }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ScenarioResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "exportScenario",
       "method": "GET",
       "path": "scenarios/{id}/export",
-      "pathVariables": [{ "type": "string", "name": "id", "isRequired": true }],
-      "requestParams": [{ "type": "string", "name": "format", "isRequired": false }],
-      "responses": [{ "status": 200 }]
+      "pathVariables": [
+        { "type": "string", "name": "id", "isRequired": true }
+      ],
+      "requestParams": [
+        { "type": "string", "name": "format", "isRequired": false }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "listScenarios",
@@ -35,7 +109,22 @@
         { "type": "string", "name": "pageNumber", "isRequired": false },
         { "type": "string", "name": "pageSize",   "isRequired": false }
       ],
-      "responses": [{ "status": 200 }]
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperScenarioList",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

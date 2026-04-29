@@ -29,15 +29,16 @@ public class TacticalActivityMapper {
         TacticalActivityId.from(entity.getId()),
         entity.getInstitutionId(),
         StrategicGoalId.from(entity.getStrategicGoalId()),
-        entity.getOrganicUnitId() != null ? entity.getOrganicUnitId().toString() : null,
+        entity.getOrganicUnitId(),
         entity.getTitle(),
         entity.getDescriptionWhat(),
         entity.getJustificationWhy(),
         entity.getLocationWhere(),
-        entity.getResponsibleWho() != null ? entity.getResponsibleWho().toString() : null,
+        entity.getResponsibleWho(),
         entity.getMethodologyHow(),
         DateRange.of(entity.getStartDate(), entity.getEndDate()),
-        Budget.of(entity.getBudgetEstimated(), EconomicClassifier.of(entity.getEconomicClassifier())),
+        (entity.getBudgetEstimated() != null && entity.getEconomicClassifier() != null) ?
+            Budget.of(entity.getBudgetEstimated(), entity.getEconomicClassifier()) : null,
         TacticalActivityStatus.fromCodeOrThrow(entity.getStatus()),
         entity.getVersion(),
         new ArrayList<>()
@@ -55,15 +56,16 @@ public class TacticalActivityMapper {
         TacticalActivityId.from(entity.getId()),
         entity.getInstitutionId(),
         StrategicGoalId.from(entity.getStrategicGoalId()),
-        entity.getOrganicUnitId() != null ? entity.getOrganicUnitId().toString() : null,
+        entity.getOrganicUnitId(),
         entity.getTitle(),
         entity.getDescriptionWhat(),
         entity.getJustificationWhy(),
         entity.getLocationWhere(),
-        entity.getResponsibleWho() != null ? entity.getResponsibleWho().toString() : null,
+        entity.getResponsibleWho(),
         entity.getMethodologyHow(),
         DateRange.of(entity.getStartDate(), entity.getEndDate()),
-        Budget.of(entity.getBudgetEstimated(), EconomicClassifier.of(entity.getEconomicClassifier())),
+        (entity.getBudgetEstimated() != null && entity.getEconomicClassifier() != null) ? 
+            Budget.of(entity.getBudgetEstimated(), entity.getEconomicClassifier()) : null,
         TacticalActivityStatus.fromCodeOrThrow(entity.getStatus()),
         entity.getVersion(),
         keyResults
@@ -77,17 +79,19 @@ public class TacticalActivityMapper {
     entity.setId(domain.getId().getValor().getValor());
     entity.setInstitutionId(domain.getInstitutionId());
     entity.setStrategicGoalId(domain.getStrategicGoalId().getValor().getValor());
-    entity.setOrganicUnitId(domain.getOrganicUnitId() != null ? java.util.UUID.fromString(domain.getOrganicUnitId()) : null);
+    entity.setOrganicUnitId(domain.getOrganicUnitId());
     entity.setTitle(domain.getTitle());
     entity.setDescriptionWhat(domain.getDescriptionWhat());
     entity.setJustificationWhy(domain.getJustificationWhy());
     entity.setLocationWhere(domain.getLocationWhere());
-    entity.setResponsibleWho(domain.getResponsibleWho() != null ? java.util.UUID.fromString(domain.getResponsibleWho()) : null);
+    entity.setResponsibleWho(domain.getResponsibleWho());
     entity.setMethodologyHow(domain.getMethodologyHow());
     entity.setStartDate(domain.getDateRange().getStartDate());
     entity.setEndDate(domain.getDateRange().getEndDate());
-    entity.setBudgetEstimated(domain.getBudget().getEstimatedAmount());
-    entity.setEconomicClassifier(domain.getBudget().getClassifier().getCode());
+    if (domain.getBudget() != null) {
+      entity.setBudgetEstimated(domain.getBudget().getEstimatedAmount());
+      entity.setEconomicClassifier(domain.getBudget().getClassifier().getCode());
+    }
     entity.setStatus(domain.getStatus().getCode());
     entity.setVersion(domain.getVersion());
 

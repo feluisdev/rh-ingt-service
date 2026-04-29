@@ -31,6 +31,8 @@ public class TacticalActivityDetailDTO  {
 
   private String organicUnitId ;
 
+  private String organicUnitName ;
+
 
   private String title ;
 
@@ -39,6 +41,8 @@ public class TacticalActivityDetailDTO  {
 
 
   private String responsibleWho ;
+
+  private String responsibleName ;
 
 
   private String locationWhere ;

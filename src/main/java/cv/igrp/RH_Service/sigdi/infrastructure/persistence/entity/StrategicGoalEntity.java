@@ -27,28 +27,28 @@ public class StrategicGoalEntity extends AuditEntity {
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
 
-  
+
     @Column(name="institution_id")
     private UUID institutionId;
 
-  
+
     @NotBlank(message = "title is mandatory")
     @Column(name="title", nullable = false)
     private String title;
 
-  
+
     @Column(name="perspective")
     private String perspective;
 
-  
+
     @Column(name="weight")
     private BigDecimal weight;
 
-  
+
     @Column(name="status")
     private String status;
 
-  
+
     @Lob
     @Column(name="description", columnDefinition="TEXT")
     private String description;
@@ -61,11 +61,16 @@ public class StrategicGoalEntity extends AuditEntity {
     @Column(name="position_y")
     private Double positionY;
 
-  
 
 
-  @OneToMany(mappedBy = "parentGoalId", fetch = FetchType.LAZY)
-private List<StrategicGoalEntity> stategyGoals = new ArrayList<>();   @ManyToOne(fetch = FetchType.LAZY)
+
+    @OneToMany(mappedBy = "parentGoalId", fetch = FetchType.LAZY)
+    private List<StrategicGoalEntity> stategyGoals = new ArrayList<>();
+
+    @OneToMany(mappedBy = "goal", fetch = FetchType.LAZY, cascade = { CascadeType.ALL }, orphanRemoval = true)
+    private List<StrategicIndicatorEntity> indicators = new ArrayList<>();
+
+   @ManyToOne(fetch = FetchType.LAZY)
    @JoinColumn(name = "identity_id")
    private InstitutionalIdentityEntity identityId;
 

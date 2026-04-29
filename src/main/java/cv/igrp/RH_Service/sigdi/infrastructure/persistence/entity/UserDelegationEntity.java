@@ -50,7 +50,11 @@ public class UserDelegationEntity extends AuditEntity {
     @Column(name="end_date")
     private LocalDate endDate;
 
-  
+
+    @Column(name="reason", length = 512)
+    private String reason;
+
+
     @Column(name="is_active")
     private boolean isActive;
 
