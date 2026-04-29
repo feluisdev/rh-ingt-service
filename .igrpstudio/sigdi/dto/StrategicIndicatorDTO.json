@@ -1,0 +1,74 @@
+{
+  "type": "dto",
+  "template": "classic",
+  "module": "sigdi",
+  "name": "StrategicIndicatorDTO",
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "objectType": "java",
+      "required": true
+    },
+    {
+      "name": "formula",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "target",
+      "type": "decimal",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "evaluationCriteria",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "infoSource",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "weight",
+      "type": "decimal",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "criteriaSuperado",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "criteriaSeguranca",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "criteriaAlcancado",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "criteriaInsuficiente",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

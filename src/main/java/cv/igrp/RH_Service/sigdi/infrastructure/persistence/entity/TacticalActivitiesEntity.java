@@ -4,8 +4,6 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity;
 
 import cv.igrp.RH_Service.shared.config.AuditEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.DepartamentoEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.FuncionarioEntity;
 import cv.igrp.framework.stereotype.IgrpEntity;
 import jakarta.persistence.*;
 import lombok.*;
