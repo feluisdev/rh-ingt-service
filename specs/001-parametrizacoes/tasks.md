@@ -107,6 +107,10 @@ description: "Lista de tarefas para implementação da feature Parametrizações
 - [ ] T044 [P] [US1] Criar `src/test/java/cv/igrp/RH_Service/parametrizacoes/infrastructure/migrations/OptionMigrationIT.java` (Testcontainers + PostgreSQL real) — corre Flyway duas vezes e valida idempotência (contagens iguais)
 - [ ] T045 [US1] Criar `src/test/java/cv/igrp/RH_Service/parametrizacoes/interfaces/rest/ReferenceOptionsControllerIT.java` (MockMvc) — testes de cada endpoint com cenários happy path + 400/404/409
 
+- [ ] T045a Correr `mvn clean compile` — BUILD SUCCESS obrigatório; corrigir qualquer erro antes de avançar
+- [ ] T045b Correr `mvn test` — todos os testes devem passar (novos + 84 existentes); falha bloqueia avanço
+- [ ] T045c Commit da fase: `git commit -m "feat(parametrizacoes): implement option entity catalog (US1)"`
+
 **Checkpoint**: User Story 1 funcional. Catálogo de etiquetas operacional via REST com fallback de locale e idempotência validada. **MVP entregável.**
 
 ---
@@ -198,6 +202,10 @@ description: "Lista de tarefas para implementação da feature Parametrizações
 - [ ] T098 [P] [US2] Integration test: migrations de schema e seed do US2 (T046–T057) idempotentes (Testcontainers) — `MigrationsIdempotencyIT`; corre Flyway duas vezes e valida que contagens das 6 tabelas são iguais
 - [ ] T099 [US2] Integration tests dos 6 controllers via MockMvc — cobre 200/201/204/400/404/409 para cada operação
 
+- [ ] T099a Correr `mvn clean compile` — BUILD SUCCESS obrigatório; corrigir qualquer erro antes de avançar
+- [ ] T099b Correr `mvn test` — todos os testes devem passar (novos + anteriores); falha bloqueia avanço
+- [ ] T099c Commit da fase: `git commit -m "feat(parametrizacoes): implement behavioral catalogs (US2)"`
+
 **Checkpoint**: 6 catálogos com comportamento operacionais. Bloqueio de `is_core` validado. Validação cruzada de `category_option_id` validada. Sistema arranca com seed completo.
 
 ---
@@ -221,6 +229,10 @@ description: "Lista de tarefas para implementação da feature Parametrizações
 - [ ] T110 [P] [US3] Test: `PublicHolidayTest` (factory methods, soft delete, partial unique index)
 - [ ] T111 [P] [US3] Integration test: tentativa de duplicar feriado nacional na mesma data falha com 409 — `PublicHolidayControllerIT`
 
+- [ ] T111a Correr `mvn clean compile` — BUILD SUCCESS obrigatório; corrigir qualquer erro antes de avançar
+- [ ] T111b Correr `mvn test` — todos os testes devem passar; falha bloqueia avanço
+- [ ] T111c Commit da fase: `git commit -m "feat(parametrizacoes): implement public holidays catalog (US3)"`
+
 **Checkpoint**: Catálogo de feriados operacional. Pré-requisito para `feat/ausencias` validado.
 
 ---
@@ -240,6 +252,10 @@ description: "Lista de tarefas para implementação da feature Parametrizações
 - [ ] T118 [US4] Wire `AuditHistoryController` ao handler
 - [ ] T119 [P] [US4] Integration test: `AuditTrailIT` — cria entrada, edita, desactiva, reactiva; valida que histórico contém 4 revisions com utilizadores e tipos de operação correctos
 - [ ] T120 [US4] Documentar política de retenção indefinida em `quickstart.md` (secção troubleshooting/auditoria)
+
+- [ ] T120a Correr `mvn clean compile` — BUILD SUCCESS obrigatório; corrigir qualquer erro antes de avançar
+- [ ] T120b Correr `mvn test` — todos os testes devem passar; falha bloqueia avanço
+- [ ] T120c Commit da fase: `git commit -m "feat(parametrizacoes): implement audit history (US4)"`
 
 **Checkpoint**: Auditoria operacional para os 8 catálogos. Histórico consultável via API.
 
