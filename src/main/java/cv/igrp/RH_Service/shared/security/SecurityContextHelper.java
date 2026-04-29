@@ -4,10 +4,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import org.springframework.core.env.Environment;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -16,15 +19,17 @@ public class SecurityContextHelper {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SecurityContextHelper.class);
 
-  @Autowired(required = false)
-  private HttpServletRequest request;
-
   @Autowired
   private Environment environment;
 
   // Fallback UUID used in development/staging when no institution_id claim is present in the JWT.
   private static final UUID DEV_INSTITUTION_ID =
       UUID.fromString("00000000-0000-0000-0000-000000000001");
+
+  private HttpServletRequest getRequest() {
+    var attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+    return attributes != null ? attributes.getRequest() : null;
+  }
 
   public UUID getCurrentInstitutionId() {
     var authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -38,6 +43,7 @@ public class SecurityContextHelper {
     }
 
     // Support for debug header in non-production environments
+    HttpServletRequest request = getRequest();
     if (request != null && isNonProduction()) {
       String debugInstId = request.getHeader("X-Institution-Id");
       if (debugInstId != null && !debugInstId.isBlank()) {
