@@ -4,11 +4,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
-
+import org.springframework.core.env.Environment;
+import java.util.Arrays;
 import java.util.UUID;
 
 @Component
@@ -19,8 +19,8 @@ public class SecurityContextHelper {
   @Autowired(required = false)
   private HttpServletRequest request;
 
-  @Value("${spring.profiles.active}")
-  private String activeProfile;
+  @Autowired
+  private Environment environment;
 
   // Fallback UUID used in development/staging when no institution_id claim is present in the JWT.
   private static final UUID DEV_INSTITUTION_ID =
@@ -38,7 +38,7 @@ public class SecurityContextHelper {
     }
 
     // Support for debug header in non-production environments
-    if (request != null && ("development".equals(activeProfile) || "staging".equals(activeProfile))) {
+    if (request != null && isNonProduction()) {
       String debugInstId = request.getHeader("X-Institution-Id");
       if (debugInstId != null && !debugInstId.isBlank()) {
         try {
@@ -51,17 +51,22 @@ public class SecurityContextHelper {
       }
     }
 
-    if ("development".equals(activeProfile) || "staging".equals(activeProfile)) {
+    if (isNonProduction()) {
       LOGGER.debug("No institution_id found, returning default DEV_INSTITUTION_ID: {}", DEV_INSTITUTION_ID);
       return DEV_INSTITUTION_ID;
     }
 
-    LOGGER.warn("No institution_id found in security context and not in dev/staging profile.");
+    LOGGER.warn("No institution_id found in security context and not in dev/staging profile. Active profiles: {}", 
+        Arrays.toString(environment.getActiveProfiles()));
     return null;
   }
 
+  private boolean isNonProduction() {
+    return environment.acceptsProfiles(org.springframework.core.env.Profiles.of("development", "staging", "dev", "local"));
+  }
+
   public String getCurrentUserId() {
-    if ("development".equals(activeProfile) || "staging".equals(activeProfile)) {
+    if (isNonProduction()) {
       return "system";
     }
     var authentication = SecurityContextHolder.getContext().getAuthentication();
