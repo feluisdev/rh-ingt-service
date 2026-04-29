@@ -60,7 +60,7 @@ public class CreateDelegationCommandHandler
     }
 
     Delegation delegation = Delegation.create(securityContextHelper.getCurrentInstitutionId(),
-        delegatorId, delegateId, req.getScope(), startDate, endDate);
+        delegatorId, delegateId, req.getScope(), startDate, endDate, req.getReason());
     Delegation saved = userDelegationRepository.save(delegation);
 
     DelegationResponseDTO response = new DelegationResponseDTO();
@@ -70,7 +70,7 @@ public class CreateDelegationCommandHandler
     response.setScope(saved.getScope());
     response.setStartDate(saved.getStartDate().toString());
     response.setEndDate(saved.getEndDate().toString());
-    response.setReason(req.getReason());
+    response.setReason(saved.getReason());
     response.setIsActive(saved.isActive());
 
     return ResponseEntity.status(HttpStatus.CREATED).body(response);

@@ -24,6 +24,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.WrapperListTaticalActivityDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateTacticalActivityDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.TaticalActivityStatusDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.AssignBudgetDTO;
 import java.util.Map;
 import cv.igrp.RH_Service.sigdi.application.dto.KeyResultCheckinRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.KeyResultRequestDTO;
@@ -517,4 +518,28 @@ public class TaticalController {
       return commandBus.send(command);
   }
 
+  @PostMapping(
+    value = "activities/{id}/assign-budget"
+  )
+  @Operation(
+    summary = "Assign budget to tactical activity",
+    description = "Vincula rubrica e montante a uma atividade registada",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = TacticalActivityResponseDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<TacticalActivityResponseDTO> assignBudget(
+    @Valid @RequestBody AssignBudgetDTO assignBudgetRequest,
+    @PathVariable(value = "id") String id)
+  {
+      assignBudgetRequest.setActivityId(java.util.UUID.fromString(id));
+      final var command = new AssignTacticalActivityBudgetCommand(assignBudgetRequest);
+      return commandBus.send(command);
+  }
 }

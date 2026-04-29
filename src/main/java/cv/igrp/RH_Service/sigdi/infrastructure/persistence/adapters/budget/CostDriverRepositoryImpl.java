@@ -30,6 +30,22 @@ public class CostDriverRepositoryImpl implements CostDriverRepository {
     return mapper.toDomain(saved);
   }
 
+  @Transactional
+  @Override
+  public CostDriver update(CostDriver costDriver) {
+    CostDriverEntity entity = mapper.toEntity(costDriver);
+    CostDriverEntity saved = jpaRepository.save(entity);
+    return mapper.toDomain(saved);
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public List<CostDriver> findAll() {
+    return jpaRepository.findAll().stream()
+        .map(mapper::toDomain)
+        .toList();
+  }
+
   @Transactional(readOnly = true)
   @Override
   public Optional<CostDriver> findById(CostDriverId id) {

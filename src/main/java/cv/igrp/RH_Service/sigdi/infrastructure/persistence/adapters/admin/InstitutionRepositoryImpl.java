@@ -10,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -39,5 +41,21 @@ public class InstitutionRepositoryImpl implements InstitutionRepository {
   public Optional<Institution> findByCode(String code) {
     return jpaRepository.findByCode(code)
         .map(mapper::toDomain);
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public List<Institution> findAll() {
+    return jpaRepository.findAll().stream()
+        .map(mapper::toDomain)
+        .collect(Collectors.toList());
+  }
+
+  @Transactional
+  @Override
+  public Institution update(Institution institution) {
+    InstitutionEntity entity = mapper.toEntity(institution);
+    InstitutionEntity saved = jpaRepository.save(entity);
+    return mapper.toDomain(saved);
   }
 }

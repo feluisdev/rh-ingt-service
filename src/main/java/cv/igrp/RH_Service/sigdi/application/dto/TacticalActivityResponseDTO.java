@@ -32,4 +32,8 @@ public class TacticalActivityResponseDTO extends CreateTacticalActivityDTO {
   
   private String statusDesc ;
 
+  private String organicUnitName ;
+
+  private String responsibleName ;
+
 }

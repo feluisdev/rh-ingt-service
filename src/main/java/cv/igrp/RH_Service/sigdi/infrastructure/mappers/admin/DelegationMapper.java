@@ -19,6 +19,7 @@ public class DelegationMapper {
         entity.getScope(),
         entity.getStartDate(),
         entity.getEndDate(),
+        entity.getReason(),
         entity.isActive()
     );
   }
@@ -34,6 +35,7 @@ public class DelegationMapper {
     entity.setScope(domain.getScope());
     entity.setStartDate(domain.getStartDate());
     entity.setEndDate(domain.getEndDate());
+    entity.setReason(domain.getReason());
     entity.setActive(domain.isActive());
     return entity;
   }

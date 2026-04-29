@@ -45,7 +45,7 @@ public class ChangeStatusTacticalActivityCommandHandler implements CommandHandle
         case REJECTED -> activity.reject();
         case CANCELLED -> activity.cancel();
         case PENDING_TACTICAL -> activity.submit();
-        case DRAFT, PENDING_STRATEGIC -> throw IgrpResponseStatusException.badRequest(
+        case DRAFT, PENDING_STRATEGIC, PENDING_BUDGET -> throw IgrpResponseStatusException.badRequest(
             "Não é permitido definir o status '" + desiredStatus.getCode() + "' diretamente");
       };
 

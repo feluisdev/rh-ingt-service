@@ -35,7 +35,8 @@ public class CreateStategicGoalDTO  {
   
   private BigDecimal weight ;
   
-  
   private UUID parentGoalId ;
+
+  private java.util.List<StrategicIndicatorDTO> indicators = new java.util.ArrayList<>();
 
 }

@@ -266,6 +266,36 @@ public class StrategyController {
 
   }
 
+   @GetMapping(
+    value = "goals/{id}"
+   )
+   @Operation(
+     summary = "Get strategic goal by id",
+     description = "Get strategic goal by id",
+     responses = {
+       @ApiResponse(
+           responseCode = "200",
+ 
+           content = @Content(
+               mediaType = "application/json",
+               schema = @Schema(
+                   implementation = StategicGoalResponseDTO.class,
+                   type = "object")
+           )
+       )
+     }
+   )
+ 
+   public ResponseEntity<StategicGoalResponseDTO> getStrategicGoalById(
+     @PathVariable(value = "id") String id)
+   {
+ 
+       final var query = new GetStrategicGoalByIdQuery(id);
+ 
+       return queryBus.handle(query);
+ 
+   }
+
    @PatchMapping(
    value = "goals/{id}"
   )

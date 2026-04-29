@@ -59,6 +59,18 @@ private List<KeyResultsCheckinEntity> keyResultCheckins = new ArrayList<>();
     @Column(name="weight")
     private BigDecimal weight;
 
+    @Column(name = "criteria_superado")
+    private String criteriaSuperado;
+
+    @Column(name = "criteria_seguranca")
+    private String criteriaSeguranca;
+
+    @Column(name = "criteria_alcancado")
+    private String criteriaAlcancado;
+
+    @Column(name = "criteria_insuficiente")
+    private String criteriaInsuficiente;
+
      @ManyToOne(fetch = FetchType.LAZY)
    @JoinColumn(name = "activity_id")
    private TacticalActivitiesEntity activityId;
