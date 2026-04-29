@@ -121,6 +121,7 @@ docs(sigdi): ...
 - `/endpoints.md` — Full auto-documented API endpoint list
 
 <!-- SPECKIT START -->
+Active feature plan: [specs/001-parametrizacoes/plan.md](specs/001-parametrizacoes/plan.md)
 For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the current plan
+shell commands, and other important information, read the current plan.
 <!-- SPECKIT END -->
