@@ -20,6 +20,7 @@ import cv.igrp.framework.core.domain.CommandBus;
 import cv.igrp.RH_Service.sigdi.application.commands.*;
 import cv.igrp.RH_Service.sigdi.application.dto.AdminCostDriverResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.AdminCreateCostDriverRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.queries.GetAdminCostDriversQuery;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateDelegationRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateInstitutionRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.DeactivateInstitutionResponseDTO;
@@ -265,6 +266,27 @@ public class AdminController {
     return queryBus.handle(query);
   }
 
+  @GetMapping(value = "cost-drivers")
+  @Operation(
+    summary = "List cost drivers",
+    description = "Lista todos os drivers de custo registados.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = AdminCostDriverResponseDTO.class, type = "array")
+          )
+      )
+    }
+  )
+  public ResponseEntity<List<AdminCostDriverResponseDTO>> listCostDrivers(
+    @RequestParam(value = "driverType", required = false) String driverType)
+  {
+    final var query = new GetAdminCostDriversQuery(driverType);
+    return queryBus.handle(query);
+  }
+
   @PostMapping(value = "cost-drivers")
   @Operation(
     summary = "Create cost driver",
@@ -283,6 +305,28 @@ public class AdminController {
     @Valid @RequestBody AdminCreateCostDriverRequestDTO body)
   {
     final var command = new AdminCreateCostDriverCommand(body);
+    return commandBus.send(command);
+  }
+
+  @PutMapping(value = "cost-drivers/{id}")
+  @Operation(
+    summary = "Update cost driver",
+    description = "Actualiza um driver de custo existente.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = AdminCostDriverResponseDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<AdminCostDriverResponseDTO> updateCostDriver(
+    @PathVariable(value = "id") String id,
+    @Valid @RequestBody AdminCreateCostDriverRequestDTO body)
+  {
+    final var command = new AdminUpdateCostDriverCommand(id, body);
     return commandBus.send(command);
   }
 }

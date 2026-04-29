@@ -45,6 +45,17 @@ public class CostDriver {
         currency != null ? currency : "CVE", legalReference);
   }
 
+  public CostDriver update(CostDriverParams parameters, LocalDate validFrom, String currency, String legalReference) {
+    return new CostDriver(
+        this.id,
+        this.driverType,
+        parameters != null ? parameters : this.parameters,
+        validFrom != null ? validFrom : this.validFrom,
+        (currency != null && !currency.isBlank()) ? currency : this.currency,
+        legalReference
+    );
+  }
+
   public boolean isValid() {
     return !LocalDate.now().isBefore(validFrom);
   }
