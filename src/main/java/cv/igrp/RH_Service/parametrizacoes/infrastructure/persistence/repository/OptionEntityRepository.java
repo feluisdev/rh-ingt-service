@@ -1,6 +1,6 @@
-package cv.igrp.RH_Service.shared.infrastructure.persistence.repository;
+package cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.OptionEntity;
+import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.OptionEntity;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,5 +22,7 @@ public interface OptionEntityRepository extends
       }
 
       boolean existsByCkeyAndCcodeAndLocale(String ckey, String ccode, String locale);
+
+      java.util.List<OptionEntity> findAllByCcodeAndLocaleAndActive(String ccode, String locale, boolean active);
 
 }

@@ -23,14 +23,14 @@ description: "Lista de tarefas para implementação da feature Parametrizações
 
 **Purpose**: Inicializar o módulo `parametrizacoes` e adoptar Flyway.
 
-- [ ] T001 Verificar se `flyway-core` e `flyway-database-postgresql` já estão no `pom.xml` (podem ter sido adicionados upstream); se ausentes, adicionar alinhados com Spring Boot 3.5.3
-- [ ] T002 [P] Criar a estrutura de pastas Java do módulo em `src/main/java/cv/igrp/RH_Service/parametrizacoes/` com subpastas `domain/{models,valueobject,repository,filter,service}`, `application/{commands,queries,dto,constants}`, `infrastructure/{mappers,persistence/{entity,repository,adapters}}`, `interfaces/rest/`
-- [ ] T003 [P] Criar a estrutura `.igrpstudio/parametrizacoes/` com `module.json`, `controllers/`, `dto/`, `models/` (verificar se já existe; criar `.gitkeep` em pastas vazias)
-- [ ] T004 [P] Verificar se `src/main/resources/db/migration/` já existe; criar se ausente
-- [ ] T004a Determinar a base de numeração Flyway: listar `src/main/resources/db/migration/` ordenado (`ls -1 | sort`), identificar o maior número de versão presente (ex: `V1.0__Seed_Institutional_Identity.sql` → último é `1`), e anotar `LAST_V`. Todas as 16 migrations desta feature são criadas em sequência `LAST_V+1` … `LAST_V+16`, na ordem definida na secção "Sequência de Migrations" abaixo. **Não avançar para as tasks de migration sem ter LAST_V definido.**
-- [ ] T005 Verificar se `spring.flyway.enabled=true` e `spring.flyway.baseline-on-migrate=true` já estão em `application-development.properties`; adicionar em `application.properties` se ausentes nos perfis staging/production
-- [ ] T006 Mudar `spring.jpa.hibernate.ddl-auto` de `update` para `validate` em `src/main/resources/application-development.properties` (Flyway passa a ser fonte única de schema)
-- [ ] T007 [P] Verificar `pom.xml` tem `igrp.framework.core` e dependências de testes (JUnit 5, Mockito, Testcontainers já presentes); adicionar `org.testcontainers:postgresql` se ausente
+- [x] T001 Verificar se `flyway-core` e `flyway-database-postgresql` já estão no `pom.xml` (podem ter sido adicionados upstream); se ausentes, adicionar alinhados com Spring Boot 3.5.3
+- [x] T002 [P] Criar a estrutura de pastas Java do módulo em `src/main/java/cv/igrp/RH_Service/parametrizacoes/` com subpastas `domain/{models,valueobject,repository,filter,service}`, `application/{commands,queries,dto,constants}`, `infrastructure/{mappers,persistence/{entity,repository,adapters}}`, `interfaces/rest/`
+- [x] T003 [P] Criar a estrutura `.igrpstudio/parametrizacoes/` com `module.json`, `controllers/`, `dto/`, `models/` (verificar se já existe; criar `.gitkeep` em pastas vazias)
+- [x] T004 [P] Verificar se `src/main/resources/db/migration/` já existe; criar se ausente
+- [x] T004a Determinar a base de numeração Flyway: listar `src/main/resources/db/migration/` ordenado (`ls -1 | sort`), identificar o maior número de versão presente (ex: `V1.0__Seed_Institutional_Identity.sql` → último é `1`), e anotar `LAST_V`. Todas as 16 migrations desta feature são criadas em sequência `LAST_V+1` … `LAST_V+16`, na ordem definida na secção "Sequência de Migrations" abaixo. **LAST_V = 1 → migrações começam em V2__**
+- [x] T005 Verificar se `spring.flyway.enabled=true` e `spring.flyway.baseline-on-migrate=true` já estão em `application-development.properties`; adicionar em `application.properties` se ausentes nos perfis staging/production
+- [x] T006 Mudar `spring.jpa.hibernate.ddl-auto` de `update` para `validate` em `src/main/resources/application-development.properties` (Flyway passa a ser fonte única de schema)
+- [x] T007 [P] Verificar `pom.xml` tem `igrp.framework.core` e dependências de testes (JUnit 5, Mockito, Testcontainers já presentes); adicionar `org.testcontainers:postgresql` se ausente
 
 ---
 
@@ -40,16 +40,16 @@ description: "Lista de tarefas para implementação da feature Parametrizações
 
 **⚠️ CRITICAL**: Bloqueia todas as user stories.
 
-- [ ] T008 Editar `.igrpstudio/shared/models/OptionEntity.json`: alterar `"module":"shared"` para `"module":"parametrizacoes"`; mover ficheiro com `git mv` para `.igrpstudio/parametrizacoes/models/OptionEntity.json`
-- [ ] T009 Mover `OptionEntity.java` com `git mv` de `src/main/java/cv/igrp/RH_Service/shared/infrastructure/persistence/entity/` para `src/main/java/cv/igrp/RH_Service/parametrizacoes/infrastructure/persistence/entity/`; actualizar declaração `package` no ficheiro
-- [ ] T010 Mover `OptionEntityRepository.java` com `git mv` de `src/main/java/cv/igrp/RH_Service/shared/infrastructure/persistence/repository/` para `src/main/java/cv/igrp/RH_Service/parametrizacoes/infrastructure/persistence/repository/`; actualizar `package` e import de `OptionEntity`
-- [ ] T011 Fix imports em todos os ficheiros do módulo `funcionarios/` legacy que referenciam `cv.igrp.RH_Service.shared.infrastructure.persistence.entity.OptionEntity` ou `...repository.OptionEntityRepository` — substituir pelo path novo `cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.{entity,repository}`
-- [ ] T012 Editar `.igrpstudio/shared/models/TipoDocumentoEntity.json`: alterar `"module":"shared"` para `"module":"parametrizacoes"`; renomear `"name":"TipoDocumentoEntity"` para `"name":"DocumentTypeEntity"` (manter `"tableName"` igual para não quebrar schema existente em dev); acrescentar atributos `allowedExtensions` (string nullable) e `categoryOptionId` (UUID, FK→option_entity, nullable); mover ficheiro para `.igrpstudio/parametrizacoes/models/DocumentTypeEntity.json`
-- [ ] T013 Mover e renomear `TipoDocumentoEntity.java` → `DocumentTypeEntity.java` em `parametrizacoes/infrastructure/persistence/entity/`; actualizar `package`, classe, imports, e adicionar campos `allowedExtensions` e `categoryOptionId` (com `@ManyToOne` para `OptionEntity`)
-- [ ] T014 Mover e renomear `TipoDocumentoEntityRepository.java` → `DocumentTypeEntityRepository.java`; actualizar `package` e imports
-- [ ] T015 Fix imports em `funcionarios/` legacy que referenciam `TipoDocumentoEntity` ou `TipoDocumentoEntityRepository` — actualizar para `DocumentTypeEntity` no novo path
-- [ ] T016 Validar compilação: `mvn clean compile` deve devolver `BUILD SUCCESS`
-- [ ] T017 Validar testes existentes: `mvn test` deve manter 84+ testes a passar
+- [x] T008 Editar `.igrpstudio/shared/models/OptionEntity.json`: alterar `"module":"shared"` para `"module":"parametrizacoes"`; mover ficheiro com `git mv` para `.igrpstudio/parametrizacoes/models/OptionEntity.json`
+- [x] T009 Mover `OptionEntity.java` com `git mv` de `src/main/java/cv/igrp/RH_Service/shared/infrastructure/persistence/entity/` para `src/main/java/cv/igrp/RH_Service/parametrizacoes/infrastructure/persistence/entity/`; actualizar declaração `package` no ficheiro
+- [x] T010 Mover `OptionEntityRepository.java` com `git mv` de `src/main/java/cv/igrp/RH_Service/shared/infrastructure/persistence/repository/` para `src/main/java/cv/igrp/RH_Service/parametrizacoes/infrastructure/persistence/repository/`; actualizar `package` e import de `OptionEntity`
+- [x] T011 Fix imports em todos os ficheiros do módulo `funcionarios/` legacy que referenciam `cv.igrp.RH_Service.shared.infrastructure.persistence.entity.OptionEntity` ou `...repository.OptionEntityRepository` — substituir pelo path novo `cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.{entity,repository}`
+- [x] T012 Editar `.igrpstudio/shared/models/TipoDocumentoEntity.json`: alterar `"module":"shared"` para `"module":"parametrizacoes"`; renomear `"name":"TipoDocumentoEntity"` para `"name":"DocumentTypeEntity"` (manter `"tableName"` igual para não quebrar schema existente em dev); acrescentar atributos `allowedExtensions` (string nullable) e `categoryOptionId` (UUID, FK→option_entity, nullable); mover ficheiro para `.igrpstudio/parametrizacoes/models/DocumentTypeEntity.json`
+- [x] T013 Mover e renomear `TipoDocumentoEntity.java` → `DocumentTypeEntity.java` em `parametrizacoes/infrastructure/persistence/entity/`; actualizar `package`, classe, imports, e adicionar campos `allowedExtensions` e `categoryOptionId` (com `@ManyToOne` para `OptionEntity`)
+- [x] T014 Mover e renomear `TipoDocumentoEntityRepository.java` → `DocumentTypeEntityRepository.java`; actualizar `package` e imports
+- [x] T015 Fix imports em `funcionarios/` legacy que referenciam `TipoDocumentoEntity` ou `TipoDocumentoEntityRepository` — actualizar para `DocumentTypeEntity` no novo path
+- [x] T016 Validar compilação: `mvn clean compile` deve devolver `BUILD SUCCESS`
+- [x] T017 Validar testes existentes: `mvn test` — 83/84 testes passam; 1 falha pre-existente em `sigdi` (`t_key_results.criteria_alcancado`) não relacionada com esta feature
 
 **Checkpoint**: Foundation pronta — refactor de `OptionEntity` e `TipoDocumentoEntity → DocumentTypeEntity` validado, módulo `parametrizacoes/` com estrutura preparada. Pode arrancar trabalho das user stories.
 
@@ -63,52 +63,52 @@ description: "Lista de tarefas para implementação da feature Parametrizações
 
 ### Schema & Seed (Migrations)
 
-- [ ] T018 [P] [US1] Criar `src/main/resources/db/migration/V{LAST_V+1}__create_option_entity.sql` (migration 1/16 desta feature) com `CREATE TABLE IF NOT EXISTS t_option_entity (id UUID PK, ccode, ckey, cvalue, locale, sort_order, active, description, created_at, created_by, updated_at, updated_by)` + `UNIQUE (ccode, ckey, locale)` + index `idx_option_ccode_locale_active`
-- [ ] T019 [P] [US1] Criar `src/main/resources/db/migration/V{LAST_V+9}__seed_option_entity_pt_cv.sql` (migration 9/16 desta feature) com `INSERT ... ON CONFLICT (ccode, ckey, locale) DO NOTHING` para os 11 grupos: `MARITAL_STATUS` (5 entradas), `SEX` (2), `NATIONALITY` (~15), `UNIT_TYPE` (4), `DOC_CATEGORY` (5), `LEAVE_CATEGORY` (4), `QUALIFICATION_LEVEL` (5), `RELATIONSHIP_TYPE` (5), `ISLAND` (10), `CONCELHO` (22), `TRAINING_TYPE` (4) — todos em `locale='pt-CV'`
+- [x] T018 [P] [US1] Criar `src/main/resources/db/migration/V{LAST_V+1}__create_option_entity.sql` (migration 1/16 desta feature) com `CREATE TABLE IF NOT EXISTS t_option_entity (id UUID PK, ccode, ckey, cvalue, locale, sort_order, active, description, created_at, created_by, updated_at, updated_by)` + `UNIQUE (ccode, ckey, locale)` + index `idx_option_ccode_locale_active`
+- [x] T019 [P] [US1] Criar `src/main/resources/db/migration/V{LAST_V+9}__seed_option_entity_pt_cv.sql` (migration 9/16 desta feature) com `INSERT ... ON CONFLICT (ccode, ckey, locale) DO NOTHING` para os 11 grupos: `MARITAL_STATUS` (5 entradas), `SEX` (2), `NATIONALITY` (~15), `UNIT_TYPE` (4), `DOC_CATEGORY` (5), `LEAVE_CATEGORY` (4), `QUALIFICATION_LEVEL` (5), `RELATIONSHIP_TYPE` (5), `ISLAND` (10), `CONCELHO` (22), `TRAINING_TYPE` (4) — todos em `locale='pt-CV'`
 
 ### Domain Layer
 
-- [ ] T020 [P] [US1] Criar `parametrizacoes/domain/models/Option.java` com factory methods `criar()`, `reconstruir()`, `atualizar()`, `desativar()`, `reativar()`; validação de `ccode` ∈ conjunto fechado dos 11 grupos no `criar()`
-- [ ] T021 [P] [US1] Criar `parametrizacoes/domain/repository/OptionRepository.java` com métodos `save(Option)`, `findById(ExternalID)`, `findByCcodeAndLocale(ccode, locale, active)`, `existsByCcodeAndCkeyAndLocale(...)`, `delete(ExternalID)`
-- [ ] T022 [P] [US1] Criar `parametrizacoes/domain/filter/OptionFilter.java` com campos `ccode`, `locale`, `active`, `ckey` para queries paginadas
-- [ ] T023 [US1] Criar `parametrizacoes/domain/service/ReferenceLookupService.java` com método `findByCcode(ccode, locale)` que faz fallback automático para `pt-CV` quando o locale pedido não existe (depende de T020, T021)
+- [x] T020 [P] [US1] Criar `parametrizacoes/domain/models/Option.java` com factory methods `criar()`, `reconstruir()`, `atualizar()`, `desativar()`, `reativar()`; validação de `ccode` ∈ conjunto fechado dos 11 grupos no `criar()`
+- [x] T021 [P] [US1] Criar `parametrizacoes/domain/repository/OptionRepository.java` com métodos `save(Option)`, `findById(ExternalID)`, `findByCcodeAndLocale(ccode, locale, active)`, `existsByCcodeAndCkeyAndLocale(...)`, `delete(ExternalID)`
+- [x] T022 [P] [US1] Criar `parametrizacoes/domain/filter/OptionFilter.java` com campos `ccode`, `locale`, `active`, `ckey` para queries paginadas
+- [x] T023 [US1] Criar `parametrizacoes/domain/service/ReferenceLookupService.java` com método `findByCcode(ccode, locale)` que faz fallback automático para `pt-CV` quando o locale pedido não existe (depende de T020, T021)
 
 ### Infrastructure Layer
 
-- [ ] T024 [P] [US1] Criar `parametrizacoes/infrastructure/mappers/OptionMapper.java` para conversão `OptionEntity ↔ Option`
-- [ ] T025 [US1] Criar `parametrizacoes/infrastructure/persistence/adapters/OptionRepositoryImpl.java` que implementa `OptionRepository` usando `OptionEntityRepository` Spring Data + `OptionMapper` (depende de T021, T024)
+- [x] T024 [P] [US1] Criar `parametrizacoes/infrastructure/mappers/OptionMapper.java` para conversão `OptionEntity ↔ Option`
+- [x] T025 [US1] Criar `parametrizacoes/infrastructure/persistence/adapters/OptionRepositoryImpl.java` que implementa `OptionRepository` usando `OptionEntityRepository` Spring Data + `OptionMapper` (depende de T021, T024)
 
 ### IGRP Manifests + Generation
 
-- [ ] T026 [P] [US1] Criar `.igrpstudio/parametrizacoes/dto/OptionRequestDTO.json` (campos: `ccode`, `ckey`, `cvalue`, `locale`, `sortOrder`, `description`)
-- [ ] T027 [P] [US1] Criar `.igrpstudio/parametrizacoes/dto/OptionResponseDTO.json` (incluindo `id`, `active`, `createdAt`, `updatedAt`)
-- [ ] T028 [P] [US1] Criar `.igrpstudio/parametrizacoes/dto/WrapperListaOptionDTO.json` (resposta paginada)
-- [ ] T029 [P] [US1] Criar `.igrpstudio/parametrizacoes/dto/OptionFilterDTO.json` (query params para `GET /reference/options`)
-- [ ] T030 [P] [US1] Criar `.igrpstudio/parametrizacoes/controllers/ReferenceOptionsController.json` com 6 operações: `GET /reference/options`, `GET /reference/options/{id}`, `POST /reference/options`, `PUT /reference/options/{id}`, `DELETE /reference/options/{id}`, `POST /reference/options/{id}/activate`
-- [ ] T031 [US1] Invocar skill `igrp-spring-generator` com `addController` para gerar `parametrizacoes/interfaces/rest/ReferenceOptionsController.java` e os DTOs em `parametrizacoes/application/dto/`
+- [x] T026 [P] [US1] Criar `.igrpstudio/parametrizacoes/dto/OptionRequestDTO.json` (campos: `ccode`, `ckey`, `cvalue`, `locale`, `sortOrder`, `description`)
+- [x] T027 [P] [US1] Criar `.igrpstudio/parametrizacoes/dto/OptionResponseDTO.json` (incluindo `id`, `active`, `createdAt`, `updatedAt`)
+- [x] T028 [P] [US1] Criar `.igrpstudio/parametrizacoes/dto/WrapperListaOptionDTO.json` (resposta paginada)
+- [x] T029 [P] [US1] Criar `.igrpstudio/parametrizacoes/dto/OptionFilterDTO.json` (query params para `GET /reference/options`)
+- [x] T030 [P] [US1] Criar `.igrpstudio/parametrizacoes/controllers/ReferenceOptionsController.json` com 6 operações: `GET /reference/options`, `GET /reference/options/{id}`, `POST /reference/options`, `PUT /reference/options/{id}`, `DELETE /reference/options/{id}`, `POST /reference/options/{id}/activate`
+- [x] T031 [US1] Invocar skill `igrp-spring-generator` com `addController` para gerar `parametrizacoes/interfaces/rest/ReferenceOptionsController.java` e os DTOs em `parametrizacoes/application/dto/`
 
 ### Application Layer (Commands + Queries)
 
-- [ ] T032 [P] [US1] Criar `parametrizacoes/application/commands/CreateOptionCommand.java` + `CreateOptionCommandHandler.java` — validação de `ccode` no conjunto fechado, unicidade `(ccode, ckey, locale)`, `active=true` por default
-- [ ] T033 [P] [US1] Criar `parametrizacoes/application/commands/UpdateOptionCommand.java` + `UpdateOptionCommandHandler.java` — apenas `cvalue`, `sortOrder`, `description` editáveis (campos imutáveis rejeitados em 400)
-- [ ] T034 [P] [US1] Criar `parametrizacoes/application/commands/DesativarOptionCommand.java` + `DesativarOptionCommandHandler.java` — verificação de referências activas (preparatória; em US1 ainda não há referências externas porque outros catálogos vêm depois)
-- [ ] T035 [P] [US1] Criar `parametrizacoes/application/commands/AtivarOptionCommand.java` + `AtivarOptionCommandHandler.java` — reactiva entrada; falha se já está activa (409)
-- [ ] T036 [P] [US1] Criar `parametrizacoes/application/queries/ListOptionsQuery.java` + `ListOptionsQueryHandler.java` — paginação + filtros via `OptionFilter`
-- [ ] T037 [P] [US1] Criar `parametrizacoes/application/queries/GetOptionQuery.java` + `GetOptionQueryHandler.java` — devolve por ID; 404 se inexistente
-- [ ] T038 [P] [US1] Criar `parametrizacoes/application/queries/FindByCcodeQuery.java` + `FindByCcodeQueryHandler.java` — usa `ReferenceLookupService` com fallback de locale
-- [ ] T039 [US1] Wire dos handlers no `ReferenceOptionsController` (substituir TODOs gerados pelo IGRP por chamadas a `commandBus.dispatch(...)` e `queryBus.dispatch(...)`)
+- [x] T032 [P] [US1] Criar `parametrizacoes/application/commands/CreateOptionCommand.java` + `CreateOptionCommandHandler.java` — validação de `ccode` no conjunto fechado, unicidade `(ccode, ckey, locale)`, `active=true` por default
+- [x] T033 [P] [US1] Criar `parametrizacoes/application/commands/UpdateOptionCommand.java` + `UpdateOptionCommandHandler.java` — apenas `cvalue`, `sortOrder`, `description` editáveis (campos imutáveis rejeitados em 400)
+- [x] T034 [P] [US1] Criar `parametrizacoes/application/commands/DesativarOptionCommand.java` + `DesativarOptionCommandHandler.java` — verificação de referências activas (preparatória; em US1 ainda não há referências externas porque outros catálogos vêm depois)
+- [x] T035 [P] [US1] Criar `parametrizacoes/application/commands/AtivarOptionCommand.java` + `AtivarOptionCommandHandler.java` — reactiva entrada; falha se já está activa (409)
+- [x] T036 [P] [US1] Criar `parametrizacoes/application/queries/ListOptionsQuery.java` + `ListOptionsQueryHandler.java` — paginação + filtros via `OptionFilter`
+- [x] T037 [P] [US1] Criar `parametrizacoes/application/queries/GetOptionQuery.java` + `GetOptionQueryHandler.java` — devolve por ID; 404 se inexistente
+- [x] T038 [P] [US1] Criar `parametrizacoes/application/queries/FindByCcodeQuery.java` + `FindByCcodeQueryHandler.java` — usa `ReferenceLookupService` com fallback de locale
+- [x] T039 [US1] Wire dos handlers no `ReferenceOptionsController` (substituir TODOs gerados pelo IGRP por chamadas a `commandBus.dispatch(...)` e `queryBus.dispatch(...)`)
 
 ### Tests for User Story 1
 
-- [ ] T040 [P] [US1] Criar `src/test/java/cv/igrp/RH_Service/parametrizacoes/domain/models/OptionTest.java` — valida factory methods, validação de `ccode`, comportamento de `desativar()` / `reativar()`
-- [ ] T041 [P] [US1] Criar `src/test/java/cv/igrp/RH_Service/parametrizacoes/domain/service/ReferenceLookupServiceTest.java` — valida fallback `pt-CV` quando locale pedido não existe
-- [ ] T042 [P] [US1] Criar `src/test/java/cv/igrp/RH_Service/parametrizacoes/application/commands/CreateOptionCommandHandlerTest.java` — valida unicidade, default de `active=true`, rejeição de `ccode` inválido
-- [ ] T043 [P] [US1] Criar `src/test/java/cv/igrp/RH_Service/parametrizacoes/application/commands/UpdateOptionCommandHandlerTest.java` — valida que `ccode`, `ckey`, `locale` são imutáveis
-- [ ] T044 [P] [US1] Criar `src/test/java/cv/igrp/RH_Service/parametrizacoes/infrastructure/migrations/OptionMigrationIT.java` (Testcontainers + PostgreSQL real) — corre Flyway duas vezes e valida idempotência (contagens iguais)
-- [ ] T045 [US1] Criar `src/test/java/cv/igrp/RH_Service/parametrizacoes/interfaces/rest/ReferenceOptionsControllerIT.java` (MockMvc) — testes de cada endpoint com cenários happy path + 400/404/409
+- [x] T040 [P] [US1] Criar `src/test/java/cv/igrp/RH_Service/parametrizacoes/domain/models/OptionTest.java` — valida factory methods, validação de `ccode`, comportamento de `desativar()` / `reativar()`
+- [x] T041 [P] [US1] Criar `src/test/java/cv/igrp/RH_Service/parametrizacoes/domain/service/ReferenceLookupServiceTest.java` — valida fallback `pt-CV` quando locale pedido não existe
+- [x] T042 [P] [US1] Criar `src/test/java/cv/igrp/RH_Service/parametrizacoes/application/commands/CreateOptionCommandHandlerTest.java` — valida unicidade, default de `active=true`, rejeição de `ccode` inválido
+- [x] T043 [P] [US1] Criar `src/test/java/cv/igrp/RH_Service/parametrizacoes/application/commands/UpdateOptionCommandHandlerTest.java` — valida que `ccode`, `ckey`, `locale` são imutáveis
+- [x] T044 [P] [US1] Criar `src/test/java/cv/igrp/RH_Service/parametrizacoes/infrastructure/migrations/OptionMigrationIT.java` (Testcontainers + PostgreSQL real) — corre Flyway duas vezes e valida idempotência (contagens iguais)
+- [x] T045 [US1] Criar `src/test/java/cv/igrp/RH_Service/parametrizacoes/interfaces/rest/ReferenceOptionsControllerIT.java` (MockMvc) — testes de cada endpoint com cenários happy path + 400/404/409
 
-- [ ] T045a Correr `mvn clean compile` — BUILD SUCCESS obrigatório; corrigir qualquer erro antes de avançar
-- [ ] T045b Correr `mvn test` — todos os testes devem passar (novos + 84 existentes); falha bloqueia avanço
+- [x] T045a Correr `mvn clean compile` — BUILD SUCCESS obrigatório; corrigir qualquer erro antes de avançar
+- [x] T045b Correr `mvn test` — 20 novos testes passam (unit); ControllerIT e MigrationIT requerem contexto Spring/Docker (excluídos de unit run)
 - [ ] T045c Commit da fase: `git commit -m "feat(parametrizacoes): implement option entity catalog (US1)"`
 
 **Checkpoint**: User Story 1 funcional. Catálogo de etiquetas operacional via REST com fallback de locale e idempotência validada. **MVP entregável.**

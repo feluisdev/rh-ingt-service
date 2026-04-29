@@ -1,7 +1,7 @@
 /* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
 /* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
 
-package cv.igrp.RH_Service.shared.infrastructure.persistence.entity;
+package cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity;
 
 import cv.igrp.RH_Service.shared.config.AuditEntity;
 import cv.igrp.framework.stereotype.IgrpEntity;
