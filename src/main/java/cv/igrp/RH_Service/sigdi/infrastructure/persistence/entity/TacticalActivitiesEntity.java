@@ -110,12 +110,6 @@ public class TacticalActivitiesEntity extends AuditEntity {
     @Column(name="version")
     private Integer version;
 
-    @JoinColumn(name = "organic_unit_id", insertable = false, updatable = false)
-    private UUID organicUnit;
-
-    @JoinColumn(name = "responsible_who", insertable = false, updatable = false)
-    private UUID responsible;
-
 
   @OneToMany(mappedBy = "activityId", fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
 private List<KeyResultsEntity> keyResults = new ArrayList<>();
