@@ -178,7 +178,7 @@ Como administrador de sistema, preciso de saber quem alterou cada entrada de cad
 - **SC-002**: Os 4 estados núcleo do trabalhador (Activo, Inactivo) e as 4 situações profissionais base estão protegidos contra desactivação acidental — 100% das tentativas de desactivação destes estados são bloqueadas com mensagem explicativa.
 - **SC-003**: O administrador de RH consegue criar uma nova entrada em qualquer catálogo em menos de 1 minuto a partir do momento em que abre a página de gestão.
 - **SC-004**: 100% das tentativas de desactivação de entradas em uso por registos activos são bloqueadas com mensagem clara.
-- **SC-005**: Os utilizadores vêem as opções dos catálogos imediatamente disponíveis em formulários após qualquer alteração administrativa, sem necessidade de recarregar manualmente o sistema.
+- **SC-005**: Os utilizadores vêem as opções dos catálogos disponíveis em formulários em ≤ 60 segundos após qualquer alteração administrativa, sem necessidade de recarregar manualmente o sistema. (A latência máxima corresponde ao TTL configurado para o cache de leitura.)
 - **SC-006**: 100% das alterações em catálogos têm registo de auditoria completo (autor, momento, valor anterior, valor novo) — verificável por inspecção do histórico.
 - **SC-007**: O catálogo de feriados de Cabo Verde está completo para o ano corrente — todos os feriados nacionais oficiais estão registados antes da activação da feature de Ausências.
 - **SC-008**: O administrador de RH não precisa de mais de 5 minutos de formação para conseguir gerir autonomamente qualquer catálogo do sistema.
