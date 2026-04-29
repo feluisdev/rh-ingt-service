@@ -1,8 +1,8 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.tatical;
 
 import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.TacticalActivitiesEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.TacticalActivitiesEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.TacticalActivitiesEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.TacticalActivitiesEntityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.filter.TaticalActivityFilter;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;

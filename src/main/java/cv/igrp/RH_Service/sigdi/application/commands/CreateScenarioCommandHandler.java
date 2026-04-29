@@ -1,8 +1,8 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.TacticalActivitiesEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.TacticalActivitiesEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.TacticalActivitiesEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.TacticalActivitiesEntityRepository;
 import cv.igrp.RH_Service.sigdi.application.constants.SimulationRecommendation;
 import cv.igrp.RH_Service.sigdi.application.constants.SimulationScenarioScope;
 import cv.igrp.RH_Service.sigdi.application.constants.SimulationScenarioType;

@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.mappers.intelligence;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.SimulationResultsEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.SimulationScenariosEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.SimulationResultsEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.SimulationScenariosEntity;
 import cv.igrp.RH_Service.sigdi.application.constants.SimulationRecommendation;
 import cv.igrp.RH_Service.sigdi.domain.intelligence.models.SimulationResult;
 import cv.igrp.RH_Service.sigdi.domain.intelligence.valueobject.SimulationResultId;

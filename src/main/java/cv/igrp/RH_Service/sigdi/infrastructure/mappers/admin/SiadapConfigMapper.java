@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.mappers.admin;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.SiadapConfigEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.SiadapConfigEntity;
 import cv.igrp.RH_Service.sigdi.domain.admin.models.SiadapConfig;
 import org.springframework.stereotype.Component;
 

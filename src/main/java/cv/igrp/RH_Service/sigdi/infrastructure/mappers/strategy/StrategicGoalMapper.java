@@ -1,8 +1,8 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy;
 
 import cv.igrp.RH_Service.shared.application.constants.Estado;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.InstitutionalIdentityEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.StrategicGoalEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.InstitutionalIdentityEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.StrategicGoalEntity;
 import cv.igrp.RH_Service.sigdi.application.constants.StrategicGoalsPerspective;
 import cv.igrp.RH_Service.sigdi.application.dto.StategicGoalResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.StategicGoalSumaryDTO;

@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.budget;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.FinancialExecutionMirrorEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.FinancialExecutionMirrorEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.FinancialExecutionMirrorEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.FinancialExecutionMirrorEntityRepository;
 import cv.igrp.RH_Service.sigdi.domain.budget.models.FinancialExecutionMirror;
 import cv.igrp.RH_Service.sigdi.domain.budget.repository.FinancialExecutionMirrorRepository;
 import cv.igrp.RH_Service.sigdi.domain.budget.valueobject.FinancialExecutionMirrorId;
