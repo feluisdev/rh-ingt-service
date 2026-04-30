@@ -52,38 +52,41 @@ Each module follows hexagonal layers:
 - `domain/` — Pure domain models and business logic
 - `infrastructure/` — JPA repositories and adapters
 
-### Domain Identity Pattern (XId value objects)
+### Domain Identity Pattern
 
-Every domain aggregate root has its own typed identity value object that wraps `ExternalID`. **Never use `ExternalID` directly in domain models, repository ports, adapters, or handlers.**
+Each aggregate root has its own **typed identity value object** in `domain/valueobject/`. This is a DDD practice: the type system prevents passing the wrong ID to the wrong repository, makes intent explicit, and keeps `ExternalID` (the shared UUID wrapper) out of domain boundaries.
+
+**Rule: never expose `ExternalID` in domain models, repository ports, adapters, or handlers.** Only the infrastructure layer (mapper) needs to know about it.
+
+The value object is immutable, has no public constructor, and exposes only factory methods and read accessors:
 
 ```java
-// domain/valueobject/WorkerStateId.java
-public final class WorkerStateId {
+// domain/valueobject/AggregateId.java  ← one per aggregate root
+public final class AggregateId {
     private final ExternalID valor;
-    public static WorkerStateId gerarNovo()           { return new WorkerStateId(ExternalID.gerarNovo()); }
-    public static WorkerStateId from(UUID uuid)        { ... }
-    public static WorkerStateId from(String uuidStr)   { ... }
-    public UUID getValor()        { return valor.getValor(); }
-    public String getStringValor(){ return valor.getStringValor(); }
+    private AggregateId(ExternalID valor) { ... }
+
+    public static AggregateId gerarNovo()         { return new AggregateId(ExternalID.gerarNovo()); }
+    public static AggregateId from(UUID uuid)      { return new AggregateId(ExternalID.from(uuid)); }
+    public static AggregateId from(String str)     { return new AggregateId(ExternalID.from(str)); }
+
+    public UUID getValor()         { return valor.getValor(); }
+    public String getStringValor() { return valor.getStringValor(); }
+    // equals + hashCode delegate to valor
 }
-
-// domain model uses XId, not ExternalID
-public class WorkerState {
-    private WorkerStateId id;
-    public static WorkerState reconstruir(WorkerStateId id, ...) { ... }
-}
-
-// mapper bridges entity UUID ↔ XId
-return WorkerState.reconstruir(WorkerStateId.from(entity.getId()), ...);
-
-// repository port uses XId
-Optional<WorkerState> findById(WorkerStateId id);
-
-// handler uses XId.from(String) — not ExternalID.from(...)
-var id = WorkerStateId.from(command.getWorkerStateId());
 ```
 
-XId files live in `<module>/domain/valueobject/`. See `sigdi/domain/admin/valueobject/InstitutionId.java` for the canonical reference. All `parametrizacoes` catalogs follow this pattern.
+Each layer uses the typed ID naturally:
+
+| Layer | Usage |
+|---|---|
+| Domain model | `private AggregateId id;` / factory uses `AggregateId.gerarNovo()` |
+| Repository port | `Optional<Aggregate> findById(AggregateId id)` |
+| Mapper `toDomain` | `AggregateId.from(entity.getId())` — the only bridge point |
+| Mapper `toEntity` | `entity.setId(domain.getId().getValor())` |
+| Handler | `AggregateId.from(command.getEntityId())` |
+
+Canonical reference: `sigdi/domain/admin/valueobject/InstitutionId.java`. All `parametrizacoes` catalogs follow this pattern (`WorkerStateId`, `LeaveTypeId`, etc.).
 
 ### CQRS & IGRP Framework
 
