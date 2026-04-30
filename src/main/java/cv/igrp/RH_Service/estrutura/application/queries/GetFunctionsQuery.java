@@ -1,0 +1,13 @@
+package cv.igrp.RH_Service.estrutura.application.queries;
+
+import cv.igrp.framework.core.domain.Query;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public class GetFunctionsQuery implements Query {
+    private final Boolean active;
+    private final String pagina;
+    private final String tamanho;
+}
