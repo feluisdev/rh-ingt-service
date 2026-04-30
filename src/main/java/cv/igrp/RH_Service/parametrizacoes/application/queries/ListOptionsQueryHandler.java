@@ -10,6 +10,7 @@ import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +25,7 @@ public class ListOptionsQueryHandler implements QueryHandler<ListOptionsQuery, R
     private final OptionRepository optionRepository;
     private final OptionMapper optionMapper;
 
+    @Cacheable(value = "reference-options", key = "'list_' + #query.ccode + '_' + #query.locale + '_' + #query.active + '_' + #query.pagina + '_' + #query.tamanho")
     @IgrpQueryHandler
     public ResponseEntity<WrapperListaOptionDTO> handle(ListOptionsQuery query) {
         var filter = new OptionFilter();

@@ -8,6 +8,7 @@ import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +23,7 @@ public class FindByCcodeQueryHandler implements QueryHandler<FindByCcodeQuery, R
     private final ReferenceLookupService referenceLookupService;
     private final OptionMapper optionMapper;
 
+    @Cacheable(value = "reference-options", key = "#query.ccode + '_' + #query.locale")
     @IgrpQueryHandler
     public ResponseEntity<List<OptionResponseDTO>> handle(FindByCcodeQuery query) {
         var options = referenceLookupService.findByCcode(query.getCcode(), query.getLocale());

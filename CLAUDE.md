@@ -133,13 +133,14 @@ ENABLE_SWAGGER=true
 | `Dependente` | funcionarios | Employee family dependent |
 | `Qualificacao` | funcionarios | Professional qualification |
 
-| `Option` | parametrizacoes | Generic label catalog (ccode/ckey/cvalue/locale) |
-| `WorkerState` | parametrizacoes | Worker status catalog (`is_core` flag protects ACTIVE/INACTIVE) |
+| `Option` | parametrizacoes | Generic label catalog (ccode/ckey/cvalue/locale); `@Cacheable` on read, `@CacheEvict` on write (Caffeine, TTL 60 s) |
+| `WorkerState` | parametrizacoes | Worker status catalog; `is_core=true` blocks deactivation (ACTIVE, INACTIVE are protected) |
 | `ProfessionalSituation` | parametrizacoes | Employment situation catalog |
 | `ContractType` | parametrizacoes | Contract type catalog (per Decreto-Lei 4/2024) |
-| `DocumentType` | parametrizacoes | Document type catalog with `allowed_extensions` |
-| `LeaveType` | parametrizacoes | Leave type catalog with `deducts_balance`/`requires_approval` flags |
-| `LeaveMobilitySubtype` | parametrizacoes | Mobility subtype catalog with `record_type` ∈ {LICENCA, MOBILIDADE, AMBOS} |
+| `DocumentType` | parametrizacoes | Document type catalog; `allowed_extensions` (e.g. `pdf,docx`) + `categoryOptionId` FK→Option |
+| `LeaveType` | parametrizacoes | Leave type catalog; `deducts_balance`, `requires_approval`, `max_days_per_year`, `categoryOptionId` FK→Option |
+| `LeaveMobilitySubtype` | parametrizacoes | Mobility subtype; `record_type` ∈ {LICENCA, MOBILIDADE, AMBOS}; `affects_pay`, `counts_for_seniority`, `can_self_submit` |
+| `PublicHoliday` | parametrizacoes | National/municipal holidays; partial unique index on `(holiday_date) WHERE is_national AND is_active`; seed with 11 CV holidays for 2026 |
 
 Shared value objects: `ExternalID` (UUID wrapper), `Estado` enum (ATIVO/INATIVO). Each domain aggregate has its own typed `XId` that wraps `ExternalID` — see Domain Identity Pattern above.
 

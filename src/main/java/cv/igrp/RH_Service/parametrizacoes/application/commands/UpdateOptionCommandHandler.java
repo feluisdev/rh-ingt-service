@@ -11,6 +11,7 @@ import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,7 @@ public class UpdateOptionCommandHandler implements CommandHandler<UpdateOptionCo
     private final OptionRepository optionRepository;
     private final OptionMapper optionMapper;
 
+    @CacheEvict(value = "reference-options", allEntries = true)
     @IgrpCommandHandler
     public ResponseEntity<OptionResponseDTO> handle(UpdateOptionCommand command) {
         var dto = command.getOptionrequest();

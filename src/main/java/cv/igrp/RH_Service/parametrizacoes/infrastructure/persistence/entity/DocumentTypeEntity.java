@@ -4,8 +4,10 @@ import cv.igrp.RH_Service.shared.config.AuditEntity;
 import cv.igrp.framework.stereotype.IgrpEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.envers.Audited;
 import java.util.UUID;
 
+@Audited
 @Getter
 @Setter
 @IgrpEntity

@@ -8,6 +8,7 @@ import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +22,7 @@ public class CreateOptionCommandHandler implements CommandHandler<CreateOptionCo
 
     private final OptionRepository optionRepository;
 
+    @CacheEvict(value = "reference-options", allEntries = true)
     @IgrpCommandHandler
     public ResponseEntity<Map<String, ?>> handle(CreateOptionCommand command) {
         var dto = command.getOptionrequest();
