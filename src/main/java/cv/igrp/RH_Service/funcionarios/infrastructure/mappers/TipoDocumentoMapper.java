@@ -2,21 +2,22 @@ package cv.igrp.RH_Service.funcionarios.infrastructure.mappers;
 import cv.igrp.RH_Service.funcionarios.application.dto.TipoDocumentoResponseDTO;
 import cv.igrp.RH_Service.funcionarios.domain.models.TipoDocumento;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.TipoDocumentoEntity;
+import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.DocumentTypeEntity;
+import cv.igrp.RH_Service.shared.application.constants.Estado;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TipoDocumentoMapper {
 
-    public TipoDocumentoEntity toEntity(TipoDocumento tipoDocumento) {
+    public DocumentTypeEntity toEntity(TipoDocumento tipoDocumento) {
         if(tipoDocumento==null) {
             return null;
         }
-        TipoDocumentoEntity entity = new TipoDocumentoEntity();
+        DocumentTypeEntity entity = new DocumentTypeEntity();
         entity.setId(tipoDocumento.getIdTipoDocumento().getValor());
         entity.setDescricao(tipoDocumento.getDescricao());
-        entity.setEstado(tipoDocumento.getEstado());
         entity.setCodigo(tipoDocumento.getCodigo());
+        entity.setIsActive(tipoDocumento.getEstado() == Estado.A);
         return entity;
     }
 
@@ -36,15 +37,15 @@ public class TipoDocumentoMapper {
     }
 
 
-  public TipoDocumento toDomain(TipoDocumentoEntity tipoDocumentoEntity) {
-    if (tipoDocumentoEntity == null) {
+  public TipoDocumento toDomain(DocumentTypeEntity entity) {
+    if (entity == null) {
       return null;
     }
     return TipoDocumento.reconstruir(
-        ExternalID.from(tipoDocumentoEntity.getId()), // assumindo que o campo é String
-        tipoDocumentoEntity.getDescricao(),
-        tipoDocumentoEntity.getCodigo(),
-        tipoDocumentoEntity.getEstado()
+        ExternalID.from(entity.getId()),
+        entity.getDescricao(),
+        entity.getCodigo(),
+        Boolean.TRUE.equals(entity.getIsActive()) ? Estado.A : Estado.I
     );
   }
 

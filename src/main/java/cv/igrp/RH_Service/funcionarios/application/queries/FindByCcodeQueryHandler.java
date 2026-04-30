@@ -16,7 +16,7 @@ import cv.igrp.RH_Service.funcionarios.domain.repository.OptionRepository;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import org.springframework.http.HttpStatus;
 
-@Component
+@Component("funcionariosFindByCcodeQueryHandler")
 public class FindByCcodeQueryHandler implements QueryHandler<FindByCcodeQuery, ResponseEntity<OptionCodeResponseDTO>>{
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FindByCcodeQueryHandler.class);

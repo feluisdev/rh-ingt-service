@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-@Component
+@Component("funcionariosDesativarOptionCommandHandler")
 public class DesativarOptionCommandHandler implements CommandHandler<DesativarOptionCommand, ResponseEntity<Map<String, ?>>> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DesativarOptionCommandHandler.class);

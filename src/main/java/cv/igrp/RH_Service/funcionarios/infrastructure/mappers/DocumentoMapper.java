@@ -7,7 +7,6 @@ import cv.igrp.RH_Service.funcionarios.domain.models.TipoDocumento;
 import cv.igrp.RH_Service.shared.application.constants.ObjetoTipo;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.DocumentoEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.TipoDocumentoEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

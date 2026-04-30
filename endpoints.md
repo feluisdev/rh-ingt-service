@@ -580,3 +580,96 @@ Creates a new document type.
     "descricao": "Cadastro de Pessoa Física"
 }
 ```
+
+---
+
+## Parametrizações
+
+### Reference Options (Etiquetas)
+
+| Método | Path | Descrição |
+|--------|------|-----------|
+| `GET` | `api/v1/rh/catalogs/reference/options` | Listar opções (filtros: ccode, locale, active, ckey) |
+| `GET` | `api/v1/rh/catalogs/reference/options/{id}` | Obter opção por ID |
+| `GET` | `api/v1/rh/catalogs/reference/options/by-ccode` | Listar por ccode + locale (com fallback pt-CV) |
+| `POST` | `api/v1/rh/catalogs/reference/options` | Criar opção |
+| `PUT` | `api/v1/rh/catalogs/reference/options/{id}` | Actualizar opção |
+| `DELETE` | `api/v1/rh/catalogs/reference/options/{id}` | Desativar opção |
+| `POST` | `api/v1/rh/catalogs/reference/options/{id}/activate` | Reativar opção |
+
+### Worker States (Estados do Trabalhador)
+
+| Método | Path | Descrição |
+|--------|------|-----------|
+| `GET` | `api/v1/rh/catalogs/worker-states` | Listar estados (filtros: code, isActive) |
+| `GET` | `api/v1/rh/catalogs/worker-states/{id}` | Obter estado por ID |
+| `POST` | `api/v1/rh/catalogs/worker-states` | Criar estado |
+| `PUT` | `api/v1/rh/catalogs/worker-states/{id}` | Actualizar estado |
+| `DELETE` | `api/v1/rh/catalogs/worker-states/{id}` | Desativar estado (bloqueia se isCore=true) |
+| `PATCH` | `api/v1/rh/catalogs/worker-states/{id}/activate` | Reativar estado |
+
+### Professional Situations (Situações Profissionais)
+
+| Método | Path | Descrição |
+|--------|------|-----------|
+| `GET` | `api/v1/rh/catalogs/professional-situations` | Listar situações (filtros: code, isActive) |
+| `GET` | `api/v1/rh/catalogs/professional-situations/{id}` | Obter situação por ID |
+| `POST` | `api/v1/rh/catalogs/professional-situations` | Criar situação |
+| `PUT` | `api/v1/rh/catalogs/professional-situations/{id}` | Actualizar situação |
+| `DELETE` | `api/v1/rh/catalogs/professional-situations/{id}` | Desativar situação |
+| `PATCH` | `api/v1/rh/catalogs/professional-situations/{id}/activate` | Reativar situação |
+
+### Contract Types (Tipos de Contrato)
+
+| Método | Path | Descrição |
+|--------|------|-----------|
+| `GET` | `api/v1/rh/catalogs/contract-types` | Listar tipos (filtros: code, isActive) |
+| `GET` | `api/v1/rh/catalogs/contract-types/{id}` | Obter tipo por ID |
+| `POST` | `api/v1/rh/catalogs/contract-types` | Criar tipo |
+| `PUT` | `api/v1/rh/catalogs/contract-types/{id}` | Actualizar tipo |
+| `DELETE` | `api/v1/rh/catalogs/contract-types/{id}` | Desativar tipo |
+| `PATCH` | `api/v1/rh/catalogs/contract-types/{id}/activate` | Reativar tipo |
+
+### Document Types (Tipos de Documento)
+
+| Método | Path | Descrição |
+|--------|------|-----------|
+| `GET` | `api/v1/rh/catalogs/document-types` | Listar tipos (filtros: code, isActive) |
+| `GET` | `api/v1/rh/catalogs/document-types/{id}` | Obter tipo por ID |
+| `POST` | `api/v1/rh/catalogs/document-types` | Criar tipo (categoryOptionId, allowedExtensions) |
+| `PUT` | `api/v1/rh/catalogs/document-types/{id}` | Actualizar tipo |
+| `DELETE` | `api/v1/rh/catalogs/document-types/{id}` | Desativar tipo |
+| `PATCH` | `api/v1/rh/catalogs/document-types/{id}/activate` | Reativar tipo |
+
+### Leave Types (Tipos de Licença)
+
+| Método | Path | Descrição |
+|--------|------|-----------|
+| `GET` | `api/v1/rh/catalogs/leave-types` | Listar tipos (filtros: code, isActive) |
+| `GET` | `api/v1/rh/catalogs/leave-types/{id}` | Obter tipo por ID |
+| `POST` | `api/v1/rh/catalogs/leave-types` | Criar tipo (deductsBalance, requiresApproval, maxDaysPerYear) |
+| `PUT` | `api/v1/rh/catalogs/leave-types/{id}` | Actualizar tipo |
+| `DELETE` | `api/v1/rh/catalogs/leave-types/{id}` | Desativar tipo |
+| `PATCH` | `api/v1/rh/catalogs/leave-types/{id}/activate` | Reativar tipo |
+
+### Leave & Mobility Subtypes (Subtipos de Licença/Mobilidade)
+
+| Método | Path | Descrição |
+|--------|------|-----------|
+| `GET` | `api/v1/rh/catalogs/leave-mobility-subtypes` | Listar subtipos (filtros: code, isActive) |
+| `GET` | `api/v1/rh/catalogs/leave-mobility-subtypes/{id}` | Obter subtipo por ID |
+| `POST` | `api/v1/rh/catalogs/leave-mobility-subtypes` | Criar subtipo (recordType ∈ {LICENCA, MOBILIDADE, AMBOS}) |
+| `PUT` | `api/v1/rh/catalogs/leave-mobility-subtypes/{id}` | Actualizar subtipo |
+| `DELETE` | `api/v1/rh/catalogs/leave-mobility-subtypes/{id}` | Desativar subtipo |
+| `PATCH` | `api/v1/rh/catalogs/leave-mobility-subtypes/{id}/activate` | Reativar subtipo |
+
+### Public Holidays (Feriados)
+
+| Método | Path | Descrição |
+|--------|------|-----------|
+| `GET` | `api/v1/rh/catalogs/public-holidays` | Listar feriados (filtros: year, isNational, dateFrom, dateTo, isActive) |
+| `GET` | `api/v1/rh/catalogs/public-holidays/{id}` | Obter feriado por ID |
+| `POST` | `api/v1/rh/catalogs/public-holidays` | Criar feriado (holidayDate ISO-8601, isNational) |
+| `PUT` | `api/v1/rh/catalogs/public-holidays/{id}` | Actualizar feriado |
+| `DELETE` | `api/v1/rh/catalogs/public-holidays/{id}` | Desativar feriado |
+| `PATCH` | `api/v1/rh/catalogs/public-holidays/{id}/activate` | Reativar feriado |

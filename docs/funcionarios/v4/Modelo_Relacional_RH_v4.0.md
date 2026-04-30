@@ -1,4 +1,4 @@
-# Modelo Relacional — Módulo RH (Dossier do Funcionário)
+﻿# Modelo Relacional — Módulo RH (Dossier do Funcionário)
 
 | Metadado | Detalhe |
 |---|---|
@@ -136,7 +136,7 @@ Tabelas dedicadas porque os seus campos **alteram o comportamento do sistema**. 
 
 ```
 worker_states  (Estados do Trabalhador)
-├── id         BIGSERIAL    PK
+├── id         UUID      PK
 ├── code       VARCHAR(30)  UNIQUE NOT NULL    -- ACTIVE, INACTIVE, SUSPENDED
 ├── name       VARCHAR(100) NOT NULL
 ├── is_core    BOOLEAN      DEFAULT FALSE      -- TRUE = não pode ser desactivado
@@ -148,7 +148,7 @@ worker_states  (Estados do Trabalhador)
 
 ```
 professional_situations  (Situações Profissionais / Vínculo)
-├── id         BIGSERIAL    PK
+├── id         UUID      PK
 ├── code       VARCHAR(30)  UNIQUE NOT NULL    -- EFETIVO, CONTRATADO, COMISSIONADO, ESTAGIARIO
 ├── name       VARCHAR(100) NOT NULL
 └── is_active  BOOLEAN      DEFAULT TRUE
@@ -159,7 +159,7 @@ professional_situations  (Situações Profissionais / Vínculo)
 
 ```
 contract_types  (Tipos de Contrato)
-├── id          BIGSERIAL    PK
+├── id          UUID      PK
 ├── code        VARCHAR(50)  UNIQUE NOT NULL
 │               -- NOMEACAO_DEFINITIVA, CFP, CTFP_TERMO_CERTO, CTFP_TERMO_INCERTO, COMISSAO_SERVICO
 ├── name        VARCHAR(150) NOT NULL
@@ -172,7 +172,7 @@ contract_types  (Tipos de Contrato)
 
 ```
 document_types  (Tipos de Documento)
-├── id                   BIGSERIAL    PK
+├── id                   UUID      PK
 ├── code                 VARCHAR(30)  UNIQUE NOT NULL
 │                        -- CNI, PASSAPORTE, CONTRATO, CERTIDAO, HABILITACAO,
 │                        -- FORMACAO, DISCIPLINAR, RECIBO, JUSTIFICATIVO, OUTRO
@@ -187,7 +187,7 @@ document_types  (Tipos de Documento)
 
 ```
 leave_types  (Tipos de Ausência)
-├── id                   BIGSERIAL    PK
+├── id                   UUID      PK
 ├── code                 VARCHAR(30)  UNIQUE NOT NULL
 │                        -- FERIAS, DOENCA, MATERNIDADE, PATERNIDADE, LUTO, CASAMENTO
 ├── name                 VARCHAR(100) NOT NULL
@@ -204,7 +204,7 @@ leave_types  (Tipos de Ausência)
 
 ```
 leave_mobility_subtypes  (Subtipos de Licença e Mobilidade)
-├── id                    BIGSERIAL    PK
+├── id                    UUID      PK
 ├── code                  VARCHAR(50)  UNIQUE NOT NULL
 ├── name                  VARCHAR(150) NOT NULL
 ├── record_type           VARCHAR(20)  NOT NULL       -- LICENCA, MOBILIDADE, AMBOS
@@ -224,7 +224,7 @@ leave_mobility_subtypes  (Subtipos de Licença e Mobilidade)
 
 ```
 organizational_units  (Unidades Orgânicas)
-├── id                    BIGSERIAL    PK
+├── id                    UUID      PK
 ├── code                  VARCHAR(50)  UNIQUE NOT NULL
 ├── name                  VARCHAR(150) NOT NULL
 ├── acronym               VARCHAR(20)
@@ -239,7 +239,7 @@ organizational_units  (Unidades Orgânicas)
 
 ```
 jobs  (Cargos)
-├── id          BIGSERIAL    PK
+├── id          UUID      PK
 ├── code        VARCHAR(50)  UNIQUE NOT NULL
 ├── name        VARCHAR(150) NOT NULL
 ├── description TEXT
@@ -249,7 +249,7 @@ jobs  (Cargos)
 
 ```
 functions  (Funções)
-├── id          BIGSERIAL    PK
+├── id          UUID      PK
 ├── code        VARCHAR(50)  UNIQUE NOT NULL
 ├── name        VARCHAR(150) NOT NULL
 ├── description TEXT
@@ -265,7 +265,7 @@ A hierarquia `careers → categories → grades` modela a grelha do PCFR (Plano 
 
 ```
 careers  (Carreiras)
-├── id          BIGSERIAL    PK
+├── id          UUID      PK
 ├── code        VARCHAR(50)  UNIQUE NOT NULL
 ├── name        VARCHAR(150) NOT NULL
 ├── description TEXT
@@ -275,7 +275,7 @@ careers  (Carreiras)
 
 ```
 categories  (Categorias)
-├── id          BIGSERIAL    PK
+├── id          UUID      PK
 ├── career_id   BIGINT NOT NULL FK→careers
 ├── code        VARCHAR(50)  NOT NULL
 ├── name        VARCHAR(150) NOT NULL
@@ -287,7 +287,7 @@ categories  (Categorias)
 
 ```
 grades  (Escalões)
-├── id            BIGSERIAL    PK
+├── id            UUID      PK
 ├── category_id   BIGINT NOT NULL FK→categories
 ├── grade_number  INTEGER      NOT NULL        -- número do escalão (1, 2, 3, ...)
 ├── name          VARCHAR(150) NOT NULL
@@ -302,7 +302,7 @@ grades  (Escalões)
 
 ```
 employees  (Funcionários)
-├── id                           BIGSERIAL    PK
+├── id                           UUID      PK
 ├── full_name                    VARCHAR(200) NOT NULL
 ├── nif                          VARCHAR(20)  UNIQUE NOT NULL
 ├── birth_date                   DATE         NOT NULL
@@ -326,7 +326,7 @@ employees  (Funcionários)
 
 ```
 employee_dependents  (Dependentes do Funcionário)
-├── id                        BIGSERIAL    PK
+├── id                        UUID      PK
 ├── employee_id               BIGINT NOT NULL FK→employees
 ├── full_name                 VARCHAR(200) NOT NULL
 ├── birth_date                DATE
@@ -346,7 +346,7 @@ Os três históricos independentes que compõem o enquadramento completo do func
 
 ```
 employee_contracts  (Contratos do Funcionário)
-├── id                  BIGSERIAL    PK
+├── id                  UUID      PK
 ├── employee_id         BIGINT NOT NULL FK→employees
 ├── contract_type_id    BIGINT NOT NULL FK→contract_types
 ├── start_date          DATE  NOT NULL
@@ -363,7 +363,7 @@ employee_contracts  (Contratos do Funcionário)
 
 ```
 employee_professional_assignments  (Enquadramento Profissional)
-├── id              BIGSERIAL    PK
+├── id              UUID      PK
 ├── employee_id     BIGINT NOT NULL FK→employees
 ├── career_id       BIGINT NOT NULL FK→careers
 ├── category_id     BIGINT NOT NULL FK→categories   -- validado vs career por trigger
@@ -385,7 +385,7 @@ employee_professional_assignments  (Enquadramento Profissional)
 
 ```
 employee_unit_assignments  (Colocações / Mobilidade)
-├── id            BIGSERIAL    PK
+├── id            UUID      PK
 ├── employee_id   BIGINT NOT NULL FK→employees
 ├── unit_id       BIGINT NOT NULL FK→organizational_units
 ├── is_primary    BOOLEAN NOT NULL DEFAULT FALSE    -- unidade orgânica principal
@@ -433,7 +433,7 @@ WHERE e.id = :employeeId;
 
 ```
 qualifications  (Habilitações Literárias)
-├── id                   BIGSERIAL    PK
+├── id                   UUID      PK
 ├── employee_id          BIGINT NOT NULL FK→employees
 ├── level_option_id      UUID FK→option_entity    -- ccode='QUALIFICATION_LEVEL'
 ├── course_name          VARCHAR(200)
@@ -448,7 +448,7 @@ qualifications  (Habilitações Literárias)
 
 ```
 trainings  (Formações Profissionais)
-├── id               BIGSERIAL    PK
+├── id               UUID      PK
 ├── employee_id      BIGINT NOT NULL FK→employees
 ├── name             VARCHAR(200) NOT NULL
 ├── institution      VARCHAR(200)
@@ -462,7 +462,7 @@ trainings  (Formações Profissionais)
 
 ```
 disciplinary_processes  (Processos Disciplinares)
-├── id                   BIGSERIAL    PK
+├── id                   UUID      PK
 ├── employee_id          BIGINT NOT NULL FK→employees
 ├── process_number       VARCHAR(50)
 ├── start_date           DATE NOT NULL
@@ -482,7 +482,7 @@ disciplinary_processes  (Processos Disciplinares)
 
 ```
 documents  (Documentos do Dossier)
-├── id                BIGSERIAL    PK
+├── id                UUID      PK
 ├── employee_id       BIGINT FK→employees              -- null se documento do sistema
 ├── document_type_id  BIGINT NOT NULL FK→document_types
 ├── file_name         VARCHAR(255) NOT NULL             -- nome original do ficheiro
@@ -507,7 +507,7 @@ documents  (Documentos do Dossier)
 
 ```
 leave_balances  (Saldos de Ausência)
-├── id              BIGSERIAL    PK
+├── id              UUID      PK
 ├── employee_id     BIGINT NOT NULL FK→employees
 ├── leave_type_id   BIGINT NOT NULL FK→leave_types
 ├── year            INTEGER      NOT NULL
@@ -518,7 +518,7 @@ leave_balances  (Saldos de Ausência)
 
 ```
 leave_requests  (Pedidos de Ausência)
-├── id              BIGSERIAL    PK
+├── id              UUID      PK
 ├── employee_id     BIGINT NOT NULL FK→employees
 ├── leave_type_id   BIGINT NOT NULL FK→leave_types
 ├── approver_id     BIGINT FK→employees                -- chefia aprovadora
@@ -533,7 +533,7 @@ leave_requests  (Pedidos de Ausência)
 
 ```
 leaves_mobilities  (Licenças e Mobilidades)
-├── id                     BIGSERIAL    PK
+├── id                     UUID      PK
 ├── employee_id            BIGINT NOT NULL FK→employees
 ├── subtype_id             BIGINT NOT NULL FK→leave_mobility_subtypes
 ├── destination_unit_id    BIGINT FK→organizational_units   -- destino (se mobilidade)
@@ -547,7 +547,7 @@ leaves_mobilities  (Licenças e Mobilidades)
 
 ```
 payroll_slips  (Recibos de Vencimento)
-├── id             BIGSERIAL    PK
+├── id             UUID      PK
 ├── employee_id    BIGINT NOT NULL FK→employees
 ├── period_year    INTEGER      NOT NULL
 ├── period_month   INTEGER      NOT NULL    -- 1 a 12
@@ -563,7 +563,7 @@ payroll_slips  (Recibos de Vencimento)
 
 ```
 public_holidays  (Feriados)
-├── id            BIGSERIAL    PK
+├── id            UUID      PK
 ├── holiday_date  DATE         NOT NULL UNIQUE
 ├── name          VARCHAR(100) NOT NULL
 └── is_national   BOOLEAN      DEFAULT TRUE   -- TRUE = nacional, FALSE = municipal
@@ -586,7 +586,7 @@ erDiagram
     }
 
     EMPLOYEES {
-        bigint id PK
+        uuid   id PK
         varchar full_name
         varchar nif
         date birth_date
@@ -600,25 +600,25 @@ erDiagram
     }
 
     WORKER_STATES {
-        bigint id PK
+        uuid   id PK
         varchar code
         boolean is_core
     }
 
     PROFESSIONAL_SITUATIONS {
-        bigint id PK
+        uuid   id PK
         varchar code
         varchar name
     }
 
     CONTRACT_TYPES {
-        bigint id PK
+        uuid   id PK
         varchar code
         varchar name
     }
 
     EMPLOYEE_CONTRACTS {
-        bigint id PK
+        uuid   id PK
         bigint employee_id FK
         bigint contract_type_id FK
         date start_date
@@ -628,39 +628,39 @@ erDiagram
     }
 
     CAREERS {
-        bigint id PK
+        uuid   id PK
         varchar code
         varchar name
     }
 
     CATEGORIES {
-        bigint id PK
+        uuid   id PK
         bigint career_id FK
         varchar code
         varchar name
     }
 
     GRADES {
-        bigint id PK
+        uuid   id PK
         bigint category_id FK
         int grade_number
         numeric salary_index
     }
 
     JOBS {
-        bigint id PK
+        uuid   id PK
         varchar code
         varchar name
     }
 
     FUNCTIONS {
-        bigint id PK
+        uuid   id PK
         varchar code
         varchar name
     }
 
     EMPLOYEE_PROFESSIONAL_ASSIGNMENTS {
-        bigint id PK
+        uuid   id PK
         bigint employee_id FK
         bigint career_id FK
         bigint category_id FK
@@ -673,14 +673,14 @@ erDiagram
     }
 
     ORGANIZATIONAL_UNITS {
-        bigint id PK
+        uuid   id PK
         varchar code
         varchar name
         bigint parent_unit_id FK
     }
 
     EMPLOYEE_UNIT_ASSIGNMENTS {
-        bigint id PK
+        uuid   id PK
         bigint employee_id FK
         bigint unit_id FK
         boolean is_primary
@@ -689,20 +689,20 @@ erDiagram
     }
 
     EMPLOYEE_DEPENDENTS {
-        bigint id PK
+        uuid   id PK
         bigint employee_id FK
         varchar full_name
         uuid relationship_option_id FK
     }
 
     DOCUMENT_TYPES {
-        bigint id PK
+        uuid   id PK
         varchar code
         varchar allowed_extensions
     }
 
     DOCUMENTS {
-        bigint id PK
+        uuid   id PK
         bigint employee_id FK
         bigint document_type_id FK
         varchar storage_key
@@ -712,7 +712,7 @@ erDiagram
     }
 
     QUALIFICATIONS {
-        bigint id PK
+        uuid   id PK
         bigint employee_id FK
         uuid level_option_id FK
         varchar course_name
@@ -720,7 +720,7 @@ erDiagram
     }
 
     TRAININGS {
-        bigint id PK
+        uuid   id PK
         bigint employee_id FK
         varchar name
         uuid type_option_id FK
@@ -728,7 +728,7 @@ erDiagram
     }
 
     DISCIPLINARY_PROCESSES {
-        bigint id PK
+        uuid   id PK
         bigint employee_id FK
         varchar process_number
         varchar penalty
@@ -736,14 +736,14 @@ erDiagram
     }
 
     LEAVE_TYPES {
-        bigint id PK
+        uuid   id PK
         varchar code
         boolean deducts_balance
         boolean requires_approval
     }
 
     LEAVE_BALANCES {
-        bigint id PK
+        uuid   id PK
         bigint employee_id FK
         bigint leave_type_id FK
         int year
@@ -752,7 +752,7 @@ erDiagram
     }
 
     LEAVE_REQUESTS {
-        bigint id PK
+        uuid   id PK
         bigint employee_id FK
         bigint leave_type_id FK
         bigint approver_id FK
@@ -763,7 +763,7 @@ erDiagram
     }
 
     LEAVE_MOBILITY_SUBTYPES {
-        bigint id PK
+        uuid   id PK
         varchar code
         varchar record_type
         boolean affects_pay
@@ -772,7 +772,7 @@ erDiagram
     }
 
     LEAVES_MOBILITIES {
-        bigint id PK
+        uuid   id PK
         bigint employee_id FK
         bigint subtype_id FK
         bigint destination_unit_id FK
@@ -782,7 +782,7 @@ erDiagram
     }
 
     PAYROLL_SLIPS {
-        bigint id PK
+        uuid   id PK
         bigint employee_id FK
         int period_year
         int period_month
@@ -790,7 +790,7 @@ erDiagram
     }
 
     PUBLIC_HOLIDAYS {
-        bigint id PK
+        uuid   id PK
         date holiday_date
         varchar name
         boolean is_national

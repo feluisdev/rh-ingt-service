@@ -1,4 +1,4 @@
----
+﻿---
 title: Especificação Técnica — Módulo de Recursos Humanos v4.0
 ---
 
@@ -1383,7 +1383,7 @@ O diagrama ERD do módulo é apresentado no documento `Modelo_Relacional_RH_v4.0
 
 | Coluna | Tipo | Descrição |
 |---|---|---|
-| `id` | BIGSERIAL PK | Identificador único. |
+| `id` | UUID PK | Identificador único. |
 | `full_name` | VARCHAR(200) NOT NULL | Nome completo. |
 | `nif` | VARCHAR(20) UNIQUE NOT NULL | NIF único. |
 | `birth_date` | DATE NOT NULL | Data de nascimento. |
@@ -1407,7 +1407,7 @@ O diagrama ERD do módulo é apresentado no documento `Modelo_Relacional_RH_v4.0
 
 | Coluna | Tipo | Descrição |
 |---|---|---|
-| `id` | BIGSERIAL PK | Identificador único. |
+| `id` | UUID PK | Identificador único. |
 | `employee_id` | BIGINT NOT NULL FK→employees | Funcionário. |
 | `contract_type_id` | BIGINT NOT NULL FK→contract_types | Tipo de contrato. |
 | `start_date` | DATE NOT NULL | Data de início. |
@@ -1420,7 +1420,7 @@ O diagrama ERD do módulo é apresentado no documento `Modelo_Relacional_RH_v4.0
 
 | Coluna | Tipo | Descrição |
 |---|---|---|
-| `id` | BIGSERIAL PK | Identificador único. |
+| `id` | UUID PK | Identificador único. |
 | `employee_id` | BIGINT NOT NULL FK→employees | Funcionário. |
 | `career_id` | BIGINT NOT NULL FK→careers | Carreira. |
 | `category_id` | BIGINT NOT NULL FK→categories | Categoria (validada vs career por trigger). |
@@ -1437,7 +1437,7 @@ O diagrama ERD do módulo é apresentado no documento `Modelo_Relacional_RH_v4.0
 
 | Coluna | Tipo | Descrição |
 |---|---|---|
-| `id` | BIGSERIAL PK | Identificador único. |
+| `id` | UUID PK | Identificador único. |
 | `employee_id` | BIGINT NOT NULL FK→employees | Funcionário. |
 | `unit_id` | BIGINT NOT NULL FK→organizational_units | Unidade orgânica. |
 | `is_primary` | BOOLEAN NOT NULL DEFAULT FALSE | Unidade orgânica principal. |
@@ -1449,7 +1449,7 @@ O diagrama ERD do módulo é apresentado no documento `Modelo_Relacional_RH_v4.0
 
 | Coluna | Tipo | Descrição |
 |---|---|---|
-| `id` | BIGSERIAL PK | Identificador único. |
+| `id` | UUID PK | Identificador único. |
 | `employee_id` | BIGINT FK→employees | Funcionário (`null` se documento do sistema). |
 | `document_type_id` | BIGINT NOT NULL FK→document_types | Tipo de documento. |
 | `file_name` | VARCHAR(255) NOT NULL | Nome original do ficheiro. |
