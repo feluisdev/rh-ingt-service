@@ -1,0 +1,45 @@
+{
+  "type": "controller",
+  "name": "EstruturaCatalogAudit",
+  "module": "estrutura",
+  "description": "Consulta do histórico de auditoria Envers para catálogos do módulo estrutura",
+  "basePath": "api/v1/rh/estrutura/audit",
+  "actions": [
+    {
+      "actionName": "getAuditHistory",
+      "path": "{catalog}/{entityId}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaAuditHistoryDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "estrutura"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "catalog",
+          "type": "string",
+          "isRequired": true,
+          "description": "Nome do catálogo: organizational-units | jobs | functions"
+        },
+        {
+          "name": "entityId",
+          "type": "string",
+          "isRequired": true,
+          "description": "UUID da entidade a auditar"
+        }
+      ]
+    }
+  ],
+  "id": "estrutura_audit_ctrl_001"
+}
