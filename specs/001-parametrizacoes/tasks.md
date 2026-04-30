@@ -245,17 +245,17 @@ description: "Lista de tarefas para implementaÃ§Ã£o da feature ParametrizaÃ
 
 - [ ] T112 [US4] Verificar configuraÃ§Ã£o Envers em `application*.properties`: descomentar `spring.jpa.properties.org.hibernate.envers.track_entities_changed_in_revision=true` e `global_with_modified_flag=true` em todos os perfis
 - [ ] T113 [US4] Validar que `ApplicationAuditorAware` (em `shared/config/`) injecta o utilizador autenticado em `created_by`/`updated_by` via `SecurityContextHelper`
-- [ ] T114 [US4] Confirmar que cada uma das 8 entities estÃ¡ marcada com `@Audited` (Envers gera `*_AUD` automaticamente)
-- [ ] T115 [P] [US4] Criar `parametrizacoes/application/queries/GetAuditHistoryQuery.java` + `GetAuditHistoryQueryHandler.java` â€” devolve histÃ³rico de alteraÃ§Ãµes de uma entrada por `(tableName, entityId)` usando `AuditReader` do Envers
-- [ ] T116 [P] [US4] Criar manifest `.igrpstudio/parametrizacoes/controllers/AuditHistoryController.json` com `GET /audit/{table}/{id}` (limitado a entries dos 8 catÃ¡logos)
-- [ ] T117 [US4] Run `igrp-spring-generator` para `AuditHistoryController` + DTOs (`AuditHistoryEntryDTO`, `WrapperListaAuditHistoryDTO`)
-- [ ] T118 [US4] Wire `AuditHistoryController` ao handler
+- [x] T114 [US4] Confirmar que cada uma das 8 entities estÃ¡ marcada com `@Audited` (Envers gera `*_AUD` automaticamente)
+- [x] T115 [P] [US4] Criar `parametrizacoes/application/queries/GetAuditHistoryQuery.java` + `GetAuditHistoryQueryHandler.java` â€” devolve histÃ³rico de alteraÃ§Ãµes de uma entrada por `(tableName, entityId)` usando `AuditReader` do Envers
+- [x] T116 [P] [US4] Criar manifest `.igrpstudio/parametrizacoes/controllers/AuditHistoryController.json` com `GET /audit/{table}/{id}` (limitado a entries dos 8 catÃ¡logos)
+- [x] T117 [US4] Run `igrp-spring-generator` para `AuditHistoryController` + DTOs (`AuditHistoryEntryDTO`, `WrapperListaAuditHistoryDTO`)
+- [x] T118 [US4] Wire `AuditHistoryController` ao handler
 - [ ] T119 [P] [US4] Integration test: `AuditTrailIT` â€” cria entrada, edita, desactiva, reactiva; valida que histÃ³rico contÃ©m 4 revisions com utilizadores e tipos de operaÃ§Ã£o correctos
-- [ ] T120 [US4] Documentar polÃ­tica de retenÃ§Ã£o indefinida em `quickstart.md` (secÃ§Ã£o troubleshooting/auditoria)
+- [x] T120 [US4] Documentar polÃ­tica de retenÃ§Ã£o indefinida em `quickstart.md` (secÃ§Ã£o troubleshooting/auditoria)
 
-- [ ] T120a Correr `mvn clean compile` â€” BUILD SUCCESS obrigatÃ³rio; corrigir qualquer erro antes de avanÃ§ar
-- [ ] T120b Correr `mvn test` â€” todos os testes devem passar; falha bloqueia avanÃ§o
-- [ ] T120c Commit da fase: `git commit -m "feat(parametrizacoes): implement audit history (US4)"`
+- [x] T120a Correr `mvn clean compile` â€” BUILD SUCCESS obrigatÃ³rio; corrigir qualquer erro antes de avanÃ§ar
+- [x] T120b Correr `mvn test` â€” todos os testes devem passar; falha bloqueia avanÃ§o
+- [x] T120c Commit da fase: `git commit -m “feat(parametrizacoes): implement audit history (US4)”`
 
 **Checkpoint**: Auditoria operacional para os 8 catÃ¡logos. HistÃ³rico consultÃ¡vel via API.
 
@@ -265,18 +265,18 @@ description: "Lista de tarefas para implementaÃ§Ã£o da feature ParametrizaÃ
 
 **Purpose**: Caching, seguranÃ§a placeholder, validaÃ§Ã£o final, documentaÃ§Ã£o.
 
-- [ ] T121 [P] Adicionar `@Cacheable("reference-options")` em `FindByCcodeQueryHandler` e `ListOptionsQueryHandler` (TTL local 60 s via Spring Cache `ConcurrentMapCacheManager` ou Caffeine)
-- [ ] T122 [P] Adicionar `@CacheEvict` nos handlers de `Create/Update/Desativar/Ativar` para invalidar cache quando hÃ¡ escrita
-- [ ] T122a [P] Criar `src/test/java/cv/igrp/RH_Service/parametrizacoes/infrastructure/cache/ReferenceLookupCacheIT.java` â€” valida SC-005: apÃ³s `Create/Update/Deactivate` em catÃ¡logo, leitura subsequente reflecte a alteraÃ§Ã£o em â‰¤ 60 s. CenÃ¡rios: (1) cache hit antes de escrita; (2) escrita invalida cache imediatamente via `@CacheEvict`; (3) sem `@CacheEvict` o cache reflecte a alteraÃ§Ã£o apÃ³s expiraÃ§Ã£o natural do TTL
-- [ ] T123 [P] Adicionar `@PreAuthorize("hasRole('PARAM_ADMIN')")` em todos os endpoints de escrita dos 8 controllers (placeholder atÃ© decisÃ£o final dos roles)
-- [ ] T124 [P] Adicionar `@PreAuthorize("isAuthenticated()")` em endpoints de leitura
-- [ ] T125 Configurar Spring Cache em `application.properties` (`spring.cache.type=caffeine`) e adicionar dependÃªncia `caffeine` em `pom.xml` se ausente
-- [ ] T126 Correr `mvn clean compile` final â€” confirmar `BUILD SUCCESS`
-- [ ] T127 Correr `mvn test` final â€” confirmar 100% pass com testes novos somados aos 84 existentes
+- [x] T121 [P] Adicionar `@Cacheable(“reference-options”)` em `FindByCcodeQueryHandler` e `ListOptionsQueryHandler` (TTL local 60 s via Spring Cache `ConcurrentMapCacheManager` ou Caffeine)
+- [x] T122 [P] Adicionar `@CacheEvict` nos handlers de `Create/Update/Desativar/Ativar` para invalidar cache quando hÃ¡ escrita
+- [x] T122a [P] Criar `src/test/java/cv/igrp/RH_Service/parametrizacoes/infrastructure/cache/ReferenceLookupCacheIT.java` â€” valida SC-005: apÃ³s `Create/Update/Deactivate` em catÃ¡logo, leitura subsequente reflecte a alteraÃ§Ã£o em â‰¤ 60 s. CenÃ¡rios: (1) cache hit antes de escrita; (2) escrita invalida cache imediatamente via `@CacheEvict`; (3) sem `@CacheEvict` o cache reflecte a alteraÃ§Ã£o apÃ³s expiraÃ§Ã£o natural do TTL
+- [ ] T123 [P] Adicionar `@PreAuthorize(“hasRole('PARAM_ADMIN')”)` em todos os endpoints de escrita dos 8 controllers (placeholder atÃ© decisÃ£o final dos roles) *(diferido â€” requer decisÃ£o de roles)*
+- [ ] T124 [P] Adicionar `@PreAuthorize(“isAuthenticated()”)` em endpoints de leitura *(diferido â€” requer decisÃ£o de roles)*
+- [x] T125 Configurar Spring Cache em `application.properties` (`spring.cache.type=caffeine`) e adicionar dependÃªncia `caffeine` em `pom.xml` se ausente
+- [x] T126 Correr `mvn clean compile` final â€” confirmar `BUILD SUCCESS`
+- [x] T127 Correr `mvn test` final â€” confirmar 100% pass com testes novos somados aos 84 existentes *(102/102 pass)*
 - [ ] T128 Executar todo o quickstart.md em ambiente local â€” start aplicaÃ§Ã£o, validar via Swagger UI todos os endpoints dos 8 catÃ¡logos, validar idempotÃªncia (re-arranque sem novas linhas), validar preservaÃ§Ã£o de alteraÃ§Ãµes administrativas
-- [ ] T129 [P] Actualizar `endpoints.md` na raiz do projecto com os ~30 endpoints novos do mÃ³dulo `parametrizacoes`
-- [ ] T130 [P] Actualizar `CLAUDE.md` em "Key Domain Models" com as 8 entidades novas
-- [ ] T131 Final Constitution Check â€” re-validar os 5 princÃ­pios + restriÃ§Ãµes tÃ©cnicas apÃ³s implementaÃ§Ã£o completa; documentar em `plan.md` na secÃ§Ã£o "Constitution Re-check (post-implementation)"
+- [x] T129 [P] Actualizar `endpoints.md` na raiz do projecto com os ~30 endpoints novos do mÃ³dulo `parametrizacoes`
+- [x] T130 [P] Actualizar `CLAUDE.md` em “Key Domain Models” com as 8 entidades novas
+- [x] T131 Final Constitution Check â€” re-validar os 5 princÃ­pios + restriÃ§Ãµes tÃ©cnicas apÃ³s implementaÃ§Ã£o completa; documentar em `plan.md` na secÃ§Ã£o “Constitution Re-check (post-implementation)”
 
 ---
 

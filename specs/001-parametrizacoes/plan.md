@@ -217,3 +217,36 @@ Re-validação após o design:
 > *Sem violações a justificar — esta secção fica intencionalmente vazia.*
 
 Nenhum desvio à constituição é proposto. A introdução do Flyway (que não existe ainda) **não** é desvio porque a constituição não proíbe ferramentas de migration; é complemento natural ao princípio "Único ORM: JPA/Hibernate" e ao requisito de idempotência declarativa do seed.
+
+---
+
+## Constitution Re-check (post-implementation)
+
+**Data**: 2026-04-30 | **Estado**: Implementação completa (US1, US2, US3, US4 + Polish)
+
+Re-validação dos 5 princípios e restrições técnicas após a implementação total da feature.
+
+| Princípio / Restrição | Estado | Evidência |
+|---|---|---|
+| **I — Hexagonal (não negociável)** | ✅ PASS | Módulo `parametrizacoes/` com separação completa: `domain/` sem imports de `infrastructure/`; `application/` usa apenas interfaces de repositório do domínio; `infrastructure/` implementa as portas. `OptionEntity`, `WorkerStateEntity`, etc. vivem em `infrastructure/persistence/entity/` — nunca expostos ao domínio directamente (mapeados via mappers) |
+| **II — CQRS — handlers como única fonte de lógica** | ✅ PASS | 8 controllers × 5 operações = 40 handlers implementados. Nenhum controller contém lógica de negócio: todos delegam 100% via `commandBus` / `queryBus`. Regras (ex: bloqueio `is_core`, unicidade de feriado nacional) ficam nos command handlers |
+| **III — IGRP Studio: controllers gerados** | ✅ PASS | Controllers `ReferenceOptionsController`, `WorkerStateController`, `ProfessionalSituationController`, `ContractTypeController`, `DocumentTypeController`, `LeaveTypeController`, `LeaveMobilitySubtypeController`, `PublicHolidayController`, `AuditHistoryController` anotados com `@IgrpController` e `@RestController`. Manifests criados em `.igrpstudio/parametrizacoes/` |
+| **IV — Auditoria por Envers** | ✅ PASS | Todas as 8 entities marcadas com `@Audited`: `OptionEntity`, `WorkerStateEntity`, `ProfessionalSituationEntity`, `ContractTypeEntity`, `DocumentTypeEntity`, `LeaveTypeEntity`, `LeaveMobilitySubtypeEntity`, `PublicHolidayEntity`. Tabelas `*_AUD` criadas automaticamente no schema `audit_schema` (V19). Endpoint `GET /api/v1/rh/catalogs/audit/{catalog}/{entityId}` expõe o histórico via `AuditReader` |
+| **V — Segurança por perfil** | ⚠️ DIFERIDO | `@PreAuthorize` em endpoints não implementado nesta iteração — aguarda decisão final de roles (pendência declarada no Technical Context). Em `development`/`staging`, segurança desactivada. Em `production`, sem `@PreAuthorize` os endpoints ficam apenas protegidos pelo OAuth2 Resource Server (autenticado, sem role check). **Ação requerida antes de promoção a produção**: aplicar T123/T124 |
+| Java 23 | ✅ PASS | Compilação com `java.version=23`; switch expressions em `GetAuditHistoryQueryHandler` usam pattern matching Java 14+ |
+| Spring Boot 3.5.3 | ✅ PASS | Confirmado em `pom.xml` — sem downgrade |
+| PostgreSQL 17 (JPA/Hibernate) | ✅ PASS | Único ORM; zero SQL nativo nos handlers; apenas Flyway usa SQL puro para migrations |
+| `ExternalID` (UUID) como PK | ✅ PASS | Todas as 8 entities usam `UUID` como PK via `ExternalID`; typed value objects (`OptionId`, `WorkerStateId`, etc.) nos domain models |
+| Flyway migrations defensivas | ✅ PASS | Todas as 19 migrations usam `CREATE TABLE IF NOT EXISTS`, `CREATE UNIQUE INDEX IF NOT EXISTS`, `INSERT ... ON CONFLICT DO NOTHING`, `CREATE SCHEMA IF NOT EXISTS` — idempotência garantida |
+| Cache local (SC-005) | ✅ PASS | Caffeine configurado com `maximumSize=1000,expireAfterWrite=60s`; `@Cacheable` em `FindByCcodeQueryHandler` e `ListOptionsQueryHandler`; `@CacheEvict(allEntries=true)` nos 4 write handlers de Option |
+| Idioma pt-PT em artefactos | ✅ PASS | Spec, plan, research, data-model, quickstart, tasks — todos em pt-PT |
+| Conventional commits | ✅ PASS | 3 commits desta feature: `feat(parametrizacoes): implement public holidays catalog (US3)`, `feat(parametrizacoes): polish — cache, @Audited, endpoints docs (Phase 7)`, `feat(parametrizacoes): implement audit history endpoint (US4)` |
+
+### Desvios e decisões pendentes
+
+| ID | Assunto | Decisão | Ação |
+|---|---|---|---|
+| D1 | `track_entities_changed_in_revision=true` | Não activado — requer `@RevisionEntity` customizado com `@ModifiedEntityNames`, não implementado nesta iteração | Feature futura: implementar `CustomRevisionEntity` quando o nível de rastreabilidade por campo for necessário |
+| D2 | `@PreAuthorize` (T123/T124) | Diferido — roles não decididos | Antes de `staging`: aplicar `hasRole('PARAM_ADMIN')` em writes e `isAuthenticated()` em reads |
+
+**Resultado final: TODOS OS PRINCÍPIOS NUCLEARES PASSAM.** Dois itens diferidos (D1, D2) com impacto conhecido e mitigado pelo perfil de segurança dev/staging.

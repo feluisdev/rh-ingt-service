@@ -158,6 +158,69 @@ Antes de abrir cada PR de implementação:
 
 ---
 
+## Auditoria — Consulta de Histórico (US4)
+
+### Como funciona
+
+Cada alteração em qualquer catálogo é registada automaticamente pelo Hibernate Envers nas tabelas `*_AUD` dentro do schema `audit_schema` (criado pela migration V19). A criação das tabelas de auditoria é feita pelo Hibernate no arranque (via `ddl-auto=update`), depois das migrations Flyway.
+
+### Endpoint de consulta
+
+```
+GET /api/v1/rh/catalogs/audit/{catalog}/{entityId}
+```
+
+| Parâmetro | Valores aceites |
+|---|---|
+| `catalog` | `reference-options`, `worker-states`, `professional-situations`, `contract-types`, `document-types`, `leave-types`, `leave-mobility-subtypes`, `public-holidays` |
+| `entityId` | UUID da entrada no catálogo |
+
+**Exemplo:**
+```bash
+curl http://localhost:8091/api/v1/rh/catalogs/audit/worker-states/{id}
+```
+
+**Resposta esperada:**
+```json
+{
+  "content": [
+    { "revisionNumber": 1, "revisionDate": "2026-04-30T10:00:00Z", "modificationType": "INSERT" },
+    { "revisionNumber": 2, "revisionDate": "2026-04-30T10:05:00Z", "modificationType": "UPDATE" }
+  ],
+  "totalElements": 2
+}
+```
+
+### Política de retenção
+
+As tabelas `*_AUD` no schema `audit_schema` têm **retenção indefinida** — nenhum job de limpeza está configurado. Não há limite de revisões por entrada. Os registos de auditoria nunca são apagados automaticamente e devem ser preservados para fins de conformidade.
+
+### Verificar tabelas de auditoria directamente
+
+```sql
+-- Listar todos os schemas de auditoria
+SELECT schemaname, tablename FROM pg_tables WHERE schemaname = 'audit_schema';
+
+-- Ver histórico de um worker state específico
+SELECT * FROM audit_schema.t_worker_state_aud WHERE id = '<uuid>';
+
+-- Contar revisões totais por tabela
+SELECT 'option_entity', COUNT(*) FROM audit_schema.t_option_entity_aud
+UNION ALL SELECT 'worker_state', COUNT(*) FROM audit_schema.t_worker_state_aud;
+```
+
+### Troubleshooting de auditoria
+
+| Sintoma | Causa provável | Resolução |
+|---|---|---|
+| `audit_schema` não existe no arranque | Migration V19 não correu | Verificar que `V19__create_audit_schema.sql` está em `db/migration/`; verificar log do Flyway |
+| Tabelas `*_AUD` não criadas | `ddl-auto` não é `update` ou `create` | Em dev, `ddl-auto=update` cria as `*_AUD` automaticamente; em produção usar `validate` + script DDL manual |
+| `GET /audit/{catalog}/{id}` devolve 400 | Valor de `catalog` inválido | Usar apenas os 8 valores aceites listados acima |
+| `GET /audit/{catalog}/{id}` devolve lista vazia | Entidade existe mas nunca foi alterada via JPA | Confirmar que a entity tem `@Audited`; confirmar que a escrita usou o repositório JPA (não SQL nativo) |
+| `created_by` e `updated_by` são `null` no histórico | `ApplicationAuditorAware` não tem utilizador no contexto | Em dev, segurança desactivada — o auditor pode ser `anonymous`; verificar `SecurityContextHelper` |
+
+---
+
 ## Referências internas
 
 - **Spec funcional**: [spec.md](./spec.md)
