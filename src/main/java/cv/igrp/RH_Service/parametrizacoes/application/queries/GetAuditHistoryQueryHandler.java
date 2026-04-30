@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -47,6 +48,7 @@ public class GetAuditHistoryQueryHandler implements QueryHandler<GetAuditHistory
     @PersistenceContext
     private EntityManager entityManager;
 
+    @Transactional(readOnly = true)
     @IgrpQueryHandler
     @SuppressWarnings("unchecked")
     public ResponseEntity<WrapperListaAuditHistoryDTO> handle(GetAuditHistoryQuery query) {
