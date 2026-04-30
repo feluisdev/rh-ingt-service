@@ -3,7 +3,7 @@ package cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers;
 import cv.igrp.RH_Service.parametrizacoes.application.dto.LeaveTypeResponseDTO;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.LeaveType;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.LeaveTypeEntity;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.LeaveTypeId;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -26,7 +26,7 @@ public class LeaveTypeMapper {
     public LeaveType toDomain(LeaveTypeEntity entity) {
         if (entity == null) return null;
         return LeaveType.reconstruir(
-            ExternalID.from(entity.getId()),
+            LeaveTypeId.from(entity.getId()),
             entity.getCode(),
             entity.getDescription(),
             entity.getDeductsBalance() != null && entity.getDeductsBalance(),

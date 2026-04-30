@@ -5,7 +5,7 @@ import cv.igrp.RH_Service.parametrizacoes.domain.models.LeaveType;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.LeaveTypeRepository;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.LeaveTypeMapper;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.LeaveTypeId;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class UpdateLeaveTypeCommandHandler implements CommandHandler<UpdateLeave
     @IgrpCommandHandler
     public ResponseEntity<LeaveTypeResponseDTO> handle(UpdateLeaveTypeCommand command) {
         var dto = command.getLeaveTypeRequest();
-        var id = ExternalID.from(java.util.UUID.fromString(command.getLeaveTypeId()));
+        var id = LeaveTypeId.from(java.util.UUID.fromString(command.getLeaveTypeId()));
 
         LeaveType leaveType = leaveTypeRepository.findById(id)
             .orElseThrow(() -> IgrpResponseStatusException.notFound(

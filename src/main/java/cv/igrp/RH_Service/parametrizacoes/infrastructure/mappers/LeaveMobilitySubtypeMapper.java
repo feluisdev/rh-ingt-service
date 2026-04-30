@@ -3,7 +3,7 @@ package cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers;
 import cv.igrp.RH_Service.parametrizacoes.application.dto.LeaveMobilitySubtypeResponseDTO;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.LeaveMobilitySubtype;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.LeaveMobilitySubtypeEntity;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.LeaveMobilitySubtypeId;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -26,7 +26,7 @@ public class LeaveMobilitySubtypeMapper {
     public LeaveMobilitySubtype toDomain(LeaveMobilitySubtypeEntity entity) {
         if (entity == null) return null;
         return LeaveMobilitySubtype.reconstruir(
-            ExternalID.from(entity.getId()),
+            LeaveMobilitySubtypeId.from(entity.getId()),
             entity.getCode(),
             entity.getDescription(),
             entity.getRecordType(),

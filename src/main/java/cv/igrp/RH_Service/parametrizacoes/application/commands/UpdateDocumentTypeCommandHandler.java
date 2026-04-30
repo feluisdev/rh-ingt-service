@@ -5,7 +5,7 @@ import cv.igrp.RH_Service.parametrizacoes.domain.models.DocumentType;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.DocumentTypeRepository;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.DocumentTypeMapper;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.DocumentTypeId;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class UpdateDocumentTypeCommandHandler implements CommandHandler<UpdateDo
     @IgrpCommandHandler
     public ResponseEntity<DocumentTypeResponseDTO> handle(UpdateDocumentTypeCommand command) {
         var dto = command.getDocumentTypeRequest();
-        var id = ExternalID.from(java.util.UUID.fromString(command.getDocumentTypeId()));
+        var id = DocumentTypeId.from(java.util.UUID.fromString(command.getDocumentTypeId()));
 
         DocumentType documentType = documentTypeRepository.findById(id)
             .orElseThrow(() -> IgrpResponseStatusException.notFound(

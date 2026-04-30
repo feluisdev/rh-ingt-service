@@ -3,7 +3,7 @@ package cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers;
 import cv.igrp.RH_Service.parametrizacoes.application.dto.WorkerStateResponseDTO;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.WorkerState;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.WorkerStateEntity;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.WorkerStateId;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -23,7 +23,7 @@ public class WorkerStateMapper {
     public WorkerState toDomain(WorkerStateEntity entity) {
         if (entity == null) return null;
         return WorkerState.reconstruir(
-            ExternalID.from(entity.getId()),
+            WorkerStateId.from(entity.getId()),
             entity.getCode(),
             entity.getDescription(),
             entity.getIsCore() != null && entity.getIsCore(),

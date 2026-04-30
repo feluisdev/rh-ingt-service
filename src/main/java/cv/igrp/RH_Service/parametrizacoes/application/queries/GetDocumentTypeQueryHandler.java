@@ -4,7 +4,7 @@ import cv.igrp.RH_Service.parametrizacoes.application.dto.DocumentTypeResponseDT
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.DocumentTypeRepository;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.DocumentTypeMapper;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.DocumentTypeId;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class GetDocumentTypeQueryHandler implements QueryHandler<GetDocumentType
 
     @IgrpQueryHandler
     public ResponseEntity<DocumentTypeResponseDTO> handle(GetDocumentTypeQuery query) {
-        var id = ExternalID.from(java.util.UUID.fromString(query.getDocumentTypeId()));
+        var id = DocumentTypeId.from(java.util.UUID.fromString(query.getDocumentTypeId()));
 
         var documentType = documentTypeRepository.findById(id)
             .orElseThrow(() -> IgrpResponseStatusException.notFound(

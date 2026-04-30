@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.parametrizacoes.domain.models;
 
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.LeaveTypeId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import lombok.Getter;
 
 import java.util.Objects;
@@ -10,7 +10,7 @@ import java.util.UUID;
 @Getter
 public class LeaveType {
 
-    private ExternalID id;
+    private LeaveTypeId id;
     private String code;
     private String description;
     private boolean deductsBalance;
@@ -21,7 +21,7 @@ public class LeaveType {
 
     private LeaveType() {}
 
-    private LeaveType(ExternalID id, String code, String description, boolean deductsBalance,
+    private LeaveType(LeaveTypeId id, String code, String description, boolean deductsBalance,
                       boolean requiresApproval, Integer maxDaysPerYear, UUID categoryOptionId, boolean active) {
         this.id = id;
         this.code = code;
@@ -39,11 +39,11 @@ public class LeaveType {
         if (maxDaysPerYear != null && maxDaysPerYear < 0) {
             throw IgrpResponseStatusException.badRequest("maxDaysPerYear não pode ser negativo.");
         }
-        return new LeaveType(ExternalID.gerarNovo(), code, description, deductsBalance,
+        return new LeaveType(LeaveTypeId.gerarNovo(), code, description, deductsBalance,
                 requiresApproval, maxDaysPerYear, categoryOptionId, true);
     }
 
-    public static LeaveType reconstruir(ExternalID id, String code, String description, boolean deductsBalance,
+    public static LeaveType reconstruir(LeaveTypeId id, String code, String description, boolean deductsBalance,
                                         boolean requiresApproval, Integer maxDaysPerYear,
                                         UUID categoryOptionId, boolean active) {
         return new LeaveType(id, code, description, deductsBalance, requiresApproval,
@@ -60,16 +60,12 @@ public class LeaveType {
     }
 
     public void desativar() {
-        if (!this.active) {
-            throw IgrpResponseStatusException.conflict("Tipo de licença já está inactivo.");
-        }
+        if (!this.active) throw IgrpResponseStatusException.conflict("Tipo de licença já está inactivo.");
         this.active = false;
     }
 
     public void reativar() {
-        if (this.active) {
-            throw IgrpResponseStatusException.conflict("Tipo de licença já está activo.");
-        }
+        if (this.active) throw IgrpResponseStatusException.conflict("Tipo de licença já está activo.");
         this.active = true;
     }
 }

@@ -4,7 +4,7 @@ import cv.igrp.RH_Service.parametrizacoes.application.dto.ContractTypeResponseDT
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.ContractTypeRepository;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.ContractTypeMapper;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.ContractTypeId;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class GetContractTypeQueryHandler implements QueryHandler<GetContractType
 
     @IgrpQueryHandler
     public ResponseEntity<ContractTypeResponseDTO> handle(GetContractTypeQuery query) {
-        var id = ExternalID.from(UUID.fromString(query.getContractTypeId()));
+        var id = ContractTypeId.from(UUID.fromString(query.getContractTypeId()));
 
         return contractTypeRepository.findById(id)
             .map(contractTypeMapper::toDTO)

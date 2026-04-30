@@ -6,7 +6,7 @@ import cv.igrp.RH_Service.parametrizacoes.domain.repository.ContractTypeReposito
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.ContractTypeMapper;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.ContractTypeEntity;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.ContractTypeEntityRepository;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.ContractTypeId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -33,7 +33,7 @@ public class ContractTypeRepositoryImpl implements ContractTypeRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<ContractType> findById(ExternalID id) {
+    public Optional<ContractType> findById(ContractTypeId id) {
         return contractTypeEntityRepository.findById(id.getValor())
             .map(contractTypeMapper::toDomain);
     }

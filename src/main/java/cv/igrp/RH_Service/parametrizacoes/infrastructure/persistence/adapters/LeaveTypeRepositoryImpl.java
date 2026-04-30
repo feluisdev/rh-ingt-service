@@ -6,7 +6,7 @@ import cv.igrp.RH_Service.parametrizacoes.domain.repository.LeaveTypeRepository;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.LeaveTypeMapper;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.LeaveTypeEntity;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.LeaveTypeEntityRepository;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.LeaveTypeId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -33,7 +33,7 @@ public class LeaveTypeRepositoryImpl implements LeaveTypeRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<LeaveType> findById(ExternalID id) {
+    public Optional<LeaveType> findById(LeaveTypeId id) {
         return leaveTypeEntityRepository.findById(id.getValor())
             .map(leaveTypeMapper::toDomain);
     }

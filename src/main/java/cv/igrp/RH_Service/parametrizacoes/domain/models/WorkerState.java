@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.parametrizacoes.domain.models;
 
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.WorkerStateId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import lombok.Getter;
 
 import java.util.Objects;
@@ -9,7 +9,7 @@ import java.util.Objects;
 @Getter
 public class WorkerState {
 
-    private ExternalID id;
+    private WorkerStateId id;
     private String code;
     private String description;
     private boolean core;
@@ -17,7 +17,7 @@ public class WorkerState {
 
     private WorkerState() {}
 
-    private WorkerState(ExternalID id, String code, String description, boolean core, boolean active) {
+    private WorkerState(WorkerStateId id, String code, String description, boolean core, boolean active) {
         this.id = id;
         this.code = code;
         this.description = description;
@@ -28,10 +28,10 @@ public class WorkerState {
     public static WorkerState criar(String code, String description, Boolean isCore) {
         Objects.requireNonNull(code, "code não pode ser nulo");
         boolean effectiveCore = isCore != null && isCore;
-        return new WorkerState(ExternalID.gerarNovo(), code, description, effectiveCore, true);
+        return new WorkerState(WorkerStateId.gerarNovo(), code, description, effectiveCore, true);
     }
 
-    public static WorkerState reconstruir(ExternalID id, String code, String description, boolean core, boolean active) {
+    public static WorkerState reconstruir(WorkerStateId id, String code, String description, boolean core, boolean active) {
         return new WorkerState(id, code, description, core, active);
     }
 

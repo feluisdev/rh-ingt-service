@@ -3,7 +3,7 @@ package cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers;
 import cv.igrp.RH_Service.parametrizacoes.application.dto.ProfessionalSituationResponseDTO;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.ProfessionalSituation;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.ProfessionalSituationEntity;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.ProfessionalSituationId;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -22,7 +22,7 @@ public class ProfessionalSituationMapper {
     public ProfessionalSituation toDomain(ProfessionalSituationEntity entity) {
         if (entity == null) return null;
         return ProfessionalSituation.reconstruir(
-            ExternalID.from(entity.getId()),
+            ProfessionalSituationId.from(entity.getId()),
             entity.getCode(),
             entity.getDescription(),
             entity.getIsActive() != null && entity.getIsActive()

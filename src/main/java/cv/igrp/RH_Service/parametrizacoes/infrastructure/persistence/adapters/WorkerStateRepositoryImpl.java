@@ -6,7 +6,7 @@ import cv.igrp.RH_Service.parametrizacoes.domain.repository.WorkerStateRepositor
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.WorkerStateMapper;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.WorkerStateEntity;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.WorkerStateEntityRepository;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.WorkerStateId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -33,7 +33,7 @@ public class WorkerStateRepositoryImpl implements WorkerStateRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<WorkerState> findById(ExternalID id) {
+    public Optional<WorkerState> findById(WorkerStateId id) {
         return workerStateEntityRepository.findById(id.getValor())
             .map(workerStateMapper::toDomain);
     }

@@ -3,7 +3,7 @@ package cv.igrp.RH_Service.parametrizacoes.application.commands;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.DocumentType;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.DocumentTypeRepository;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.DocumentTypeId;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class DesativarDocumentTypeCommandHandler implements CommandHandler<Desat
 
     @IgrpCommandHandler
     public ResponseEntity<Map<String, ?>> handle(DesativarDocumentTypeCommand command) {
-        var id = ExternalID.from(java.util.UUID.fromString(command.getDocumentTypeId()));
+        var id = DocumentTypeId.from(java.util.UUID.fromString(command.getDocumentTypeId()));
 
         DocumentType documentType = documentTypeRepository.findById(id)
             .orElseThrow(() -> IgrpResponseStatusException.notFound(

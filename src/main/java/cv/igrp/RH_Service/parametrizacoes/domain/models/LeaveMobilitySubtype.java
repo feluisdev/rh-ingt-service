@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.parametrizacoes.domain.models;
 
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.LeaveMobilitySubtypeId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import lombok.Getter;
 
 import java.util.Objects;
@@ -12,7 +12,7 @@ public class LeaveMobilitySubtype {
 
     private static final Set<String> VALID_RECORD_TYPES = Set.of("LICENCA", "MOBILIDADE", "AMBOS");
 
-    private ExternalID id;
+    private LeaveMobilitySubtypeId id;
     private String code;
     private String description;
     private String recordType;
@@ -23,7 +23,7 @@ public class LeaveMobilitySubtype {
 
     private LeaveMobilitySubtype() {}
 
-    private LeaveMobilitySubtype(ExternalID id, String code, String description, String recordType,
+    private LeaveMobilitySubtype(LeaveMobilitySubtypeId id, String code, String description, String recordType,
                                   boolean affectsPay, boolean countsForSeniority,
                                   boolean canSelfSubmit, boolean active) {
         this.id = id;
@@ -44,11 +44,11 @@ public class LeaveMobilitySubtype {
             throw IgrpResponseStatusException.badRequest(
                 "recordType inválido: '" + recordType + "'. Valores aceites: " + VALID_RECORD_TYPES);
         }
-        return new LeaveMobilitySubtype(ExternalID.gerarNovo(), code, description, recordType,
+        return new LeaveMobilitySubtype(LeaveMobilitySubtypeId.gerarNovo(), code, description, recordType,
                 affectsPay, countsForSeniority, canSelfSubmit, true);
     }
 
-    public static LeaveMobilitySubtype reconstruir(ExternalID id, String code, String description,
+    public static LeaveMobilitySubtype reconstruir(LeaveMobilitySubtypeId id, String code, String description,
                                                     String recordType, boolean affectsPay,
                                                     boolean countsForSeniority, boolean canSelfSubmit,
                                                     boolean active) {
@@ -65,16 +65,12 @@ public class LeaveMobilitySubtype {
     }
 
     public void desativar() {
-        if (!this.active) {
-            throw IgrpResponseStatusException.conflict("Subtipo de licença/mobilidade já está inactivo.");
-        }
+        if (!this.active) throw IgrpResponseStatusException.conflict("Subtipo de licença/mobilidade já está inactivo.");
         this.active = false;
     }
 
     public void reativar() {
-        if (this.active) {
-            throw IgrpResponseStatusException.conflict("Subtipo de licença/mobilidade já está activo.");
-        }
+        if (this.active) throw IgrpResponseStatusException.conflict("Subtipo de licença/mobilidade já está activo.");
         this.active = true;
     }
 }

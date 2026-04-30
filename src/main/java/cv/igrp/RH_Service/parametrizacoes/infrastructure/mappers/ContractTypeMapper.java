@@ -3,7 +3,7 @@ package cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers;
 import cv.igrp.RH_Service.parametrizacoes.application.dto.ContractTypeResponseDTO;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.ContractType;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.ContractTypeEntity;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.ContractTypeId;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -22,7 +22,7 @@ public class ContractTypeMapper {
     public ContractType toDomain(ContractTypeEntity entity) {
         if (entity == null) return null;
         return ContractType.reconstruir(
-            ExternalID.from(entity.getId()),
+            ContractTypeId.from(entity.getId()),
             entity.getCode(),
             entity.getDescription(),
             entity.getIsActive() != null && entity.getIsActive()

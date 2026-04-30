@@ -4,7 +4,7 @@ import cv.igrp.RH_Service.parametrizacoes.application.dto.ProfessionalSituationR
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.ProfessionalSituationRepository;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.ProfessionalSituationMapper;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.ProfessionalSituationId;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class GetProfessionalSituationQueryHandler implements QueryHandler<GetPro
 
     @IgrpQueryHandler
     public ResponseEntity<ProfessionalSituationResponseDTO> handle(GetProfessionalSituationQuery query) {
-        var id = ExternalID.from(UUID.fromString(query.getProfessionalSituationId()));
+        var id = ProfessionalSituationId.from(UUID.fromString(query.getProfessionalSituationId()));
 
         return professionalSituationRepository.findById(id)
             .map(professionalSituationMapper::toDTO)

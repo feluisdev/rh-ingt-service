@@ -4,7 +4,7 @@ import cv.igrp.RH_Service.parametrizacoes.application.dto.LeaveMobilitySubtypeRe
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.LeaveMobilitySubtypeRepository;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.LeaveMobilitySubtypeMapper;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.LeaveMobilitySubtypeId;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class GetLeaveMobilitySubtypeQueryHandler implements QueryHandler<GetLeav
 
     @IgrpQueryHandler
     public ResponseEntity<LeaveMobilitySubtypeResponseDTO> handle(GetLeaveMobilitySubtypeQuery query) {
-        var id = ExternalID.from(java.util.UUID.fromString(query.getLeaveMobilitySubtypeId()));
+        var id = LeaveMobilitySubtypeId.from(java.util.UUID.fromString(query.getLeaveMobilitySubtypeId()));
 
         var leaveMobilitySubtype = leaveMobilitySubtypeRepository.findById(id)
             .orElseThrow(() -> IgrpResponseStatusException.notFound(

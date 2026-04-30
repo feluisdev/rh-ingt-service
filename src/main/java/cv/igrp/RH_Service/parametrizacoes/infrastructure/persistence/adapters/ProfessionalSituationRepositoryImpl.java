@@ -6,7 +6,7 @@ import cv.igrp.RH_Service.parametrizacoes.domain.repository.ProfessionalSituatio
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.ProfessionalSituationMapper;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.ProfessionalSituationEntity;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.ProfessionalSituationEntityRepository;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.ProfessionalSituationId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -33,7 +33,7 @@ public class ProfessionalSituationRepositoryImpl implements ProfessionalSituatio
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<ProfessionalSituation> findById(ExternalID id) {
+    public Optional<ProfessionalSituation> findById(ProfessionalSituationId id) {
         return professionalSituationEntityRepository.findById(id.getValor())
             .map(professionalSituationMapper::toDomain);
     }

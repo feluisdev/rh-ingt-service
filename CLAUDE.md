@@ -52,6 +52,39 @@ Each module follows hexagonal layers:
 - `domain/` — Pure domain models and business logic
 - `infrastructure/` — JPA repositories and adapters
 
+### Domain Identity Pattern (XId value objects)
+
+Every domain aggregate root has its own typed identity value object that wraps `ExternalID`. **Never use `ExternalID` directly in domain models, repository ports, adapters, or handlers.**
+
+```java
+// domain/valueobject/WorkerStateId.java
+public final class WorkerStateId {
+    private final ExternalID valor;
+    public static WorkerStateId gerarNovo()           { return new WorkerStateId(ExternalID.gerarNovo()); }
+    public static WorkerStateId from(UUID uuid)        { ... }
+    public static WorkerStateId from(String uuidStr)   { ... }
+    public UUID getValor()        { return valor.getValor(); }
+    public String getStringValor(){ return valor.getStringValor(); }
+}
+
+// domain model uses XId, not ExternalID
+public class WorkerState {
+    private WorkerStateId id;
+    public static WorkerState reconstruir(WorkerStateId id, ...) { ... }
+}
+
+// mapper bridges entity UUID ↔ XId
+return WorkerState.reconstruir(WorkerStateId.from(entity.getId()), ...);
+
+// repository port uses XId
+Optional<WorkerState> findById(WorkerStateId id);
+
+// handler uses XId.from(String) — not ExternalID.from(...)
+var id = WorkerStateId.from(command.getWorkerStateId());
+```
+
+XId files live in `<module>/domain/valueobject/`. See `sigdi/domain/admin/valueobject/InstitutionId.java` for the canonical reference. All `parametrizacoes` catalogs follow this pattern.
+
 ### CQRS & IGRP Framework
 
 The project uses a custom IGRP framework (`cv.igrp.framework:core`) for command/query dispatching. Controllers are annotated with `@IgrpController`; handlers with `@IgrpCommandHandler`. Business logic lives in handlers — not controllers.
@@ -97,7 +130,15 @@ ENABLE_SWAGGER=true
 | `Dependente` | funcionarios | Employee family dependent |
 | `Qualificacao` | funcionarios | Professional qualification |
 
-Shared value objects: `ExternalID` (UUID wrapper), `Estado` enum (ATIVO/INATIVO).
+| `Option` | parametrizacoes | Generic label catalog (ccode/ckey/cvalue/locale) |
+| `WorkerState` | parametrizacoes | Worker status catalog (`is_core` flag protects ACTIVE/INACTIVE) |
+| `ProfessionalSituation` | parametrizacoes | Employment situation catalog |
+| `ContractType` | parametrizacoes | Contract type catalog (per Decreto-Lei 4/2024) |
+| `DocumentType` | parametrizacoes | Document type catalog with `allowed_extensions` |
+| `LeaveType` | parametrizacoes | Leave type catalog with `deducts_balance`/`requires_approval` flags |
+| `LeaveMobilitySubtype` | parametrizacoes | Mobility subtype catalog with `record_type` ∈ {LICENCA, MOBILIDADE, AMBOS} |
+
+Shared value objects: `ExternalID` (UUID wrapper), `Estado` enum (ATIVO/INATIVO). Each domain aggregate has its own typed `XId` that wraps `ExternalID` — see Domain Identity Pattern above.
 
 ## Language
 

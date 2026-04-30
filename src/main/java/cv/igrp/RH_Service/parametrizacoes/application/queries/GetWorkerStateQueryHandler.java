@@ -4,7 +4,7 @@ import cv.igrp.RH_Service.parametrizacoes.application.dto.WorkerStateResponseDTO
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.WorkerStateRepository;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.WorkerStateMapper;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.WorkerStateId;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class GetWorkerStateQueryHandler implements QueryHandler<GetWorkerStateQu
 
     @IgrpQueryHandler
     public ResponseEntity<WorkerStateResponseDTO> handle(GetWorkerStateQuery query) {
-        var id = ExternalID.from(UUID.fromString(query.getWorkerStateId()));
+        var id = WorkerStateId.from(UUID.fromString(query.getWorkerStateId()));
 
         return workerStateRepository.findById(id)
             .map(workerStateMapper::toDTO)

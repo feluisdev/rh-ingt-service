@@ -3,7 +3,7 @@ package cv.igrp.RH_Service.parametrizacoes.application.commands;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.ContractType;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.ContractTypeRepository;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.ContractTypeId;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class AtivarContractTypeCommandHandler implements CommandHandler<AtivarCo
 
     @IgrpCommandHandler
     public ResponseEntity<Map<String, ?>> handle(AtivarContractTypeCommand command) {
-        var id = ExternalID.from(UUID.fromString(command.getContractTypeId()));
+        var id = ContractTypeId.from(UUID.fromString(command.getContractTypeId()));
 
         ContractType contractType = contractTypeRepository.findById(id)
             .orElseThrow(() -> IgrpResponseStatusException.notFound(

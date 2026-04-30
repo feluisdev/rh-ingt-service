@@ -5,7 +5,7 @@ import cv.igrp.RH_Service.parametrizacoes.domain.models.ProfessionalSituation;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.ProfessionalSituationRepository;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.ProfessionalSituationMapper;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.ProfessionalSituationId;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class UpdateProfessionalSituationCommandHandler implements CommandHandler
 
     @IgrpCommandHandler
     public ResponseEntity<ProfessionalSituationResponseDTO> handle(UpdateProfessionalSituationCommand command) {
-        var id = ExternalID.from(UUID.fromString(command.getProfessionalSituationId()));
+        var id = ProfessionalSituationId.from(UUID.fromString(command.getProfessionalSituationId()));
 
         ProfessionalSituation professionalSituation = professionalSituationRepository.findById(id)
             .orElseThrow(() -> IgrpResponseStatusException.notFound(

@@ -5,7 +5,7 @@ import cv.igrp.RH_Service.parametrizacoes.domain.repository.WorkerStateRepositor
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.WorkerStateMapper;
 import cv.igrp.RH_Service.parametrizacoes.application.dto.WorkerStateResponseDTO;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.WorkerStateId;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class UpdateWorkerStateCommandHandler implements CommandHandler<UpdateWor
 
     @IgrpCommandHandler
     public ResponseEntity<WorkerStateResponseDTO> handle(UpdateWorkerStateCommand command) {
-        var id = ExternalID.from(UUID.fromString(command.getWorkerStateId()));
+        var id = WorkerStateId.from(UUID.fromString(command.getWorkerStateId()));
 
         WorkerState workerState = workerStateRepository.findById(id)
             .orElseThrow(() -> IgrpResponseStatusException.notFound(

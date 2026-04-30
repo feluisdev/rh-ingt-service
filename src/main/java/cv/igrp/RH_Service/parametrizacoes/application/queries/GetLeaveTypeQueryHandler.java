@@ -4,7 +4,7 @@ import cv.igrp.RH_Service.parametrizacoes.application.dto.LeaveTypeResponseDTO;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.LeaveTypeRepository;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.LeaveTypeMapper;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.LeaveTypeId;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class GetLeaveTypeQueryHandler implements QueryHandler<GetLeaveTypeQuery,
 
     @IgrpQueryHandler
     public ResponseEntity<LeaveTypeResponseDTO> handle(GetLeaveTypeQuery query) {
-        var id = ExternalID.from(java.util.UUID.fromString(query.getLeaveTypeId()));
+        var id = LeaveTypeId.from(java.util.UUID.fromString(query.getLeaveTypeId()));
 
         var leaveType = leaveTypeRepository.findById(id)
             .orElseThrow(() -> IgrpResponseStatusException.notFound(

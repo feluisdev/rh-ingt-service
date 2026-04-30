@@ -3,7 +3,7 @@ package cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers;
 import cv.igrp.RH_Service.parametrizacoes.application.dto.DocumentTypeResponseDTO;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.DocumentType;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.DocumentTypeEntity;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.DocumentTypeId;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -24,7 +24,7 @@ public class DocumentTypeMapper {
     public DocumentType toDomain(DocumentTypeEntity entity) {
         if (entity == null) return null;
         return DocumentType.reconstruir(
-            ExternalID.from(entity.getId()),
+            DocumentTypeId.from(entity.getId()),
             entity.getCodigo(),
             entity.getDescricao(),
             entity.getAllowedExtensions(),

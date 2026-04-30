@@ -3,7 +3,7 @@ package cv.igrp.RH_Service.parametrizacoes.application.commands;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.LeaveMobilitySubtype;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.LeaveMobilitySubtypeRepository;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.LeaveMobilitySubtypeId;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class DesativarLeaveMobilitySubtypeCommandHandler implements CommandHandl
 
     @IgrpCommandHandler
     public ResponseEntity<Map<String, ?>> handle(DesativarLeaveMobilitySubtypeCommand command) {
-        var id = ExternalID.from(java.util.UUID.fromString(command.getLeaveMobilitySubtypeId()));
+        var id = LeaveMobilitySubtypeId.from(java.util.UUID.fromString(command.getLeaveMobilitySubtypeId()));
 
         LeaveMobilitySubtype leaveMobilitySubtype = leaveMobilitySubtypeRepository.findById(id)
             .orElseThrow(() -> IgrpResponseStatusException.notFound(

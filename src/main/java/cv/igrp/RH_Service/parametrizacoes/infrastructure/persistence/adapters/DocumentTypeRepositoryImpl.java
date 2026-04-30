@@ -6,7 +6,7 @@ import cv.igrp.RH_Service.parametrizacoes.domain.repository.DocumentTypeReposito
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.DocumentTypeMapper;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.DocumentTypeEntity;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.DocumentTypeEntityRepository;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.DocumentTypeId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -33,7 +33,7 @@ public class DocumentTypeRepositoryImpl implements DocumentTypeRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<DocumentType> findById(ExternalID id) {
+    public Optional<DocumentType> findById(DocumentTypeId id) {
         return documentTypeEntityRepository.findById(id.getValor())
             .map(documentTypeMapper::toDomain);
     }

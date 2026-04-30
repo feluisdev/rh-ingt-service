@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.parametrizacoes.domain.models;
 
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.ProfessionalSituationId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import lombok.Getter;
 
 import java.util.Objects;
@@ -9,14 +9,14 @@ import java.util.Objects;
 @Getter
 public class ProfessionalSituation {
 
-    private ExternalID id;
+    private ProfessionalSituationId id;
     private String code;
     private String description;
     private boolean active;
 
     private ProfessionalSituation() {}
 
-    private ProfessionalSituation(ExternalID id, String code, String description, boolean active) {
+    private ProfessionalSituation(ProfessionalSituationId id, String code, String description, boolean active) {
         this.id = id;
         this.code = code;
         this.description = description;
@@ -25,10 +25,10 @@ public class ProfessionalSituation {
 
     public static ProfessionalSituation criar(String code, String description) {
         Objects.requireNonNull(code, "code não pode ser nulo");
-        return new ProfessionalSituation(ExternalID.gerarNovo(), code, description, true);
+        return new ProfessionalSituation(ProfessionalSituationId.gerarNovo(), code, description, true);
     }
 
-    public static ProfessionalSituation reconstruir(ExternalID id, String code, String description, boolean active) {
+    public static ProfessionalSituation reconstruir(ProfessionalSituationId id, String code, String description, boolean active) {
         return new ProfessionalSituation(id, code, description, active);
     }
 
@@ -37,16 +37,12 @@ public class ProfessionalSituation {
     }
 
     public void desativar() {
-        if (!this.active) {
-            throw IgrpResponseStatusException.conflict("Já está inactivo.");
-        }
+        if (!this.active) throw IgrpResponseStatusException.conflict("Já está inactivo.");
         this.active = false;
     }
 
     public void reativar() {
-        if (this.active) {
-            throw IgrpResponseStatusException.conflict("Já está activo.");
-        }
+        if (this.active) throw IgrpResponseStatusException.conflict("Já está activo.");
         this.active = true;
     }
 }

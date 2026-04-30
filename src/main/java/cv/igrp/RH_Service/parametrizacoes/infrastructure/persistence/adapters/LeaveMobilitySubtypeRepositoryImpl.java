@@ -6,7 +6,7 @@ import cv.igrp.RH_Service.parametrizacoes.domain.repository.LeaveMobilitySubtype
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.LeaveMobilitySubtypeMapper;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.LeaveMobilitySubtypeEntity;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.LeaveMobilitySubtypeEntityRepository;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.LeaveMobilitySubtypeId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -33,7 +33,7 @@ public class LeaveMobilitySubtypeRepositoryImpl implements LeaveMobilitySubtypeR
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<LeaveMobilitySubtype> findById(ExternalID id) {
+    public Optional<LeaveMobilitySubtype> findById(LeaveMobilitySubtypeId id) {
         return leaveMobilitySubtypeEntityRepository.findById(id.getValor())
             .map(leaveMobilitySubtypeMapper::toDomain);
     }
