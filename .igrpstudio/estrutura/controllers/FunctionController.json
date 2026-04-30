@@ -1,0 +1,159 @@
+{
+  "type": "controller",
+  "name": "Function",
+  "module": "estrutura",
+  "description": "Gestão de funções",
+  "basePath": "api/v1/rh/estrutura/functions",
+  "actions": [
+    {
+      "actionName": "getFunctions",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaFunctionDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "estrutura"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        { "type": "boolean", "name": "active", "isRequired": false },
+        { "type": "string",  "name": "pagina",  "value": "0",  "isRequired": true },
+        { "type": "string",  "name": "tamanho", "value": "20", "isRequired": true }
+      ]
+    },
+    {
+      "actionName": "getFunctionById",
+      "path": "{functionId}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "FunctionResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "estrutura"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        { "name": "functionId", "type": "string", "isRequired": true }
+      ]
+    },
+    {
+      "actionName": "createFunction",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "FunctionRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "estrutura"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": { "type": "string", "name": "data", "collectionType": "map" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "updateFunction",
+      "path": "{functionId}",
+      "method": "PUT",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "FunctionRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "estrutura"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "FunctionResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "estrutura"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        { "name": "functionId", "type": "string", "isRequired": true }
+      ]
+    },
+    {
+      "actionName": "deactivateFunction",
+      "path": "{functionId}/deactivate",
+      "method": "PATCH",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": { "type": "string", "name": "data", "collectionType": "map" }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        { "name": "functionId", "type": "string", "isRequired": true }
+      ]
+    },
+    {
+      "actionName": "activateFunction",
+      "path": "{functionId}/activate",
+      "method": "PATCH",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": { "type": "string", "name": "data", "collectionType": "map" }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        { "name": "functionId", "type": "string", "isRequired": true }
+      ]
+    }
+  ],
+  "id": "function_ctrl_001"
+}

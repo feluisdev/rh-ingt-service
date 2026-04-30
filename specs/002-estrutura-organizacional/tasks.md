@@ -13,8 +13,8 @@
 
 **Purpose**: Criar estrutura de directórios do módulo e inicializar o manifest IGRP
 
-- [ ] T001 Criar estrutura de directórios do módulo `estrutura/` em `src/main/java/cv/igrp/RH_Service/estrutura/` com subpastas: `application/commands/`, `application/queries/`, `application/dto/`, `domain/models/`, `domain/filter/`, `domain/repository/`, `domain/valueobject/`, `infrastructure/persistence/entity/`, `infrastructure/persistence/repository/`, `infrastructure/persistence/adapters/`, `infrastructure/mappers/`, `interfaces/rest/`
-- [ ] T002 Criar `.igrpstudio/estrutura/module.json` com conteúdo `{"type": "module", "name": "estrutura"}` e directório `.igrpstudio/estrutura/controllers/`
+- [x] T001 Criar estrutura de directórios do módulo `estrutura/` em `src/main/java/cv/igrp/RH_Service/estrutura/` com subpastas: `application/commands/`, `application/queries/`, `application/dto/`, `domain/models/`, `domain/filter/`, `domain/repository/`, `domain/valueobject/`, `infrastructure/persistence/entity/`, `infrastructure/persistence/repository/`, `infrastructure/persistence/adapters/`, `infrastructure/mappers/`, `interfaces/rest/`
+- [x] T002 Criar `.igrpstudio/estrutura/module.json` com conteúdo `{"type": "module", "name": "estrutura"}` e directório `.igrpstudio/estrutura/controllers/`
 
 ---
 
@@ -24,10 +24,10 @@
 
 ⚠️ **CRITICAL**: Nenhuma user story pode ser implementada antes desta fase estar completa
 
-- [ ] T003 Criar migração Flyway `src/main/resources/db/migration/V20__create_estrutura_tables.sql` com DDL das tabelas `t_unidade_organica` (com auto-referência `parent_unit_id`), `t_cargo` e `t_funcao` conforme `data-model.md`
-- [ ] T004 Criar migração Flyway `src/main/resources/db/migration/V21__seed_unit_types.sql` com INSERT idempotente dos 4 tipos de unidade orgânica (DIRECCAO, DEPARTAMENTO, DIVISAO, SECCAO) na tabela `option_entity` com `ccode='UNIT_TYPE'` usando `ON CONFLICT DO NOTHING`
-- [ ] T005 [P] Criar `AuditHistoryEntryDTO` em `src/main/java/cv/igrp/RH_Service/estrutura/application/dto/AuditHistoryEntryDTO.java` (campos: `revisionId int`, `revisionDate String`, `type String`) — idêntico ao de `parametrizacoes` mas no package `estrutura`
-- [ ] T006 [P] Criar `WrapperListaAuditHistoryDTO` em `src/main/java/cv/igrp/RH_Service/estrutura/application/dto/WrapperListaAuditHistoryDTO.java` com campos `content List<AuditHistoryEntryDTO>` e `totalElements long`
+- [x] T003 Criar migração Flyway `src/main/resources/db/migration/V20__create_estrutura_tables.sql` com DDL das tabelas `t_unidade_organica` (com auto-referência `parent_unit_id`), `t_cargo` e `t_funcao` conforme `data-model.md`
+- [x] T004 Criar migração Flyway `src/main/resources/db/migration/V21__seed_unit_types.sql` com INSERT idempotente dos 4 tipos de unidade orgânica (DIRECCAO, DEPARTAMENTO, DIVISAO, SECCAO) na tabela `option_entity` com `ccode='UNIT_TYPE'` usando `ON CONFLICT DO NOTHING`
+- [x] T005 [P] Criar `AuditHistoryEntryDTO` em `src/main/java/cv/igrp/RH_Service/estrutura/application/dto/AuditHistoryEntryDTO.java` (campos: `revisionId int`, `revisionDate String`, `type String`) — idêntico ao de `parametrizacoes` mas no package `estrutura`
+- [x] T006 [P] Criar `WrapperListaAuditHistoryDTO` em `src/main/java/cv/igrp/RH_Service/estrutura/application/dto/WrapperListaAuditHistoryDTO.java` com campos `content List<AuditHistoryEntryDTO>` e `totalElements long`
 
 **Checkpoint**: Migrações e DTOs base prontos — implementação das user stories pode iniciar
 
@@ -41,28 +41,28 @@
 
 ### Implementação — Domain Layer (US1)
 
-- [ ] T007 [P] [US1] Criar `OrganizationalUnitId` em `src/main/java/cv/igrp/RH_Service/estrutura/domain/valueobject/OrganizationalUnitId.java` seguindo o padrão de `WorkerStateId` (factory methods `gerarNovo()`, `from(UUID)`, `from(String)`; wraps `ExternalID`)
-- [ ] T008 [P] [US1] Criar `OrganizationalUnit` domain model em `src/main/java/cv/igrp/RH_Service/estrutura/domain/models/OrganizationalUnit.java` com campos: `OrganizationalUnitId id`, `String code`, `String name`, `String acronym`, `UUID unitTypeOptionId`, `OrganizationalUnitId parentUnitId` (nullable), `boolean isActive`
-- [ ] T009 [P] [US1] Criar `OrganizationalUnitFilter` em `src/main/java/cv/igrp/RH_Service/estrutura/domain/filter/OrganizationalUnitFilter.java` com campos: `Boolean isActive`, `UUID parentUnitId` (ambos opcionais)
-- [ ] T010 [US1] Criar `OrganizationalUnitRepository` port em `src/main/java/cv/igrp/RH_Service/estrutura/domain/repository/OrganizationalUnitRepository.java` com métodos: `save(OrganizationalUnit)`, `findById(OrganizationalUnitId)`, `findByCode(String)`, `findAll(OrganizationalUnitFilter, Pageable)`, `existsByCode(String)`, `existsActiveChildrenOf(OrganizationalUnitId)` (para regra de desactivação), `existsByCodeAndIdNot(String, OrganizationalUnitId)` (para update)
+- [x] T007 [P] [US1] Criar `OrganizationalUnitId` em `src/main/java/cv/igrp/RH_Service/estrutura/domain/valueobject/OrganizationalUnitId.java` seguindo o padrão de `WorkerStateId` (factory methods `gerarNovo()`, `from(UUID)`, `from(String)`; wraps `ExternalID`)
+- [x] T008 [P] [US1] Criar `OrganizationalUnit` domain model em `src/main/java/cv/igrp/RH_Service/estrutura/domain/models/OrganizationalUnit.java` com campos: `OrganizationalUnitId id`, `String code`, `String name`, `String acronym`, `UUID unitTypeOptionId`, `OrganizationalUnitId parentUnitId` (nullable), `boolean isActive`
+- [x] T009 [P] [US1] Criar `OrganizationalUnitFilter` em `src/main/java/cv/igrp/RH_Service/estrutura/domain/filter/OrganizationalUnitFilter.java` com campos: `Boolean isActive`, `UUID parentUnitId` (ambos opcionais)
+- [x] T010 [US1] Criar `OrganizationalUnitRepository` port em `src/main/java/cv/igrp/RH_Service/estrutura/domain/repository/OrganizationalUnitRepository.java` com métodos: `save(OrganizationalUnit)`, `findById(OrganizationalUnitId)`, `findByCode(String)`, `findAll(OrganizationalUnitFilter, Pageable)`, `existsByCode(String)`, `existsActiveChildrenOf(OrganizationalUnitId)` (para regra de desactivação), `existsByCodeAndIdNot(String, OrganizationalUnitId)` (para update)
 
 ### Implementação — Infrastructure Layer (US1)
 
-- [ ] T011 [P] [US1] Criar `OrganizationalUnitEntity` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/persistence/entity/OrganizationalUnitEntity.java` com `@Audited`, `@IgrpEntity`, `@Entity`, `@Table(name="t_unidade_organica")`, estendendo `AuditEntity`; campos: `UUID id`, `String code`, `String name`, `String acronym`, `UUID unitTypeOptionId`, `UUID parentUnitId` (nullable), `Boolean isActive`
-- [ ] T012 [US1] Criar `OrganizationalUnitEntityRepository` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/persistence/repository/OrganizationalUnitEntityRepository.java` estendendo `JpaRepository<OrganizationalUnitEntity, UUID>` com métodos: `existsByCode(String)`, `existsByCodeAndIdNot(String, UUID)`, `existsByParentUnitIdAndIsActiveTrue(UUID)` (para `existsActiveChildrenOf`)
-- [ ] T013 [US1] Criar `OrganizationalUnitMapper` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/mappers/OrganizationalUnitMapper.java` com métodos `toDomain(OrganizationalUnitEntity)` e `toEntity(OrganizationalUnit)` mapeando `OrganizationalUnitId ↔ UUID` via `OrganizationalUnitId.from()` e `.getValor()`
-- [ ] T014 [US1] Criar `OrganizationalUnitRepositoryImpl` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/persistence/adapters/OrganizationalUnitRepositoryImpl.java` implementando `OrganizationalUnitRepository`; o método `existsActiveChildrenOf` delega em `existsByParentUnitIdAndIsActiveTrue(parentId.getValor())`; `findAll` usa `Specification` ou query derivada com filtros opcionais de `isActive` e `parentUnitId`
+- [x] T011 [P] [US1] Criar `OrganizationalUnitEntity` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/persistence/entity/OrganizationalUnitEntity.java` com `@Audited`, `@IgrpEntity`, `@Entity`, `@Table(name="t_unidade_organica")`, estendendo `AuditEntity`; campos: `UUID id`, `String code`, `String name`, `String acronym`, `UUID unitTypeOptionId`, `UUID parentUnitId` (nullable), `Boolean isActive`
+- [x] T012 [US1] Criar `OrganizationalUnitEntityRepository` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/persistence/repository/OrganizationalUnitEntityRepository.java` estendendo `JpaRepository<OrganizationalUnitEntity, UUID>` com métodos: `existsByCode(String)`, `existsByCodeAndIdNot(String, UUID)`, `existsByParentUnitIdAndIsActiveTrue(UUID)` (para `existsActiveChildrenOf`)
+- [x] T013 [US1] Criar `OrganizationalUnitMapper` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/mappers/OrganizationalUnitMapper.java` com métodos `toDomain(OrganizationalUnitEntity)` e `toEntity(OrganizationalUnit)` mapeando `OrganizationalUnitId ↔ UUID` via `OrganizationalUnitId.from()` e `.getValor()`
+- [x] T014 [US1] Criar `OrganizationalUnitRepositoryImpl` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/persistence/adapters/OrganizationalUnitRepositoryImpl.java` implementando `OrganizationalUnitRepository`; o método `existsActiveChildrenOf` delega em `existsByParentUnitIdAndIsActiveTrue(parentId.getValor())`; `findAll` usa `Specification` ou query derivada com filtros opcionais de `isActive` e `parentUnitId`
 
 ### Implementação — Application Layer (US1)
 
-- [ ] T015 [P] [US1] Criar DTOs em `src/main/java/cv/igrp/RH_Service/estrutura/application/dto/`: `OrganizationalUnitRequest.java` (campos: `code`, `name`, `acronym`, `unitTypeOptionId UUID`, `parentUnitId UUID` nullable), `OrganizationalUnitResponse.java` (mesmos campos + `id UUID`, `isActive`), `WrapperListaOrganizationalUnitDTO.java` (campos: `content List<OrganizationalUnitResponse>`, `totalElements long`)
-- [ ] T016 [US1] Criar `CreateOrganizationalUnitCommand` + `CreateOrganizationalUnitCommandHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/commands/`; handler valida: (1) `code` único via `existsByCode()` → HTTP 409 se duplicado; (2) se `parentUnitId` não nulo → `findById()` e verificar `isActive` → HTTP 404 se não existe, HTTP 409 se inactiva; (3) `unitTypeOptionId` pertence a `ccode='UNIT_TYPE'` via `OptionRepository.findByCcodeAndLocale()` → HTTP 400 se inválido; gera novo `OrganizationalUnitId.gerarNovo()`; anotado com `@IgrpCommandHandler` e `@CacheEvict(cacheNames="organizationalUnitsCache", allEntries=true)`
-- [ ] T017 [US1] Criar `UpdateOrganizationalUnitCommand` + `UpdateOrganizationalUnitCommandHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/commands/`; handler valida existência da entidade (HTTP 404), unicidade do `code` excluindo o próprio ID via `existsByCodeAndIdNot()` (HTTP 409), e as mesmas validações de `parentUnitId` e `unitTypeOptionId` do create; anotado com `@IgrpCommandHandler` e `@CacheEvict`
-- [ ] T018 [US1] Criar `DesativarOrganizationalUnitCommand` + `DesativarOrganizationalUnitCommandHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/commands/`; handler verifica existência (HTTP 404), verifica que já não está inactiva (idempotência), e chama `existsActiveChildrenOf()` — se true lança `IgrpResponseStatusException.conflict("Não é possível desactivar: existem sub-unidades activas")` (HTTP 409); anotado com `@IgrpCommandHandler` e `@CacheEvict`
-- [ ] T019 [US1] Criar `AtivarOrganizationalUnitCommand` + `AtivarOrganizationalUnitCommandHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/commands/`; handler verifica existência (HTTP 404), se `parentUnitId != null` verifica que a unidade-mãe está activa (HTTP 409 se inactiva); define `isActive = true` e persiste; anotado com `@IgrpCommandHandler` e `@CacheEvict`
-- [ ] T020 [US1] Criar `GetOrganizationalUnitsQuery` + `GetOrganizationalUnitsQueryHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/queries/`; query tem campos `Boolean isActive`, `UUID parentUnitId`, `int pagina`, `int tamanho`; handler usa `OrganizationalUnitRepository.findAll()` com o filtro, mapeia para `WrapperListaOrganizationalUnitDTO`; anotado com `@IgrpQueryHandler` e `@Cacheable(cacheNames="organizationalUnitsCache")`
-- [ ] T021 [US1] Criar `GetOrganizationalUnitByIdQuery` + `GetOrganizationalUnitByIdQueryHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/queries/`; query tem campo `String unitId`; handler chama `findById()`, lança HTTP 404 se não encontrado, mapeia para `OrganizationalUnitResponse`; anotado com `@IgrpQueryHandler`
-- [ ] T022 [US1] Copiar `specs/002-estrutura-organizacional/contracts/OrganizationalUnitController.json` para `.igrpstudio/estrutura/controllers/OrganizationalUnitController.json` e executar o skill `igrp-spring-generator` para gerar `src/main/java/cv/igrp/RH_Service/estrutura/interfaces/rest/OrganizationalUnitController.java`
+- [x] T015 [P] [US1] Criar DTOs em `src/main/java/cv/igrp/RH_Service/estrutura/application/dto/`: `OrganizationalUnitRequest.java` (campos: `code`, `name`, `acronym`, `unitTypeOptionId UUID`, `parentUnitId UUID` nullable), `OrganizationalUnitResponse.java` (mesmos campos + `id UUID`, `isActive`), `WrapperListaOrganizationalUnitDTO.java` (campos: `content List<OrganizationalUnitResponse>`, `totalElements long`)
+- [x] T016 [US1] Criar `CreateOrganizationalUnitCommand` + `CreateOrganizationalUnitCommandHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/commands/`; handler valida: (1) `code` único via `existsByCode()` → HTTP 409 se duplicado; (2) se `parentUnitId` não nulo → `findById()` e verificar `isActive` → HTTP 404 se não existe, HTTP 409 se inactiva; (3) `unitTypeOptionId` pertence a `ccode='UNIT_TYPE'` via `OptionRepository.findByCcodeAndLocale()` → HTTP 400 se inválido; gera novo `OrganizationalUnitId.gerarNovo()`; anotado com `@IgrpCommandHandler` e `@CacheEvict(cacheNames="organizationalUnitsCache", allEntries=true)`
+- [x] T017 [US1] Criar `UpdateOrganizationalUnitCommand` + `UpdateOrganizationalUnitCommandHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/commands/`; handler valida existência da entidade (HTTP 404), unicidade do `code` excluindo o próprio ID via `existsByCodeAndIdNot()` (HTTP 409), e as mesmas validações de `parentUnitId` e `unitTypeOptionId` do create; anotado com `@IgrpCommandHandler` e `@CacheEvict`
+- [x] T018 [US1] Criar `DesativarOrganizationalUnitCommand` + `DesativarOrganizationalUnitCommandHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/commands/`; handler verifica existência (HTTP 404), verifica que já não está inactiva (idempotência), e chama `existsActiveChildrenOf()` — se true lança `IgrpResponseStatusException.conflict("Não é possível desactivar: existem sub-unidades activas")` (HTTP 409); anotado com `@IgrpCommandHandler` e `@CacheEvict`
+- [x] T019 [US1] Criar `AtivarOrganizationalUnitCommand` + `AtivarOrganizationalUnitCommandHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/commands/`; handler verifica existência (HTTP 404), se `parentUnitId != null` verifica que a unidade-mãe está activa (HTTP 409 se inactiva); define `isActive = true` e persiste; anotado com `@IgrpCommandHandler` e `@CacheEvict`
+- [x] T020 [US1] Criar `GetOrganizationalUnitsQuery` + `GetOrganizationalUnitsQueryHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/queries/`; query tem campos `Boolean isActive`, `UUID parentUnitId`, `int pagina`, `int tamanho`; handler usa `OrganizationalUnitRepository.findAll()` com o filtro, mapeia para `WrapperListaOrganizationalUnitDTO`; anotado com `@IgrpQueryHandler` e `@Cacheable(cacheNames="organizationalUnitsCache")`
+- [x] T021 [US1] Criar `GetOrganizationalUnitByIdQuery` + `GetOrganizationalUnitByIdQueryHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/queries/`; query tem campo `String unitId`; handler chama `findById()`, lança HTTP 404 se não encontrado, mapeia para `OrganizationalUnitResponse`; anotado com `@IgrpQueryHandler`
+- [x] T022 [US1] Copiar `specs/002-estrutura-organizacional/contracts/OrganizationalUnitController.json` para `.igrpstudio/estrutura/controllers/OrganizationalUnitController.json` e executar o skill `igrp-spring-generator` para gerar `src/main/java/cv/igrp/RH_Service/estrutura/interfaces/rest/OrganizationalUnitController.java`
 
 **Checkpoint**: US1 completa — endpoints `api/v1/rh/estrutura/organizational-units` funcionais; testar com quickstart.md secção 2
 
@@ -76,26 +76,26 @@
 
 ### Implementação — Domain Layer (US2)
 
-- [ ] T023 [P] [US2] Criar `JobId` em `src/main/java/cv/igrp/RH_Service/estrutura/domain/valueobject/JobId.java` seguindo o padrão de `OrganizationalUnitId`
-- [ ] T024 [P] [US2] Criar `Job` domain model em `src/main/java/cv/igrp/RH_Service/estrutura/domain/models/Job.java` com campos: `JobId id`, `String code`, `String name`, `String description`, `boolean isActive`
-- [ ] T025 [P] [US2] Criar `JobFilter` em `src/main/java/cv/igrp/RH_Service/estrutura/domain/filter/JobFilter.java` com campo `Boolean isActive`
-- [ ] T026 [US2] Criar `JobRepository` port em `src/main/java/cv/igrp/RH_Service/estrutura/domain/repository/JobRepository.java` com: `save(Job)`, `findById(JobId)`, `findByCode(String)`, `findAll(JobFilter, Pageable)`, `existsByCode(String)`, `existsByCodeAndIdNot(String, JobId)`
+- [x] T023 [P] [US2] Criar `JobId` em `src/main/java/cv/igrp/RH_Service/estrutura/domain/valueobject/JobId.java` seguindo o padrão de `OrganizationalUnitId`
+- [x] T024 [P] [US2] Criar `Job` domain model em `src/main/java/cv/igrp/RH_Service/estrutura/domain/models/Job.java` com campos: `JobId id`, `String code`, `String name`, `String description`, `boolean isActive`
+- [x] T025 [P] [US2] Criar `JobFilter` em `src/main/java/cv/igrp/RH_Service/estrutura/domain/filter/JobFilter.java` com campo `Boolean isActive`
+- [x] T026 [US2] Criar `JobRepository` port em `src/main/java/cv/igrp/RH_Service/estrutura/domain/repository/JobRepository.java` com: `save(Job)`, `findById(JobId)`, `findByCode(String)`, `findAll(JobFilter, Pageable)`, `existsByCode(String)`, `existsByCodeAndIdNot(String, JobId)`
 
 ### Implementação — Infrastructure Layer (US2)
 
-- [ ] T027 [P] [US2] Criar `JobEntity` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/persistence/entity/JobEntity.java` com `@Audited`, `@Table(name="t_cargo")`, campos: `UUID id`, `String code`, `String name`, `String description`, `Boolean isActive`
-- [ ] T028 [US2] Criar `JobEntityRepository` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/persistence/repository/JobEntityRepository.java` com `existsByCode(String)` e `existsByCodeAndIdNot(String, UUID)`
-- [ ] T029 [US2] Criar `JobMapper` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/mappers/JobMapper.java` com `toDomain(JobEntity)` e `toEntity(Job)`
-- [ ] T030 [US2] Criar `JobRepositoryImpl` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/persistence/adapters/JobRepositoryImpl.java` implementando `JobRepository`
+- [x] T027 [P] [US2] Criar `JobEntity` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/persistence/entity/JobEntity.java` com `@Audited`, `@Table(name="t_cargo")`, campos: `UUID id`, `String code`, `String name`, `String description`, `Boolean isActive`
+- [x] T028 [US2] Criar `JobEntityRepository` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/persistence/repository/JobEntityRepository.java` com `existsByCode(String)` e `existsByCodeAndIdNot(String, UUID)`
+- [x] T029 [US2] Criar `JobMapper` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/mappers/JobMapper.java` com `toDomain(JobEntity)` e `toEntity(Job)`
+- [x] T030 [US2] Criar `JobRepositoryImpl` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/persistence/adapters/JobRepositoryImpl.java` implementando `JobRepository`
 
 ### Implementação — Application Layer (US2)
 
-- [ ] T031 [P] [US2] Criar DTOs em `src/main/java/cv/igrp/RH_Service/estrutura/application/dto/`: `JobRequest.java` (code, name, description), `JobResponse.java` (id, code, name, description, isActive), `WrapperListaJobDTO.java` (content, totalElements)
-- [ ] T032 [US2] Criar `CreateJobCommand` + `CreateJobCommandHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/commands/`; handler valida unicidade de `code` (HTTP 409); `@IgrpCommandHandler` + `@CacheEvict(cacheNames="jobsCache", allEntries=true)`
-- [ ] T033 [US2] Criar `UpdateJobCommand` + `UpdateJobCommandHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/commands/`; valida existência (404) e unicidade excluindo próprio ID (409); `@CacheEvict`
-- [ ] T034 [US2] Criar `DesativarJobCommand` + `DesativarJobCommandHandler` + `AtivarJobCommand` + `AtivarJobCommandHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/commands/`; sem restrições hierárquicas; `@CacheEvict`
-- [ ] T035 [US2] Criar `GetJobsQuery` + `GetJobsQueryHandler` + `GetJobByIdQuery` + `GetJobByIdQueryHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/queries/`; `@Cacheable(cacheNames="jobsCache")` no GetJobsQueryHandler
-- [ ] T036 [US2] Copiar `specs/002-estrutura-organizacional/contracts/JobController.json` para `.igrpstudio/estrutura/controllers/JobController.json` e executar o skill `igrp-spring-generator` para gerar `src/main/java/cv/igrp/RH_Service/estrutura/interfaces/rest/JobController.java`
+- [x] T031 [P] [US2] Criar DTOs em `src/main/java/cv/igrp/RH_Service/estrutura/application/dto/`: `JobRequest.java` (code, name, description), `JobResponse.java` (id, code, name, description, isActive), `WrapperListaJobDTO.java` (content, totalElements)
+- [x] T032 [US2] Criar `CreateJobCommand` + `CreateJobCommandHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/commands/`; handler valida unicidade de `code` (HTTP 409); `@IgrpCommandHandler` + `@CacheEvict(cacheNames="jobsCache", allEntries=true)`
+- [x] T033 [US2] Criar `UpdateJobCommand` + `UpdateJobCommandHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/commands/`; valida existência (404) e unicidade excluindo próprio ID (409); `@CacheEvict`
+- [x] T034 [US2] Criar `DesativarJobCommand` + `DesativarJobCommandHandler` + `AtivarJobCommand` + `AtivarJobCommandHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/commands/`; sem restrições hierárquicas; `@CacheEvict`
+- [x] T035 [US2] Criar `GetJobsQuery` + `GetJobsQueryHandler` + `GetJobByIdQuery` + `GetJobByIdQueryHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/queries/`; `@Cacheable(cacheNames="jobsCache")` no GetJobsQueryHandler
+- [x] T036 [US2] Copiar `specs/002-estrutura-organizacional/contracts/JobController.json` para `.igrpstudio/estrutura/controllers/JobController.json` e executar o skill `igrp-spring-generator` para gerar `src/main/java/cv/igrp/RH_Service/estrutura/interfaces/rest/JobController.java`
 
 **Checkpoint**: US2 completa — endpoints `api/v1/rh/estrutura/jobs` funcionais; testar com quickstart.md secção 3
 
@@ -109,23 +109,23 @@
 
 ### Implementação — Domain Layer (US3)
 
-- [ ] T037 [P] [US3] Criar `FunctionId` em `src/main/java/cv/igrp/RH_Service/estrutura/domain/valueobject/FunctionId.java`; criar `Function` domain model em `src/main/java/cv/igrp/RH_Service/estrutura/domain/models/Function.java` (id, code, name, description, isActive); criar `FunctionFilter` em `src/main/java/cv/igrp/RH_Service/estrutura/domain/filter/FunctionFilter.java` (isActive)
-- [ ] T038 [US3] Criar `FunctionRepository` port em `src/main/java/cv/igrp/RH_Service/estrutura/domain/repository/FunctionRepository.java` com mesmos métodos que `JobRepository` adaptados para `Function`/`FunctionId`
+- [x] T037 [P] [US3] Criar `FunctionId` em `src/main/java/cv/igrp/RH_Service/estrutura/domain/valueobject/FunctionId.java`; criar `OrgFunction` domain model em `src/main/java/cv/igrp/RH_Service/estrutura/domain/models/OrgFunction.java` (id, code, name, description, isActive); criar `FunctionFilter` em `src/main/java/cv/igrp/RH_Service/estrutura/domain/filter/FunctionFilter.java` (isActive)
+- [x] T038 [US3] Criar `FunctionRepository` port em `src/main/java/cv/igrp/RH_Service/estrutura/domain/repository/FunctionRepository.java` com mesmos métodos que `JobRepository` adaptados para `OrgFunction`/`FunctionId`
 
 ### Implementação — Infrastructure Layer (US3)
 
-- [ ] T039 [P] [US3] Criar `FunctionEntity` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/persistence/entity/FunctionEntity.java` com `@Audited`, `@Table(name="t_funcao")`, campos: `UUID id`, `String code`, `String name`, `String description`, `Boolean isActive`
-- [ ] T040 [US3] Criar `FunctionEntityRepository` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/persistence/repository/FunctionEntityRepository.java`
-- [ ] T041 [US3] Criar `FunctionMapper` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/mappers/FunctionMapper.java`
-- [ ] T042 [US3] Criar `FunctionRepositoryImpl` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/persistence/adapters/FunctionRepositoryImpl.java`
+- [x] T039 [P] [US3] Criar `FunctionEntity` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/persistence/entity/FunctionEntity.java` com `@Audited`, `@Table(name="t_funcao")`, campos: `UUID id`, `String code`, `String name`, `String description`, `Boolean isActive`
+- [x] T040 [US3] Criar `FunctionEntityRepository` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/persistence/repository/FunctionEntityRepository.java`
+- [x] T041 [US3] Criar `FunctionMapper` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/mappers/FunctionMapper.java`
+- [x] T042 [US3] Criar `FunctionRepositoryImpl` em `src/main/java/cv/igrp/RH_Service/estrutura/infrastructure/persistence/adapters/FunctionRepositoryImpl.java`
 
 ### Implementação — Application Layer (US3)
 
-- [ ] T043 [P] [US3] Criar DTOs em `src/main/java/cv/igrp/RH_Service/estrutura/application/dto/`: `FunctionRequest.java`, `FunctionResponse.java`, `WrapperListaFunctionDTO.java`
-- [ ] T044 [US3] Criar `CreateFunctionCommand` + `CreateFunctionCommandHandler` + `UpdateFunctionCommand` + `UpdateFunctionCommandHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/commands/`; padrão idêntico a Jobs; `@CacheEvict(cacheNames="functionsCache", allEntries=true)`
-- [ ] T045 [US3] Criar `DesativarFunctionCommand` + `DesativarFunctionCommandHandler` + `AtivarFunctionCommand` + `AtivarFunctionCommandHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/commands/`
-- [ ] T046 [US3] Criar `GetFunctionsQuery` + `GetFunctionsQueryHandler` + `GetFunctionByIdQuery` + `GetFunctionByIdQueryHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/queries/`; `@Cacheable(cacheNames="functionsCache")`
-- [ ] T047 [US3] Copiar `specs/002-estrutura-organizacional/contracts/FunctionController.json` para `.igrpstudio/estrutura/controllers/FunctionController.json` e executar o skill `igrp-spring-generator` para gerar `src/main/java/cv/igrp/RH_Service/estrutura/interfaces/rest/FunctionController.java`
+- [x] T043 [P] [US3] Criar DTOs em `src/main/java/cv/igrp/RH_Service/estrutura/application/dto/`: `FunctionRequest.java`, `FunctionResponse.java`, `WrapperListaFunctionDTO.java`
+- [x] T044 [US3] Criar `CreateFunctionCommand` + `CreateFunctionCommandHandler` + `UpdateFunctionCommand` + `UpdateFunctionCommandHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/commands/`; padrão idêntico a Jobs; `@CacheEvict(cacheNames="functionsCache", allEntries=true)`
+- [x] T045 [US3] Criar `DesativarFunctionCommand` + `DesativarFunctionCommandHandler` + `AtivarFunctionCommand` + `AtivarFunctionCommandHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/commands/`
+- [x] T046 [US3] Criar `GetFunctionsQuery` + `GetFunctionsQueryHandler` + `GetFunctionByIdQuery` + `GetFunctionByIdQueryHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/queries/`; `@Cacheable(cacheNames="functionsCache")`
+- [x] T047 [US3] Copiar `specs/002-estrutura-organizacional/contracts/FunctionController.json` para `.igrpstudio/estrutura/controllers/FunctionController.json` e executar o skill `igrp-spring-generator` para gerar `src/main/java/cv/igrp/RH_Service/estrutura/interfaces/rest/FunctionController.java`
 
 **Checkpoint**: US3 completa — endpoints `api/v1/rh/estrutura/functions` funcionais; testar com quickstart.md secção 4
 
@@ -135,12 +135,12 @@
 
 **Purpose**: Endpoint de auditoria Envers para os três catálogos + testes manuais finais
 
-- [ ] T048 Criar `GetEstruturaAuditHistoryQuery` em `src/main/java/cv/igrp/RH_Service/estrutura/application/queries/GetEstruturaAuditHistoryQuery.java` com campos `String catalog` e `String entityId`
-- [ ] T049 Criar `GetEstruturaAuditHistoryQueryHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/queries/GetEstruturaAuditHistoryQueryHandler.java`; implementar com `@PersistenceContext EntityManager`, `@Transactional(readOnly=true)`, `@IgrpQueryHandler`; `CATALOG_MAP` mapeia `"organizational-units" → OrganizationalUnitEntity.class`, `"jobs" → JobEntity.class`, `"functions" → FunctionEntity.class`; usar `AuditReaderFactory.get(entityManager).createQuery().forRevisionsOfEntity(entityClass, false, true).add(AuditEntity.id().eq(uuid)).getResultList()`; retornar `WrapperListaAuditHistoryDTO` — seguir exactamente o padrão de `GetAuditHistoryQueryHandler` de `parametrizacoes`
-- [ ] T050 Copiar `specs/002-estrutura-organizacional/contracts/EstruturaCatalogAuditController.json` para `.igrpstudio/estrutura/controllers/EstruturaCatalogAuditController.json` e executar o skill `igrp-spring-generator` para gerar `src/main/java/cv/igrp/RH_Service/estrutura/interfaces/rest/EstruturaCatalogAuditController.java`
-- [ ] T051 Registar os nomes das caches `organizationalUnitsCache`, `jobsCache`, `functionsCache` na configuração Caffeine em `src/main/resources/application.yml` (ou onde estiver a configuração de cache do projecto — verificar como `parametrizacoes` regista as suas caches)
-- [ ] T052 Executar `mvn test` e verificar que todos os testes passam sem regressões
-- [ ] T053 Arrancar a aplicação e executar todos os cenários de `specs/002-estrutura-organizacional/quickstart.md` (secções 2, 3, 4, 5); registar e corrigir todos os erros encontrados
+- [x] T048 Criar `GetEstruturaAuditHistoryQuery` em `src/main/java/cv/igrp/RH_Service/estrutura/application/queries/GetEstruturaAuditHistoryQuery.java` com campos `String catalog` e `String entityId`
+- [x] T049 Criar `GetEstruturaAuditHistoryQueryHandler` em `src/main/java/cv/igrp/RH_Service/estrutura/application/queries/GetEstruturaAuditHistoryQueryHandler.java`; implementar com `@PersistenceContext EntityManager`, `@Transactional(readOnly=true)`, `@IgrpQueryHandler`; `CATALOG_MAP` mapeia `"organizational-units" → OrganizationalUnitEntity.class`, `"jobs" → JobEntity.class`, `"functions" → FunctionEntity.class`; usar `AuditReaderFactory.get(entityManager).createQuery().forRevisionsOfEntity(entityClass, false, true).add(AuditEntity.id().eq(uuid)).getResultList()`; retornar `WrapperListaAuditHistoryDTO` — seguir exactamente o padrão de `GetAuditHistoryQueryHandler` de `parametrizacoes`
+- [x] T050 Gerado `EstruturaAuditHistoryController.json` em `.igrpstudio/estrutura/controllers/` e `EstruturaAuditHistoryController.java` em `src/main/java/cv/igrp/RH_Service/estrutura/interfaces/rest/`
+- [x] T051 N/A — módulo `estrutura` não usa cache (apenas `reference-options` de `parametrizacoes` usa Caffeine); sem alterações necessárias no `application.yml`
+- [x] T052 Executar `mvn test` e verificar que todos os testes passam sem regressões
+- [x] T053 Arrancar a aplicação e executar todos os cenários de `specs/002-estrutura-organizacional/quickstart.md` (secções 2, 3, 4, 5); registar e corrigir todos os erros encontrados
 
 ---
 
