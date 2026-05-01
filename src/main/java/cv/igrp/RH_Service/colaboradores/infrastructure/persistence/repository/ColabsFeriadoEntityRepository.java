@@ -16,15 +16,15 @@ public interface ColabsFeriadoEntityRepository extends JpaRepository<FeriadoEnti
     List<FeriadoEntity> findAllByIsNational(Boolean isNational);
     List<FeriadoEntity> findAllByIsNationalAndIsActive(Boolean isNational, Boolean isActive);
 
-    @Query("SELECT f FROM ColabsFeriadoEntity f WHERE FUNCTION('YEAR', f.holidayDate) = :ano")
+    @Query("SELECT f FROM ColabsFeriadoEntity f WHERE year(f.holidayDate) = :ano")
     List<FeriadoEntity> findAllByAno(@Param("ano") int ano);
 
-    @Query("SELECT f FROM ColabsFeriadoEntity f WHERE FUNCTION('YEAR', f.holidayDate) = :ano AND f.isNational = :isNational")
+    @Query("SELECT f FROM ColabsFeriadoEntity f WHERE year(f.holidayDate) = :ano AND f.isNational = :isNational")
     List<FeriadoEntity> findAllByAnoAndIsNational(@Param("ano") int ano, @Param("isNational") Boolean isNational);
 
-    @Query("SELECT f FROM ColabsFeriadoEntity f WHERE FUNCTION('YEAR', f.holidayDate) = :ano AND f.isActive = :isActive")
+    @Query("SELECT f FROM ColabsFeriadoEntity f WHERE year(f.holidayDate) = :ano AND f.isActive = :isActive")
     List<FeriadoEntity> findAllByAnoAndIsActive(@Param("ano") int ano, @Param("isActive") Boolean isActive);
 
-    @Query("SELECT f FROM ColabsFeriadoEntity f WHERE FUNCTION('YEAR', f.holidayDate) = :ano AND f.isNational = :isNational AND f.isActive = :isActive")
+    @Query("SELECT f FROM ColabsFeriadoEntity f WHERE year(f.holidayDate) = :ano AND f.isNational = :isNational AND f.isActive = :isActive")
     List<FeriadoEntity> findAllByAnoAndIsNationalAndIsActive(@Param("ano") int ano, @Param("isNational") Boolean isNational, @Param("isActive") Boolean isActive);
 }
