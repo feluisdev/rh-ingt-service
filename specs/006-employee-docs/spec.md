@@ -4,6 +4,13 @@
 **Created**: 2026-05-01
 **Status**: Draft
 
+## Clarifications
+
+### Session 2026-05-01
+
+- Q: Comportamento da listagem quando `active` não é fornecido → A: Devolve apenas documentos activos (`isActive=true`) por defeito.
+- Q: Atomicidade do upload — falha de BD após MinIO bem-sucedido → A: Retornar erro ao cliente; ficheiro fica órfão no MinIO (aceitar em v1, limpar via lifecycle policy).
+
 ## User Scenarios & Testing
 
 ### User Story 1 — Upload de Documento (Priority: P1)
@@ -76,6 +83,7 @@ Um gestor de RH remove logicamente um documento do dossier de um funcionário (e
 ### Edge Cases
 
 - O que acontece se o armazenamento de ficheiros estiver indisponível durante o upload? O sistema deve retornar `503 Service Unavailable` sem registar metadados parciais na BD.
+- O que acontece se o upload para o armazenamento for bem-sucedido mas a persistência dos metadados na BD falhar? Em v1, o sistema retorna erro ao cliente e o ficheiro fica órfão no armazenamento — sem rollback explícito. A limpeza de ficheiros órfãos é responsabilidade de uma lifecycle policy externa ao sistema.
 - O que acontece se dois uploads simultâneos gerarem o mesmo `file_key`? O sistema gera chaves com UUID — colisão é astronomicamente improvável, mas o `file_key` deve ser único por design.
 - O que acontece se o ficheiro estiver corrompido (tamanho declarado ≠ tamanho real)? O sistema confia no tamanho reportado pelo multipart e regista o que recebeu.
 - Um funcionário pode ter múltiplos documentos do mesmo tipo? Sim — ex: dois contratos em vigor em períodos diferentes. Não há restrição de unicidade por tipo.
@@ -90,7 +98,7 @@ Um gestor de RH remove logicamente um documento do dossier de um funcionário (e
 - **FR-004**: O sistema DEVE rejeitar ficheiros com tamanho superior a 10 MB.
 - **FR-005**: O sistema DEVE armazenar o ficheiro num sistema de armazenamento externo e registar apenas a chave de localização na base de dados.
 - **FR-006**: O sistema DEVE gerar uma chave de armazenamento única por documento. O padrão efectivo é determinado pelo serviço de armazenamento interno: `funcionario_documents/{nomeOriginal}_{timestamp}.{extensao}`, garantindo unicidade por geração de timestamp.
-- **FR-007**: O sistema DEVE permitir listar os documentos de um funcionário, com filtros opcionais por tipo de documento e estado activo/inactivo.
+- **FR-007**: O sistema DEVE permitir listar os documentos de um funcionário. Quando o filtro `active` é omitido, o sistema devolve apenas documentos activos (`isActive=true`). Quando `active=false` é fornecido, devolve apenas inactivos; quando `active=true`, apenas activos. Filtro adicional opcional por `documentTypeId`.
 - **FR-008**: O sistema DEVE permitir consultar os metadados de um documento individual.
 - **FR-009**: O sistema DEVE gerar um endereço temporário de acesso ao ficheiro com tempo de expiração configurável (padrão: 3600 segundos), sem expor credenciais de armazenamento.
 - **FR-010**: O sistema DEVE permitir desactivar logicamente um documento sem apagar o ficheiro do armazenamento.
