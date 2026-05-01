@@ -63,7 +63,7 @@ Um gestor de RH remove logicamente um documento do dossier de um funcionário (e
 
 **Why this priority**: Operação de manutenção; não bloqueia os casos de uso principais.
 
-**Independent Test**: Pode ser validado fazendo soft delete de um documento e confirmando que já não aparece na listagem activa mas que os metadados ainda existem via acesso directo.
+**Independent Test**: Pode ser validado fazendo soft delete de um documento e confirmando que já não aparece na listagem com `active=true` e que `GET /{id}` e `GET /{id}/download` retornam `404` — apenas documentos activos são acessíveis via API.
 
 **Acceptance Scenarios**:
 
@@ -89,7 +89,7 @@ Um gestor de RH remove logicamente um documento do dossier de um funcionário (e
 - **FR-003**: O sistema DEVE validar que a extensão do ficheiro é permitida pelo tipo de documento antes de o armazenar.
 - **FR-004**: O sistema DEVE rejeitar ficheiros com tamanho superior a 10 MB.
 - **FR-005**: O sistema DEVE armazenar o ficheiro num sistema de armazenamento externo e registar apenas a chave de localização na base de dados.
-- **FR-006**: O sistema DEVE gerar uma chave de armazenamento única por documento, seguindo o padrão `funcionarios/{funcionarioId}/{uuid}.{extensao}`.
+- **FR-006**: O sistema DEVE gerar uma chave de armazenamento única por documento. O padrão efectivo é determinado pelo serviço de armazenamento interno: `funcionario_documents/{nomeOriginal}_{timestamp}.{extensao}`, garantindo unicidade por geração de timestamp.
 - **FR-007**: O sistema DEVE permitir listar os documentos de um funcionário, com filtros opcionais por tipo de documento e estado activo/inactivo.
 - **FR-008**: O sistema DEVE permitir consultar os metadados de um documento individual.
 - **FR-009**: O sistema DEVE gerar um endereço temporário de acesso ao ficheiro com tempo de expiração configurável (padrão: 3600 segundos), sem expor credenciais de armazenamento.
