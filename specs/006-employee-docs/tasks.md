@@ -31,7 +31,7 @@
 
 **Purpose**: Migração de base de dados para a tabela `t_document`.
 
-- [ ] T001 Criar migração `src/main/resources/db/migration/V27__create_document_table.sql` — **DEFENSIVA**: `CREATE TABLE IF NOT EXISTS t_document (id UUID NOT NULL, reference_entity VARCHAR(50) NOT NULL, reference_id UUID NOT NULL, document_type_id UUID NOT NULL, file_key VARCHAR(500) NOT NULL, original_filename VARCHAR(255) NOT NULL, content_type VARCHAR(100) NOT NULL, file_size BIGINT NOT NULL, description TEXT, is_active BOOLEAN NOT NULL DEFAULT TRUE, created_date TIMESTAMP WITHOUT TIME ZONE NOT NULL, created_by VARCHAR(255) NOT NULL, last_modified_date TIMESTAMP WITHOUT TIME ZONE, last_modified_by VARCHAR(255), CONSTRAINT pk_document PRIMARY KEY (id), CONSTRAINT fk_document_type FOREIGN KEY (document_type_id) REFERENCES t_tipo_documento(id))` + `CREATE INDEX IF NOT EXISTS idx_document_reference ON t_document (reference_entity, reference_id, is_active)` + `CREATE INDEX IF NOT EXISTS idx_document_type ON t_document (document_type_id)`
+- [X] T001 Criar migração `src/main/resources/db/migration/V27__create_document_table.sql` — **DEFENSIVA**: `CREATE TABLE IF NOT EXISTS t_document (id UUID NOT NULL, reference_entity VARCHAR(50) NOT NULL, reference_id UUID NOT NULL, document_type_id UUID NOT NULL, file_key VARCHAR(500) NOT NULL, original_filename VARCHAR(255) NOT NULL, content_type VARCHAR(100) NOT NULL, file_size BIGINT NOT NULL, description TEXT, is_active BOOLEAN NOT NULL DEFAULT TRUE, created_date TIMESTAMP WITHOUT TIME ZONE NOT NULL, created_by VARCHAR(255) NOT NULL, last_modified_date TIMESTAMP WITHOUT TIME ZONE, last_modified_by VARCHAR(255), CONSTRAINT pk_document PRIMARY KEY (id), CONSTRAINT fk_document_type FOREIGN KEY (document_type_id) REFERENCES t_tipo_documento(id))` + `CREATE INDEX IF NOT EXISTS idx_document_reference ON t_document (reference_entity, reference_id, is_active)` + `CREATE INDEX IF NOT EXISTS idx_document_type ON t_document (document_type_id)`
 
 ---
 
@@ -41,10 +41,10 @@
 
 **⚠️ CRÍTICO**: Nenhuma user story pode começar antes desta fase estar completa.
 
-- [ ] T002 [P] Criar `domain/vo/DocumentoId.java` — value object UUID seguindo o padrão `FuncionarioId.java` (gerarNovo/from(UUID)/from(String), getValor/getStringValor, equals+hashCode)
-- [ ] T003 [P] Criar `domain/m/Documento.java` — modelo de domínio com campos: `DocumentoId id`, `String referenceEntity`, `FuncionarioId referenceId`, `cv.igrp.RH_Service.parametrizacoes.domain.valueobject.DocumentTypeId documentTypeId`, `String fileKey`, `String originalFilename`, `String contentType`, `long fileSize`, `String description`, `Boolean isActive`; factory `criar(...)` com `isActive=true`; factory `reconstituir(...)`; método `desativar()` que sets `isActive=false`
-- [ ] T004 [P] Criar `domain/f/DocumentoFilter.java` — campos: `UUID referenceId`, `UUID documentTypeId`, `Boolean active`
-- [ ] T005 Criar `domain/r/DocumentoRepository.java` — port com: `save(Documento): Documento`, `findById(DocumentoId): Optional<Documento>`, `findAllByFuncionarioId(FuncionarioId, DocumentoFilter): List<Documento>`
+- [X] T002 [P] Criar `domain/vo/DocumentoId.java` — value object UUID seguindo o padrão `FuncionarioId.java` (gerarNovo/from(UUID)/from(String), getValor/getStringValor, equals+hashCode)
+- [X] T003 [P] Criar `domain/m/Documento.java` — modelo de domínio com campos: `DocumentoId id`, `String referenceEntity`, `FuncionarioId referenceId`, `cv.igrp.RH_Service.parametrizacoes.domain.valueobject.DocumentTypeId documentTypeId`, `String fileKey`, `String originalFilename`, `String contentType`, `long fileSize`, `String description`, `Boolean isActive`; factory `criar(...)` com `isActive=true`; factory `reconstituir(...)`; método `desativar()` que sets `isActive=false`
+- [X] T004 [P] Criar `domain/f/DocumentoFilter.java` — campos: `UUID referenceId`, `UUID documentTypeId`, `Boolean active`
+- [X] T005 Criar `domain/r/DocumentoRepository.java` — port com: `save(Documento): Documento`, `findById(DocumentoId): Optional<Documento>`, `findAllByFuncionarioId(FuncionarioId, DocumentoFilter): List<Documento>`
 
 **Checkpoint**: Foundation pronta — todas as user stories podem começar.
 
@@ -58,14 +58,14 @@
 
 **Depends on**: Phase 2 completa; `DocumentoService` e `DocumentoFolder` já existem em `shared/`
 
-- [ ] T006 [P] [US1] Criar `infra/e/DocumentoEntity.java` — `@Entity(name="ColabsDocumentoEntity")`, `@Table(name="t_document")`, `@Audited`, `@EntityListeners(AuditingEntityListener.class)`, extends `AuditEntity`; campos JPA: `UUID id`, `String referenceEntity`, `UUID referenceId`, `UUID documentTypeId`, `String fileKey`, `String originalFilename`, `String contentType`, `long fileSize`, `String description`, `Boolean isActive`
-- [ ] T007 [P] [US1] Criar `infra/r/ColabsDocumentoEntityRepository.java` — `extends JpaRepository<DocumentoEntity, UUID>` com métodos: `findAllByReferenceEntityAndReferenceId(String, UUID): List<DocumentoEntity>`, `findAllByReferenceEntityAndReferenceIdAndIsActive(String, UUID, Boolean): List<DocumentoEntity>`, `findByIdAndReferenceEntityAndReferenceId(UUID, String, UUID): Optional<DocumentoEntity>`
-- [ ] T008 [P] [US1] Criar `app/dto/DocumentoUploadResponse.java` — campos: `String id`, `String fileKey`, `String originalFilename`, `String contentType`, `long fileSize`, `String message`
-- [ ] T009 [US1] Criar `infra/m/DocumentoMapper.java` — `@Component("colabsDocumentoMapper")`; métodos `toDomain(DocumentoEntity): Documento` e `toEntity(Documento): DocumentoEntity`; **NÃO** injectar dependências nesta fase — apenas conversão estrutural entity↔domain; o método `toDTO` será adicionado em T016 (US2) com injecção de `DocumentTypeRepository` de `parametrizacoes/`
-- [ ] T010 [US1] Criar `infra/a/DocumentoRepositoryImpl.java` — `@Repository("colabsDocumentoRepositoryImpl")`; implementa `DocumentoRepository`; método `findAllByFuncionarioId` aplica filtros em memória (documentTypeId, active) sobre `findAllByReferenceEntityAndReferenceId`
-- [ ] T011 [P] [US1] Criar `app/cmd/UploadDocumentoCommand.java` — campos: `String funcionarioId`, `UUID documentTypeId`, `org.springframework.web.multipart.MultipartFile file`, `String description` (nullable)
-- [ ] T012 [US1] Criar `app/cmd/UploadDocumentoCommandHandler.java` — `@Component("colabsUploadDocumentoCommandHandler")`; injeta `FuncionarioRepository`, `cv.igrp.RH_Service.parametrizacoes.domain.repository.DocumentTypeRepository`, `DocumentoRepository`, `cv.igrp.RH_Service.shared.domain.service.DocumentoService`; lógica: (1) valida que funcionário existe (404); (2) carrega DocumentType — 404 se não existe, 400 se `!active`; (3) extrai extensão do `originalFilename`, verifica contra `tipo.getAllowedExtensions()` (split por vírgula, case-insensitive) → 400 com mensagem "Extensão não permitida. Aceites: {lista}"; (4) chama `documentoService.save(DocumentoFolder.FUNCIONARIO, file)` e extrai `fileKey` de `FileResponseDTO.getFileId()`; (5) persiste `Documento.criar(...)` com `referenceEntity="FUNCIONARIO"` e `referenceId=FuncionarioId.from(funcionarioId)`; (6) retorna `ResponseEntity.status(201).body(DocumentoUploadResponse{...})`
-- [ ] T013 [US1] Criar `rest/DocumentoController.java` — `@IgrpController`, `@RestController("colabsDocumentoController")`, `@RequestMapping("api/v1/rh/funcionarios/{funcionarioId}/documentos")`; endpoint `POST /` com `@RequestParam MultipartFile file`, `@RequestParam UUID documentTypeId`, `@RequestParam(required=false) String description`; validar `file.getSize() > 10*1024*1024 → 400`; delegar para `commandBus.send(new UploadDocumentoCommand(...))`
+- [X] T006 [P] [US1] Criar `infra/e/DocumentoEntity.java` — `@Entity(name="ColabsDocumentoEntity")`, `@Table(name="t_document")`, `@Audited`, `@EntityListeners(AuditingEntityListener.class)`, extends `AuditEntity`; campos JPA: `UUID id`, `String referenceEntity`, `UUID referenceId`, `UUID documentTypeId`, `String fileKey`, `String originalFilename`, `String contentType`, `long fileSize`, `String description`, `Boolean isActive`
+- [X] T007 [P] [US1] Criar `infra/r/ColabsDocumentoEntityRepository.java` — `extends JpaRepository<DocumentoEntity, UUID>` com métodos: `findAllByReferenceEntityAndReferenceId(String, UUID): List<DocumentoEntity>`, `findAllByReferenceEntityAndReferenceIdAndIsActive(String, UUID, Boolean): List<DocumentoEntity>`, `findByIdAndReferenceEntityAndReferenceId(UUID, String, UUID): Optional<DocumentoEntity>`
+- [X] T008 [P] [US1] Criar `app/dto/DocumentoUploadResponse.java` — campos: `String id`, `String fileKey`, `String originalFilename`, `String contentType`, `long fileSize`, `String message`
+- [X] T009 [US1] Criar `infra/m/DocumentoMapper.java` — `@Component("colabsDocumentoMapper")`; métodos `toDomain(DocumentoEntity): Documento` e `toEntity(Documento): DocumentoEntity`; **NÃO** injectar dependências nesta fase — apenas conversão estrutural entity↔domain; o método `toDTO` será adicionado em T016 (US2) com injecção de `DocumentTypeRepository` de `parametrizacoes/`
+- [X] T010 [US1] Criar `infra/a/DocumentoRepositoryImpl.java` — `@Repository("colabsDocumentoRepositoryImpl")`; implementa `DocumentoRepository`; método `findAllByFuncionarioId` aplica filtros em memória (documentTypeId, active) sobre `findAllByReferenceEntityAndReferenceId`
+- [X] T011 [P] [US1] Criar `app/cmd/UploadDocumentoCommand.java` — campos: `String funcionarioId`, `UUID documentTypeId`, `org.springframework.web.multipart.MultipartFile file`, `String description` (nullable)
+- [X] T012 [US1] Criar `app/cmd/UploadDocumentoCommandHandler.java` — `@Component("colabsUploadDocumentoCommandHandler")`; injeta `FuncionarioRepository`, `cv.igrp.RH_Service.parametrizacoes.domain.repository.DocumentTypeRepository`, `DocumentoRepository`, `cv.igrp.RH_Service.shared.domain.service.DocumentoService`; lógica: (1) valida que funcionário existe (404); (2) carrega DocumentType — 404 se não existe, 400 se `!active`; (3) extrai extensão do `originalFilename`, verifica contra `tipo.getAllowedExtensions()` (split por vírgula, case-insensitive) → 400 com mensagem "Extensão não permitida. Aceites: {lista}"; (4) chama `documentoService.save(DocumentoFolder.FUNCIONARIO, file)` e extrai `fileKey` de `FileResponseDTO.getFileId()`; (5) persiste `Documento.criar(...)` com `referenceEntity="FUNCIONARIO"` e `referenceId=FuncionarioId.from(funcionarioId)`; (6) retorna `ResponseEntity.status(201).body(DocumentoUploadResponse{...})`
+- [X] T013 [US1] Criar `rest/DocumentoController.java` — `@IgrpController`, `@RestController("colabsDocumentoController")`, `@RequestMapping("api/v1/rh/funcionarios/{funcionarioId}/documentos")`; endpoint `POST /` com `@RequestParam MultipartFile file`, `@RequestParam UUID documentTypeId`, `@RequestParam(required=false) String description`; validar `file.getSize() > 10*1024*1024 → 400`; delegar para `commandBus.send(new UploadDocumentoCommand(...))`
 
 **Checkpoint**: US1 completa — upload funcional, cenários C1-S1 a C1-S6 devem passar.
 
@@ -79,14 +79,14 @@
 
 **Depends on**: US1 completa (DocumentoEntity, Mapper, RepositoryImpl)
 
-- [ ] T014 [P] [US2] Criar `app/dto/DocumentoResponse.java` — campos: `String id`, `String funcionarioId`, `String documentTypeId`, `Object documentType` (nested — usar `cv.igrp.RH_Service.parametrizacoes.application.dto.DocumentTypeResponseDTO` ou similar), `String originalFilename`, `String contentType`, `long fileSize`, `String description`, `Boolean isActive`
-- [ ] T015 [P] [US2] Criar `app/dto/WrapperListaDocumentoDTO.java` — campos: `List<DocumentoResponse> content`, `int totalElements`
-- [ ] T016 [US2] Completar `infra/m/DocumentoMapper.java` — adicionar método `toDTO(Documento): DocumentoResponse` injectando `cv.igrp.RH_Service.parametrizacoes.domain.repository.DocumentTypeRepository` para enriquecer campo `documentType` com os dados do catálogo
-- [ ] T017 [P] [US2] Criar `app/qry/GetDocumentosByFuncionarioQuery.java` — campos: `String funcionarioId`, `UUID documentTypeId` (nullable), `Boolean active` (nullable)
-- [ ] T018 [US2] Criar `app/qry/GetDocumentosByFuncionarioQueryHandler.java` — `@Component("colabsGetDocumentosByFuncionarioQueryHandler")`; injeta `DocumentoRepository`, `DocumentoMapper`; constrói `DocumentoFilter`, chama `findAllByFuncionarioId`, mapeia para DTO, retorna `WrapperListaDocumentoDTO`
-- [ ] T019 [P] [US2] Criar `app/qry/GetDocumentoByIdQuery.java` — campos: `String funcionarioId`, `String documentoId`
-- [ ] T020 [US2] Criar `app/qry/GetDocumentoByIdQueryHandler.java` — `@Component("colabsGetDocumentoByIdQueryHandler")`; injeta `DocumentoRepository`; chama `findById(DocumentoId.from(query.getDocumentoId()))` → 404 se não encontrado; verifica `documento.getReferenceId().equals(FuncionarioId.from(query.getFuncionarioId()))` → 404 se não pertence; verifica `isActive` → 404 se false (documentos inactivos não são acessíveis via API)
-- [ ] T021 [US2] Adicionar endpoints GET ao `rest/DocumentoController.java` — `GET /` com params opcionais `documentTypeId` e `active`; `GET /{documentoId}` retorna `DocumentoResponse`
+- [X] T014 [P] [US2] Criar `app/dto/DocumentoResponse.java` — campos: `String id`, `String funcionarioId`, `String documentTypeId`, `Object documentType` (nested — usar `cv.igrp.RH_Service.parametrizacoes.application.dto.DocumentTypeResponseDTO` ou similar), `String originalFilename`, `String contentType`, `long fileSize`, `String description`, `Boolean isActive`
+- [X] T015 [P] [US2] Criar `app/dto/WrapperListaDocumentoDTO.java` — campos: `List<DocumentoResponse> content`, `int totalElements`
+- [X] T016 [US2] Completar `infra/m/DocumentoMapper.java` — adicionar método `toDTO(Documento): DocumentoResponse` injectando `cv.igrp.RH_Service.parametrizacoes.domain.repository.DocumentTypeRepository` para enriquecer campo `documentType` com os dados do catálogo
+- [X] T017 [P] [US2] Criar `app/qry/GetDocumentosByFuncionarioQuery.java` — campos: `String funcionarioId`, `UUID documentTypeId` (nullable), `Boolean active` (nullable)
+- [X] T018 [US2] Criar `app/qry/GetDocumentosByFuncionarioQueryHandler.java` — `@Component("colabsGetDocumentosByFuncionarioQueryHandler")`; injeta `DocumentoRepository`, `DocumentoMapper`; constrói `DocumentoFilter`, chama `findAllByFuncionarioId`, mapeia para DTO, retorna `WrapperListaDocumentoDTO`
+- [X] T019 [P] [US2] Criar `app/qry/GetDocumentoByIdQuery.java` — campos: `String funcionarioId`, `String documentoId`
+- [X] T020 [US2] Criar `app/qry/GetDocumentoByIdQueryHandler.java` — `@Component("colabsGetDocumentoByIdQueryHandler")`; injeta `DocumentoRepository`; chama `findById(DocumentoId.from(query.getDocumentoId()))` → 404 se não encontrado; verifica `documento.getReferenceId().equals(FuncionarioId.from(query.getFuncionarioId()))` → 404 se não pertence; verifica `isActive` → 404 se false (documentos inactivos não são acessíveis via API)
+- [X] T021 [US2] Adicionar endpoints GET ao `rest/DocumentoController.java` — `GET /` com params opcionais `documentTypeId` e `active`; `GET /{documentoId}` retorna `DocumentoResponse`
 
 **Checkpoint**: US2 completa — listagem e metadados funcionais.
 
@@ -100,10 +100,10 @@
 
 **Depends on**: US1 completa (fileKey persistido), US2 completa (verificação de pertença)
 
-- [ ] T022 [P] [US3] Criar `app/dto/DocumentoDownloadResponse.java` — campos: `String url`, `long expiresIn`
-- [ ] T023 [P] [US3] Criar `app/qry/GetDocumentoDownloadUrlQuery.java` — campos: `String funcionarioId`, `String documentoId`
-- [ ] T024 [US3] Criar `app/qry/GetDocumentoDownloadUrlQueryHandler.java` — `@Component("colabsGetDocumentoDownloadUrlQueryHandler")`; injeta `DocumentoRepository` (port de domínio) e `cv.igrp.RH_Service.shared.domain.service.DocumentoService`; (1) `documentoRepository.findById(DocumentoId.from(query.getDocumentoId()))` → 404 se não existe; (2) verifica pertença ao funcionário → 404 se `referenceId` diferente; (3) verifica `isActive` → 404 se false; (4) chama `documentoService.getPresignedLink(documento.getFileKey())` e extrai URL de `FileUrlDTO`; (5) lê `${igrp.minio.url-expiration-time:3600}` via `@Value` para popular `expiresIn`; retorna `DocumentoDownloadResponse`
-- [ ] T025 [US3] Adicionar endpoint GET `/{documentoId}/download` ao `rest/DocumentoController.java` — retorna `DocumentoDownloadResponse`
+- [X] T022 [P] [US3] Criar `app/dto/DocumentoDownloadResponse.java` — campos: `String url`, `long expiresIn`
+- [X] T023 [P] [US3] Criar `app/qry/GetDocumentoDownloadUrlQuery.java` — campos: `String funcionarioId`, `String documentoId`
+- [X] T024 [US3] Criar `app/qry/GetDocumentoDownloadUrlQueryHandler.java` — `@Component("colabsGetDocumentoDownloadUrlQueryHandler")`; injeta `DocumentoRepository` (port de domínio) e `cv.igrp.RH_Service.shared.domain.service.DocumentoService`; (1) `documentoRepository.findById(DocumentoId.from(query.getDocumentoId()))` → 404 se não existe; (2) verifica pertença ao funcionário → 404 se `referenceId` diferente; (3) verifica `isActive` → 404 se false; (4) chama `documentoService.getPresignedLink(documento.getFileKey())` e extrai URL de `FileUrlDTO`; (5) lê `${igrp.minio.url-expiration-time:3600}` via `@Value` para popular `expiresIn`; retorna `DocumentoDownloadResponse`
+- [X] T025 [US3] Adicionar endpoint GET `/{documentoId}/download` ao `rest/DocumentoController.java` — retorna `DocumentoDownloadResponse`
 
 **Checkpoint**: US3 completa — download funcional, cenário C2-S1 deve retornar URL acessível.
 
@@ -117,9 +117,9 @@
 
 **Depends on**: US1 completa (Documento.desativar(), DocumentoRepositoryImpl.save())
 
-- [ ] T026 [P] [US4] Criar `app/cmd/DesativarDocumentoCommand.java` — campos: `String funcionarioId`, `String documentoId`
-- [ ] T027 [US4] Criar `app/cmd/DesativarDocumentoCommandHandler.java` — `@Component("colabsDesativarDocumentoCommandHandler")`; busca documento por id+referenceEntity+referenceId → 404 se não existe; chama `documento.desativar()`; persiste; retorna `ResponseEntity.ok(Map.of("message","Documento desactivado com sucesso"))` — **idempotente**: se já `isActive=false`, executa igualmente sem erro
-- [ ] T028 [US4] Adicionar endpoint `DELETE /{documentoId}` ao `rest/DocumentoController.java`
+- [X] T026 [P] [US4] Criar `app/cmd/DesativarDocumentoCommand.java` — campos: `String funcionarioId`, `String documentoId`
+- [X] T027 [US4] Criar `app/cmd/DesativarDocumentoCommandHandler.java` — `@Component("colabsDesativarDocumentoCommandHandler")`; busca documento por id+referenceEntity+referenceId → 404 se não existe; chama `documento.desativar()`; persiste; retorna `ResponseEntity.ok(Map.of("message","Documento desactivado com sucesso"))` — **idempotente**: se já `isActive=false`, executa igualmente sem erro
+- [X] T028 [US4] Adicionar endpoint `DELETE /{documentoId}` ao `rest/DocumentoController.java`
 
 **Checkpoint**: US4 completa — cenários C3-S1 a C3-S4 devem passar.
 
@@ -127,9 +127,9 @@
 
 ## Phase 7: Polish & Validação Final
 
-- [ ] T029 Compilar: `mvn -B -DskipTests clean package -Dmaven.compiler.release=21` — confirmar BUILD SUCCESS
-- [ ] T030 Executar testes: `mvn test -Dmaven.compiler.release=21` — confirmar 0 falhas
-- [ ] T031 Smoke tests: iniciar aplicação e executar todos os cenários quickstart C1-C3 (10 passos); verificar que migração V27 aplicou (`\d t_document` no psql) e que índices existem
+- [X] T029 Compilar: `mvn -B -DskipTests clean package -Dmaven.compiler.release=21` — confirmar BUILD SUCCESS
+- [X] T030 Executar testes: `mvn test -Dmaven.compiler.release=21` — confirmar 0 falhas
+- [X] T031 Smoke tests: iniciar aplicação e executar todos os cenários quickstart C1-C3 (10 passos); verificar que migração V27 aplicou (`\d t_document` no psql) e que índices existem
 
 ---
 
