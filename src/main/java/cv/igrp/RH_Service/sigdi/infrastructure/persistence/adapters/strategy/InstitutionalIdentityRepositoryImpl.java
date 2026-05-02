@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.strategy;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.InstitutionalIdentityEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.InstitutionalIdentityEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.InstitutionalIdentityEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.InstitutionalIdentityEntityRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.InstitutionalIdentity;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.InstitutionalIdentityRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentityId;

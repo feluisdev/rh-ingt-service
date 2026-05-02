@@ -62,8 +62,6 @@ public class AssignTacticalActivityBudgetCommandHandler
     response.setEconomicClassifier(saved.getBudget().getClassifier().getCode());
     response.setStatus(saved.getStatus().getCode());
     response.setStatusDesc(saved.getStatus().getDescription());
-    response.setOrganicUnitName(saved.getOrganicUnitName());
-    response.setResponsibleName(saved.getResponsibleName());
 
     return ResponseEntity.ok(response);
   }

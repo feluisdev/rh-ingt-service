@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.mappers.admin;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.InstitutionEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.InstitutionEntity;
 import cv.igrp.RH_Service.sigdi.domain.admin.models.Institution;
 import cv.igrp.RH_Service.sigdi.domain.admin.valueobject.InstitutionId;
 import org.springframework.stereotype.Component;

@@ -1,8 +1,8 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.tatical;
 
 import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.KeyResultsEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.KeyResultsEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.KeyResultsEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.KeyResultsEntityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.filter.KeyResultFilter;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.KeyResult;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.KeyResultRepository;

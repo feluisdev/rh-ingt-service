@@ -1,0 +1,26 @@
+{
+  "type": "dto",
+  "template": "classic",
+  "module": "sigdi",
+  "name": "AssignBudgetDTO",
+  "attributes": [
+    {
+      "name": "activityId",
+      "type": "uuid",
+      "objectType": "java",
+      "required": true
+    },
+    {
+      "name": "budgetEstimated",
+      "type": "decimal",
+      "objectType": "java",
+      "required": true
+    },
+    {
+      "name": "economicClassifier",
+      "type": "string",
+      "objectType": "java",
+      "required": true
+    }
+  ]
+}

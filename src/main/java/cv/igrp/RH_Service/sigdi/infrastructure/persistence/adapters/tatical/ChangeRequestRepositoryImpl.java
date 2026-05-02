@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.tatical;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.ChangeRequestEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.ChangeRequestEntityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.ChangeRequest;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.ChangeRequestRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.ChangeRequestId;

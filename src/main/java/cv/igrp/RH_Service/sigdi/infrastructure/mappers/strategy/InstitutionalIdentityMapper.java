@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.InstitutionalIdentityEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.InstitutionalIdentityEntity;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateIdentityRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.IdentityResponseDTO;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.InstitutionalIdentity;

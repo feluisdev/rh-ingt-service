@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.compliance;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.NotificationLogEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.NotificationLogEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.NotificationLogEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.NotificationLogEntityRepository;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.NotificationLog;
 import cv.igrp.RH_Service.sigdi.domain.compliance.repository.NotificationLogRepository;
 import cv.igrp.RH_Service.sigdi.domain.compliance.valueobject.NotificationLogId;

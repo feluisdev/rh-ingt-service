@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.admin;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.InstitutionEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.InstitutionEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.InstitutionEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.InstitutionEntityRepository;
 import cv.igrp.RH_Service.sigdi.domain.admin.models.Institution;
 import cv.igrp.RH_Service.sigdi.domain.admin.repository.InstitutionRepository;
 import cv.igrp.RH_Service.sigdi.domain.admin.valueobject.InstitutionId;

@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.mappers.compliance;
 
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.SiadapEvaluationEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.SiadapEvaluationEntity;
 import cv.igrp.RH_Service.sigdi.application.constants.SiadapMeritRating;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;
 import cv.igrp.RH_Service.sigdi.domain.compliance.valueobject.SiadapEvaluationId;

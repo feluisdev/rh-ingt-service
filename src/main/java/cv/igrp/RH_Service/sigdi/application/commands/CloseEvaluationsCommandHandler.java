@@ -1,8 +1,8 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.SiadapConfigEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.SiadapConfigEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.SiadapConfigEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.SiadapConfigEntityRepository;
 import cv.igrp.RH_Service.sigdi.application.dto.CloseEvaluationsRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.CloseEvaluationsResponseDTO;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;

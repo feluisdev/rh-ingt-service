@@ -1,8 +1,8 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.admin;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.UserDelegationEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.UserDelegationEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.UserDelegationEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.UserDelegationEntityRepository;
 import cv.igrp.RH_Service.sigdi.domain.admin.models.Delegation;
 import cv.igrp.RH_Service.sigdi.domain.admin.repository.UserDelegationRepository;
 import cv.igrp.RH_Service.sigdi.domain.admin.valueobject.DelegationId;
@@ -58,4 +58,5 @@ public class UserDelegationRepositoryImpl implements UserDelegationRepository {
     UserDelegationEntity saved = jpaRepository.save(revokedEntity);
     return mapper.toDomain(saved);
   }
+
 }
