@@ -61,20 +61,14 @@ public class SecurityConfig {
             return configuration;
         }));
 
-        // Always configure the JWT resource server so BearerTokenAuthenticationFilter is in the
-        // chain and SecurityContext is populated with JwtAuthenticationToken when a valid Bearer
-        // token is present — required for IAMUserProfileSyncFilter to work regardless of whether
-        // app.security.enabled is true or false.
-        http.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
-                .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
-        );
-
         if (isSecurityDisabled()) {
-            // Security disabled — only allowed in development profile via SECURITY_ENABLED=false.
-            // Token is still parsed when present so IAMUserProfileSyncFilter can sync the profile.
+            // Dev mode: no JWT enforcement, no Keycloak calls. X-Employee-Id header is used instead.
             http.csrf(AbstractHttpConfigurer::disable);
             http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
         } else {
+            http.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
+                    .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+            );
             http.authorizeHttpRequests(authorize -> authorize
                             .requestMatchers(
                                 "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
@@ -88,7 +82,6 @@ public class SecurityConfig {
                         response.addHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Restricted Content\"");
                         response.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
                     }));
-
             http.sessionManagement(t -> t.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         }
 
@@ -107,6 +100,12 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
+        if (isSecurityDisabled()) {
+            // In dev mode the oauth2ResourceServer is not configured so this decoder is never
+            // invoked. Return a stub so Spring Boot auto-configuration does not try to create its
+            // own decoder (which would contact Keycloak at startup).
+            return token -> { throw new org.springframework.security.oauth2.jwt.BadJwtException("Security disabled"); };
+        }
         return NimbusJwtDecoder.withIssuerLocation(jwtIssuer).build();
     }
 
