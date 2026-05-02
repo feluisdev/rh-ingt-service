@@ -41,4 +41,7 @@ public class KeyResultRequestDTO  {
   private String criteriaAlcancado;
   private String criteriaInsuficiente;
 
+  private BigDecimal weight;
+  private UUID okrId;
+
 }

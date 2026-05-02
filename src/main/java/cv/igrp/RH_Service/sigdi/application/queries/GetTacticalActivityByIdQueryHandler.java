@@ -8,8 +8,10 @@ import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.TaticalActivi
 import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.TacticalActivitiesEntityRepository;
 import cv.igrp.RH_Service.sigdi.application.constants.TacticalActivityStatus;
 import cv.igrp.RH_Service.sigdi.application.dto.ChangeRequestResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.KeyResultResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityDetailDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WorkflowHistoryItemDTO;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.KeyResultsEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +54,7 @@ public class GetTacticalActivityByIdQueryHandler
     dto.setOrganicUnitId(entity.getOrganicUnitId() != null ? entity.getOrganicUnitId().toString() : null);
     dto.setOrganicUnitName(entity.getOrganicUnit() != null ? entity.getOrganicUnit().getNome() : null);
     dto.setTitle(entity.getTitle());
+    dto.setDescriptionWhat(entity.getDescriptionWhat());
     dto.setJustificationWhy(entity.getJustificationWhy());
     dto.setResponsibleWho(entity.getResponsibleWho() != null ? entity.getResponsibleWho().toString() : null);
     dto.setResponsibleName(entity.getResponsible() != null ? entity.getResponsible().getNome() : null);
@@ -75,6 +78,11 @@ public class GetTacticalActivityByIdQueryHandler
           .ifPresent(s -> dto.setStatusDesc(s.getDescription()));
     }
 
+    List<KeyResultResponseDTO> krs = entity.getKeyResults().stream()
+        .map(this::toKeyResultDTO)
+        .toList();
+    dto.setKeyResults(krs);
+
     List<WorkflowHistoryItemDTO> history = entity.getHistoricals().stream()
         .map(this::toHistoryItem)
         .toList();
@@ -85,6 +93,23 @@ public class GetTacticalActivityByIdQueryHandler
         .toList();
     dto.setChangeRequests(changeRequests);
 
+    return dto;
+  }
+
+  private KeyResultResponseDTO toKeyResultDTO(KeyResultsEntity entity) {
+    KeyResultResponseDTO dto = new KeyResultResponseDTO();
+    dto.setId(entity.getId());
+    dto.setTitle(entity.getTitle());
+    dto.setTargetValue(entity.getTargetValue());
+    dto.setCurrentValue(entity.getCurrentValue());
+    dto.setMetricUnit(entity.getMetricUnit());
+    dto.setWeight(entity.getWeight());
+    dto.setCriteriaSuperado(entity.getCriteriaSuperado());
+    dto.setCriteriaSeguranca(entity.getCriteriaSeguranca());
+    dto.setCriteriaAlcancado(entity.getCriteriaAlcancado());
+    dto.setCriteriaInsuficiente(entity.getCriteriaInsuficiente());
+    dto.setActivityId(entity.getActivityId() != null ? entity.getActivityId().getId() : null);
+    dto.setOkrId(entity.getOkrId() != null ? entity.getOkrId().getId() : null);
     return dto;
   }
 

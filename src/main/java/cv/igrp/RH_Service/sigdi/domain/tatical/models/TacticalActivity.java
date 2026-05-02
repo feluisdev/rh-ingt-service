@@ -207,4 +207,17 @@ public class TacticalActivity {
         this.responsibleWho, this.responsibleName, this.methodologyHow,
         this.dateRange, this.budget, this.status, this.version, updatedList);
   }
+
+  public TacticalActivity update(StrategicGoalId strategicGoalId, UUID organicUnitId, String title, 
+      String descriptionWhat, String justificationWhy, String locationWhere, UUID responsibleWho, 
+      String methodologyHow, DateRange dateRange, Budget budget) {
+    
+    // Always reverts to DRAFT after update as per requirements
+    TacticalActivityStatus nextStatus = (budget != null) ? TacticalActivityStatus.DRAFT : TacticalActivityStatus.PENDING_BUDGET;
+
+    return new TacticalActivity(this.id, this.institutionId, strategicGoalId,
+        organicUnitId, null, title, descriptionWhat, justificationWhy, locationWhere,
+        responsibleWho, null, methodologyHow, dateRange, budget,
+        nextStatus, this.version, this.keyResults);
+  }
 }
