@@ -120,6 +120,34 @@ public class TaticalController {
 
   }
 
+   @PutMapping(
+   value = "activities/{id}"
+  )
+  @Operation(
+    summary = "Update tactical activity",
+    description = "Update tactical activity",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = TacticalActivityResponseDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<TacticalActivityResponseDTO> updateTacticalActivity(@Valid @RequestBody UpdateTacticalActivityCommand updateTacticalActivityRequest
+    , @PathVariable(value = "id") String id)
+  {
+      updateTacticalActivityRequest.setId(id);
+      return commandBus.send(updateTacticalActivityRequest);
+
+  }
+
    @PatchMapping(
    value = "activities/{id}/status"
   )
