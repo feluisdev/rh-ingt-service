@@ -109,6 +109,29 @@ public class MeController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
+    // ── US5: Recibos de Vencimento ───────────────────────────────────────────
+
+    @GetMapping("payroll-slips")
+    @Operation(summary = "Listar recibos de vencimento do colaborador autenticado")
+    public ResponseEntity<WrapperListaReciboDTO> getMyPayrollSlips(
+            @RequestParam(required = false) Integer periodYear,
+            @RequestParam(required = false) Integer periodMonth) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<WrapperListaReciboDTO> response = queryBus.handle(
+                new GetMePayrollSlipsQuery(periodYear, periodMonth));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("payroll-slips/{id}/download")
+    @Operation(summary = "Obter URL de download do PDF do recibo próprio (valida ownership)")
+    public ResponseEntity<Map<String, ?>> getMyPayrollSlipDownloadUrl(@PathVariable String id) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<Map<String, ?>> response = queryBus.handle(new GetMePayrollSlipDownloadQuery(id));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
     // ── US4: Documentos ──────────────────────────────────────────────────────
 
     @GetMapping("documents")
