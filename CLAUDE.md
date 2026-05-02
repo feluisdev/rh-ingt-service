@@ -174,7 +174,7 @@ docs(sigdi): ...
 - `/endpoints.md` — Auto-documented API endpoint list (current legacy state)
 
 <!-- SPECKIT START -->
-Active feature plan: [specs/008-colaborador-me/plan.md](specs/008-colaborador-me/plan.md)
+Active feature plan: [specs/009-dossier-formacoes-disciplinar-recibos/plan.md](specs/009-dossier-formacoes-disciplinar-recibos/plan.md)
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan.
 <!-- SPECKIT END -->
