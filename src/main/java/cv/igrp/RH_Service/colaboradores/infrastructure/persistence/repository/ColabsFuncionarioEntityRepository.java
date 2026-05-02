@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.Funcio
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ColabsFuncionarioEntityRepository
@@ -13,4 +14,5 @@ public interface ColabsFuncionarioEntityRepository
     boolean existsByNifAndIdNot(String nif, UUID id);
     boolean existsByBiNumero(String biNumero);
     boolean existsByBiNumeroAndIdNot(String biNumero, UUID id);
+    Optional<FuncionarioEntity> findByEmailIgnoreCase(String email);
 }

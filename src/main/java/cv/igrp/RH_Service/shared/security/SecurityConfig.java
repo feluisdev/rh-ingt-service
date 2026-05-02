@@ -1,10 +1,11 @@
 package cv.igrp.RH_Service.shared.security;
 
+import cv.igrp.RH_Service.shared.infrastructure.security.IAMUserProfileSyncFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -30,16 +31,18 @@ import org.springframework.web.cors.CorsConfiguration;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${spring.profiles.active}")
-    private String activeProfile;
-
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private String jwtIssuer;
 
-    /**
-     * Configures the security filter chain, enabling OAuth2 resource server with JWT and specifying
-     * which requests require authentication.
-     */
+    @Value("${app.security.enabled:true}")
+    private boolean securityEnabled;
+
+    private final Environment environment;
+
+    public SecurityConfig(Environment environment) {
+        this.environment = environment;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, IAMUserProfileSyncFilter iamUserProfileSyncFilter) throws Exception {
 
@@ -58,33 +61,37 @@ public class SecurityConfig {
             return configuration;
         }));
 
-        /*if ("development".equals(activeProfile) || "staging".equals(activeProfile)) {
-            // Disable security in development mode
-            http.csrf(AbstractHttpConfigurer::disable);
-            http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
-            return http.build();
-        }*/
-
-        // Configure OAuth2 Resource Server to use JWT tokens for authentication
-        http.oauth2ResourceServer((oauth2ResourceServer) -> oauth2ResourceServer
+        // Always configure the JWT resource server so BearerTokenAuthenticationFilter is in the
+        // chain and SecurityContext is populated with JwtAuthenticationToken when a valid Bearer
+        // token is present — required for IAMUserProfileSyncFilter to work regardless of whether
+        // app.security.enabled is true or false.
+        http.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
                 .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
         );
 
-        // Configure authorization rules and policy enforcement
-        http
-                .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers(HttpMethod.GET).permitAll()
-                        .anyRequest().authenticated()
-                )
-                .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
-                    response.addHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Restricted Content\"");
-                    response.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
-                }));
+        if (isSecurityDisabled()) {
+            // Security disabled — only allowed in development profile via SECURITY_ENABLED=false.
+            // Token is still parsed when present so IAMUserProfileSyncFilter can sync the profile.
+            http.csrf(AbstractHttpConfigurer::disable);
+            http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+        } else {
+            http.authorizeHttpRequests(authorize -> authorize
+                            .requestMatchers(
+                                "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
+                                "/swagger-resources/**", "/webjars/**", "/actuator/**"
+                            )
+                            .permitAll()
+                            .anyRequest()
+                            .authenticated()
+                    )
+                    .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
+                        response.addHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Restricted Content\"");
+                        response.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
+                    }));
 
-        // Set session management to stateless (no session created for API requests)
-        http.sessionManagement(t -> t.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+            http.sessionManagement(t -> t.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        }
 
-        // Sync IAM profile from JWT claims on every authenticated request
         http.addFilterBefore(iamUserProfileSyncFilter, AuthorizationFilter.class);
 
         return http.build();
@@ -99,7 +106,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    @Profile("!development & !staging")
     public JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withIssuerLocation(jwtIssuer).build();
     }
@@ -114,5 +120,12 @@ public class SecurityConfig {
     @Bean
     public OAuth2AuthorizedClientProvider tokenExchange() {
         return new TokenExchangeOAuth2AuthorizedClientProvider();
+    }
+
+    // SECURITY_ENABLED=false is only honoured in the development profile.
+    // In staging/production the flag is ignored and auth is always enforced.
+    private boolean isSecurityDisabled() {
+        boolean isDevelopment = environment.matchesProfiles("development");
+        return !securityEnabled && isDevelopment;
     }
 }
