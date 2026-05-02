@@ -20,4 +20,7 @@ public class LicencaMobilidadeRequest {
     private String entidadeDestino;
     private String despachoNumero;
     private String observacoes;
+    private String justification;
+    private java.util.UUID destinationUnitId;
+    private java.util.UUID documentId;
 }

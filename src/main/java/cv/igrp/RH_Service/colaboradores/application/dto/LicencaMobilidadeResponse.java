@@ -16,4 +16,8 @@ public class LicencaMobilidadeResponse {
     private String despachoNumero;
     private String observacoes;
     private Boolean isActive;
+    private String status;
+    private String destinationUnitId;
+    private String justification;
+    private String rejectionReason;
 }

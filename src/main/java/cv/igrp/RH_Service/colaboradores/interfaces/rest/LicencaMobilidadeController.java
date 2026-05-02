@@ -20,7 +20,7 @@ import java.util.UUID;
 @IgrpController
 @RestController("colabsLicencaMobilidadeController")
 @RequestMapping(path = "api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade")
-@Tag(name = "LicencaMobilidade", description = "Gestão de licenças e mobilidade de funcionários")
+@Tag(name = "LicençaMobilidade", description = "Gestão de licenças e mobilidade de funcionários")
 public class LicencaMobilidadeController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LicencaMobilidadeController.class);
@@ -81,8 +81,58 @@ public class LicencaMobilidadeController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
+    // ── Workflow ─────────────────────────────────────────────────────────────
+
+    @PutMapping("{licencaId}/approve")
+    @Operation(summary = "Aprovar licença/mobilidade (PENDING → ACTIVE; mobilidades criam nova colocação)")
+    public ResponseEntity<Map<String, ?>> approve(
+            @PathVariable String funcionarioId,
+            @PathVariable String licencaId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<Map<String, ?>> response = commandBus.send(new AprovarLicencaMobilidadeCommand(licencaId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @PutMapping("{licencaId}/reject")
+    @Operation(summary = "Rejeitar licença/mobilidade (PENDING → REJECTED)")
+    public ResponseEntity<Map<String, ?>> reject(
+            @PathVariable String funcionarioId,
+            @PathVariable String licencaId,
+            @Valid @RequestBody RejeitarLicencaMobilidadeRequest request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<Map<String, ?>> response = commandBus.send(
+                new RejeitarLicencaMobilidadeCommand(licencaId, request.getRejectionReason()));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @PutMapping("{licencaId}/close")
+    @Operation(summary = "Encerrar licença/mobilidade (ACTIVE → CLOSED; mobilidades restauram colocação anterior)")
+    public ResponseEntity<Map<String, ?>> close(
+            @PathVariable String funcionarioId,
+            @PathVariable String licencaId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<Map<String, ?>> response = commandBus.send(new EncerrarLicencaMobilidadeCommand(licencaId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @PutMapping("{licencaId}/cancel")
+    @Operation(summary = "Cancelar licença/mobilidade (PENDING ou ACTIVE → CANCELLED)")
+    public ResponseEntity<Map<String, ?>> cancel(
+            @PathVariable String funcionarioId,
+            @PathVariable String licencaId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<Map<String, ?>> response = commandBus.send(new CancelarLicencaMobilidadeCommand(licencaId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    // ── Legacy aliases (mantidos para compatibilidade) ───────────────────────
+
     @PatchMapping("{licencaId}/ativar")
-    @Operation(summary = "Activar licença/mobilidade")
+    @Operation(summary = "Activar licença/mobilidade (alias de /approve, mantido por compatibilidade)")
     public ResponseEntity<Map<String, ?>> ativar(
             @PathVariable String funcionarioId,
             @PathVariable String licencaId) {
@@ -93,7 +143,7 @@ public class LicencaMobilidadeController {
     }
 
     @PatchMapping("{licencaId}/desativar")
-    @Operation(summary = "Desactivar licença/mobilidade")
+    @Operation(summary = "Desactivar licença/mobilidade (alias de /cancel, mantido por compatibilidade)")
     public ResponseEntity<Map<String, ?>> desativar(
             @PathVariable String funcionarioId,
             @PathVariable String licencaId) {

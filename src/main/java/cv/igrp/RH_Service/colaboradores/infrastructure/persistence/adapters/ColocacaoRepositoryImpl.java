@@ -63,4 +63,13 @@ public class ColocacaoRepositoryImpl implements ColocacaoRepository {
     public boolean existsByFuncionarioId(FuncionarioId funcionarioId) {
         return entityRepository.existsByFuncionarioId(funcionarioId.getValor());
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<Colocacao> findMostRecentNonMobilidadeByFuncionarioId(FuncionarioId funcionarioId) {
+        return entityRepository
+                .findFirstByFuncionarioIdAndAssignmentTypeNotAndIsActiveTrueOrderByStartDateDesc(
+                        funcionarioId.getValor(), "MOBILIDADE")
+                .map(mapper::toDomain);
+    }
 }

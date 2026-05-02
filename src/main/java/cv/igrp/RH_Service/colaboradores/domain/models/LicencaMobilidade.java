@@ -6,6 +6,7 @@ import cv.igrp.RH_Service.colaboradores.domain.valueobject.SubtipoLicencaMobilid
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Getter
 public class LicencaMobilidade {
@@ -19,6 +20,11 @@ public class LicencaMobilidade {
     private String despachoNumero;
     private String observacoes;
     private Boolean isActive;
+    private String status;
+    private UUID destinationUnitId;
+    private String justification;
+    private UUID documentId;
+    private String rejectionReason;
 
     private LicencaMobilidade() {}
 
@@ -26,7 +32,8 @@ public class LicencaMobilidade {
                                           SubtipoLicencaMobilidadeId subtipoId,
                                           LocalDate dataInicio, LocalDate dataFim,
                                           String entidadeDestino, String despachoNumero,
-                                          String observacoes) {
+                                          String observacoes, String justification,
+                                          UUID destinationUnitId, UUID documentId) {
         LicencaMobilidade l = new LicencaMobilidade();
         l.id = LicencaMobilidadeId.gerarNovo();
         l.funcionarioId = funcionarioId;
@@ -36,7 +43,11 @@ public class LicencaMobilidade {
         l.entidadeDestino = entidadeDestino;
         l.despachoNumero = despachoNumero;
         l.observacoes = observacoes;
+        l.justification = justification;
+        l.destinationUnitId = destinationUnitId;
+        l.documentId = documentId;
         l.isActive = true;
+        l.status = "PENDING";
         return l;
     }
 
@@ -45,7 +56,10 @@ public class LicencaMobilidade {
                                                   SubtipoLicencaMobilidadeId subtipoId,
                                                   LocalDate dataInicio, LocalDate dataFim,
                                                   String entidadeDestino, String despachoNumero,
-                                                  String observacoes, Boolean isActive) {
+                                                  String observacoes, Boolean isActive,
+                                                  String status, UUID destinationUnitId,
+                                                  String justification, UUID documentId,
+                                                  String rejectionReason) {
         LicencaMobilidade l = new LicencaMobilidade();
         l.id = id;
         l.funcionarioId = funcionarioId;
@@ -56,6 +70,11 @@ public class LicencaMobilidade {
         l.despachoNumero = despachoNumero;
         l.observacoes = observacoes;
         l.isActive = isActive;
+        l.status = status != null ? status : "PENDING";
+        l.destinationUnitId = destinationUnitId;
+        l.justification = justification;
+        l.documentId = documentId;
+        l.rejectionReason = rejectionReason;
         return l;
     }
 
@@ -68,6 +87,37 @@ public class LicencaMobilidade {
         this.observacoes = observacoes;
     }
 
-    public void ativar() { this.isActive = true; }
-    public void desativar() { this.isActive = false; }
+    public void ativar() {
+        this.isActive = true;
+        this.status = "ACTIVE";
+    }
+
+    public void desativar() {
+        this.isActive = false;
+    }
+
+    public void aprovar() {
+        this.isActive = true;
+        this.status = "ACTIVE";
+    }
+
+    public void rejeitar(String reason) {
+        this.isActive = false;
+        this.status = "REJECTED";
+        this.rejectionReason = reason;
+    }
+
+    public void encerrar() {
+        this.isActive = false;
+        this.status = "CLOSED";
+        if (this.dataFim == null) this.dataFim = LocalDate.now();
+    }
+
+    public void cancelar() {
+        this.isActive = false;
+        this.status = "CANCELLED";
+    }
+
+    public boolean isPending() { return "PENDING".equals(this.status); }
+    public boolean isApproved() { return "ACTIVE".equals(this.status); }
 }

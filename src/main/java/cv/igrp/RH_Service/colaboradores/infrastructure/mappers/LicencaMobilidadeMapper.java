@@ -24,7 +24,10 @@ public class LicencaMobilidadeMapper {
                 SubtipoLicencaMobilidadeId.from(e.getSubtipoId()),
                 e.getDataInicio(), e.getDataFim(),
                 e.getEntidadeDestino(), e.getDespachoNumero(),
-                e.getObservacoes(), e.getIsActive());
+                e.getObservacoes(), e.getIsActive(),
+                e.getStatus(), e.getDestinationUnitId(),
+                e.getJustification(), e.getDocumentId(),
+                e.getRejectionReason());
     }
 
     public LicencaMobilidadeEntity toEntity(LicencaMobilidade l) {
@@ -38,6 +41,11 @@ public class LicencaMobilidadeMapper {
         e.setDespachoNumero(l.getDespachoNumero());
         e.setObservacoes(l.getObservacoes());
         e.setIsActive(l.getIsActive());
+        e.setStatus(l.getStatus() != null ? l.getStatus() : "PENDING");
+        e.setDestinationUnitId(l.getDestinationUnitId());
+        e.setJustification(l.getJustification());
+        e.setDocumentId(l.getDocumentId());
+        e.setRejectionReason(l.getRejectionReason());
         return e;
     }
 
@@ -52,6 +60,10 @@ public class LicencaMobilidadeMapper {
         r.setDespachoNumero(l.getDespachoNumero());
         r.setObservacoes(l.getObservacoes());
         r.setIsActive(l.getIsActive());
+        r.setStatus(l.getStatus());
+        r.setDestinationUnitId(l.getDestinationUnitId() != null ? l.getDestinationUnitId().toString() : null);
+        r.setJustification(l.getJustification());
+        r.setRejectionReason(l.getRejectionReason());
         subtipoRepository.findById(l.getSubtipoId())
                 .ifPresent(s -> r.setSubtipo(subtipoMapper.toDTO(s)));
         return r;

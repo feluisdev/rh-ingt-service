@@ -41,7 +41,8 @@ public class CreateLicencaMobilidadeCommandHandler
         var saved = licencaRepository.save(LicencaMobilidade.criar(
                 funcionarioId, subtipoId,
                 dto.getDataInicio(), dto.getDataFim(),
-                dto.getEntidadeDestino(), dto.getDespachoNumero(), dto.getObservacoes()));
+                dto.getEntidadeDestino(), dto.getDespachoNumero(), dto.getObservacoes(),
+                dto.getJustification(), dto.getDestinationUnitId(), dto.getDocumentId()));
 
         return ResponseEntity.status(201).body(Map.of(
                 "id", saved.getId().getStringValor(),

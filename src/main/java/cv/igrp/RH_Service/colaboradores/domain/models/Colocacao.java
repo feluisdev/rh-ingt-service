@@ -71,4 +71,9 @@ public class Colocacao {
     public void desativar() {
         this.isActive = false;
     }
+
+    public void reabrir() {
+        this.isCurrent = true;
+        this.endDate = null;
+    }
 }

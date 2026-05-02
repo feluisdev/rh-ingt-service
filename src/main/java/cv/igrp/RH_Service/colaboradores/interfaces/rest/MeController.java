@@ -98,6 +98,15 @@ public class MeController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
+    @GetMapping("leaves-mobilities/{id}")
+    @Operation(summary = "Obter detalhe de licença/mobilidade própria (valida ownership)")
+    public ResponseEntity<LicencaMobilidadeResponse> getMyLeaveMobilityById(@PathVariable String id) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<LicencaMobilidadeResponse> response = queryBus.handle(new GetMeLicencaMobilidadeByIdQuery(id));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
     @PostMapping("leaves-mobilities")
     @Operation(summary = "Auto-submeter licença/mobilidade (apenas quando canSelfSubmit=true no subtipo)")
     public ResponseEntity<Map<String, ?>> createMyLeaveMobility(

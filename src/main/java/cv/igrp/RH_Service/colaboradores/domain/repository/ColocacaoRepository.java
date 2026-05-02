@@ -16,4 +16,6 @@ public interface ColocacaoRepository {
     Optional<Colocacao> findCurrentByFuncionarioId(FuncionarioId funcionarioId);
     void fecharColocacaoAtual(FuncionarioId funcionarioId, LocalDate endDate);
     boolean existsByFuncionarioId(FuncionarioId funcionarioId);
+
+    Optional<Colocacao> findMostRecentNonMobilidadeByFuncionarioId(FuncionarioId funcionarioId);
 }

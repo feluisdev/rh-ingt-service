@@ -46,4 +46,19 @@ public class LicencaMobilidadeEntity extends AuditEntity {
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
+
+    @Column(name = "status", nullable = false, length = 20)
+    private String status;
+
+    @Column(name = "destination_unit_id")
+    private UUID destinationUnitId;
+
+    @Column(name = "justification", columnDefinition = "TEXT")
+    private String justification;
+
+    @Column(name = "document_id")
+    private UUID documentId;
+
+    @Column(name = "rejection_reason", columnDefinition = "TEXT")
+    private String rejectionReason;
 }

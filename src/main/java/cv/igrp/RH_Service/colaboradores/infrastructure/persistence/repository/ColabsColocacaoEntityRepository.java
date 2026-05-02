@@ -25,4 +25,7 @@ public interface ColabsColocacaoEntityRepository extends JpaRepository<Colocacao
     @Query("UPDATE ColabsColocacaoEntity c SET c.endDate = :endDate, c.isCurrent = false " +
            "WHERE c.funcionarioId = :funcionarioId AND c.isCurrent = true AND c.isActive = true")
     void fecharColocacaoAtual(@Param("funcionarioId") UUID funcionarioId, @Param("endDate") LocalDate endDate);
+
+    Optional<ColocacaoEntity> findFirstByFuncionarioIdAndAssignmentTypeNotAndIsActiveTrueOrderByStartDateDesc(
+            UUID funcionarioId, String assignmentType);
 }

@@ -20,4 +20,5 @@ public class SelfServiceCriarLicencaMobilidadeRequest {
     private String entidadeDestino;
     private String despachoNumero;
     private String observacoes;
+    private String justification;
 }

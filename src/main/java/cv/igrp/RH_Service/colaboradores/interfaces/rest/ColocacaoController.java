@@ -88,6 +88,18 @@ public class ColocacaoController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
+    @PutMapping("{colocacaoId}/close")
+    @Operation(summary = "Encerrar colocação histórica (define data de fim de hoje; não aplicável à actual)")
+    public ResponseEntity<Map<String, ?>> encerrarColocacao(
+            @PathVariable String funcionarioId,
+            @PathVariable String colocacaoId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<Map<String, ?>> response = commandBus.send(
+                new EncerrarColocacaoCommand(funcionarioId, colocacaoId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
     @DeleteMapping("{colocacaoId}")
     @Operation(summary = "Remover colocação (soft delete — apenas se não for a actual)")
     public ResponseEntity<Map<String, ?>> desativarColocacao(
