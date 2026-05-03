@@ -11,7 +11,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.ChangeRequestResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.KeyResultResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityDetailDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WorkflowHistoryItemDTO;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.KeyResultsEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.KeyResultsEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;

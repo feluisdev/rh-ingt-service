@@ -211,8 +211,8 @@ public class TacticalActivity {
     TacticalActivityStatus nextStatus = (budget != null) ? TacticalActivityStatus.DRAFT : TacticalActivityStatus.PENDING_BUDGET;
 
     return new TacticalActivity(this.id, this.institutionId, strategicGoalId,
-        organicUnitId, null, title, descriptionWhat, justificationWhy, locationWhere,
-        responsibleWho, null, methodologyHow, dateRange, budget,
+        organicUnitId, title, descriptionWhat, justificationWhy, locationWhere,
+        responsibleWho, methodologyHow, dateRange, budget,
         nextStatus, this.version, this.keyResults);
   }
 }
