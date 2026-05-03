@@ -68,18 +68,18 @@ public class UpdateTacticalActivityCommandHandler
     }
 
     DateRange dateRange = DateRange.of(request.getStartDate(), request.getEndDate());
-    
+
     Budget budget = null;
-    if (request.getEconomicClassifier() != null && !request.getEconomicClassifier().isBlank() 
+    if (request.getEconomicClassifier() != null && !request.getEconomicClassifier().isBlank()
         && request.getBudgetEstimated() != null) {
-      
+
       BudgetInfoDTO budgetInfo = economicClassifierPort.getBudget(request.getEconomicClassifier());
 
       if (request.getBudgetEstimated().compareTo(budgetInfo.availableBudget()) > 0) {
         throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
             "Budget limit exceeded for this classifier. Available: " + budgetInfo.availableBudget());
       }
-      
+
       budget = Budget.of(request.getBudgetEstimated(), request.getEconomicClassifier());
     }
 
@@ -109,7 +109,7 @@ public class UpdateTacticalActivityCommandHandler
     response.setMethodologyHow(saved.getMethodologyHow());
     response.setStartDate(saved.getDateRange().getStartDate());
     response.setEndDate(saved.getDateRange().getEndDate());
-    
+
     if (saved.getBudget() != null) {
       response.setBudgetEstimated(saved.getBudget().getEstimatedAmount());
       response.setEconomicClassifier(saved.getBudget().getClassifier().getCode());
