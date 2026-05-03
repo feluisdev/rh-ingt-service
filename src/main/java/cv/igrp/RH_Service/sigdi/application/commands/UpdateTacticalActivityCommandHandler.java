@@ -8,8 +8,6 @@ import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.Budget;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.DepartamentoEntityRepository;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.FuncionarioEntityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.DateRange;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.TacticalActivityId;
 import cv.igrp.framework.core.domain.CommandHandler;
@@ -31,19 +29,13 @@ public class UpdateTacticalActivityCommandHandler
   private final EconomicClassifierPort economicClassifierPort;
   private final StrategicGoalRepository goalRepository;
   private final TacticalActivityRepository activityRepository;
-  private final DepartamentoEntityRepository departamentoRepository;
-  private final FuncionarioEntityRepository funcionarioRepository;
 
   public UpdateTacticalActivityCommandHandler(EconomicClassifierPort economicClassifierPort,
       StrategicGoalRepository goalRepository,
-      TacticalActivityRepository activityRepository,
-      DepartamentoEntityRepository departamentoRepository,
-      FuncionarioEntityRepository funcionarioRepository) {
+      TacticalActivityRepository activityRepository) {
     this.economicClassifierPort = economicClassifierPort;
     this.goalRepository = goalRepository;
     this.activityRepository = activityRepository;
-    this.departamentoRepository = departamentoRepository;
-    this.funcionarioRepository = funcionarioRepository;
   }
 
   @IgrpCommandHandler
@@ -59,13 +51,6 @@ public class UpdateTacticalActivityCommandHandler
     goalRepository.findById(strategicGoalId)
         .orElseThrow(() -> IgrpResponseStatusException.badRequest("strategicGoalId inválido"));
 
-    if (!departamentoRepository.existsById(request.getOrganicUnitId())) {
-      throw IgrpResponseStatusException.badRequest("organicUnitId (Departamento) inválido ou não encontrado");
-    }
-
-    if (!funcionarioRepository.existsById(request.getResponsibleWho())) {
-      throw IgrpResponseStatusException.badRequest("responsibleWho (Funcionário) inválido ou não encontrado");
-    }
 
     DateRange dateRange = DateRange.of(request.getStartDate(), request.getEndDate());
     
