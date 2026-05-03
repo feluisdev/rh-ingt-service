@@ -1,9 +1,10 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.lookup;
 
-import cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.OrganizationalUnitEntity;
-import cv.igrp.RH_Service.estrutura.infrastructure.persistence.repository.OrganizationalUnitEntityRepository;
+import cv.igrp.RH_Service.estrutura.domain.models.OrganizationalUnit;
+import cv.igrp.RH_Service.estrutura.domain.repository.OrganizationalUnitRepository;
 import cv.igrp.RH_Service.sigdi.application.dto.OrganicaDTO;
 import cv.igrp.RH_Service.sigdi.application.port.OrganicaLookupPort;
+import cv.igrp.RH_Service.estrutura.domain.valueobject.OrganizationalUnitId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -17,25 +18,27 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrganicaLookupAdapter implements OrganicaLookupPort {
 
-    private final OrganizationalUnitEntityRepository repository;
+    private final OrganizationalUnitRepository repository;
 
     @Override
     public Optional<OrganicaDTO> findById(UUID id) {
-        return repository.findById(id).map(this::toDto);
+        return repository.findById(OrganizationalUnitId.from(id)).map(this::toDto);
     }
 
     @Override
     public Map<UUID, OrganicaDTO> findAllByIds(Collection<UUID> ids) {
         if (ids == null || ids.isEmpty()) return Map.of();
-        return repository.findAllById(ids).stream()
-                .collect(Collectors.toMap(OrganizationalUnitEntity::getId, this::toDto));
+        return repository.findAllByIds(ids).stream()
+                .collect(Collectors.toMap(
+                        u -> u.getId().getValor(),
+                        this::toDto));
     }
 
-    private OrganicaDTO toDto(OrganizationalUnitEntity entity) {
+    private OrganicaDTO toDto(OrganizationalUnit unit) {
         OrganicaDTO dto = new OrganicaDTO();
-        dto.setId(entity.getId().toString());
-        dto.setName(entity.getName());
-        dto.setAcronym(entity.getAcronym());
+        dto.setId(unit.getId().getValor().toString());
+        dto.setName(unit.getName());
+        dto.setAcronym(unit.getAcronym());
         return dto;
     }
 }
