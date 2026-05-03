@@ -7,7 +7,7 @@ import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.estrutura.infrastructure.persistence.repository.OrganizationalUnitEntityRepository;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.CargoEntityRepository;
+import cv.igrp.RH_Service.estrutura.infrastructure.persistence.repository.JobEntityRepository;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class RegistarColocacaoCommandHandler
     private final FuncionarioRepository funcionarioRepository;
     private final ColocacaoRepository colocacaoRepository;
     private final OrganizationalUnitEntityRepository unitEntityRepository;
-    private final CargoEntityRepository cargoEntityRepository;
+    private final JobEntityRepository jobEntityRepository;
 
     @IgrpCommandHandler
     @Transactional
@@ -57,7 +57,7 @@ public class RegistarColocacaoCommandHandler
         UUID jobId = null;
         if (dto.getJobId() != null && !dto.getJobId().isBlank()) {
             jobId = UUID.fromString(dto.getJobId());
-            if (!cargoEntityRepository.existsById(jobId))
+            if (!jobEntityRepository.existsById(jobId))
                 throw IgrpResponseStatusException.notFound("Cargo não encontrado: " + dto.getJobId());
         }
 

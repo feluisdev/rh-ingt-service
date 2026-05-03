@@ -9,7 +9,7 @@ import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
 import org.springframework.http.HttpStatus;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.CargoEntityRepository;
+import cv.igrp.RH_Service.estrutura.infrastructure.persistence.repository.JobEntityRepository;
 import cv.igrp.RH_Service.estrutura.infrastructure.persistence.repository.OrganizationalUnitEntityRepository;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
@@ -26,7 +26,7 @@ public class GetMeProfileQueryHandler
     private final FuncionarioRepository funcionarioRepository;
     private final EnquadramentoRepository enquadramentoRepository;
     private final OrganizationalUnitEntityRepository unitEntityRepository;
-    private final CargoEntityRepository cargoEntityRepository;
+    private final JobEntityRepository jobEntityRepository;
     private final CareerEntityRepository careerEntityRepository;
     private final CategoryEntityRepository categoryEntityRepository;
     private final GradeEntityRepository gradeEntityRepository;
@@ -57,8 +57,8 @@ public class GetMeProfileQueryHandler
                         response.setCurrentUnit(new MeProfileResponseDTO.UnitRef(u.getId().toString(), u.getName())));
             }
             if (enq.getCargoId() != null) {
-                cargoEntityRepository.findById(enq.getCargoId()).ifPresent(c ->
-                        response.setCurrentJob(new MeProfileResponseDTO.JobRef(c.getId().toString(), c.getNome())));
+                jobEntityRepository.findById(enq.getCargoId()).ifPresent(j ->
+                        response.setCurrentJob(new MeProfileResponseDTO.JobRef(j.getId().toString(), j.getName())));
             }
             if (enq.getCareerId() != null) {
                 careerEntityRepository.findById(enq.getCareerId()).ifPresent(c ->
