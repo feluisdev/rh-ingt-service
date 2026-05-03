@@ -15,6 +15,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -74,6 +75,15 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
     @Override
     public boolean existsByBiNumeroAndIdNot(String biNumero, FuncionarioId id) {
         return entityRepository.existsByBiNumeroAndIdNot(biNumero, id.getValor());
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Funcionario> findAllByIds(Collection<UUID> ids) {
+        if (ids == null || ids.isEmpty()) return List.of();
+        return entityRepository.findAllById(ids).stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 
     private Specification<FuncionarioEntity> toSpec(FuncionarioFilter filter) {

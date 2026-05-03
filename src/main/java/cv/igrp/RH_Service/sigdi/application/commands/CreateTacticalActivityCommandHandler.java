@@ -4,6 +4,8 @@ import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.security.SecurityContextHelper;
 import cv.igrp.RH_Service.sigdi.application.dto.BudgetInfoDTO;
 import cv.igrp.RH_Service.sigdi.application.port.EconomicClassifierPort;
+import cv.igrp.RH_Service.sigdi.application.port.FuncionarioLookupPort;
+import cv.igrp.RH_Service.sigdi.application.port.OrganicaLookupPort;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
@@ -30,15 +32,21 @@ public class CreateTacticalActivityCommandHandler
   private final StrategicGoalRepository goalRepository;
   private final TacticalActivityRepository activityRepository;
   private final SecurityContextHelper securityContextHelper;
+  private final OrganicaLookupPort organicaLookupPort;
+  private final FuncionarioLookupPort funcionarioLookupPort;
 
   public CreateTacticalActivityCommandHandler(EconomicClassifierPort economicClassifierPort,
       StrategicGoalRepository goalRepository,
       TacticalActivityRepository activityRepository,
-      SecurityContextHelper securityContextHelper) {
+      SecurityContextHelper securityContextHelper,
+      OrganicaLookupPort organicaLookupPort,
+      FuncionarioLookupPort funcionarioLookupPort) {
     this.economicClassifierPort = economicClassifierPort;
     this.goalRepository = goalRepository;
     this.activityRepository = activityRepository;
     this.securityContextHelper = securityContextHelper;
+    this.organicaLookupPort = organicaLookupPort;
+    this.funcionarioLookupPort = funcionarioLookupPort;
   }
 
   @IgrpCommandHandler
@@ -46,9 +54,22 @@ public class CreateTacticalActivityCommandHandler
     LOGGER.debug("CreateTacticalActivityCommand : {}", command);
 
     var request = command.getCreatetacticalactivity();
+
     StrategicGoalId strategicGoalId = StrategicGoalId.from(request.getStrategicGoalId());
     goalRepository.findById(strategicGoalId)
         .orElseThrow(() -> IgrpResponseStatusException.badRequest("strategicGoalId inválido"));
+
+    if (request.getOrganicUnitId() != null) {
+      organicaLookupPort.findById(request.getOrganicUnitId())
+          .orElseThrow(() -> IgrpResponseStatusException.badRequest(
+              "organicUnitId inválido ou não encontrado: " + request.getOrganicUnitId()));
+    }
+
+    if (request.getResponsibleWho() != null) {
+      funcionarioLookupPort.findById(request.getResponsibleWho())
+          .orElseThrow(() -> IgrpResponseStatusException.badRequest(
+              "responsibleWho inválido ou não encontrado: " + request.getResponsibleWho()));
+    }
 
     DateRange dateRange = DateRange.of(request.getStartDate(), request.getEndDate());
     
@@ -101,6 +122,15 @@ public class CreateTacticalActivityCommandHandler
     response.setVersion(saved.getVersion());
     response.setStatus(saved.getStatus().getCode());
     response.setStatusDesc(saved.getStatus().getDescription());
+
+    if (saved.getOrganicUnitId() != null) {
+      organicaLookupPort.findById(saved.getOrganicUnitId())
+          .ifPresent(o -> response.setOrganicUnitName(o.getName()));
+    }
+    if (saved.getResponsibleWho() != null) {
+      funcionarioLookupPort.findById(saved.getResponsibleWho())
+          .ifPresent(f -> response.setResponsibleName(f.getNomeCompleto()));
+    }
 
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
