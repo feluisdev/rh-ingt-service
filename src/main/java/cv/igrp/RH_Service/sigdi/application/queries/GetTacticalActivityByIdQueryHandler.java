@@ -11,6 +11,8 @@ import cv.igrp.RH_Service.sigdi.application.dto.ChangeRequestResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.KeyResultResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityDetailDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WorkflowHistoryItemDTO;
+import cv.igrp.RH_Service.sigdi.application.port.FuncionarioLookupPort;
+import cv.igrp.RH_Service.sigdi.application.port.OrganicaLookupPort;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.KeyResultsEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +30,15 @@ public class GetTacticalActivityByIdQueryHandler
   private static final Logger LOGGER = LoggerFactory.getLogger(GetTacticalActivityByIdQueryHandler.class);
 
   private final TacticalActivitiesEntityRepository repository;
+  private final OrganicaLookupPort organicaLookupPort;
+  private final FuncionarioLookupPort funcionarioLookupPort;
 
-  public GetTacticalActivityByIdQueryHandler(TacticalActivitiesEntityRepository repository) {
+  public GetTacticalActivityByIdQueryHandler(TacticalActivitiesEntityRepository repository,
+      OrganicaLookupPort organicaLookupPort,
+      FuncionarioLookupPort funcionarioLookupPort) {
     this.repository = repository;
+    this.organicaLookupPort = organicaLookupPort;
+    this.funcionarioLookupPort = funcionarioLookupPort;
   }
 
   @IgrpQueryHandler
@@ -52,12 +60,18 @@ public class GetTacticalActivityByIdQueryHandler
     dto.setId(entity.getId().toString());
     dto.setStrategicGoalId(entity.getStrategicGoalId() != null ? entity.getStrategicGoalId().toString() : null);
     dto.setOrganicUnitId(entity.getOrganicUnitId() != null ? entity.getOrganicUnitId().toString() : null);
-    dto.setOrganicUnitName(null);
+    if (entity.getOrganicUnitId() != null) {
+      organicaLookupPort.findById(entity.getOrganicUnitId())
+          .ifPresent(o -> dto.setOrganicUnitName(o.getName()));
+    }
     dto.setTitle(entity.getTitle());
     dto.setDescriptionWhat(entity.getDescriptionWhat());
     dto.setJustificationWhy(entity.getJustificationWhy());
     dto.setResponsibleWho(entity.getResponsibleWho() != null ? entity.getResponsibleWho().toString() : null);
-    dto.setResponsibleName(null);
+    if (entity.getResponsibleWho() != null) {
+      funcionarioLookupPort.findById(entity.getResponsibleWho())
+          .ifPresent(f -> dto.setResponsibleName(f.getNomeCompleto()));
+    }
     dto.setLocationWhere(entity.getLocationWhere());
     dto.setMethodologyHow(entity.getMethodologyHow());
     dto.setStartDate(entity.getStartDate() != null ? entity.getStartDate().toString() : null);
