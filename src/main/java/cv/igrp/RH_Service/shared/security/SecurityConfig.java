@@ -130,13 +130,7 @@ public class SecurityConfig {
    */
   @Bean
   public JwtDecoder jwtDecoder() {
-    // withIssuerLocation() makes an OIDC discovery HTTP call at startup and Spring 6.2.x
-    // RfcUriParser rejects hostnames with underscores (common in Docker service names).
-    // withJwkSetUri() skips discovery entirely and fetches keys lazily on first token validation.
-    String uri = (jwkSetUri != null && !jwkSetUri.isBlank())
-        ? jwkSetUri
-        : jwtIssuer + "/protocol/openid-connect/certs";
-    return NimbusJwtDecoder.withJwkSetUri(uri).build();
+    return NimbusJwtDecoder.withIssuerLocation(jwtIssuer).build();
   }
 
   /**
