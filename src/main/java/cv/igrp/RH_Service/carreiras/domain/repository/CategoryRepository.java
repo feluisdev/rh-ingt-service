@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.carreiras.domain.filter.CategoryFilter;
 import cv.igrp.RH_Service.carreiras.domain.models.Category;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CareerId;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CategoryId;
+import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +15,7 @@ public interface CategoryRepository {
 
     Optional<Category> findById(CategoryId id);
 
-    List<Category> findAll(CategoryFilter filter);
+    PageResult<Category> findAll(CategoryFilter filter);
 
     List<Category> findByCareerId(CareerId careerId);
 

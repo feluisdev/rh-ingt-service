@@ -7,13 +7,13 @@ import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.DocumentTypeMap
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.DocumentTypeEntity;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.DocumentTypeEntityRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.DocumentTypeId;
+import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -46,7 +46,7 @@ public class DocumentTypeRepositoryImpl implements DocumentTypeRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public List<DocumentType> findAll(DocumentTypeFilter filter) {
+    public PageResult<DocumentType> findAll(DocumentTypeFilter filter) {
         var pageable = PageRequest.of(filter.getPage(), filter.getSize());
 
         Specification<DocumentTypeEntity> spec = (root, query, cb) -> {
@@ -66,9 +66,10 @@ public class DocumentTypeRepositoryImpl implements DocumentTypeRepository {
             return predicates;
         };
 
-        return documentTypeEntityRepository.findAll(spec, pageable)
-            .stream()
-            .map(documentTypeMapper::toDomain)
-            .toList();
+        var page = documentTypeEntityRepository.findAll(spec, pageable);
+        var data = page.getContent().stream().map(documentTypeMapper::toDomain).toList();
+        return new PageResult<>(data, page.getNumber(), page.getSize(),
+                page.getTotalElements(), page.getTotalPages(),
+                page.isFirst(), page.isLast());
     }
 }

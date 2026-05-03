@@ -11,6 +11,7 @@ import cv.igrp.RH_Service.carreiras.infrastructure.persistence.repository.GradeE
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +42,7 @@ public class GradeRepositoryImpl implements GradeRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Grade> findAll(GradeFilter filter) {
+    public PageResult<Grade> findAll(GradeFilter filter) {
         var pageable = PageRequest.of(filter.getPage(), filter.getSize());
 
         Specification<GradeEntity> spec = (root, query, cb) -> {
@@ -60,10 +61,11 @@ public class GradeRepositoryImpl implements GradeRepository {
             return predicates;
         };
 
-        return entityRepository.findAll(spec, pageable)
-                .stream()
-                .map(mapper::toDomain)
-                .toList();
+        var page = entityRepository.findAll(spec, pageable);
+        var data = page.getContent().stream().map(mapper::toDomain).toList();
+        return new PageResult<>(data, page.getNumber(), page.getSize(),
+                page.getTotalElements(), page.getTotalPages(),
+                page.isFirst(), page.isLast());
     }
 
     @Transactional(readOnly = true)

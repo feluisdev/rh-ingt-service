@@ -2,7 +2,6 @@ package cv.igrp.RH_Service.parametrizacoes.application.queries;
 
 import cv.igrp.RH_Service.parametrizacoes.application.dto.WrapperListaOptionDTO;
 import cv.igrp.RH_Service.parametrizacoes.domain.filter.OptionFilter;
-import cv.igrp.RH_Service.parametrizacoes.domain.models.Option;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.OptionRepository;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.OptionMapper;
 import cv.igrp.framework.core.domain.QueryHandler;
@@ -13,8 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -36,13 +33,17 @@ public class ListOptionsQueryHandler implements QueryHandler<ListOptionsQuery, R
         filter.setPage(query.getPagina() != null ? Integer.parseInt(query.getPagina()) : 0);
         filter.setSize(query.getTamanho() != null ? Integer.parseInt(query.getTamanho()) : 20);
 
-        List<Option> options = optionRepository.findAll(filter);
-
-        var content = options.stream().map(optionMapper::toDTO).toList();
+        var pageResult = optionRepository.findAll(filter);
+        var content = pageResult.getData().stream().map(optionMapper::toDTO).toList();
 
         var wrapper = new WrapperListaOptionDTO();
         wrapper.setContent(new java.util.ArrayList<>(content));
-        wrapper.setTotalElements((long) content.size());
+        wrapper.setTotalElements(pageResult.getTotalElements());
+        wrapper.setPageNumber(pageResult.getPageNumber());
+        wrapper.setPageSize(pageResult.getPageSize());
+        wrapper.setTotalPages(pageResult.getTotalPages());
+        wrapper.setFirst(pageResult.isFirst());
+        wrapper.setLast(pageResult.isLast());
 
         return ResponseEntity.ok(wrapper);
     }

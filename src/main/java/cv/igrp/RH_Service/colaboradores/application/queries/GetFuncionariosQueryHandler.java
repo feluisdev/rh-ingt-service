@@ -44,6 +44,9 @@ public class GetFuncionariosQueryHandler
         var wrapper = new WrapperListaFuncionarioDTO();
         wrapper.setContent(new ArrayList<>(content));
         wrapper.setTotalElements(total);
+        wrapper.setPageNumber(filter.getPage());
+        wrapper.setPageSize(filter.getSize());
+        wrapper.setTotalPages((int) Math.ceil((double) total / filter.getSize()));
 
         return ResponseEntity.ok(wrapper);
     }

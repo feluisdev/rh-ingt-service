@@ -12,8 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-
 @Component
 @RequiredArgsConstructor
 public class ListProfessionalSituationsQueryHandler implements QueryHandler<ListProfessionalSituationsQuery, ResponseEntity<WrapperListaProfessionalSituationDTO>> {
@@ -31,13 +29,17 @@ public class ListProfessionalSituationsQueryHandler implements QueryHandler<List
         filter.setPage(query.getPagina() != null ? Integer.parseInt(query.getPagina()) : 0);
         filter.setSize(query.getTamanho() != null ? Integer.parseInt(query.getTamanho()) : 20);
 
-        var content = professionalSituationRepository.findAll(filter).stream()
-            .map(professionalSituationMapper::toDTO)
-            .toList();
+        var pageResult = professionalSituationRepository.findAll(filter);
+        var content = pageResult.getData().stream().map(professionalSituationMapper::toDTO).toList();
 
         var wrapper = new WrapperListaProfessionalSituationDTO();
-        wrapper.setContent(new ArrayList<>(content));
-        wrapper.setTotalElements((long) content.size());
+        wrapper.setContent(new java.util.ArrayList<>(content));
+        wrapper.setTotalElements(pageResult.getTotalElements());
+        wrapper.setPageNumber(pageResult.getPageNumber());
+        wrapper.setPageSize(pageResult.getPageSize());
+        wrapper.setTotalPages(pageResult.getTotalPages());
+        wrapper.setFirst(pageResult.isFirst());
+        wrapper.setLast(pageResult.isLast());
 
         return ResponseEntity.ok(wrapper);
     }

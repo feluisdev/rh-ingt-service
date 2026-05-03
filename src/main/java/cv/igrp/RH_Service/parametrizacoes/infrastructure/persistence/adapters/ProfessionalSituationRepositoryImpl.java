@@ -7,13 +7,13 @@ import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.ProfessionalSit
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.ProfessionalSituationEntity;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.ProfessionalSituationEntityRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.ProfessionalSituationId;
+import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -46,7 +46,7 @@ public class ProfessionalSituationRepositoryImpl implements ProfessionalSituatio
 
     @Transactional(readOnly = true)
     @Override
-    public List<ProfessionalSituation> findAll(ProfessionalSituationFilter filter) {
+    public PageResult<ProfessionalSituation> findAll(ProfessionalSituationFilter filter) {
         var pageable = PageRequest.of(filter.getPage(), filter.getSize());
 
         Specification<ProfessionalSituationEntity> spec = (root, query, cb) -> {
@@ -66,9 +66,10 @@ public class ProfessionalSituationRepositoryImpl implements ProfessionalSituatio
             return predicates;
         };
 
-        return professionalSituationEntityRepository.findAll(spec, pageable)
-            .stream()
-            .map(professionalSituationMapper::toDomain)
-            .toList();
+        var page = professionalSituationEntityRepository.findAll(spec, pageable);
+        var data = page.getContent().stream().map(professionalSituationMapper::toDomain).toList();
+        return new PageResult<>(data, page.getNumber(), page.getSize(),
+                page.getTotalElements(), page.getTotalPages(),
+                page.isFirst(), page.isLast());
     }
 }

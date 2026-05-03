@@ -12,4 +12,9 @@ import java.util.List;
 public class WrapperListaDependenteDTO {
     private List<DependenteResponseDTO> content;
     private long totalElements;
+    private int pageNumber;
+    private int pageSize;
+    private int totalPages;
+    private boolean first;
+    private boolean last;
 }

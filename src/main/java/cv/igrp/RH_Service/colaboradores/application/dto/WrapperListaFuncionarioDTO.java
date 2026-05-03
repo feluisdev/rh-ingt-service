@@ -12,4 +12,7 @@ import java.util.List;
 public class WrapperListaFuncionarioDTO {
     private List<FuncionarioResponseDTO> content;
     private long totalElements;
+    private int pageNumber;
+    private int pageSize;
+    private int totalPages;
 }

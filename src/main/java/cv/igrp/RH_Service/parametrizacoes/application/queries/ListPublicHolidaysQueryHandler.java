@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 
 @Component
 @RequiredArgsConstructor
@@ -40,13 +39,17 @@ public class ListPublicHolidaysQueryHandler implements QueryHandler<ListPublicHo
             filter.setDateTo(LocalDate.parse(query.getDateTo()));
         }
 
-        var content = publicHolidayRepository.findAll(filter).stream()
-            .map(publicHolidayMapper::toDTO)
-            .toList();
+        var pageResult = publicHolidayRepository.findAll(filter);
+        var content = pageResult.getData().stream().map(publicHolidayMapper::toDTO).toList();
 
         var wrapper = new WrapperListaPublicHolidayDTO();
-        wrapper.setContent(new ArrayList<>(content));
-        wrapper.setTotalElements((long) content.size());
+        wrapper.setContent(new java.util.ArrayList<>(content));
+        wrapper.setTotalElements(pageResult.getTotalElements());
+        wrapper.setPageNumber(pageResult.getPageNumber());
+        wrapper.setPageSize(pageResult.getPageSize());
+        wrapper.setTotalPages(pageResult.getTotalPages());
+        wrapper.setFirst(pageResult.isFirst());
+        wrapper.setLast(pageResult.isLast());
 
         return ResponseEntity.ok(wrapper);
     }

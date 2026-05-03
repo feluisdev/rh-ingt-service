@@ -47,6 +47,11 @@ public class GetMePayrollSlipsQueryHandler
         var wrapper = new WrapperListaReciboDTO();
         wrapper.setContent(new ArrayList<>(list));
         wrapper.setTotalElements(list.size());
+        wrapper.setPageNumber(0);
+        wrapper.setPageSize(list.size());
+        wrapper.setTotalPages(list.size() == 0 ? 0 : 1);
+        wrapper.setFirst(true);
+        wrapper.setLast(true);
         return ResponseEntity.ok(wrapper);
     }
 }

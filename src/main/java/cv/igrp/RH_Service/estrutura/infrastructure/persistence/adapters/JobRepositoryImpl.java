@@ -7,13 +7,13 @@ import cv.igrp.RH_Service.estrutura.domain.valueobject.JobId;
 import cv.igrp.RH_Service.estrutura.infrastructure.mappers.JobMapper;
 import cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.JobEntity;
 import cv.igrp.RH_Service.estrutura.infrastructure.persistence.repository.JobEntityRepository;
+import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -44,7 +44,7 @@ public class JobRepositoryImpl implements JobRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Job> findAll(JobFilter filter) {
+    public PageResult<Job> findAll(JobFilter filter) {
         var pageable = PageRequest.of(filter.getPage(), filter.getSize());
 
         Specification<JobEntity> spec = (root, query, cb) -> {
@@ -59,10 +59,11 @@ public class JobRepositoryImpl implements JobRepository {
             return predicates;
         };
 
-        return entityRepository.findAll(spec, pageable)
-                .stream()
-                .map(mapper::toDomain)
-                .toList();
+        var page = entityRepository.findAll(spec, pageable);
+        var data = page.getContent().stream().map(mapper::toDomain).toList();
+        return new PageResult<>(data, page.getNumber(), page.getSize(),
+                page.getTotalElements(), page.getTotalPages(),
+                page.isFirst(), page.isLast());
     }
 
     @Transactional(readOnly = true)

@@ -8,4 +8,9 @@ import java.util.List;
 public class WrapperListaDocumentoDTO {
     private List<DocumentoResponseDTO> content;
     private int totalElements;
+    private int pageNumber;
+    private int pageSize;
+    private int totalPages;
+    private boolean first;
+    private boolean last;
 }

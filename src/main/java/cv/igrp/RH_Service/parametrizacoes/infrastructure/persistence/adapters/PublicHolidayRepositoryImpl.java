@@ -7,6 +7,7 @@ import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.PublicHolidayMa
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.PublicHolidayEntity;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.PublicHolidayEntityRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.PublicHolidayId;
+import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -47,7 +47,7 @@ public class PublicHolidayRepositoryImpl implements PublicHolidayRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public List<PublicHoliday> findAll(PublicHolidayFilter filter) {
+    public PageResult<PublicHoliday> findAll(PublicHolidayFilter filter) {
         var pageable = PageRequest.of(filter.getPage(), filter.getSize());
 
         Specification<PublicHolidayEntity> spec = (root, query, cb) -> {
@@ -86,9 +86,10 @@ public class PublicHolidayRepositoryImpl implements PublicHolidayRepository {
             return predicates;
         };
 
-        return publicHolidayEntityRepository.findAll(spec, pageable)
-            .stream()
-            .map(publicHolidayMapper::toDomain)
-            .toList();
+        var page = publicHolidayEntityRepository.findAll(spec, pageable);
+        var data = page.getContent().stream().map(publicHolidayMapper::toDomain).toList();
+        return new PageResult<>(data, page.getNumber(), page.getSize(),
+                page.getTotalElements(), page.getTotalPages(),
+                page.isFirst(), page.isLast());
     }
 }

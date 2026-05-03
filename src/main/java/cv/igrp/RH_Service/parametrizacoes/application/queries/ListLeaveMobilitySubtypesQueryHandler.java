@@ -2,7 +2,6 @@ package cv.igrp.RH_Service.parametrizacoes.application.queries;
 
 import cv.igrp.RH_Service.parametrizacoes.application.dto.WrapperListaLeaveMobilitySubtypeDTO;
 import cv.igrp.RH_Service.parametrizacoes.domain.filter.LeaveMobilitySubtypeFilter;
-import cv.igrp.RH_Service.parametrizacoes.domain.models.LeaveMobilitySubtype;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.LeaveMobilitySubtypeRepository;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.LeaveMobilitySubtypeMapper;
 import cv.igrp.framework.core.domain.QueryHandler;
@@ -12,8 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -33,13 +30,17 @@ public class ListLeaveMobilitySubtypesQueryHandler implements QueryHandler<ListL
         filter.setPage(query.getPagina() != null ? Integer.parseInt(query.getPagina()) : 0);
         filter.setSize(query.getTamanho() != null ? Integer.parseInt(query.getTamanho()) : 20);
 
-        List<LeaveMobilitySubtype> subtypes = leaveMobilitySubtypeRepository.findAll(filter);
-
-        var content = subtypes.stream().map(leaveMobilitySubtypeMapper::toDTO).toList();
+        var pageResult = leaveMobilitySubtypeRepository.findAll(filter);
+        var content = pageResult.getData().stream().map(leaveMobilitySubtypeMapper::toDTO).toList();
 
         var wrapper = new WrapperListaLeaveMobilitySubtypeDTO();
         wrapper.setContent(new java.util.ArrayList<>(content));
-        wrapper.setTotalElements((long) content.size());
+        wrapper.setTotalElements(pageResult.getTotalElements());
+        wrapper.setPageNumber(pageResult.getPageNumber());
+        wrapper.setPageSize(pageResult.getPageSize());
+        wrapper.setTotalPages(pageResult.getTotalPages());
+        wrapper.setFirst(pageResult.isFirst());
+        wrapper.setLast(pageResult.isLast());
 
         return ResponseEntity.ok(wrapper);
     }

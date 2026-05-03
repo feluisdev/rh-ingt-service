@@ -7,13 +7,13 @@ import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.WorkerStateMapp
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.WorkerStateEntity;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.WorkerStateEntityRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.WorkerStateId;
+import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -46,7 +46,7 @@ public class WorkerStateRepositoryImpl implements WorkerStateRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public List<WorkerState> findAll(WorkerStateFilter filter) {
+    public PageResult<WorkerState> findAll(WorkerStateFilter filter) {
         var pageable = PageRequest.of(filter.getPage(), filter.getSize());
 
         Specification<WorkerStateEntity> spec = (root, query, cb) -> {
@@ -66,9 +66,10 @@ public class WorkerStateRepositoryImpl implements WorkerStateRepository {
             return predicates;
         };
 
-        return workerStateEntityRepository.findAll(spec, pageable)
-            .stream()
-            .map(workerStateMapper::toDomain)
-            .toList();
+        var page = workerStateEntityRepository.findAll(spec, pageable);
+        var data = page.getContent().stream().map(workerStateMapper::toDomain).toList();
+        return new PageResult<>(data, page.getNumber(), page.getSize(),
+                page.getTotalElements(), page.getTotalPages(),
+                page.isFirst(), page.isLast());
     }
 }

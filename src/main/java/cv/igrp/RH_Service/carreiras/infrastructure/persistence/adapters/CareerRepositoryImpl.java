@@ -8,13 +8,13 @@ import cv.igrp.RH_Service.carreiras.infrastructure.mappers.CareerMapper;
 import cv.igrp.RH_Service.carreiras.infrastructure.persistence.entity.CareerEntity;
 import cv.igrp.RH_Service.carreiras.infrastructure.persistence.repository.CareerEntityRepository;
 import cv.igrp.RH_Service.carreiras.infrastructure.persistence.repository.CategoryEntityRepository;
+import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -46,7 +46,7 @@ public class CareerRepositoryImpl implements CareerRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Career> findAll(CareerFilter filter) {
+    public PageResult<Career> findAll(CareerFilter filter) {
         var pageable = PageRequest.of(filter.getPage(), filter.getSize());
 
         Specification<CareerEntity> spec = (root, query, cb) -> {
@@ -61,10 +61,11 @@ public class CareerRepositoryImpl implements CareerRepository {
             return predicates;
         };
 
-        return entityRepository.findAll(spec, pageable)
-                .stream()
-                .map(mapper::toDomain)
-                .toList();
+        var page = entityRepository.findAll(spec, pageable);
+        var data = page.getContent().stream().map(mapper::toDomain).toList();
+        return new PageResult<>(data, page.getNumber(), page.getSize(),
+                page.getTotalElements(), page.getTotalPages(),
+                page.isFirst(), page.isLast());
     }
 
     @Transactional(readOnly = true)

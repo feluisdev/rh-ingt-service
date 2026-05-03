@@ -7,13 +7,13 @@ import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.LeaveTypeMapper
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.LeaveTypeEntity;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.LeaveTypeEntityRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.LeaveTypeId;
+import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -46,7 +46,7 @@ public class LeaveTypeRepositoryImpl implements LeaveTypeRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public List<LeaveType> findAll(LeaveTypeFilter filter) {
+    public PageResult<LeaveType> findAll(LeaveTypeFilter filter) {
         var pageable = PageRequest.of(filter.getPage(), filter.getSize());
 
         Specification<LeaveTypeEntity> spec = (root, query, cb) -> {
@@ -66,9 +66,10 @@ public class LeaveTypeRepositoryImpl implements LeaveTypeRepository {
             return predicates;
         };
 
-        return leaveTypeEntityRepository.findAll(spec, pageable)
-            .stream()
-            .map(leaveTypeMapper::toDomain)
-            .toList();
+        var page = leaveTypeEntityRepository.findAll(spec, pageable);
+        var data = page.getContent().stream().map(leaveTypeMapper::toDomain).toList();
+        return new PageResult<>(data, page.getNumber(), page.getSize(),
+                page.getTotalElements(), page.getTotalPages(),
+                page.isFirst(), page.isLast());
     }
 }

@@ -9,6 +9,7 @@ import cv.igrp.RH_Service.carreiras.infrastructure.mappers.CategoryMapper;
 import cv.igrp.RH_Service.carreiras.infrastructure.persistence.entity.CategoryEntity;
 import cv.igrp.RH_Service.carreiras.infrastructure.persistence.repository.CategoryEntityRepository;
 import cv.igrp.RH_Service.carreiras.infrastructure.persistence.repository.GradeEntityRepository;
+import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -41,7 +42,7 @@ public class CategoryRepositoryImpl implements CategoryRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Category> findAll(CategoryFilter filter) {
+    public PageResult<Category> findAll(CategoryFilter filter) {
         var pageable = PageRequest.of(filter.getPage(), filter.getSize());
 
         Specification<CategoryEntity> spec = (root, query, cb) -> {
@@ -60,10 +61,11 @@ public class CategoryRepositoryImpl implements CategoryRepository {
             return predicates;
         };
 
-        return entityRepository.findAll(spec, pageable)
-                .stream()
-                .map(mapper::toDomain)
-                .toList();
+        var page = entityRepository.findAll(spec, pageable);
+        var data = page.getContent().stream().map(mapper::toDomain).toList();
+        return new PageResult<>(data, page.getNumber(), page.getSize(),
+                page.getTotalElements(), page.getTotalPages(),
+                page.isFirst(), page.isLast());
     }
 
     @Transactional(readOnly = true)

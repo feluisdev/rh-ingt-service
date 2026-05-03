@@ -7,13 +7,13 @@ import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.ContractTypeMap
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.ContractTypeEntity;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.ContractTypeEntityRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.ContractTypeId;
+import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -46,7 +46,7 @@ public class ContractTypeRepositoryImpl implements ContractTypeRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public List<ContractType> findAll(ContractTypeFilter filter) {
+    public PageResult<ContractType> findAll(ContractTypeFilter filter) {
         var pageable = PageRequest.of(filter.getPage(), filter.getSize());
 
         Specification<ContractTypeEntity> spec = (root, query, cb) -> {
@@ -66,9 +66,10 @@ public class ContractTypeRepositoryImpl implements ContractTypeRepository {
             return predicates;
         };
 
-        return contractTypeEntityRepository.findAll(spec, pageable)
-            .stream()
-            .map(contractTypeMapper::toDomain)
-            .toList();
+        var page = contractTypeEntityRepository.findAll(spec, pageable);
+        var data = page.getContent().stream().map(contractTypeMapper::toDomain).toList();
+        return new PageResult<>(data, page.getNumber(), page.getSize(),
+                page.getTotalElements(), page.getTotalPages(),
+                page.isFirst(), page.isLast());
     }
 }

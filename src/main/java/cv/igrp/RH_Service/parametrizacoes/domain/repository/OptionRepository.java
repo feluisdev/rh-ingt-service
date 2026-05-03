@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.parametrizacoes.domain.repository;
 
 import cv.igrp.RH_Service.parametrizacoes.domain.filter.OptionFilter;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.Option;
+import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public interface OptionRepository {
 
     boolean existsByCcodeAndCkeyAndLocale(String ccode, String ckey, String locale);
 
-    List<Option> findAll(OptionFilter filter);
+    PageResult<Option> findAll(OptionFilter filter);
 
     void delete(ExternalID id);
 }

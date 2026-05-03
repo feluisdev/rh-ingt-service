@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.carreiras.domain.filter.GradeFilter;
 import cv.igrp.RH_Service.carreiras.domain.models.Grade;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CategoryId;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.GradeId;
+import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +15,7 @@ public interface GradeRepository {
 
     Optional<Grade> findById(GradeId id);
 
-    List<Grade> findAll(GradeFilter filter);
+    PageResult<Grade> findAll(GradeFilter filter);
 
     List<Grade> findByCategoryIdOrderByGradeNumber(CategoryId categoryId);
 

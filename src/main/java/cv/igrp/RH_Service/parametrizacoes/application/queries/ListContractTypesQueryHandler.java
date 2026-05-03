@@ -12,8 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-
 @Component
 @RequiredArgsConstructor
 public class ListContractTypesQueryHandler implements QueryHandler<ListContractTypesQuery, ResponseEntity<WrapperListaContractTypeDTO>> {
@@ -31,13 +29,17 @@ public class ListContractTypesQueryHandler implements QueryHandler<ListContractT
         filter.setPage(query.getPagina() != null ? Integer.parseInt(query.getPagina()) : 0);
         filter.setSize(query.getTamanho() != null ? Integer.parseInt(query.getTamanho()) : 20);
 
-        var content = contractTypeRepository.findAll(filter).stream()
-            .map(contractTypeMapper::toDTO)
-            .toList();
+        var pageResult = contractTypeRepository.findAll(filter);
+        var content = pageResult.getData().stream().map(contractTypeMapper::toDTO).toList();
 
         var wrapper = new WrapperListaContractTypeDTO();
-        wrapper.setContent(new ArrayList<>(content));
-        wrapper.setTotalElements((long) content.size());
+        wrapper.setContent(new java.util.ArrayList<>(content));
+        wrapper.setTotalElements(pageResult.getTotalElements());
+        wrapper.setPageNumber(pageResult.getPageNumber());
+        wrapper.setPageSize(pageResult.getPageSize());
+        wrapper.setTotalPages(pageResult.getTotalPages());
+        wrapper.setFirst(pageResult.isFirst());
+        wrapper.setLast(pageResult.isLast());
 
         return ResponseEntity.ok(wrapper);
     }

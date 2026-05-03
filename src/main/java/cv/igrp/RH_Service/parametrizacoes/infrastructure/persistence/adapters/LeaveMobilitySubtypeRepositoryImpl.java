@@ -7,13 +7,13 @@ import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.LeaveMobilitySu
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.LeaveMobilitySubtypeEntity;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.LeaveMobilitySubtypeEntityRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.LeaveMobilitySubtypeId;
+import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -46,7 +46,7 @@ public class LeaveMobilitySubtypeRepositoryImpl implements LeaveMobilitySubtypeR
 
     @Transactional(readOnly = true)
     @Override
-    public List<LeaveMobilitySubtype> findAll(LeaveMobilitySubtypeFilter filter) {
+    public PageResult<LeaveMobilitySubtype> findAll(LeaveMobilitySubtypeFilter filter) {
         var pageable = PageRequest.of(filter.getPage(), filter.getSize());
 
         Specification<LeaveMobilitySubtypeEntity> spec = (root, query, cb) -> {
@@ -71,9 +71,10 @@ public class LeaveMobilitySubtypeRepositoryImpl implements LeaveMobilitySubtypeR
             return predicates;
         };
 
-        return leaveMobilitySubtypeEntityRepository.findAll(spec, pageable)
-            .stream()
-            .map(leaveMobilitySubtypeMapper::toDomain)
-            .toList();
+        var page = leaveMobilitySubtypeEntityRepository.findAll(spec, pageable);
+        var data = page.getContent().stream().map(leaveMobilitySubtypeMapper::toDomain).toList();
+        return new PageResult<>(data, page.getNumber(), page.getSize(),
+                page.getTotalElements(), page.getTotalPages(),
+                page.isFirst(), page.isLast());
     }
 }

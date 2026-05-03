@@ -31,13 +31,17 @@ public class GetJobsQueryHandler
         filter.setPage(query.getPagina() != null ? Integer.parseInt(query.getPagina()) : 0);
         filter.setSize(query.getTamanho() != null ? Integer.parseInt(query.getTamanho()) : 20);
 
-        var content = jobRepository.findAll(filter).stream()
-                .map(mapper::toDTO)
-                .toList();
+        var pageResult = jobRepository.findAll(filter);
+        var content = pageResult.getData().stream().map(mapper::toDTO).toList();
 
         var wrapper = new WrapperListaJobDTO();
         wrapper.setContent(new ArrayList<>(content));
-        wrapper.setTotalElements(content.size());
+        wrapper.setTotalElements(pageResult.getTotalElements());
+        wrapper.setPageNumber(pageResult.getPageNumber());
+        wrapper.setPageSize(pageResult.getPageSize());
+        wrapper.setTotalPages(pageResult.getTotalPages());
+        wrapper.setFirst(pageResult.isFirst());
+        wrapper.setLast(pageResult.isLast());
 
         return ResponseEntity.ok(wrapper);
     }

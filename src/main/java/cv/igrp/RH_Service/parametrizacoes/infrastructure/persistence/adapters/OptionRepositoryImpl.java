@@ -7,6 +7,7 @@ import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.OptionMapper;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.OptionEntity;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.OptionEntityRepository;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -56,7 +57,7 @@ public class OptionRepositoryImpl implements OptionRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Option> findAll(OptionFilter filter) {
+    public PageResult<Option> findAll(OptionFilter filter) {
         var pageable = PageRequest.of(filter.getPage(), filter.getSize());
 
         Specification<OptionEntity> spec = (root, query, cb) -> {
@@ -86,10 +87,11 @@ public class OptionRepositoryImpl implements OptionRepository {
             return predicates;
         };
 
-        return optionEntityRepository.findAll(spec, pageable)
-            .stream()
-            .map(optionMapper::toDomain)
-            .toList();
+        var page = optionEntityRepository.findAll(spec, pageable);
+        var data = page.getContent().stream().map(optionMapper::toDomain).toList();
+        return new PageResult<>(data, page.getNumber(), page.getSize(),
+                page.getTotalElements(), page.getTotalPages(),
+                page.isFirst(), page.isLast());
     }
 
     @Transactional
