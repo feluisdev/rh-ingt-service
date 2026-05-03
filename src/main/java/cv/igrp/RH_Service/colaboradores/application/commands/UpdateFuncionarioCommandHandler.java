@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.FuncionarioResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.FuncionarioResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.mappers.FuncionarioMapper;
@@ -14,13 +14,13 @@ import org.springframework.stereotype.Component;
 @Component("colabsUpdateFuncionarioCommandHandler")
 @RequiredArgsConstructor
 public class UpdateFuncionarioCommandHandler
-        implements CommandHandler<UpdateFuncionarioCommand, ResponseEntity<FuncionarioResponse>> {
+        implements CommandHandler<UpdateFuncionarioCommand, ResponseEntity<FuncionarioResponseDTO>> {
 
     private final FuncionarioRepository funcionarioRepository;
     private final FuncionarioMapper mapper;
 
     @IgrpCommandHandler
-    public ResponseEntity<FuncionarioResponse> handle(UpdateFuncionarioCommand command) {
+    public ResponseEntity<FuncionarioResponseDTO> handle(UpdateFuncionarioCommand command) {
         var dto = command.getRequest();
         var id = FuncionarioId.from(command.getFuncionarioId());
 

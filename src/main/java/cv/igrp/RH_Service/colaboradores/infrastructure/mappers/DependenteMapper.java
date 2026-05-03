@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.mappers;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.DependenteResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.DependenteResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.models.Dependente;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.DependenteId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
@@ -29,8 +29,8 @@ public class DependenteMapper {
         return e;
     }
 
-    public DependenteResponse toDTO(Dependente d) {
-        DependenteResponse r = new DependenteResponse();
+    public DependenteResponseDTO toDTO(Dependente d) {
+        DependenteResponseDTO r = new DependenteResponseDTO();
         r.setId(d.getId().getStringValor());
         r.setFuncionarioId(d.getFuncionarioId().getStringValor());
         r.setNome(d.getNome());

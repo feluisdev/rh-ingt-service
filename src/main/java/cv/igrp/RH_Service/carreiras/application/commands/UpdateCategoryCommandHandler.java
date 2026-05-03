@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.carreiras.application.commands;
 
-import cv.igrp.RH_Service.carreiras.application.dto.CategoryResponse;
+import cv.igrp.RH_Service.carreiras.application.dto.CategoryResponseDTO;
 import cv.igrp.RH_Service.carreiras.domain.repository.CategoryRepository;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CategoryId;
 import cv.igrp.RH_Service.carreiras.infrastructure.mappers.CategoryMapper;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class UpdateCategoryCommandHandler
-        implements CommandHandler<UpdateCategoryCommand, ResponseEntity<CategoryResponse>> {
+        implements CommandHandler<UpdateCategoryCommand, ResponseEntity<CategoryResponseDTO>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateCategoryCommandHandler.class);
 
@@ -24,7 +24,7 @@ public class UpdateCategoryCommandHandler
     private final CategoryMapper mapper;
 
     @IgrpCommandHandler
-    public ResponseEntity<CategoryResponse> handle(UpdateCategoryCommand command) {
+    public ResponseEntity<CategoryResponseDTO> handle(UpdateCategoryCommand command) {
         var id = CategoryId.from(command.getCategoryId());
         var dto = command.getRequest();
 

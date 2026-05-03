@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.carreiras.infrastructure.mappers;
 
-import cv.igrp.RH_Service.carreiras.application.dto.GradeResponse;
+import cv.igrp.RH_Service.carreiras.application.dto.GradeResponseDTO;
 import cv.igrp.RH_Service.carreiras.domain.models.Grade;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CategoryId;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.GradeId;
@@ -34,13 +34,13 @@ public class GradeMapper {
         );
     }
 
-    public GradeResponse toDTO(Grade domain) {
+    public GradeResponseDTO toDTO(Grade domain) {
         return toDTO(domain, null);
     }
 
-    public GradeResponse toDTO(Grade domain, String categoryName) {
+    public GradeResponseDTO toDTO(Grade domain, String categoryName) {
         if (domain == null) return null;
-        GradeResponse dto = new GradeResponse();
+        GradeResponseDTO dto = new GradeResponseDTO();
         dto.setId(domain.getId().getStringValor());
         dto.setCategoryId(domain.getCategoryId().getStringValor());
         dto.setCategoryName(categoryName);

@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.mappers;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.EnquadramentoResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.EnquadramentoResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.models.EnquadramentoProfissional;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.EnquadramentoId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
@@ -40,8 +40,8 @@ public class EnquadramentoMapper {
         return entity;
     }
 
-    public EnquadramentoResponse toDTO(EnquadramentoProfissional e) {
-        EnquadramentoResponse r = new EnquadramentoResponse();
+    public EnquadramentoResponseDTO toDTO(EnquadramentoProfissional e) {
+        EnquadramentoResponseDTO r = new EnquadramentoResponseDTO();
         r.setId(e.getId().getStringValor());
         r.setFuncionarioId(e.getFuncionarioId().getStringValor());
         r.setCareerId(e.getCareerId().toString());

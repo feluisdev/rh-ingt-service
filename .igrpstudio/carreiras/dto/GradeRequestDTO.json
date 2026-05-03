@@ -1,0 +1,12 @@
+{
+  "type": "dto",
+  "name": "GradeRequestDTO",
+  "module": "carreiras",
+  "template": "classic",
+  "attributes": [
+    {"name": "categoryId", "type": "string", "required": false},
+    {"name": "gradeNumber", "type": "integer", "required": false},
+    {"name": "name", "type": "string", "required": true},
+    {"name": "salaryIndex", "type": "decimal", "required": false}
+  ]
+}

@@ -1,0 +1,206 @@
+{
+  "type": "controller",
+  "name": "DocumentType",
+  "module": "parametrizacoes",
+  "description": "Gestão de tipos de documento",
+  "basePath": "api/v1/rh/catalogs/document-types",
+  "actions": [
+    {
+      "actionName": "getDocumentTypes",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaDocumentType",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "codigo",
+          "isRequired": false
+        },
+        {
+          "type": "boolean",
+          "name": "active",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "pagina",
+          "value": "0",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "tamanho",
+          "value": "20",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "getDocumentTypeById",
+      "path": "{documentTypeId}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "DocumentTypeResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "documentTypeId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "createDocumentType",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "DocumentTypeRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "parametrizacoes"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "updateDocumentType",
+      "path": "{documentTypeId}",
+      "method": "PUT",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "DocumentTypeRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "parametrizacoes"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "DocumentTypeResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "documentTypeId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "deleteDocumentType",
+      "path": "{documentTypeId}",
+      "method": "DELETE",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "documentTypeId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "activateDocumentType",
+      "path": "{documentTypeId}/activate",
+      "method": "PATCH",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "documentTypeId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    }
+  ],
+  "id": "document_type_ctrl_001"
+}

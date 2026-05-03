@@ -1,0 +1,14 @@
+{
+  "type": "dto",
+  "name": "SubtipoLicencaMobilidadeRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "nome", "objectType": "java", "required": true},
+    {"type": "string", "name": "codigo", "objectType": "java", "required": true},
+    {"type": "string", "name": "recordType", "objectType": "java", "required": true},
+    {"type": "boolean", "name": "affectsPay", "objectType": "java", "required": true},
+    {"type": "boolean", "name": "countsForSeniority", "objectType": "java", "required": true},
+    {"type": "boolean", "name": "canSelfSubmit", "objectType": "java", "required": true}
+  ]
+}

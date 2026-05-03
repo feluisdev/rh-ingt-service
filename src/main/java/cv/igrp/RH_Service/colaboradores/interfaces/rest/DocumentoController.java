@@ -1,11 +1,14 @@
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+
 package cv.igrp.RH_Service.colaboradores.interfaces.rest;
 
 import cv.igrp.RH_Service.colaboradores.application.commands.DesativarDocumentoCommand;
 import cv.igrp.RH_Service.colaboradores.application.commands.UploadDocumentoCommand;
-import cv.igrp.RH_Service.colaboradores.application.dto.DocumentoDownloadResponse;
-import cv.igrp.RH_Service.colaboradores.application.dto.DocumentoResponse;
-import cv.igrp.RH_Service.colaboradores.application.dto.DocumentoUploadResponse;
-import cv.igrp.RH_Service.colaboradores.application.dto.UploadDocumentoRequest;
+import cv.igrp.RH_Service.colaboradores.application.dto.DocumentoDownloadResponseDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.DocumentoResponseDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.DocumentoUploadResponseDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.UploadDocumentoRequestDTO;
 import cv.igrp.RH_Service.colaboradores.application.dto.WrapperListaDocumentoDTO;
 import cv.igrp.RH_Service.colaboradores.application.queries.GetDocumentoByIdQuery;
 import cv.igrp.RH_Service.colaboradores.application.queries.GetDocumentoDownloadUrlQuery;
@@ -42,11 +45,11 @@ public class DocumentoController {
 
     @PostMapping
     @Operation(summary = "Registar metadados de documento após upload no MinIO")
-    public ResponseEntity<DocumentoUploadResponse> registar(
+    public ResponseEntity<DocumentoUploadResponseDTO> registar(
             @PathVariable String funcionarioId,
-            @Valid @RequestBody UploadDocumentoRequest request) {
+            @Valid @RequestBody UploadDocumentoRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<DocumentoUploadResponse> response = commandBus.send(
+        ResponseEntity<DocumentoUploadResponseDTO> response = commandBus.send(
                 new UploadDocumentoCommand(
                         funcionarioId,
                         request.getDocumentTypeId(),
@@ -74,11 +77,11 @@ public class DocumentoController {
 
     @GetMapping("{documentoId}")
     @Operation(summary = "Obter metadados de um documento")
-    public ResponseEntity<DocumentoResponse> getById(
+    public ResponseEntity<DocumentoResponseDTO> getById(
             @PathVariable String funcionarioId,
             @PathVariable String documentoId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<DocumentoResponse> response = queryBus.handle(
+        ResponseEntity<DocumentoResponseDTO> response = queryBus.handle(
                 new GetDocumentoByIdQuery(funcionarioId, documentoId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
@@ -86,11 +89,11 @@ public class DocumentoController {
 
     @GetMapping("{documentoId}/download")
     @Operation(summary = "Obter URL pré-assinada para download (via MinIO)")
-    public ResponseEntity<DocumentoDownloadResponse> download(
+    public ResponseEntity<DocumentoDownloadResponseDTO> download(
             @PathVariable String funcionarioId,
             @PathVariable String documentoId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<DocumentoDownloadResponse> response = queryBus.handle(
+        ResponseEntity<DocumentoDownloadResponseDTO> response = queryBus.handle(
                 new GetDocumentoDownloadUrlQuery(funcionarioId, documentoId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());

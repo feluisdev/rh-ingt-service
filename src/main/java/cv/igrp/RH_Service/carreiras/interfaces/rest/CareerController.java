@@ -20,8 +20,8 @@ import cv.igrp.RH_Service.carreiras.application.commands.*;
 import cv.igrp.RH_Service.carreiras.application.queries.*;
 import cv.igrp.RH_Service.carreiras.application.dto.WrapperListaCareerDTO;
 import cv.igrp.RH_Service.carreiras.application.dto.WrapperListaCategoryDTO;
-import cv.igrp.RH_Service.carreiras.application.dto.CareerResponse;
-import cv.igrp.RH_Service.carreiras.application.dto.CareerRequest;
+import cv.igrp.RH_Service.carreiras.application.dto.CareerResponseDTO;
+import cv.igrp.RH_Service.carreiras.application.dto.CareerRequestDTO;
 
 import java.util.Map;
 
@@ -80,18 +80,18 @@ public class CareerController {
                 responseCode = "200",
                 content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = CareerResponse.class)
+                    schema = @Schema(implementation = CareerResponseDTO.class)
                 )
             )
         }
     )
-    public ResponseEntity<CareerResponse> getCareerById(
+    public ResponseEntity<CareerResponseDTO> getCareerById(
         @PathVariable(value = "careerId") String careerId) {
 
         LOGGER.debug("Operation started");
 
         final var query = new GetCareerByIdQuery(careerId);
-        ResponseEntity<CareerResponse> response = queryBus.handle(query);
+        ResponseEntity<CareerResponseDTO> response = queryBus.handle(query);
 
         LOGGER.debug("Operation finished");
 
@@ -111,11 +111,11 @@ public class CareerController {
         }
     )
     public ResponseEntity<Map<String, ?>> createCareer(
-        @Valid @RequestBody CareerRequest createCareerRequest) {
+        @Valid @RequestBody CareerRequestDTO createCareerRequestDTO) {
 
         LOGGER.debug("Operation started");
 
-        final var command = new CreateCareerCommand(createCareerRequest);
+        final var command = new CreateCareerCommand(createCareerRequestDTO);
         ResponseEntity<Map<String, ?>> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
@@ -133,19 +133,19 @@ public class CareerController {
                 responseCode = "200",
                 content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = CareerResponse.class)
+                    schema = @Schema(implementation = CareerResponseDTO.class)
                 )
             )
         }
     )
-    public ResponseEntity<CareerResponse> updateCareer(
-        @Valid @RequestBody CareerRequest updateCareerRequest,
+    public ResponseEntity<CareerResponseDTO> updateCareer(
+        @Valid @RequestBody CareerRequestDTO updateCareerRequestDTO,
         @PathVariable(value = "careerId") String careerId) {
 
         LOGGER.debug("Operation started");
 
-        final var command = new UpdateCareerCommand(updateCareerRequest, careerId);
-        ResponseEntity<CareerResponse> response = commandBus.send(command);
+        final var command = new UpdateCareerCommand(updateCareerRequestDTO, careerId);
+        ResponseEntity<CareerResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 

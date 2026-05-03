@@ -1,0 +1,52 @@
+{
+  "type": "dto",
+  "module": "parametrizacoes",
+  "name": "PublicHolidayResponse",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    {
+      "name": "id",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": true
+    },
+    {
+      "name": "name",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "holidayDate",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "isNational",
+      "objectType": "java",
+      "type": "boolean",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "description",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "isActive",
+      "objectType": "java",
+      "type": "boolean",
+      "required": false,
+      "primaryKey": false
+    }
+  ],
+  "id": "public_holiday_res_dto_001"
+}

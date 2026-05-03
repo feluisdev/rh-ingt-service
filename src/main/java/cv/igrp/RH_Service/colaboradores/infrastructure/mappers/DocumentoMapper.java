@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.mappers;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.DocumentoResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.DocumentoResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.models.Documento;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.DocumentoId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
@@ -43,8 +43,8 @@ public class DocumentoMapper {
         return e;
     }
 
-    public DocumentoResponse toDTO(Documento d) {
-        DocumentoResponse r = new DocumentoResponse();
+    public DocumentoResponseDTO toDTO(Documento d) {
+        DocumentoResponseDTO r = new DocumentoResponseDTO();
         r.setId(d.getId().getStringValor());
         r.setFuncionarioId(d.getReferenceId().getStringValor());
         r.setDocumentTypeId(d.getDocumentTypeId().getStringValor());

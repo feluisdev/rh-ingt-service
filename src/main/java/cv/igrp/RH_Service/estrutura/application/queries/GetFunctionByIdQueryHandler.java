@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.estrutura.application.queries;
 
-import cv.igrp.RH_Service.estrutura.application.dto.FunctionResponse;
+import cv.igrp.RH_Service.estrutura.application.dto.FunctionResponseDTO;
 import cv.igrp.RH_Service.estrutura.domain.repository.FunctionRepository;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.FunctionId;
 import cv.igrp.RH_Service.estrutura.infrastructure.mappers.FunctionMapper;
@@ -14,13 +14,13 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class GetFunctionByIdQueryHandler
-        implements QueryHandler<GetFunctionByIdQuery, ResponseEntity<FunctionResponse>> {
+        implements QueryHandler<GetFunctionByIdQuery, ResponseEntity<FunctionResponseDTO>> {
 
     private final FunctionRepository functionRepository;
     private final FunctionMapper mapper;
 
     @IgrpQueryHandler
-    public ResponseEntity<FunctionResponse> handle(GetFunctionByIdQuery query) {
+    public ResponseEntity<FunctionResponseDTO> handle(GetFunctionByIdQuery query) {
         var function = functionRepository.findById(FunctionId.from(query.getFunctionId()))
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Função não encontrada: " + query.getFunctionId()));

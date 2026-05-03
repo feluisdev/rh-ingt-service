@@ -10,6 +10,6 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class WrapperListaGradeDTO {
-    private List<GradeResponse> content;
+    private List<GradeResponseDTO> content;
     private long totalElements;
 }

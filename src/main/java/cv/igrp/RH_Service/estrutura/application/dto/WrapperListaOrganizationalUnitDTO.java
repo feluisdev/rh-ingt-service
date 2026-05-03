@@ -10,6 +10,6 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class WrapperListaOrganizationalUnitDTO {
-    private List<OrganizationalUnitResponse> content;
+    private List<OrganizationalUnitResponseDTO> content;
     private long totalElements;
 }

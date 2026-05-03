@@ -1,3 +1,6 @@
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+
 package cv.igrp.RH_Service.colaboradores.interfaces.rest;
 
 import cv.igrp.RH_Service.colaboradores.application.commands.*;
@@ -35,7 +38,7 @@ public class ColocacaoController {
     @Operation(summary = "Registar nova colocação (fecha a anterior automaticamente)")
     public ResponseEntity<Map<String, ?>> registarColocacao(
             @PathVariable String funcionarioId,
-            @Valid @RequestBody RegistarColocacaoRequest request) {
+            @Valid @RequestBody RegistarColocacaoRequestDTO request) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(new RegistarColocacaoCommand(funcionarioId, request));
         LOGGER.debug("Operation finished");
@@ -56,20 +59,20 @@ public class ColocacaoController {
 
     @GetMapping("atual")
     @Operation(summary = "Obter colocação actual do funcionário")
-    public ResponseEntity<ColocacaoResponse> getColocacaoAtual(@PathVariable String funcionarioId) {
+    public ResponseEntity<ColocacaoResponseDTO> getColocacaoAtual(@PathVariable String funcionarioId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<ColocacaoResponse> response = queryBus.handle(new GetColocacaoAtualQuery(funcionarioId));
+        ResponseEntity<ColocacaoResponseDTO> response = queryBus.handle(new GetColocacaoAtualQuery(funcionarioId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
     @GetMapping("{colocacaoId}")
     @Operation(summary = "Obter colocação por ID")
-    public ResponseEntity<ColocacaoResponse> getColocacaoById(
+    public ResponseEntity<ColocacaoResponseDTO> getColocacaoById(
             @PathVariable String funcionarioId,
             @PathVariable String colocacaoId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<ColocacaoResponse> response = queryBus.handle(
+        ResponseEntity<ColocacaoResponseDTO> response = queryBus.handle(
                 new GetColocacaoByIdQuery(funcionarioId, colocacaoId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
@@ -77,12 +80,12 @@ public class ColocacaoController {
 
     @PutMapping("{colocacaoId}")
     @Operation(summary = "Corrigir dados de uma colocação (notas e/ou data de fim)")
-    public ResponseEntity<ColocacaoResponse> atualizarColocacao(
+    public ResponseEntity<ColocacaoResponseDTO> atualizarColocacao(
             @PathVariable String funcionarioId,
             @PathVariable String colocacaoId,
-            @Valid @RequestBody AtualizarColocacaoRequest request) {
+            @Valid @RequestBody AtualizarColocacaoRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<ColocacaoResponse> response = commandBus.send(
+        ResponseEntity<ColocacaoResponseDTO> response = commandBus.send(
                 new AtualizarColocacaoCommand(funcionarioId, colocacaoId, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());

@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.queries;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.SubtipoLicencaMobilidadeResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.SubtipoLicencaMobilidadeResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.repository.SubtipoLicencaMobilidadeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.SubtipoLicencaMobilidadeId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.mappers.SubtipoLicencaMobilidadeMapper;
@@ -14,13 +14,13 @@ import org.springframework.stereotype.Component;
 @Component("colabsGetSubtipoLicencaMobilidadeByIdQueryHandler")
 @RequiredArgsConstructor
 public class GetSubtipoLicencaMobilidadeByIdQueryHandler
-        implements QueryHandler<GetSubtipoLicencaMobilidadeByIdQuery, ResponseEntity<SubtipoLicencaMobilidadeResponse>> {
+        implements QueryHandler<GetSubtipoLicencaMobilidadeByIdQuery, ResponseEntity<SubtipoLicencaMobilidadeResponseDTO>> {
 
     private final SubtipoLicencaMobilidadeRepository subtipoRepository;
     private final SubtipoLicencaMobilidadeMapper mapper;
 
     @IgrpQueryHandler
-    public ResponseEntity<SubtipoLicencaMobilidadeResponse> handle(GetSubtipoLicencaMobilidadeByIdQuery query) {
+    public ResponseEntity<SubtipoLicencaMobilidadeResponseDTO> handle(GetSubtipoLicencaMobilidadeByIdQuery query) {
         var subtipo = subtipoRepository.findById(SubtipoLicencaMobilidadeId.from(query.getId()))
                 .orElseThrow(() -> IgrpResponseStatusException.notFound("Subtipo não encontrado: " + query.getId()));
         return ResponseEntity.ok(mapper.toDTO(subtipo));

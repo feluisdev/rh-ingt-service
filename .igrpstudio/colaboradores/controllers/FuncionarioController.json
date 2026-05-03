@@ -1,0 +1,85 @@
+{
+  "type": "controller",
+  "name": "Funcionario",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh/funcionarios",
+  "description": "Gestão de funcionários",
+  "actions": [
+    {
+      "actionName": "getFuncionarios",
+      "method": "GET",
+      "requestParams": [
+        {"name": "nome", "type": "string", "required": false},
+        {"name": "nif", "type": "string", "required": false},
+        {"name": "situacaoProfissional", "type": "string", "required": false},
+        {"name": "unidadeOrganicaId", "type": "string", "required": false},
+        {"name": "careerId", "type": "string", "required": false},
+        {"name": "active", "type": "boolean", "required": false},
+        {"name": "pagina", "type": "string", "required": false},
+        {"name": "tamanho", "type": "string", "required": false}
+      ]
+    },
+    {
+      "actionName": "getFuncionarioById",
+      "method": "GET",
+      "path": "{funcionarioId}",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "createFuncionario",
+      "method": "POST",
+      "requestBody": true
+    },
+    {
+      "actionName": "updateFuncionario",
+      "method": "PUT",
+      "path": "{funcionarioId}",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"}
+      ],
+      "requestBody": true
+    },
+    {
+      "actionName": "getEnquadramentoAtual",
+      "method": "GET",
+      "path": "{funcionarioId}/enquadramento",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "getEnquadramentosHistorico",
+      "method": "GET",
+      "path": "{funcionarioId}/enquadramentos/historico",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "getContratosByFuncionario",
+      "method": "GET",
+      "path": "{funcionarioId}/contratos",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "getDependentesByFuncionario",
+      "method": "GET",
+      "path": "{funcionarioId}/dependentes",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "getQualificacoesByFuncionario",
+      "method": "GET",
+      "path": "{funcionarioId}/qualificacoes",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "type": "dto",
+  "name": "EnquadramentoResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "id", "objectType": "java", "required": false},
+    {"type": "string", "name": "funcionarioId", "objectType": "java", "required": false},
+    {"type": "string", "name": "careerId", "objectType": "java", "required": false},
+    {"type": "string", "name": "categoryId", "objectType": "java", "required": false},
+    {"type": "string", "name": "gradeId", "objectType": "java", "required": false},
+    {"type": "string", "name": "cargoId", "objectType": "java", "required": false},
+    {"type": "string", "name": "unidadeOrganicaId", "objectType": "java", "required": false},
+    {"type": "date", "name": "dataInicio", "objectType": "java", "required": false},
+    {"type": "date", "name": "dataFim", "objectType": "java", "required": false},
+    {"type": "boolean", "name": "isCurrent", "objectType": "java", "required": false}
+  ]
+}

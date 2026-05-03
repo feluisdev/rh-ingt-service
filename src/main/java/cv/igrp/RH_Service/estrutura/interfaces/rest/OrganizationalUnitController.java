@@ -19,8 +19,8 @@ import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.RH_Service.estrutura.application.commands.*;
 import cv.igrp.RH_Service.estrutura.application.queries.*;
 import cv.igrp.RH_Service.estrutura.application.dto.WrapperListaOrganizationalUnitDTO;
-import cv.igrp.RH_Service.estrutura.application.dto.OrganizationalUnitResponse;
-import cv.igrp.RH_Service.estrutura.application.dto.OrganizationalUnitRequest;
+import cv.igrp.RH_Service.estrutura.application.dto.OrganizationalUnitResponseDTO;
+import cv.igrp.RH_Service.estrutura.application.dto.OrganizationalUnitRequestDTO;
 
 import java.util.Map;
 
@@ -80,18 +80,18 @@ public class OrganizationalUnitController {
                 responseCode = "200",
                 content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = OrganizationalUnitResponse.class)
+                    schema = @Schema(implementation = OrganizationalUnitResponseDTO.class)
                 )
             )
         }
     )
-    public ResponseEntity<OrganizationalUnitResponse> getOrganizationalUnitById(
+    public ResponseEntity<OrganizationalUnitResponseDTO> getOrganizationalUnitById(
         @PathVariable(value = "unitId") String unitId) {
 
         LOGGER.debug("Operation started");
 
         final var query = new GetOrganizationalUnitByIdQuery(unitId);
-        ResponseEntity<OrganizationalUnitResponse> response = queryBus.handle(query);
+        ResponseEntity<OrganizationalUnitResponseDTO> response = queryBus.handle(query);
 
         LOGGER.debug("Operation finished");
 
@@ -111,7 +111,7 @@ public class OrganizationalUnitController {
         }
     )
     public ResponseEntity<Map<String, ?>> createOrganizationalUnit(
-        @Valid @RequestBody OrganizationalUnitRequest createOrganizationalUnitRequest) {
+        @Valid @RequestBody OrganizationalUnitRequestDTO createOrganizationalUnitRequest) {
 
         LOGGER.debug("Operation started");
 
@@ -133,19 +133,19 @@ public class OrganizationalUnitController {
                 responseCode = "200",
                 content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = OrganizationalUnitResponse.class)
+                    schema = @Schema(implementation = OrganizationalUnitResponseDTO.class)
                 )
             )
         }
     )
-    public ResponseEntity<OrganizationalUnitResponse> updateOrganizationalUnit(
-        @Valid @RequestBody OrganizationalUnitRequest updateOrganizationalUnitRequest,
+    public ResponseEntity<OrganizationalUnitResponseDTO> updateOrganizationalUnit(
+        @Valid @RequestBody OrganizationalUnitRequestDTO updateOrganizationalUnitRequest,
         @PathVariable(value = "unitId") String unitId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new UpdateOrganizationalUnitCommand(unitId, updateOrganizationalUnitRequest);
-        ResponseEntity<OrganizationalUnitResponse> response = commandBus.send(command);
+        ResponseEntity<OrganizationalUnitResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 

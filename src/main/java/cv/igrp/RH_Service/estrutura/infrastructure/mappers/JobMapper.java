@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.estrutura.infrastructure.mappers;
 
-import cv.igrp.RH_Service.estrutura.application.dto.JobResponse;
+import cv.igrp.RH_Service.estrutura.application.dto.JobResponseDTO;
 import cv.igrp.RH_Service.estrutura.domain.models.Job;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.JobId;
 import cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.JobEntity;
@@ -31,9 +31,9 @@ public class JobMapper {
         );
     }
 
-    public JobResponse toDTO(Job domain) {
+    public JobResponseDTO toDTO(Job domain) {
         if (domain == null) return null;
-        JobResponse dto = new JobResponse();
+        JobResponseDTO dto = new JobResponseDTO();
         dto.setId(domain.getId().getStringValor());
         dto.setCode(domain.getCode());
         dto.setName(domain.getName());

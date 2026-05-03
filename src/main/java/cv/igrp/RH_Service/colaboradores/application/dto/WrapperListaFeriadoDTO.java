@@ -10,6 +10,6 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class WrapperListaFeriadoDTO {
-    private List<FeriadoResponse> content;
+    private List<FeriadoResponseDTO> content;
     private long totalElements;
 }

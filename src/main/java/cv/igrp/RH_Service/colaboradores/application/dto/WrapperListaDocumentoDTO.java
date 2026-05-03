@@ -6,6 +6,6 @@ import java.util.List;
 
 @Data
 public class WrapperListaDocumentoDTO {
-    private List<DocumentoResponse> content;
+    private List<DocumentoResponseDTO> content;
     private int totalElements;
 }

@@ -1,8 +1,11 @@
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+
 package cv.igrp.RH_Service.colaboradores.interfaces.rest;
 
 import cv.igrp.RH_Service.colaboradores.application.commands.*;
-import cv.igrp.RH_Service.colaboradores.application.dto.SubtipoLicencaMobilidadeRequest;
-import cv.igrp.RH_Service.colaboradores.application.dto.SubtipoLicencaMobilidadeResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.SubtipoLicencaMobilidadeRequestDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.SubtipoLicencaMobilidadeResponseDTO;
 import cv.igrp.RH_Service.colaboradores.application.dto.WrapperListaSubtipoLicencaMobilidadeDTO;
 import cv.igrp.RH_Service.colaboradores.application.queries.*;
 import cv.igrp.framework.core.domain.CommandBus;
@@ -35,7 +38,7 @@ public class SubtipoLicencaMobilidadeController {
 
     @PostMapping
     @Operation(summary = "Criar subtipo de licença/mobilidade")
-    public ResponseEntity<Map<String, ?>> create(@Valid @RequestBody SubtipoLicencaMobilidadeRequest request) {
+    public ResponseEntity<Map<String, ?>> create(@Valid @RequestBody SubtipoLicencaMobilidadeRequestDTO request) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateSubtipoLicencaMobilidadeCommand(request));
         LOGGER.debug("Operation finished");
@@ -55,16 +58,16 @@ public class SubtipoLicencaMobilidadeController {
 
     @GetMapping("{id}")
     @Operation(summary = "Obter subtipo por ID")
-    public ResponseEntity<SubtipoLicencaMobilidadeResponse> getById(@PathVariable String id) {
+    public ResponseEntity<SubtipoLicencaMobilidadeResponseDTO> getById(@PathVariable String id) {
         LOGGER.debug("Operation started");
-        ResponseEntity<SubtipoLicencaMobilidadeResponse> response = queryBus.handle(new GetSubtipoLicencaMobilidadeByIdQuery(id));
+        ResponseEntity<SubtipoLicencaMobilidadeResponseDTO> response = queryBus.handle(new GetSubtipoLicencaMobilidadeByIdQuery(id));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
     @PutMapping("{id}")
     @Operation(summary = "Actualizar subtipo")
-    public ResponseEntity<Map<String, ?>> update(@Valid @RequestBody SubtipoLicencaMobilidadeRequest request, @PathVariable String id) {
+    public ResponseEntity<Map<String, ?>> update(@Valid @RequestBody SubtipoLicencaMobilidadeRequestDTO request, @PathVariable String id) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(new UpdateSubtipoLicencaMobilidadeCommand(request, id));
         LOGGER.debug("Operation finished");

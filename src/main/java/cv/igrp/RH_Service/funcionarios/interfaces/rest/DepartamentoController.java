@@ -1,3 +1,4 @@
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
 package cv.igrp.RH_Service.funcionarios.interfaces.rest;
 
 import cv.igrp.framework.stereotype.IgrpController;

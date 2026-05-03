@@ -36,7 +36,7 @@ public class QualificacaoController {
 
     @PostMapping
     @Operation(summary = "Criar qualificação")
-    public ResponseEntity<Map<String, ?>> createQualificacao(@Valid @RequestBody QualificacaoRequest request) {
+    public ResponseEntity<Map<String, ?>> createQualificacao(@Valid @RequestBody QualificacaoRequestDTO request) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateQualificacaoCommand(request));
         LOGGER.debug("Operation finished");
@@ -45,18 +45,18 @@ public class QualificacaoController {
 
     @GetMapping("{qualificacaoId}")
     @Operation(summary = "Obter qualificação por ID")
-    public ResponseEntity<QualificacaoResponse> getQualificacaoById(@PathVariable String qualificacaoId) {
+    public ResponseEntity<QualificacaoResponseDTO> getQualificacaoById(@PathVariable String qualificacaoId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<QualificacaoResponse> response = queryBus.handle(new GetQualificacaoByIdQuery(qualificacaoId));
+        ResponseEntity<QualificacaoResponseDTO> response = queryBus.handle(new GetQualificacaoByIdQuery(qualificacaoId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
     @PutMapping("{qualificacaoId}")
     @Operation(summary = "Actualizar qualificação")
-    public ResponseEntity<QualificacaoResponse> updateQualificacao(@Valid @RequestBody QualificacaoRequest request, @PathVariable String qualificacaoId) {
+    public ResponseEntity<QualificacaoResponseDTO> updateQualificacao(@Valid @RequestBody QualificacaoRequestDTO request, @PathVariable String qualificacaoId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<QualificacaoResponse> response = commandBus.send(new UpdateQualificacaoCommand(request, qualificacaoId));
+        ResponseEntity<QualificacaoResponseDTO> response = commandBus.send(new UpdateQualificacaoCommand(request, qualificacaoId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

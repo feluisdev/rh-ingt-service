@@ -1,0 +1,14 @@
+{
+  "type": "dto",
+  "name": "CriarReciboRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "integer", "name": "periodMonth", "objectType": "java", "required": true},
+    {"type": "integer", "name": "periodYear", "objectType": "java", "required": true},
+    {"type": "date", "name": "issueDate", "objectType": "java", "required": true},
+    {"type": "decimal", "name": "grossSalary", "objectType": "java", "required": true},
+    {"type": "decimal", "name": "netSalary", "objectType": "java", "required": true},
+    {"type": "string", "name": "documentId", "objectType": "java", "required": true}
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "type": "dto",
+  "name": "RejeitarLicencaMobilidadeRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "rejectionReason", "objectType": "java", "required": true}
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "type": "dto",
+  "module": "parametrizacoes",
+  "name": "ProfessionalSituationResponse",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    {
+      "name": "id",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": true
+    },
+    {
+      "name": "code",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "description",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "isActive",
+      "objectType": "java",
+      "type": "boolean",
+      "required": false,
+      "primaryKey": false
+    }
+  ],
+  "id": "professional_situation_res_dto_001"
+}

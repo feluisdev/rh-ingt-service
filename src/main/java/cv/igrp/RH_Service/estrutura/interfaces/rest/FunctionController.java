@@ -19,8 +19,8 @@ import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.RH_Service.estrutura.application.commands.*;
 import cv.igrp.RH_Service.estrutura.application.queries.*;
 import cv.igrp.RH_Service.estrutura.application.dto.WrapperListaFunctionDTO;
-import cv.igrp.RH_Service.estrutura.application.dto.FunctionResponse;
-import cv.igrp.RH_Service.estrutura.application.dto.FunctionRequest;
+import cv.igrp.RH_Service.estrutura.application.dto.FunctionResponseDTO;
+import cv.igrp.RH_Service.estrutura.application.dto.FunctionRequestDTO;
 
 import java.util.Map;
 
@@ -79,18 +79,18 @@ public class FunctionController {
                 responseCode = "200",
                 content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = FunctionResponse.class)
+                    schema = @Schema(implementation = FunctionResponseDTO.class)
                 )
             )
         }
     )
-    public ResponseEntity<FunctionResponse> getFunctionById(
+    public ResponseEntity<FunctionResponseDTO> getFunctionById(
         @PathVariable(value = "functionId") String functionId) {
 
         LOGGER.debug("Operation started");
 
         final var query = new GetFunctionByIdQuery(functionId);
-        ResponseEntity<FunctionResponse> response = queryBus.handle(query);
+        ResponseEntity<FunctionResponseDTO> response = queryBus.handle(query);
 
         LOGGER.debug("Operation finished");
 
@@ -110,11 +110,11 @@ public class FunctionController {
         }
     )
     public ResponseEntity<Map<String, ?>> createFunction(
-        @Valid @RequestBody FunctionRequest createFunctionRequest) {
+        @Valid @RequestBody FunctionRequestDTO createFunctionRequestDTO) {
 
         LOGGER.debug("Operation started");
 
-        final var command = new CreateFunctionCommand(createFunctionRequest);
+        final var command = new CreateFunctionCommand(createFunctionRequestDTO);
         ResponseEntity<Map<String, ?>> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
@@ -132,19 +132,19 @@ public class FunctionController {
                 responseCode = "200",
                 content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = FunctionResponse.class)
+                    schema = @Schema(implementation = FunctionResponseDTO.class)
                 )
             )
         }
     )
-    public ResponseEntity<FunctionResponse> updateFunction(
-        @Valid @RequestBody FunctionRequest updateFunctionRequest,
+    public ResponseEntity<FunctionResponseDTO> updateFunction(
+        @Valid @RequestBody FunctionRequestDTO updateFunctionRequestDTO,
         @PathVariable(value = "functionId") String functionId) {
 
         LOGGER.debug("Operation started");
 
-        final var command = new UpdateFunctionCommand(updateFunctionRequest, functionId);
-        ResponseEntity<FunctionResponse> response = commandBus.send(command);
+        final var command = new UpdateFunctionCommand(updateFunctionRequestDTO, functionId);
+        ResponseEntity<FunctionResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 

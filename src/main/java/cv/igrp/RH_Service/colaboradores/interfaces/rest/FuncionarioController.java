@@ -58,11 +58,11 @@ public class FuncionarioController {
 
     @GetMapping("{funcionarioId}")
     @Operation(summary = "Obter funcionário por ID")
-    public ResponseEntity<FuncionarioResponse> getFuncionarioById(
+    public ResponseEntity<FuncionarioResponseDTO> getFuncionarioById(
             @PathVariable(value = "funcionarioId") String funcionarioId) {
         LOGGER.debug("Operation started");
         final var query = new GetFuncionarioByIdQuery(funcionarioId);
-        ResponseEntity<FuncionarioResponse> response = queryBus.handle(query);
+        ResponseEntity<FuncionarioResponseDTO> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
@@ -70,7 +70,7 @@ public class FuncionarioController {
     @PostMapping
     @Operation(summary = "Criar funcionário")
     public ResponseEntity<Map<String, ?>> createFuncionario(
-            @Valid @RequestBody FuncionarioRequest request) {
+            @Valid @RequestBody FuncionarioRequestDTO request) {
         LOGGER.debug("Operation started");
         final var command = new CreateFuncionarioCommand(request);
         ResponseEntity<Map<String, ?>> response = commandBus.send(command);
@@ -80,23 +80,23 @@ public class FuncionarioController {
 
     @PutMapping("{funcionarioId}")
     @Operation(summary = "Actualizar funcionário")
-    public ResponseEntity<FuncionarioResponse> updateFuncionario(
-            @Valid @RequestBody FuncionarioRequest request,
+    public ResponseEntity<FuncionarioResponseDTO> updateFuncionario(
+            @Valid @RequestBody FuncionarioRequestDTO request,
             @PathVariable(value = "funcionarioId") String funcionarioId) {
         LOGGER.debug("Operation started");
         final var command = new UpdateFuncionarioCommand(request, funcionarioId);
-        ResponseEntity<FuncionarioResponse> response = commandBus.send(command);
+        ResponseEntity<FuncionarioResponseDTO> response = commandBus.send(command);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
     @GetMapping("{funcionarioId}/enquadramento")
     @Operation(summary = "Obter enquadramento actual do funcionário")
-    public ResponseEntity<EnquadramentoResponse> getEnquadramentoAtual(
+    public ResponseEntity<EnquadramentoResponseDTO> getEnquadramentoAtual(
             @PathVariable(value = "funcionarioId") String funcionarioId) {
         LOGGER.debug("Operation started");
         final var query = new GetEnquadramentoAtualQuery(funcionarioId);
-        ResponseEntity<EnquadramentoResponse> response = queryBus.handle(query);
+        ResponseEntity<EnquadramentoResponseDTO> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

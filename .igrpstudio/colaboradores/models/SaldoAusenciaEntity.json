@@ -1,0 +1,16 @@
+{
+  "type": "model",
+  "name": "SaldoAusenciaEntity",
+  "module": "colaboradores",
+  "tableName": "t_leave_balance",
+  "revision": true,
+  "attributes": [
+    {"name": "id", "type": "string", "objectType": "java", "primaryKey": true},
+    {"name": "funcionarioId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "tipoAusenciaId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "ano", "type": "integer", "objectType": "java", "primaryKey": false},
+    {"name": "diasDireito", "type": "integer", "objectType": "java", "primaryKey": false},
+    {"name": "diasGozados", "type": "integer", "objectType": "java", "primaryKey": false},
+    {"name": "diasPendentes", "type": "integer", "objectType": "java", "primaryKey": false}
+  ]
+}

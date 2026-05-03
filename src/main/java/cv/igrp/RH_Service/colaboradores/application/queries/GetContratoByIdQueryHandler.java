@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.queries;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.ContratoResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.ContratoResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.repository.ContratoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.ContratoId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.mappers.ContratoMapper;
@@ -14,13 +14,13 @@ import org.springframework.stereotype.Component;
 @Component("colabsGetContratoByIdQueryHandler")
 @RequiredArgsConstructor
 public class GetContratoByIdQueryHandler
-        implements QueryHandler<GetContratoByIdQuery, ResponseEntity<ContratoResponse>> {
+        implements QueryHandler<GetContratoByIdQuery, ResponseEntity<ContratoResponseDTO>> {
 
     private final ContratoRepository contratoRepository;
     private final ContratoMapper mapper;
 
     @IgrpQueryHandler
-    public ResponseEntity<ContratoResponse> handle(GetContratoByIdQuery query) {
+    public ResponseEntity<ContratoResponseDTO> handle(GetContratoByIdQuery query) {
         var c = contratoRepository.findById(ContratoId.from(query.getContratoId()))
                 .orElseThrow(() -> IgrpResponseStatusException.notFound("Contrato não encontrado: " + query.getContratoId()));
         return ResponseEntity.ok(mapper.toDTO(c));

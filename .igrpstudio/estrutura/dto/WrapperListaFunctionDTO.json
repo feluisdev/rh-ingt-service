@@ -1,0 +1,10 @@
+{
+  "type": "dto",
+  "name": "WrapperListaFunctionDTO",
+  "module": "estrutura",
+  "template": "classic",
+  "attributes": [
+    {"name": "content", "type": "string", "required": false},
+    {"name": "totalElements", "type": "integer", "required": false}
+  ]
+}

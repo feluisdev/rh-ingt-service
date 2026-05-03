@@ -10,6 +10,6 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class WrapperListaFuncionarioDTO {
-    private List<FuncionarioResponse> content;
+    private List<FuncionarioResponseDTO> content;
     private long totalElements;
 }

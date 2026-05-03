@@ -1,3 +1,6 @@
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+
 package cv.igrp.RH_Service.colaboradores.interfaces.rest;
 
 import cv.igrp.RH_Service.colaboradores.application.commands.*;
@@ -57,7 +60,7 @@ public class ReciboController {
     @Operation(summary = "Emitir recibo de vencimento")
     public ResponseEntity<Map<String, ?>> criarRecibo(
             @PathVariable String funcionarioId,
-            @Valid @RequestBody CriarReciboRequest request) {
+            @Valid @RequestBody CriarReciboRequestDTO request) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(
                 new CriarReciboVencimentoCommand(funcionarioId, request));

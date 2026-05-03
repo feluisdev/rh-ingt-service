@@ -10,6 +10,6 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class WrapperListaPedidoAusenciaDTO {
-    private List<PedidoAusenciaResponse> content;
+    private List<PedidoAusenciaResponseDTO> content;
     private long totalElements;
 }

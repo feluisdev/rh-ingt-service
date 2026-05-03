@@ -1,0 +1,17 @@
+{
+  "type": "dto",
+  "name": "AtualizarProcessoDisciplinarRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "processNumber", "objectType": "java", "required": false},
+    {"type": "date", "name": "startDate", "objectType": "java", "required": false},
+    {"type": "date", "name": "endDate", "objectType": "java", "required": false},
+    {"type": "string", "name": "penalty", "objectType": "java", "required": false},
+    {"type": "date", "name": "penaltyStartDate", "objectType": "java", "required": false},
+    {"type": "date", "name": "penaltyEndDate", "objectType": "java", "required": false},
+    {"type": "string", "name": "officialBulletin", "objectType": "java", "required": false},
+    {"type": "string", "name": "notes", "objectType": "java", "required": false},
+    {"type": "string", "name": "documentId", "objectType": "java", "required": false}
+  ]
+}

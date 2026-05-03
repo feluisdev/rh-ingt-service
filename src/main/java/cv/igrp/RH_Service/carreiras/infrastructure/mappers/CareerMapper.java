@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.carreiras.infrastructure.mappers;
 
-import cv.igrp.RH_Service.carreiras.application.dto.CareerResponse;
+import cv.igrp.RH_Service.carreiras.application.dto.CareerResponseDTO;
 import cv.igrp.RH_Service.carreiras.domain.models.Career;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CareerId;
 import cv.igrp.RH_Service.carreiras.infrastructure.persistence.entity.CareerEntity;
@@ -31,9 +31,9 @@ public class CareerMapper {
         );
     }
 
-    public CareerResponse toDTO(Career domain) {
+    public CareerResponseDTO toDTO(Career domain) {
         if (domain == null) return null;
-        CareerResponse dto = new CareerResponse();
+        CareerResponseDTO dto = new CareerResponseDTO();
         dto.setId(domain.getId().getStringValor());
         dto.setCode(domain.getCode());
         dto.setName(domain.getName());

@@ -1,0 +1,38 @@
+{
+  "type": "dto",
+  "module": "parametrizacoes",
+  "name": "DocumentTypeRequest",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    {
+      "name": "codigo",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "descricao",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "allowedExtensions",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "categoryOptionId",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    }
+  ],
+  "id": "document_type_req_dto_001"
+}

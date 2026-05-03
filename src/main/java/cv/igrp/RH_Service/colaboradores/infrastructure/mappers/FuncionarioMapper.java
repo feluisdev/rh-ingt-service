@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.mappers;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.FuncionarioResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.FuncionarioResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.FuncionarioEntity;
@@ -55,8 +55,8 @@ public class FuncionarioMapper {
         return e;
     }
 
-    public FuncionarioResponse toDTO(Funcionario f) {
-        FuncionarioResponse r = new FuncionarioResponse();
+    public FuncionarioResponseDTO toDTO(Funcionario f) {
+        FuncionarioResponseDTO r = new FuncionarioResponseDTO();
         r.setId(f.getId().getStringValor());
         r.setNumeroFuncionario(f.getNumeroFuncionario());
         r.setNomeCompleto(f.getNomeCompleto());

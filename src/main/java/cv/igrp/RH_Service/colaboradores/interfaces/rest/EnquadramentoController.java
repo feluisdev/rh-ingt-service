@@ -38,7 +38,7 @@ public class EnquadramentoController {
     @PostMapping
     @Operation(summary = "Criar enquadramento profissional")
     public ResponseEntity<Map<String, ?>> createEnquadramento(
-            @Valid @RequestBody EnquadramentoRequest request) {
+            @Valid @RequestBody EnquadramentoRequestDTO request) {
         LOGGER.debug("Operation started");
         final var command = new CreateEnquadramentoCommand(request);
         ResponseEntity<Map<String, ?>> response = commandBus.send(command);
@@ -48,11 +48,11 @@ public class EnquadramentoController {
 
     @GetMapping("{enquadramentoId}")
     @Operation(summary = "Obter enquadramento por ID")
-    public ResponseEntity<EnquadramentoResponse> getEnquadramentoById(
+    public ResponseEntity<EnquadramentoResponseDTO> getEnquadramentoById(
             @PathVariable(value = "enquadramentoId") String enquadramentoId) {
         LOGGER.debug("Operation started");
         final var query = new GetEnquadramentoByIdQuery(enquadramentoId);
-        ResponseEntity<EnquadramentoResponse> response = queryBus.handle(query);
+        ResponseEntity<EnquadramentoResponseDTO> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

@@ -3,7 +3,7 @@ package cv.igrp.RH_Service.colaboradores.application.queries;
 import cv.igrp.RH_Service.carreiras.infrastructure.persistence.repository.CareerEntityRepository;
 import cv.igrp.RH_Service.carreiras.infrastructure.persistence.repository.CategoryEntityRepository;
 import cv.igrp.RH_Service.carreiras.infrastructure.persistence.repository.GradeEntityRepository;
-import cv.igrp.RH_Service.colaboradores.application.dto.MeProfileResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.MeProfileResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.repository.EnquadramentoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 @Component("colabsGetMeProfileQueryHandler")
 @RequiredArgsConstructor
 public class GetMeProfileQueryHandler
-        implements QueryHandler<GetMeProfileQuery, ResponseEntity<MeProfileResponse>> {
+        implements QueryHandler<GetMeProfileQuery, ResponseEntity<MeProfileResponseDTO>> {
 
     private final CurrentEmployeeResolver currentEmployeeResolver;
     private final FuncionarioRepository funcionarioRepository;
@@ -32,7 +32,7 @@ public class GetMeProfileQueryHandler
     private final GradeEntityRepository gradeEntityRepository;
 
     @IgrpQueryHandler
-    public ResponseEntity<MeProfileResponse> handle(GetMeProfileQuery query) {
+    public ResponseEntity<MeProfileResponseDTO> handle(GetMeProfileQuery query) {
         var funcionarioId = currentEmployeeResolver.resolve();
 
         var funcionario = funcionarioRepository.findById(funcionarioId)
@@ -42,7 +42,7 @@ public class GetMeProfileQueryHandler
         if (!Boolean.TRUE.equals(funcionario.getIsActive()))
             throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN, "Acesso negado: colaborador inactivo.");
 
-        var response = new MeProfileResponse();
+        var response = new MeProfileResponseDTO();
         response.setId(funcionario.getId().getStringValor());
         response.setFullName(funcionario.getNomeCompleto());
         response.setNif(funcionario.getNif());
@@ -54,23 +54,23 @@ public class GetMeProfileQueryHandler
         enquadramentoRepository.findCurrentByFuncionarioId(funcionarioId).ifPresent(enq -> {
             if (enq.getUnidadeOrganicaId() != null) {
                 unitEntityRepository.findById(enq.getUnidadeOrganicaId()).ifPresent(u ->
-                        response.setCurrentUnit(new MeProfileResponse.UnitRef(u.getId().toString(), u.getName())));
+                        response.setCurrentUnit(new MeProfileResponseDTO.UnitRef(u.getId().toString(), u.getName())));
             }
             if (enq.getCargoId() != null) {
                 cargoEntityRepository.findById(enq.getCargoId()).ifPresent(c ->
-                        response.setCurrentJob(new MeProfileResponse.JobRef(c.getId().toString(), c.getNome())));
+                        response.setCurrentJob(new MeProfileResponseDTO.JobRef(c.getId().toString(), c.getNome())));
             }
             if (enq.getCareerId() != null) {
                 careerEntityRepository.findById(enq.getCareerId()).ifPresent(c ->
-                        response.setCareer(new MeProfileResponse.CareerRef(c.getId().toString(), c.getName())));
+                        response.setCareer(new MeProfileResponseDTO.CareerRef(c.getId().toString(), c.getName())));
             }
             if (enq.getCategoryId() != null) {
                 categoryEntityRepository.findById(enq.getCategoryId()).ifPresent(c ->
-                        response.setCategory(new MeProfileResponse.CategoryRef(c.getId().toString(), c.getName())));
+                        response.setCategory(new MeProfileResponseDTO.CategoryRef(c.getId().toString(), c.getName())));
             }
             if (enq.getGradeId() != null) {
                 gradeEntityRepository.findById(enq.getGradeId()).ifPresent(g ->
-                        response.setGrade(new MeProfileResponse.GradeRef(g.getId().toString(), g.getGradeNumber())));
+                        response.setGrade(new MeProfileResponseDTO.GradeRef(g.getId().toString(), g.getGradeNumber())));
             }
         });
 

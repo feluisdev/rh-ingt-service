@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.queries;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.LicencaMobilidadeResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.LicencaMobilidadeResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.LicencaMobilidadeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.LicencaMobilidadeId;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component("colabsGetMeLicencaMobilidadeByIdQueryHandler")
 @RequiredArgsConstructor
 public class GetMeLicencaMobilidadeByIdQueryHandler
-        implements QueryHandler<GetMeLicencaMobilidadeByIdQuery, ResponseEntity<LicencaMobilidadeResponse>> {
+        implements QueryHandler<GetMeLicencaMobilidadeByIdQuery, ResponseEntity<LicencaMobilidadeResponseDTO>> {
 
     private final CurrentEmployeeResolver currentEmployeeResolver;
     private final FuncionarioRepository funcionarioRepository;
@@ -25,7 +25,7 @@ public class GetMeLicencaMobilidadeByIdQueryHandler
     private final LicencaMobilidadeMapper mapper;
 
     @IgrpQueryHandler
-    public ResponseEntity<LicencaMobilidadeResponse> handle(GetMeLicencaMobilidadeByIdQuery query) {
+    public ResponseEntity<LicencaMobilidadeResponseDTO> handle(GetMeLicencaMobilidadeByIdQuery query) {
         var funcionarioId = currentEmployeeResolver.resolve();
 
         var funcionario = funcionarioRepository.findById(funcionarioId)

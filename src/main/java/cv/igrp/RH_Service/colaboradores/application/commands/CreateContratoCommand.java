@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.ContratoRequest;
+import cv.igrp.RH_Service.colaboradores.application.dto.ContratoRequestDTO;
 import cv.igrp.framework.core.domain.Command;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -8,5 +8,5 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class CreateContratoCommand implements Command {
-    private final ContratoRequest request;
+    private final ContratoRequestDTO request;
 }

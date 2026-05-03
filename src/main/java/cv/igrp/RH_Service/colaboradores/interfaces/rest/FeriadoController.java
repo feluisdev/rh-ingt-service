@@ -1,8 +1,11 @@
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+
 package cv.igrp.RH_Service.colaboradores.interfaces.rest;
 
 import cv.igrp.RH_Service.colaboradores.application.commands.*;
-import cv.igrp.RH_Service.colaboradores.application.dto.FeriadoRequest;
-import cv.igrp.RH_Service.colaboradores.application.dto.FeriadoResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.FeriadoRequestDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.FeriadoResponseDTO;
 import cv.igrp.RH_Service.colaboradores.application.dto.WrapperListaFeriadoDTO;
 import cv.igrp.RH_Service.colaboradores.application.queries.*;
 import cv.igrp.framework.core.domain.CommandBus;
@@ -35,7 +38,7 @@ public class FeriadoController {
 
     @PostMapping
     @Operation(summary = "Criar feriado")
-    public ResponseEntity<Map<String, ?>> create(@Valid @RequestBody FeriadoRequest request) {
+    public ResponseEntity<Map<String, ?>> create(@Valid @RequestBody FeriadoRequestDTO request) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateFeriadoCommand(request));
         LOGGER.debug("Operation finished");
@@ -56,16 +59,16 @@ public class FeriadoController {
 
     @GetMapping("{id}")
     @Operation(summary = "Obter feriado por ID")
-    public ResponseEntity<FeriadoResponse> getById(@PathVariable String id) {
+    public ResponseEntity<FeriadoResponseDTO> getById(@PathVariable String id) {
         LOGGER.debug("Operation started");
-        ResponseEntity<FeriadoResponse> response = queryBus.handle(new GetFeriadoByIdQuery(id));
+        ResponseEntity<FeriadoResponseDTO> response = queryBus.handle(new GetFeriadoByIdQuery(id));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
     @PutMapping("{id}")
     @Operation(summary = "Actualizar feriado")
-    public ResponseEntity<Map<String, ?>> update(@Valid @RequestBody FeriadoRequest request, @PathVariable String id) {
+    public ResponseEntity<Map<String, ?>> update(@Valid @RequestBody FeriadoRequestDTO request, @PathVariable String id) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(new UpdateFeriadoCommand(request, id));
         LOGGER.debug("Operation finished");

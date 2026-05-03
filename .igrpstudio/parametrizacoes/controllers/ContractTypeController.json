@@ -1,0 +1,206 @@
+{
+  "type": "controller",
+  "name": "ContractType",
+  "module": "parametrizacoes",
+  "description": "Gestão de tipos de contrato",
+  "basePath": "api/v1/rh/catalogs/contract-types",
+  "actions": [
+    {
+      "actionName": "listContractTypes",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaContractType",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "code",
+          "isRequired": false
+        },
+        {
+          "type": "boolean",
+          "name": "isActive",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "pagina",
+          "value": "0",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "tamanho",
+          "value": "20",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "getContractTypeById",
+      "path": "{contractTypeId}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ContractTypeResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "contractTypeId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "createContractType",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ContractTypeRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "parametrizacoes"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "updateContractType",
+      "path": "{contractTypeId}",
+      "method": "PUT",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ContractTypeRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "parametrizacoes"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ContractTypeResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "contractTypeId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "deleteContractType",
+      "path": "{contractTypeId}",
+      "method": "DELETE",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "contractTypeId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "activateContractType",
+      "path": "{contractTypeId}/activate",
+      "method": "PATCH",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "contractTypeId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    }
+  ],
+  "id": "contract_type_ctrl_001"
+}

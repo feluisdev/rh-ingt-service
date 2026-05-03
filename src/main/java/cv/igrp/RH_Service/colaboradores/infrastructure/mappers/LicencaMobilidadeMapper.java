@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.mappers;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.LicencaMobilidadeResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.LicencaMobilidadeResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.models.LicencaMobilidade;
 import cv.igrp.RH_Service.colaboradores.domain.repository.SubtipoLicencaMobilidadeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
@@ -49,8 +49,8 @@ public class LicencaMobilidadeMapper {
         return e;
     }
 
-    public LicencaMobilidadeResponse toDTO(LicencaMobilidade l) {
-        LicencaMobilidadeResponse r = new LicencaMobilidadeResponse();
+    public LicencaMobilidadeResponseDTO toDTO(LicencaMobilidade l) {
+        LicencaMobilidadeResponseDTO r = new LicencaMobilidadeResponseDTO();
         r.setId(l.getId().getStringValor());
         r.setFuncionarioId(l.getFuncionarioId().getStringValor());
         r.setSubtipoId(l.getSubtipoId().getStringValor());

@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.carreiras.application.commands;
 
-import cv.igrp.RH_Service.carreiras.application.dto.CareerResponse;
+import cv.igrp.RH_Service.carreiras.application.dto.CareerResponseDTO;
 import cv.igrp.RH_Service.carreiras.domain.repository.CareerRepository;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CareerId;
 import cv.igrp.RH_Service.carreiras.infrastructure.mappers.CareerMapper;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class UpdateCareerCommandHandler
-        implements CommandHandler<UpdateCareerCommand, ResponseEntity<CareerResponse>> {
+        implements CommandHandler<UpdateCareerCommand, ResponseEntity<CareerResponseDTO>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateCareerCommandHandler.class);
 
@@ -24,7 +24,7 @@ public class UpdateCareerCommandHandler
     private final CareerMapper mapper;
 
     @IgrpCommandHandler
-    public ResponseEntity<CareerResponse> handle(UpdateCareerCommand command) {
+    public ResponseEntity<CareerResponseDTO> handle(UpdateCareerCommand command) {
         var id = CareerId.from(command.getCareerId());
         var dto = command.getRequest();
 

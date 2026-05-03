@@ -10,6 +10,6 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class WrapperListaEnquadramentoDTO {
-    private List<EnquadramentoResponse> content;
+    private List<EnquadramentoResponseDTO> content;
     private long totalElements;
 }

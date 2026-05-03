@@ -1,0 +1,55 @@
+{
+  "type": "controller",
+  "name": "Documento",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh/funcionarios/{funcionarioId}/documentos",
+  "description": "Gestão de documentos de funcionários",
+  "actions": [
+    {
+      "actionName": "registar",
+      "method": "POST",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"}
+      ],
+      "requestBody": true
+    },
+    {
+      "actionName": "listar",
+      "method": "GET",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"}
+      ],
+      "requestParams": [
+        {"name": "documentTypeId", "type": "string", "required": false},
+        {"name": "active", "type": "boolean", "required": false}
+      ]
+    },
+    {
+      "actionName": "getById",
+      "method": "GET",
+      "path": "{documentoId}",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "documentoId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "download",
+      "method": "GET",
+      "path": "{documentoId}/download",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "documentoId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "desativar",
+      "method": "DELETE",
+      "path": "{documentoId}",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "documentoId", "type": "string"}
+      ]
+    }
+  ]
+}

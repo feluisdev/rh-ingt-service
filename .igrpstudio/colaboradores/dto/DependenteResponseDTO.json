@@ -1,0 +1,15 @@
+{
+  "type": "dto",
+  "name": "DependenteResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "id", "objectType": "java", "required": false},
+    {"type": "string", "name": "funcionarioId", "objectType": "java", "required": false},
+    {"type": "string", "name": "nome", "objectType": "java", "required": false},
+    {"type": "string", "name": "parentesco", "objectType": "java", "required": false},
+    {"type": "date", "name": "dataNascimento", "objectType": "java", "required": false},
+    {"type": "string", "name": "nif", "objectType": "java", "required": false},
+    {"type": "boolean", "name": "isActive", "objectType": "java", "required": false}
+  ]
+}

@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.carreiras.application.commands;
 
-import cv.igrp.RH_Service.carreiras.application.dto.GradeResponse;
+import cv.igrp.RH_Service.carreiras.application.dto.GradeResponseDTO;
 import cv.igrp.RH_Service.carreiras.domain.repository.GradeRepository;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.GradeId;
 import cv.igrp.RH_Service.carreiras.infrastructure.mappers.GradeMapper;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class UpdateGradeCommandHandler
-        implements CommandHandler<UpdateGradeCommand, ResponseEntity<GradeResponse>> {
+        implements CommandHandler<UpdateGradeCommand, ResponseEntity<GradeResponseDTO>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateGradeCommandHandler.class);
 
@@ -24,7 +24,7 @@ public class UpdateGradeCommandHandler
     private final GradeMapper mapper;
 
     @IgrpCommandHandler
-    public ResponseEntity<GradeResponse> handle(UpdateGradeCommand command) {
+    public ResponseEntity<GradeResponseDTO> handle(UpdateGradeCommand command) {
         var id = GradeId.from(command.getGradeId());
         var dto = command.getRequest();
 

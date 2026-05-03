@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.LicencaMobilidadeRequest;
+import cv.igrp.RH_Service.colaboradores.application.dto.LicencaMobilidadeRequestDTO;
 import cv.igrp.framework.core.domain.Command;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -9,5 +9,5 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CreateLicencaMobilidadeCommand implements Command {
     private final String funcionarioId;
-    private final LicencaMobilidadeRequest request;
+    private final LicencaMobilidadeRequestDTO request;
 }

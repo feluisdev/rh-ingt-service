@@ -6,6 +6,6 @@ import java.util.List;
 
 @Data
 public class WrapperListaLicencaMobilidadeDTO {
-    private List<LicencaMobilidadeResponse> content;
+    private List<LicencaMobilidadeResponseDTO> content;
     private int totalElements;
 }

@@ -1,0 +1,12 @@
+{
+  "type": "dto",
+  "name": "SelfServiceCriarPedidoAusenciaRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "leaveTypeId", "objectType": "java", "required": true},
+    {"type": "date", "name": "startDate", "objectType": "java", "required": true},
+    {"type": "date", "name": "endDate", "objectType": "java", "required": true},
+    {"type": "string", "name": "notes", "objectType": "java", "required": false}
+  ]
+}

@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.mappers;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.QualificacaoResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.QualificacaoResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.models.Qualificacao;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.QualificacaoId;
@@ -31,8 +31,8 @@ public class QualificacaoMapper {
         return e;
     }
 
-    public QualificacaoResponse toDTO(Qualificacao q) {
-        QualificacaoResponse r = new QualificacaoResponse();
+    public QualificacaoResponseDTO toDTO(Qualificacao q) {
+        QualificacaoResponseDTO r = new QualificacaoResponseDTO();
         r.setId(q.getId().getStringValor());
         r.setFuncionarioId(q.getFuncionarioId().getStringValor());
         r.setNivelAcademico(q.getNivelAcademico());

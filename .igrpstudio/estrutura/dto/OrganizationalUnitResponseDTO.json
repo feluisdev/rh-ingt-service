@@ -1,0 +1,15 @@
+{
+  "type": "dto",
+  "name": "OrganizationalUnitResponseDTO",
+  "module": "estrutura",
+  "template": "classic",
+  "attributes": [
+    {"name": "id", "type": "string", "required": false},
+    {"name": "code", "type": "string", "required": false},
+    {"name": "name", "type": "string", "required": false},
+    {"name": "acronym", "type": "string", "required": false},
+    {"name": "unitTypeOptionId", "type": "string", "required": false},
+    {"name": "parentUnitId", "type": "string", "required": false},
+    {"name": "isActive", "type": "boolean", "required": false}
+  ]
+}

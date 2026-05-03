@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.QualificacaoResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.QualificacaoResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.repository.QualificacaoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.QualificacaoId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.mappers.QualificacaoMapper;
@@ -14,13 +14,13 @@ import org.springframework.stereotype.Component;
 @Component("colabsUpdateQualificacaoCommandHandler")
 @RequiredArgsConstructor
 public class UpdateQualificacaoCommandHandler
-        implements CommandHandler<UpdateQualificacaoCommand, ResponseEntity<QualificacaoResponse>> {
+        implements CommandHandler<UpdateQualificacaoCommand, ResponseEntity<QualificacaoResponseDTO>> {
 
     private final QualificacaoRepository qualificacaoRepository;
     private final QualificacaoMapper mapper;
 
     @IgrpCommandHandler
-    public ResponseEntity<QualificacaoResponse> handle(UpdateQualificacaoCommand command) {
+    public ResponseEntity<QualificacaoResponseDTO> handle(UpdateQualificacaoCommand command) {
         var dto = command.getRequest();
         var id = QualificacaoId.from(command.getQualificacaoId());
 

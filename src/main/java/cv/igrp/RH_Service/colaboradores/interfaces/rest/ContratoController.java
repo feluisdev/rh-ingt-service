@@ -36,7 +36,7 @@ public class ContratoController {
 
     @PostMapping
     @Operation(summary = "Criar contrato")
-    public ResponseEntity<Map<String, ?>> createContrato(@Valid @RequestBody ContratoRequest request) {
+    public ResponseEntity<Map<String, ?>> createContrato(@Valid @RequestBody ContratoRequestDTO request) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateContratoCommand(request));
         LOGGER.debug("Operation finished");
@@ -45,18 +45,18 @@ public class ContratoController {
 
     @GetMapping("{contratoId}")
     @Operation(summary = "Obter contrato por ID")
-    public ResponseEntity<ContratoResponse> getContratoById(@PathVariable String contratoId) {
+    public ResponseEntity<ContratoResponseDTO> getContratoById(@PathVariable String contratoId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<ContratoResponse> response = queryBus.handle(new GetContratoByIdQuery(contratoId));
+        ResponseEntity<ContratoResponseDTO> response = queryBus.handle(new GetContratoByIdQuery(contratoId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
     @PutMapping("{contratoId}")
     @Operation(summary = "Actualizar contrato")
-    public ResponseEntity<ContratoResponse> updateContrato(@Valid @RequestBody ContratoRequest request, @PathVariable String contratoId) {
+    public ResponseEntity<ContratoResponseDTO> updateContrato(@Valid @RequestBody ContratoRequestDTO request, @PathVariable String contratoId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<ContratoResponse> response = commandBus.send(new UpdateContratoCommand(request, contratoId));
+        ResponseEntity<ContratoResponseDTO> response = commandBus.send(new UpdateContratoCommand(request, contratoId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

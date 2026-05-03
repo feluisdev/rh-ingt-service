@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.estrutura.infrastructure.mappers;
 
-import cv.igrp.RH_Service.estrutura.application.dto.FunctionResponse;
+import cv.igrp.RH_Service.estrutura.application.dto.FunctionResponseDTO;
 import cv.igrp.RH_Service.estrutura.domain.models.OrgFunction;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.FunctionId;
 import cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.FunctionEntity;
@@ -31,9 +31,9 @@ public class FunctionMapper {
         );
     }
 
-    public FunctionResponse toDTO(OrgFunction domain) {
+    public FunctionResponseDTO toDTO(OrgFunction domain) {
         if (domain == null) return null;
-        FunctionResponse dto = new FunctionResponse();
+        FunctionResponseDTO dto = new FunctionResponseDTO();
         dto.setId(domain.getId().getStringValor());
         dto.setCode(domain.getCode());
         dto.setName(domain.getName());

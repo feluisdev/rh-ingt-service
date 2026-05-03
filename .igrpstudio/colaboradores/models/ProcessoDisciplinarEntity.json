@@ -1,0 +1,20 @@
+{
+  "type": "model",
+  "name": "ProcessoDisciplinarEntity",
+  "module": "colaboradores",
+  "tableName": "t_disciplinary_process",
+  "revision": true,
+  "attributes": [
+    {"name": "id", "type": "string", "objectType": "java", "primaryKey": true},
+    {"name": "funcionarioId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "processNumber", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "startDate", "type": "date", "objectType": "java", "primaryKey": false},
+    {"name": "endDate", "type": "date", "objectType": "java", "primaryKey": false},
+    {"name": "penalty", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "penaltyStartDate", "type": "date", "objectType": "java", "primaryKey": false},
+    {"name": "penaltyEndDate", "type": "date", "objectType": "java", "primaryKey": false},
+    {"name": "officialBulletin", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "notes", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "documentId", "type": "string", "objectType": "java", "primaryKey": false}
+  ]
+}

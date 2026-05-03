@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.mappers;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.ContratoResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.ContratoResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.models.Contrato;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.ContratoId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
@@ -30,8 +30,8 @@ public class ContratoMapper {
         return e;
     }
 
-    public ContratoResponse toDTO(Contrato c) {
-        ContratoResponse r = new ContratoResponse();
+    public ContratoResponseDTO toDTO(Contrato c) {
+        ContratoResponseDTO r = new ContratoResponseDTO();
         r.setId(c.getId().getStringValor());
         r.setFuncionarioId(c.getFuncionarioId().getStringValor());
         r.setTipoContrato(c.getTipoContrato());

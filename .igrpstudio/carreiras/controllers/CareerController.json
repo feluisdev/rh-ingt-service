@@ -1,0 +1,8 @@
+{
+  "type": "controller",
+  "name": "CareerController",
+  "module": "carreiras",
+  "path": "/api/v1/rh/careers",
+  "beanPrefix": "carreiras",
+  "operations": ["findAll", "findById", "create", "update", "delete", "activate", "findCategoriesByCareer"]
+}

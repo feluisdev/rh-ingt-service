@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.queries;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.ColocacaoResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.ColocacaoResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.repository.ColocacaoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.ColocacaoId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.mappers.ColocacaoMapper;
@@ -14,13 +14,13 @@ import org.springframework.stereotype.Component;
 @Component("colabsGetColocacaoByIdQueryHandler")
 @RequiredArgsConstructor
 public class GetColocacaoByIdQueryHandler
-        implements QueryHandler<GetColocacaoByIdQuery, ResponseEntity<ColocacaoResponse>> {
+        implements QueryHandler<GetColocacaoByIdQuery, ResponseEntity<ColocacaoResponseDTO>> {
 
     private final ColocacaoRepository colocacaoRepository;
     private final ColocacaoMapper mapper;
 
     @IgrpQueryHandler
-    public ResponseEntity<ColocacaoResponse> handle(GetColocacaoByIdQuery query) {
+    public ResponseEntity<ColocacaoResponseDTO> handle(GetColocacaoByIdQuery query) {
         var colocacao = colocacaoRepository.findById(ColocacaoId.from(query.getColocacaoId()))
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Colocação não encontrada: " + query.getColocacaoId()));

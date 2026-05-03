@@ -1,0 +1,54 @@
+{
+  "type": "controller",
+  "name": "TipoAusencia",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh/parametrizacoes/tipos-ausencia",
+  "description": "Gestão de tipos de ausência",
+  "actions": [
+    {
+      "actionName": "create",
+      "method": "POST",
+      "requestBody": true
+    },
+    {
+      "actionName": "getAll",
+      "method": "GET",
+      "requestParams": [
+        {"name": "active", "type": "boolean", "required": false}
+      ]
+    },
+    {
+      "actionName": "getById",
+      "method": "GET",
+      "path": "{id}",
+      "pathVariables": [
+        {"name": "id", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "update",
+      "method": "PUT",
+      "path": "{id}",
+      "pathVariables": [
+        {"name": "id", "type": "string"}
+      ],
+      "requestBody": true
+    },
+    {
+      "actionName": "ativar",
+      "method": "PATCH",
+      "path": "{id}/ativar",
+      "pathVariables": [
+        {"name": "id", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "desativar",
+      "method": "PATCH",
+      "path": "{id}/desativar",
+      "pathVariables": [
+        {"name": "id", "type": "string"}
+      ]
+    }
+  ]
+}

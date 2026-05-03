@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.estrutura.application.commands;
 
-import cv.igrp.RH_Service.estrutura.application.dto.JobResponse;
+import cv.igrp.RH_Service.estrutura.application.dto.JobResponseDTO;
 import cv.igrp.RH_Service.estrutura.domain.repository.JobRepository;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.JobId;
 import cv.igrp.RH_Service.estrutura.infrastructure.mappers.JobMapper;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class UpdateJobCommandHandler
-        implements CommandHandler<UpdateJobCommand, ResponseEntity<JobResponse>> {
+        implements CommandHandler<UpdateJobCommand, ResponseEntity<JobResponseDTO>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateJobCommandHandler.class);
 
@@ -24,7 +24,7 @@ public class UpdateJobCommandHandler
     private final JobMapper mapper;
 
     @IgrpCommandHandler
-    public ResponseEntity<JobResponse> handle(UpdateJobCommand command) {
+    public ResponseEntity<JobResponseDTO> handle(UpdateJobCommand command) {
         var id = JobId.from(command.getJobId());
         var dto = command.getRequest();
 

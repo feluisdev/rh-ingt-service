@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.queries;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.DocumentoDownloadResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.DocumentoDownloadResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.repository.DocumentoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.DocumentoId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component("colabsGetDocumentoDownloadUrlQueryHandler")
 @RequiredArgsConstructor
 public class GetDocumentoDownloadUrlQueryHandler
-        implements QueryHandler<GetDocumentoDownloadUrlQuery, ResponseEntity<DocumentoDownloadResponse>> {
+        implements QueryHandler<GetDocumentoDownloadUrlQuery, ResponseEntity<DocumentoDownloadResponseDTO>> {
 
     private final DocumentoRepository documentoRepository;
     private final DocumentoService documentoService;
@@ -25,7 +25,7 @@ public class GetDocumentoDownloadUrlQueryHandler
     private long urlExpirationTime;
 
     @IgrpQueryHandler
-    public ResponseEntity<DocumentoDownloadResponse> handle(GetDocumentoDownloadUrlQuery query) {
+    public ResponseEntity<DocumentoDownloadResponseDTO> handle(GetDocumentoDownloadUrlQuery query) {
         var docId = DocumentoId.from(query.getDocumentoId());
         var funcionarioId = FuncionarioId.from(query.getFuncionarioId());
 
@@ -42,6 +42,6 @@ public class GetDocumentoDownloadUrlQueryHandler
                     "Documento não encontrado: " + query.getDocumentoId());
 
         var urlResult = documentoService.getPresignedLink(documento.getFileKey());
-        return ResponseEntity.ok(new DocumentoDownloadResponse(urlResult.getBody().getUrl(), urlExpirationTime));
+        return ResponseEntity.ok(new DocumentoDownloadResponseDTO(urlResult.getBody().getUrl(), urlExpirationTime));
     }
 }

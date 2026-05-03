@@ -19,8 +19,8 @@ import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.RH_Service.carreiras.application.commands.*;
 import cv.igrp.RH_Service.carreiras.application.queries.*;
 import cv.igrp.RH_Service.carreiras.application.dto.WrapperListaGradeDTO;
-import cv.igrp.RH_Service.carreiras.application.dto.GradeResponse;
-import cv.igrp.RH_Service.carreiras.application.dto.GradeRequest;
+import cv.igrp.RH_Service.carreiras.application.dto.GradeResponseDTO;
+import cv.igrp.RH_Service.carreiras.application.dto.GradeRequestDTO;
 
 import java.util.Map;
 
@@ -80,18 +80,18 @@ public class GradeController {
                 responseCode = "200",
                 content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = GradeResponse.class)
+                    schema = @Schema(implementation = GradeResponseDTO.class)
                 )
             )
         }
     )
-    public ResponseEntity<GradeResponse> getGradeById(
+    public ResponseEntity<GradeResponseDTO> getGradeById(
         @PathVariable(value = "gradeId") String gradeId) {
 
         LOGGER.debug("Operation started");
 
         final var query = new GetGradeByIdQuery(gradeId);
-        ResponseEntity<GradeResponse> response = queryBus.handle(query);
+        ResponseEntity<GradeResponseDTO> response = queryBus.handle(query);
 
         LOGGER.debug("Operation finished");
 
@@ -111,7 +111,7 @@ public class GradeController {
         }
     )
     public ResponseEntity<Map<String, ?>> createGrade(
-        @Valid @RequestBody GradeRequest createGradeRequest) {
+        @Valid @RequestBody GradeRequestDTO createGradeRequest) {
 
         LOGGER.debug("Operation started");
 
@@ -133,19 +133,19 @@ public class GradeController {
                 responseCode = "200",
                 content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = GradeResponse.class)
+                    schema = @Schema(implementation = GradeResponseDTO.class)
                 )
             )
         }
     )
-    public ResponseEntity<GradeResponse> updateGrade(
-        @Valid @RequestBody GradeRequest updateGradeRequest,
+    public ResponseEntity<GradeResponseDTO> updateGrade(
+        @Valid @RequestBody GradeRequestDTO updateGradeRequest,
         @PathVariable(value = "gradeId") String gradeId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new UpdateGradeCommand(updateGradeRequest, gradeId);
-        ResponseEntity<GradeResponse> response = commandBus.send(command);
+        ResponseEntity<GradeResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 

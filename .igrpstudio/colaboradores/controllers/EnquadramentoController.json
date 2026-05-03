@@ -1,0 +1,22 @@
+{
+  "type": "controller",
+  "name": "Enquadramento",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh/enquadramentos",
+  "description": "Gestão de enquadramentos profissionais",
+  "actions": [
+    {
+      "actionName": "createEnquadramento",
+      "method": "POST",
+      "requestBody": true
+    },
+    {
+      "actionName": "getEnquadramentoById",
+      "method": "GET",
+      "path": "{enquadramentoId}",
+      "pathVariables": [
+        {"name": "enquadramentoId", "type": "string"}
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.mappers;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.SubtipoLicencaMobilidadeResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.SubtipoLicencaMobilidadeResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.models.SubtipoLicencaMobilidade;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.SubtipoLicencaMobilidadeId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.SubtipoLicencaMobilidadeEntity;
@@ -30,8 +30,8 @@ public class SubtipoLicencaMobilidadeMapper {
         return e;
     }
 
-    public SubtipoLicencaMobilidadeResponse toDTO(SubtipoLicencaMobilidade s) {
-        SubtipoLicencaMobilidadeResponse r = new SubtipoLicencaMobilidadeResponse();
+    public SubtipoLicencaMobilidadeResponseDTO toDTO(SubtipoLicencaMobilidade s) {
+        SubtipoLicencaMobilidadeResponseDTO r = new SubtipoLicencaMobilidadeResponseDTO();
         r.setId(s.getId().getStringValor());
         r.setNome(s.getNome());
         r.setCodigo(s.getCodigo());

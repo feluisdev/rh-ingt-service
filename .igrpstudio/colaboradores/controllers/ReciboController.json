@@ -1,0 +1,38 @@
+{
+  "type": "controller",
+  "name": "Recibo",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh",
+  "description": "Gestão de recibos de vencimento dos funcionários",
+  "actions": [
+    {
+      "actionName": "listarRecibos",
+      "method": "GET",
+      "path": "funcionarios/{funcionarioId}/recibos",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"}
+      ],
+      "requestParams": [
+        {"name": "periodYear", "type": "integer", "required": false},
+        {"name": "periodMonth", "type": "integer", "required": false}
+      ]
+    },
+    {
+      "actionName": "getReciboById",
+      "method": "GET",
+      "path": "recibos/{reciboId}",
+      "pathVariables": [
+        {"name": "reciboId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "criarRecibo",
+      "method": "POST",
+      "path": "funcionarios/{funcionarioId}/recibos",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"}
+      ],
+      "requestBody": true
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "type": "dto",
+  "name": "ReciboVencimentoDTO",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "id", "objectType": "java", "required": false},
+    {"type": "string", "name": "funcionarioId", "objectType": "java", "required": false},
+    {"type": "integer", "name": "periodMonth", "objectType": "java", "required": false},
+    {"type": "integer", "name": "periodYear", "objectType": "java", "required": false},
+    {"type": "date", "name": "issueDate", "objectType": "java", "required": false},
+    {"type": "decimal", "name": "grossSalary", "objectType": "java", "required": false},
+    {"type": "decimal", "name": "netSalary", "objectType": "java", "required": false},
+    {"type": "string", "name": "documentId", "objectType": "java", "required": false}
+  ]
+}

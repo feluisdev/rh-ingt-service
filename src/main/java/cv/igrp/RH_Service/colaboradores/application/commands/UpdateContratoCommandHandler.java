@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.ContratoResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.ContratoResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.repository.ContratoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.ContratoId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.mappers.ContratoMapper;
@@ -14,13 +14,13 @@ import org.springframework.stereotype.Component;
 @Component("colabsUpdateContratoCommandHandler")
 @RequiredArgsConstructor
 public class UpdateContratoCommandHandler
-        implements CommandHandler<UpdateContratoCommand, ResponseEntity<ContratoResponse>> {
+        implements CommandHandler<UpdateContratoCommand, ResponseEntity<ContratoResponseDTO>> {
 
     private final ContratoRepository contratoRepository;
     private final ContratoMapper mapper;
 
     @IgrpCommandHandler
-    public ResponseEntity<ContratoResponse> handle(UpdateContratoCommand command) {
+    public ResponseEntity<ContratoResponseDTO> handle(UpdateContratoCommand command) {
         var dto = command.getRequest();
         var id = ContratoId.from(command.getContratoId());
 

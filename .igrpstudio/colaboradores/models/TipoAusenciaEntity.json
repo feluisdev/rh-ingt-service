@@ -1,0 +1,17 @@
+{
+  "type": "model",
+  "name": "TipoAusenciaEntity",
+  "module": "colaboradores",
+  "tableName": "t_leave_type",
+  "revision": true,
+  "attributes": [
+    {"name": "id", "type": "string", "objectType": "java", "primaryKey": true},
+    {"name": "description", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "code", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "deductsBalance", "type": "boolean", "objectType": "java", "primaryKey": false},
+    {"name": "requiresApproval", "type": "boolean", "objectType": "java", "primaryKey": false},
+    {"name": "maxDaysPerYear", "type": "integer", "objectType": "java", "primaryKey": false},
+    {"name": "categoryOptionId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "isActive", "type": "boolean", "objectType": "java", "primaryKey": false}
+  ]
+}

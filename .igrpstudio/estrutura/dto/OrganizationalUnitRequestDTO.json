@@ -1,0 +1,13 @@
+{
+  "type": "dto",
+  "name": "OrganizationalUnitRequestDTO",
+  "module": "estrutura",
+  "template": "classic",
+  "attributes": [
+    {"name": "code", "type": "string", "required": false},
+    {"name": "name", "type": "string", "required": false},
+    {"name": "acronym", "type": "string", "required": false},
+    {"name": "unitTypeOptionId", "type": "string", "required": false},
+    {"name": "parentUnitId", "type": "string", "required": false}
+  ]
+}

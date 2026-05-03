@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.estrutura.application.queries;
 
-import cv.igrp.RH_Service.estrutura.application.dto.OrganizationalUnitResponse;
+import cv.igrp.RH_Service.estrutura.application.dto.OrganizationalUnitResponseDTO;
 import cv.igrp.RH_Service.estrutura.domain.repository.OrganizationalUnitRepository;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.OrganizationalUnitId;
 import cv.igrp.RH_Service.estrutura.infrastructure.mappers.OrganizationalUnitMapper;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class GetOrganizationalUnitByIdQueryHandler
-        implements QueryHandler<GetOrganizationalUnitByIdQuery, ResponseEntity<OrganizationalUnitResponse>> {
+        implements QueryHandler<GetOrganizationalUnitByIdQuery, ResponseEntity<OrganizationalUnitResponseDTO>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GetOrganizationalUnitByIdQueryHandler.class);
 
@@ -24,7 +24,7 @@ public class GetOrganizationalUnitByIdQueryHandler
     private final OrganizationalUnitMapper mapper;
 
     @IgrpQueryHandler
-    public ResponseEntity<OrganizationalUnitResponse> handle(GetOrganizationalUnitByIdQuery query) {
+    public ResponseEntity<OrganizationalUnitResponseDTO> handle(GetOrganizationalUnitByIdQuery query) {
         var unit = unitRepository.findById(OrganizationalUnitId.from(query.getUnitId()))
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Unidade orgânica não encontrada: " + query.getUnitId()));

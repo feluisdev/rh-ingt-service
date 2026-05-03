@@ -1,3 +1,6 @@
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+
 package cv.igrp.RH_Service.colaboradores.interfaces.rest;
 
 import cv.igrp.RH_Service.colaboradores.application.commands.*;
@@ -36,7 +39,7 @@ public class SaldoAusenciaController {
     @Operation(summary = "Criar saldo de ausência")
     public ResponseEntity<Map<String, ?>> create(
             @PathVariable String funcionarioId,
-            @Valid @RequestBody SaldoAusenciaRequest request) {
+            @Valid @RequestBody SaldoAusenciaRequestDTO request) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateSaldoAusenciaCommand(funcionarioId, request));
         LOGGER.debug("Operation finished");
@@ -58,11 +61,11 @@ public class SaldoAusenciaController {
 
     @GetMapping("{saldoId}")
     @Operation(summary = "Obter saldo de ausência por ID")
-    public ResponseEntity<SaldoAusenciaResponse> getById(
+    public ResponseEntity<SaldoAusenciaResponseDTO> getById(
             @PathVariable String funcionarioId,
             @PathVariable String saldoId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<SaldoAusenciaResponse> response = queryBus.handle(
+        ResponseEntity<SaldoAusenciaResponseDTO> response = queryBus.handle(
                 new GetSaldoAusenciaByIdQuery(funcionarioId, saldoId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());

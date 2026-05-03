@@ -1,0 +1,10 @@
+{
+  "type": "dto",
+  "name": "RejeitarPedidoRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "aprovadoPorId", "objectType": "java", "required": true},
+    {"type": "string", "name": "observacoesDecisao", "objectType": "java", "required": false}
+  ]
+}

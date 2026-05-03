@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.queries;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.QualificacaoResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.QualificacaoResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.repository.QualificacaoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.QualificacaoId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.mappers.QualificacaoMapper;
@@ -14,13 +14,13 @@ import org.springframework.stereotype.Component;
 @Component("colabsGetQualificacaoByIdQueryHandler")
 @RequiredArgsConstructor
 public class GetQualificacaoByIdQueryHandler
-        implements QueryHandler<GetQualificacaoByIdQuery, ResponseEntity<QualificacaoResponse>> {
+        implements QueryHandler<GetQualificacaoByIdQuery, ResponseEntity<QualificacaoResponseDTO>> {
 
     private final QualificacaoRepository qualificacaoRepository;
     private final QualificacaoMapper mapper;
 
     @IgrpQueryHandler
-    public ResponseEntity<QualificacaoResponse> handle(GetQualificacaoByIdQuery query) {
+    public ResponseEntity<QualificacaoResponseDTO> handle(GetQualificacaoByIdQuery query) {
         var q = qualificacaoRepository.findById(QualificacaoId.from(query.getQualificacaoId()))
                 .orElseThrow(() -> IgrpResponseStatusException.notFound("Qualificação não encontrada: " + query.getQualificacaoId()));
         return ResponseEntity.ok(mapper.toDTO(q));

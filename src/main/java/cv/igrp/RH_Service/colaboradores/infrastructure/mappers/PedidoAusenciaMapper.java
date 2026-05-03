@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.mappers;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.PedidoAusenciaResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.PedidoAusenciaResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.models.PedidoAusencia;
 import cv.igrp.RH_Service.colaboradores.domain.repository.TipoAusenciaRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
@@ -47,8 +47,8 @@ public class PedidoAusenciaMapper {
         return e;
     }
 
-    public PedidoAusenciaResponse toDTO(PedidoAusencia p) {
-        PedidoAusenciaResponse r = new PedidoAusenciaResponse();
+    public PedidoAusenciaResponseDTO toDTO(PedidoAusencia p) {
+        PedidoAusenciaResponseDTO r = new PedidoAusenciaResponseDTO();
         r.setId(p.getId().getStringValor());
         r.setFuncionarioId(p.getFuncionarioId().getStringValor());
         r.setDataInicio(p.getDataInicio());

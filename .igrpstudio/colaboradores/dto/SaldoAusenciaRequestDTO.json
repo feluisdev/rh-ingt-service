@@ -1,0 +1,11 @@
+{
+  "type": "dto",
+  "name": "SaldoAusenciaRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "tipoAusenciaId", "objectType": "java", "required": true},
+    {"type": "integer", "name": "ano", "objectType": "java", "required": true},
+    {"type": "integer", "name": "diasDireito", "objectType": "java", "required": true}
+  ]
+}

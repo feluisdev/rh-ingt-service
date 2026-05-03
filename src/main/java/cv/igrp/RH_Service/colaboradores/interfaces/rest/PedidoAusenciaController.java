@@ -1,3 +1,6 @@
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+
 package cv.igrp.RH_Service.colaboradores.interfaces.rest;
 
 import cv.igrp.RH_Service.colaboradores.application.commands.*;
@@ -36,7 +39,7 @@ public class PedidoAusenciaController {
     @Operation(summary = "Criar pedido de ausência")
     public ResponseEntity<Map<String, ?>> create(
             @PathVariable String funcionarioId,
-            @Valid @RequestBody PedidoAusenciaRequest request) {
+            @Valid @RequestBody PedidoAusenciaRequestDTO request) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(new CreatePedidoAusenciaCommand(funcionarioId, request));
         LOGGER.debug("Operation finished");
@@ -59,11 +62,11 @@ public class PedidoAusenciaController {
 
     @GetMapping("{pedidoId}")
     @Operation(summary = "Obter pedido de ausência por ID")
-    public ResponseEntity<PedidoAusenciaResponse> getById(
+    public ResponseEntity<PedidoAusenciaResponseDTO> getById(
             @PathVariable String funcionarioId,
             @PathVariable String pedidoId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<PedidoAusenciaResponse> response = queryBus.handle(
+        ResponseEntity<PedidoAusenciaResponseDTO> response = queryBus.handle(
                 new GetPedidoAusenciaByIdQuery(funcionarioId, pedidoId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
@@ -74,7 +77,7 @@ public class PedidoAusenciaController {
     public ResponseEntity<Map<String, ?>> aprovar(
             @PathVariable String funcionarioId,
             @PathVariable String pedidoId,
-            @Valid @RequestBody AprovarPedidoRequest request) {
+            @Valid @RequestBody AprovarPedidoRequestDTO request) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(
                 new AprovarPedidoAusenciaCommand(funcionarioId, pedidoId, request));
@@ -87,7 +90,7 @@ public class PedidoAusenciaController {
     public ResponseEntity<Map<String, ?>> rejeitar(
             @PathVariable String funcionarioId,
             @PathVariable String pedidoId,
-            @Valid @RequestBody RejeitarPedidoRequest request) {
+            @Valid @RequestBody RejeitarPedidoRequestDTO request) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(
                 new RejeitarPedidoAusenciaCommand(funcionarioId, pedidoId, request));

@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.queries;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.DocumentoResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.DocumentoResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.repository.DocumentoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.DocumentoId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
@@ -15,13 +15,13 @@ import org.springframework.stereotype.Component;
 @Component("colabsGetDocumentoByIdQueryHandler")
 @RequiredArgsConstructor
 public class GetDocumentoByIdQueryHandler
-        implements QueryHandler<GetDocumentoByIdQuery, ResponseEntity<DocumentoResponse>> {
+        implements QueryHandler<GetDocumentoByIdQuery, ResponseEntity<DocumentoResponseDTO>> {
 
     private final DocumentoRepository documentoRepository;
     private final DocumentoMapper mapper;
 
     @IgrpQueryHandler
-    public ResponseEntity<DocumentoResponse> handle(GetDocumentoByIdQuery query) {
+    public ResponseEntity<DocumentoResponseDTO> handle(GetDocumentoByIdQuery query) {
         var docId = DocumentoId.from(query.getDocumentoId());
         var funcionarioId = FuncionarioId.from(query.getFuncionarioId());
 

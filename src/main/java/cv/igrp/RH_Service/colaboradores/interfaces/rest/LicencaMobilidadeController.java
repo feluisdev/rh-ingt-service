@@ -1,3 +1,6 @@
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+
 package cv.igrp.RH_Service.colaboradores.interfaces.rest;
 
 import cv.igrp.RH_Service.colaboradores.application.commands.*;
@@ -36,7 +39,7 @@ public class LicencaMobilidadeController {
     @Operation(summary = "Registar licença ou mobilidade")
     public ResponseEntity<Map<String, ?>> create(
             @PathVariable String funcionarioId,
-            @Valid @RequestBody LicencaMobilidadeRequest request) {
+            @Valid @RequestBody LicencaMobilidadeRequestDTO request) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateLicencaMobilidadeCommand(funcionarioId, request));
         LOGGER.debug("Operation finished");
@@ -58,11 +61,11 @@ public class LicencaMobilidadeController {
 
     @GetMapping("{licencaId}")
     @Operation(summary = "Obter licença/mobilidade por ID")
-    public ResponseEntity<LicencaMobilidadeResponse> getById(
+    public ResponseEntity<LicencaMobilidadeResponseDTO> getById(
             @PathVariable String funcionarioId,
             @PathVariable String licencaId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<LicencaMobilidadeResponse> response = queryBus.handle(
+        ResponseEntity<LicencaMobilidadeResponseDTO> response = queryBus.handle(
                 new GetLicencaMobilidadeByIdQuery(funcionarioId, licencaId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
@@ -73,7 +76,7 @@ public class LicencaMobilidadeController {
     public ResponseEntity<Map<String, ?>> update(
             @PathVariable String funcionarioId,
             @PathVariable String licencaId,
-            @Valid @RequestBody LicencaMobilidadeRequest request) {
+            @Valid @RequestBody LicencaMobilidadeRequestDTO request) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(
                 new UpdateLicencaMobilidadeCommand(funcionarioId, licencaId, request));
@@ -99,7 +102,7 @@ public class LicencaMobilidadeController {
     public ResponseEntity<Map<String, ?>> reject(
             @PathVariable String funcionarioId,
             @PathVariable String licencaId,
-            @Valid @RequestBody RejeitarLicencaMobilidadeRequest request) {
+            @Valid @RequestBody RejeitarLicencaMobilidadeRequestDTO request) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(
                 new RejeitarLicencaMobilidadeCommand(licencaId, request.getRejectionReason()));

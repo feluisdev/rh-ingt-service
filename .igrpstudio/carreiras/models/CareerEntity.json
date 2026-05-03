@@ -1,0 +1,14 @@
+{
+  "type": "model",
+  "name": "CareerEntity",
+  "module": "carreiras",
+  "tableName": "t_career",
+  "revision": true,
+  "attributes": [
+    {"name": "id", "type": "string", "objectType": "java", "primaryKey": true},
+    {"name": "code", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "name", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "description", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "isActive", "type": "boolean", "objectType": "java", "primaryKey": false}
+  ]
+}

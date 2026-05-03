@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.SaldoAusenciaRequest;
+import cv.igrp.RH_Service.colaboradores.application.dto.SaldoAusenciaRequestDTO;
 import cv.igrp.framework.core.domain.Command;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -9,5 +9,5 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CreateSaldoAusenciaCommand implements Command {
     private final String funcionarioId;
-    private final SaldoAusenciaRequest request;
+    private final SaldoAusenciaRequestDTO request;
 }

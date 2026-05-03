@@ -1,0 +1,10 @@
+{
+  "type": "dto",
+  "name": "WrapperListaContratoDTO",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "list", "name": "content", "objectType": "java", "required": false, "collectionType": "list"},
+    {"type": "long", "name": "totalElements", "objectType": "java", "required": false}
+  ]
+}

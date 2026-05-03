@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.estrutura.infrastructure.mappers;
 
-import cv.igrp.RH_Service.estrutura.application.dto.OrganizationalUnitResponse;
+import cv.igrp.RH_Service.estrutura.application.dto.OrganizationalUnitResponseDTO;
 import cv.igrp.RH_Service.estrutura.domain.models.OrganizationalUnit;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.OrganizationalUnitId;
 import cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.OrganizationalUnitEntity;
@@ -37,9 +37,9 @@ public class OrganizationalUnitMapper {
         );
     }
 
-    public OrganizationalUnitResponse toDTO(OrganizationalUnit domain) {
+    public OrganizationalUnitResponseDTO toDTO(OrganizationalUnit domain) {
         if (domain == null) return null;
-        OrganizationalUnitResponse dto = new OrganizationalUnitResponse();
+        OrganizationalUnitResponseDTO dto = new OrganizationalUnitResponseDTO();
         dto.setId(domain.getId().getStringValor());
         dto.setCode(domain.getCode());
         dto.setName(domain.getName());

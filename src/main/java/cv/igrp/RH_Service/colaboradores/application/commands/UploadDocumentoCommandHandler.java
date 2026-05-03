@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.DocumentoUploadResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.DocumentoUploadResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.models.Documento;
 import cv.igrp.RH_Service.colaboradores.domain.repository.DocumentoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
@@ -20,14 +20,14 @@ import java.util.Arrays;
 @Component("colabsUploadDocumentoCommandHandler")
 @RequiredArgsConstructor
 public class UploadDocumentoCommandHandler
-        implements CommandHandler<UploadDocumentoCommand, ResponseEntity<DocumentoUploadResponse>> {
+        implements CommandHandler<UploadDocumentoCommand, ResponseEntity<DocumentoUploadResponseDTO>> {
 
     private final FuncionarioRepository funcionarioRepository;
     private final DocumentTypeRepository documentTypeRepository;
     private final DocumentoRepository documentoRepository;
 
     @IgrpCommandHandler
-    public ResponseEntity<DocumentoUploadResponse> handle(UploadDocumentoCommand command) {
+    public ResponseEntity<DocumentoUploadResponseDTO> handle(UploadDocumentoCommand command) {
         var funcionarioId = FuncionarioId.from(command.getFuncionarioId());
         funcionarioRepository.findById(funcionarioId)
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
@@ -57,7 +57,7 @@ public class UploadDocumentoCommandHandler
                 command.getFileSize(),
                 command.getDescription()));
 
-        return ResponseEntity.status(201).body(new DocumentoUploadResponse(
+        return ResponseEntity.status(201).body(new DocumentoUploadResponseDTO(
                 saved.getId().getStringValor(),
                 saved.getFileKey(),
                 saved.getOriginalFilename(),

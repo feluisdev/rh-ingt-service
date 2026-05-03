@@ -1,3 +1,6 @@
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+
 package cv.igrp.RH_Service.colaboradores.interfaces.rest;
 
 import cv.igrp.RH_Service.colaboradores.application.commands.*;
@@ -35,9 +38,9 @@ public class MeController {
 
     @GetMapping("profile")
     @Operation(summary = "Obter perfil completo do colaborador autenticado")
-    public ResponseEntity<MeProfileResponse> getMyProfile() {
+    public ResponseEntity<MeProfileResponseDTO> getMyProfile() {
         LOGGER.debug("Operation started");
-        ResponseEntity<MeProfileResponse> response = queryBus.handle(new GetMeProfileQuery());
+        ResponseEntity<MeProfileResponseDTO> response = queryBus.handle(new GetMeProfileQuery());
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
@@ -69,7 +72,7 @@ public class MeController {
     @PostMapping("leave-requests")
     @Operation(summary = "Submeter pedido de ausência (self-service)")
     public ResponseEntity<Map<String, ?>> createMyLeaveRequest(
-            @Valid @RequestBody SelfServiceCriarPedidoAusenciaRequest request) {
+            @Valid @RequestBody SelfServiceCriarPedidoAusenciaRequestDTO request) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(
                 new SelfServiceCriarPedidoAusenciaCommand(null, request));
@@ -100,9 +103,9 @@ public class MeController {
 
     @GetMapping("leaves-mobilities/{id}")
     @Operation(summary = "Obter detalhe de licença/mobilidade própria (valida ownership)")
-    public ResponseEntity<LicencaMobilidadeResponse> getMyLeaveMobilityById(@PathVariable String id) {
+    public ResponseEntity<LicencaMobilidadeResponseDTO> getMyLeaveMobilityById(@PathVariable String id) {
         LOGGER.debug("Operation started");
-        ResponseEntity<LicencaMobilidadeResponse> response = queryBus.handle(new GetMeLicencaMobilidadeByIdQuery(id));
+        ResponseEntity<LicencaMobilidadeResponseDTO> response = queryBus.handle(new GetMeLicencaMobilidadeByIdQuery(id));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
@@ -110,7 +113,7 @@ public class MeController {
     @PostMapping("leaves-mobilities")
     @Operation(summary = "Auto-submeter licença/mobilidade (apenas quando canSelfSubmit=true no subtipo)")
     public ResponseEntity<Map<String, ?>> createMyLeaveMobility(
-            @Valid @RequestBody SelfServiceCriarLicencaMobilidadeRequest request) {
+            @Valid @RequestBody SelfServiceCriarLicencaMobilidadeRequestDTO request) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(
                 new SelfServiceCriarLicencaMobilidadeCommand(null, request));

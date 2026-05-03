@@ -19,8 +19,8 @@ import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.RH_Service.estrutura.application.commands.*;
 import cv.igrp.RH_Service.estrutura.application.queries.*;
 import cv.igrp.RH_Service.estrutura.application.dto.WrapperListaJobDTO;
-import cv.igrp.RH_Service.estrutura.application.dto.JobResponse;
-import cv.igrp.RH_Service.estrutura.application.dto.JobRequest;
+import cv.igrp.RH_Service.estrutura.application.dto.JobResponseDTO;
+import cv.igrp.RH_Service.estrutura.application.dto.JobRequestDTO;
 
 import java.util.Map;
 
@@ -79,18 +79,18 @@ public class JobController {
                 responseCode = "200",
                 content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = JobResponse.class)
+                    schema = @Schema(implementation = JobResponseDTO.class)
                 )
             )
         }
     )
-    public ResponseEntity<JobResponse> getJobById(
+    public ResponseEntity<JobResponseDTO> getJobById(
         @PathVariable(value = "jobId") String jobId) {
 
         LOGGER.debug("Operation started");
 
         final var query = new GetJobByIdQuery(jobId);
-        ResponseEntity<JobResponse> response = queryBus.handle(query);
+        ResponseEntity<JobResponseDTO> response = queryBus.handle(query);
 
         LOGGER.debug("Operation finished");
 
@@ -110,7 +110,7 @@ public class JobController {
         }
     )
     public ResponseEntity<Map<String, ?>> createJob(
-        @Valid @RequestBody JobRequest createJobRequest) {
+        @Valid @RequestBody JobRequestDTO createJobRequest) {
 
         LOGGER.debug("Operation started");
 
@@ -132,19 +132,19 @@ public class JobController {
                 responseCode = "200",
                 content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = JobResponse.class)
+                    schema = @Schema(implementation = JobResponseDTO.class)
                 )
             )
         }
     )
-    public ResponseEntity<JobResponse> updateJob(
-        @Valid @RequestBody JobRequest updateJobRequest,
+    public ResponseEntity<JobResponseDTO> updateJob(
+        @Valid @RequestBody JobRequestDTO updateJobRequest,
         @PathVariable(value = "jobId") String jobId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new UpdateJobCommand(updateJobRequest, jobId);
-        ResponseEntity<JobResponse> response = commandBus.send(command);
+        ResponseEntity<JobResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 

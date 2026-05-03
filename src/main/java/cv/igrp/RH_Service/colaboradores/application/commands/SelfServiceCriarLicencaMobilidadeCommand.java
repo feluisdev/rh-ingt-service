@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.SelfServiceCriarLicencaMobilidadeRequest;
+import cv.igrp.RH_Service.colaboradores.application.dto.SelfServiceCriarLicencaMobilidadeRequestDTO;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.framework.core.domain.Command;
 import lombok.Getter;
@@ -10,5 +10,5 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SelfServiceCriarLicencaMobilidadeCommand implements Command {
     private final FuncionarioId funcionarioId;
-    private final SelfServiceCriarLicencaMobilidadeRequest request;
+    private final SelfServiceCriarLicencaMobilidadeRequestDTO request;
 }

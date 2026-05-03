@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.mappers;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.ColocacaoResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.ColocacaoResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.models.Colocacao;
 import cv.igrp.RH_Service.colaboradores.domain.models.TipoAfectacao;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.ColocacaoId;
@@ -40,8 +40,8 @@ public class ColocacaoMapper {
         return e;
     }
 
-    public ColocacaoResponse toDTO(Colocacao c) {
-        ColocacaoResponse r = new ColocacaoResponse();
+    public ColocacaoResponseDTO toDTO(Colocacao c) {
+        ColocacaoResponseDTO r = new ColocacaoResponseDTO();
         r.setId(c.getId().getStringValor());
         r.setFuncionarioId(c.getFuncionarioId().getStringValor());
         r.setUnitId(c.getUnitId() != null ? c.getUnitId().toString() : null);

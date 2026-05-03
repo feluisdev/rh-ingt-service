@@ -1,3 +1,6 @@
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+
 package cv.igrp.RH_Service.colaboradores.interfaces.rest;
 
 import cv.igrp.RH_Service.colaboradores.application.commands.*;
@@ -59,7 +62,7 @@ public class FormacaoController {
     @Operation(summary = "Registar nova formação profissional")
     public ResponseEntity<Map<String, ?>> criarFormacao(
             @PathVariable String funcionarioId,
-            @Valid @RequestBody CriarFormacaoRequest request) {
+            @Valid @RequestBody CriarFormacaoRequestDTO request) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(
                 new CriarFormacaoCommand(funcionarioId, request));
@@ -72,7 +75,7 @@ public class FormacaoController {
     public ResponseEntity<Map<String, ?>> atualizarFormacao(
             @PathVariable String funcionarioId,
             @PathVariable String formacaoId,
-            @Valid @RequestBody AtualizarFormacaoRequest request) {
+            @Valid @RequestBody AtualizarFormacaoRequestDTO request) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(
                 new AtualizarFormacaoCommand(funcionarioId, formacaoId, request));

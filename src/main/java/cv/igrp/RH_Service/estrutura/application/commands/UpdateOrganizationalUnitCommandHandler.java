@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.estrutura.application.commands;
 
-import cv.igrp.RH_Service.estrutura.application.dto.OrganizationalUnitResponse;
+import cv.igrp.RH_Service.estrutura.application.dto.OrganizationalUnitResponseDTO;
 import cv.igrp.RH_Service.estrutura.domain.repository.OrganizationalUnitRepository;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.OrganizationalUnitId;
 import cv.igrp.RH_Service.estrutura.infrastructure.mappers.OrganizationalUnitMapper;
@@ -19,7 +19,7 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 public class UpdateOrganizationalUnitCommandHandler
-        implements CommandHandler<UpdateOrganizationalUnitCommand, ResponseEntity<OrganizationalUnitResponse>> {
+        implements CommandHandler<UpdateOrganizationalUnitCommand, ResponseEntity<OrganizationalUnitResponseDTO>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateOrganizationalUnitCommandHandler.class);
 
@@ -28,7 +28,7 @@ public class UpdateOrganizationalUnitCommandHandler
     private final OrganizationalUnitMapper mapper;
 
     @IgrpCommandHandler
-    public ResponseEntity<OrganizationalUnitResponse> handle(UpdateOrganizationalUnitCommand command) {
+    public ResponseEntity<OrganizationalUnitResponseDTO> handle(UpdateOrganizationalUnitCommand command) {
         var id = OrganizationalUnitId.from(command.getUnitId());
         var unit = unitRepository.findById(id)
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(

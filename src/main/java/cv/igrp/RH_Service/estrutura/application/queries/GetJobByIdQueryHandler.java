@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.estrutura.application.queries;
 
-import cv.igrp.RH_Service.estrutura.application.dto.JobResponse;
+import cv.igrp.RH_Service.estrutura.application.dto.JobResponseDTO;
 import cv.igrp.RH_Service.estrutura.domain.repository.JobRepository;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.JobId;
 import cv.igrp.RH_Service.estrutura.infrastructure.mappers.JobMapper;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class GetJobByIdQueryHandler
-        implements QueryHandler<GetJobByIdQuery, ResponseEntity<JobResponse>> {
+        implements QueryHandler<GetJobByIdQuery, ResponseEntity<JobResponseDTO>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GetJobByIdQueryHandler.class);
 
@@ -24,7 +24,7 @@ public class GetJobByIdQueryHandler
     private final JobMapper mapper;
 
     @IgrpQueryHandler
-    public ResponseEntity<JobResponse> handle(GetJobByIdQuery query) {
+    public ResponseEntity<JobResponseDTO> handle(GetJobByIdQuery query) {
         var job = jobRepository.findById(JobId.from(query.getJobId()))
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Cargo não encontrado: " + query.getJobId()));

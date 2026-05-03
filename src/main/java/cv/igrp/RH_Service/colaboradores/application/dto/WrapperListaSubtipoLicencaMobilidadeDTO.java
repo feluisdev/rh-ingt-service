@@ -10,6 +10,6 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class WrapperListaSubtipoLicencaMobilidadeDTO {
-    private List<SubtipoLicencaMobilidadeResponse> content;
+    private List<SubtipoLicencaMobilidadeResponseDTO> content;
     private long totalElements;
 }

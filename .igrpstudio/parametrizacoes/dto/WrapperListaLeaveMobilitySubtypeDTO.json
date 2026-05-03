@@ -1,0 +1,17 @@
+{
+  "type": "dto",
+  "module": "parametrizacoes",
+  "name": "WrapperListaLeaveMobilitySubtype",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    {
+      "name": "content",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    }
+  ],
+  "id": "wrapper_lista_leave_mobility_subtype_dto_001"
+}

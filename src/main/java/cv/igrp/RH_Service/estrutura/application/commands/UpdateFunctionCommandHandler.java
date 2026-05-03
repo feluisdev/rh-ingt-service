@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.estrutura.application.commands;
 
-import cv.igrp.RH_Service.estrutura.application.dto.FunctionResponse;
+import cv.igrp.RH_Service.estrutura.application.dto.FunctionResponseDTO;
 import cv.igrp.RH_Service.estrutura.domain.repository.FunctionRepository;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.FunctionId;
 import cv.igrp.RH_Service.estrutura.infrastructure.mappers.FunctionMapper;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class UpdateFunctionCommandHandler
-        implements CommandHandler<UpdateFunctionCommand, ResponseEntity<FunctionResponse>> {
+        implements CommandHandler<UpdateFunctionCommand, ResponseEntity<FunctionResponseDTO>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateFunctionCommandHandler.class);
 
@@ -24,7 +24,7 @@ public class UpdateFunctionCommandHandler
     private final FunctionMapper mapper;
 
     @IgrpCommandHandler
-    public ResponseEntity<FunctionResponse> handle(UpdateFunctionCommand command) {
+    public ResponseEntity<FunctionResponseDTO> handle(UpdateFunctionCommand command) {
         var id = FunctionId.from(command.getFunctionId());
         var dto = command.getRequest();
 

@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.mappers;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.SaldoAusenciaResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.SaldoAusenciaResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.models.SaldoAusencia;
 import cv.igrp.RH_Service.colaboradores.domain.repository.TipoAusenciaRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
@@ -40,8 +40,8 @@ public class SaldoAusenciaMapper {
         return e;
     }
 
-    public SaldoAusenciaResponse toDTO(SaldoAusencia s) {
-        SaldoAusenciaResponse r = new SaldoAusenciaResponse();
+    public SaldoAusenciaResponseDTO toDTO(SaldoAusencia s) {
+        SaldoAusenciaResponseDTO r = new SaldoAusenciaResponseDTO();
         r.setId(s.getId().getStringValor());
         r.setFuncionarioId(s.getFuncionarioId().getStringValor());
         r.setTipoAusenciaId(s.getTipoAusenciaId().getStringValor());

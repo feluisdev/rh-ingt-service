@@ -1,3 +1,6 @@
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+
 package cv.igrp.RH_Service.colaboradores.interfaces.rest;
 
 import cv.igrp.RH_Service.colaboradores.application.commands.*;
@@ -58,7 +61,7 @@ public class ProcessoDisciplinarController {
     @Operation(summary = "Registar novo processo disciplinar")
     public ResponseEntity<Map<String, ?>> criarProcesso(
             @PathVariable String funcionarioId,
-            @Valid @RequestBody CriarProcessoDisciplinarRequest request) {
+            @Valid @RequestBody CriarProcessoDisciplinarRequestDTO request) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(
                 new CriarProcessoDisciplinarCommand(funcionarioId, request));
@@ -71,7 +74,7 @@ public class ProcessoDisciplinarController {
     public ResponseEntity<Map<String, ?>> atualizarProcesso(
             @PathVariable String funcionarioId,
             @PathVariable String processoId,
-            @Valid @RequestBody AtualizarProcessoDisciplinarRequest request) {
+            @Valid @RequestBody AtualizarProcessoDisciplinarRequestDTO request) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(
                 new AtualizarProcessoDisciplinarCommand(funcionarioId, processoId, request));

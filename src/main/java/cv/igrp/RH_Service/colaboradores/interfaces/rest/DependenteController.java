@@ -36,7 +36,7 @@ public class DependenteController {
 
     @PostMapping
     @Operation(summary = "Criar dependente")
-    public ResponseEntity<Map<String, ?>> createDependente(@Valid @RequestBody DependenteRequest request) {
+    public ResponseEntity<Map<String, ?>> createDependente(@Valid @RequestBody DependenteRequestDTO request) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateDependenteCommand(request));
         LOGGER.debug("Operation finished");
@@ -45,18 +45,18 @@ public class DependenteController {
 
     @GetMapping("{dependenteId}")
     @Operation(summary = "Obter dependente por ID")
-    public ResponseEntity<DependenteResponse> getDependenteById(@PathVariable String dependenteId) {
+    public ResponseEntity<DependenteResponseDTO> getDependenteById(@PathVariable String dependenteId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<DependenteResponse> response = queryBus.handle(new GetDependenteByIdQuery(dependenteId));
+        ResponseEntity<DependenteResponseDTO> response = queryBus.handle(new GetDependenteByIdQuery(dependenteId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
     @PutMapping("{dependenteId}")
     @Operation(summary = "Actualizar dependente")
-    public ResponseEntity<DependenteResponse> updateDependente(@Valid @RequestBody DependenteRequest request, @PathVariable String dependenteId) {
+    public ResponseEntity<DependenteResponseDTO> updateDependente(@Valid @RequestBody DependenteRequestDTO request, @PathVariable String dependenteId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<DependenteResponse> response = commandBus.send(new UpdateDependenteCommand(request, dependenteId));
+        ResponseEntity<DependenteResponseDTO> response = commandBus.send(new UpdateDependenteCommand(request, dependenteId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

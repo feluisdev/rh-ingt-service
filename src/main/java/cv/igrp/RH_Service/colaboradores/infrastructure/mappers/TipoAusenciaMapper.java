@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.mappers;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.TipoAusenciaResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.TipoAusenciaResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.models.TipoAusencia;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.TipoAusenciaId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.TipoAusenciaEntity;
@@ -36,8 +36,8 @@ public class TipoAusenciaMapper {
         return e;
     }
 
-    public TipoAusenciaResponse toDTO(TipoAusencia t) {
-        TipoAusenciaResponse r = new TipoAusenciaResponse();
+    public TipoAusenciaResponseDTO toDTO(TipoAusencia t) {
+        TipoAusenciaResponseDTO r = new TipoAusenciaResponseDTO();
         r.setId(t.getId().getStringValor());
         r.setNome(t.getNome());
         r.setCodigo(t.getCodigo());

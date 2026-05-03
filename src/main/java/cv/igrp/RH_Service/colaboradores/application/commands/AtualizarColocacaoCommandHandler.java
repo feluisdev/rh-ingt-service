@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.ColocacaoResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.ColocacaoResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.repository.ColocacaoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.ColocacaoId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.mappers.ColocacaoMapper;
@@ -14,13 +14,13 @@ import org.springframework.stereotype.Component;
 @Component("colabsAtualizarColocacaoCommandHandler")
 @RequiredArgsConstructor
 public class AtualizarColocacaoCommandHandler
-        implements CommandHandler<AtualizarColocacaoCommand, ResponseEntity<ColocacaoResponse>> {
+        implements CommandHandler<AtualizarColocacaoCommand, ResponseEntity<ColocacaoResponseDTO>> {
 
     private final ColocacaoRepository colocacaoRepository;
     private final ColocacaoMapper mapper;
 
     @IgrpCommandHandler
-    public ResponseEntity<ColocacaoResponse> handle(AtualizarColocacaoCommand command) {
+    public ResponseEntity<ColocacaoResponseDTO> handle(AtualizarColocacaoCommand command) {
         var dto = command.getRequest();
         var colocacao = colocacaoRepository.findById(ColocacaoId.from(command.getColocacaoId()))
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(

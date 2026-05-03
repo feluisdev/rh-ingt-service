@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.carreiras.application.queries;
 
-import cv.igrp.RH_Service.carreiras.application.dto.GradeResponse;
+import cv.igrp.RH_Service.carreiras.application.dto.GradeResponseDTO;
 import cv.igrp.RH_Service.carreiras.domain.repository.GradeRepository;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.GradeId;
 import cv.igrp.RH_Service.carreiras.infrastructure.mappers.GradeMapper;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class GetGradeByIdQueryHandler
-        implements QueryHandler<GetGradeByIdQuery, ResponseEntity<GradeResponse>> {
+        implements QueryHandler<GetGradeByIdQuery, ResponseEntity<GradeResponseDTO>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GetGradeByIdQueryHandler.class);
 
@@ -24,7 +24,7 @@ public class GetGradeByIdQueryHandler
     private final GradeMapper mapper;
 
     @IgrpQueryHandler
-    public ResponseEntity<GradeResponse> handle(GetGradeByIdQuery query) {
+    public ResponseEntity<GradeResponseDTO> handle(GetGradeByIdQuery query) {
         var grade = gradeRepository.findById(GradeId.from(query.getGradeId()))
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Escalão não encontrado: " + query.getGradeId()));

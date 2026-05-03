@@ -1,0 +1,10 @@
+{
+  "type": "dto",
+  "name": "DocumentoDownloadResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "url", "objectType": "java", "required": false},
+    {"type": "long", "name": "expiresIn", "objectType": "java", "required": false}
+  ]
+}

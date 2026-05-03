@@ -1,0 +1,13 @@
+{
+  "type": "dto",
+  "name": "JobResponseDTO",
+  "module": "estrutura",
+  "template": "classic",
+  "attributes": [
+    {"name": "id", "type": "string", "required": false},
+    {"name": "code", "type": "string", "required": false},
+    {"name": "name", "type": "string", "required": false},
+    {"name": "description", "type": "string", "required": false},
+    {"name": "isActive", "type": "boolean", "required": false}
+  ]
+}

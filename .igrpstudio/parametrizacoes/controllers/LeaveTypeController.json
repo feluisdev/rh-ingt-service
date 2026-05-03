@@ -1,0 +1,206 @@
+{
+  "type": "controller",
+  "name": "LeaveType",
+  "module": "parametrizacoes",
+  "description": "Gestão de tipos de licença",
+  "basePath": "api/v1/rh/catalogs/leave-types",
+  "actions": [
+    {
+      "actionName": "getLeaveTypes",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaLeaveType",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "code",
+          "isRequired": false
+        },
+        {
+          "type": "boolean",
+          "name": "active",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "pagina",
+          "value": "0",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "tamanho",
+          "value": "20",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "getLeaveTypeById",
+      "path": "{leaveTypeId}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "LeaveTypeResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "leaveTypeId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "createLeaveType",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "LeaveTypeRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "parametrizacoes"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "updateLeaveType",
+      "path": "{leaveTypeId}",
+      "method": "PUT",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "LeaveTypeRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "parametrizacoes"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "LeaveTypeResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "leaveTypeId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "deleteLeaveType",
+      "path": "{leaveTypeId}",
+      "method": "DELETE",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "leaveTypeId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "activateLeaveType",
+      "path": "{leaveTypeId}/activate",
+      "method": "PATCH",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "leaveTypeId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    }
+  ],
+  "id": "leave_type_ctrl_001"
+}

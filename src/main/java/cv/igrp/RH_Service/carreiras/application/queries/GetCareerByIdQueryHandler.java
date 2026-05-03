@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.carreiras.application.queries;
 
-import cv.igrp.RH_Service.carreiras.application.dto.CareerResponse;
+import cv.igrp.RH_Service.carreiras.application.dto.CareerResponseDTO;
 import cv.igrp.RH_Service.carreiras.domain.repository.CareerRepository;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CareerId;
 import cv.igrp.RH_Service.carreiras.infrastructure.mappers.CareerMapper;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class GetCareerByIdQueryHandler
-        implements QueryHandler<GetCareerByIdQuery, ResponseEntity<CareerResponse>> {
+        implements QueryHandler<GetCareerByIdQuery, ResponseEntity<CareerResponseDTO>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GetCareerByIdQueryHandler.class);
 
@@ -24,7 +24,7 @@ public class GetCareerByIdQueryHandler
     private final CareerMapper mapper;
 
     @IgrpQueryHandler
-    public ResponseEntity<CareerResponse> handle(GetCareerByIdQuery query) {
+    public ResponseEntity<CareerResponseDTO> handle(GetCareerByIdQuery query) {
         var career = careerRepository.findById(CareerId.from(query.getCareerId()))
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Carreira não encontrada: " + query.getCareerId()));

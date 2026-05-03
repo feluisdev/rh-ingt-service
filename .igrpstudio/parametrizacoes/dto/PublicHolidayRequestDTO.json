@@ -1,0 +1,38 @@
+{
+  "type": "dto",
+  "module": "parametrizacoes",
+  "name": "PublicHolidayRequest",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    {
+      "name": "name",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "holidayDate",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "isNational",
+      "objectType": "java",
+      "type": "boolean",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "description",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    }
+  ],
+  "id": "public_holiday_req_dto_001"
+}

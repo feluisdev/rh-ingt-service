@@ -20,8 +20,8 @@ import cv.igrp.RH_Service.carreiras.application.commands.*;
 import cv.igrp.RH_Service.carreiras.application.queries.*;
 import cv.igrp.RH_Service.carreiras.application.dto.WrapperListaCategoryDTO;
 import cv.igrp.RH_Service.carreiras.application.dto.WrapperListaGradeDTO;
-import cv.igrp.RH_Service.carreiras.application.dto.CategoryResponse;
-import cv.igrp.RH_Service.carreiras.application.dto.CategoryRequest;
+import cv.igrp.RH_Service.carreiras.application.dto.CategoryResponseDTO;
+import cv.igrp.RH_Service.carreiras.application.dto.CategoryRequestDTO;
 
 import java.util.Map;
 
@@ -81,18 +81,18 @@ public class CategoryController {
                 responseCode = "200",
                 content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = CategoryResponse.class)
+                    schema = @Schema(implementation = CategoryResponseDTO.class)
                 )
             )
         }
     )
-    public ResponseEntity<CategoryResponse> getCategoryById(
+    public ResponseEntity<CategoryResponseDTO> getCategoryById(
         @PathVariable(value = "categoryId") String categoryId) {
 
         LOGGER.debug("Operation started");
 
         final var query = new GetCategoryByIdQuery(categoryId);
-        ResponseEntity<CategoryResponse> response = queryBus.handle(query);
+        ResponseEntity<CategoryResponseDTO> response = queryBus.handle(query);
 
         LOGGER.debug("Operation finished");
 
@@ -112,7 +112,7 @@ public class CategoryController {
         }
     )
     public ResponseEntity<Map<String, ?>> createCategory(
-        @Valid @RequestBody CategoryRequest createCategoryRequest) {
+        @Valid @RequestBody CategoryRequestDTO createCategoryRequest) {
 
         LOGGER.debug("Operation started");
 
@@ -134,19 +134,19 @@ public class CategoryController {
                 responseCode = "200",
                 content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = CategoryResponse.class)
+                    schema = @Schema(implementation = CategoryResponseDTO.class)
                 )
             )
         }
     )
-    public ResponseEntity<CategoryResponse> updateCategory(
-        @Valid @RequestBody CategoryRequest updateCategoryRequest,
+    public ResponseEntity<CategoryResponseDTO> updateCategory(
+        @Valid @RequestBody CategoryRequestDTO updateCategoryRequest,
         @PathVariable(value = "categoryId") String categoryId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new UpdateCategoryCommand(updateCategoryRequest, categoryId);
-        ResponseEntity<CategoryResponse> response = commandBus.send(command);
+        ResponseEntity<CategoryResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 

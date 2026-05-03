@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.carreiras.application.queries;
 
-import cv.igrp.RH_Service.carreiras.application.dto.CategoryResponse;
+import cv.igrp.RH_Service.carreiras.application.dto.CategoryResponseDTO;
 import cv.igrp.RH_Service.carreiras.domain.repository.CategoryRepository;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CategoryId;
 import cv.igrp.RH_Service.carreiras.infrastructure.mappers.CategoryMapper;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class GetCategoryByIdQueryHandler
-        implements QueryHandler<GetCategoryByIdQuery, ResponseEntity<CategoryResponse>> {
+        implements QueryHandler<GetCategoryByIdQuery, ResponseEntity<CategoryResponseDTO>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GetCategoryByIdQueryHandler.class);
 
@@ -24,7 +24,7 @@ public class GetCategoryByIdQueryHandler
     private final CategoryMapper mapper;
 
     @IgrpQueryHandler
-    public ResponseEntity<CategoryResponse> handle(GetCategoryByIdQuery query) {
+    public ResponseEntity<CategoryResponseDTO> handle(GetCategoryByIdQuery query) {
         var category = categoryRepository.findById(CategoryId.from(query.getCategoryId()))
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Categoria não encontrada: " + query.getCategoryId()));

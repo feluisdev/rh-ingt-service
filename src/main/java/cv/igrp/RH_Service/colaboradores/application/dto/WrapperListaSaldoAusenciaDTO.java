@@ -6,6 +6,6 @@ import java.util.List;
 
 @Data
 public class WrapperListaSaldoAusenciaDTO {
-    private List<SaldoAusenciaResponse> content;
+    private List<SaldoAusenciaResponseDTO> content;
     private int totalElements;
 }

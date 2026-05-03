@@ -1,0 +1,47 @@
+{
+  "type": "controller",
+  "name": "Qualificacao",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh/qualificacoes",
+  "description": "Gestão de qualificações académicas de funcionários",
+  "actions": [
+    {
+      "actionName": "createQualificacao",
+      "method": "POST",
+      "requestBody": true
+    },
+    {
+      "actionName": "getQualificacaoById",
+      "method": "GET",
+      "path": "{qualificacaoId}",
+      "pathVariables": [
+        {"name": "qualificacaoId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "updateQualificacao",
+      "method": "PUT",
+      "path": "{qualificacaoId}",
+      "pathVariables": [
+        {"name": "qualificacaoId", "type": "string"}
+      ],
+      "requestBody": true
+    },
+    {
+      "actionName": "deactivateQualificacao",
+      "method": "DELETE",
+      "path": "{qualificacaoId}",
+      "pathVariables": [
+        {"name": "qualificacaoId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "activateQualificacao",
+      "method": "PUT",
+      "path": "{qualificacaoId}/activate",
+      "pathVariables": [
+        {"name": "qualificacaoId", "type": "string"}
+      ]
+    }
+  ]
+}

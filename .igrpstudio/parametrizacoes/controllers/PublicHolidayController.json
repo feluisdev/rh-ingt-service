@@ -1,0 +1,221 @@
+{
+  "type": "controller",
+  "name": "PublicHoliday",
+  "module": "parametrizacoes",
+  "description": "Gestão de feriados nacionais e municipais",
+  "basePath": "api/v1/rh/catalogs/public-holidays",
+  "actions": [
+    {
+      "actionName": "listPublicHolidays",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaPublicHoliday",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "integer",
+          "name": "year",
+          "isRequired": false
+        },
+        {
+          "type": "boolean",
+          "name": "isNational",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "dateFrom",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "dateTo",
+          "isRequired": false
+        },
+        {
+          "type": "boolean",
+          "name": "isActive",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "pagina",
+          "value": "0",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "tamanho",
+          "value": "20",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "getPublicHolidayById",
+      "path": "{publicHolidayId}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PublicHolidayResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "publicHolidayId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "createPublicHoliday",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "PublicHolidayRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "parametrizacoes"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "updatePublicHoliday",
+      "path": "{publicHolidayId}",
+      "method": "PUT",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "PublicHolidayRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "parametrizacoes"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PublicHolidayResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "publicHolidayId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "deletePublicHoliday",
+      "path": "{publicHolidayId}",
+      "method": "DELETE",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "publicHolidayId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "activatePublicHoliday",
+      "path": "{publicHolidayId}/activate",
+      "method": "PATCH",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "publicHolidayId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    }
+  ],
+  "id": "public_holiday_ctrl_001"
+}

@@ -1,8 +1,11 @@
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+
 package cv.igrp.RH_Service.colaboradores.interfaces.rest;
 
 import cv.igrp.RH_Service.colaboradores.application.commands.*;
-import cv.igrp.RH_Service.colaboradores.application.dto.TipoAusenciaRequest;
-import cv.igrp.RH_Service.colaboradores.application.dto.TipoAusenciaResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.TipoAusenciaRequestDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.TipoAusenciaResponseDTO;
 import cv.igrp.RH_Service.colaboradores.application.dto.WrapperListaTipoAusenciaDTO;
 import cv.igrp.RH_Service.colaboradores.application.queries.*;
 import cv.igrp.framework.core.domain.CommandBus;
@@ -35,7 +38,7 @@ public class TipoAusenciaController {
 
     @PostMapping
     @Operation(summary = "Criar tipo de ausência")
-    public ResponseEntity<Map<String, ?>> create(@Valid @RequestBody TipoAusenciaRequest request) {
+    public ResponseEntity<Map<String, ?>> create(@Valid @RequestBody TipoAusenciaRequestDTO request) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateTipoAusenciaCommand(request));
         LOGGER.debug("Operation finished");
@@ -53,16 +56,16 @@ public class TipoAusenciaController {
 
     @GetMapping("{id}")
     @Operation(summary = "Obter tipo de ausência por ID")
-    public ResponseEntity<TipoAusenciaResponse> getById(@PathVariable String id) {
+    public ResponseEntity<TipoAusenciaResponseDTO> getById(@PathVariable String id) {
         LOGGER.debug("Operation started");
-        ResponseEntity<TipoAusenciaResponse> response = queryBus.handle(new GetTipoAusenciaByIdQuery(id));
+        ResponseEntity<TipoAusenciaResponseDTO> response = queryBus.handle(new GetTipoAusenciaByIdQuery(id));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
     @PutMapping("{id}")
     @Operation(summary = "Actualizar tipo de ausência")
-    public ResponseEntity<Map<String, ?>> update(@Valid @RequestBody TipoAusenciaRequest request, @PathVariable String id) {
+    public ResponseEntity<Map<String, ?>> update(@Valid @RequestBody TipoAusenciaRequestDTO request, @PathVariable String id) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(new UpdateTipoAusenciaCommand(request, id));
         LOGGER.debug("Operation finished");

@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.mappers;
 
-import cv.igrp.RH_Service.colaboradores.application.dto.FeriadoResponse;
+import cv.igrp.RH_Service.colaboradores.application.dto.FeriadoResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.models.Feriado;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FeriadoId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.FeriadoEntity;
@@ -28,8 +28,8 @@ public class FeriadoMapper {
         return e;
     }
 
-    public FeriadoResponse toDTO(Feriado f) {
-        FeriadoResponse r = new FeriadoResponse();
+    public FeriadoResponseDTO toDTO(Feriado f) {
+        FeriadoResponseDTO r = new FeriadoResponseDTO();
         r.setId(f.getId().getStringValor());
         r.setNome(f.getNome());
         r.setData(f.getData());
