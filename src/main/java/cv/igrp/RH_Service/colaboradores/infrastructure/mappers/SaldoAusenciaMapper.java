@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.mappers;
 
 import cv.igrp.RH_Service.colaboradores.application.dto.SaldoAusenciaResponseDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.TipoAusenciaResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.models.SaldoAusencia;
 import cv.igrp.RH_Service.colaboradores.domain.repository.TipoAusenciaRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class SaldoAusenciaMapper {
 
-    private final TipoAusenciaMapper tipoAusenciaMapper;
     private final TipoAusenciaRepository tipoAusenciaRepository;
 
     public SaldoAusencia toDomain(SaldoAusenciaEntity e) {
@@ -40,6 +40,19 @@ public class SaldoAusenciaMapper {
         return e;
     }
 
+    private TipoAusenciaResponseDTO toTipoDTO(cv.igrp.RH_Service.colaboradores.domain.models.TipoAusencia t) {
+        TipoAusenciaResponseDTO r = new TipoAusenciaResponseDTO();
+        r.setId(t.getId().getStringValor());
+        r.setNome(t.getNome());
+        r.setCodigo(t.getCodigo());
+        r.setDeductsBalance(t.getDeductsBalance());
+        r.setRequiresApproval(t.getRequiresApproval());
+        r.setMaxDaysPerYear(t.getMaxDaysPerYear());
+        r.setCategoryOptionCkey(t.getCategoryOptionCkey());
+        r.setIsActive(t.getIsActive());
+        return r;
+    }
+
     public SaldoAusenciaResponseDTO toDTO(SaldoAusencia s) {
         SaldoAusenciaResponseDTO r = new SaldoAusenciaResponseDTO();
         r.setId(s.getId().getStringValor());
@@ -51,7 +64,7 @@ public class SaldoAusenciaMapper {
         r.setDiasPendentes(s.getDiasPendentes());
         r.setDiasDisponiveis(s.saldoDisponivel());
         tipoAusenciaRepository.findById(s.getTipoAusenciaId())
-                .ifPresent(t -> r.setTipoAusencia(tipoAusenciaMapper.toDTO(t)));
+                .ifPresent(t -> r.setTipoAusencia(toTipoDTO(t)));
         return r;
     }
 }

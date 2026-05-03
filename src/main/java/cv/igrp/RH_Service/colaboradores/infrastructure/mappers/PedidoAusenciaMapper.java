@@ -1,12 +1,12 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.mappers;
 
 import cv.igrp.RH_Service.colaboradores.application.dto.PedidoAusenciaResponseDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.TipoAusenciaResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.models.PedidoAusencia;
 import cv.igrp.RH_Service.colaboradores.domain.repository.TipoAusenciaRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.PedidoAusenciaId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.TipoAusenciaId;
-import cv.igrp.RH_Service.colaboradores.domain.filter.TipoAusenciaFilter;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.PedidoAusenciaEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class PedidoAusenciaMapper {
 
-    private final TipoAusenciaMapper tipoAusenciaMapper;
     private final TipoAusenciaRepository tipoAusenciaRepository;
 
     public PedidoAusencia toDomain(PedidoAusenciaEntity e) {
@@ -47,6 +46,19 @@ public class PedidoAusenciaMapper {
         return e;
     }
 
+    private TipoAusenciaResponseDTO toTipoDTO(cv.igrp.RH_Service.colaboradores.domain.models.TipoAusencia t) {
+        TipoAusenciaResponseDTO r = new TipoAusenciaResponseDTO();
+        r.setId(t.getId().getStringValor());
+        r.setNome(t.getNome());
+        r.setCodigo(t.getCodigo());
+        r.setDeductsBalance(t.getDeductsBalance());
+        r.setRequiresApproval(t.getRequiresApproval());
+        r.setMaxDaysPerYear(t.getMaxDaysPerYear());
+        r.setCategoryOptionCkey(t.getCategoryOptionCkey());
+        r.setIsActive(t.getIsActive());
+        return r;
+    }
+
     public PedidoAusenciaResponseDTO toDTO(PedidoAusencia p) {
         PedidoAusenciaResponseDTO r = new PedidoAusenciaResponseDTO();
         r.setId(p.getId().getStringValor());
@@ -61,7 +73,7 @@ public class PedidoAusenciaMapper {
         r.setObservacoesDecisao(p.getObservacoesDecisao());
         r.setIsActive(p.getIsActive());
         tipoAusenciaRepository.findById(p.getTipoAusenciaId())
-                .ifPresent(t -> r.setTipoAusencia(tipoAusenciaMapper.toDTO(t)));
+                .ifPresent(t -> r.setTipoAusencia(toTipoDTO(t)));
         return r;
     }
 }

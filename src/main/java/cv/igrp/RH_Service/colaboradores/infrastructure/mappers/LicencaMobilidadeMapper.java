@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.mappers;
 
 import cv.igrp.RH_Service.colaboradores.application.dto.LicencaMobilidadeResponseDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.SubtipoLicencaMobilidadeResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.models.LicencaMobilidade;
 import cv.igrp.RH_Service.colaboradores.domain.repository.SubtipoLicencaMobilidadeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class LicencaMobilidadeMapper {
 
-    private final SubtipoLicencaMobilidadeMapper subtipoMapper;
     private final SubtipoLicencaMobilidadeRepository subtipoRepository;
 
     public LicencaMobilidade toDomain(LicencaMobilidadeEntity e) {
@@ -49,6 +49,19 @@ public class LicencaMobilidadeMapper {
         return e;
     }
 
+    private SubtipoLicencaMobilidadeResponseDTO toSubtipoDTO(cv.igrp.RH_Service.colaboradores.domain.models.SubtipoLicencaMobilidade s) {
+        SubtipoLicencaMobilidadeResponseDTO r = new SubtipoLicencaMobilidadeResponseDTO();
+        r.setId(s.getId().getStringValor());
+        r.setNome(s.getNome());
+        r.setCodigo(s.getCodigo());
+        r.setRecordType(s.getRecordType());
+        r.setAffectsPay(s.getAffectsPay());
+        r.setCountsForSeniority(s.getCountsForSeniority());
+        r.setCanSelfSubmit(s.getCanSelfSubmit());
+        r.setIsActive(s.getIsActive());
+        return r;
+    }
+
     public LicencaMobilidadeResponseDTO toDTO(LicencaMobilidade l) {
         LicencaMobilidadeResponseDTO r = new LicencaMobilidadeResponseDTO();
         r.setId(l.getId().getStringValor());
@@ -65,7 +78,7 @@ public class LicencaMobilidadeMapper {
         r.setJustification(l.getJustification());
         r.setRejectionReason(l.getRejectionReason());
         subtipoRepository.findById(l.getSubtipoId())
-                .ifPresent(s -> r.setSubtipo(subtipoMapper.toDTO(s)));
+                .ifPresent(s -> r.setSubtipo(toSubtipoDTO(s)));
         return r;
     }
 }
