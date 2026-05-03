@@ -1,0 +1,15 @@
+{
+  "type": "dto",
+  "name": "ContratoResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "id", "objectType": "java", "required": false},
+    {"type": "string", "name": "funcionarioId", "objectType": "java", "required": false},
+    {"type": "string", "name": "tipoContrato", "objectType": "java", "required": false},
+    {"type": "date", "name": "dataInicio", "objectType": "java", "required": false},
+    {"type": "date", "name": "dataFim", "objectType": "java", "required": false},
+    {"type": "string", "name": "numeroContrato", "objectType": "java", "required": false},
+    {"type": "boolean", "name": "isActive", "objectType": "java", "required": false}
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "type": "dto",
+  "name": "AuditHistoryEntryDTO",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "integer", "name": "revisionId", "objectType": "java", "required": false},
+    {"type": "string", "name": "revisionDate", "objectType": "java", "required": false},
+    {"type": "string", "name": "type", "objectType": "java", "required": false}
+  ]
+}

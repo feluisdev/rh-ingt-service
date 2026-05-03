@@ -1,0 +1,8 @@
+{
+  "type": "controller",
+  "name": "CategoryController",
+  "module": "carreiras",
+  "path": "/api/v1/rh/categories",
+  "beanPrefix": "carreiras",
+  "operations": ["findAll", "findById", "create", "update", "delete", "activate", "findGradesByCategory"]
+}

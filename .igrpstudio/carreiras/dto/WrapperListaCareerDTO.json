@@ -1,0 +1,10 @@
+{
+  "type": "dto",
+  "name": "WrapperListaCareerDTO",
+  "module": "carreiras",
+  "template": "classic",
+  "attributes": [
+    {"name": "content", "type": "string", "required": false},
+    {"name": "totalElements", "type": "integer", "required": false}
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "type": "controller",
+  "name": "CarreirasAuditHistoryController",
+  "module": "carreiras",
+  "path": "/api/v1/rh/carreiras/audit",
+  "beanPrefix": "carreiras",
+  "operations": ["findAuditHistoryByCatalogAndEntity"]
+}

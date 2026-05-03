@@ -1,0 +1,13 @@
+{
+  "type": "dto",
+  "name": "DependenteRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "funcionarioId", "objectType": "java", "required": false},
+    {"type": "string", "name": "nome", "objectType": "java", "required": true},
+    {"type": "string", "name": "parentesco", "objectType": "java", "required": true},
+    {"type": "date", "name": "dataNascimento", "objectType": "java", "required": false},
+    {"type": "string", "name": "nif", "objectType": "java", "required": false}
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "type": "controller",
+  "name": "SaldoAusencia",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh/funcionarios/{funcionarioId}/saldos-ausencia",
+  "description": "Gestão de saldos de ausência de funcionários",
+  "actions": [
+    {
+      "actionName": "create",
+      "method": "POST",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"}
+      ],
+      "requestBody": true
+    },
+    {
+      "actionName": "getAll",
+      "method": "GET",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"}
+      ],
+      "requestParams": [
+        {"name": "ano", "type": "integer", "required": false},
+        {"name": "tipoAusenciaId", "type": "string", "required": false}
+      ]
+    },
+    {
+      "actionName": "getById",
+      "method": "GET",
+      "path": "{saldoId}",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "saldoId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "update",
+      "method": "PUT",
+      "path": "{saldoId}",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "saldoId", "type": "string"}
+      ],
+      "requestParams": [
+        {"name": "diasDireito", "type": "integer", "required": true}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "type": "controller",
+  "name": "PedidoAusencia",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh/funcionarios/{funcionarioId}/pedidos-ausencia",
+  "description": "Gestão de pedidos de ausência de funcionários",
+  "actions": [
+    {
+      "actionName": "create",
+      "method": "POST",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"}
+      ],
+      "requestBody": true
+    },
+    {
+      "actionName": "getAll",
+      "method": "GET",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"}
+      ],
+      "requestParams": [
+        {"name": "estado", "type": "string", "required": false},
+        {"name": "tipoAusenciaId", "type": "string", "required": false},
+        {"name": "ano", "type": "integer", "required": false}
+      ]
+    },
+    {
+      "actionName": "getById",
+      "method": "GET",
+      "path": "{pedidoId}",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "pedidoId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "aprovar",
+      "method": "PATCH",
+      "path": "{pedidoId}/aprovar",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "pedidoId", "type": "string"}
+      ],
+      "requestBody": true
+    },
+    {
+      "actionName": "rejeitar",
+      "method": "PATCH",
+      "path": "{pedidoId}/rejeitar",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "pedidoId", "type": "string"}
+      ],
+      "requestBody": true
+    },
+    {
+      "actionName": "cancelar",
+      "method": "PATCH",
+      "path": "{pedidoId}/cancelar",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "pedidoId", "type": "string"}
+      ]
+    }
+  ]
+}

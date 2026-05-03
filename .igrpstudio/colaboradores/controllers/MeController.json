@@ -1,0 +1,95 @@
+{
+  "type": "controller",
+  "name": "Me",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh/me",
+  "description": "Área reservada do colaborador — self-service com ROLE_FUNCIONARIO",
+  "actions": [
+    {
+      "actionName": "getMyProfile",
+      "method": "GET",
+      "path": "profile"
+    },
+    {
+      "actionName": "getMyLeaveRequests",
+      "method": "GET",
+      "path": "leave-requests",
+      "requestParams": [
+        {"name": "status", "type": "string", "required": false},
+        {"name": "leaveTypeId", "type": "string", "required": false},
+        {"name": "year", "type": "integer", "required": false}
+      ]
+    },
+    {
+      "actionName": "getMyLeaveBalances",
+      "method": "GET",
+      "path": "leave-balances"
+    },
+    {
+      "actionName": "createMyLeaveRequest",
+      "method": "POST",
+      "path": "leave-requests",
+      "requestBody": true
+    },
+    {
+      "actionName": "cancelMyLeaveRequest",
+      "method": "PUT",
+      "path": "leave-requests/{id}/cancel",
+      "pathVariables": [
+        {"name": "id", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "getMyLeavesMobilities",
+      "method": "GET",
+      "path": "leaves-mobilities"
+    },
+    {
+      "actionName": "getMyLeaveMobilityById",
+      "method": "GET",
+      "path": "leaves-mobilities/{id}",
+      "pathVariables": [
+        {"name": "id", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "createMyLeaveMobility",
+      "method": "POST",
+      "path": "leaves-mobilities",
+      "requestBody": true
+    },
+    {
+      "actionName": "getMyPayrollSlips",
+      "method": "GET",
+      "path": "payroll-slips",
+      "requestParams": [
+        {"name": "periodYear", "type": "integer", "required": false},
+        {"name": "periodMonth", "type": "integer", "required": false}
+      ]
+    },
+    {
+      "actionName": "getMyPayrollSlipDownloadUrl",
+      "method": "GET",
+      "path": "payroll-slips/{id}/download",
+      "pathVariables": [
+        {"name": "id", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "getMyDocuments",
+      "method": "GET",
+      "path": "documents",
+      "requestParams": [
+        {"name": "documentTypeId", "type": "string", "required": false}
+      ]
+    },
+    {
+      "actionName": "getMyDocumentDownloadUrl",
+      "method": "GET",
+      "path": "documents/{id}/download",
+      "pathVariables": [
+        {"name": "id", "type": "string"}
+      ]
+    }
+  ]
+}

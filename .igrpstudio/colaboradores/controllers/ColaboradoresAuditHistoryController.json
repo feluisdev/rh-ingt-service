@@ -1,0 +1,18 @@
+{
+  "type": "controller",
+  "name": "ColaboradoresAuditHistory",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh/colaboradores/audit",
+  "description": "Consulta do historial de alterações nos dados de colaboradores",
+  "actions": [
+    {
+      "actionName": "getColaboradoresAuditHistory",
+      "method": "GET",
+      "path": "{catalog}/{entityId}",
+      "pathVariables": [
+        {"name": "catalog", "type": "string"},
+        {"name": "entityId", "type": "string"}
+      ]
+    }
+  ]
+}

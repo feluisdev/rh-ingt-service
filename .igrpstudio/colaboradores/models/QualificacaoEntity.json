@@ -1,0 +1,17 @@
+{
+  "type": "model",
+  "name": "QualificacaoEntity",
+  "module": "colaboradores",
+  "tableName": "t_qualificacao",
+  "revision": true,
+  "attributes": [
+    {"name": "id", "type": "string", "objectType": "java", "primaryKey": true},
+    {"name": "funcionarioId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "nivelAcademico", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "curso", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "instituicao", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "anoConclusao", "type": "integer", "objectType": "java", "primaryKey": false},
+    {"name": "pais", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "isActive", "type": "boolean", "objectType": "java", "primaryKey": false}
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "type": "dto",
+  "module": "parametrizacoes",
+  "name": "WrapperListaContractType",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    {
+      "name": "content",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    }
+  ],
+  "id": "wrapper_lista_contract_type_dto_001"
+}

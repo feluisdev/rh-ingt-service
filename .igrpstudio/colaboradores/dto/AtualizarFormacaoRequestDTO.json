@@ -1,0 +1,15 @@
+{
+  "type": "dto",
+  "name": "AtualizarFormacaoRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "name", "objectType": "java", "required": false},
+    {"type": "string", "name": "institution", "objectType": "java", "required": false},
+    {"type": "string", "name": "typeOptionKey", "objectType": "java", "required": false},
+    {"type": "date", "name": "startDate", "objectType": "java", "required": false},
+    {"type": "date", "name": "endDate", "objectType": "java", "required": false},
+    {"type": "integer", "name": "durationHours", "objectType": "java", "required": false},
+    {"type": "string", "name": "documentId", "objectType": "java", "required": false}
+  ]
+}

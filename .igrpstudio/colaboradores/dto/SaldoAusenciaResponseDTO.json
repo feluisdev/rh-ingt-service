@@ -1,0 +1,17 @@
+{
+  "type": "dto",
+  "name": "SaldoAusenciaResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "id", "objectType": "java", "required": false},
+    {"type": "string", "name": "funcionarioId", "objectType": "java", "required": false},
+    {"type": "string", "name": "tipoAusenciaId", "objectType": "java", "required": false},
+    {"type": "string", "name": "tipoAusencia", "objectType": "java", "required": false},
+    {"type": "integer", "name": "ano", "objectType": "java", "required": false},
+    {"type": "integer", "name": "diasDireito", "objectType": "java", "required": false},
+    {"type": "integer", "name": "diasGozados", "objectType": "java", "required": false},
+    {"type": "integer", "name": "diasPendentes", "objectType": "java", "required": false},
+    {"type": "integer", "name": "diasDisponiveis", "objectType": "java", "required": false}
+  ]
+}

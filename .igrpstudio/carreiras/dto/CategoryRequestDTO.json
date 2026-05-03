@@ -1,0 +1,12 @@
+{
+  "type": "dto",
+  "name": "CategoryRequestDTO",
+  "module": "carreiras",
+  "template": "classic",
+  "attributes": [
+    {"name": "careerId", "type": "string", "required": false},
+    {"name": "code", "type": "string", "required": false},
+    {"name": "name", "type": "string", "required": true},
+    {"name": "description", "type": "string", "required": false}
+  ]
+}

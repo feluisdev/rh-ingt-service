@@ -1,0 +1,15 @@
+{
+  "type": "dto",
+  "name": "CategoryResponseDTO",
+  "module": "carreiras",
+  "template": "classic",
+  "attributes": [
+    {"name": "id", "type": "string", "required": false},
+    {"name": "careerId", "type": "string", "required": false},
+    {"name": "careerName", "type": "string", "required": false},
+    {"name": "code", "type": "string", "required": false},
+    {"name": "name", "type": "string", "required": false},
+    {"name": "description", "type": "string", "required": false},
+    {"name": "isActive", "type": "boolean", "required": false}
+  ]
+}

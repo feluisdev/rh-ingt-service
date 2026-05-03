@@ -1,0 +1,26 @@
+{
+  "type": "dto",
+  "name": "FuncionarioResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "id", "objectType": "java", "required": false},
+    {"type": "string", "name": "numeroFuncionario", "objectType": "java", "required": false},
+    {"type": "string", "name": "nomeCompleto", "objectType": "java", "required": false},
+    {"type": "date", "name": "dataNascimento", "objectType": "java", "required": false},
+    {"type": "string", "name": "genero", "objectType": "java", "required": false},
+    {"type": "string", "name": "estadoCivil", "objectType": "java", "required": false},
+    {"type": "string", "name": "nif", "objectType": "java", "required": false},
+    {"type": "string", "name": "biNumero", "objectType": "java", "required": false},
+    {"type": "date", "name": "biValidade", "objectType": "java", "required": false},
+    {"type": "string", "name": "nacionalidade", "objectType": "java", "required": false},
+    {"type": "string", "name": "email", "objectType": "java", "required": false},
+    {"type": "string", "name": "telefone", "objectType": "java", "required": false},
+    {"type": "string", "name": "morada", "objectType": "java", "required": false},
+    {"type": "string", "name": "fotoUrl", "objectType": "java", "required": false},
+    {"type": "string", "name": "situacaoProfissional", "objectType": "java", "required": false},
+    {"type": "date", "name": "dataAdmissao", "objectType": "java", "required": false},
+    {"type": "date", "name": "dataSaida", "objectType": "java", "required": false},
+    {"type": "boolean", "name": "isActive", "objectType": "java", "required": false}
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "type": "dto",
+  "name": "DocumentoUploadResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "id", "objectType": "java", "required": false},
+    {"type": "string", "name": "fileKey", "objectType": "java", "required": false},
+    {"type": "string", "name": "originalFilename", "objectType": "java", "required": false},
+    {"type": "string", "name": "contentType", "objectType": "java", "required": false},
+    {"type": "long", "name": "fileSize", "objectType": "java", "required": false},
+    {"type": "string", "name": "message", "objectType": "java", "required": false}
+  ]
+}

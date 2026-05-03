@@ -1,0 +1,42 @@
+package cv.igrp.RH_Service.colaboradores.application.commands;
+
+import cv.igrp.RH_Service.colaboradores.domain.models.Qualificacao;
+import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
+import cv.igrp.RH_Service.colaboradores.domain.repository.QualificacaoRepository;
+import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.framework.core.domain.CommandHandler;
+import cv.igrp.framework.stereotype.IgrpCommandHandler;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+
+import java.util.Map;
+
+@Component("colabsCreateQualificacaoCommandHandler")
+@RequiredArgsConstructor
+public class CreateQualificacaoCommandHandler
+        implements CommandHandler<CreateQualificacaoCommand, ResponseEntity<Map<String, ?>>> {
+
+    private final QualificacaoRepository qualificacaoRepository;
+    private final FuncionarioRepository funcionarioRepository;
+
+    @IgrpCommandHandler
+    public ResponseEntity<Map<String, ?>> handle(CreateQualificacaoCommand command) {
+        var dto = command.getRequest();
+        if (dto.getFuncionarioId() == null || dto.getFuncionarioId().isBlank())
+            throw IgrpResponseStatusException.badRequest("O campo funcionarioId é obrigatório.");
+
+        var funcionarioId = FuncionarioId.from(dto.getFuncionarioId());
+        funcionarioRepository.findById(funcionarioId)
+                .orElseThrow(() -> IgrpResponseStatusException.notFound("Funcionário não encontrado: " + dto.getFuncionarioId()));
+
+        var saved = qualificacaoRepository.save(Qualificacao.criar(
+                funcionarioId, dto.getNivelAcademico(), dto.getCurso(),
+                dto.getInstituicao(), dto.getAnoConclusao(), dto.getPais()));
+
+        return ResponseEntity.status(201).body(Map.of(
+                "id", saved.getId().getStringValor(),
+                "message", "Criado com sucesso"));
+    }
+}

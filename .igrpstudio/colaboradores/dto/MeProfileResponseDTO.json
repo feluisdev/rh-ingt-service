@@ -1,0 +1,20 @@
+{
+  "type": "dto",
+  "name": "MeProfileResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "id", "objectType": "java", "required": false},
+    {"type": "string", "name": "fullName", "objectType": "java", "required": false},
+    {"type": "string", "name": "nif", "objectType": "java", "required": false},
+    {"type": "string", "name": "email", "objectType": "java", "required": false},
+    {"type": "string", "name": "phone", "objectType": "java", "required": false},
+    {"type": "string", "name": "workerState", "objectType": "java", "required": false},
+    {"type": "date", "name": "admissionDate", "objectType": "java", "required": false},
+    {"type": "string", "name": "currentUnit", "objectType": "java", "required": false},
+    {"type": "string", "name": "currentJob", "objectType": "java", "required": false},
+    {"type": "string", "name": "career", "objectType": "java", "required": false},
+    {"type": "string", "name": "category", "objectType": "java", "required": false},
+    {"type": "string", "name": "grade", "objectType": "java", "required": false}
+  ]
+}

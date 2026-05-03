@@ -1,0 +1,13 @@
+{
+  "type": "dto",
+  "name": "RegistarColocacaoRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "unitId", "objectType": "java", "required": false},
+    {"type": "string", "name": "jobId", "objectType": "java", "required": false},
+    {"type": "date", "name": "startDate", "objectType": "java", "required": true},
+    {"type": "string", "name": "assignmentType", "objectType": "java", "required": true},
+    {"type": "string", "name": "notes", "objectType": "java", "required": false}
+  ]
+}

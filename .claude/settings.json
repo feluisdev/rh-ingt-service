@@ -36,7 +36,41 @@
       "Bash(curl -s -w '\\\\nHTTP:%{http_code}' http://localhost:8091/api/v1/budget/cost_drivers/a0d63c53-f568-48b5-b663-e4eef73d32d5)",
       "Bash(curl -s -w '\\\\nHTTP:%{http_code}' -X PUT http://localhost:8091/api/v1/budget/cost_drivers/a0d63c53-f568-48b5-b663-e4eef73d32d5 -H 'Content-Type: application/json' -d '{\"driverType\":\"FUEL\",\"parameters\":{\"pricePerLiter\":2.00,\"consumptionRate\":10.0},\"valid_from\":\"2025-06-01\",\"currency\":\"CVE\"}')",
       "Bash(curl -s -w '\\\\nHTTP:%{http_code}' http://localhost:8091/api/v1/budget/sync/sigof/ab5e5274-28cc-48cc-8c54-c3b4beba938a)",
-      "Bash(xargs grep *)"
+      "Bash(xargs grep *)",
+      "Bash(git mv *)",
+      "Bash(JAVA_HOME=\"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-23.0.2.7-hotspot\" mvn clean compile)",
+      "Bash(JAVA_HOME=\"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-23.0.2.7-hotspot\" mvn test -pl . -Dtest=\"OptionTest,ReferenceLookupServiceTest,CreateOptionCommandHandlerTest,UpdateOptionCommandHandlerTest\")",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-23.0.2.7-hotspot\"; Set-Location \"c:\\\\Users\\\\ivanick.santos\\\\Nick-personal\\\\ta-workspace\\\\projects\\\\Recursos_Humanos\"; & \"C:\\\\Program Files\\\\maven\\\\apache-maven-3.9.13\\\\bin\\\\mvn.cmd\" -B test 2>&1 | Select-String -Pattern \"Tests run:|BUILD|Caused by\" | Select-Object -Last 10)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-23.0.2.7-hotspot\"; Set-Location \"c:\\\\Users\\\\ivanick.santos\\\\Nick-personal\\\\ta-workspace\\\\projects\\\\Recursos_Humanos\"; & \"C:\\\\Program Files\\\\maven\\\\apache-maven-3.9.13\\\\bin\\\\mvn.cmd\" -B test -Dtest=\"RecursosHumanosApplicationTests\" 2>&1 | Select-String -Pattern \"Caused by:\" | Select-Object -First 3)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-23.0.2.7-hotspot\"; Set-Location \"c:\\\\Users\\\\ivanick.santos\\\\Nick-personal\\\\ta-workspace\\\\projects\\\\Recursos_Humanos\"; & \"C:\\\\Program Files\\\\maven\\\\apache-maven-3.9.13\\\\bin\\\\mvn.cmd\" -B test -Dtest=\"RecursosHumanosApplicationTests\" 2>&1 | Select-String -Pattern \"SQL State|SQL Error|Flyway|cause|detail|DETAIL\" | Select-Object -First 20)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-23.0.2.7-hotspot\"; Set-Location \"c:\\\\Users\\\\ivanick.santos\\\\Nick-personal\\\\ta-workspace\\\\projects\\\\Recursos_Humanos\"; & \"C:\\\\Program Files\\\\maven\\\\apache-maven-3.9.13\\\\bin\\\\mvn.cmd\" -B test -Dtest=\"RecursosHumanosApplicationTests\" 2>&1 | Select-String -Pattern \"Caused by:|Script V|SQL State|Tests run|BUILD\" | Select-Object -First 15)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-23.0.2.7-hotspot\"; Set-Location \"c:\\\\Users\\\\ivanick.santos\\\\Nick-personal\\\\ta-workspace\\\\projects\\\\Recursos_Humanos\"; & \"C:\\\\Program Files\\\\maven\\\\apache-maven-3.9.13\\\\bin\\\\mvn.cmd\" -B \"flyway:repair\" \"-Dflyway.url=jdbc:postgresql://localhost:5436/recursoshumanos_db\" \"-Dflyway.user=postgres\" \"-Dflyway.password=postgres\" 2>&1 | Select-String -Pattern \"Repair|repair|Successfully|ERROR|SUCCESS|repaired\" | Select-Object -Last 10)",
+      "Bash(curl -s \"http://localhost:8091/api/v1/rh/careers\")",
+      "Bash(curl -s -X POST http://localhost:8091/api/v1/rh/funcionarios/1983c58b-2dc3-43dc-aefb-0d06d06b18c2/colocacoes -H 'Content-Type: application/json' -d '{\"unitId\":\"d55418e7-f34e-44fc-a96d-97fc355ca01f\",\"startDate\":\"2026-05-01\",\"assignmentType\":\"TRANSFERENCIA\"}')",
+      "Bash(curl -s http://localhost:8091/api/v1/rh/funcionarios/1983c58b-2dc3-43dc-aefb-0d06d06b18c2/colocacoes/atual)",
+      "Bash(curl -s http://localhost:8091/api/v1/rh/funcionarios/1983c58b-2dc3-43dc-aefb-0d06d06b18c2/colocacoes)",
+      "Bash(curl -s 'http://localhost:8091/api/v1/rh/funcionarios/1983c58b-2dc3-43dc-aefb-0d06d06b18c2/colocacoes?current=true')",
+      "Bash(curl -s -X PUT http://localhost:8091/api/v1/rh/funcionarios/1983c58b-2dc3-43dc-aefb-0d06d06b18c2/colocacoes/94ac4434-a13a-44e4-b1fc-3c41461a5ee0 -H 'Content-Type: application/json' -d '{\"notes\":\"Correccao via despacho 5/2026\"}')",
+      "Bash(curl -s -X PUT http://localhost:8091/api/v1/rh/funcionarios/1983c58b-2dc3-43dc-aefb-0d06d06b18c2/colocacoes/94ac4434-a13a-44e4-b1fc-3c41461a5ee0 -H 'Content-Type: application/json' -d '{\"endDate\":\"2025-01-01\"}')",
+      "Bash(curl -s -X DELETE http://localhost:8091/api/v1/rh/funcionarios/1983c58b-2dc3-43dc-aefb-0d06d06b18c2/colocacoes/bbbbde17-e9b9-4b60-b848-5515da79423f)",
+      "Bash(curl -s -X DELETE http://localhost:8091/api/v1/rh/funcionarios/1983c58b-2dc3-43dc-aefb-0d06d06b18c2/colocacoes/94ac4434-a13a-44e4-b1fc-3c41461a5ee0)",
+      "Bash(curl -s -X POST http://localhost:8091/api/v1/rh/funcionarios/00000000-0000-0000-0000-000000000000/colocacoes -H 'Content-Type: application/json' -d '{\"startDate\":\"2026-01-01\",\"assignmentType\":\"INICIAL\"}')",
+      "Bash(curl -s -X POST http://localhost:8091/api/v1/rh/funcionarios/1983c58b-2dc3-43dc-aefb-0d06d06b18c2/colocacoes -H 'Content-Type: application/json' -d '{\"startDate\":\"2030-01-01\",\"assignmentType\":\"TRANSFERENCIA\"}')",
+      "Bash(curl -s -X PUT http://localhost:8091/api/v1/rh/funcionarios/1983c58b-2dc3-43dc-aefb-0d06d06b18c2/licencas-mobilidades/246abd5c-fc8e-4f60-a6cf-63bbf8cb722d/ativar)",
+      "Bash(curl -s -X PATCH http://localhost:8091/api/v1/rh/funcionarios/1983c58b-2dc3-43dc-aefb-0d06d06b18c2/licencas-mobilidade/246abd5c-fc8e-4f60-a6cf-63bbf8cb722d/ativar)",
+      "Bash(xargs basename *)",
+      "Read(//c/Users/ivanick.santos/Nosi-work/process-engine-workspace/projects/igrp_platform_process_manager_studio/**)",
+      "Bash(where java *)",
+      "Bash(JAVA_HOME=\"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-23.0.2.7-hotspot\" mvn -B -DskipTests clean package -q)",
+      "Bash(\"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-23.0.2.7-hotspot\\\\bin\\\\java.exe\" -jar target/RH-Service-0.0.1-SNAPSHOT.jar)",
+      "Bash(echo \"PID=$!\")",
+      "Read(//tmp/**)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\ivanick.santos\\\\Nick-personal\\\\ta-workspace\\\\projects\\\\Recursos_Humanos\" -Recurse -Directory -Include \".igrpstudio\")",
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\ivanick.santos\\\\Nick-personal\\\\ta-workspace\\\\projects\\\\Recursos_Humanos\" -Recurse -Directory | Where-Object { $_.Name -eq \".igrpstudio\" } | Select-Object -ExpandProperty FullName)",
+      "Bash(sed 's/\\\\.json//')"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\ivanick.santos\\Nick-personal\\ta-workspace\\projects\\Recursos_Humanos\\specs\\008-colaborador-me"
     ]
   }
 }

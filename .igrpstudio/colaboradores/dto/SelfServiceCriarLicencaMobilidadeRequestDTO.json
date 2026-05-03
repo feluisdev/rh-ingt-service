@@ -1,0 +1,15 @@
+{
+  "type": "dto",
+  "name": "SelfServiceCriarLicencaMobilidadeRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "subtipoId", "objectType": "java", "required": true},
+    {"type": "date", "name": "dataInicio", "objectType": "java", "required": true},
+    {"type": "date", "name": "dataFim", "objectType": "java", "required": false},
+    {"type": "string", "name": "entidadeDestino", "objectType": "java", "required": false},
+    {"type": "string", "name": "despachoNumero", "objectType": "java", "required": false},
+    {"type": "string", "name": "observacoes", "objectType": "java", "required": false},
+    {"type": "string", "name": "justification", "objectType": "java", "required": false}
+  ]
+}

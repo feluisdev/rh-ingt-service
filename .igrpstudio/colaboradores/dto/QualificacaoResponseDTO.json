@@ -1,0 +1,16 @@
+{
+  "type": "dto",
+  "name": "QualificacaoResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "id", "objectType": "java", "required": false},
+    {"type": "string", "name": "funcionarioId", "objectType": "java", "required": false},
+    {"type": "string", "name": "nivelAcademico", "objectType": "java", "required": false},
+    {"type": "string", "name": "curso", "objectType": "java", "required": false},
+    {"type": "string", "name": "instituicao", "objectType": "java", "required": false},
+    {"type": "integer", "name": "anoConclusao", "objectType": "java", "required": false},
+    {"type": "string", "name": "pais", "objectType": "java", "required": false},
+    {"type": "boolean", "name": "isActive", "objectType": "java", "required": false}
+  ]
+}

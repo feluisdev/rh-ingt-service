@@ -1,0 +1,11 @@
+{
+  "type": "enum",
+  "name": "TipoAfectacao",
+  "module": "colaboradores",
+  "values": [
+    { "name": "INICIAL" },
+    { "name": "TRANSFERENCIA" },
+    { "name": "MOBILIDADE" },
+    { "name": "REQUISICAO" }
+  ]
+}

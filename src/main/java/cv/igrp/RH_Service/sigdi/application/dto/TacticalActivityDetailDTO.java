@@ -16,83 +16,35 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
-
 @IgrpDTO
 public class TacticalActivityDetailDTO  {
 
-
-
   private String id ;
-
-
   private String strategicGoalId ;
-
-
   private String organicUnitId ;
-
   private String organicUnitName ;
-
-
   private String title ;
-
-
+  private String descriptionWhat ;
   private String justificationWhy ;
-
-
   private String responsibleWho ;
-
   private String responsibleName ;
-
-
   private String locationWhere ;
-
-
   private String methodologyHow ;
-
-
   private String startDate ;
-
-
   private String endDate ;
-
-
   private Integer fiscalYear ;
-
-
   private String economicClassifier ;
-
-
   private BigDecimal budgetEstimated ;
-
-
   private BigDecimal budgetCommitted ;
-
-
   private BigDecimal budgetLiquidated ;
-
-
   private BigDecimal budgetPaid ;
-
-
   private String status ;
-
-
   private String statusDesc ;
-
-
   private Integer version ;
-
-
   private String createdAt ;
-
-
   private String updatedAt ;
-
-
+  private List<KeyResultResponseDTO> keyResults = new ArrayList<>();
   private List<WorkflowHistoryItemDTO> workflowHistory = new ArrayList<>();
-
-
   private List<ChangeRequestResponseDTO> changeRequests = new ArrayList<>();
 
 }

@@ -1,0 +1,49 @@
+{
+  "type": "controller",
+  "name": "AuditHistory",
+  "module": "parametrizacoes",
+  "description": "Consulta do historial de alterações nos catálogos de parametrização",
+  "basePath": "api/v1/rh/catalogs/audit",
+  "actions": [
+    {
+      "actionName": "getAuditHistory",
+      "path": "{catalog}/{entityId}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaAuditHistory",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        },
+        "400": {
+          "name": "Bad Request"
+        },
+        "404": {
+          "name": "Not Found"
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "catalog",
+          "type": "string",
+          "isRequired": true
+        },
+        {
+          "name": "entityId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    }
+  ],
+  "id": "audit_history_ctrl_001"
+}

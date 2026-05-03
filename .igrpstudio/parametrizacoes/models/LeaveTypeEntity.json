@@ -1,0 +1,93 @@
+{
+  "type": "model",
+  "module": "parametrizacoes",
+  "name": "LeaveTypeEntity",
+  "tableName": "t_leave_type",
+  "audit": true,
+  "crud": false,
+  "revision": true,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "length": 255,
+      "nullable": false,
+      "unique": true,
+      "primaryKey": true,
+      "generationType": "NONE",
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "code",
+      "type": "string",
+      "length": 50,
+      "nullable": false,
+      "unique": true,
+      "primaryKey": false,
+      "skipFieldRevision": false
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false
+    },
+    {
+      "name": "deductsBalance",
+      "type": "boolean",
+      "length": 255,
+      "nullable": false,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "requiresApproval",
+      "type": "boolean",
+      "length": 255,
+      "nullable": false,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "maxDaysPerYear",
+      "type": "integer",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "categoryOptionId",
+      "type": "uuid",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "isActive",
+      "type": "boolean",
+      "length": 255,
+      "nullable": false,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    }
+  ],
+  "id": "leave_type_entity_001",
+  "uniqueConstraints": [],
+  "indexes": []
+}

@@ -1,0 +1,211 @@
+{
+  "type": "controller",
+  "name": "LeaveMobilitySubtype",
+  "module": "parametrizacoes",
+  "description": "Gestão de subtipos de licença e mobilidade",
+  "basePath": "api/v1/rh/catalogs/leave-mobility-subtypes",
+  "actions": [
+    {
+      "actionName": "getLeaveMobilitySubtypes",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaLeaveMobilitySubtype",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "code",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "recordType",
+          "isRequired": false
+        },
+        {
+          "type": "boolean",
+          "name": "active",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "pagina",
+          "value": "0",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "tamanho",
+          "value": "20",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "getLeaveMobilitySubtypeById",
+      "path": "{leaveMobilitySubtypeId}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "LeaveMobilitySubtypeResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "leaveMobilitySubtypeId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "createLeaveMobilitySubtype",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "LeaveMobilitySubtypeRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "parametrizacoes"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "updateLeaveMobilitySubtype",
+      "path": "{leaveMobilitySubtypeId}",
+      "method": "PUT",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "LeaveMobilitySubtypeRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "parametrizacoes"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "LeaveMobilitySubtypeResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "leaveMobilitySubtypeId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "deleteLeaveMobilitySubtype",
+      "path": "{leaveMobilitySubtypeId}",
+      "method": "DELETE",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "leaveMobilitySubtypeId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "activateLeaveMobilitySubtype",
+      "path": "{leaveMobilitySubtypeId}/activate",
+      "method": "PATCH",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "leaveMobilitySubtypeId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    }
+  ],
+  "id": "leave_mobility_subtype_ctrl_001"
+}
