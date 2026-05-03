@@ -8,8 +8,8 @@ import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.Budget;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.DepartamentoEntityRepository;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.FuncionarioEntityRepository;
+import cv.igrp.RH_Service.estrutura.infrastructure.persistence.repository.OrganizationalUnitEntityRepository;
+import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.repository.ColabsFuncionarioEntityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.DateRange;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.TacticalActivityId;
 import cv.igrp.framework.core.domain.CommandHandler;
@@ -31,14 +31,14 @@ public class UpdateTacticalActivityCommandHandler
   private final EconomicClassifierPort economicClassifierPort;
   private final StrategicGoalRepository goalRepository;
   private final TacticalActivityRepository activityRepository;
-  private final DepartamentoEntityRepository departamentoRepository;
-  private final FuncionarioEntityRepository funcionarioRepository;
+  private final OrganizationalUnitEntityRepository departamentoRepository;
+  private final ColabsFuncionarioEntityRepository funcionarioRepository;
 
   public UpdateTacticalActivityCommandHandler(EconomicClassifierPort economicClassifierPort,
       StrategicGoalRepository goalRepository,
       TacticalActivityRepository activityRepository,
-      DepartamentoEntityRepository departamentoRepository,
-      FuncionarioEntityRepository funcionarioRepository) {
+      OrganizationalUnitEntityRepository departamentoRepository,
+      ColabsFuncionarioEntityRepository funcionarioRepository) {
     this.economicClassifierPort = economicClassifierPort;
     this.goalRepository = goalRepository;
     this.activityRepository = activityRepository;
@@ -117,8 +117,8 @@ public class UpdateTacticalActivityCommandHandler
     response.setVersion(saved.getVersion());
     response.setStatus(saved.getStatus().getCode());
     response.setStatusDesc(saved.getStatus().getDescription());
-    response.setOrganicUnitName(saved.getOrganicUnitName());
-    response.setResponsibleName(saved.getResponsibleName());
+    response.setOrganicUnitName(null);
+    response.setResponsibleName(null);
 
     return ResponseEntity.ok(response);
   }
