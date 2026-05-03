@@ -1,0 +1,52 @@
+{
+  "type": "dto",
+  "module": "parametrizacoes",
+  "name": "LeaveTypeRequest",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    {
+      "name": "code",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "description",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "deductsBalance",
+      "objectType": "java",
+      "type": "boolean",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "requiresApproval",
+      "objectType": "java",
+      "type": "boolean",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "maxDaysPerYear",
+      "objectType": "java",
+      "type": "integer",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "categoryOptionId",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    }
+  ],
+  "id": "leave_type_req_dto_001"
+}

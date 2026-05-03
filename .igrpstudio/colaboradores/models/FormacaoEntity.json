@@ -1,0 +1,18 @@
+{
+  "type": "model",
+  "name": "FormacaoEntity",
+  "module": "colaboradores",
+  "tableName": "t_training",
+  "revision": true,
+  "attributes": [
+    {"name": "id", "type": "string", "objectType": "java", "primaryKey": true},
+    {"name": "funcionarioId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "name", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "institution", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "typeOptionKey", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "startDate", "type": "date", "objectType": "java", "primaryKey": false},
+    {"name": "endDate", "type": "date", "objectType": "java", "primaryKey": false},
+    {"name": "durationHours", "type": "integer", "objectType": "java", "primaryKey": false},
+    {"name": "documentId", "type": "string", "objectType": "java", "primaryKey": false}
+  ]
+}

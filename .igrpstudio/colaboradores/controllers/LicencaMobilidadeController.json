@@ -1,0 +1,102 @@
+{
+  "type": "controller",
+  "name": "LicencaMobilidade",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade",
+  "description": "Gestão de licenças e mobilidade de funcionários",
+  "actions": [
+    {
+      "actionName": "create",
+      "method": "POST",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"}
+      ],
+      "requestBody": true
+    },
+    {
+      "actionName": "getAll",
+      "method": "GET",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"}
+      ],
+      "requestParams": [
+        {"name": "active", "type": "boolean", "required": false},
+        {"name": "subtipoId", "type": "string", "required": false}
+      ]
+    },
+    {
+      "actionName": "getById",
+      "method": "GET",
+      "path": "{licencaId}",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "licencaId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "update",
+      "method": "PUT",
+      "path": "{licencaId}",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "licencaId", "type": "string"}
+      ],
+      "requestBody": true
+    },
+    {
+      "actionName": "approve",
+      "method": "PUT",
+      "path": "{licencaId}/approve",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "licencaId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "reject",
+      "method": "PUT",
+      "path": "{licencaId}/reject",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "licencaId", "type": "string"}
+      ],
+      "requestBody": true
+    },
+    {
+      "actionName": "close",
+      "method": "PUT",
+      "path": "{licencaId}/close",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "licencaId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "cancel",
+      "method": "PUT",
+      "path": "{licencaId}/cancel",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "licencaId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "ativar",
+      "method": "PATCH",
+      "path": "{licencaId}/ativar",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "licencaId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "desativar",
+      "method": "PATCH",
+      "path": "{licencaId}/desativar",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "licencaId", "type": "string"}
+      ]
+    }
+  ]
+}

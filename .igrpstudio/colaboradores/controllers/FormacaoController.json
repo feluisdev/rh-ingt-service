@@ -1,0 +1,55 @@
+{
+  "type": "controller",
+  "name": "Formacao",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh/funcionarios/{funcionarioId}/formacoes",
+  "description": "Gestão de formações profissionais do funcionário",
+  "actions": [
+    {
+      "actionName": "listarFormacoes",
+      "method": "GET",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"}
+      ],
+      "requestParams": [
+        {"name": "year", "type": "integer", "required": false}
+      ]
+    },
+    {
+      "actionName": "getFormacaoById",
+      "method": "GET",
+      "path": "{formacaoId}",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "formacaoId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "criarFormacao",
+      "method": "POST",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"}
+      ],
+      "requestBody": true
+    },
+    {
+      "actionName": "atualizarFormacao",
+      "method": "PUT",
+      "path": "{formacaoId}",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "formacaoId", "type": "string"}
+      ],
+      "requestBody": true
+    },
+    {
+      "actionName": "removerFormacao",
+      "method": "DELETE",
+      "path": "{formacaoId}",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "formacaoId", "type": "string"}
+      ]
+    }
+  ]
+}

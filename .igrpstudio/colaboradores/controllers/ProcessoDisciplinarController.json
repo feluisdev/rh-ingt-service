@@ -1,0 +1,43 @@
+{
+  "type": "controller",
+  "name": "ProcessoDisciplinar",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares",
+  "description": "Gestão de processos disciplinares do funcionário",
+  "actions": [
+    {
+      "actionName": "listarProcessos",
+      "method": "GET",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "getProcessoById",
+      "method": "GET",
+      "path": "{processoId}",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "processoId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "criarProcesso",
+      "method": "POST",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"}
+      ],
+      "requestBody": true
+    },
+    {
+      "actionName": "atualizarProcesso",
+      "method": "PUT",
+      "path": "{processoId}",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "processoId", "type": "string"}
+      ],
+      "requestBody": true
+    }
+  ]
+}

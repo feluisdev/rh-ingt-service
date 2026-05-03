@@ -1,0 +1,22 @@
+{
+  "type": "dto",
+  "name": "LicencaMobilidadeResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "id", "objectType": "java", "required": false},
+    {"type": "string", "name": "funcionarioId", "objectType": "java", "required": false},
+    {"type": "string", "name": "subtipoId", "objectType": "java", "required": false},
+    {"type": "string", "name": "subtipo", "objectType": "java", "required": false},
+    {"type": "date", "name": "dataInicio", "objectType": "java", "required": false},
+    {"type": "date", "name": "dataFim", "objectType": "java", "required": false},
+    {"type": "string", "name": "entidadeDestino", "objectType": "java", "required": false},
+    {"type": "string", "name": "despachoNumero", "objectType": "java", "required": false},
+    {"type": "string", "name": "observacoes", "objectType": "java", "required": false},
+    {"type": "boolean", "name": "isActive", "objectType": "java", "required": false},
+    {"type": "string", "name": "status", "objectType": "java", "required": false},
+    {"type": "string", "name": "destinationUnitId", "objectType": "java", "required": false},
+    {"type": "string", "name": "justification", "objectType": "java", "required": false},
+    {"type": "string", "name": "rejectionReason", "objectType": "java", "required": false}
+  ]
+}

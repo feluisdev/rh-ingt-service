@@ -52,6 +52,42 @@ Each module follows hexagonal layers:
 - `domain/` — Pure domain models and business logic
 - `infrastructure/` — JPA repositories and adapters
 
+### Domain Identity Pattern
+
+Each aggregate root has its own **typed identity value object** in `domain/valueobject/`. This is a DDD practice: the type system prevents passing the wrong ID to the wrong repository, makes intent explicit, and keeps `ExternalID` (the shared UUID wrapper) out of domain boundaries.
+
+**Rule: never expose `ExternalID` in domain models, repository ports, adapters, or handlers.** Only the infrastructure layer (mapper) needs to know about it.
+
+The value object is immutable, has no public constructor, and exposes only factory methods and read accessors:
+
+```java
+// domain/valueobject/AggregateId.java  ← one per aggregate root
+public final class AggregateId {
+    private final ExternalID valor;
+    private AggregateId(ExternalID valor) { ... }
+
+    public static AggregateId gerarNovo()         { return new AggregateId(ExternalID.gerarNovo()); }
+    public static AggregateId from(UUID uuid)      { return new AggregateId(ExternalID.from(uuid)); }
+    public static AggregateId from(String str)     { return new AggregateId(ExternalID.from(str)); }
+
+    public UUID getValor()         { return valor.getValor(); }
+    public String getStringValor() { return valor.getStringValor(); }
+    // equals + hashCode delegate to valor
+}
+```
+
+Each layer uses the typed ID naturally:
+
+| Layer | Usage |
+|---|---|
+| Domain model | `private AggregateId id;` / factory uses `AggregateId.gerarNovo()` |
+| Repository port | `Optional<Aggregate> findById(AggregateId id)` |
+| Mapper `toDomain` | `AggregateId.from(entity.getId())` — the only bridge point |
+| Mapper `toEntity` | `entity.setId(domain.getId().getValor())` |
+| Handler | `AggregateId.from(command.getEntityId())` |
+
+Canonical reference: `sigdi/domain/admin/valueobject/InstitutionId.java`. All `parametrizacoes` catalogs follow this pattern (`WorkerStateId`, `LeaveTypeId`, etc.).
+
 ### CQRS & IGRP Framework
 
 The project uses a custom IGRP framework (`cv.igrp.framework:core`) for command/query dispatching. Controllers are annotated with `@IgrpController`; handlers with `@IgrpCommandHandler`. Business logic lives in handlers — not controllers.
@@ -97,7 +133,16 @@ ENABLE_SWAGGER=true
 | `Dependente` | funcionarios | Employee family dependent |
 | `Qualificacao` | funcionarios | Professional qualification |
 
-Shared value objects: `ExternalID` (UUID wrapper), `Estado` enum (ATIVO/INATIVO).
+| `Option` | parametrizacoes | Generic label catalog (ccode/ckey/cvalue/locale); `@Cacheable` on read, `@CacheEvict` on write (Caffeine, TTL 60 s) |
+| `WorkerState` | parametrizacoes | Worker status catalog; `is_core=true` blocks deactivation (ACTIVE, INACTIVE are protected) |
+| `ProfessionalSituation` | parametrizacoes | Employment situation catalog |
+| `ContractType` | parametrizacoes | Contract type catalog (per Decreto-Lei 4/2024) |
+| `DocumentType` | parametrizacoes | Document type catalog; `allowed_extensions` (e.g. `pdf,docx`) + `categoryOptionId` FK→Option |
+| `LeaveType` | parametrizacoes | Leave type catalog; `deducts_balance`, `requires_approval`, `max_days_per_year`, `categoryOptionId` FK→Option |
+| `LeaveMobilitySubtype` | parametrizacoes | Mobility subtype; `record_type` ∈ {LICENCA, MOBILIDADE, AMBOS}; `affects_pay`, `counts_for_seniority`, `can_self_submit` |
+| `PublicHoliday` | parametrizacoes | National/municipal holidays; partial unique index on `(holiday_date) WHERE is_national AND is_active`; seed with 11 CV holidays for 2026 |
+
+Shared value objects: `ExternalID` (UUID wrapper), `Estado` enum (ATIVO/INATIVO). Each domain aggregate has its own typed `XId` that wraps `ExternalID` — see Domain Identity Pattern above.
 
 ## Language
 
@@ -115,12 +160,21 @@ docs(sigdi): ...
 
 ## Documentation
 
-- `/docs/02-SRS-Especificacao-Requisitos-Software.md` — Functional requirements
+### v4 — Active source of truth (RH refactor)
+
+- `/docs/funcionarios/v4/Modelo_Relacional_RH_v4.0.md` — ER model (26 tables, 9 functional blocks)
+- `/docs/funcionarios/v4/Especificacao_Tecnica_Modulo_RH_v4.0.md` — Technical API spec (REST endpoints by module)
+- `/docs/funcionarios/v4/Arquitectura_Modulos_RH_v4.0.md` — Module architecture (umbrella `colaboradores/`, BC mapping, hexagonal layout)
+
+### v3 / Legacy
+
+- `/docs/02-SRS-Especificacao-Requisitos-Software.md` — Functional requirements (v1)
 - `/docs/05-Infraestrutura-e-Persistencia.md` — Database and infrastructure design
-- `/docs/05.01-Spec-Tecnica-Backend-api.md` — Technical API spec
-- `/endpoints.md` — Full auto-documented API endpoint list
+- `/docs/05.01-Spec-Tecnica-Backend-api.md` — Technical API spec (v3, superseded by v4 above)
+- `/endpoints.md` — Auto-documented API endpoint list (current legacy state)
 
 <!-- SPECKIT START -->
+Active feature plan: [specs/009-dossier-formacoes-disciplinar-recibos/plan.md](specs/009-dossier-formacoes-disciplinar-recibos/plan.md)
 For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the current plan
+shell commands, and other important information, read the current plan.
 <!-- SPECKIT END -->

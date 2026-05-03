@@ -1,0 +1,16 @@
+{
+  "type": "model",
+  "name": "DependenteEntity",
+  "module": "colaboradores",
+  "tableName": "t_dependente",
+  "revision": true,
+  "attributes": [
+    {"name": "id", "type": "string", "objectType": "java", "primaryKey": true},
+    {"name": "funcionarioId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "nome", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "parentesco", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "dataNascimento", "type": "date", "objectType": "java", "primaryKey": false},
+    {"name": "nif", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "isActive", "type": "boolean", "objectType": "java", "primaryKey": false}
+  ]
+}

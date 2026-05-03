@@ -1,0 +1,18 @@
+{
+  "type": "dto",
+  "name": "ColocacaoResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "id", "objectType": "java", "required": false},
+    {"type": "string", "name": "funcionarioId", "objectType": "java", "required": false},
+    {"type": "string", "name": "unitId", "objectType": "java", "required": false},
+    {"type": "string", "name": "jobId", "objectType": "java", "required": false},
+    {"type": "date", "name": "startDate", "objectType": "java", "required": false},
+    {"type": "date", "name": "endDate", "objectType": "java", "required": false},
+    {"type": "boolean", "name": "isCurrent", "objectType": "java", "required": false},
+    {"type": "boolean", "name": "isActive", "objectType": "java", "required": false},
+    {"type": "string", "name": "assignmentType", "objectType": "java", "required": false},
+    {"type": "string", "name": "notes", "objectType": "java", "required": false}
+  ]
+}

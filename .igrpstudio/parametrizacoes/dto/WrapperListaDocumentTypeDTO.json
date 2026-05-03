@@ -1,0 +1,17 @@
+{
+  "type": "dto",
+  "module": "parametrizacoes",
+  "name": "WrapperListaDocumentType",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    {
+      "name": "content",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    }
+  ],
+  "id": "wrapper_lista_document_type_dto_001"
+}

@@ -1,0 +1,159 @@
+{
+  "type": "controller",
+  "name": "Job",
+  "module": "estrutura",
+  "description": "Gestão de cargos funcionais",
+  "basePath": "api/v1/rh/estrutura/jobs",
+  "actions": [
+    {
+      "actionName": "getJobs",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaJobDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "estrutura"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        { "type": "boolean", "name": "active", "isRequired": false },
+        { "type": "string",  "name": "pagina",  "value": "0",  "isRequired": true },
+        { "type": "string",  "name": "tamanho", "value": "20", "isRequired": true }
+      ]
+    },
+    {
+      "actionName": "getJobById",
+      "path": "{jobId}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "JobResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "estrutura"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        { "name": "jobId", "type": "string", "isRequired": true }
+      ]
+    },
+    {
+      "actionName": "createJob",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "JobRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "estrutura"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": { "type": "string", "name": "data", "collectionType": "map" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "updateJob",
+      "path": "{jobId}",
+      "method": "PUT",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "JobRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "estrutura"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "JobResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "estrutura"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        { "name": "jobId", "type": "string", "isRequired": true }
+      ]
+    },
+    {
+      "actionName": "deactivateJob",
+      "path": "{jobId}/deactivate",
+      "method": "PATCH",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": { "type": "string", "name": "data", "collectionType": "map" }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        { "name": "jobId", "type": "string", "isRequired": true }
+      ]
+    },
+    {
+      "actionName": "activateJob",
+      "path": "{jobId}/activate",
+      "method": "PATCH",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": { "type": "string", "name": "data", "collectionType": "map" }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        { "name": "jobId", "type": "string", "isRequired": true }
+      ]
+    }
+  ],
+  "id": "job_ctrl_001"
+}

@@ -1,0 +1,17 @@
+{
+  "type": "dto",
+  "name": "DocumentoResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "id", "objectType": "java", "required": false},
+    {"type": "string", "name": "funcionarioId", "objectType": "java", "required": false},
+    {"type": "string", "name": "documentTypeId", "objectType": "java", "required": false},
+    {"type": "string", "name": "documentType", "objectType": "java", "required": false},
+    {"type": "string", "name": "originalFilename", "objectType": "java", "required": false},
+    {"type": "string", "name": "contentType", "objectType": "java", "required": false},
+    {"type": "long", "name": "fileSize", "objectType": "java", "required": false},
+    {"type": "string", "name": "description", "objectType": "java", "required": false},
+    {"type": "boolean", "name": "isActive", "objectType": "java", "required": false}
+  ]
+}

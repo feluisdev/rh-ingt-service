@@ -1,0 +1,1028 @@
+                       ???????
+                    ????   ????
+                  ????     ????
+                 ????         ?????????????
+                 ?????????????          ????
+            _                 ??      ?????
+           (_)                  ??????????
+            _    __ _   _ __   _ __
+           | |  / _` | | '__| | '_ \
+           | | | (_| | | |    | |_) |
+           |_|  \__, | |_|    | .__/
+                 __/ |        | |
+                |___/         |_|
+
+           IGRP 3.0 Server Application :: 0.0.1-alpha
+           Powered by Spring Boot 3.5.3 - RH-PRO
+
+2026-05-02T11:22:44.970-01:00  INFO 47672 --- [recursoshumanos-service] [           main] c.i.R.RecursosHumanosApplication         : Starting RecursosHumanosApplication v0.0.1-SNAPSHOT using Java 23.0.2 with PID 47672 (C:\Users\ivanick.santos\Nick-personal\ta-workspace\projects\Recursos_Humanos\target\RH-Service-0.0.1-SNAPSHOT.jar started by Ivanick.Santos in C:\Users\ivanick.santos\Nick-personal\ta-workspace\projects\Recursos_Humanos)
+2026-05-02T11:22:44.976-01:00  INFO 47672 --- [recursoshumanos-service] [           main] c.i.R.RecursosHumanosApplication         : The following 1 profile is active: "development"
+2026-05-02T11:22:49.265-01:00  INFO 47672 --- [recursoshumanos-service] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-02T11:22:50.082-01:00  INFO 47672 --- [recursoshumanos-service] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 792 ms. Found 58 JPA repository interfaces.
+2026-05-02T11:22:50.986-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=c4d183d6-382f-3d3a-82fd-c67d66803f62
+2026-05-02T11:22:52.272-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8091 (http)
+2026-05-02T11:22:52.310-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-02T11:22:52.311-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.42]
+2026-05-02T11:22:52.370-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-05-02T11:22:52.372-01:00  INFO 47672 --- [recursoshumanos-service] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 7249 ms
+2026-05-02T11:22:53.027-01:00  INFO 47672 --- [recursoshumanos-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-05-02T11:22:53.391-01:00  INFO 47672 --- [recursoshumanos-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@7c9c7e7d
+2026-05-02T11:22:53.393-01:00  INFO 47672 --- [recursoshumanos-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-05-02T11:22:53.483-01:00  INFO 47672 --- [recursoshumanos-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5436/recursoshumanos_db (PostgreSQL 17.5)
+2026-05-02T11:22:53.896-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 34 migrations (execution time 00:00.202s)
+2026-05-02T11:22:53.987-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 32
+2026-05-02T11:22:54.044-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "33 - alter leave mobility add workflow"
+2026-05-02T11:22:54.192-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 1 migration to schema "public", now at version v33 (execution time 00:00.084s)
+2026-05-02T11:22:54.498-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-02T11:22:54.690-01:00  INFO 47672 --- [recursoshumanos-service] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.18.Final
+2026-05-02T11:22:54.765-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-05-02T11:22:54.945-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.boot.internal.EnversServiceImpl    : Envers integration enabled? : true
+2026-05-02T11:22:55.326-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-02T11:22:55.481-01:00  INFO 47672 --- [recursoshumanos-service] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.5
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-02T11:22:56.779-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.FunctionEntity
+2026-05-02T11:22:56.782-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.WorkerStateEntity
+2026-05-02T11:22:56.785-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.QualificacaoEntity
+2026-05-02T11:22:56.785-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.LicencaMobilidadeEntity
+2026-05-02T11:22:56.786-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.ContractTypeEntity
+2026-05-02T11:22:56.788-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.OptionEntity
+2026-05-02T11:22:56.789-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.DocumentoEntity
+2026-05-02T11:22:56.789-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.shared.infrastructure.persistence.entity.IAMUserProfileEntity
+2026-05-02T11:22:56.790-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.PublicHolidayEntity
+2026-05-02T11:22:56.791-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.ProcessoDisciplinarEntity
+2026-05-02T11:22:56.791-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.LeaveMobilitySubtypeEntity
+2026-05-02T11:22:56.792-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.SaldoAusenciaEntity
+2026-05-02T11:22:56.793-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.carreiras.infrastructure.persistence.entity.GradeEntity
+2026-05-02T11:22:56.794-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.SubtipoLicencaMobilidadeEntity
+2026-05-02T11:22:56.794-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.carreiras.infrastructure.persistence.entity.CategoryEntity
+2026-05-02T11:22:56.795-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.ContratoEntity
+2026-05-02T11:22:56.796-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.ReciboVencimentoEntity
+2026-05-02T11:22:56.796-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.JobEntity
+2026-05-02T11:22:56.797-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.DocumentTypeEntity
+2026-05-02T11:22:56.798-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.OrganizationalUnitEntity
+2026-05-02T11:22:56.800-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.FormacaoEntity
+2026-05-02T11:22:56.800-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.PedidoAusenciaEntity
+2026-05-02T11:22:56.802-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.FuncionarioEntity
+2026-05-02T11:22:56.803-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.LeaveTypeEntity
+2026-05-02T11:22:56.803-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.carreiras.infrastructure.persistence.entity.CareerEntity
+2026-05-02T11:22:56.804-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.TipoAusenciaEntity
+2026-05-02T11:22:56.805-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.DependenteEntity
+2026-05-02T11:22:56.805-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.FeriadoEntity
+2026-05-02T11:22:56.806-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.EnquadramentoEntity
+2026-05-02T11:22:56.807-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.ColocacaoEntity
+2026-05-02T11:22:56.807-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.ProfessionalSituationEntity
+2026-05-02T11:23:00.457-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: 
+    alter table if exists audit_schema.t_leave_mobility_aud 
+       add column destination_unit_id uuid
+Hibernate: 
+    alter table if exists audit_schema.t_leave_mobility_aud 
+       add column document_id uuid
+Hibernate: 
+    alter table if exists audit_schema.t_leave_mobility_aud 
+       add column justification TEXT
+Hibernate: 
+    alter table if exists audit_schema.t_leave_mobility_aud 
+       add column rejection_reason TEXT
+Hibernate: 
+    alter table if exists audit_schema.t_leave_mobility_aud 
+       add column status varchar(20)
+2026-05-02T11:23:07.586-01:00  INFO 47672 --- [recursoshumanos-service] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-02T11:23:08.930-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-02T11:23:16.761-01:00  INFO 47672 --- [recursoshumanos-service] [           main] DiscoveryClientOptionalArgsConfiguration : Eureka HTTP Client uses RestTemplate.
+2026-05-02T11:23:16.947-01:00  INFO 47672 --- [recursoshumanos-service] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8091 (http) with context path '/'
+2026-05-02T11:23:16.980-01:00  INFO 47672 --- [recursoshumanos-service] [           main] c.i.R.RecursosHumanosApplication         : Started RecursosHumanosApplication in 33.36 seconds (process running for 35.194)
+2026-05-02T11:23:36.377-01:00  INFO 47672 --- [recursoshumanos-service] [nio-8091-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-02T11:23:36.378-01:00  INFO 47672 --- [recursoshumanos-service] [nio-8091-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-05-02T11:23:36.383-01:00  INFO 47672 --- [recursoshumanos-service] [nio-8091-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 4 ms
+Hibernate: 
+    select
+        fe1_0.id,
+        fe1_0.bi_numero,
+        fe1_0.bi_validade,
+        fe1_0.created_by,
+        fe1_0.created_date,
+        fe1_0.data_admissao,
+        fe1_0.data_nascimento,
+        fe1_0.data_saida,
+        fe1_0.email,
+        fe1_0.estado_civil,
+        fe1_0.foto_url,
+        fe1_0.genero,
+        fe1_0.is_active,
+        fe1_0.last_modified_by,
+        fe1_0.last_modified_date,
+        fe1_0.morada,
+        fe1_0.nacionalidade,
+        fe1_0.nif,
+        fe1_0.nome_completo,
+        fe1_0.numero_funcionario,
+        fe1_0.situacao_profissional,
+        fe1_0.telefone 
+    from
+        t_funcionario fe1_0 
+    where
+        1=1 
+        and fe1_0.is_active 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        count(fe1_0.id) 
+    from
+        t_funcionario fe1_0 
+    where
+        1=1 
+        and fe1_0.is_active
+Hibernate: 
+    select
+        fe1_0.id,
+        fe1_0.bi_numero,
+        fe1_0.bi_validade,
+        fe1_0.created_by,
+        fe1_0.created_date,
+        fe1_0.data_admissao,
+        fe1_0.data_nascimento,
+        fe1_0.data_saida,
+        fe1_0.email,
+        fe1_0.estado_civil,
+        fe1_0.foto_url,
+        fe1_0.genero,
+        fe1_0.is_active,
+        fe1_0.last_modified_by,
+        fe1_0.last_modified_date,
+        fe1_0.morada,
+        fe1_0.nacionalidade,
+        fe1_0.nif,
+        fe1_0.nome_completo,
+        fe1_0.numero_funcionario,
+        fe1_0.situacao_profissional,
+        fe1_0.telefone 
+    from
+        t_funcionario fe1_0 
+    where
+        1=1 
+        and fe1_0.is_active 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        count(fe1_0.id) 
+    from
+        t_funcionario fe1_0 
+    where
+        1=1 
+        and fe1_0.is_active
+Hibernate: 
+    select
+        lmse1_0.id,
+        lmse1_0.affects_pay,
+        lmse1_0.can_self_submit,
+        lmse1_0.code,
+        lmse1_0.counts_for_seniority,
+        lmse1_0.created_by,
+        lmse1_0.created_date,
+        lmse1_0.description,
+        lmse1_0.is_active,
+        lmse1_0.last_modified_by,
+        lmse1_0.last_modified_date,
+        lmse1_0.record_type 
+    from
+        t_leave_mobility_subtype lmse1_0 
+    where
+        1=1 
+        and lmse1_0.is_active=? 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        fe1_0.id,
+        fe1_0.bi_numero,
+        fe1_0.bi_validade,
+        fe1_0.created_by,
+        fe1_0.created_date,
+        fe1_0.data_admissao,
+        fe1_0.data_nascimento,
+        fe1_0.data_saida,
+        fe1_0.email,
+        fe1_0.estado_civil,
+        fe1_0.foto_url,
+        fe1_0.genero,
+        fe1_0.is_active,
+        fe1_0.last_modified_by,
+        fe1_0.last_modified_date,
+        fe1_0.morada,
+        fe1_0.nacionalidade,
+        fe1_0.nif,
+        fe1_0.nome_completo,
+        fe1_0.numero_funcionario,
+        fe1_0.situacao_profissional,
+        fe1_0.telefone 
+    from
+        t_funcionario fe1_0 
+    where
+        fe1_0.id=?
+Hibernate: 
+    select
+        slme1_0.id,
+        slme1_0.affects_pay,
+        slme1_0.can_self_submit,
+        slme1_0.code,
+        slme1_0.counts_for_seniority,
+        slme1_0.created_by,
+        slme1_0.created_date,
+        slme1_0.description,
+        slme1_0.is_active,
+        slme1_0.last_modified_by,
+        slme1_0.last_modified_date,
+        slme1_0.record_type 
+    from
+        t_leave_mobility_subtype slme1_0 
+    where
+        slme1_0.id=?
+Hibernate: 
+    select
+        lme1_0.id,
+        lme1_0.created_by,
+        lme1_0.created_date,
+        lme1_0.data_fim,
+        lme1_0.data_inicio,
+        lme1_0.despacho_numero,
+        lme1_0.destination_unit_id,
+        lme1_0.document_id,
+        lme1_0.entidade_destino,
+        lme1_0.funcionario_id,
+        lme1_0.is_active,
+        lme1_0.justification,
+        lme1_0.last_modified_by,
+        lme1_0.last_modified_date,
+        lme1_0.observacoes,
+        lme1_0.rejection_reason,
+        lme1_0.status,
+        lme1_0.subtipo_id 
+    from
+        t_leave_mobility lme1_0 
+    where
+        lme1_0.id=?
+Hibernate: 
+    insert 
+    into
+        t_leave_mobility
+        (created_by, created_date, data_fim, data_inicio, despacho_numero, destination_unit_id, document_id, entidade_destino, funcionario_id, is_active, justification, last_modified_by, last_modified_date, observacoes, rejection_reason, status, subtipo_id, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    select
+        nextval('revinfo_seq')
+Hibernate: 
+    insert 
+    into
+        audit_schema.revinfo
+        (revtstmp, rev) 
+    values
+        (?, ?)
+Hibernate: 
+    insert 
+    into
+        audit_schema.t_leave_mobility_aud
+        (revtype, created_by, created_date, data_fim, data_inicio, despacho_numero, destination_unit_id, document_id, entidade_destino, funcionario_id, is_active, justification, last_modified_by, last_modified_date, observacoes, rejection_reason, status, subtipo_id, rev, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    select
+        fe1_0.id,
+        fe1_0.bi_numero,
+        fe1_0.bi_validade,
+        fe1_0.created_by,
+        fe1_0.created_date,
+        fe1_0.data_admissao,
+        fe1_0.data_nascimento,
+        fe1_0.data_saida,
+        fe1_0.email,
+        fe1_0.estado_civil,
+        fe1_0.foto_url,
+        fe1_0.genero,
+        fe1_0.is_active,
+        fe1_0.last_modified_by,
+        fe1_0.last_modified_date,
+        fe1_0.morada,
+        fe1_0.nacionalidade,
+        fe1_0.nif,
+        fe1_0.nome_completo,
+        fe1_0.numero_funcionario,
+        fe1_0.situacao_profissional,
+        fe1_0.telefone 
+    from
+        t_funcionario fe1_0 
+    where
+        fe1_0.id=?
+Hibernate: 
+    select
+        slme1_0.id,
+        slme1_0.affects_pay,
+        slme1_0.can_self_submit,
+        slme1_0.code,
+        slme1_0.counts_for_seniority,
+        slme1_0.created_by,
+        slme1_0.created_date,
+        slme1_0.description,
+        slme1_0.is_active,
+        slme1_0.last_modified_by,
+        slme1_0.last_modified_date,
+        slme1_0.record_type 
+    from
+        t_leave_mobility_subtype slme1_0 
+    where
+        slme1_0.id=?
+Hibernate: 
+    select
+        lme1_0.id,
+        lme1_0.created_by,
+        lme1_0.created_date,
+        lme1_0.data_fim,
+        lme1_0.data_inicio,
+        lme1_0.despacho_numero,
+        lme1_0.destination_unit_id,
+        lme1_0.document_id,
+        lme1_0.entidade_destino,
+        lme1_0.funcionario_id,
+        lme1_0.is_active,
+        lme1_0.justification,
+        lme1_0.last_modified_by,
+        lme1_0.last_modified_date,
+        lme1_0.observacoes,
+        lme1_0.rejection_reason,
+        lme1_0.status,
+        lme1_0.subtipo_id 
+    from
+        t_leave_mobility lme1_0 
+    where
+        lme1_0.id=?
+Hibernate: 
+    insert 
+    into
+        t_leave_mobility
+        (created_by, created_date, data_fim, data_inicio, despacho_numero, destination_unit_id, document_id, entidade_destino, funcionario_id, is_active, justification, last_modified_by, last_modified_date, observacoes, rejection_reason, status, subtipo_id, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    insert 
+    into
+        audit_schema.revinfo
+        (revtstmp, rev) 
+    values
+        (?, ?)
+Hibernate: 
+    insert 
+    into
+        audit_schema.t_leave_mobility_aud
+        (revtype, created_by, created_date, data_fim, data_inicio, despacho_numero, destination_unit_id, document_id, entidade_destino, funcionario_id, is_active, justification, last_modified_by, last_modified_date, observacoes, rejection_reason, status, subtipo_id, rev, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    select
+        lme1_0.id,
+        lme1_0.created_by,
+        lme1_0.created_date,
+        lme1_0.data_fim,
+        lme1_0.data_inicio,
+        lme1_0.despacho_numero,
+        lme1_0.destination_unit_id,
+        lme1_0.document_id,
+        lme1_0.entidade_destino,
+        lme1_0.funcionario_id,
+        lme1_0.is_active,
+        lme1_0.justification,
+        lme1_0.last_modified_by,
+        lme1_0.last_modified_date,
+        lme1_0.observacoes,
+        lme1_0.rejection_reason,
+        lme1_0.status,
+        lme1_0.subtipo_id 
+    from
+        t_leave_mobility lme1_0 
+    where
+        lme1_0.id=?
+Hibernate: 
+    select
+        slme1_0.id,
+        slme1_0.affects_pay,
+        slme1_0.can_self_submit,
+        slme1_0.code,
+        slme1_0.counts_for_seniority,
+        slme1_0.created_by,
+        slme1_0.created_date,
+        slme1_0.description,
+        slme1_0.is_active,
+        slme1_0.last_modified_by,
+        slme1_0.last_modified_date,
+        slme1_0.record_type 
+    from
+        t_leave_mobility_subtype slme1_0 
+    where
+        slme1_0.id=?
+Hibernate: 
+    select
+        lme1_0.id,
+        lme1_0.created_by,
+        lme1_0.created_date,
+        lme1_0.data_fim,
+        lme1_0.data_inicio,
+        lme1_0.despacho_numero,
+        lme1_0.destination_unit_id,
+        lme1_0.document_id,
+        lme1_0.entidade_destino,
+        lme1_0.funcionario_id,
+        lme1_0.is_active,
+        lme1_0.justification,
+        lme1_0.last_modified_by,
+        lme1_0.last_modified_date,
+        lme1_0.observacoes,
+        lme1_0.rejection_reason,
+        lme1_0.status,
+        lme1_0.subtipo_id 
+    from
+        t_leave_mobility lme1_0 
+    where
+        lme1_0.id=?
+Hibernate: 
+    select
+        slme1_0.id,
+        slme1_0.affects_pay,
+        slme1_0.can_self_submit,
+        slme1_0.code,
+        slme1_0.counts_for_seniority,
+        slme1_0.created_by,
+        slme1_0.created_date,
+        slme1_0.description,
+        slme1_0.is_active,
+        slme1_0.last_modified_by,
+        slme1_0.last_modified_date,
+        slme1_0.record_type 
+    from
+        t_leave_mobility_subtype slme1_0 
+    where
+        slme1_0.id=?
+Hibernate: 
+    update
+        t_leave_mobility 
+    set
+        data_fim=?,
+        data_inicio=?,
+        despacho_numero=?,
+        destination_unit_id=?,
+        document_id=?,
+        entidade_destino=?,
+        funcionario_id=?,
+        is_active=?,
+        justification=?,
+        last_modified_by=?,
+        last_modified_date=?,
+        observacoes=?,
+        rejection_reason=?,
+        status=?,
+        subtipo_id=? 
+    where
+        id=?
+Hibernate: 
+    insert 
+    into
+        audit_schema.revinfo
+        (revtstmp, rev) 
+    values
+        (?, ?)
+Hibernate: 
+    insert 
+    into
+        audit_schema.t_leave_mobility_aud
+        (revtype, created_by, created_date, data_fim, data_inicio, despacho_numero, destination_unit_id, document_id, entidade_destino, funcionario_id, is_active, justification, last_modified_by, last_modified_date, observacoes, rejection_reason, status, subtipo_id, rev, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    select
+        lme1_0.id,
+        lme1_0.created_by,
+        lme1_0.created_date,
+        lme1_0.data_fim,
+        lme1_0.data_inicio,
+        lme1_0.despacho_numero,
+        lme1_0.destination_unit_id,
+        lme1_0.document_id,
+        lme1_0.entidade_destino,
+        lme1_0.funcionario_id,
+        lme1_0.is_active,
+        lme1_0.justification,
+        lme1_0.last_modified_by,
+        lme1_0.last_modified_date,
+        lme1_0.observacoes,
+        lme1_0.rejection_reason,
+        lme1_0.status,
+        lme1_0.subtipo_id 
+    from
+        t_leave_mobility lme1_0 
+    where
+        lme1_0.id=?
+Hibernate: 
+    select
+        slme1_0.id,
+        slme1_0.affects_pay,
+        slme1_0.can_self_submit,
+        slme1_0.code,
+        slme1_0.counts_for_seniority,
+        slme1_0.created_by,
+        slme1_0.created_date,
+        slme1_0.description,
+        slme1_0.is_active,
+        slme1_0.last_modified_by,
+        slme1_0.last_modified_date,
+        slme1_0.record_type 
+    from
+        t_leave_mobility_subtype slme1_0 
+    where
+        slme1_0.id=?
+Hibernate: 
+    select
+        lme1_0.id,
+        lme1_0.created_by,
+        lme1_0.created_date,
+        lme1_0.data_fim,
+        lme1_0.data_inicio,
+        lme1_0.despacho_numero,
+        lme1_0.destination_unit_id,
+        lme1_0.document_id,
+        lme1_0.entidade_destino,
+        lme1_0.funcionario_id,
+        lme1_0.is_active,
+        lme1_0.justification,
+        lme1_0.last_modified_by,
+        lme1_0.last_modified_date,
+        lme1_0.observacoes,
+        lme1_0.rejection_reason,
+        lme1_0.status,
+        lme1_0.subtipo_id 
+    from
+        t_leave_mobility lme1_0 
+    where
+        lme1_0.id=?
+Hibernate: 
+    select
+        slme1_0.id,
+        slme1_0.affects_pay,
+        slme1_0.can_self_submit,
+        slme1_0.code,
+        slme1_0.counts_for_seniority,
+        slme1_0.created_by,
+        slme1_0.created_date,
+        slme1_0.description,
+        slme1_0.is_active,
+        slme1_0.last_modified_by,
+        slme1_0.last_modified_date,
+        slme1_0.record_type 
+    from
+        t_leave_mobility_subtype slme1_0 
+    where
+        slme1_0.id=?
+Hibernate: 
+    update
+        t_leave_mobility 
+    set
+        data_fim=?,
+        data_inicio=?,
+        despacho_numero=?,
+        destination_unit_id=?,
+        document_id=?,
+        entidade_destino=?,
+        funcionario_id=?,
+        is_active=?,
+        justification=?,
+        last_modified_by=?,
+        last_modified_date=?,
+        observacoes=?,
+        rejection_reason=?,
+        status=?,
+        subtipo_id=? 
+    where
+        id=?
+Hibernate: 
+    insert 
+    into
+        audit_schema.revinfo
+        (revtstmp, rev) 
+    values
+        (?, ?)
+Hibernate: 
+    insert 
+    into
+        audit_schema.t_leave_mobility_aud
+        (revtype, created_by, created_date, data_fim, data_inicio, despacho_numero, destination_unit_id, document_id, entidade_destino, funcionario_id, is_active, justification, last_modified_by, last_modified_date, observacoes, rejection_reason, status, subtipo_id, rev, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    select
+        lme1_0.id,
+        lme1_0.created_by,
+        lme1_0.created_date,
+        lme1_0.data_fim,
+        lme1_0.data_inicio,
+        lme1_0.despacho_numero,
+        lme1_0.destination_unit_id,
+        lme1_0.document_id,
+        lme1_0.entidade_destino,
+        lme1_0.funcionario_id,
+        lme1_0.is_active,
+        lme1_0.justification,
+        lme1_0.last_modified_by,
+        lme1_0.last_modified_date,
+        lme1_0.observacoes,
+        lme1_0.rejection_reason,
+        lme1_0.status,
+        lme1_0.subtipo_id 
+    from
+        t_leave_mobility lme1_0 
+    where
+        lme1_0.id=?
+Hibernate: 
+    select
+        slme1_0.id,
+        slme1_0.affects_pay,
+        slme1_0.can_self_submit,
+        slme1_0.code,
+        slme1_0.counts_for_seniority,
+        slme1_0.created_by,
+        slme1_0.created_date,
+        slme1_0.description,
+        slme1_0.is_active,
+        slme1_0.last_modified_by,
+        slme1_0.last_modified_date,
+        slme1_0.record_type 
+    from
+        t_leave_mobility_subtype slme1_0 
+    where
+        slme1_0.id=?
+Hibernate: 
+    select
+        fe1_0.id,
+        fe1_0.bi_numero,
+        fe1_0.bi_validade,
+        fe1_0.created_by,
+        fe1_0.created_date,
+        fe1_0.data_admissao,
+        fe1_0.data_nascimento,
+        fe1_0.data_saida,
+        fe1_0.email,
+        fe1_0.estado_civil,
+        fe1_0.foto_url,
+        fe1_0.genero,
+        fe1_0.is_active,
+        fe1_0.last_modified_by,
+        fe1_0.last_modified_date,
+        fe1_0.morada,
+        fe1_0.nacionalidade,
+        fe1_0.nif,
+        fe1_0.nome_completo,
+        fe1_0.numero_funcionario,
+        fe1_0.situacao_profissional,
+        fe1_0.telefone 
+    from
+        t_funcionario fe1_0 
+    where
+        fe1_0.id=?
+Hibernate: 
+    select
+        slme1_0.id,
+        slme1_0.affects_pay,
+        slme1_0.can_self_submit,
+        slme1_0.code,
+        slme1_0.counts_for_seniority,
+        slme1_0.created_by,
+        slme1_0.created_date,
+        slme1_0.description,
+        slme1_0.is_active,
+        slme1_0.last_modified_by,
+        slme1_0.last_modified_date,
+        slme1_0.record_type 
+    from
+        t_leave_mobility_subtype slme1_0 
+    where
+        slme1_0.id=?
+Hibernate: 
+    select
+        lme1_0.id,
+        lme1_0.created_by,
+        lme1_0.created_date,
+        lme1_0.data_fim,
+        lme1_0.data_inicio,
+        lme1_0.despacho_numero,
+        lme1_0.destination_unit_id,
+        lme1_0.document_id,
+        lme1_0.entidade_destino,
+        lme1_0.funcionario_id,
+        lme1_0.is_active,
+        lme1_0.justification,
+        lme1_0.last_modified_by,
+        lme1_0.last_modified_date,
+        lme1_0.observacoes,
+        lme1_0.rejection_reason,
+        lme1_0.status,
+        lme1_0.subtipo_id 
+    from
+        t_leave_mobility lme1_0 
+    where
+        lme1_0.id=?
+Hibernate: 
+    insert 
+    into
+        t_leave_mobility
+        (created_by, created_date, data_fim, data_inicio, despacho_numero, destination_unit_id, document_id, entidade_destino, funcionario_id, is_active, justification, last_modified_by, last_modified_date, observacoes, rejection_reason, status, subtipo_id, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    insert 
+    into
+        audit_schema.revinfo
+        (revtstmp, rev) 
+    values
+        (?, ?)
+Hibernate: 
+    insert 
+    into
+        audit_schema.t_leave_mobility_aud
+        (revtype, created_by, created_date, data_fim, data_inicio, despacho_numero, destination_unit_id, document_id, entidade_destino, funcionario_id, is_active, justification, last_modified_by, last_modified_date, observacoes, rejection_reason, status, subtipo_id, rev, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+2026-05-02T11:26:14.185-01:00  WARN 47672 --- [recursoshumanos-service] [nio-8091-exec-6] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpMediaTypeNotSupportedException: Content-Type 'application/octet-stream' is not supported]
+Hibernate: 
+    select
+        lme1_0.id,
+        lme1_0.created_by,
+        lme1_0.created_date,
+        lme1_0.data_fim,
+        lme1_0.data_inicio,
+        lme1_0.despacho_numero,
+        lme1_0.destination_unit_id,
+        lme1_0.document_id,
+        lme1_0.entidade_destino,
+        lme1_0.funcionario_id,
+        lme1_0.is_active,
+        lme1_0.justification,
+        lme1_0.last_modified_by,
+        lme1_0.last_modified_date,
+        lme1_0.observacoes,
+        lme1_0.rejection_reason,
+        lme1_0.status,
+        lme1_0.subtipo_id 
+    from
+        t_leave_mobility lme1_0 
+    where
+        lme1_0.id=?
+Hibernate: 
+    select
+        slme1_0.id,
+        slme1_0.affects_pay,
+        slme1_0.can_self_submit,
+        slme1_0.code,
+        slme1_0.counts_for_seniority,
+        slme1_0.created_by,
+        slme1_0.created_date,
+        slme1_0.description,
+        slme1_0.is_active,
+        slme1_0.last_modified_by,
+        slme1_0.last_modified_date,
+        slme1_0.record_type 
+    from
+        t_leave_mobility_subtype slme1_0 
+    where
+        slme1_0.id=?
+Hibernate: 
+    select
+        fe1_0.id,
+        fe1_0.bi_numero,
+        fe1_0.bi_validade,
+        fe1_0.created_by,
+        fe1_0.created_date,
+        fe1_0.data_admissao,
+        fe1_0.data_nascimento,
+        fe1_0.data_saida,
+        fe1_0.email,
+        fe1_0.estado_civil,
+        fe1_0.foto_url,
+        fe1_0.genero,
+        fe1_0.is_active,
+        fe1_0.last_modified_by,
+        fe1_0.last_modified_date,
+        fe1_0.morada,
+        fe1_0.nacionalidade,
+        fe1_0.nif,
+        fe1_0.nome_completo,
+        fe1_0.numero_funcionario,
+        fe1_0.situacao_profissional,
+        fe1_0.telefone 
+    from
+        t_funcionario fe1_0
+Hibernate: 
+    select
+        fe1_0.id,
+        fe1_0.bi_numero,
+        fe1_0.bi_validade,
+        fe1_0.created_by,
+        fe1_0.created_date,
+        fe1_0.data_admissao,
+        fe1_0.data_nascimento,
+        fe1_0.data_saida,
+        fe1_0.email,
+        fe1_0.estado_civil,
+        fe1_0.foto_url,
+        fe1_0.genero,
+        fe1_0.is_active,
+        fe1_0.last_modified_by,
+        fe1_0.last_modified_date,
+        fe1_0.morada,
+        fe1_0.nacionalidade,
+        fe1_0.nif,
+        fe1_0.nome_completo,
+        fe1_0.numero_funcionario,
+        fe1_0.situacao_profissional,
+        fe1_0.telefone 
+    from
+        t_funcionario fe1_0 
+    where
+        fe1_0.id=?
+Hibernate: 
+    select
+        lme1_0.id,
+        lme1_0.created_by,
+        lme1_0.created_date,
+        lme1_0.data_fim,
+        lme1_0.data_inicio,
+        lme1_0.despacho_numero,
+        lme1_0.destination_unit_id,
+        lme1_0.document_id,
+        lme1_0.entidade_destino,
+        lme1_0.funcionario_id,
+        lme1_0.is_active,
+        lme1_0.justification,
+        lme1_0.last_modified_by,
+        lme1_0.last_modified_date,
+        lme1_0.observacoes,
+        lme1_0.rejection_reason,
+        lme1_0.status,
+        lme1_0.subtipo_id 
+    from
+        t_leave_mobility lme1_0 
+    where
+        lme1_0.id=?
+Hibernate: 
+    select
+        slme1_0.id,
+        slme1_0.affects_pay,
+        slme1_0.can_self_submit,
+        slme1_0.code,
+        slme1_0.counts_for_seniority,
+        slme1_0.created_by,
+        slme1_0.created_date,
+        slme1_0.description,
+        slme1_0.is_active,
+        slme1_0.last_modified_by,
+        slme1_0.last_modified_date,
+        slme1_0.record_type 
+    from
+        t_leave_mobility_subtype slme1_0 
+    where
+        slme1_0.id=?
+Hibernate: 
+    select
+        lme1_0.id,
+        lme1_0.created_by,
+        lme1_0.created_date,
+        lme1_0.data_fim,
+        lme1_0.data_inicio,
+        lme1_0.despacho_numero,
+        lme1_0.destination_unit_id,
+        lme1_0.document_id,
+        lme1_0.entidade_destino,
+        lme1_0.funcionario_id,
+        lme1_0.is_active,
+        lme1_0.justification,
+        lme1_0.last_modified_by,
+        lme1_0.last_modified_date,
+        lme1_0.observacoes,
+        lme1_0.rejection_reason,
+        lme1_0.status,
+        lme1_0.subtipo_id 
+    from
+        t_leave_mobility lme1_0 
+    where
+        lme1_0.id=?
+Hibernate: 
+    select
+        lme1_0.id,
+        lme1_0.created_by,
+        lme1_0.created_date,
+        lme1_0.data_fim,
+        lme1_0.data_inicio,
+        lme1_0.despacho_numero,
+        lme1_0.destination_unit_id,
+        lme1_0.document_id,
+        lme1_0.entidade_destino,
+        lme1_0.funcionario_id,
+        lme1_0.is_active,
+        lme1_0.justification,
+        lme1_0.last_modified_by,
+        lme1_0.last_modified_date,
+        lme1_0.observacoes,
+        lme1_0.rejection_reason,
+        lme1_0.status,
+        lme1_0.subtipo_id 
+    from
+        t_leave_mobility lme1_0 
+    where
+        lme1_0.id=?
+Hibernate: 
+    update
+        t_leave_mobility 
+    set
+        data_fim=?,
+        data_inicio=?,
+        despacho_numero=?,
+        destination_unit_id=?,
+        document_id=?,
+        entidade_destino=?,
+        funcionario_id=?,
+        is_active=?,
+        justification=?,
+        last_modified_by=?,
+        last_modified_date=?,
+        observacoes=?,
+        rejection_reason=?,
+        status=?,
+        subtipo_id=? 
+    where
+        id=?
+Hibernate: 
+    insert 
+    into
+        audit_schema.revinfo
+        (revtstmp, rev) 
+    values
+        (?, ?)
+Hibernate: 
+    insert 
+    into
+        audit_schema.t_leave_mobility_aud
+        (revtype, created_by, created_date, data_fim, data_inicio, despacho_numero, destination_unit_id, document_id, entidade_destino, funcionario_id, is_active, justification, last_modified_by, last_modified_date, observacoes, rejection_reason, status, subtipo_id, rev, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    select
+        lme1_0.id,
+        lme1_0.created_by,
+        lme1_0.created_date,
+        lme1_0.data_fim,
+        lme1_0.data_inicio,
+        lme1_0.despacho_numero,
+        lme1_0.destination_unit_id,
+        lme1_0.document_id,
+        lme1_0.entidade_destino,
+        lme1_0.funcionario_id,
+        lme1_0.is_active,
+        lme1_0.justification,
+        lme1_0.last_modified_by,
+        lme1_0.last_modified_date,
+        lme1_0.observacoes,
+        lme1_0.rejection_reason,
+        lme1_0.status,
+        lme1_0.subtipo_id 
+    from
+        t_leave_mobility lme1_0 
+    where
+        lme1_0.id=?
+Hibernate: 
+    select
+        slme1_0.id,
+        slme1_0.affects_pay,
+        slme1_0.can_self_submit,
+        slme1_0.code,
+        slme1_0.counts_for_seniority,
+        slme1_0.created_by,
+        slme1_0.created_date,
+        slme1_0.description,
+        slme1_0.is_active,
+        slme1_0.last_modified_by,
+        slme1_0.last_modified_date,
+        slme1_0.record_type 
+    from
+        t_leave_mobility_subtype slme1_0 
+    where
+        slme1_0.id=?

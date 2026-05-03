@@ -1,0 +1,15 @@
+package cv.igrp.RH_Service.parametrizacoes.domain.repository;
+
+import cv.igrp.RH_Service.parametrizacoes.domain.filter.WorkerStateFilter;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.WorkerState;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.WorkerStateId;
+import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
+
+import java.util.Optional;
+
+public interface WorkerStateRepository {
+    WorkerState save(WorkerState workerState);
+    Optional<WorkerState> findById(WorkerStateId id);
+    boolean existsByCode(String code);
+    PageResult<WorkerState> findAll(WorkerStateFilter filter);
+}

@@ -18,7 +18,15 @@
       "Bash(PGPASSWORD=postgres \"/c/Program Files/PostgreSQL/17/bin/psql.exe\" -h localhost -p 5436 -U postgres -d recursoshumanos_db -c \"\\\\d t_budget_drivers\")",
       "Bash(find /c/Users/ivanick.santos/Nick-personal/ta-workspace/projects/Recursos_Humanos/src -name \"CostDriverRequestDTO.java\" -exec cat {} \\\\;)",
       "Bash(PGPASSWORD=postgres \"/c/Program Files/PostgreSQL/17/bin/psql.exe\" -h localhost -p 5436 -U postgres -d recursoshumanos_db -c \"SELECT COUNT\\(*\\) FROM t_budget_drivers;\")",
-      "Bash('/c/Program Files/PostgreSQL/17/bin/psql.exe' -h localhost -p 5436 -U postgres -d recursoshumanos_db -c ' *)"
+      "Bash('/c/Program Files/PostgreSQL/17/bin/psql.exe' -h localhost -p 5436 -U postgres -d recursoshumanos_db -c ' *)",
+      "PowerShell(.specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks)",
+      "Bash(git add *)",
+      "PowerShell(head -20)",
+      "Bash(JAVA_HOME=\"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-23.0.2.7-hotspot\" mvn -B -DskipTests clean compile)",
+      "Bash(JAVA_HOME=\"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-23.0.2.7-hotspot\" mvn -B -DskipTests compile)",
+      "PowerShell($env:PGPASSWORD = \"postgres\"; & \"C:\\\\Program Files\\\\PostgreSQL\\\\17\\\\bin\\\\psql.exe\" -h localhost -p 5436 -U postgres -d recursoshumanos_db -c \"SELECT id, nome, is_active FROM t_funcionario WHERE is_active = true LIMIT 3;\" 2>&1)",
+      "Bash(curl -s http://localhost:8091/api/v1/rh/funcionarios/1983c58b-2dc3-43dc-aefb-0d06d06b18c2/formacoes)",
+      "PowerShell($env:PGPASSWORD = \"postgres\"; & \"C:\\\\Program Files\\\\PostgreSQL\\\\17\\\\bin\\\\psql.exe\" -h localhost -p 5436 -U postgres -d recursoshumanos_db -c \"SELECT id, nome FROM t_tipo_documento LIMIT 3;\" 2>&1)"
     ]
   }
 }

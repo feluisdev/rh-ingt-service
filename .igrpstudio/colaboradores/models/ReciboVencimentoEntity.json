@@ -1,0 +1,17 @@
+{
+  "type": "model",
+  "name": "ReciboVencimentoEntity",
+  "module": "colaboradores",
+  "tableName": "t_payroll_slip",
+  "revision": true,
+  "attributes": [
+    {"name": "id", "type": "string", "objectType": "java", "primaryKey": true},
+    {"name": "funcionarioId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "periodMonth", "type": "integer", "objectType": "java", "primaryKey": false},
+    {"name": "periodYear", "type": "integer", "objectType": "java", "primaryKey": false},
+    {"name": "issueDate", "type": "date", "objectType": "java", "primaryKey": false},
+    {"name": "grossSalary", "type": "decimal", "objectType": "java", "primaryKey": false},
+    {"name": "netSalary", "type": "decimal", "objectType": "java", "primaryKey": false},
+    {"name": "documentId", "type": "string", "objectType": "java", "primaryKey": false}
+  ]
+}

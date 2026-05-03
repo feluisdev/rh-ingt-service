@@ -1,0 +1,13 @@
+{
+  "type": "dto",
+  "name": "ContratoRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "funcionarioId", "objectType": "java", "required": false},
+    {"type": "string", "name": "tipoContrato", "objectType": "java", "required": true},
+    {"type": "date", "name": "dataInicio", "objectType": "java", "required": true},
+    {"type": "date", "name": "dataFim", "objectType": "java", "required": false},
+    {"type": "string", "name": "numeroContrato", "objectType": "java", "required": false}
+  ]
+}

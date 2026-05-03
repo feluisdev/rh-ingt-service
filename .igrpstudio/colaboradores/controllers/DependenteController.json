@@ -1,0 +1,47 @@
+{
+  "type": "controller",
+  "name": "Dependente",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh/dependentes",
+  "description": "Gestão de dependentes de funcionários",
+  "actions": [
+    {
+      "actionName": "createDependente",
+      "method": "POST",
+      "requestBody": true
+    },
+    {
+      "actionName": "getDependenteById",
+      "method": "GET",
+      "path": "{dependenteId}",
+      "pathVariables": [
+        {"name": "dependenteId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "updateDependente",
+      "method": "PUT",
+      "path": "{dependenteId}",
+      "pathVariables": [
+        {"name": "dependenteId", "type": "string"}
+      ],
+      "requestBody": true
+    },
+    {
+      "actionName": "deactivateDependente",
+      "method": "DELETE",
+      "path": "{dependenteId}",
+      "pathVariables": [
+        {"name": "dependenteId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "activateDependente",
+      "method": "PUT",
+      "path": "{dependenteId}/activate",
+      "pathVariables": [
+        {"name": "dependenteId", "type": "string"}
+      ]
+    }
+  ]
+}

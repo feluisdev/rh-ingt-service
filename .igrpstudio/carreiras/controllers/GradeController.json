@@ -1,0 +1,8 @@
+{
+  "type": "controller",
+  "name": "GradeController",
+  "module": "carreiras",
+  "path": "/api/v1/rh/grades",
+  "beanPrefix": "carreiras",
+  "operations": ["findAll", "findById", "create", "update", "delete", "activate"]
+}

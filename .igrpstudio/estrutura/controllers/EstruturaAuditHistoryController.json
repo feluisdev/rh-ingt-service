@@ -1,0 +1,35 @@
+{
+  "type": "controller",
+  "name": "EstruturaAuditHistory",
+  "module": "estrutura",
+  "description": "Consulta do historial de alterações nos catálogos da estrutura organizacional",
+  "basePath": "api/v1/rh/estrutura/audit",
+  "actions": [
+    {
+      "actionName": "getEstruturaAuditHistory",
+      "path": "{catalog}/{entityId}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaAuditHistoryDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "estrutura"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        { "name": "catalog",  "type": "string", "isRequired": true },
+        { "name": "entityId", "type": "string", "isRequired": true }
+      ]
+    }
+  ],
+  "id": "estrutura_audit_ctrl_001"
+}

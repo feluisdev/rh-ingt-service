@@ -1,0 +1,47 @@
+{
+  "type": "controller",
+  "name": "Contrato",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh/contratos",
+  "description": "Gestão de contratos laborais",
+  "actions": [
+    {
+      "actionName": "createContrato",
+      "method": "POST",
+      "requestBody": true
+    },
+    {
+      "actionName": "getContratoById",
+      "method": "GET",
+      "path": "{contratoId}",
+      "pathVariables": [
+        {"name": "contratoId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "updateContrato",
+      "method": "PUT",
+      "path": "{contratoId}",
+      "pathVariables": [
+        {"name": "contratoId", "type": "string"}
+      ],
+      "requestBody": true
+    },
+    {
+      "actionName": "deactivateContrato",
+      "method": "DELETE",
+      "path": "{contratoId}",
+      "pathVariables": [
+        {"name": "contratoId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "activateContrato",
+      "method": "PUT",
+      "path": "{contratoId}/activate",
+      "pathVariables": [
+        {"name": "contratoId", "type": "string"}
+      ]
+    }
+  ]
+}
