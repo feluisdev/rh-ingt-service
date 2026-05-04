@@ -130,6 +130,9 @@ public class SecurityConfig {
    */
   @Bean
   public JwtDecoder jwtDecoder() {
+    if (isSecurityDisabled()) {
+      return token -> null;
+    }
     return NimbusJwtDecoder.withIssuerLocation(jwtIssuer).build();
   }
 
