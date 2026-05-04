@@ -12,6 +12,10 @@ import cv.igrp.RH_Service.sigdi.application.dto.KeyResultResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityDetailDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WorkflowHistoryItemDTO;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.KeyResultsEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.InstitutionEntityRepository;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.IAMUserProfileEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.InstitutionEntity;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.IAMUserProfileEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -28,9 +32,16 @@ public class GetTacticalActivityByIdQueryHandler
   private static final Logger LOGGER = LoggerFactory.getLogger(GetTacticalActivityByIdQueryHandler.class);
 
   private final TacticalActivitiesEntityRepository repository;
+  private final InstitutionEntityRepository institutionRepository;
+  private final IAMUserProfileEntityRepository iamUserRepository;
 
-  public GetTacticalActivityByIdQueryHandler(TacticalActivitiesEntityRepository repository) {
+  public GetTacticalActivityByIdQueryHandler(
+      TacticalActivitiesEntityRepository repository,
+      InstitutionEntityRepository institutionRepository,
+      IAMUserProfileEntityRepository iamUserRepository) {
     this.repository = repository;
+    this.institutionRepository = institutionRepository;
+    this.iamUserRepository = iamUserRepository;
   }
 
   @IgrpQueryHandler
@@ -52,12 +63,18 @@ public class GetTacticalActivityByIdQueryHandler
     dto.setId(entity.getId().toString());
     dto.setStrategicGoalId(entity.getStrategicGoalId() != null ? entity.getStrategicGoalId().toString() : null);
     dto.setOrganicUnitId(entity.getOrganicUnitId() != null ? entity.getOrganicUnitId().toString() : null);
-    dto.setOrganicUnitName(null);
+    if (entity.getOrganicUnitId() != null) {
+      institutionRepository.findById(entity.getOrganicUnitId())
+          .ifPresent(i -> dto.setOrganicUnitName(i.getName()));
+    }
     dto.setTitle(entity.getTitle());
     dto.setDescriptionWhat(entity.getDescriptionWhat());
     dto.setJustificationWhy(entity.getJustificationWhy());
     dto.setResponsibleWho(entity.getResponsibleWho() != null ? entity.getResponsibleWho().toString() : null);
-    dto.setResponsibleName(null);
+    if (entity.getResponsibleWho() != null) {
+      iamUserRepository.findById(entity.getResponsibleWho())
+          .ifPresent(u -> dto.setResponsibleName(u.getFullName()));
+    }
     dto.setLocationWhere(entity.getLocationWhere());
     dto.setMethodologyHow(entity.getMethodologyHow());
     dto.setStartDate(entity.getStartDate() != null ? entity.getStartDate().toString() : null);
