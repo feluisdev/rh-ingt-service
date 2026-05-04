@@ -37,94 +37,130 @@ public class SecurityConfig {
     @Value("${app.security.enabled:true}")
     private boolean securityEnabled;
 
-    private final Environment environment;
+  private final Environment environment;
 
-    public SecurityConfig(Environment environment) {
-        this.environment = environment;
+  public SecurityConfig(Environment environment) {
+    this.environment = environment;
+  }
+
+  /**
+   * Configures the security filter chain, enabling OAuth2 resource server with JWT and specifying
+   * which requests require authentication.
+   *
+   * @param http the {@link HttpSecurity} object to configure security settings
+   * @return the configured {@link SecurityFilterChain} instance
+   * @throws Exception if an error occurs while configuring the security
+   */
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http, IAMUserProfileSyncFilter iamUserProfileSyncFilter) throws Exception {
+
+        /*
+          Creates and configures a CORS filter.
+          The filter allows requests from the specified origin, allows all headers and methods,
+          and supports credentials in cross-origin requests.
+        */
+    http.cors(cors -> cors.configurationSource(request -> {
+      var configuration = new CorsConfiguration();
+      configuration.addAllowedOriginPattern(CorsConfiguration.ALL);
+      configuration.addAllowedMethod(HttpMethod.GET);
+      configuration.addAllowedMethod(HttpMethod.POST);
+      configuration.addAllowedMethod(HttpMethod.PUT);
+      configuration.addAllowedMethod(HttpMethod.PATCH);
+      configuration.addAllowedMethod(HttpMethod.DELETE);
+      configuration.addAllowedMethod(HttpMethod.HEAD);
+      configuration.addAllowedMethod(HttpMethod.OPTIONS);
+      configuration.addAllowedHeader(CorsConfiguration.ALL);
+      configuration.setAllowCredentials(true);
+      return configuration;
+    }));
+
+    // Always configure the JWT resource server so BearerTokenAuthenticationFilter is in the
+    // chain and SecurityContext is populated with JwtAuthenticationToken when a valid Bearer
+    // token is present — required for IAMUserProfileSyncFilter to work regardless of whether
+    // app.security.enabled is true or false.
+    http.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
+        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+    );
+
+    if (isSecurityDisabled()) {
+      // Security disabled — only allowed in development profile via SECURITY_ENABLED=false.
+      // Token is still parsed when present so IAMUserProfileSyncFilter can sync the profile.
+      http.csrf(AbstractHttpConfigurer::disable);
+      http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+    } else {
+      http.authorizeHttpRequests(authorize -> authorize
+              .requestMatchers(
+                  "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
+                  "/swagger-resources/**", "/webjars/**", "/actuator/**"
+              )
+              .permitAll()
+              .anyRequest()
+              .authenticated()
+          )
+          .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
+            response.addHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Restricted Content\"");
+            response.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
+          }));
+
+      http.sessionManagement(t -> t.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
     }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, IAMUserProfileSyncFilter iamUserProfileSyncFilter) throws Exception {
+    http.addFilterBefore(iamUserProfileSyncFilter, AuthorizationFilter.class);
 
-        http.cors(cors -> cors.configurationSource(request -> {
-            var configuration = new CorsConfiguration();
-            configuration.addAllowedOriginPattern(CorsConfiguration.ALL);
-            configuration.addAllowedMethod(HttpMethod.GET);
-            configuration.addAllowedMethod(HttpMethod.POST);
-            configuration.addAllowedMethod(HttpMethod.PUT);
-            configuration.addAllowedMethod(HttpMethod.PATCH);
-            configuration.addAllowedMethod(HttpMethod.DELETE);
-            configuration.addAllowedMethod(HttpMethod.HEAD);
-            configuration.addAllowedMethod(HttpMethod.OPTIONS);
-            configuration.addAllowedHeader(CorsConfiguration.ALL);
-            configuration.setAllowCredentials(true);
-            return configuration;
-        }));
+    return http.build();
+  }
 
-        if (isSecurityDisabled()) {
-            // Dev mode: no JWT enforcement, no Keycloak calls. X-Employee-Id header is used instead.
-            http.csrf(AbstractHttpConfigurer::disable);
-            http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
-        } else {
-            http.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
-                    .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
-            );
-            http.authorizeHttpRequests(authorize -> authorize
-                            .requestMatchers(
-                                "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
-                                "/swagger-resources/**", "/webjars/**", "/actuator/**"
-                            )
-                            .permitAll()
-                            .anyRequest()
-                            .authenticated()
-                    )
-                    .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
-                        response.addHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Restricted Content\"");
-                        response.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
-                    }));
-            http.sessionManagement(t -> t.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        }
+  /**
+   * Configures a JWT authentication converter that extracts roles from the JWT and assigns them to authorities.
+   *
+   * @return the {@link JwtAuthenticationConverter} used to convert JWT tokens to Spring Security authentication
+   */
+  @Bean
+  public JwtAuthenticationConverter jwtAuthenticationConverter() {
+    var converter = new JwtAuthenticationConverter();
+    var grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+    converter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+    return converter;
+  }
 
-        http.addFilterBefore(iamUserProfileSyncFilter, AuthorizationFilter.class);
-
-        return http.build();
+  /**
+   * Configures a JWT decoder to verify and decode JWT tokens.
+   *
+   * @return the {@link JwtDecoder} for JWT token validation
+   */
+  @Bean
+  public JwtDecoder jwtDecoder() {
+    if (isSecurityDisabled()) {
+      return token -> null;
     }
+    return NimbusJwtDecoder.withIssuerLocation(jwtIssuer).build();
+  }
 
-    @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        var converter = new JwtAuthenticationConverter();
-        var grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        converter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
-        return converter;
-    }
+  /**
+   * Creates a bean for an OAuth2AuthorizedClientProvider that supports token exchange.
+   *
+   * <p>Token exchange allows one token to be exchanged for another,
+   * typically used in scenarios where a client needs to act on behalf
+   * of a user or service in a federated identity environment.</p>
+   *
+   * @return An instance of TokenExchangeOAuth2AuthorizedClientProvider.
+   */
+  @Bean
+  public FilterRegistrationBean<IAMUserProfileSyncFilter> iamUserProfileSyncFilterRegistration(IAMUserProfileSyncFilter filter) {
+    var registration = new FilterRegistrationBean<>(filter);
+    registration.setEnabled(true);
+    return registration;
+  }
 
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        if (isSecurityDisabled()) {
-            // In dev mode the oauth2ResourceServer is not configured so this decoder is never
-            // invoked. Return a stub so Spring Boot auto-configuration does not try to create its
-            // own decoder (which would contact Keycloak at startup).
-            return token -> { throw new org.springframework.security.oauth2.jwt.BadJwtException("Security disabled"); };
-        }
-        return NimbusJwtDecoder.withIssuerLocation(jwtIssuer).build();
-    }
+  @Bean
+  public OAuth2AuthorizedClientProvider tokenExchange() {
+    return new TokenExchangeOAuth2AuthorizedClientProvider();
+  }
 
-    @Bean
-    public FilterRegistrationBean<IAMUserProfileSyncFilter> iamUserProfileSyncFilterRegistration(IAMUserProfileSyncFilter filter) {
-        var registration = new FilterRegistrationBean<>(filter);
-        registration.setEnabled(true);
-        return registration;
-    }
-
-    @Bean
-    public OAuth2AuthorizedClientProvider tokenExchange() {
-        return new TokenExchangeOAuth2AuthorizedClientProvider();
-    }
-
-    // SECURITY_ENABLED=false is only honoured in the development profile.
-    // In staging/production the flag is ignored and auth is always enforced.
-    private boolean isSecurityDisabled() {
-        boolean isDevelopment = environment.matchesProfiles("development");
-        return !securityEnabled && isDevelopment;
-    }
+  // SECURITY_ENABLED=false is only honoured in the development profile.
+  // In staging/production the flag is ignored and auth is always enforced.
+  private boolean isSecurityDisabled() {
+    boolean isDevelopment = environment.matchesProfiles("development");
+    return !securityEnabled && isDevelopment;
+  }
 }

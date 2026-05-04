@@ -18,7 +18,6 @@ import cv.igrp.RH_Service.sigdi.application.dto.WrapperListTaticalActivityDTO;
 import cv.igrp.RH_Service.sigdi.domain.tatical.filter.TaticalActivityFilter;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
-
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
