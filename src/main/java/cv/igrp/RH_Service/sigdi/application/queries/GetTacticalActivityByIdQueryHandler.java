@@ -11,11 +11,9 @@ import cv.igrp.RH_Service.sigdi.application.dto.ChangeRequestResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.KeyResultResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityDetailDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WorkflowHistoryItemDTO;
+import cv.igrp.RH_Service.sigdi.application.port.FuncionarioLookupPort;
+import cv.igrp.RH_Service.sigdi.application.port.OrganicaLookupPort;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.KeyResultsEntity;
-import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.InstitutionEntityRepository;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.repository.IAMUserProfileEntityRepository;
-import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.InstitutionEntity;
-import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.IAMUserProfileEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -32,16 +30,15 @@ public class GetTacticalActivityByIdQueryHandler
   private static final Logger LOGGER = LoggerFactory.getLogger(GetTacticalActivityByIdQueryHandler.class);
 
   private final TacticalActivitiesEntityRepository repository;
-  private final InstitutionEntityRepository institutionRepository;
-  private final IAMUserProfileEntityRepository iamUserRepository;
+  private final OrganicaLookupPort organicaLookupPort;
+  private final FuncionarioLookupPort funcionarioLookupPort;
 
-  public GetTacticalActivityByIdQueryHandler(
-      TacticalActivitiesEntityRepository repository,
-      InstitutionEntityRepository institutionRepository,
-      IAMUserProfileEntityRepository iamUserRepository) {
+  public GetTacticalActivityByIdQueryHandler(TacticalActivitiesEntityRepository repository,
+      OrganicaLookupPort organicaLookupPort,
+      FuncionarioLookupPort funcionarioLookupPort) {
     this.repository = repository;
-    this.institutionRepository = institutionRepository;
-    this.iamUserRepository = iamUserRepository;
+    this.organicaLookupPort = organicaLookupPort;
+    this.funcionarioLookupPort = funcionarioLookupPort;
   }
 
   @IgrpQueryHandler
@@ -64,16 +61,16 @@ public class GetTacticalActivityByIdQueryHandler
     dto.setStrategicGoalId(entity.getStrategicGoalId() != null ? entity.getStrategicGoalId().toString() : null);
     dto.setOrganicUnitId(entity.getOrganicUnitId() != null ? entity.getOrganicUnitId().toString() : null);
     if (entity.getOrganicUnitId() != null) {
-      institutionRepository.findById(entity.getOrganicUnitId())
-          .ifPresent(i -> dto.setOrganicUnitName(i.getName()));
+      organicaLookupPort.findById(entity.getOrganicUnitId())
+          .ifPresent(o -> dto.setOrganicUnitName(o.getName()));
     }
     dto.setTitle(entity.getTitle());
     dto.setDescriptionWhat(entity.getDescriptionWhat());
     dto.setJustificationWhy(entity.getJustificationWhy());
     dto.setResponsibleWho(entity.getResponsibleWho() != null ? entity.getResponsibleWho().toString() : null);
     if (entity.getResponsibleWho() != null) {
-      iamUserRepository.findById(entity.getResponsibleWho())
-          .ifPresent(u -> dto.setResponsibleName(u.getFullName()));
+      funcionarioLookupPort.findById(entity.getResponsibleWho())
+          .ifPresent(f -> dto.setResponsibleName(f.getNomeCompleto()));
     }
     dto.setLocationWhere(entity.getLocationWhere());
     dto.setMethodologyHow(entity.getMethodologyHow());

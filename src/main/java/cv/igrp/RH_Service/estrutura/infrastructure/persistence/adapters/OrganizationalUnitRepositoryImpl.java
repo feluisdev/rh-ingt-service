@@ -14,7 +14,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -86,5 +89,14 @@ public class OrganizationalUnitRepositoryImpl implements OrganizationalUnitRepos
     @Override
     public boolean existsActiveChildrenOf(OrganizationalUnitId parentId) {
         return entityRepository.existsByParentUnitIdAndIsActiveTrue(parentId.getValor());
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<OrganizationalUnit> findAllByIds(Collection<UUID> ids) {
+        if (ids == null || ids.isEmpty()) return List.of();
+        return entityRepository.findAllById(ids).stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 }
