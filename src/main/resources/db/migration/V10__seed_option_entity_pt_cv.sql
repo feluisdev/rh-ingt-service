@@ -15,11 +15,8 @@ BEGIN
     END IF;
 END $$;
 
--- t_option_entity foi criada pelo Hibernate com colunas de auditoria NOT NULL.
--- Garante defaults para que os INSERTs do seed não precisem de as especificar.
-ALTER TABLE t_option_entity
-    ALTER COLUMN created_date SET DEFAULT NOW(),
-    ALTER COLUMN created_by   SET DEFAULT 'seed';
+-- t_option_entity uses created_at/updated_at (from V2 schema), not created_date.
+-- The INSERTs below don't include audit columns so no ALTER needed.
 
 -- MARITAL_STATUS (5 entradas)
 INSERT INTO t_option_entity (id, ccode, ckey, cvalue, locale, sort_order, active) VALUES
