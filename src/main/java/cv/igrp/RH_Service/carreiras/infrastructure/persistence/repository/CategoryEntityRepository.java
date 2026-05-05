@@ -21,4 +21,6 @@ public interface CategoryEntityRepository
     List<CategoryEntity> findByCareerId(UUID careerId);
 
     boolean existsByCareerIdAndIsActiveTrue(UUID careerId);
+
+    long countByCareerId(UUID careerId);
 }

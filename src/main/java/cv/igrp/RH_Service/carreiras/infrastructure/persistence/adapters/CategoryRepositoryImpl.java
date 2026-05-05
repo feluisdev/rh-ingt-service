@@ -94,4 +94,10 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     public boolean existsActiveGradesByCategoryId(CategoryId categoryId) {
         return gradeEntityRepository.existsByCategoryIdAndIsActiveTrue(categoryId.getValor());
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public long countByCareerId(CareerId careerId) {
+        return entityRepository.countByCareerId(careerId.getValor());
+    }
 }

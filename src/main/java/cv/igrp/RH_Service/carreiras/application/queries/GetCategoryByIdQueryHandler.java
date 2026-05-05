@@ -1,7 +1,9 @@
 package cv.igrp.RH_Service.carreiras.application.queries;
 
 import cv.igrp.RH_Service.carreiras.application.dto.CategoryResponseDTO;
+import cv.igrp.RH_Service.carreiras.domain.repository.CareerRepository;
 import cv.igrp.RH_Service.carreiras.domain.repository.CategoryRepository;
+import cv.igrp.RH_Service.carreiras.domain.repository.GradeRepository;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CategoryId;
 import cv.igrp.RH_Service.carreiras.infrastructure.mappers.CategoryMapper;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
@@ -22,6 +24,8 @@ public class GetCategoryByIdQueryHandler
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper mapper;
+    private final CareerRepository careerRepository;
+    private final GradeRepository gradeRepository;
 
     @IgrpQueryHandler
     public ResponseEntity<CategoryResponseDTO> handle(GetCategoryByIdQuery query) {
@@ -29,6 +33,10 @@ public class GetCategoryByIdQueryHandler
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Categoria não encontrada: " + query.getCategoryId()));
 
-        return ResponseEntity.ok(mapper.toDTO(category));
+        String careerName = careerRepository.findById(category.getCareerId())
+                .map(c -> c.getName()).orElse(null);
+        var dto = mapper.toDTO(category, careerName);
+        dto.setNEscaloes(gradeRepository.countByCategoryId(category.getId()));
+        return ResponseEntity.ok(dto);
     }
 }

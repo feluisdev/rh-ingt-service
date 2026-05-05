@@ -28,4 +28,6 @@ public interface ColabsColocacaoEntityRepository extends JpaRepository<Colocacao
 
     Optional<ColocacaoEntity> findFirstByFuncionarioIdAndAssignmentTypeNotAndIsActiveTrueOrderByStartDateDesc(
             UUID funcionarioId, String assignmentType);
+
+    long countByUnitIdAndIsCurrentTrueAndIsActiveTrue(UUID unitId);
 }

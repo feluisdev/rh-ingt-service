@@ -47,6 +47,7 @@ public class OrganizationalUnitMapper {
         dto.setUnitTypeOptionId(domain.getUnitTypeOptionId());
         dto.setParentUnitId(domain.getParentUnitId() != null ? domain.getParentUnitId().getValor() : null);
         dto.setIsActive(domain.isActive());
+        dto.setEstadoDesc(Boolean.TRUE.equals(domain.isActive()) ? "Ativo" : "Inativo");
         return dto;
     }
 }

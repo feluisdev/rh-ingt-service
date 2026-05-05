@@ -17,4 +17,6 @@ public class OrganizationalUnitResponseDTO {
     private UUID unitTypeOptionId;
     private UUID parentUnitId;
     private Boolean isActive;
+    private String estadoDesc;
+    private Long nColaboradores;
 }

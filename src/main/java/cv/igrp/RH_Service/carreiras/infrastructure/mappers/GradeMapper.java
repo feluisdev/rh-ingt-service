@@ -48,6 +48,7 @@ public class GradeMapper {
         dto.setName(domain.getName());
         dto.setSalaryIndex(domain.getSalaryIndex());
         dto.setIsActive(domain.getIsActive());
+        dto.setEstadoDesc(Boolean.TRUE.equals(domain.getIsActive()) ? "Ativo" : "Inativo");
         return dto;
     }
 }

@@ -24,4 +24,6 @@ public interface GradeRepository {
     boolean existsByGradeNumberAndCategoryIdAndIdNot(Integer gradeNumber, CategoryId categoryId, GradeId id);
 
     boolean isReferencedByActiveAssignment(GradeId gradeId);
+
+    long countByCategoryId(CategoryId categoryId);
 }

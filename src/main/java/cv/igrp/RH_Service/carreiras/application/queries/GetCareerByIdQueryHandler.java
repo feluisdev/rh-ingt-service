@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.carreiras.application.dto.CareerResponseDTO;
 import cv.igrp.RH_Service.carreiras.domain.repository.CareerRepository;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CareerId;
 import cv.igrp.RH_Service.carreiras.infrastructure.mappers.CareerMapper;
+import cv.igrp.RH_Service.carreiras.domain.repository.CategoryRepository;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
@@ -22,6 +23,7 @@ public class GetCareerByIdQueryHandler
 
     private final CareerRepository careerRepository;
     private final CareerMapper mapper;
+    private final CategoryRepository categoryRepository;
 
     @IgrpQueryHandler
     public ResponseEntity<CareerResponseDTO> handle(GetCareerByIdQuery query) {
@@ -29,6 +31,8 @@ public class GetCareerByIdQueryHandler
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Carreira não encontrada: " + query.getCareerId()));
 
-        return ResponseEntity.ok(mapper.toDTO(career));
+        var dto = mapper.toDTO(career);
+        dto.setNCategorias(categoryRepository.countByCareerId(career.getId()));
+        return ResponseEntity.ok(dto);
     }
 }

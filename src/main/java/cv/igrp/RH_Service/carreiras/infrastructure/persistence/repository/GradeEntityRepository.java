@@ -17,4 +17,6 @@ public interface GradeEntityRepository
     List<GradeEntity> findByCategoryIdOrderByGradeNumber(UUID categoryId);
 
     boolean existsByCategoryIdAndIsActiveTrue(UUID categoryId);
+
+    long countByCategoryId(UUID categoryId);
 }

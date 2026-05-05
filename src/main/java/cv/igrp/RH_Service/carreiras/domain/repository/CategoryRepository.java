@@ -24,4 +24,6 @@ public interface CategoryRepository {
     boolean existsByCodeAndCareerIdAndIdNot(String code, CareerId careerId, CategoryId id);
 
     boolean existsActiveGradesByCategoryId(CategoryId categoryId);
+
+    long countByCareerId(CareerId careerId);
 }

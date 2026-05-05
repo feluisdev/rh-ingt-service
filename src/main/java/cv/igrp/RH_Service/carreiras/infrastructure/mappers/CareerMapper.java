@@ -39,6 +39,7 @@ public class CareerMapper {
         dto.setName(domain.getName());
         dto.setDescription(domain.getDescription());
         dto.setIsActive(domain.getIsActive());
+        dto.setEstadoDesc(Boolean.TRUE.equals(domain.getIsActive()) ? "Ativo" : "Inativo");
         return dto;
     }
 }

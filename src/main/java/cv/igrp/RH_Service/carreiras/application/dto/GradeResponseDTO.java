@@ -16,5 +16,7 @@ public class GradeResponseDTO {
     private Integer gradeNumber;
     private String name;
     private BigDecimal salaryIndex;
+    private String careerName;
     private Boolean isActive;
+    private String estadoDesc;
 }
