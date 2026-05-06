@@ -188,6 +188,7 @@ GET /reference/options?ccode=MARITAL_STATUS
 | `LEAVE_CATEGORY` | Categoria de Ausência | `FERIAS`, `DOENCA`, `FAMILIA`, `OUTRO` |
 | `ISLAND` | Ilha | `SANTIAGO`, `SAL`, `SAO_VICENTE`, `FOGO`, `BOA_VISTA` |
 | `CONCELHO` | Concelho | `PRAIA`, `SANTA_CATARINA`, `MINDELO`, `SAO_DOMINGOS` |
+| `CAREER_REGIME` | Regime da Carreira (PCFR) | `GERAL`, `ESPECIAL` |
 
 **Criar uma nova opção (caso necessário):**
 
@@ -448,7 +449,8 @@ Content-Type: application/json
 {
   "code": "TECNICO_SUPERIOR_I",
   "name": "Carreira de Técnico Superior — Nível I",
-  "description": "Conforme PCFR, Decreto-Lei 4/2024."
+  "description": "Conforme PCFR, Decreto-Lei 4/2024.",
+  "regimeOptionId": "uuid-da-opcao-regime"
 }
 ```
 
@@ -471,7 +473,8 @@ Content-Type: application/json
 {
   "careerId": "uuid-da-carreira",
   "code": "TSP",
-  "name": "Técnico Superior Principal"
+  "name": "Técnico Superior Principal",
+  "ordemProgressao": 1
 }
 ```
 
@@ -495,7 +498,8 @@ Content-Type: application/json
   "categoryId": "uuid-da-categoria",
   "gradeNumber": 1,
   "name": "Escalão 1",
-  "salaryIndex": 285.5
+  "salaryIndex": 285.5,
+  "salaryBase": 52800.00
 }
 ```
 
