@@ -886,7 +886,7 @@ Função efetivamente exercida pelo colaborador.
 
 ## 4.1 Visão Geral
 
-Consolida os catálogos relativos à progressão funcional dos colaboradores conforme o PCFR (Plano de Carreiras, Funções e Remunerações, Decreto-Lei 4/2024): Carreiras, Categorias e Escalões. Hierarquia: `careers → categories → grades`. O índice salarial é definido ao nível do Escalão.
+Consolida os catálogos relativos à progressão funcional dos colaboradores conforme o PCFR (Plano de Carreiras, Funções e Remunerações, Decreto-Lei 4/2024): Carreiras, Categorias e Escalões. Hierarquia: `careers → categories → grades`. O índice salarial (`salaryIndex`) e o salário base (`salaryBase`) são definidos ao nível do Escalão. O regime da carreira é configurável via `option_entity` (`ccode='CAREER_REGIME'`). A ordem de progressão dentro de uma carreira é definida ao nível da Categoria.
 
 ## 4.2 Carreiras (Careers)
 
@@ -903,6 +903,7 @@ Consolida os catálogos relativos à progressão funcional dos colaboradores con
 | `code` | string | Sim | Código único (máx. 50). |
 | `name` | string | Sim | Designação (máx. 150). |
 | `description` | string | Não | Descrição. |
+| `regimeOptionKey` | string | Não | Regime da carreira (`option_entity` ccode=`CAREER_REGIME`): ex. `GERAL`, `ESPECIAL`. |
 | `isActive` | boolean | Não | Estado inicial. |
 
 ### PUT /careers/{id}
@@ -932,6 +933,7 @@ Níveis profissionais dentro de uma carreira. O par `(career_id, code)` é únic
 | `code` | string | Sim | Código único na carreira. |
 | `name` | string | Sim | Designação. |
 | `description` | string | Não | Descrição. |
+| `ordemProgressao` | integer | Não | Ordem de progressão dentro da carreira (1, 2, 3, …). |
 | `isActive` | boolean | Não | Estado inicial. |
 
 ### PUT /categories/{id}
@@ -959,6 +961,7 @@ Posição remuneratória dentro de uma categoria. O par `(category_id, grade_num
 | `gradeNumber` | integer | Sim | Número do escalão (≥ 1). |
 | `name` | string | Sim | Designação. |
 | `salaryIndex` | number | Não | Índice salarial da grelha PCFR. |
+| `salaryBase` | number | Não | Salário base em CVE correspondente ao índice salarial. |
 | `isActive` | boolean | Não | Estado inicial. |
 
 ### PUT /grades/{id}
@@ -1169,6 +1172,7 @@ Os lookups sem lógica de negócio (estado civil, sexo, nacionalidade, ilha, con
 | `ISLAND` | Ilha de Cabo Verde | `SANTIAGO`, `SAL`, `BOA_VISTA`, `SAO_VICENTE`, `FOGO` |
 | `CONCELHO` | Concelho | `PRAIA`, `SANTA_CATARINA`, `SAO_DOMINGOS`, `MINDELO` |
 | `TRAINING_TYPE` | Tipo de Formação | `PRESENCIAL`, `ELEARNING`, `SEMINARIO`, `CONGRESSO` |
+| `CAREER_REGIME` | Regime de Carreira | `GERAL`, `ESPECIAL` |
 
 **Resposta (200 OK)**
 

@@ -127,6 +127,7 @@ option_entity  (Opções / Lookups Genéricos)
 | `ISLAND` | Ilha de Cabo Verde | `SANTIAGO`, `SAL`, `BOA_VISTA`, `SAO_VICENTE`, `FOGO` |
 | `CONCELHO` | Concelho | `PRAIA`, `SANTA_CATARINA`, `SAO_DOMINGOS`, `MINDELO` |
 | `TRAINING_TYPE` | Tipo de Formação | `PRESENCIAL`, `ELEARNING`, `SEMINARIO`, `CONGRESSO` |
+| `CAREER_REGIME` | Regime da Carreira (PCFR) | `GERAL`, `ESPECIAL` |
 
 ---
 
@@ -265,22 +266,24 @@ A hierarquia `careers → categories → grades` modela a grelha do PCFR (Plano 
 
 ```
 careers  (Carreiras)
-├── id          UUID      PK
-├── code        VARCHAR(50)  UNIQUE NOT NULL
-├── name        VARCHAR(150) NOT NULL
-├── description TEXT
-├── is_active   BOOLEAN      DEFAULT TRUE
+├── id                 UUID      PK
+├── code               VARCHAR(50)  UNIQUE NOT NULL
+├── name               VARCHAR(150) NOT NULL
+├── description        TEXT
+├── regime_option_id   UUID FK→option_entity     -- ccode='CAREER_REGIME' (ex: GERAL, ESPECIAL)
+├── is_active          BOOLEAN      DEFAULT TRUE
 └── auditoria
 ```
 
 ```
 categories  (Categorias)
-├── id          UUID      PK
-├── career_id   BIGINT NOT NULL FK→careers
-├── code        VARCHAR(50)  NOT NULL
-├── name        VARCHAR(150) NOT NULL
-├── description TEXT
-├── is_active   BOOLEAN      DEFAULT TRUE
+├── id                UUID      PK
+├── career_id         BIGINT NOT NULL FK→careers
+├── code              VARCHAR(50)  NOT NULL
+├── name              VARCHAR(150) NOT NULL
+├── description       TEXT
+├── ordem_progressao  INTEGER                  -- ordem de progressão dentro da carreira (1, 2, 3, ...)
+├── is_active         BOOLEAN      DEFAULT TRUE
 ├── auditoria
 └── UQ (career_id, code)    -- código único dentro da mesma carreira
 ```
@@ -292,6 +295,7 @@ grades  (Escalões)
 ├── grade_number  INTEGER      NOT NULL        -- número do escalão (1, 2, 3, ...)
 ├── name          VARCHAR(150) NOT NULL
 ├── salary_index  NUMERIC(12,2)                -- índice salarial da grelha PCFR
+├── salary_base   NUMERIC(12,2)                -- salário base em CVE correspondente ao índice
 ├── is_active     BOOLEAN      DEFAULT TRUE
 └── UQ (category_id, grade_number)             -- escalão único dentro da categoria
 ```
@@ -631,6 +635,7 @@ erDiagram
         uuid   id PK
         varchar code
         varchar name
+        uuid regime_option_id FK
     }
 
     CATEGORIES {
@@ -638,6 +643,7 @@ erDiagram
         bigint career_id FK
         varchar code
         varchar name
+        int ordem_progressao
     }
 
     GRADES {
@@ -645,6 +651,7 @@ erDiagram
         bigint category_id FK
         int grade_number
         numeric salary_index
+        numeric salary_base
     }
 
     JOBS {
@@ -821,6 +828,7 @@ erDiagram
     EMPLOYEE_PROFESSIONAL_ASSIGNMENTS }o--o| FUNCTIONS : "funcao"
     EMPLOYEE_UNIT_ASSIGNMENTS }o--|| ORGANIZATIONAL_UNITS : "unidade"
 
+    CAREERS }o--o| OPTION_ENTITY : "regime"
     CAREERS ||--o{ CATEGORIES : "tem"
     CATEGORIES ||--o{ GRADES : "tem"
     ORGANIZATIONAL_UNITS }o--o| ORGANIZATIONAL_UNITS : "pai"
@@ -892,6 +900,7 @@ Resumo decisório para implementação:
 | Ilha | ✅ Sim | Lista geográfica, label puro |
 | Concelho | ✅ Sim | Lista geográfica, label puro |
 | Tipo de Formação | ✅ Sim | Label de classificação |
+| Regime de Carreira | ✅ Sim | Label puro, configurável pelo administrador |
 | Estados do Trabalhador | ❌ Não | Tem `is_core` — comportamento |
 | Situações Profissionais | ❌ Não | Código referenciado por lógica de negócio |
 | Tipos de Contrato | ❌ Não | Tem historial próprio com datas |
@@ -922,7 +931,7 @@ Resumo decisório para implementação:
 
 | Conceito | Melhoria |
 |---|---|
-| Hierarquia Carreira → Categoria → Escalão | Mantida. Adicionado `salary_index` no escalão |
+| Hierarquia Carreira → Categoria → Escalão | Mantida. Adicionados `salary_index` e `salary_base` no escalão; `regime` na carreira; `ordem_progressao` na categoria |
 | Dossier de documentos | Unificado em `documents` com `storage_key`, `mime_type`, `size_bytes` |
 | Habilitações literárias | Mantidas como tabela própria (`qualifications`) |
 | Familiares/Dependentes | Mantidos como `employee_dependents` |
