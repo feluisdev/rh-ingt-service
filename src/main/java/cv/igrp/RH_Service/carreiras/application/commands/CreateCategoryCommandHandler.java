@@ -47,7 +47,8 @@ public class CreateCategoryCommandHandler
         }
 
         Category saved = categoryRepository.save(
-                Category.criar(careerId, dto.getCode(), dto.getName(), dto.getDescription()));
+                Category.criar(careerId, dto.getCode(), dto.getName(), dto.getDescription(),
+                        dto.getOrdemProgressao()));
 
         return ResponseEntity.status(201).body(Map.of(
                 "id", saved.getId().getStringValor(),

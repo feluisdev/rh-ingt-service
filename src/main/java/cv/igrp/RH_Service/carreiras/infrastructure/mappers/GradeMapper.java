@@ -18,6 +18,7 @@ public class GradeMapper {
         entity.setGradeNumber(domain.getGradeNumber());
         entity.setName(domain.getName());
         entity.setSalaryIndex(domain.getSalaryIndex());
+        entity.setSalaryBase(domain.getSalaryBase());
         entity.setIsActive(domain.getIsActive());
         return entity;
     }
@@ -30,6 +31,7 @@ public class GradeMapper {
                 entity.getGradeNumber(),
                 entity.getName(),
                 entity.getSalaryIndex(),
+                entity.getSalaryBase(),
                 entity.getIsActive() != null && entity.getIsActive()
         );
     }
@@ -47,6 +49,7 @@ public class GradeMapper {
         dto.setGradeNumber(domain.getGradeNumber());
         dto.setName(domain.getName());
         dto.setSalaryIndex(domain.getSalaryIndex());
+        dto.setSalaryBase(domain.getSalaryBase());
         dto.setIsActive(domain.getIsActive());
         dto.setEstadoDesc(Boolean.TRUE.equals(domain.getIsActive()) ? "Ativo" : "Inativo");
         return dto;

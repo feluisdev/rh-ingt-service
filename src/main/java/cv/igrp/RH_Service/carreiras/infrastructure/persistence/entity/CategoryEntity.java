@@ -37,6 +37,9 @@ public class CategoryEntity extends AuditEntity {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "ordem_progressao")
+    private Integer ordemProgressao;
+
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 }

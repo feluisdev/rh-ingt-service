@@ -24,4 +24,6 @@ public class GradeRequestDTO {
     private String name;
 
     private BigDecimal salaryIndex;
+
+    private BigDecimal salaryBase;
 }

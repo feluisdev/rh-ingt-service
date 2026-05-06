@@ -38,6 +38,9 @@ public class GradeEntity extends AuditEntity {
     @Column(name = "salary_index", precision = 12, scale = 2)
     private BigDecimal salaryIndex;
 
+    @Column(name = "salary_base", precision = 12, scale = 2)
+    private BigDecimal salaryBase;
+
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 }

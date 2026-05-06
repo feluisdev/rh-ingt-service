@@ -43,7 +43,7 @@ public class UpdateCategoryCommandHandler
                     "O campo code é imutável e não pode ser alterado.");
         }
 
-        category.atualizar(dto.getName(), dto.getDescription());
+        category.atualizar(dto.getName(), dto.getDescription(), dto.getOrdemProgressao());
         var updated = categoryRepository.save(category);
 
         return ResponseEntity.ok(mapper.toDTO(updated));

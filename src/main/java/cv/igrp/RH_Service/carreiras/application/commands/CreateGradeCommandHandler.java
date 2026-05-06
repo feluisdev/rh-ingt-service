@@ -47,7 +47,8 @@ public class CreateGradeCommandHandler
         }
 
         Grade saved = gradeRepository.save(
-                Grade.criar(categoryId, dto.getGradeNumber(), dto.getName(), dto.getSalaryIndex()));
+                Grade.criar(categoryId, dto.getGradeNumber(), dto.getName(),
+                        dto.getSalaryIndex(), dto.getSalaryBase()));
 
         return ResponseEntity.status(201).body(Map.of(
                 "id", saved.getId().getStringValor(),

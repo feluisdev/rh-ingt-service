@@ -18,6 +18,7 @@ public class CategoryMapper {
         entity.setCode(domain.getCode());
         entity.setName(domain.getName());
         entity.setDescription(domain.getDescription());
+        entity.setOrdemProgressao(domain.getOrdemProgressao());
         entity.setIsActive(domain.getIsActive());
         return entity;
     }
@@ -30,6 +31,7 @@ public class CategoryMapper {
                 entity.getCode(),
                 entity.getName(),
                 entity.getDescription(),
+                entity.getOrdemProgressao(),
                 entity.getIsActive() != null && entity.getIsActive()
         );
     }
@@ -47,6 +49,7 @@ public class CategoryMapper {
         dto.setCode(domain.getCode());
         dto.setName(domain.getName());
         dto.setDescription(domain.getDescription());
+        dto.setOrdemProgressao(domain.getOrdemProgressao());
         dto.setIsActive(domain.getIsActive());
         dto.setEstadoDesc(Boolean.TRUE.equals(domain.getIsActive()) ? "Ativo" : "Inativo");
         return dto;

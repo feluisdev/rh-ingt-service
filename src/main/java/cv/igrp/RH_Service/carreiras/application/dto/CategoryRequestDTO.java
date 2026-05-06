@@ -21,4 +21,6 @@ public class CategoryRequestDTO {
     private String name;
 
     private String description;
+
+    private Integer ordemProgressao;
 }

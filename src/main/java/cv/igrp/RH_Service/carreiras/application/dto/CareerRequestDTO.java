@@ -20,4 +20,6 @@ public class CareerRequestDTO {
     private String name;
 
     private String description;
+
+    private String regimeOptionId;
 }
