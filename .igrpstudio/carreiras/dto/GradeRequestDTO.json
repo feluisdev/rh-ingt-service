@@ -6,6 +6,7 @@
   "attributes": [
     {"name": "categoryId", "type": "string", "required": false},
     {"name": "gradeNumber", "type": "integer", "required": false},
+    {"name": "codigo", "type": "string", "required": false},
     {"name": "name", "type": "string", "required": true},
     {"name": "salaryIndex", "type": "decimal", "required": false}
   ]

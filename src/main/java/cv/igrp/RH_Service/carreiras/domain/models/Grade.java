@@ -12,6 +12,7 @@ public class Grade {
     private GradeId id;
     private CategoryId categoryId;
     private Integer gradeNumber;
+    private String codigo;
     private String name;
     private BigDecimal salaryIndex;
     private BigDecimal salaryBase;
@@ -19,8 +20,8 @@ public class Grade {
 
     private Grade() {}
 
-    public static Grade criar(CategoryId categoryId, Integer gradeNumber, String name,
-                              BigDecimal salaryIndex, BigDecimal salaryBase) {
+    public static Grade criar(CategoryId categoryId, Integer gradeNumber, String codigo,
+                              String name, BigDecimal salaryIndex, BigDecimal salaryBase) {
         if (gradeNumber == null || gradeNumber < 1) {
             throw new IllegalArgumentException("gradeNumber deve ser >= 1");
         }
@@ -28,6 +29,7 @@ public class Grade {
         grade.id = GradeId.gerarNovo();
         grade.categoryId = categoryId;
         grade.gradeNumber = gradeNumber;
+        grade.codigo = codigo;
         grade.name = name;
         grade.salaryIndex = salaryIndex;
         grade.salaryBase = salaryBase;
@@ -36,12 +38,13 @@ public class Grade {
     }
 
     public static Grade reconstituir(GradeId id, CategoryId categoryId, Integer gradeNumber,
-                                     String name, BigDecimal salaryIndex, BigDecimal salaryBase,
-                                     Boolean isActive) {
+                                     String codigo, String name, BigDecimal salaryIndex,
+                                     BigDecimal salaryBase, Boolean isActive) {
         Grade grade = new Grade();
         grade.id = id;
         grade.categoryId = categoryId;
         grade.gradeNumber = gradeNumber;
+        grade.codigo = codigo;
         grade.name = name;
         grade.salaryIndex = salaryIndex;
         grade.salaryBase = salaryBase;
@@ -49,7 +52,8 @@ public class Grade {
         return grade;
     }
 
-    public void atualizar(String name, BigDecimal salaryIndex, BigDecimal salaryBase) {
+    public void atualizar(String codigo, String name, BigDecimal salaryIndex, BigDecimal salaryBase) {
+        this.codigo = codigo;
         this.name = name;
         this.salaryIndex = salaryIndex;
         this.salaryBase = salaryBase;

@@ -43,7 +43,7 @@ public class UpdateGradeCommandHandler
                     "O campo gradeNumber é imutável e não pode ser alterado.");
         }
 
-        grade.atualizar(dto.getName(), dto.getSalaryIndex(), dto.getSalaryBase());
+        grade.atualizar(dto.getCodigo(), dto.getName(), dto.getSalaryIndex(), dto.getSalaryBase());
         var updated = gradeRepository.save(grade);
 
         return ResponseEntity.ok(mapper.toDTO(updated));

@@ -14,6 +14,7 @@ public class GradeResponseDTO {
     private String categoryId;
     private String categoryName;
     private Integer gradeNumber;
+    private String codigo;
     private String name;
     private BigDecimal salaryIndex;
     private BigDecimal salaryBase;
