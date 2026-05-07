@@ -6,6 +6,7 @@
   "attributes": [
     {"name": "code", "type": "string", "required": false},
     {"name": "name", "type": "string", "required": false},
-    {"name": "description", "type": "string", "required": false}
+    {"name": "description", "type": "string", "required": false},
+    {"name": "nivel", "type": "integer", "required": false}
   ]
 }
