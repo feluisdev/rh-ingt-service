@@ -15,27 +15,8 @@ variables:
   GIT_STRATEGY: none
 
 stages:
-  - clean
   - build
 #  - deploy
-
-clean_database_dev:
-  stage: clean
-  image: maven:3.9.9-eclipse-temurin-23-alpine
-  tags:
-    - nosi-runner
-  only:
-    - dev
-  script:
-    - mvn flyway:clean -Dflyway.cleanDisabled=false
-  variables:
-    # Estas variáveis devem ser configuradas no GitLab (CI/CD Variables)
-    # ou passadas via environment
-    POSTGRES_HOST: ${POSTGRES_HOST}
-    POSTGRES_PORT: ${POSTGRES_PORT}
-    POSTGRES_DATABASE: ${POSTGRES_DATABASE}
-    POSTGRES_USER: ${POSTGRES_USER}
-    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
 build_docker_image_dev:
   stage: build
