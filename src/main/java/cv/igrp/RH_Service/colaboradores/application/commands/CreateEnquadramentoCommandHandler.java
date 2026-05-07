@@ -83,11 +83,14 @@ public class CreateEnquadramentoCommandHandler
             enquadramentoRepository.save(prev);
         }
 
+        UUID functionId = dto.getFunctionId() != null && !dto.getFunctionId().isBlank()
+                ? UUID.fromString(dto.getFunctionId()) : null;
+
         var saved = enquadramentoRepository.save(
                 EnquadramentoProfissional.criar(funcionarioId,
                         UUID.fromString(dto.getCareerId()), UUID.fromString(dto.getCategoryId()),
                         UUID.fromString(dto.getGradeId()), UUID.fromString(dto.getCargoId()),
-                        UUID.fromString(dto.getUnidadeOrganicaId()), dto.getDataInicio()));
+                        functionId, UUID.fromString(dto.getUnidadeOrganicaId()), dto.getDataInicio()));
 
         return ResponseEntity.status(201).body(Map.of(
                 "id", saved.getId().getStringValor(),

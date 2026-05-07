@@ -16,6 +16,7 @@ public class EnquadramentoProfissional {
     private UUID categoryId;
     private UUID gradeId;
     private UUID cargoId;
+    private UUID functionId;
     private UUID unidadeOrganicaId;
     private LocalDate dataInicio;
     private LocalDate dataFim;
@@ -25,7 +26,8 @@ public class EnquadramentoProfissional {
 
     public static EnquadramentoProfissional criar(FuncionarioId funcionarioId, UUID careerId,
                                                    UUID categoryId, UUID gradeId, UUID cargoId,
-                                                   UUID unidadeOrganicaId, LocalDate dataInicio) {
+                                                   UUID functionId, UUID unidadeOrganicaId,
+                                                   LocalDate dataInicio) {
         EnquadramentoProfissional e = new EnquadramentoProfissional();
         e.id = EnquadramentoId.gerarNovo();
         e.funcionarioId = funcionarioId;
@@ -33,6 +35,7 @@ public class EnquadramentoProfissional {
         e.categoryId = categoryId;
         e.gradeId = gradeId;
         e.cargoId = cargoId;
+        e.functionId = functionId;
         e.unidadeOrganicaId = unidadeOrganicaId;
         e.dataInicio = dataInicio;
         e.dataFim = null;
@@ -42,7 +45,8 @@ public class EnquadramentoProfissional {
 
     public static EnquadramentoProfissional reconstituir(EnquadramentoId id, FuncionarioId funcionarioId,
                                                           UUID careerId, UUID categoryId, UUID gradeId,
-                                                          UUID cargoId, UUID unidadeOrganicaId,
+                                                          UUID cargoId, UUID functionId,
+                                                          UUID unidadeOrganicaId,
                                                           LocalDate dataInicio, LocalDate dataFim,
                                                           Boolean isCurrent) {
         EnquadramentoProfissional e = new EnquadramentoProfissional();
@@ -52,6 +56,7 @@ public class EnquadramentoProfissional {
         e.categoryId = categoryId;
         e.gradeId = gradeId;
         e.cargoId = cargoId;
+        e.functionId = functionId;
         e.unidadeOrganicaId = unidadeOrganicaId;
         e.dataInicio = dataInicio;
         e.dataFim = dataFim;

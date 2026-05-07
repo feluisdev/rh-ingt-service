@@ -9,6 +9,7 @@
     {"type": "string", "name": "categoryId", "objectType": "java", "required": true},
     {"type": "string", "name": "gradeId", "objectType": "java", "required": true},
     {"type": "string", "name": "cargoId", "objectType": "java", "required": true},
+    {"type": "string", "name": "functionId", "objectType": "java", "required": false},
     {"type": "string", "name": "unidadeOrganicaId", "objectType": "java", "required": true},
     {"type": "date", "name": "dataInicio", "objectType": "java", "required": true}
   ]
