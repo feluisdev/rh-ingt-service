@@ -89,6 +89,12 @@ public class GradeRepositoryImpl implements GradeRepository {
         return entityRepository.existsByGradeNumberAndCategoryIdAndIdNot(gradeNumber, categoryId.getValor(), id.getValor());
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public long countByCategoryId(CategoryId categoryId) {
+        return entityRepository.countByCategoryId(categoryId.getValor());
+    }
+
     @Override
     public boolean isReferencedByActiveAssignment(GradeId gradeId) {
         try {

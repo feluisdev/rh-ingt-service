@@ -16,6 +16,7 @@ public class CareerMapper {
         entity.setCode(domain.getCode());
         entity.setName(domain.getName());
         entity.setDescription(domain.getDescription());
+        entity.setRegimeOptionId(domain.getRegimeOptionId());
         entity.setIsActive(domain.getIsActive());
         return entity;
     }
@@ -27,6 +28,7 @@ public class CareerMapper {
                 entity.getCode(),
                 entity.getName(),
                 entity.getDescription(),
+                entity.getRegimeOptionId(),
                 entity.getIsActive() != null && entity.getIsActive()
         );
     }
@@ -38,7 +40,9 @@ public class CareerMapper {
         dto.setCode(domain.getCode());
         dto.setName(domain.getName());
         dto.setDescription(domain.getDescription());
+        dto.setRegimeOptionId(domain.getRegimeOptionId() != null ? domain.getRegimeOptionId().toString() : null);
         dto.setIsActive(domain.getIsActive());
+        dto.setEstadoDesc(Boolean.TRUE.equals(domain.getIsActive()) ? "Ativo" : "Inativo");
         return dto;
     }
 }

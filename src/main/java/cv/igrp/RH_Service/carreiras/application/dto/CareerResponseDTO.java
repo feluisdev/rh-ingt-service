@@ -12,5 +12,8 @@ public class CareerResponseDTO {
     private String code;
     private String name;
     private String description;
+    private String regimeOptionId;
     private Boolean isActive;
+    private String estadoDesc;
+    private Long nCategorias;
 }

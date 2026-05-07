@@ -2,6 +2,8 @@ package cv.igrp.RH_Service.carreiras.application.queries;
 
 import cv.igrp.RH_Service.carreiras.application.dto.WrapperListaGradeDTO;
 import cv.igrp.RH_Service.carreiras.domain.filter.GradeFilter;
+import cv.igrp.RH_Service.carreiras.domain.repository.CareerRepository;
+import cv.igrp.RH_Service.carreiras.domain.repository.CategoryRepository;
 import cv.igrp.RH_Service.carreiras.domain.repository.GradeRepository;
 import cv.igrp.RH_Service.carreiras.infrastructure.mappers.GradeMapper;
 import cv.igrp.framework.core.domain.QueryHandler;
@@ -24,6 +26,8 @@ public class GetGradesQueryHandler
 
     private final GradeRepository gradeRepository;
     private final GradeMapper mapper;
+    private final CategoryRepository categoryRepository;
+    private final CareerRepository careerRepository;
 
     @IgrpQueryHandler
     public ResponseEntity<WrapperListaGradeDTO> handle(GetGradesQuery query) {
@@ -36,7 +40,15 @@ public class GetGradesQueryHandler
         filter.setSize(query.getTamanho() != null ? Integer.parseInt(query.getTamanho()) : 20);
 
         var pageResult = gradeRepository.findAll(filter);
-        var content = pageResult.getData().stream().map(mapper::toDTO).toList();
+        var content = pageResult.getData().stream().map(grade -> {
+            var cat = categoryRepository.findById(grade.getCategoryId());
+            String categoryName = cat.map(c -> c.getName()).orElse(null);
+            String careerName = cat.flatMap(c -> careerRepository.findById(c.getCareerId()))
+                    .map(cr -> cr.getName()).orElse(null);
+            var dto = mapper.toDTO(grade, categoryName);
+            dto.setCareerName(careerName);
+            return dto;
+        }).toList();
 
         var wrapper = new WrapperListaGradeDTO();
         wrapper.setContent(new ArrayList<>(content));

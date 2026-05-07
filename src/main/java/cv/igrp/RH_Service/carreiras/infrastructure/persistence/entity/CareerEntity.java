@@ -34,6 +34,9 @@ public class CareerEntity extends AuditEntity {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "regime_option_id")
+    private UUID regimeOptionId;
+
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 }

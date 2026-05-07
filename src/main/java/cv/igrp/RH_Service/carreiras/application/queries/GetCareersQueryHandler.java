@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.carreiras.application.dto.WrapperListaCareerDTO;
 import cv.igrp.RH_Service.carreiras.domain.filter.CareerFilter;
 import cv.igrp.RH_Service.carreiras.domain.repository.CareerRepository;
 import cv.igrp.RH_Service.carreiras.infrastructure.mappers.CareerMapper;
+import cv.igrp.RH_Service.carreiras.domain.repository.CategoryRepository;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class GetCareersQueryHandler
 
     private final CareerRepository careerRepository;
     private final CareerMapper mapper;
+    private final CategoryRepository categoryRepository;
 
     @IgrpQueryHandler
     public ResponseEntity<WrapperListaCareerDTO> handle(GetCareersQuery query) {
@@ -32,7 +34,11 @@ public class GetCareersQueryHandler
         filter.setSize(query.getTamanho() != null ? Integer.parseInt(query.getTamanho()) : 20);
 
         var pageResult = careerRepository.findAll(filter);
-        var content = pageResult.getData().stream().map(mapper::toDTO).toList();
+        var content = pageResult.getData().stream().map(career -> {
+            var dto = mapper.toDTO(career);
+            dto.setNCategorias(categoryRepository.countByCareerId(career.getId()));
+            return dto;
+        }).toList();
 
         var wrapper = new WrapperListaCareerDTO();
         wrapper.setContent(new ArrayList<>(content));

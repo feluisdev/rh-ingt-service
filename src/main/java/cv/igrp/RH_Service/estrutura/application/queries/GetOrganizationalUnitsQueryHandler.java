@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.estrutura.application.queries;
 
+import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.repository.ColabsColocacaoEntityRepository;
 import cv.igrp.RH_Service.estrutura.application.dto.WrapperListaOrganizationalUnitDTO;
 import cv.igrp.RH_Service.estrutura.domain.filter.OrganizationalUnitFilter;
 import cv.igrp.RH_Service.estrutura.domain.repository.OrganizationalUnitRepository;
@@ -24,6 +25,7 @@ public class GetOrganizationalUnitsQueryHandler
 
     private final OrganizationalUnitRepository unitRepository;
     private final OrganizationalUnitMapper mapper;
+    private final ColabsColocacaoEntityRepository colocacaoRepository;
 
     @IgrpQueryHandler
     public ResponseEntity<WrapperListaOrganizationalUnitDTO> handle(GetOrganizationalUnitsQuery query) {
@@ -34,7 +36,11 @@ public class GetOrganizationalUnitsQueryHandler
         filter.setSize(query.getTamanho() != null ? Integer.parseInt(query.getTamanho()) : 20);
 
         var pageResult = unitRepository.findAll(filter);
-        var content = pageResult.getData().stream().map(mapper::toDTO).toList();
+        var content = pageResult.getData().stream().map(unit -> {
+            var dto = mapper.toDTO(unit);
+            dto.setNColaboradores(colocacaoRepository.countByUnitIdAndIsCurrentTrueAndIsActiveTrue(unit.getId().getValor()));
+            return dto;
+        }).toList();
 
         var wrapper = new WrapperListaOrganizationalUnitDTO();
         wrapper.setContent(new ArrayList<>(content));

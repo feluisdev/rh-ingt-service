@@ -1,6 +1,8 @@
 package cv.igrp.RH_Service.carreiras.application.queries;
 
 import cv.igrp.RH_Service.carreiras.application.dto.GradeResponseDTO;
+import cv.igrp.RH_Service.carreiras.domain.repository.CareerRepository;
+import cv.igrp.RH_Service.carreiras.domain.repository.CategoryRepository;
 import cv.igrp.RH_Service.carreiras.domain.repository.GradeRepository;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.GradeId;
 import cv.igrp.RH_Service.carreiras.infrastructure.mappers.GradeMapper;
@@ -22,6 +24,8 @@ public class GetGradeByIdQueryHandler
 
     private final GradeRepository gradeRepository;
     private final GradeMapper mapper;
+    private final CategoryRepository categoryRepository;
+    private final CareerRepository careerRepository;
 
     @IgrpQueryHandler
     public ResponseEntity<GradeResponseDTO> handle(GetGradeByIdQuery query) {
@@ -29,6 +33,12 @@ public class GetGradeByIdQueryHandler
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Escalão não encontrado: " + query.getGradeId()));
 
-        return ResponseEntity.ok(mapper.toDTO(grade));
+        var cat = categoryRepository.findById(grade.getCategoryId());
+        String categoryName = cat.map(c -> c.getName()).orElse(null);
+        String careerName = cat.flatMap(c -> careerRepository.findById(c.getCareerId()))
+                .map(cr -> cr.getName()).orElse(null);
+        var dto = mapper.toDTO(grade, categoryName);
+        dto.setCareerName(careerName);
+        return ResponseEntity.ok(dto);
     }
 }

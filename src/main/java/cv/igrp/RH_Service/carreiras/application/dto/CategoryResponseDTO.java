@@ -14,5 +14,8 @@ public class CategoryResponseDTO {
     private String code;
     private String name;
     private String description;
+    private Integer ordemProgressao;
     private Boolean isActive;
+    private String estadoDesc;
+    private Long nEscaloes;
 }
