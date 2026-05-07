@@ -27,7 +27,8 @@ public class CreateFuncionarioCommandHandler
         if (funcionarioRepository.existsByNif(dto.getNif())) {
             throw IgrpResponseStatusException.conflict("Já existe um funcionário com NIF '" + dto.getNif() + "'.");
         }
-        if (funcionarioRepository.existsByBiNumero(dto.getBiNumero())) {
+        if (dto.getBiNumero() != null && !dto.getBiNumero().isBlank()
+                && funcionarioRepository.existsByBiNumero(dto.getBiNumero())) {
             throw IgrpResponseStatusException.conflict("Já existe um funcionário com BI '" + dto.getBiNumero() + "'.");
         }
 
@@ -39,7 +40,7 @@ public class CreateFuncionarioCommandHandler
                         dto.getGenero(), dto.getEstadoCivil(), dto.getNif(), dto.getBiNumero(),
                         dto.getBiValidade(), dto.getNacionalidade(), dto.getEmail(),
                         dto.getTelefone(), dto.getMorada(), dto.getFotoUrl(),
-                        dto.getSituacaoProfissional(), dto.getDataAdmissao(), dto.getDataSaida()));
+                        "ATIVO", dto.getDataAdmissao(), dto.getDataSaida()));
 
         return ResponseEntity.status(201).body(Map.of(
                 "id", saved.getId().getStringValor(),
