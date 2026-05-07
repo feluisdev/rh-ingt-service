@@ -31,7 +31,6 @@ public class FuncionarioRequestDTO {
     @Size(max = 20)
     private String nif;
 
-    @NotBlank
     @Size(max = 50)
     private String biNumero;
 
@@ -48,9 +47,6 @@ public class FuncionarioRequestDTO {
     private String morada;
 
     private String fotoUrl;
-
-    @NotBlank
-    private String situacaoProfissional;
 
     @NotNull
     private LocalDate dataAdmissao;

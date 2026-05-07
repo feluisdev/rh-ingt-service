@@ -19,6 +19,8 @@ public class GradeRequestDTO {
     @Min(1)
     private Integer gradeNumber;
 
+    private String codigo;
+
     @NotBlank
     @Size(max = 150)
     private String name;

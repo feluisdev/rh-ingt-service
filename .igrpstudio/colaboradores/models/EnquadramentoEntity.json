@@ -11,6 +11,7 @@
     {"name": "categoryId", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "gradeId", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "cargoId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "functionId", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "unidadeOrganicaId", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "dataInicio", "type": "date", "objectType": "java", "primaryKey": false},
     {"name": "dataFim", "type": "date", "objectType": "java", "primaryKey": false},

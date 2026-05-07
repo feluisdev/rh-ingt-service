@@ -16,6 +16,7 @@ public class GradeMapper {
         entity.setId(domain.getId().getValor());
         entity.setCategoryId(domain.getCategoryId().getValor());
         entity.setGradeNumber(domain.getGradeNumber());
+        entity.setCodigo(domain.getCodigo());
         entity.setName(domain.getName());
         entity.setSalaryIndex(domain.getSalaryIndex());
         entity.setSalaryBase(domain.getSalaryBase());
@@ -29,6 +30,7 @@ public class GradeMapper {
                 GradeId.from(entity.getId()),
                 CategoryId.from(entity.getCategoryId()),
                 entity.getGradeNumber(),
+                entity.getCodigo(),
                 entity.getName(),
                 entity.getSalaryIndex(),
                 entity.getSalaryBase(),
@@ -47,6 +49,7 @@ public class GradeMapper {
         dto.setCategoryId(domain.getCategoryId().getStringValor());
         dto.setCategoryName(categoryName);
         dto.setGradeNumber(domain.getGradeNumber());
+        dto.setCodigo(domain.getCodigo());
         dto.setName(domain.getName());
         dto.setSalaryIndex(domain.getSalaryIndex());
         dto.setSalaryBase(domain.getSalaryBase());

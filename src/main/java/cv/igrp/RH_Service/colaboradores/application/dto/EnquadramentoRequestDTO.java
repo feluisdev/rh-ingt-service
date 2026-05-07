@@ -22,6 +22,7 @@ public class EnquadramentoRequestDTO {
     private String gradeId;
     @NotBlank
     private String cargoId;
+    private String functionId;
     @NotBlank
     private String unidadeOrganicaId;
     @NotNull

@@ -21,5 +21,5 @@ public class CareerRequestDTO {
 
     private String description;
 
-    private String regimeOptionId;
+    private String regime;
 }

@@ -16,6 +16,7 @@ public class EnquadramentoResponseDTO {
     private String categoryId;
     private String gradeId;
     private String cargoId;
+    private String functionId;
     private String unidadeOrganicaId;
     private LocalDate dataInicio;
     private LocalDate dataFim;

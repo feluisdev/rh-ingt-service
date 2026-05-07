@@ -3,8 +3,6 @@ package cv.igrp.RH_Service.carreiras.domain.models;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CareerId;
 import lombok.Getter;
 
-import java.util.UUID;
-
 @Getter
 public class Career {
 
@@ -12,39 +10,39 @@ public class Career {
     private String code;
     private String name;
     private String description;
-    private UUID regimeOptionId;
+    private String regime;
     private Boolean isActive;
 
     private Career() {}
 
-    public static Career criar(String code, String name, String description, UUID regimeOptionId) {
+    public static Career criar(String code, String name, String description, String regime) {
         Career career = new Career();
         career.id = CareerId.gerarNovo();
         career.code = code;
         career.name = name;
         career.description = description;
-        career.regimeOptionId = regimeOptionId;
+        career.regime = regime;
         career.isActive = true;
         return career;
     }
 
     public static Career reconstituir(CareerId id, String code, String name, String description,
-                                      UUID regimeOptionId, Boolean isActive) {
+                                      String regime, Boolean isActive) {
         Career career = new Career();
         career.id = id;
         career.code = code;
         career.name = name;
         career.description = description;
-        career.regimeOptionId = regimeOptionId;
+        career.regime = regime;
         career.isActive = isActive;
         return career;
     }
 
-    public void atualizar(String code, String name, String description, UUID regimeOptionId) {
+    public void atualizar(String code, String name, String description, String regime) {
         this.code = code;
         this.name = name;
         this.description = description;
-        this.regimeOptionId = regimeOptionId;
+        this.regime = regime;
     }
 
     public void desativar() {

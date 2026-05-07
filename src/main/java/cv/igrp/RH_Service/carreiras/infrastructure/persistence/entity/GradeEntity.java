@@ -32,6 +32,9 @@ public class GradeEntity extends AuditEntity {
     @Column(name = "grade_number", nullable = false)
     private Integer gradeNumber;
 
+    @Column(name = "codigo", length = 50)
+    private String codigo;
+
     @Column(name = "name", nullable = false, length = 150)
     private String name;
 

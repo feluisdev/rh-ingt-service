@@ -41,6 +41,9 @@ public class EnquadramentoEntity extends AuditEntity {
     @Column(name = "cargo_id", nullable = false)
     private UUID cargoId;
 
+    @Column(name = "function_id")
+    private UUID functionId;
+
     @Column(name = "unidade_organica_id", nullable = false)
     private UUID unidadeOrganicaId;
 

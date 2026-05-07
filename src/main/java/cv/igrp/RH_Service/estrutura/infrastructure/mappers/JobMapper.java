@@ -16,6 +16,7 @@ public class JobMapper {
         entity.setCode(domain.getCode());
         entity.setName(domain.getName());
         entity.setDescription(domain.getDescription());
+        entity.setNivel(domain.getNivel());
         entity.setIsActive(domain.isActive());
         return entity;
     }
@@ -27,6 +28,7 @@ public class JobMapper {
                 entity.getCode(),
                 entity.getName(),
                 entity.getDescription(),
+                entity.getNivel(),
                 entity.getIsActive() != null && entity.getIsActive()
         );
     }
@@ -38,6 +40,7 @@ public class JobMapper {
         dto.setCode(domain.getCode());
         dto.setName(domain.getName());
         dto.setDescription(domain.getDescription());
+        dto.setNivel(domain.getNivel());
         dto.setIsActive(domain.isActive());
         dto.setEstadoDesc(Boolean.TRUE.equals(domain.isActive()) ? "Ativo" : "Inativo");
         return dto;

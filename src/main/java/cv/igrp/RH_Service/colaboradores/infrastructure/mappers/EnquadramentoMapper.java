@@ -18,6 +18,7 @@ public class EnquadramentoMapper {
                 e.getCategoryId(),
                 e.getGradeId(),
                 e.getCargoId(),
+                e.getFunctionId(),
                 e.getUnidadeOrganicaId(),
                 e.getDataInicio(),
                 e.getDataFim(),
@@ -33,6 +34,7 @@ public class EnquadramentoMapper {
         entity.setCategoryId(e.getCategoryId());
         entity.setGradeId(e.getGradeId());
         entity.setCargoId(e.getCargoId());
+        entity.setFunctionId(e.getFunctionId());
         entity.setUnidadeOrganicaId(e.getUnidadeOrganicaId());
         entity.setDataInicio(e.getDataInicio());
         entity.setDataFim(e.getDataFim());
@@ -48,6 +50,7 @@ public class EnquadramentoMapper {
         r.setCategoryId(e.getCategoryId().toString());
         r.setGradeId(e.getGradeId().toString());
         r.setCargoId(e.getCargoId().toString());
+        r.setFunctionId(e.getFunctionId() != null ? e.getFunctionId().toString() : null);
         r.setUnidadeOrganicaId(e.getUnidadeOrganicaId().toString());
         r.setDataInicio(e.getDataInicio());
         r.setDataFim(e.getDataFim());

@@ -32,7 +32,7 @@ public class CreateJobCommandHandler
         }
 
         Job saved = jobRepository.save(
-                Job.criar(dto.getCode(), dto.getName(), dto.getDescription()));
+                Job.criar(dto.getCode(), dto.getName(), dto.getDescription(), dto.getNivel()));
 
         return ResponseEntity.status(201).body(Map.of(
                 "id", saved.getId().getStringValor(),

@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -32,11 +31,8 @@ public class CreateCareerCommandHandler
                     "Já existe uma carreira com code='" + dto.getCode() + "'.");
         }
 
-        UUID regimeOptionId = dto.getRegimeOptionId() != null && !dto.getRegimeOptionId().isBlank()
-                ? UUID.fromString(dto.getRegimeOptionId()) : null;
-
         Career saved = careerRepository.save(
-                Career.criar(dto.getCode(), dto.getName(), dto.getDescription(), regimeOptionId));
+                Career.criar(dto.getCode(), dto.getName(), dto.getDescription(), dto.getRegime()));
 
         return ResponseEntity.status(201).body(Map.of(
                 "id", saved.getId().getStringValor(),

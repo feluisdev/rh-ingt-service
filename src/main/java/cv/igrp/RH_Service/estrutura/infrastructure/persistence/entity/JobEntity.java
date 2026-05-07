@@ -34,6 +34,9 @@ public class JobEntity extends AuditEntity {
     @Column(name = "description", length = 500)
     private String description;
 
+    @Column(name = "nivel")
+    private Integer nivel;
+
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 }

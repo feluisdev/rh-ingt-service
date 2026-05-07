@@ -37,7 +37,7 @@ public class UpdateJobCommandHandler
                     "Já existe um cargo com code='" + dto.getCode() + "'.");
         }
 
-        job.atualizar(dto.getCode(), dto.getName(), dto.getDescription());
+        job.atualizar(dto.getCode(), dto.getName(), dto.getDescription(), dto.getNivel());
         var updated = jobRepository.save(job);
 
         return ResponseEntity.ok(mapper.toDTO(updated));

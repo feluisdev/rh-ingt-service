@@ -13,8 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
-
 @Component
 @RequiredArgsConstructor
 public class UpdateCareerCommandHandler
@@ -39,10 +37,7 @@ public class UpdateCareerCommandHandler
                     "Já existe uma carreira com code='" + dto.getCode() + "'.");
         }
 
-        UUID regimeOptionId = dto.getRegimeOptionId() != null && !dto.getRegimeOptionId().isBlank()
-                ? UUID.fromString(dto.getRegimeOptionId()) : null;
-
-        career.atualizar(dto.getCode(), dto.getName(), dto.getDescription(), regimeOptionId);
+        career.atualizar(dto.getCode(), dto.getName(), dto.getDescription(), dto.getRegime());
         var updated = careerRepository.save(career);
 
         return ResponseEntity.ok(mapper.toDTO(updated));
