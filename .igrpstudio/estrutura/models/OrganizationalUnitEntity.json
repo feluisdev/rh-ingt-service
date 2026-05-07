@@ -9,7 +9,9 @@
     {"name": "code", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "name", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "acronym", "type": "string", "objectType": "java", "primaryKey": false},
-    {"name": "unitTypeOptionId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "unitType", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "descricao", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "estado", "type": "boolean", "objectType": "java", "primaryKey": false},
     {"name": "parentUnitId", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "isActive", "type": "boolean", "objectType": "java", "primaryKey": false}
   ]

@@ -13,6 +13,8 @@ public class OrganizationalUnitRequestDTO {
     private String code;
     private String name;
     private String acronym;
-    private UUID unitTypeOptionId;
+    private String unitType;
+    private String descricao;
+    private Boolean estado;
     private UUID parentUnitId;
 }

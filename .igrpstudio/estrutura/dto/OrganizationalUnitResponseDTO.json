@@ -8,8 +8,11 @@
     {"name": "code", "type": "string", "required": false},
     {"name": "name", "type": "string", "required": false},
     {"name": "acronym", "type": "string", "required": false},
-    {"name": "unitTypeOptionId", "type": "string", "required": false},
+    {"name": "unitType", "type": "string", "required": false},
+    {"name": "descricao", "type": "string", "required": false},
+    {"name": "estado", "type": "boolean", "required": false},
     {"name": "parentUnitId", "type": "string", "required": false},
-    {"name": "isActive", "type": "boolean", "required": false}
+    {"name": "isActive", "type": "boolean", "required": false},
+    {"name": "estadoDesc", "type": "string", "required": false}
   ]
 }

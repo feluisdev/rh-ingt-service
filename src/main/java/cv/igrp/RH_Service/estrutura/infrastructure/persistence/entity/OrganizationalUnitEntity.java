@@ -34,8 +34,14 @@ public class OrganizationalUnitEntity extends AuditEntity {
     @Column(name = "acronym", nullable = false, length = 20)
     private String acronym;
 
-    @Column(name = "unit_type_option_id", nullable = false)
-    private UUID unitTypeOptionId;
+    @Column(name = "type", length = 100)
+    private String unitType;
+
+    @Column(name = "descricao")
+    private String descricao;
+
+    @Column(name = "estado", nullable = false)
+    private Boolean estado;
 
     @Column(name = "parent_unit_id")
     private UUID parentUnitId;
