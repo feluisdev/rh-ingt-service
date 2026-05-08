@@ -50,6 +50,4 @@ public class ProcessoDisciplinarEntity extends AuditEntity {
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
-    @Column(name = "document_id")
-    private UUID documentId;
 }

@@ -5,7 +5,6 @@ import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import lombok.Getter;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Getter
 public class ProcessoDisciplinar {
@@ -20,14 +19,13 @@ public class ProcessoDisciplinar {
     private LocalDate penaltyEndDate;
     private String officialBulletin;
     private String notes;
-    private UUID documentId;
 
     private ProcessoDisciplinar() {}
 
     public static ProcessoDisciplinar criar(FuncionarioId funcionarioId, String processNumber,
                                              LocalDate startDate, LocalDate endDate, String penalty,
                                              LocalDate penaltyStartDate, LocalDate penaltyEndDate,
-                                             String officialBulletin, String notes, UUID documentId) {
+                                             String officialBulletin, String notes) {
         ProcessoDisciplinar p = new ProcessoDisciplinar();
         p.id = ProcessoDisciplinarId.gerarNovo();
         p.funcionarioId = funcionarioId;
@@ -39,14 +37,13 @@ public class ProcessoDisciplinar {
         p.penaltyEndDate = penaltyEndDate;
         p.officialBulletin = officialBulletin;
         p.notes = notes;
-        p.documentId = documentId;
         return p;
     }
 
     public static ProcessoDisciplinar reconstituir(ProcessoDisciplinarId id, FuncionarioId funcionarioId,
                                                     String processNumber, LocalDate startDate, LocalDate endDate,
                                                     String penalty, LocalDate penaltyStartDate, LocalDate penaltyEndDate,
-                                                    String officialBulletin, String notes, UUID documentId) {
+                                                    String officialBulletin, String notes) {
         ProcessoDisciplinar p = new ProcessoDisciplinar();
         p.id = id;
         p.funcionarioId = funcionarioId;
@@ -58,13 +55,12 @@ public class ProcessoDisciplinar {
         p.penaltyEndDate = penaltyEndDate;
         p.officialBulletin = officialBulletin;
         p.notes = notes;
-        p.documentId = documentId;
         return p;
     }
 
     public void atualizar(String processNumber, LocalDate startDate, LocalDate endDate, String penalty,
                           LocalDate penaltyStartDate, LocalDate penaltyEndDate,
-                          String officialBulletin, String notes, UUID documentId) {
+                          String officialBulletin, String notes) {
         if (processNumber != null) this.processNumber = processNumber;
         if (startDate != null) this.startDate = startDate;
         if (endDate != null) this.endDate = endDate;
@@ -73,6 +69,5 @@ public class ProcessoDisciplinar {
         if (penaltyEndDate != null) this.penaltyEndDate = penaltyEndDate;
         if (officialBulletin != null) this.officialBulletin = officialBulletin;
         if (notes != null) this.notes = notes;
-        if (documentId != null) this.documentId = documentId;
     }
 }

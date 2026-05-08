@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Data
 public class CriarProcessoDisciplinarRequestDTO {
@@ -20,5 +19,4 @@ public class CriarProcessoDisciplinarRequestDTO {
     private LocalDate penaltyEndDate;
     private String officialBulletin;
     private String notes;
-    private UUID documentId;
 }

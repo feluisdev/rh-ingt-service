@@ -44,7 +44,7 @@ public class AtualizarProcessoDisciplinarCommandHandler
 
         processo.atualizar(dto.getProcessNumber(), dto.getStartDate(), dto.getEndDate(),
                 dto.getPenalty(), dto.getPenaltyStartDate(), dto.getPenaltyEndDate(),
-                dto.getOfficialBulletin(), dto.getNotes(), dto.getDocumentId());
+                dto.getOfficialBulletin(), dto.getNotes());
 
         processoDisciplinarRepository.save(processo);
         return ResponseEntity.ok(Map.of("message", "Processo disciplinar actualizado com sucesso"));

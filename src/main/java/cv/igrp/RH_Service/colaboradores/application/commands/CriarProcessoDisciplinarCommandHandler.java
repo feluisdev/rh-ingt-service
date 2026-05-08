@@ -1,10 +1,8 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
 import cv.igrp.RH_Service.colaboradores.domain.models.ProcessoDisciplinar;
-import cv.igrp.RH_Service.colaboradores.domain.repository.DocumentoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.ProcessoDisciplinarRepository;
-import cv.igrp.RH_Service.colaboradores.domain.valueobject.DocumentoId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.framework.core.domain.CommandHandler;
@@ -22,7 +20,6 @@ public class CriarProcessoDisciplinarCommandHandler
 
     private final FuncionarioRepository funcionarioRepository;
     private final ProcessoDisciplinarRepository processoDisciplinarRepository;
-    private final DocumentoRepository documentoRepository;
 
     @IgrpCommandHandler
     public ResponseEntity<Map<String, ?>> handle(CriarProcessoDisciplinarCommand command) {
@@ -37,16 +34,10 @@ public class CriarProcessoDisciplinarCommandHandler
             throw IgrpResponseStatusException.badRequest(
                     "Não é possível registar processo disciplinar para funcionário inactivo.");
 
-        if (dto.getDocumentId() != null) {
-            documentoRepository.findById(DocumentoId.from(dto.getDocumentId()))
-                    .orElseThrow(() -> IgrpResponseStatusException.badRequest(
-                            "Documento não encontrado: " + dto.getDocumentId()));
-        }
-
         var saved = processoDisciplinarRepository.save(ProcessoDisciplinar.criar(
                 funcionarioId, dto.getProcessNumber(), dto.getStartDate(), dto.getEndDate(),
                 dto.getPenalty(), dto.getPenaltyStartDate(), dto.getPenaltyEndDate(),
-                dto.getOfficialBulletin(), dto.getNotes(), dto.getDocumentId()));
+                dto.getOfficialBulletin(), dto.getNotes()));
 
         return ResponseEntity.status(201).body(Map.of("id", saved.getId().getStringValor()));
     }
