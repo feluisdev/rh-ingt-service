@@ -34,7 +34,7 @@ public class UpdateContratoCommandHandler
 
         if (dto.getRegimeTrabalho() != null && RegimeTrabalho.fromCode(dto.getRegimeTrabalho()).isEmpty())
             throw IgrpResponseStatusException.badRequest(
-                    "Regime de trabalho inválido: '" + dto.getRegimeTrabalho() + "'. Valores aceites: TEMPO_COMPLETO, TEMPO_PARCIAL, ISENCAO_HORARIO, DEDICACAO_EXCLUSIVA");
+                    "Regime de trabalho inválido: '" + dto.getRegimeTrabalho() + "'. Valores aceites: " + RegimeTrabalho.codigosValidos());
 
         String regimeEfectivo = dto.getRegimeTrabalho() != null ? dto.getRegimeTrabalho() : contrato.getRegimeTrabalho();
         if ("TEMPO_PARCIAL".equals(regimeEfectivo) && dto.getPercentagemTempo() == null && contrato.getPercentagemTempo() == null)

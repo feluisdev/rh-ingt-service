@@ -50,7 +50,7 @@ public class CreateContratoCommandHandler
 
         if (dto.getRegimeTrabalho() != null && RegimeTrabalho.fromCode(dto.getRegimeTrabalho()).isEmpty())
             throw IgrpResponseStatusException.badRequest(
-                    "Regime de trabalho inválido: '" + dto.getRegimeTrabalho() + "'. Valores aceites: TEMPO_COMPLETO, TEMPO_PARCIAL, ISENCAO_HORARIO, DEDICACAO_EXCLUSIVA");
+                    "Regime de trabalho inválido: '" + dto.getRegimeTrabalho() + "'. Valores aceites: " + RegimeTrabalho.codigosValidos());
         if ("TEMPO_PARCIAL".equals(dto.getRegimeTrabalho()) && dto.getPercentagemTempo() == null)
             throw IgrpResponseStatusException.badRequest("O campo percentagemTempo é obrigatório para regime TEMPO_PARCIAL.");
         if (!"TEMPO_PARCIAL".equals(dto.getRegimeTrabalho()) && dto.getPercentagemTempo() != null)

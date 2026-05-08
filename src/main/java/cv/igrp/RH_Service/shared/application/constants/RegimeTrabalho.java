@@ -45,4 +45,8 @@ public enum RegimeTrabalho implements IgrpEnum<String> {
         return CODE_MAP.values().stream()
                 .collect(Collectors.toMap(RegimeTrabalho::getCode, RegimeTrabalho::getDescription));
     }
+
+    public static String codigosValidos() {
+        return Arrays.stream(values()).map(RegimeTrabalho::getCode).collect(Collectors.joining(", "));
+    }
 }
