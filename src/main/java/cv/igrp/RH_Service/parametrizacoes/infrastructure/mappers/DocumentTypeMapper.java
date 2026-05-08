@@ -16,7 +16,7 @@ public class DocumentTypeMapper {
         entity.setCodigo(domain.getCodigo());
         entity.setDescricao(domain.getDescricao());
         entity.setAllowedExtensions(domain.getAllowedExtensions());
-        entity.setCategoryOptionId(domain.getCategoryOptionId());
+        entity.setCategory(domain.getCategory());
         entity.setIsActive(domain.isActive());
         return entity;
     }
@@ -28,7 +28,7 @@ public class DocumentTypeMapper {
             entity.getCodigo(),
             entity.getDescricao(),
             entity.getAllowedExtensions(),
-            entity.getCategoryOptionId(),
+            entity.getCategory(),
             entity.getIsActive() != null && entity.getIsActive()
         );
     }
@@ -40,7 +40,7 @@ public class DocumentTypeMapper {
         dto.setCodigo(domain.getCodigo());
         dto.setDescricao(domain.getDescricao());
         dto.setAllowedExtensions(domain.getAllowedExtensions());
-        dto.setCategoryOptionId(domain.getCategoryOptionId());
+        dto.setCategory(domain.getCategory());
         dto.setIsActive(domain.isActive());
         return dto;
     }

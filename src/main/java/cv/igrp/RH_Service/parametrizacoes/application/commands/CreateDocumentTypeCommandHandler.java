@@ -34,7 +34,7 @@ public class CreateDocumentTypeCommandHandler implements CommandHandler<CreateDo
             dto.getCodigo(),
             dto.getDescricao(),
             dto.getAllowedExtensions(),
-            dto.getCategoryOptionId()
+            dto.getCategory()
         );
 
         DocumentType saved = documentTypeRepository.save(documentType);

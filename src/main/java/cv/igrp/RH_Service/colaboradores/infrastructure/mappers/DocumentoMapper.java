@@ -59,7 +59,7 @@ public class DocumentoMapper {
             dto.setCodigo(tipo.getCodigo());
             dto.setDescricao(tipo.getDescricao());
             dto.setAllowedExtensions(tipo.getAllowedExtensions());
-            dto.setCategoryOptionId(tipo.getCategoryOptionId());
+            dto.setCategory(tipo.getCategory());
             dto.setIsActive(tipo.isActive());
             r.setDocumentType(dto);
         });

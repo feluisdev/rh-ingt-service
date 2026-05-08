@@ -36,7 +36,7 @@ public class CreateLeaveTypeCommandHandler implements CommandHandler<CreateLeave
             dto.isDeductsBalance(),
             dto.isRequiresApproval(),
             dto.getMaxDaysPerYear(),
-            dto.getCategoryOptionId()
+            dto.getCategory()
         );
 
         LeaveType saved = leaveTypeRepository.save(leaveType);

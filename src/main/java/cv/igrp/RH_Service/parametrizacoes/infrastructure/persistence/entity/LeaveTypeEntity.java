@@ -39,8 +39,8 @@ public class LeaveTypeEntity extends AuditEntity {
     @Column(name = "max_days_per_year")
     private Integer maxDaysPerYear;
 
-    @Column(name = "category_option_id")
-    private UUID categoryOptionId;
+    @Column(name = "category", length = 50)
+    private String category;
 
     @Column(name = "is_active")
     private Boolean isActive;

@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository("colabsTipoAusenciaRepositoryImpl")
 @RequiredArgsConstructor
@@ -26,7 +25,7 @@ public class TipoAusenciaRepositoryImpl implements TipoAusenciaRepository {
                 e.getDescription(), e.getCode(),
                 e.getDeductsBalance(), e.getRequiresApproval(),
                 e.getMaxDaysPerYear(),
-                e.getCategoryOptionId() != null ? e.getCategoryOptionId().toString() : null,
+                e.getCategory(),
                 e.getIsActive());
     }
 
@@ -38,9 +37,7 @@ public class TipoAusenciaRepositoryImpl implements TipoAusenciaRepository {
         e.setDeductsBalance(t.getDeductsBalance());
         e.setRequiresApproval(t.getRequiresApproval());
         e.setMaxDaysPerYear(t.getMaxDaysPerYear());
-        if (t.getCategoryOptionCkey() != null) {
-            try { e.setCategoryOptionId(UUID.fromString(t.getCategoryOptionCkey())); } catch (IllegalArgumentException ignored) {}
-        }
+        e.setCategory(t.getCategoryOptionCkey());
         e.setIsActive(t.getIsActive());
         return e;
     }

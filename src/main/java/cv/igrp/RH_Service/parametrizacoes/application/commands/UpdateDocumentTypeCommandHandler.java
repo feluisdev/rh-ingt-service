@@ -32,7 +32,7 @@ public class UpdateDocumentTypeCommandHandler implements CommandHandler<UpdateDo
             .orElseThrow(() -> IgrpResponseStatusException.notFound(
                 "Tipo de documento não encontrado: " + command.getDocumentTypeId()));
 
-        documentType.atualizar(dto.getDescricao(), dto.getAllowedExtensions(), dto.getCategoryOptionId());
+        documentType.atualizar(dto.getDescricao(), dto.getAllowedExtensions(), dto.getCategory());
 
         DocumentType updated = documentTypeRepository.save(documentType);
 

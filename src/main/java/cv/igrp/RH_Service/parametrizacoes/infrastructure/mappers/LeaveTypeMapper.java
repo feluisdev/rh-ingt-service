@@ -18,7 +18,7 @@ public class LeaveTypeMapper {
         entity.setDeductsBalance(domain.isDeductsBalance());
         entity.setRequiresApproval(domain.isRequiresApproval());
         entity.setMaxDaysPerYear(domain.getMaxDaysPerYear());
-        entity.setCategoryOptionId(domain.getCategoryOptionId());
+        entity.setCategory(domain.getCategory());
         entity.setIsActive(domain.isActive());
         return entity;
     }
@@ -32,7 +32,7 @@ public class LeaveTypeMapper {
             entity.getDeductsBalance() != null && entity.getDeductsBalance(),
             entity.getRequiresApproval() != null && entity.getRequiresApproval(),
             entity.getMaxDaysPerYear(),
-            entity.getCategoryOptionId(),
+            entity.getCategory(),
             entity.getIsActive() != null && entity.getIsActive()
         );
     }
@@ -46,7 +46,7 @@ public class LeaveTypeMapper {
         dto.setDeductsBalance(domain.isDeductsBalance());
         dto.setRequiresApproval(domain.isRequiresApproval());
         dto.setMaxDaysPerYear(domain.getMaxDaysPerYear());
-        dto.setCategoryOptionId(domain.getCategoryOptionId());
+        dto.setCategory(domain.getCategory());
         dto.setIsActive(domain.isActive());
         return dto;
     }

@@ -33,7 +33,7 @@ public class UpdateLeaveTypeCommandHandler implements CommandHandler<UpdateLeave
                 "Tipo de licença não encontrado: " + command.getLeaveTypeId()));
 
         leaveType.atualizar(dto.getDescription(), dto.isDeductsBalance(), dto.isRequiresApproval(),
-                dto.getMaxDaysPerYear(), dto.getCategoryOptionId());
+                dto.getMaxDaysPerYear(), dto.getCategory());
 
         LeaveType updated = leaveTypeRepository.save(leaveType);
 
