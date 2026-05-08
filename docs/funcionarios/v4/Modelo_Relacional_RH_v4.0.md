@@ -5,7 +5,7 @@
 | **Documento** | Modelo Relacional RH v4.0 |
 | **Projeto** | SIPPROG — Sistema de Informação do Pessoal e Progressões |
 | **Entidade** | INGT — Instituto Nacional de Gestão do Território |
-| **Versão** | 4.2 |
+| **Versão** | 4.3 |
 | **Data** | Maio 2026 |
 | **Status** | Em curso |
 
@@ -64,7 +64,7 @@ O dossier do funcionário tem **três dimensões de historial independentes**, c
 
 | Historial | Tabela | Marcador de actual |
 |---|---|---|
-| Contrato | `employee_contracts` | `is_current = true` |
+| Contrato | `t_contrato` | `is_current = true` |
 | Enquadramento profissional | `employee_professional_assignments` | `is_current = true` |
 | Colocação / Unidade | `employee_unit_assignments` | `end_date IS NULL` |
 
@@ -378,18 +378,35 @@ t_funcionario  (Funcionários)
 ```
 
 ```
-employee_dependents  (Dependentes do Funcionário)
+t_dependente  (Dependentes do Funcionário)
 ├── id                   UUID      PK
-├── employee_id          UUID NOT NULL FK→employees
+├── funcionario_id       UUID NOT NULL FK→t_funcionario
 ├── full_name            VARCHAR(200) NOT NULL
 ├── birth_date           DATE
 ├── relationship_type    VARCHAR(50)               -- ccode='RELATIONSHIP_TYPE'; ckey: CONJUGE, FILHO, PAI, MAE, IRMAO
 ├── nif                  VARCHAR(20)
-├── is_active            BOOLEAN DEFAULT TRUE
+├── is_active            BOOLEAN NOT NULL
 └── auditoria
 
 -- Cônjuge, filhos e outros dependentes para efeitos de INPS e subsídios familiares.
 -- relationship_type é valor string ckey, sem FK UUID para option_entity.
+```
+
+```
+t_dados_bancarios  (Dados Bancários do Funcionário)
+├── id                       UUID      PK
+├── funcionario_id           UUID NOT NULL FK→t_funcionario
+├── banco                    VARCHAR(50)               -- ckey option_entity ccode=BANCO
+├── numero_conta             VARCHAR(50)
+├── iban                     VARCHAR(34)               -- IBAN/NIB; formato CV exige 25 chars
+├── numero_seguranca_social  VARCHAR(30)               -- Nº INPS (Instituto Nacional de Previdência Social)
+├── is_active                BOOLEAN NOT NULL
+└── auditoria
+
+-- Dados para processamento de vencimento e declarações INPS.
+-- Um funcionário pode ter vários registos (conta principal + poupança).
+-- banco: ckey da option_entity (ccode=BANCO) — lista de bancos configurável pelo administrador.
+-- is_active: soft delete; apenas registos activos são considerados no pagamento.
 ```
 
 ---
@@ -410,6 +427,8 @@ t_contrato  (Contratos do Funcionário)
 ├── is_current           BOOLEAN NOT NULL                 -- apenas 1 TRUE por funcionário
 ├── status               VARCHAR(20) NOT NULL             -- ATIVO | SUSPENSO | CESSADO (controlado pelo sistema)
 ├── renewal_count        INTEGER NOT NULL                 -- nº de renovações consecutivas do mesmo tipo renovável
+├── regime_trabalho      VARCHAR(30)                      -- TEMPO_COMPLETO | TEMPO_PARCIAL | ISENCAO_HORARIO | DEDICACAO_EXCLUSIVA
+├── percentagem_tempo    NUMERIC(5,2)                     -- preenchido apenas se regime_trabalho = TEMPO_PARCIAL (ex: 50.00)
 ├── legal_base           VARCHAR(200)                     -- nº despacho / Boletim Oficial que autoriza o contrato
 ├── notes                TEXT
 └── auditoria
@@ -422,6 +441,9 @@ t_contrato  (Contratos do Funcionário)
 --   Ao criar novo contrato, o anterior passa a CESSADO + is_current = false (lógica no handler).
 -- renewal_count: incrementado quando o novo contrato é do mesmo tipo renovável que o anterior.
 --   Permite ao sistema alertar quando o limite legal (contract_types.max_renewals) é atingido.
+-- regime_trabalho: ckey validado pelo enum RegimeTrabalho (base legal: LGTFP art. 123-129).
+--   Nullable — campo obrigatório apenas quando relevante para o tipo de contrato.
+-- percentagem_tempo: obrigatório quando regime_trabalho = TEMPO_PARCIAL; proibido nos restantes.
 -- contract_number: nullable — Nomeação Definitiva e Comissão de Serviço usam apenas legal_base.
 -- termination_reason: motivo de cessação (base LGTFP); determina direitos do funcionário.
 -- Documentos associados: ligados via documents(reference_entity='t_contrato', reference_id).
@@ -712,7 +734,19 @@ erDiagram
         boolean is_current
         varchar status
         int     renewal_count
+        varchar regime_trabalho
+        decimal percentagem_tempo
         varchar legal_base
+    }
+
+    T_DADOS_BANCARIOS {
+        uuid    id PK
+        uuid    funcionario_id FK
+        varchar banco
+        varchar numero_conta
+        varchar iban
+        varchar numero_seguranca_social
+        boolean is_active
     }
 
     CAREERS {
@@ -912,6 +946,7 @@ erDiagram
     EMPLOYEES ||--o{ EMPLOYEE_PROFESSIONAL_ASSIGNMENTS : "tem"
     EMPLOYEES ||--o{ EMPLOYEE_UNIT_ASSIGNMENTS : "tem"
     EMPLOYEES ||--o{ EMPLOYEE_DEPENDENTS : "tem"
+    EMPLOYEES ||--o{ T_DADOS_BANCARIOS : "tem"
 
     EMPLOYEES ||--o{ QUALIFICATIONS : "tem"
     EMPLOYEES ||--o{ TRAININGS : "realizou"

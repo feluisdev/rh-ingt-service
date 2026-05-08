@@ -39,6 +39,7 @@ title: Especificação Técnica — Módulo de Recursos Humanos v4.0
 | 4.0 | Abril 2026 | TA Digital | Adoção do Modelo Relacional v4.0: migração de lookups sem lógica para `option_entity`; separação clara entre `employee_contracts`, `employee_professional_assignments` e `employee_unit_assignments`; novos sub-recursos do dossier: dependentes, habilitações, formações, processos disciplinares; refatoração da secção Parametrizações conforme decisão OptionEntity; Modelo de Dados actualizado para 26 tabelas. |
 | 4.1 | Maio 2026 | TA Digital | Actualização conforme implementação real: campos de identificação do funcionário actualizados (`nomeCompleto`, `genero`, `estadoCivil`, `numeroDocumento`, `document_type_id`, `ilha`, `concelho`, `localidade`); `workerStateId` removido do payload de criação (atribuído automaticamente a ATIVO); `professionalSituationId` nullable até ao primeiro contrato; parâmetros de filtro `GET /employees` actualizados para UUIDs. |
 | 4.2 | Maio 2026 | TA Digital | Contrato: adicionados `status` (ATIVO/SUSPENSO/CESSADO) e `renewalCount`; novos endpoints `PUT /contracts/{id}/suspend` e `PUT /contracts/{id}/reactivate`; corrigido esquema `t_contrato` com nomes reais de tabela/colunas; lógica de fecho do contrato anterior documentada como aplicacional (não trigger de BD); secção 9.3 actualizada. |
+| 4.3 | Maio 2026 | TA Digital | Contrato: adicionados `regimeTrabalho` (enum `RegimeTrabalho`, base legal LGTFP art.123-129) e `percentagemTempo`; validação dinâmica via `RegimeTrabalho.codigosValidos()`. Nova entidade `t_dados_bancarios` (banco/conta/IBAN/INPS) com API completa em secção 2.11. Manifestos `.igrpstudio` actualizados: `RegimeTrabalho.json`, `ContratoEntity.json`, `DadosBancariosEntity.json`. |
 
 ---
 
@@ -460,6 +461,8 @@ Devolve o histórico completo de contratos, ordenado por `start_date` descendent
 | `startDate` | date | Sim | Data de início (≥ data de admissão do funcionário). |
 | `endDate` | date | Não | Data de fim (`null` = contrato activo; obrigatório para `CTFP_TERMO_CERTO`). |
 | `legalBase` | string | Não | Nº de despacho / Boletim Oficial que autoriza o contrato. |
+| `regimeTrabalho` | string | Não | Regime de trabalho (enum `RegimeTrabalho`): `TEMPO_COMPLETO`, `TEMPO_PARCIAL`, `ISENCAO_HORARIO`, `DEDICACAO_EXCLUSIVA`. |
+| `percentagemTempo` | decimal | Cond. | Percentagem de tempo. Obrigatório se `regimeTrabalho = TEMPO_PARCIAL`; proibido nos restantes. |
 | `notes` | text | Não | Observações. |
 
 Ao criar um novo contrato, o anterior (se existir `is_current = true`) é encerrado automaticamente (`end_date = startDate − 1 dia`, `is_current = false`).
@@ -778,7 +781,43 @@ Documentos (processo digitalizado) são associados após criação via `POST /em
 
 ---
 
-## 2.11 Documentos do Colaborador
+## 2.11 Dados Bancários do Funcionário
+
+Dados bancários para processamento de vencimento e declarações INPS. Um funcionário pode ter vários registos activos (conta principal, poupança). O campo `banco` referencia a `option_entity` com `ccode=BANCO`.
+
+### GET /dados-bancarios?funcionarioId={id}
+
+Devolve todos os dados bancários activos do funcionário.
+
+### GET /dados-bancarios/{id}
+
+### POST /dados-bancarios
+
+**Corpo da Requisição**
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+|---|---|---|---|
+| `funcionarioId` | UUID | Sim | Funcionário. |
+| `banco` | string | Não | Banco (ckey `option_entity` ccode=`BANCO`). |
+| `numeroConta` | string | Não | Número de conta. |
+| `iban` | string | Não | IBAN/NIB (máx. 34 chars). |
+| `numeroSegurancaSocial` | string | Não | Número de beneficiário INPS. |
+
+### PUT /dados-bancarios/{id}
+
+Actualiza os campos preenchidos (null mantém o valor existente).
+
+### DELETE /dados-bancarios/{id}
+
+Soft delete — marca `is_active = false`.
+
+### PUT /dados-bancarios/{id}/activate
+
+Reactiva um registo desactivado.
+
+---
+
+## 2.12 Documentos do Colaborador
 
 Gestão dos documentos pessoais associados ao funcionário (CNI, contratos, certidões). Ver Capítulo 7 para detalhe da API genérica de Anexos.
 
