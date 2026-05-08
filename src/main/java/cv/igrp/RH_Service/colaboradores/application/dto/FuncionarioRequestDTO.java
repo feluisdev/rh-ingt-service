@@ -52,4 +52,6 @@ public class FuncionarioRequestDTO {
     private LocalDate dataAdmissao;
 
     private LocalDate dataSaida;
+
+    private String situacaoProfissional;
 }

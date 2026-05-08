@@ -15,7 +15,9 @@ import java.util.ArrayList;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import org.hibernate.envers.Audited;
 
+@Audited
 @Getter
 @Setter
 @IgrpEntity

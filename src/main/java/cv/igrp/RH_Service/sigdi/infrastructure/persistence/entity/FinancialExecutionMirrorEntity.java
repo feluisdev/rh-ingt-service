@@ -13,7 +13,9 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import org.hibernate.envers.Audited;
 
+@Audited
 @Getter
 @Setter
 @IgrpEntity
