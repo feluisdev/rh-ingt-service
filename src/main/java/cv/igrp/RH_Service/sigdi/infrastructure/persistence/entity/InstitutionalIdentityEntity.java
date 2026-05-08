@@ -13,7 +13,9 @@ import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.hibernate.envers.Audited;
 
+@Audited
 @Getter
 @Setter
 @IgrpEntity

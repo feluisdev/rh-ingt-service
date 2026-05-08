@@ -10,7 +10,9 @@ import lombok.*;
 import java.util.UUID;
 import jakarta.validation.constraints.NotBlank;
 
+import org.hibernate.envers.Audited;
 
+@Audited
 @Getter
 @Setter
 @IgrpEntity

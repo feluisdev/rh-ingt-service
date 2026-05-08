@@ -11,7 +11,9 @@ import java.util.UUID;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
+import org.hibernate.envers.Audited;
 
+@Audited
 @Getter
 @Setter
 @IgrpEntity
