@@ -11,5 +11,6 @@ public interface WorkerStateRepository {
     WorkerState save(WorkerState workerState);
     Optional<WorkerState> findById(WorkerStateId id);
     boolean existsByCode(String code);
+    java.util.Optional<WorkerState> findByCode(String code);
     PageResult<WorkerState> findAll(WorkerStateFilter filter);
 }

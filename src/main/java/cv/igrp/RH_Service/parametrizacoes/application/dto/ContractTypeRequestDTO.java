@@ -12,4 +12,8 @@ import lombok.NoArgsConstructor;
 public class ContractTypeRequestDTO {
     private String code;
     private String description;
+    private String vinculoLaboralId;
+    private Boolean isRenewable;
+    private Integer maxRenewals;
+    private Integer maxDurationMonths;
 }

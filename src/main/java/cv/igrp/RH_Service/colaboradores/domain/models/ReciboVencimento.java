@@ -37,6 +37,10 @@ public class ReciboVencimento {
         return r;
     }
 
+    public void associarDocumento(UUID documentId) {
+        this.documentId = documentId;
+    }
+
     public static ReciboVencimento reconstituir(ReciboVencimentoId id, FuncionarioId funcionarioId,
                                                  Integer periodMonth, Integer periodYear, LocalDate issueDate,
                                                  BigDecimal grossSalary, BigDecimal netSalary, UUID documentId) {

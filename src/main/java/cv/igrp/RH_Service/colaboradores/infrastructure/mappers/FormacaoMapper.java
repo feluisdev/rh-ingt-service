@@ -14,8 +14,8 @@ public class FormacaoMapper {
         return Formacao.reconstituir(
                 FormacaoId.from(e.getId()),
                 FuncionarioId.from(e.getFuncionarioId()),
-                e.getName(), e.getInstitution(), e.getTypeOptionKey(),
-                e.getStartDate(), e.getEndDate(), e.getDurationHours(), e.getDocumentId());
+                e.getName(), e.getInstitution(), e.getTrainingType(),
+                e.getStartDate(), e.getEndDate(), e.getDurationHours());
     }
 
     public FormacaoEntity toEntity(Formacao f) {
@@ -24,11 +24,10 @@ public class FormacaoMapper {
         e.setFuncionarioId(f.getFuncionarioId().getValor());
         e.setName(f.getName());
         e.setInstitution(f.getInstitution());
-        e.setTypeOptionKey(f.getTypeOptionKey());
+        e.setTrainingType(f.getTrainingType());
         e.setStartDate(f.getStartDate());
         e.setEndDate(f.getEndDate());
         e.setDurationHours(f.getDurationHours());
-        e.setDocumentId(f.getDocumentId());
         return e;
     }
 
@@ -38,11 +37,10 @@ public class FormacaoMapper {
         dto.setFuncionarioId(f.getFuncionarioId().getStringValor());
         dto.setName(f.getName());
         dto.setInstitution(f.getInstitution());
-        dto.setTypeOptionKey(f.getTypeOptionKey());
+        dto.setTrainingType(f.getTrainingType());
         dto.setStartDate(f.getStartDate());
         dto.setEndDate(f.getEndDate());
         dto.setDurationHours(f.getDurationHours());
-        dto.setDocumentId(f.getDocumentId());
         return dto;
     }
 }

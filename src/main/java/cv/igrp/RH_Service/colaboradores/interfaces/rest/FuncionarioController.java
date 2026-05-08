@@ -43,14 +43,14 @@ public class FuncionarioController {
     public ResponseEntity<WrapperListaFuncionarioDTO> getFuncionarios(
             @RequestParam(value = "nome", required = false) String nome,
             @RequestParam(value = "nif", required = false) String nif,
-            @RequestParam(value = "situacaoProfissional", required = false) String situacaoProfissional,
+            @RequestParam(value = "workerStateId", required = false) String workerStateId,
             @RequestParam(value = "unidadeOrganicaId", required = false) String unidadeOrganicaId,
             @RequestParam(value = "careerId", required = false) String careerId,
             @RequestParam(value = "active", required = false) Boolean active,
             @RequestParam(value = "pagina", defaultValue = "0") String pagina,
             @RequestParam(value = "tamanho", defaultValue = "20") String tamanho) {
         LOGGER.debug("Operation started");
-        final var query = new GetFuncionariosQuery(nome, nif, situacaoProfissional, unidadeOrganicaId, careerId, active, pagina, tamanho);
+        final var query = new GetFuncionariosQuery(nome, nif, workerStateId, unidadeOrganicaId, careerId, active, pagina, tamanho);
         ResponseEntity<WrapperListaFuncionarioDTO> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
@@ -90,58 +90,4 @@ public class FuncionarioController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
-    @GetMapping("{funcionarioId}/enquadramento")
-    @Operation(summary = "Obter enquadramento actual do funcionário")
-    public ResponseEntity<EnquadramentoResponseDTO> getEnquadramentoAtual(
-            @PathVariable(value = "funcionarioId") String funcionarioId) {
-        LOGGER.debug("Operation started");
-        final var query = new GetEnquadramentoAtualQuery(funcionarioId);
-        ResponseEntity<EnquadramentoResponseDTO> response = queryBus.handle(query);
-        LOGGER.debug("Operation finished");
-        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
-    }
-
-    @GetMapping("{funcionarioId}/enquadramentos/historico")
-    @Operation(summary = "Listar histórico de enquadramentos do funcionário")
-    public ResponseEntity<WrapperListaEnquadramentoDTO> getEnquadramentosHistorico(
-            @PathVariable(value = "funcionarioId") String funcionarioId) {
-        LOGGER.debug("Operation started");
-        final var query = new GetEnquadramentosHistoricoQuery(funcionarioId);
-        ResponseEntity<WrapperListaEnquadramentoDTO> response = queryBus.handle(query);
-        LOGGER.debug("Operation finished");
-        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
-    }
-
-    @GetMapping("{funcionarioId}/contratos")
-    @Operation(summary = "Listar contratos do funcionário")
-    public ResponseEntity<WrapperListaContratoDTO> getContratosByFuncionario(
-            @PathVariable(value = "funcionarioId") String funcionarioId) {
-        LOGGER.debug("Operation started");
-        final var query = new GetContratosByFuncionarioQuery(funcionarioId);
-        ResponseEntity<WrapperListaContratoDTO> response = queryBus.handle(query);
-        LOGGER.debug("Operation finished");
-        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
-    }
-
-    @GetMapping("{funcionarioId}/dependentes")
-    @Operation(summary = "Listar dependentes do funcionário")
-    public ResponseEntity<WrapperListaDependenteDTO> getDependentesByFuncionario(
-            @PathVariable(value = "funcionarioId") String funcionarioId) {
-        LOGGER.debug("Operation started");
-        final var query = new GetDependentesByFuncionarioQuery(funcionarioId);
-        ResponseEntity<WrapperListaDependenteDTO> response = queryBus.handle(query);
-        LOGGER.debug("Operation finished");
-        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
-    }
-
-    @GetMapping("{funcionarioId}/qualificacoes")
-    @Operation(summary = "Listar qualificações do funcionário")
-    public ResponseEntity<WrapperListaQualificacaoDTO> getQualificacoesByFuncionario(
-            @PathVariable(value = "funcionarioId") String funcionarioId) {
-        LOGGER.debug("Operation started");
-        final var query = new GetQualificacoesByFuncionarioQuery(funcionarioId);
-        ResponseEntity<WrapperListaQualificacaoDTO> response = queryBus.handle(query);
-        LOGGER.debug("Operation finished");
-        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
-    }
 }

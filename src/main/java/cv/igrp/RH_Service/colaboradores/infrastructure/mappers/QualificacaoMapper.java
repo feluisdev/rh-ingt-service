@@ -14,19 +14,22 @@ public class QualificacaoMapper {
         return Qualificacao.reconstituir(
                 QualificacaoId.from(e.getId()),
                 FuncionarioId.from(e.getFuncionarioId()),
-                e.getNivelAcademico(), e.getCurso(), e.getInstituicao(),
-                e.getAnoConclusao(), e.getPais(), e.getIsActive());
+                e.getLevel(), e.getCourseName(), e.getInstitution(),
+                e.getCountry(), e.getStartDate(), e.getEndDate(),
+                e.getCompleted(), e.getIsActive());
     }
 
     public QualificacaoEntity toEntity(Qualificacao q) {
         QualificacaoEntity e = new QualificacaoEntity();
         e.setId(q.getId().getValor());
         e.setFuncionarioId(q.getFuncionarioId().getValor());
-        e.setNivelAcademico(q.getNivelAcademico());
-        e.setCurso(q.getCurso());
-        e.setInstituicao(q.getInstituicao());
-        e.setAnoConclusao(q.getAnoConclusao());
-        e.setPais(q.getPais());
+        e.setLevel(q.getLevel());
+        e.setCourseName(q.getCourseName());
+        e.setInstitution(q.getInstitution());
+        e.setCountry(q.getCountry());
+        e.setStartDate(q.getStartDate());
+        e.setEndDate(q.getEndDate());
+        e.setCompleted(q.getCompleted());
         e.setIsActive(q.getIsActive());
         return e;
     }
@@ -35,11 +38,13 @@ public class QualificacaoMapper {
         QualificacaoResponseDTO r = new QualificacaoResponseDTO();
         r.setId(q.getId().getStringValor());
         r.setFuncionarioId(q.getFuncionarioId().getStringValor());
-        r.setNivelAcademico(q.getNivelAcademico());
-        r.setCurso(q.getCurso());
-        r.setInstituicao(q.getInstituicao());
-        r.setAnoConclusao(q.getAnoConclusao());
-        r.setPais(q.getPais());
+        r.setLevel(q.getLevel());
+        r.setCourseName(q.getCourseName());
+        r.setInstitution(q.getInstitution());
+        r.setCountry(q.getCountry());
+        r.setStartDate(q.getStartDate());
+        r.setEndDate(q.getEndDate());
+        r.setCompleted(q.getCompleted());
         r.setIsActive(q.getIsActive());
         return r;
     }

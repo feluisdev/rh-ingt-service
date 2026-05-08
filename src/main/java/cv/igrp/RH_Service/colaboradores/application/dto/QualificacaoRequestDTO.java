@@ -5,16 +5,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @NoArgsConstructor
 public class QualificacaoRequestDTO {
-    private String funcionarioId;
     @NotBlank
-    private String nivelAcademico;
-    @NotBlank
-    private String curso;
-    private String instituicao;
-    private Integer anoConclusao;
-    private String pais;
+    private String level;
+    private String courseName;
+    private String institution;
+    private String country;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private Boolean completed;
 }

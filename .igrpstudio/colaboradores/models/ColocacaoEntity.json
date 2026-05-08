@@ -2,7 +2,7 @@
   "type": "model",
   "name": "ColocacaoEntity",
   "module": "colaboradores",
-  "tableName": "employee_unit_assignments",
+  "tableName": "t_employee_unit_assignments",
   "revision": true,
   "attributes": [
     {"name": "id", "type": "string", "objectType": "java", "primaryKey": true},

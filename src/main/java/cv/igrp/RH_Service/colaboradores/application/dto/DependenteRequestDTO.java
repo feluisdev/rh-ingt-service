@@ -11,11 +11,10 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 public class DependenteRequestDTO {
-    private String funcionarioId;
     @NotBlank
-    private String nome;
+    private String fullName;
     @NotBlank
-    private String parentesco;
-    private LocalDate dataNascimento;
+    private String relationshipType;
+    private LocalDate birthDate;
     private String nif;
 }

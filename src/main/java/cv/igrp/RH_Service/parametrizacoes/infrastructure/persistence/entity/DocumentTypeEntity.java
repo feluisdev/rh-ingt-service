@@ -30,8 +30,8 @@ public class DocumentTypeEntity extends AuditEntity {
     @Column(name = "allowed_extensions", length = 200)
     private String allowedExtensions;
 
-    @Column(name = "category_option_id")
-    private UUID categoryOptionId;
+    @Column(name = "category", length = 50)
+    private String category;
 
     @Column(name = "is_active")
     private Boolean isActive;

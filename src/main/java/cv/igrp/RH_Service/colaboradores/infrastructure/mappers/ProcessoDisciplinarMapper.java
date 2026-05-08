@@ -16,7 +16,7 @@ public class ProcessoDisciplinarMapper {
                 FuncionarioId.from(e.getFuncionarioId()),
                 e.getProcessNumber(), e.getStartDate(), e.getEndDate(),
                 e.getPenalty(), e.getPenaltyStartDate(), e.getPenaltyEndDate(),
-                e.getOfficialBulletin(), e.getNotes(), e.getDocumentId());
+                e.getOfficialBulletin(), e.getNotes());
     }
 
     public ProcessoDisciplinarEntity toEntity(ProcessoDisciplinar p) {
@@ -31,7 +31,6 @@ public class ProcessoDisciplinarMapper {
         e.setPenaltyEndDate(p.getPenaltyEndDate());
         e.setOfficialBulletin(p.getOfficialBulletin());
         e.setNotes(p.getNotes());
-        e.setDocumentId(p.getDocumentId());
         return e;
     }
 
@@ -47,7 +46,6 @@ public class ProcessoDisciplinarMapper {
         dto.setPenaltyEndDate(p.getPenaltyEndDate());
         dto.setOfficialBulletin(p.getOfficialBulletin());
         dto.setNotes(p.getNotes());
-        dto.setDocumentId(p.getDocumentId());
         return dto;
     }
 }

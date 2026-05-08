@@ -44,11 +44,17 @@ public class FuncionarioEntity extends AuditEntity {
     @Column(name = "nif", unique = true, nullable = false, length = 20)
     private String nif;
 
-    @Column(name = "bi_numero", unique = true, nullable = false, length = 50)
-    private String biNumero;
+    @Column(name = "document_type_id")
+    private UUID documentTypeId;
 
-    @Column(name = "bi_validade")
-    private LocalDate biValidade;
+    @Column(name = "numero_documento", unique = true, length = 50)
+    private String numeroDocumento;
+
+    @Column(name = "data_emissao_doc")
+    private LocalDate dataEmissaoDoc;
+
+    @Column(name = "data_validade_doc")
+    private LocalDate dataValidadeDoc;
 
     @Column(name = "nacionalidade", nullable = false, length = 50)
     private String nacionalidade;
@@ -62,17 +68,20 @@ public class FuncionarioEntity extends AuditEntity {
     @Column(name = "morada")
     private String morada;
 
-    @Column(name = "foto_url")
-    private String fotoUrl;
+    @Column(name = "ilha", length = 100)
+    private String ilha;
 
-    @Column(name = "situacao_profissional", nullable = false, length = 50)
-    private String situacaoProfissional;
+    @Column(name = "concelho", length = 100)
+    private String concelho;
+
+    @Column(name = "localidade", length = 100)
+    private String localidade;
+
+    @Column(name = "worker_state_id")
+    private UUID workerStateId;
 
     @Column(name = "data_admissao", nullable = false)
     private LocalDate dataAdmissao;
-
-    @Column(name = "data_saida")
-    private LocalDate dataSaida;
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;

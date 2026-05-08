@@ -28,7 +28,8 @@ public class DesativarDocumentoCommandHandler
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Documento não encontrado: " + command.getDocumentoId()));
 
-        if (!documento.getReferenceId().getValor().equals(funcionarioId.getValor()))
+        if ("FUNCIONARIO".equals(documento.getReferenceEntity())
+                && !documento.getReferenceId().equals(funcionarioId.getValor()))
             throw IgrpResponseStatusException.notFound(
                     "Documento não encontrado: " + command.getDocumentoId());
 

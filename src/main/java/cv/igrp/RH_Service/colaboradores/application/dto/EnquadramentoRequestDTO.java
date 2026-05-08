@@ -13,8 +13,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class EnquadramentoRequestDTO {
     @NotBlank
-    private String funcionarioId;
-    @NotBlank
     private String careerId;
     @NotBlank
     private String categoryId;

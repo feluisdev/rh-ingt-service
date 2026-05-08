@@ -1,10 +1,8 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
 import cv.igrp.RH_Service.colaboradores.domain.models.ReciboVencimento;
-import cv.igrp.RH_Service.colaboradores.domain.repository.DocumentoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.ReciboVencimentoRepository;
-import cv.igrp.RH_Service.colaboradores.domain.valueobject.DocumentoId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.framework.core.domain.CommandHandler;
@@ -22,7 +20,6 @@ public class CriarReciboVencimentoCommandHandler
 
     private final FuncionarioRepository funcionarioRepository;
     private final ReciboVencimentoRepository reciboVencimentoRepository;
-    private final DocumentoRepository documentoRepository;
 
     @IgrpCommandHandler
     public ResponseEntity<Map<String, ?>> handle(CriarReciboVencimentoCommand command) {
@@ -47,13 +44,9 @@ public class CriarReciboVencimentoCommandHandler
             throw IgrpResponseStatusException.badRequest(
                     "O salário líquido não pode ser superior ao salário bruto.");
 
-        documentoRepository.findById(DocumentoId.from(dto.getDocumentId()))
-                .orElseThrow(() -> IgrpResponseStatusException.badRequest(
-                        "Documento não encontrado: " + dto.getDocumentId()));
-
         var saved = reciboVencimentoRepository.save(ReciboVencimento.criar(
                 funcionarioId, dto.getPeriodMonth(), dto.getPeriodYear(),
-                dto.getIssueDate(), dto.getGrossSalary(), dto.getNetSalary(), dto.getDocumentId()));
+                dto.getIssueDate(), dto.getGrossSalary(), dto.getNetSalary(), null));
 
         return ResponseEntity.status(201).body(Map.of("id", saved.getId().getStringValor()));
     }

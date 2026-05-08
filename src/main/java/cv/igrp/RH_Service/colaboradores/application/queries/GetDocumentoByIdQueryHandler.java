@@ -29,7 +29,8 @@ public class GetDocumentoByIdQueryHandler
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Documento não encontrado: " + query.getDocumentoId()));
 
-        if (!documento.getReferenceId().getValor().equals(funcionarioId.getValor()))
+        if ("FUNCIONARIO".equals(documento.getReferenceEntity())
+                && !documento.getReferenceId().equals(funcionarioId.getValor()))
             throw IgrpResponseStatusException.notFound(
                     "Documento não encontrado: " + query.getDocumentoId());
 

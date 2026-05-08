@@ -12,6 +12,5 @@
     {"type": "string", "name": "observacoes", "objectType": "java", "required": false},
     {"type": "string", "name": "justification", "objectType": "java", "required": false},
     {"type": "string", "name": "destinationUnitId", "objectType": "java", "required": false},
-    {"type": "string", "name": "documentId", "objectType": "java", "required": false}
   ]
 }

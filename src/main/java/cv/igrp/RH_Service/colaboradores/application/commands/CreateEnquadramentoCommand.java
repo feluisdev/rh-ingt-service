@@ -8,5 +8,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class CreateEnquadramentoCommand implements Command {
+    private final String funcionarioId;
     private final EnquadramentoRequestDTO request;
 }

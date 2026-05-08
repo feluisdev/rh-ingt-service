@@ -1,0 +1,53 @@
+{
+  "type": "model",
+  "module": "parametrizacoes",
+  "name": "VinculoLaboralEntity",
+  "tableName": "t_vinculo_laboral",
+  "audit": true,
+  "crud": false,
+  "revision": true,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "length": 255,
+      "nullable": false,
+      "unique": true,
+      "primaryKey": true,
+      "generationType": "NONE",
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "code",
+      "type": "string",
+      "length": 255,
+      "nullable": false,
+      "unique": true,
+      "primaryKey": false,
+      "skipFieldRevision": false
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false
+    },
+    {
+      "name": "isActive",
+      "type": "boolean",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    }
+  ],
+  "id": "vinculo_laboral_entity_001",
+  "uniqueConstraints": [],
+  "indexes": []
+}

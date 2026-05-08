@@ -12,9 +12,9 @@ import java.time.LocalDate;
 public class DependenteResponseDTO {
     private String id;
     private String funcionarioId;
-    private String nome;
-    private String parentesco;
-    private LocalDate dataNascimento;
+    private String fullName;
+    private String relationshipType;
+    private LocalDate birthDate;
     private String nif;
     private Boolean isActive;
 }

@@ -25,12 +25,13 @@ public class UpdateDependenteCommandHandler
         var id = DependenteId.from(command.getDependenteId());
 
         var dependente = dependenteRepository.findById(id)
-                .orElseThrow(() -> IgrpResponseStatusException.notFound("Dependente não encontrado: " + command.getDependenteId()));
+                .orElseThrow(() -> IgrpResponseStatusException.notFound(
+                        "Dependente não encontrado: " + command.getDependenteId()));
 
         dependente.atualizar(
-                dto.getNome() != null ? dto.getNome() : dependente.getNome(),
-                dto.getParentesco() != null ? dto.getParentesco() : dependente.getParentesco(),
-                dto.getDataNascimento() != null ? dto.getDataNascimento() : dependente.getDataNascimento(),
+                dto.getFullName() != null ? dto.getFullName() : dependente.getFullName(),
+                dto.getRelationshipType() != null ? dto.getRelationshipType() : dependente.getRelationshipType(),
+                dto.getBirthDate() != null ? dto.getBirthDate() : dependente.getBirthDate(),
                 dto.getNif() != null ? dto.getNif() : dependente.getNif()
         );
 

@@ -1,0 +1,45 @@
+{
+  "type": "enum",
+  "module": "shared",
+  "name": "RegimeTrabalho",
+  "values": [
+    {
+      "name": "TEMPO_COMPLETO",
+      "attributes": [
+        "TEMPO_COMPLETO",
+        "Jornada completa (35h/semana — LGTFP art. 123.º)"
+      ]
+    },
+    {
+      "name": "TEMPO_PARCIAL",
+      "attributes": [
+        "TEMPO_PARCIAL",
+        "Jornada reduzida acordada entre as partes (LGTFP art. 128.º)"
+      ]
+    },
+    {
+      "name": "ISENCAO_HORARIO",
+      "attributes": [
+        "ISENCAO_HORARIO",
+        "Sem horário fixo — cargos de direcção/chefia (LGTFP art. 126.º)"
+      ]
+    },
+    {
+      "name": "DEDICACAO_EXCLUSIVA",
+      "attributes": [
+        "DEDICACAO_EXCLUSIVA",
+        "Proibição de acumular funções remuneradas (LGTFP art. 129.º)"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}

@@ -42,7 +42,7 @@ public class CreateLicencaMobilidadeCommandHandler
                 funcionarioId, subtipoId,
                 dto.getDataInicio(), dto.getDataFim(),
                 dto.getEntidadeDestino(), dto.getDespachoNumero(), dto.getObservacoes(),
-                dto.getJustification(), dto.getDestinationUnitId(), dto.getDocumentId()));
+                dto.getJustification(), dto.getDestinationUnitId(), null));
 
         return ResponseEntity.status(201).body(Map.of(
                 "id", saved.getId().getStringValor(),

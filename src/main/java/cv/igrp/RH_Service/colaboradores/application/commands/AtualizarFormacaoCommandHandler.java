@@ -41,8 +41,8 @@ public class AtualizarFormacaoCommandHandler
         if (!formacao.getFuncionarioId().equals(funcionarioId))
             throw IgrpResponseStatusException.notFound("Formação não encontrada: " + command.getFormacaoId());
 
-        formacao.atualizar(dto.getName(), dto.getInstitution(), dto.getTypeOptionKey(),
-                dto.getStartDate(), dto.getEndDate(), dto.getDurationHours(), dto.getDocumentId());
+        formacao.atualizar(dto.getName(), dto.getInstitution(), dto.getTrainingType(),
+                dto.getStartDate(), dto.getEndDate(), dto.getDurationHours());
 
         formacaoRepository.save(formacao);
         return ResponseEntity.ok(Map.of("message", "Formação actualizada com sucesso"));

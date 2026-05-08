@@ -5,16 +5,9 @@ import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import lombok.Getter;
 
 import java.util.Objects;
-import java.util.Set;
 
 @Getter
 public class Option {
-
-    private static final Set<String> VALID_CCODES = Set.of(
-        "MARITAL_STATUS", "SEX", "NATIONALITY", "UNIT_TYPE", "DOC_CATEGORY",
-        "LEAVE_CATEGORY", "QUALIFICATION_LEVEL", "RELATIONSHIP_TYPE",
-        "ISLAND", "CONCELHO", "TRAINING_TYPE"
-    );
 
     private ExternalID id;
     private String ccode;
@@ -44,9 +37,9 @@ public class Option {
         Objects.requireNonNull(ccode, "ccode não pode ser nulo");
         Objects.requireNonNull(ckey, "ckey não pode ser nulo");
         Objects.requireNonNull(cvalue, "cvalue não pode ser nulo");
-        if (!VALID_CCODES.contains(ccode)) {
+        if (OptionCcode.fromCode(ccode).isEmpty()) {
             throw IgrpResponseStatusException.badRequest(
-                "ccode inválido: '" + ccode + "'. Valores aceites: " + VALID_CCODES);
+                "ccode inválido: '" + ccode + "'. Valores aceites: " + OptionCcode.codigosValidos());
         }
         String effectiveLocale = (locale == null || locale.isBlank()) ? "pt-CV" : locale;
         int effectiveSortOrder = (sortOrder == null) ? 0 : sortOrder;
@@ -83,7 +76,7 @@ public class Option {
         this.active = true;
     }
 
-    public static Set<String> validCcodes() {
-        return VALID_CCODES;
+    public static String codigosValidos() {
+        return OptionCcode.codigosValidos();
     }
 }

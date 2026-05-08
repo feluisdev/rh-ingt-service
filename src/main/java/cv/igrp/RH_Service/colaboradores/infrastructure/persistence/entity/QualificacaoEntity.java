@@ -1,6 +1,3 @@
-/* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
-/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
-
 package cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity;
 
 import cv.igrp.RH_Service.shared.config.AuditEntity;
@@ -9,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.envers.Audited;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Audited
@@ -28,20 +26,26 @@ public class QualificacaoEntity extends AuditEntity {
     @Column(name = "funcionario_id", nullable = false)
     private UUID funcionarioId;
 
-    @Column(name = "nivel_academico", nullable = false, length = 50)
-    private String nivelAcademico;
+    @Column(name = "level", length = 50)
+    private String level;
 
-    @Column(name = "curso", nullable = false, length = 200)
-    private String curso;
+    @Column(name = "course_name", length = 200)
+    private String courseName;
 
-    @Column(name = "instituicao", length = 200)
-    private String instituicao;
+    @Column(name = "institution", length = 200)
+    private String institution;
 
-    @Column(name = "ano_conclusao")
-    private Integer anoConclusao;
+    @Column(name = "country", length = 10)
+    private String country;
 
-    @Column(name = "pais", length = 10)
-    private String pais;
+    @Column(name = "start_date")
+    private LocalDate startDate;
+
+    @Column(name = "end_date")
+    private LocalDate endDate;
+
+    @Column(name = "completed")
+    private Boolean completed;
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;

@@ -12,7 +12,7 @@ public interface ColabsFuncionarioEntityRepository
 
     boolean existsByNif(String nif);
     boolean existsByNifAndIdNot(String nif, UUID id);
-    boolean existsByBiNumero(String biNumero);
-    boolean existsByBiNumeroAndIdNot(String biNumero, UUID id);
+    boolean existsByNumeroDocumento(String numeroDocumento);
+    boolean existsByNumeroDocumentoAndIdNot(String numeroDocumento, UUID id);
     Optional<FuncionarioEntity> findByEmailIgnoreCase(String email);
 }

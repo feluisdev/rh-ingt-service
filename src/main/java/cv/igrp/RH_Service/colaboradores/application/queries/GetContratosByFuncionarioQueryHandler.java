@@ -22,7 +22,7 @@ public class GetContratosByFuncionarioQueryHandler
 
     @IgrpQueryHandler
     public ResponseEntity<WrapperListaContratoDTO> handle(GetContratosByFuncionarioQuery query) {
-        var list = contratoRepository.findAllByFuncionarioIdOrderByDataInicioDesc(FuncionarioId.from(query.getFuncionarioId()))
+        var list = contratoRepository.findAllByFuncionarioIdOrderByStartDateDesc(FuncionarioId.from(query.getFuncionarioId()))
                 .stream().map(mapper::toDTO).toList();
         var wrapper = new WrapperListaContratoDTO();
         wrapper.setContent(new ArrayList<>(list));

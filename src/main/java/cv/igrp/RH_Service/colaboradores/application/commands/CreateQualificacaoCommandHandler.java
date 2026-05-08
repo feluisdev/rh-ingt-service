@@ -24,16 +24,15 @@ public class CreateQualificacaoCommandHandler
     @IgrpCommandHandler
     public ResponseEntity<Map<String, ?>> handle(CreateQualificacaoCommand command) {
         var dto = command.getRequest();
-        if (dto.getFuncionarioId() == null || dto.getFuncionarioId().isBlank())
-            throw IgrpResponseStatusException.badRequest("O campo funcionarioId é obrigatório.");
-
-        var funcionarioId = FuncionarioId.from(dto.getFuncionarioId());
+        var funcionarioId = FuncionarioId.from(command.getFuncionarioId());
         funcionarioRepository.findById(funcionarioId)
-                .orElseThrow(() -> IgrpResponseStatusException.notFound("Funcionário não encontrado: " + dto.getFuncionarioId()));
+                .orElseThrow(() -> IgrpResponseStatusException.notFound(
+                        "Funcionário não encontrado: " + command.getFuncionarioId()));
 
         var saved = qualificacaoRepository.save(Qualificacao.criar(
-                funcionarioId, dto.getNivelAcademico(), dto.getCurso(),
-                dto.getInstituicao(), dto.getAnoConclusao(), dto.getPais()));
+                funcionarioId, dto.getLevel(), dto.getCourseName(),
+                dto.getInstitution(), dto.getCountry(),
+                dto.getStartDate(), dto.getEndDate(), dto.getCompleted()));
 
         return ResponseEntity.status(201).body(Map.of(
                 "id", saved.getId().getStringValor(),

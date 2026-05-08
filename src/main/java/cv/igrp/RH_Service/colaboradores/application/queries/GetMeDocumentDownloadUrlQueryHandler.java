@@ -40,7 +40,7 @@ public class GetMeDocumentDownloadUrlQueryHandler
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Documento não encontrado: " + query.getDocumentoId()));
 
-        if (!documento.getReferenceId().equals(funcionarioId))
+        if (!documento.getReferenceId().equals(funcionarioId.getValor()))
             throw IgrpResponseStatusException.notFound("Documento não encontrado: " + query.getDocumentoId());
 
         var presignedResponse = documentoService.getPresignedLink(documento.getFileKey());

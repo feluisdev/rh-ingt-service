@@ -1,47 +1,53 @@
 {
   "type": "controller",
-  "name": "Dependente",
+  "name": "DependenteController",
   "module": "colaboradores",
-  "basePath": "api/v1/rh/dependentes",
-  "description": "Gestão de dependentes de funcionários",
+  "basePath": "api/v1/rh/funcionarios/{funcionarioId}/dependentes",
+  "description": "Gestão de dependentes (familiares) dos funcionários",
   "actions": [
+    {
+      "actionName": "getDependentesByFuncionario",
+      "method": "GET",
+      "path": "",
+      "pathVariables": [{ "type": "string", "name": "funcionarioId", "isRequired": true }],
+      "responses": { "200": { "name": "OK", "content": { "application/json": { "schema": { "type": "WrapperListaDependente", "objectType": "dto", "name": "data", "collectionType": "none", "module": "colaboradores" } } } } }
+    },
     {
       "actionName": "createDependente",
       "method": "POST",
-      "requestBody": true
+      "path": "",
+      "pathVariables": [{ "type": "string", "name": "funcionarioId", "isRequired": true }],
+      "requestBody": { "content": { "application/json": { "schema": { "type": "DependenteRequest", "collectionType": "none", "name": "data", "objectType": "dto", "module": "colaboradores" } } } },
+      "responses": { "201": { "name": "CREATED", "content": { "application/json": { "schema": { "type": "map", "objectType": "java", "name": "data", "collectionType": "none" } } } } }
     },
     {
       "actionName": "getDependenteById",
       "method": "GET",
       "path": "{dependenteId}",
-      "pathVariables": [
-        {"name": "dependenteId", "type": "string"}
-      ]
+      "pathVariables": [{ "type": "string", "name": "funcionarioId", "isRequired": true }, { "type": "string", "name": "dependenteId", "isRequired": true }],
+      "responses": { "200": { "name": "OK", "content": { "application/json": { "schema": { "type": "DependenteResponse", "objectType": "dto", "name": "data", "collectionType": "none", "module": "colaboradores" } } } } }
     },
     {
       "actionName": "updateDependente",
       "method": "PUT",
       "path": "{dependenteId}",
-      "pathVariables": [
-        {"name": "dependenteId", "type": "string"}
-      ],
-      "requestBody": true
+      "pathVariables": [{ "type": "string", "name": "funcionarioId", "isRequired": true }, { "type": "string", "name": "dependenteId", "isRequired": true }],
+      "requestBody": { "content": { "application/json": { "schema": { "type": "DependenteRequest", "collectionType": "none", "name": "data", "objectType": "dto", "module": "colaboradores" } } } },
+      "responses": { "200": { "name": "OK", "content": { "application/json": { "schema": { "type": "DependenteResponse", "objectType": "dto", "name": "data", "collectionType": "none", "module": "colaboradores" } } } } }
     },
     {
       "actionName": "deactivateDependente",
       "method": "DELETE",
       "path": "{dependenteId}",
-      "pathVariables": [
-        {"name": "dependenteId", "type": "string"}
-      ]
+      "pathVariables": [{ "type": "string", "name": "funcionarioId", "isRequired": true }, { "type": "string", "name": "dependenteId", "isRequired": true }],
+      "responses": { "200": { "name": "OK", "content": { "application/json": { "schema": { "type": "map", "objectType": "java", "name": "data", "collectionType": "none" } } } } }
     },
     {
       "actionName": "activateDependente",
       "method": "PUT",
       "path": "{dependenteId}/activate",
-      "pathVariables": [
-        {"name": "dependenteId", "type": "string"}
-      ]
+      "pathVariables": [{ "type": "string", "name": "funcionarioId", "isRequired": true }, { "type": "string", "name": "dependenteId", "isRequired": true }],
+      "responses": { "200": { "name": "OK", "content": { "application/json": { "schema": { "type": "map", "objectType": "java", "name": "data", "collectionType": "none" } } } } }
     }
   ]
 }

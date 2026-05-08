@@ -118,6 +118,10 @@ public class LicencaMobilidade {
         this.status = "CANCELLED";
     }
 
+    public void associarDocumento(UUID documentId) {
+        this.documentId = documentId;
+    }
+
     public boolean isPending() { return "PENDING".equals(this.status); }
     public boolean isApproved() { return "ACTIVE".equals(this.status); }
 }

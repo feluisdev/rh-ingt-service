@@ -67,14 +67,14 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public boolean existsByBiNumero(String biNumero) {
-        return entityRepository.existsByBiNumero(biNumero);
+    public boolean existsByNumeroDocumento(String numeroDocumento) {
+        return entityRepository.existsByNumeroDocumento(numeroDocumento);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public boolean existsByBiNumeroAndIdNot(String biNumero, FuncionarioId id) {
-        return entityRepository.existsByBiNumeroAndIdNot(biNumero, id.getValor());
+    public boolean existsByNumeroDocumentoAndIdNot(String numeroDocumento, FuncionarioId id) {
+        return entityRepository.existsByNumeroDocumentoAndIdNot(numeroDocumento, id.getValor());
     }
 
     @Transactional(readOnly = true)
@@ -97,9 +97,8 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
             if (filter.getNif() != null && !filter.getNif().isBlank()) {
                 predicates = cb.and(predicates, cb.equal(root.get("nif"), filter.getNif()));
             }
-            if (filter.getSituacaoProfissional() != null && !filter.getSituacaoProfissional().isBlank()) {
-                predicates = cb.and(predicates,
-                        cb.equal(root.get("situacaoProfissional"), filter.getSituacaoProfissional()));
+            if (filter.getWorkerStateId() != null) {
+                predicates = cb.and(predicates, cb.equal(root.get("workerStateId"), filter.getWorkerStateId()));
             }
             if (filter.getUnidadeOrganicaId() != null) {
                 Subquery<UUID> sub = query.subquery(UUID.class);

@@ -8,5 +8,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class CreateQualificacaoCommand implements Command {
+    private final String funcionarioId;
     private final QualificacaoRequestDTO request;
 }

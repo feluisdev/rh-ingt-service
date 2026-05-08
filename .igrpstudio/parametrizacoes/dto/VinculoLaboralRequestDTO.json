@@ -1,0 +1,24 @@
+{
+  "type": "dto",
+  "module": "parametrizacoes",
+  "name": "VinculoLaboralRequest",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    {
+      "name": "code",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "description",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    }
+  ],
+  "id": "vinculo_laboral_req_dto_001"
+}

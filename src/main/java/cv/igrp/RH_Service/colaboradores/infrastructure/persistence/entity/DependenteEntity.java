@@ -1,6 +1,3 @@
-/* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
-/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
-
 package cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity;
 
 import cv.igrp.RH_Service.shared.config.AuditEntity;
@@ -29,14 +26,14 @@ public class DependenteEntity extends AuditEntity {
     @Column(name = "funcionario_id", nullable = false)
     private UUID funcionarioId;
 
-    @Column(name = "nome", nullable = false, length = 150)
-    private String nome;
+    @Column(name = "full_name", length = 200)
+    private String fullName;
 
-    @Column(name = "parentesco", nullable = false, length = 50)
-    private String parentesco;
+    @Column(name = "relationship_type", length = 50)
+    private String relationshipType;
 
-    @Column(name = "data_nascimento")
-    private LocalDate dataNascimento;
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
 
     @Column(name = "nif", length = 20)
     private String nif;

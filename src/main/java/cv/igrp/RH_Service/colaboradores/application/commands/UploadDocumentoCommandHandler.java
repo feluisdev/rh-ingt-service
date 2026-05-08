@@ -50,7 +50,7 @@ public class UploadDocumentoCommandHandler
                     "Extensão não permitida. Aceites: " + tipo.getAllowedExtensions());
 
         var saved = documentoRepository.save(Documento.criar(
-                funcionarioId, tipoId,
+                "FUNCIONARIO", funcionarioId.getValor(), tipoId,
                 command.getFileKey(),
                 command.getOriginalFilename(),
                 command.getContentType(),

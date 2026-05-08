@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Data
 public class CriarFormacaoRequestDTO {
@@ -13,9 +12,8 @@ public class CriarFormacaoRequestDTO {
     private String name;
 
     private String institution;
-    private String typeOptionKey;
+    private String trainingType;
     private LocalDate startDate;
     private LocalDate endDate;
     private Integer durationHours;
-    private UUID documentId;
 }

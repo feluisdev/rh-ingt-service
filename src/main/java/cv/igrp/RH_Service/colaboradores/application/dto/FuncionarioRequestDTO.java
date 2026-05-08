@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -31,10 +32,14 @@ public class FuncionarioRequestDTO {
     @Size(max = 20)
     private String nif;
 
-    @Size(max = 50)
-    private String biNumero;
+    private UUID documentTypeId;
 
-    private LocalDate biValidade;
+    @Size(max = 50)
+    private String numeroDocumento;
+
+    private LocalDate dataEmissaoDoc;
+
+    private LocalDate dataValidadeDoc;
 
     private String nacionalidade;
 
@@ -46,10 +51,15 @@ public class FuncionarioRequestDTO {
 
     private String morada;
 
-    private String fotoUrl;
+    @Size(max = 100)
+    private String ilha;
+
+    @Size(max = 100)
+    private String concelho;
+
+    @Size(max = 100)
+    private String localidade;
 
     @NotNull
     private LocalDate dataAdmissao;
-
-    private LocalDate dataSaida;
 }

@@ -81,4 +81,71 @@ public class ProcessoDisciplinarController {
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
+
+    @PostMapping("{processoId}/documentos")
+    @Operation(summary = "Associar documento a um processo disciplinar")
+    public ResponseEntity<DocumentoUploadResponseDTO> registarDocumento(
+            @PathVariable String funcionarioId,
+            @PathVariable String processoId,
+            @Valid @RequestBody UploadDocumentoRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoUploadResponseDTO> response = commandBus.send(
+                new RegistarDocumentoProcessoCommand(
+                        funcionarioId, processoId,
+                        request.getDocumentTypeId(), request.getFileKey(),
+                        request.getOriginalFilename(), request.getContentType(),
+                        request.getFileSize(), request.getDescription()));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("{processoId}/documentos")
+    @Operation(summary = "Listar documentos de um processo disciplinar")
+    public ResponseEntity<WrapperListaDocumentoDTO> listarDocumentos(
+            @PathVariable String funcionarioId,
+            @PathVariable String processoId,
+            @RequestParam(required = false) java.util.UUID documentTypeId,
+            @RequestParam(required = false) Boolean active) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<WrapperListaDocumentoDTO> response = queryBus.handle(
+                new GetDocumentosSubRecursoQuery("PROCESSO_DISCIPLINAR", java.util.UUID.fromString(processoId), documentTypeId, active));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("{processoId}/documentos/{docId}")
+    @Operation(summary = "Obter documento de um processo por ID")
+    public ResponseEntity<DocumentoResponseDTO> getDocumentoById(
+            @PathVariable String funcionarioId,
+            @PathVariable String processoId,
+            @PathVariable String docId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoResponseDTO> response = queryBus.handle(new GetDocumentoByIdQuery(funcionarioId, docId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("{processoId}/documentos/{docId}/download")
+    @Operation(summary = "Obter URL de download de um documento do processo")
+    public ResponseEntity<DocumentoDownloadResponseDTO> downloadDocumento(
+            @PathVariable String funcionarioId,
+            @PathVariable String processoId,
+            @PathVariable String docId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoDownloadResponseDTO> response = queryBus.handle(new GetDocumentoDownloadUrlQuery(funcionarioId, docId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @DeleteMapping("{processoId}/documentos/{docId}")
+    @Operation(summary = "Desactivar documento de um processo disciplinar")
+    public ResponseEntity<Map<String, ?>> desativarDocumento(
+            @PathVariable String funcionarioId,
+            @PathVariable String processoId,
+            @PathVariable String docId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<Map<String, ?>> response = commandBus.send(new DesativarDocumentoCommand(funcionarioId, docId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
 }

@@ -21,7 +21,7 @@ import java.util.Map;
 
 @IgrpController
 @RestController("colabsContratoController")
-@RequestMapping(path = "api/v1/rh/contratos")
+@RequestMapping(path = "api/v1/rh/funcionarios/{funcionarioId}/contratos")
 @Tag(name = "Contrato", description = "Gestão de contratos laborais")
 public class ContratoController {
 
@@ -34,11 +34,22 @@ public class ContratoController {
         this.queryBus = queryBus;
     }
 
+    @GetMapping
+    @Operation(summary = "Listar contratos do funcionário")
+    public ResponseEntity<WrapperListaContratoDTO> getContratosByFuncionario(@PathVariable String funcionarioId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<WrapperListaContratoDTO> response = queryBus.handle(new GetContratosByFuncionarioQuery(funcionarioId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
     @PostMapping
     @Operation(summary = "Criar contrato")
-    public ResponseEntity<Map<String, ?>> createContrato(@Valid @RequestBody ContratoRequestDTO request) {
+    public ResponseEntity<Map<String, ?>> createContrato(
+            @PathVariable String funcionarioId,
+            @Valid @RequestBody ContratoRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateContratoCommand(request));
+        ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateContratoCommand(funcionarioId, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
@@ -70,11 +81,97 @@ public class ContratoController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
+    @PutMapping("{contratoId}/close")
+    @Operation(summary = "Encerrar contrato (cessação)")
+    public ResponseEntity<Map<String, ?>> closeContrato(
+            @PathVariable String contratoId,
+            @Valid @RequestBody CloseContratoRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<Map<String, ?>> response = commandBus.send(
+                new CloseContratoCommand(contratoId, request.getEndDate(), request.getTerminationReason(), request.getNotes()));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @PutMapping("{contratoId}/suspend")
+    @Operation(summary = "Suspender contrato")
+    public ResponseEntity<Map<String, ?>> suspendContrato(@PathVariable String contratoId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<Map<String, ?>> response = commandBus.send(new SuspenderContratoCommand(contratoId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
     @PutMapping("{contratoId}/activate")
-    @Operation(summary = "Reactivar contrato")
+    @Operation(summary = "Reactivar contrato suspenso")
     public ResponseEntity<Map<String, ?>> activateContrato(@PathVariable String contratoId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new AtivarContratoCommand(contratoId));
+        ResponseEntity<Map<String, ?>> response = commandBus.send(new ReativarContratoCommand(contratoId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @PostMapping("{contratoId}/documentos")
+    @Operation(summary = "Associar documento a um contrato")
+    public ResponseEntity<DocumentoUploadResponseDTO> registarDocumento(
+            @PathVariable String contratoId,
+            @Valid @RequestBody UploadDocumentoRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoUploadResponseDTO> response = commandBus.send(
+                new RegistarDocumentoContratoCommand(
+                        contratoId,
+                        request.getDocumentTypeId(), request.getFileKey(),
+                        request.getOriginalFilename(), request.getContentType(),
+                        request.getFileSize(), request.getDescription()));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("{contratoId}/documentos")
+    @Operation(summary = "Listar documentos de um contrato")
+    public ResponseEntity<WrapperListaDocumentoDTO> listarDocumentos(
+            @PathVariable String contratoId,
+            @RequestParam(required = false) java.util.UUID documentTypeId,
+            @RequestParam(required = false) Boolean active) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<WrapperListaDocumentoDTO> response = queryBus.handle(
+                new GetDocumentosSubRecursoQuery("CONTRATO", java.util.UUID.fromString(contratoId), documentTypeId, active));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("{contratoId}/documentos/{docId}")
+    @Operation(summary = "Obter documento de um contrato por ID")
+    public ResponseEntity<DocumentoResponseDTO> getDocumentoById(
+            @PathVariable String contratoId,
+            @PathVariable String docId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoResponseDTO> response = queryBus.handle(
+                new GetDocumentoSubRecursoByIdQuery("CONTRATO", java.util.UUID.fromString(contratoId), docId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("{contratoId}/documentos/{docId}/download")
+    @Operation(summary = "Obter URL de download de um documento do contrato")
+    public ResponseEntity<DocumentoDownloadResponseDTO> downloadDocumento(
+            @PathVariable String contratoId,
+            @PathVariable String docId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoDownloadResponseDTO> response = queryBus.handle(
+                new GetDocumentoDownloadSubRecursoQuery("CONTRATO", java.util.UUID.fromString(contratoId), docId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @DeleteMapping("{contratoId}/documentos/{docId}")
+    @Operation(summary = "Desactivar documento de um contrato")
+    public ResponseEntity<Map<String, ?>> desativarDocumento(
+            @PathVariable String contratoId,
+            @PathVariable String docId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<Map<String, ?>> response = commandBus.send(
+                new DesativarDocumentoSubRecursoCommand("CONTRATO", java.util.UUID.fromString(contratoId), docId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

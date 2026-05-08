@@ -22,5 +22,4 @@ public class LicencaMobilidadeRequestDTO {
     private String observacoes;
     private String justification;
     private java.util.UUID destinationUnitId;
-    private java.util.UUID documentId;
 }

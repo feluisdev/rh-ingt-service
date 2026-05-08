@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,7 +19,7 @@ public class DocumentTypeResponseDTO {
 
     private String allowedExtensions;
 
-    private UUID categoryOptionId;
+    private String category;
 
     private Boolean isActive;
 }

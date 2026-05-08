@@ -21,7 +21,7 @@ import java.util.Map;
 
 @IgrpController
 @RestController("colabsQualificacaoController")
-@RequestMapping(path = "api/v1/rh/qualificacoes")
+@RequestMapping(path = "api/v1/rh/funcionarios/{funcionarioId}/qualificacoes")
 @Tag(name = "Qualificação", description = "Gestão de qualificações académicas de funcionários")
 public class QualificacaoController {
 
@@ -34,11 +34,22 @@ public class QualificacaoController {
         this.queryBus = queryBus;
     }
 
+    @GetMapping
+    @Operation(summary = "Listar qualificações do funcionário")
+    public ResponseEntity<WrapperListaQualificacaoDTO> getQualificacoesByFuncionario(@PathVariable String funcionarioId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<WrapperListaQualificacaoDTO> response = queryBus.handle(new GetQualificacoesByFuncionarioQuery(funcionarioId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
     @PostMapping
     @Operation(summary = "Criar qualificação")
-    public ResponseEntity<Map<String, ?>> createQualificacao(@Valid @RequestBody QualificacaoRequestDTO request) {
+    public ResponseEntity<Map<String, ?>> createQualificacao(
+            @PathVariable String funcionarioId,
+            @Valid @RequestBody QualificacaoRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateQualificacaoCommand(request));
+        ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateQualificacaoCommand(funcionarioId, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
@@ -75,6 +86,71 @@ public class QualificacaoController {
     public ResponseEntity<Map<String, ?>> activateQualificacao(@PathVariable String qualificacaoId) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(new AtivarQualificacaoCommand(qualificacaoId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @PostMapping("{qualificacaoId}/documentos")
+    @Operation(summary = "Associar documento a uma qualificação")
+    public ResponseEntity<DocumentoUploadResponseDTO> registarDocumento(
+            @PathVariable String qualificacaoId,
+            @Valid @RequestBody UploadDocumentoRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoUploadResponseDTO> response = commandBus.send(
+                new RegistarDocumentoQualificacaoCommand(
+                        qualificacaoId,
+                        request.getDocumentTypeId(), request.getFileKey(),
+                        request.getOriginalFilename(), request.getContentType(),
+                        request.getFileSize(), request.getDescription()));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("{qualificacaoId}/documentos")
+    @Operation(summary = "Listar documentos de uma qualificação")
+    public ResponseEntity<WrapperListaDocumentoDTO> listarDocumentos(
+            @PathVariable String qualificacaoId,
+            @RequestParam(required = false) java.util.UUID documentTypeId,
+            @RequestParam(required = false) Boolean active) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<WrapperListaDocumentoDTO> response = queryBus.handle(
+                new GetDocumentosSubRecursoQuery("QUALIFICACAO", java.util.UUID.fromString(qualificacaoId), documentTypeId, active));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("{qualificacaoId}/documentos/{docId}")
+    @Operation(summary = "Obter documento de uma qualificação por ID")
+    public ResponseEntity<DocumentoResponseDTO> getDocumentoById(
+            @PathVariable String qualificacaoId,
+            @PathVariable String docId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoResponseDTO> response = queryBus.handle(
+                new GetDocumentoSubRecursoByIdQuery("QUALIFICACAO", java.util.UUID.fromString(qualificacaoId), docId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("{qualificacaoId}/documentos/{docId}/download")
+    @Operation(summary = "Obter URL de download de um documento da qualificação")
+    public ResponseEntity<DocumentoDownloadResponseDTO> downloadDocumento(
+            @PathVariable String qualificacaoId,
+            @PathVariable String docId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoDownloadResponseDTO> response = queryBus.handle(
+                new GetDocumentoDownloadSubRecursoQuery("QUALIFICACAO", java.util.UUID.fromString(qualificacaoId), docId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @DeleteMapping("{qualificacaoId}/documentos/{docId}")
+    @Operation(summary = "Desactivar documento de uma qualificação")
+    public ResponseEntity<Map<String, ?>> desativarDocumento(
+            @PathVariable String qualificacaoId,
+            @PathVariable String docId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<Map<String, ?>> response = commandBus.send(
+                new DesativarDocumentoSubRecursoCommand("QUALIFICACAO", java.util.UUID.fromString(qualificacaoId), docId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

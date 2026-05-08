@@ -37,6 +37,10 @@ title: Especificação Técnica — Módulo de Recursos Humanos v4.0
 | 1.0 | 22-04-2026 | TA Digital | Reestruturação conforme menu SIPPROG: Cargos e Funções movidos para Estrutura Organizacional; Mobilidade integrada em Colaboradores; Avaliação de Desempenho tratada como ponto de integração externo. |
 | 3.0 | Abril 2026 | TA Digital | Consolidação dos módulos; introdução dos históricos independentes (contratos, enquadramento, colocação); modelo de documentos polimórfico; endpoints de referência /reference/*. |
 | 4.0 | Abril 2026 | TA Digital | Adoção do Modelo Relacional v4.0: migração de lookups sem lógica para `option_entity`; separação clara entre `employee_contracts`, `employee_professional_assignments` e `employee_unit_assignments`; novos sub-recursos do dossier: dependentes, habilitações, formações, processos disciplinares; refatoração da secção Parametrizações conforme decisão OptionEntity; Modelo de Dados actualizado para 26 tabelas. |
+| 4.1 | Maio 2026 | TA Digital | Actualização conforme implementação real: campos de identificação do funcionário actualizados (`nomeCompleto`, `genero`, `estadoCivil`, `numeroDocumento`, `document_type_id`, `ilha`, `concelho`, `localidade`); `workerStateId` removido do payload de criação (atribuído automaticamente a ATIVO); `professionalSituationId` nullable até ao primeiro contrato; parâmetros de filtro `GET /funcionarios` actualizados para UUIDs. |
+| 4.2 | Maio 2026 | TA Digital | Contrato: adicionados `status` (ATIVO/SUSPENSO/CESSADO) e `renewalCount`; novos endpoints `PUT /contratos/{id}/suspend` e `PUT /contratos/{id}/activate`; corrigido esquema `t_contrato` com nomes reais de tabela/colunas; lógica de fecho do contrato anterior documentada como aplicacional (não trigger de BD); secção 9.3 actualizada. |
+| 4.3 | Maio 2026 | TA Digital | Contrato: adicionados `regimeTrabalho` (enum `RegimeTrabalho`, base legal LGTFP art.123-129) e `percentagemTempo`; validação dinâmica via `RegimeTrabalho.codigosValidos()`. Nova entidade `t_dados_bancarios` (banco/conta/IBAN/INPS) com API completa em secção 2.11. Manifestos `.igrpstudio` actualizados: `RegimeTrabalho.json`, `ContratoEntity.json`, `DadosBancariosEntity.json`. |
+| 4.4 | Maio 2026 | TA Digital | Normalização de paths REST: todos os sub-recursos de funcionário migrados para prefixo `/funcionarios/{funcionarioId}/X` (contratos, enquadramentos, dependentes, qualificações, recibos, dados-bancários, documentos); `funcionarioId` removido dos request bodies e passado via path variable; endpoints proxy em `FuncionarioController` eliminados; tabela `VALID_CCODES` (Option) alargada com `CAREER_REGIME`, `BANCO` e `WORK_REGIME`; manifestos `.igrpstudio` actualizados. |
 
 ---
 
@@ -79,7 +83,7 @@ Na v3, o enquadramento profissional misturava progressão de carreira com tipo d
 | `employee_professional_assignments` | Promoção de categoria, progressão de escalão, mudança de cargo/função | `is_current = true` |
 | `employee_unit_assignments` | Mobilidade interna, destacamento, cedência | `end_date IS NULL` |
 
-**Impacto na API:** novo sub-recurso `/employees/{id}/contracts` (secção 2.3). O enquadramento profissional deixa de carregar o tipo de contrato.
+**Impacto na API:** novo sub-recurso `/funcionarios/{id}/contratos` (secção 2.3). O enquadramento profissional deixa de carregar o tipo de contrato.
 
 ### 3. Novos sub-recursos do dossier (secção 2.10)
 
@@ -87,10 +91,10 @@ Tabelas e endpoints novos, ausentes em v3:
 
 | Recurso | Tabela | Endpoint base |
 |---|---|---|
-| Dependentes | `employee_dependents` | `/employees/{id}/dependents` |
-| Habilitações Literárias | `qualifications` | `/employees/{id}/qualifications` |
-| Formações Profissionais | `trainings` | `/employees/{id}/trainings` |
-| Processos Disciplinares | `disciplinary_processes` | `/employees/{id}/disciplinary-processes` |
+| Dependentes | `employee_dependents` | `/funcionarios/{id}/dependentes` |
+| Habilitações Literárias | `qualifications` | `/funcionarios/{id}/qualificacoes` |
+| Formações Profissionais | `trainings` | `/funcionarios/{id}/formacoes` |
+| Processos Disciplinares | `disciplinary_processes` | `/funcionarios/{id}/processos-disciplinares` |
 
 ### 4. Documentos polimórficos
 
@@ -105,7 +109,7 @@ Isto unifica os dois conceitos do modelo INPS (`DocumentoPessoalEntity` + `Docum
 
 ### 5. Endereço e contacto no `employees`
 
-A v3 tratava endereço como entidade separada. A v4 inline no `employees`: `address_street`, `address_island_option_id`, `address_concelho_option_id`. Justificação: cada funcionário tem **um** endereço corrente; histórico de endereços não é requisito do dossier.
+A v3 tratava endereço como entidade separada. A v4 inline no `employees`: `address_street`, `address_island`, `address_concelho`. Justificação: cada funcionário tem **um** endereço corrente; histórico de endereços não é requisito do dossier.
 
 ### 6. Funcionário com fotografia
 
@@ -121,7 +125,7 @@ Novo campo `photo_document_id` em `employees` referencia directamente a tabela `
 
 ### 8. Triggers — adições
 
-Novo trigger `fn_close_current_contract` (secção 9.3) — encerra automaticamente o contrato anterior ao inserir um novo com `is_current = true`. Antes da v4 essa lógica vivia no handler aplicacional; agora é consistência estrutural ao nível da BD.
+O encerramento do contrato anterior ao criar um novo continua a ser feito no `CreateContratoCommandHandler` (lógica aplicacional). Não existe trigger de BD para este efeito — a consistência é garantida pela aplicação.
 
 ### 9. Sumário de impacto na implementação
 
@@ -131,7 +135,7 @@ Novo trigger `fn_close_current_contract` (secção 9.3) — encerra automaticame
 | Migrations | Criar `employee_contracts`, `employee_dependents`, `qualifications`, `trainings`, `disciplinary_processes`, `public_holidays`. |
 | Migrations | Acrescentar campos de endereço e `photo_document_id` em `employees`. |
 | Migrations | Reestruturar `documents` (adicionar `storage_key`, `mime_type`, `size_bytes`, `reference_entity`, `reference_id`). |
-| Triggers | Criar `fn_close_current_contract`. |
+| Handler | `CreateContratoCommandHandler` encerra contrato anterior e calcula `renewalCount`. |
 | Endpoints | Manter aliases temporários para `/marital-statuses` etc. apontando para `/reference/options`. |
 | OpenAPI | Regenerar contratos REST das secções 2.3, 2.10 e 5.9. |
 
@@ -221,7 +225,7 @@ Authorization: Bearer {token}
 | Erros | Resposta JSON com `timestamp`, `status`, `error`, `message`, `path` e `fields[]` com erros de validação por campo. |
 | Soft delete | Operações `DELETE` marcam `is_active = false`; não há remoção física exposta. |
 | Auditoria | Todas as escritas registam `created_by`/`updated_by` e geram entrada em `change_history` via trigger. |
-| OptionEntity | Lookups sem lógica de negócio (sexo, estado civil, nacionalidade, ilha, concelho, tipo de unidade orgânica) são servidos pelo endpoint `/reference/options?ccode={code}`. |
+| Referências a Options | Os campos que referenciam `option_entity` guardam o `ckey` como string (ex: `"LICENCIATURA"`, `"CONJUGE"`). **Não** são UUIDs. O frontend obtém os valores disponíveis via `GET /reference/options?ccode={code}`. A API valida que o ckey enviado existe no ccode esperado antes de persistir. |
 
 ---
 
@@ -241,32 +245,31 @@ Retorna a informação de cabeçalho apresentada na página de perfil: identific
 
 ```json
 {
-  "id": 42,
+  "id": "550e8400-e29b-41d4-a716-446655440000",
   "fullName": "Alex Jailson Barbosa Andrade",
   "nif": "17361994",
-  "email": "Alex.Andrade@ingt.gov.cv",
+  "email": "alex.andrade@ingt.gov.cv",
   "phone": "+238 261 2345",
-  "currentJob": { "id": 7, "name": "Tecnico Superior" },
-  "currentFunction": { "id": 12, "name": "Coordenador de Projeto" },
-  "currentUnit": { "id": 5, "name": "Direccao de Servicos de Gestao Territorial" },
-  "career": { "id": 2, "name": "Nivel Tecnico I" },
-  "category": { "id": 4, "name": "Tecnico Superior Principal" },
-  "grade": { "id": 3, "gradeNumber": 3 },
+  "currentJob": { "id": "uuid-cargo", "name": "Tecnico Superior" },
+  "currentUnit": { "id": "uuid-unidade", "name": "Direccao de Servicos de Gestao Territorial" },
+  "career": { "id": "uuid-carreira", "name": "Nivel Tecnico I" },
+  "category": { "id": "uuid-categoria", "name": "Tecnico Superior Principal" },
+  "grade": { "id": "uuid-escalao", "gradeNumber": 3 },
   "admissionDate": "2018-09-01",
-  "workerState": "ACTIVE"
+  "workerState": "ATIVO"
 }
 ```
 
 ## 1.3 Os Meus Recibos
 
-### GET /me/payroll-slips
+### GET /me/recibos
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
 | `periodYear` | integer | Não | Filtra por ano de referência. |
 | `periodMonth` | integer | Não | Filtra por mês (1-12). |
 
-### GET /me/payroll-slips/{id}/download
+### GET /me/recibos/{id}/download
 
 Devolve o ficheiro PDF do recibo. Valida que o registo pertence ao colaborador autenticado.
 
@@ -340,22 +343,22 @@ Esta secção é alimentada por integração com o Sistema de Avaliação de Des
 
 ## 2.1 Visão Geral
 
-O módulo Colaboradores agrega o conjunto de operações relativas aos funcionários do INGT, abrangendo o cadastro, a vida profissional (contratos, enquadramento e atribuições orgânicas), os processos de ausência e licença, os recibos de vencimento, o dossier completo (habilitações, formações, processos disciplinares, dependentes) e os documentos pessoais. Todos os sub-recursos do dossier são acessíveis sob o prefixo `/employees/{employeeId}/`.
+O módulo Colaboradores agrega o conjunto de operações relativas aos funcionários do INGT, abrangendo o cadastro, a vida profissional (contratos, enquadramento e atribuições orgânicas), os processos de ausência e licença, os recibos de vencimento, o dossier completo (habilitações, formações, processos disciplinares, dependentes) e os documentos pessoais. Todos os sub-recursos do dossier são acessíveis sob o prefixo `/funcionarios/{funcionarioId}/`.
 
 ## 2.2 Funcionários (Employees) — CRUD
 
-### GET /employees
+### GET /funcionarios
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
-| `search` | string | Não | Pesquisa por nome, NIF ou número mecanográfico. |
-| `unitId` | integer | Não | Filtra por unidade orgânica principal. |
-| `workerStateId` | integer | Não | Filtra por estado do trabalhador. |
-| `careerId` | integer | Não | Filtra por carreira atual. |
-| `isActive` | boolean | Não | Filtra por estado lógico. |
-| `page` | integer | Não | Página (default 1). |
-| `size` | integer | Não | Tamanho da página (default 20, máx. 100). |
-| `sort` | string | Não | Campo de ordenação. Ex.: `fullName,asc`. |
+| `nome` | string | Não | Pesquisa parcial por nome. |
+| `nif` | string | Não | NIF exacto. |
+| `workerStateId` | UUID | Não | Filtra por estado do trabalhador (UUID do registo em `worker_states`). |
+| `unidadeOrganicaId` | UUID | Não | Filtra por unidade orgânica (via enquadramento actual). |
+| `careerId` | UUID | Não | Filtra por carreira (via enquadramento actual). |
+| `active` | boolean | Não | Filtra por `is_active`. Default: `true`. |
+| `pagina` | string | Não | Página (0-based, default `0`). |
+| `tamanho` | string | Não | Tamanho da página (default `20`). |
 
 **Resposta (200 OK)**
 
@@ -363,52 +366,71 @@ O módulo Colaboradores agrega o conjunto de operações relativas aos funcioná
 {
   "content": [
     {
-      "id": 42,
-      "fullName": "Alex Jailson Barbosa Andrade",
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "numeroFuncionario": "F000001",
+      "nomeCompleto": "Alex Jailson Barbosa Andrade",
       "nif": "17361994",
-      "currentUnit": "Direccao de Servicos de Gestao Territorial",
-      "currentJob": "Tecnico Superior",
-      "workerState": "ACTIVE"
+      "genero": "Masculino",
+      "estadoCivil": "Solteiro",
+      "nacionalidade": "CV",
+      "documentTypeId": null,
+      "numeroDocumento": null,
+      "dataEmissaoDoc": null,
+      "dataValidadeDoc": null,
+      "email": "alex.andrade@ingt.gov.cv",
+      "telefone": "+238 261 2345",
+      "morada": "Achada Santo António",
+      "ilha": "Santiago",
+      "concelho": "Praia",
+      "localidade": "Praia",
+      "workerStateId": "aaaa-...",
+      "professionalSituationId": "bbbb-...",
+      "dataAdmissao": "2018-09-01",
+      "isActive": true
     }
   ],
-  "page": 1,
-  "size": 20,
   "totalElements": 132,
+  "pageNumber": 0,
+  "pageSize": 20,
   "totalPages": 7
 }
 ```
 
-### GET /employees/{id}
+### GET /funcionarios/{id}
 
 Devolve o detalhe completo, incluindo enquadramento corrente, contrato corrente, unidade principal e contactos.
 
-### POST /employees
+### POST /funcionarios
+
+O estado do trabalhador (`workerStateId`) é atribuído automaticamente a `ATIVO` pelo sistema — não faz parte do payload de criação.
 
 **Corpo da Requisição**
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
-| `fullName` | string | Sim | Nome completo. |
-| `nif` | string | Sim | Número de identificação fiscal único. |
-| `birthDate` | date | Sim | Data de nascimento. |
-| `sexOptionKey` | string | Sim | `M` ou `F` (referência `option_entity` ccode=`SEX`). |
-| `maritalStatusOptionKey` | string | Sim | Estado civil (referência `option_entity` ccode=`MARITAL_STATUS`). |
-| `nationalityOptionKey` | string | Sim | Nacionalidade (referência `option_entity` ccode=`NATIONALITY`). |
-| `admissionDate` | date | Sim | Data de admissão. |
-| `workerStateId` | integer | Sim | Estado do trabalhador (default ACTIVE). |
-| `professionalSituationId` | integer | Sim | Situação profissional. |
-| `email` | string | Não | Email institucional. |
-| `phone` | string | Não | Telefone. |
-| `nib` | string | Não | NIB/IBAN para pagamentos (21 dígitos). |
-| `addressStreet` | string | Não | Morada. |
-| `addressIslandOptionKey` | string | Não | Ilha (referência `option_entity` ccode=`ISLAND`). |
-| `addressConcelhoOptionKey` | string | Não | Concelho (referência `option_entity` ccode=`CONCELHO`). |
+| `nomeCompleto` | string | Sim | Nome completo (máx. 200 caracteres). |
+| `dataNascimento` | date | Sim | Data de nascimento (`YYYY-MM-DD`). |
+| `genero` | string | Sim | Género (valor livre, ex: `Masculino`, `Feminino`). |
+| `estadoCivil` | string | Sim | Estado civil (valor livre, ex: `Solteiro`, `Casado`). |
+| `nif` | string | Sim | NIF único (máx. 20 caracteres). |
+| `documentTypeId` | UUID | Não | ID do tipo de documento de identificação (FK→document_types). |
+| `numeroDocumento` | string | Não | Número do BI/Passaporte/outro (máx. 50 caract.); único no sistema. |
+| `dataEmissaoDoc` | date | Não | Data de emissão do documento. |
+| `dataValidadeDoc` | date | Não | Data de validade do documento. |
+| `nacionalidade` | string | Não | Código de nacionalidade (ex: `CV`, `PT`). Default: `CV`. |
+| `dataAdmissao` | date | Sim | Data de admissão. |
+| `email` | string | Não | Email (máx. 200 caracteres); único no sistema. |
+| `telefone` | string | Não | Telefone (máx. 30 caracteres). |
+| `morada` | string | Não | Morada/endereço. |
+| `ilha` | string | Não | Ilha (valor livre, máx. 100 caract., ex: `Santiago`, `São Vicente`). |
+| `concelho` | string | Não | Concelho (valor livre, máx. 100 caract., ex: `Praia`, `Mindelo`). |
+| `localidade` | string | Não | Localidade (máx. 100 caracteres). |
 
-### PUT /employees/{id}
+### PUT /funcionarios/{id}
 
-O campo `nif` é imutável após a criação. As restantes propriedades são atualizáveis.
+Os campos `nif` e `numeroFuncionario` são imutáveis após a criação. As restantes propriedades aceitam os mesmos campos do `POST`.
 
-### DELETE /employees/{id}
+### DELETE /funcionarios/{id}
 
 Soft delete (`is_active = false`). Bloqueado se existirem pedidos PENDING.
 
@@ -418,29 +440,72 @@ Soft delete (`is_active = false`). Bloqueado se existirem pedidos PENDING.
 
 Historial independente do ciclo de vida contratual: nomeação definitiva, CTFP, comissão de serviço, etc. Não confundir com o enquadramento de carreira (secção 2.4).
 
-### GET /employees/{employeeId}/contracts
+Ao criar um novo contrato, o `CreateContratoCommandHandler` executa automaticamente:
+1. Encerra o contrato anterior (`status = 'CESSADO'`, `is_current = false`, `end_date = startDate − 1 dia`, `terminationReason = 'SUBSTITUICAO'`), se existir.
+2. Calcula `renewalCount`: incrementa relativamente ao contrato anterior se o tipo for renovável e o mesmo; caso contrário reinicia a 0.
+3. Actualiza `t_funcionario.professional_situation_id` com o vínculo configurado em `contract_types.professional_situation_id`, se definido.
+
+### GET /funcionarios/{funcionarioId}/contratos
 
 Devolve o histórico completo de contratos, ordenado por `start_date` descendente.
 
-### GET /employees/{employeeId}/contracts/{id}
+### GET /funcionarios/{funcionarioId}/contratos/{id}
 
-### POST /employees/{employeeId}/contracts
+### POST /funcionarios/{funcionarioId}/contratos
 
 **Corpo da Requisição**
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
-| `contractTypeId` | integer | Sim | Tipo de contrato (`contract_types`). |
-| `startDate` | date | Sim | Data de início. |
-| `endDate` | date | Não | Data de fim (`null` = contrato activo). |
-| `legalBase` | string | Não | Nº de despacho / Boletim Oficial. |
+| `contractTypeId` | UUID | Sim | Tipo de contrato (`contract_types`). |
+| `contractNumber` | string | Não | Nº do instrumento contratual (ex: CTFP/CFP). Distinto do despacho. Único na tabela. |
+| `startDate` | date | Sim | Data de início (≥ data de admissão do funcionário). |
+| `endDate` | date | Não | Data de fim (`null` = contrato activo; obrigatório para `CTFP_TERMO_CERTO`). |
+| `legalBase` | string | Não | Nº de despacho / Boletim Oficial que autoriza o contrato. |
+| `regimeTrabalho` | string | Não | Regime de trabalho (enum `RegimeTrabalho`): `TEMPO_COMPLETO`, `TEMPO_PARCIAL`, `ISENCAO_HORARIO`, `DEDICACAO_EXCLUSIVA`. |
+| `percentagemTempo` | decimal | Cond. | Percentagem de tempo. Obrigatório se `regimeTrabalho = TEMPO_PARCIAL`; proibido nos restantes. |
 | `notes` | text | Não | Observações. |
 
 Ao criar um novo contrato, o anterior (se existir `is_current = true`) é encerrado automaticamente (`end_date = startDate − 1 dia`, `is_current = false`).
 
-### PUT /employees/{employeeId}/contracts/{id}
+### PUT /funcionarios/{funcionarioId}/contratos/{id}
 
-Atualiza campos editáveis (`endDate`, `legalBase`, `notes`). O `contractTypeId` e `startDate` são imutáveis.
+Actualiza campos editáveis (`endDate`, `legalBase`, `notes`). Os campos `contractTypeId` e `startDate` são imutáveis após criação.
+
+### PUT /funcionarios/{funcionarioId}/contratos/{id}/close
+
+Encerra manualmente o contrato activo (`status → CESSADO`, `is_current → false`).
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+|---|---|---|---|
+| `endDate` | date | Sim | Data de fim do contrato. |
+| `terminationReason` | string | Sim | Motivo de cessação (LGTFP): `CADUCIDADE`, `ACORDO_MUTUO`, `RESCISAO_UNILATERAL_ENTIDADE`, `APOSENTACAO`, `FALECIMENTO`, `DEMISSAO`. |
+| `notes` | text | Não | Observações adicionais. |
+
+### PUT /funcionarios/{funcionarioId}/contratos/{id}/suspend
+
+Suspende o contrato activo (`status: ATIVO → SUSPENSO`). Tipicamente accionado durante uma licença sem vencimento. Devolve erro 409 se o contrato não estiver ATIVO.
+
+### PUT /funcionarios/{funcionarioId}/contratos/{id}/activate
+
+Reactiva um contrato suspenso (`status: SUSPENSO → ATIVO`). Devolve erro 409 se o contrato não estiver SUSPENSO.
+
+**Campos de resposta comuns a GET e POST:**
+
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `id` | UUID | Identificador do contrato. |
+| `funcionarioId` | UUID | Identificador do funcionário. |
+| `contractTypeId` | UUID | Tipo de contrato. |
+| `contractNumber` | string | Nº do instrumento contratual. |
+| `startDate` | date | Data de início. |
+| `endDate` | date | Data de fim (`null` = sem prazo definido). |
+| `terminationReason` | string | Motivo de cessação (preenchido ao encerrar). |
+| `isCurrent` | boolean | Indica se é o contrato activo do funcionário. |
+| `status` | string | Ciclo de vida: `ATIVO`, `SUSPENSO`, `CESSADO`. |
+| `renewalCount` | integer | Nº de renovações consecutivas do mesmo tipo renovável. |
+| `legalBase` | string | Nº de despacho / Boletim Oficial. |
+| `notes` | text | Observações. |
 
 ---
 
@@ -448,11 +513,11 @@ Atualiza campos editáveis (`endDate`, `legalBase`, `notes`). O `contractTypeId`
 
 Materializa a relação entre o funcionário e a sua carreira, categoria, escalão, cargo e função num dado período. O sistema mantém historial completo garantindo apenas um enquadramento activo (`is_current = true`) por funcionário. As validações asseguram a consistência hierárquica carreira → categoria → escalão.
 
-### GET /employees/{employeeId}/professional-assignments
+### GET /funcionarios/{funcionarioId}/enquadramentos
 
-### GET /employees/{employeeId}/professional-assignments/{id}
+### GET /funcionarios/{funcionarioId}/enquadramentos/{id}
 
-### POST /employees/{employeeId}/professional-assignments
+### POST /funcionarios/{funcionarioId}/enquadramentos
 
 **Corpo da Requisição**
 
@@ -469,7 +534,7 @@ Materializa a relação entre o funcionário e a sua carreira, categoria, escal�
 
 Ao criar um novo enquadramento, o anterior é encerrado automaticamente (`end_date = startDate − 1 dia`).
 
-### PUT /employees/{employeeId}/professional-assignments/{id}
+### PUT /funcionarios/{funcionarioId}/enquadramentos/{id}
 
 ---
 
@@ -477,9 +542,9 @@ Ao criar um novo enquadramento, o anterior é encerrado automaticamente (`end_da
 
 Um colaborador pode estar atribuído a uma ou mais unidades, sendo uma delas obrigatoriamente marcada como principal (`isPrimary = true`). As atribuições têm vigência (`startDate`, `endDate`).
 
-### GET /employees/{employeeId}/unit-assignments
+### GET /funcionarios/{funcionarioId}/colocacoes
 
-### POST /employees/{employeeId}/unit-assignments
+### POST /funcionarios/{funcionarioId}/colocacoes
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
@@ -488,7 +553,7 @@ Um colaborador pode estar atribuído a uma ou mais unidades, sendo uma delas obr
 | `startDate` | date | Sim | Data de início. |
 | `endDate` | date | Não | Data de fim (vazio se em curso). |
 
-### PUT /employees/{employeeId}/unit-assignments/{id}/close
+### PUT /funcionarios/{funcionarioId}/colocacoes/{id}/close
 
 ---
 
@@ -534,13 +599,13 @@ Suporta o ciclo de vida completo dos pedidos de ausência: submissão, aprovaç�
 
 ## 2.7 Saldos de Ausências (Leave Balances)
 
-### GET /employees/{employeeId}/leave-balances
+### GET /funcionarios/{funcionarioId}/saldos-ausencia
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
 | `year` | integer | Não | Ano de referência (default ano corrente). |
 
-### PUT /employees/{employeeId}/leave-balances/{balanceId}
+### PUT /funcionarios/{funcionarioId}/saldos-ausencia/{balanceId}
 
 Permite ao RH ajustar o saldo (`assignedDays` e `usedDays`). Operação auditada.
 
@@ -591,17 +656,17 @@ Encerra o registo (estado `CLOSED`). Em mobilidades temporárias, restaura a atr
 
 ### PUT /leaves-mobilities/{id}/cancel
 
-### GET /employees/{employeeId}/leaves-mobilities
+### GET /funcionarios/{funcionarioId}/ausencias
 
 ---
 
 ## 2.9 Recibos de Vencimento (Payroll Slips)
 
-### GET /employees/{employeeId}/payroll-slips
+### GET /funcionarios/{funcionarioId}/recibos
 
-### GET /payroll-slips/{id}
+### GET /funcionarios/{funcionarioId}/recibos/{id}
 
-### POST /employees/{employeeId}/payroll-slips
+### POST /funcionarios/{funcionarioId}/recibos
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
@@ -620,83 +685,85 @@ Encerra o registo (estado `CLOSED`). Em mobilidades temporárias, restaura a atr
 
 Cônjuge, filhos e outros dependentes para efeitos de INPS e subsídios familiares.
 
-#### GET /employees/{employeeId}/dependents
+#### GET /funcionarios/{funcionarioId}/dependentes
 
-#### GET /employees/{employeeId}/dependents/{id}
+#### GET /funcionarios/{funcionarioId}/dependentes/{id}
 
-#### POST /employees/{employeeId}/dependents
+#### POST /funcionarios/{funcionarioId}/dependentes
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
 | `fullName` | string | Sim | Nome completo do dependente. |
 | `birthDate` | date | Não | Data de nascimento. |
-| `relationshipOptionKey` | string | Sim | Tipo de parentesco (`option_entity` ccode=`RELATIONSHIP_TYPE`): `CONJUGE`, `FILHO`, `PAI`, `MAE`, `IRMAO`, etc. |
+| `relationshipType` | string | Sim | Tipo de parentesco — ckey de `option_entity` ccode=`RELATIONSHIP_TYPE`: `CONJUGE`, `FILHO`, `PAI`, `MAE`, `IRMAO`, etc. |
 | `nif` | string | Não | NIF do dependente. |
 
-#### PUT /employees/{employeeId}/dependents/{id}
+#### PUT /funcionarios/{funcionarioId}/dependentes/{id}
 
-#### DELETE /employees/{employeeId}/dependents/{id}
+#### DELETE /funcionarios/{funcionarioId}/dependentes/{id}
 
 Soft delete.
 
 ### 2.10.2 Habilitações Literárias (Qualifications)
 
-#### GET /employees/{employeeId}/qualifications
+#### GET /funcionarios/{funcionarioId}/qualificacoes
 
-#### GET /employees/{employeeId}/qualifications/{id}
+#### GET /funcionarios/{funcionarioId}/qualificacoes/{id}
 
-#### POST /employees/{employeeId}/qualifications
+#### POST /funcionarios/{funcionarioId}/qualificacoes
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
-| `levelOptionKey` | string | Sim | Nível académico (`option_entity` ccode=`QUALIFICATION_LEVEL`): `BASICO`, `SECUNDARIO`, `LICENCIATURA`, `MESTRADO`, `DOUTORAMENTO`. |
-| `courseName` | string | Não | Designação do curso. |
+| `level` | string | Sim | Nível académico — ckey de `option_entity` ccode=`QUALIFICATION_LEVEL`: `BASICO`, `SECUNDARIO`, `LICENCIATURA`, `MESTRADO`, `DOUTORAMENTO`. |
+| `courseName` | string | Não | Designação do curso / área de estudo. |
 | `institution` | string | Não | Instituição de ensino. |
-| `countryOptionKey` | string | Não | País da instituição (`option_entity` ccode=`NATIONALITY`). |
-| `startDate` | date | Não | Data de início. |
+| `country` | string | Não | País da instituição — ckey de `option_entity` ccode=`NATIONALITY` (ex: `CV`, `PT`). |
+| `startDate` | date | Não | Data de início do curso. |
 | `endDate` | date | Não | Data de conclusão. |
-| `completed` | boolean | Não | Indica se concluído. |
-| `documentId` | integer | Não | Certificado/diploma digitalizado (documento previamente carregado). |
+| `completed` | boolean | Não | `true` = concluído com certificado; `false` = em curso. |
 
-#### PUT /employees/{employeeId}/qualifications/{id}
+Documentos (diploma, certidão) são associados após criação via `POST /funcionarios/{id}/documentos` com `referenceEntity=qualifications` e `referenceId={qualificationId}`.
 
-#### DELETE /employees/{employeeId}/qualifications/{id}
+#### PUT /funcionarios/{funcionarioId}/qualificacoes/{id}
+
+#### DELETE /funcionarios/{funcionarioId}/qualificacoes/{id}
 
 ### 2.10.3 Formações Profissionais (Trainings)
 
-#### GET /employees/{employeeId}/trainings
+#### GET /funcionarios/{funcionarioId}/formacoes
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
 | `year` | integer | Não | Filtra por ano. |
 
-#### GET /employees/{employeeId}/trainings/{id}
+#### GET /funcionarios/{funcionarioId}/formacoes/{id}
 
-#### POST /employees/{employeeId}/trainings
+#### POST /funcionarios/{funcionarioId}/formacoes
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
 | `name` | string | Sim | Designação da formação. |
 | `institution` | string | Não | Entidade formadora. |
-| `typeOptionKey` | string | Não | Tipo (`option_entity` ccode=`TRAINING_TYPE`): `PRESENCIAL`, `ELEARNING`, `SEMINARIO`, `CONGRESSO`. |
+| `trainingType` | string | Não | Tipo — ckey de `option_entity` ccode=`TRAINING_TYPE`: `PRESENCIAL`, `ELEARNING`, `SEMINARIO`, `CONGRESSO`. |
 | `startDate` | date | Não | Data de início. |
 | `endDate` | date | Não | Data de fim. |
 | `durationHours` | integer | Não | Duração em horas. |
-| `documentId` | integer | Não | Certificado de participação (documento previamente carregado). |
 
-#### PUT /employees/{employeeId}/trainings/{id}
+Documentos (certificado de participação) são associados após criação via `POST /funcionarios/{id}/documentos` com `referenceEntity=trainings` e `referenceId={trainingId}`.
 
-#### DELETE /employees/{employeeId}/trainings/{id}
+#### PUT /funcionarios/{funcionarioId}/formacoes/{id}
+
+#### DELETE /funcionarios/{funcionarioId}/formacoes/{id}
 
 ### 2.10.4 Processos Disciplinares (Disciplinary Processes)
 
 > **Acesso restrito:** `ROLE_HR_ADMIN` e `ROLE_SYSTEM_ADMIN`. Operações de leitura permitidas a `ROLE_HR_OPERATOR`.
 
-#### GET /employees/{employeeId}/disciplinary-processes
+#### GET /funcionarios/{funcionarioId}/processos-disciplinares
 
-#### GET /employees/{employeeId}/disciplinary-processes/{id}
+#### GET /funcionarios/{funcionarioId}/processos-disciplinares/{id}
 
-#### POST /employees/{employeeId}/disciplinary-processes
+#### POST /funcionarios/{funcionarioId}/processos-disciplinares
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
@@ -708,19 +775,55 @@ Soft delete.
 | `penaltyEndDate` | date | Não | Fim do cumprimento da pena. |
 | `officialBulletin` | string | Não | Nº Boletim Oficial. |
 | `notes` | text | Não | Observações. |
-| `documentId` | integer | Não | Processo digitalizado. |
 
-#### PUT /employees/{employeeId}/disciplinary-processes/{id}
+Documentos (processo digitalizado) são associados após criação via `POST /funcionarios/{id}/documentos` com `referenceEntity=disciplinary_processes` e `referenceId={processId}`.
+
+#### PUT /funcionarios/{funcionarioId}/processos-disciplinares/{id}
 
 ---
 
-## 2.11 Documentos do Colaborador
+## 2.11 Dados Bancários do Funcionário
+
+Dados bancários para processamento de vencimento e declarações INPS. Um funcionário pode ter vários registos activos (conta principal, poupança). O campo `banco` referencia a `option_entity` com `ccode=BANCO`.
+
+### GET /funcionarios/{funcionarioId}/dados-bancarios
+
+Devolve todos os dados bancários activos do funcionário.
+
+### GET /funcionarios/{funcionarioId}/dados-bancarios/{id}
+
+### POST /funcionarios/{funcionarioId}/dados-bancarios
+
+**Corpo da Requisição**
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+|---|---|---|---|
+| `banco` | string | Não | Banco (ckey `option_entity` ccode=`BANCO`). |
+| `numeroConta` | string | Não | Número de conta. |
+| `iban` | string | Não | IBAN/NIB (máx. 34 chars). |
+| `numeroSegurancaSocial` | string | Não | Número de beneficiário INPS. |
+
+### PUT /funcionarios/{funcionarioId}/dados-bancarios/{id}
+
+Actualiza os campos preenchidos (null mantém o valor existente).
+
+### DELETE /funcionarios/{funcionarioId}/dados-bancarios/{id}
+
+Soft delete — marca `is_active = false`.
+
+### PUT /funcionarios/{funcionarioId}/dados-bancarios/{id}/activate
+
+Reactiva um registo desactivado.
+
+---
+
+## 2.12 Documentos do Colaborador
 
 Gestão dos documentos pessoais associados ao funcionário (CNI, contratos, certidões). Ver Capítulo 7 para detalhe da API genérica de Anexos.
 
-### GET /employees/{employeeId}/documents
+### GET /funcionarios/{funcionarioId}/documentos
 
-### POST /employees/{employeeId}/documents
+### POST /funcionarios/{funcionarioId}/documentos
 
 ---
 
@@ -816,7 +919,9 @@ Suporta a modelação de Direções, Departamentos, Divisões e Secções de for
 | `code` | string | Sim | Código único e estável. |
 | `name` | string | Sim | Designação oficial. |
 | `acronym` | string | Não | Sigla. |
-| `unitTypeOptionKey` | string | Sim | Tipo: `DIRECAO`, `DEPARTAMENTO`, `DIVISAO`, `SECCAO`. |
+| `type` | string | Não | Tipo de unidade: ex. `DIRECAO`, `DEPARTAMENTO`, `DIVISAO`, `SECCAO`. |
+| `descricao` | string | Não | Descrição da unidade orgânica. |
+| `estado` | boolean | Não | Estado operacional da unidade. |
 | `parentUnitId` | integer | Não | Unidade-pai (nulo para topo). |
 
 ### PUT /organizational-units/{id}
@@ -840,6 +945,7 @@ Designação oficial atribuída ao funcionário (ex.: Diretor de Serviços, Coor
 | `code` | string | Sim | Código único (máx. 50). |
 | `name` | string | Sim | Designação (máx. 150). |
 | `description` | string | Não | Descrição. |
+| `nivel` | integer | Não | Nível hierárquico do cargo. |
 | `isActive` | boolean | Não | Estado inicial (default true). |
 
 ### PUT /jobs/{id}
@@ -886,7 +992,7 @@ Função efetivamente exercida pelo colaborador.
 
 ## 4.1 Visão Geral
 
-Consolida os catálogos relativos à progressão funcional dos colaboradores conforme o PCFR (Plano de Carreiras, Funções e Remunerações, Decreto-Lei 4/2024): Carreiras, Categorias e Escalões. Hierarquia: `careers → categories → grades`. O índice salarial (`salaryIndex`) e o salário base (`salaryBase`) são definidos ao nível do Escalão. O regime da carreira é configurável via `option_entity` (`ccode='CAREER_REGIME'`). A ordem de progressão dentro de uma carreira é definida ao nível da Categoria.
+Consolida os catálogos relativos à progressão funcional dos colaboradores conforme o PCFR (Plano de Carreiras, Funções e Remunerações, Decreto-Lei 4/2024): Carreiras, Categorias e Escalões. Hierarquia: `careers → categories → grades`. O índice salarial (`salaryIndex`) e o salário base (`salaryBase`) são definidos ao nível do Escalão. O regime da carreira é um campo de texto livre (`regime`) diretamente em `careers`, sem referência a `option_entity`. A ordem de progressão dentro de uma carreira é definida ao nível da Categoria.
 
 ## 4.2 Carreiras (Careers)
 
@@ -903,7 +1009,7 @@ Consolida os catálogos relativos à progressão funcional dos colaboradores con
 | `code` | string | Sim | Código único (máx. 50). |
 | `name` | string | Sim | Designação (máx. 150). |
 | `description` | string | Não | Descrição. |
-| `regimeOptionKey` | string | Não | Regime da carreira (`option_entity` ccode=`CAREER_REGIME`): ex. `GERAL`, `ESPECIAL`. |
+| `regime` | string | Não | Regime da carreira: ex. `GERAL`, `ESPECIAL` (valor direto, sem referência a option_entity). |
 | `isActive` | boolean | Não | Estado inicial. |
 
 ### PUT /careers/{id}
@@ -959,6 +1065,7 @@ Posição remuneratória dentro de uma categoria. O par `(category_id, grade_num
 |---|---|---|---|
 | `categoryId` | integer | Sim | Categoria. |
 | `gradeNumber` | integer | Sim | Número do escalão (≥ 1). |
+| `codigo` | string | Não | Código alfanumérico do escalão (máx. 50). |
 | `name` | string | Sim | Designação. |
 | `salaryIndex` | number | Não | Índice salarial da grelha PCFR. |
 | `salaryBase` | number | Não | Salário base em CVE correspondente ao índice salarial. |
@@ -1015,7 +1122,7 @@ Bloqueado se `is_core = true`.
 
 ## 5.3 Situações Profissionais (Professional Situations)
 
-`professional_situations` — tabela dedicada porque `EFETIVO` vs `CONTRATADO` têm regras distintas no PCFR (antiguidade, progressão, direitos).
+`professional_situations` — tabela dedicada porque `EFETIVO` vs `CONTRATADO` têm regras distintas no PCFR (antiguidade, progressão, direitos). Os campos `counts_seniority` e `eligible_for_progression` são usados pelo sistema nos cálculos de progressão de carreira.
 
 ### GET /professional-situations
 
@@ -1027,14 +1134,18 @@ Bloqueado se `is_core = true`.
 |---|---|---|---|
 | `code` | string | Sim | Ex: `EFETIVO`, `CONTRATADO`, `COMISSIONADO`, `ESTAGIARIO`. |
 | `name` | string | Sim | Designação. |
+| `countsSeniority` | boolean | Sim | Conta para antiguidade e progressão na carreira (PCFR). Default `true`. |
+| `eligibleForProgression` | boolean | Sim | Elegível para progressão de categoria/escalão (PCFR). Default `true`. |
 
 ### PUT /professional-situations/{id}
 
 ### DELETE /professional-situations/{id}
 
+Bloqueado se referenciado por funcionários activos ou por tipos de contrato.
+
 ## 5.4 Tipos de Contrato (Contract Types)
 
-`contract_types` — tabela dedicada porque alimenta `employee_contracts` e cada tipo tem implicações legais distintas (renovabilidade, prazo, direitos, lei aplicável).
+`contract_types` — tabela dedicada porque alimenta `employee_contracts` e cada tipo tem implicações legais distintas (renovabilidade, prazo, direitos, lei aplicável). O campo `professionalSituationId` define o vínculo laboral que o tipo de contrato implica — parametrizável pelo administrador RH com base na LGTFP. Ao criar um contrato para um funcionário, o sistema actualiza automaticamente `employees.professional_situation_id` com o vínculo configurado.
 
 ### GET /contract-types
 
@@ -1047,6 +1158,10 @@ Bloqueado se `is_core = true`.
 | `code` | string | Sim | Ex: `NOMEACAO_DEFINITIVA`, `CFP`, `CTFP_TERMO_CERTO`, `CTFP_TERMO_INCERTO`, `COMISSAO_SERVICO`. |
 | `name` | string | Sim | Designação (máx. 150). |
 | `description` | text | Não | Descrição. |
+| `professionalSituationId` | UUID | Não | Vínculo laboral correspondente (LGTFP). Ao criar contrato deste tipo, `employees.professional_situation_id` é actualizado automaticamente. |
+| `isRenewable` | boolean | Não | Indica se o contrato é renovável (LGTFP). Default `false`. |
+| `maxRenewals` | integer | Não | Número máximo de renovações permitidas por lei (`null` = sem limite). |
+| `maxDurationMonths` | integer | Não | Duração máxima legal em meses (`null` = indefinido). O sistema alerta quando o limite se aproxima. |
 
 ### PUT /contract-types/{id}
 
@@ -1106,7 +1221,7 @@ Bloqueado se referenciado por contratos activos.
 
 ## 5.7 Tipos de Documento (Document Types)
 
-`document_types` — tabela dedicada porque `allowed_extensions` determina validação no upload e `category_option_id` agrupa tipos por secção do dossier.
+`document_types` — tabela dedicada porque `allowed_extensions` determina validação no upload e `category` (string ckey, ccode=`DOC_CATEGORY`) agrupa tipos por secção do dossier.
 
 ### GET /document-types
 
@@ -1173,6 +1288,8 @@ Os lookups sem lógica de negócio (estado civil, sexo, nacionalidade, ilha, con
 | `CONCELHO` | Concelho | `PRAIA`, `SANTA_CATARINA`, `SAO_DOMINGOS`, `MINDELO` |
 | `TRAINING_TYPE` | Tipo de Formação | `PRESENCIAL`, `ELEARNING`, `SEMINARIO`, `CONGRESSO` |
 | `CAREER_REGIME` | Regime de Carreira | `GERAL`, `ESPECIAL` |
+| `BANCO` | Banco (para dados bancários) | `BCA`, `BCN`, `CECV`, `BAI` |
+| `WORK_REGIME` | Regime de Trabalho (LGTFP art.123-129) | `TEMPO_INTEIRO`, `TEMPO_PARCIAL`, `EXCLUSIVIDADE` |
 
 **Resposta (200 OK)**
 
@@ -1220,7 +1337,7 @@ Os lookups sem lógica de negócio (estado civil, sexo, nacionalidade, ilha, con
 A Avaliação de Desempenho é externa ao Módulo RH e é gerida pelo Sistema de Avaliação de Desempenho (SAD). A integração é assente em dois mecanismos: leituras diretas (read-through com cache) para os endpoints de consulta de avaliações, e webhooks do SAD para notificação proativa de eventos.
 
 ```
-SIPPROG (/me/external/*, GET /employees/{id}/evaluations)
+SIPPROG (/me/external/*, GET /funcionarios/{id}/evaluations)
         ↕ REST + JWT (OAuth2 client_credentials)
 SAD (Sistema de Avaliação de Desempenho — externo)
         ↕ Webhook → POST /webhooks/sad/*
@@ -1228,9 +1345,9 @@ SAD (Sistema de Avaliação de Desempenho — externo)
 
 ## 6.2 Endpoints de Leitura (Read-Through)
 
-### GET /employees/{employeeId}/external/evaluations
+### GET /funcionarios/{funcionarioId}/external/evaluations
 
-### GET /employees/{employeeId}/external/evaluations/{externalId}
+### GET /funcionarios/{funcionarioId}/external/evaluations/{externalId}
 
 ### GET /external/evaluation-cycles
 
@@ -1312,7 +1429,7 @@ Devolve o ficheiro com `Content-Type` e `Content-Disposition` apropriados. Permi
 
 ## 7.4 Listagem por Funcionário
 
-### GET /employees/{employeeId}/documents
+### GET /funcionarios/{funcionarioId}/documentos
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
@@ -1391,9 +1508,9 @@ O diagrama ERD do módulo é apresentado no documento `Modelo_Relacional_RH_v4.0
 | `full_name` | VARCHAR(200) NOT NULL | Nome completo. |
 | `nif` | VARCHAR(20) UNIQUE NOT NULL | NIF único. |
 | `birth_date` | DATE NOT NULL | Data de nascimento. |
-| `sex_option_id` | UUID FK→option_entity | Sexo (ccode=`SEX`). |
-| `marital_status_option_id` | UUID FK→option_entity | Estado civil (ccode=`MARITAL_STATUS`). |
-| `nationality_option_id` | UUID FK→option_entity | Nacionalidade (ccode=`NATIONALITY`). |
+| `sex` | VARCHAR(10) | ckey ccode=`SEX`: `M`, `F`. |
+| `marital_status` | VARCHAR(30) | ckey ccode=`MARITAL_STATUS`: `SOLTEIRO`, `CASADO`, etc. |
+| `nationality` | VARCHAR(10) | ckey ccode=`NATIONALITY`: `CV`, `PT`, etc. |
 | `worker_state_id` | BIGINT NOT NULL FK→worker_states | Estado do trabalhador. |
 | `professional_situation_id` | BIGINT NOT NULL FK→professional_situations | Situação profissional. |
 | `admission_date` | DATE NOT NULL | Data de admissão. |
@@ -1401,22 +1518,26 @@ O diagrama ERD do módulo é apresentado no documento `Modelo_Relacional_RH_v4.0
 | `phone` | VARCHAR(30) | Telefone. |
 | `nib` | VARCHAR(30) | IBAN para pagamentos. |
 | `address_street` | VARCHAR(200) | Morada. |
-| `address_island_option_id` | UUID FK→option_entity | Ilha (ccode=`ISLAND`). |
-| `address_concelho_option_id` | UUID FK→option_entity | Concelho (ccode=`CONCELHO`). |
+| `address_island` | VARCHAR(50) | ckey ccode=`ISLAND`: `SANTIAGO`, `SAL`, etc. |
+| `address_concelho` | VARCHAR(50) | ckey ccode=`CONCELHO`: `PRAIA`, `MINDELO`, etc. |
 | `photo_document_id` | BIGINT FK→documents | Fotografia do funcionário. |
 | `is_active` | BOOLEAN DEFAULT TRUE | Estado lógico. |
 | `created_at/by, updated_at/by` | AUDITORIA | Timestamps e autores. |
 
-### employee_contracts (Contratos do Funcionário)
+### t_contrato (Contratos do Funcionário)
 
 | Coluna | Tipo | Descrição |
 |---|---|---|
 | `id` | UUID PK | Identificador único. |
-| `employee_id` | BIGINT NOT NULL FK→employees | Funcionário. |
-| `contract_type_id` | BIGINT NOT NULL FK→contract_types | Tipo de contrato. |
+| `funcionario_id` | UUID NOT NULL FK→t_funcionario | Funcionário. |
+| `contract_type_id` | UUID NOT NULL FK→contract_types | Tipo de contrato. |
+| `contract_number` | VARCHAR(100) UNIQUE | Nº do instrumento contratual (nullable). |
 | `start_date` | DATE NOT NULL | Data de início. |
-| `end_date` | DATE | Data de fim (`null` = contrato activo). |
-| `is_current` | BOOLEAN NOT NULL DEFAULT FALSE | Apenas 1 TRUE por funcionário. |
+| `end_date` | DATE | Data de fim (`null` = sem prazo definido). |
+| `termination_reason` | VARCHAR(50) | Motivo de cessação (preenchido ao encerrar). |
+| `is_current` | BOOLEAN NOT NULL | Apenas 1 TRUE por funcionário. |
+| `status` | VARCHAR(20) NOT NULL | Ciclo de vida: `ATIVO`, `SUSPENSO`, `CESSADO`. |
+| `renewal_count` | INTEGER NOT NULL | Nº de renovações do mesmo tipo renovável. |
 | `legal_base` | VARCHAR(200) | Nº despacho / Boletim Oficial. |
 | `notes` | TEXT | Observações. |
 
@@ -1531,11 +1652,14 @@ Trigger `BEFORE INSERT OR UPDATE` em `employee_professional_assignments`.
 - Rejeita com EXCEPTION se a hierarquia for incoerente.
 - Garante que apenas um registo tem `is_current = true` por `employee_id`: ao activar o novo, desactiva o anterior (`is_current = false`, `end_date = new.start_date - 1`).
 
-## 9.3 fn_close_current_contract
+## 9.3 Fecho de Contrato Anterior (lógica aplicacional)
 
-Trigger `BEFORE INSERT` em `employee_contracts`.
+A lógica de encerramento do contrato anterior está no `CreateContratoCommandHandler`:
 
-- Ao inserir um novo contrato com `is_current = true`, encerra automaticamente o contrato anterior do mesmo funcionário: `is_current = false`, `end_date = new.start_date - 1 dia`.
+1. Pesquisa o contrato actual com `contratoRepository.findCurrentByFuncionarioId(funcionarioId)`.
+2. Chama `contratoActual.encerrar(startDate − 1 dia, "SUBSTITUICAO")` — define `status = 'CESSADO'`, `is_current = false`.
+3. Calcula `renewalCount`: se o `contract_type` for renovável e coincidir com o do contrato anterior, incrementa; caso contrário reinicia a 0.
+4. Persiste ambos os contratos e actualiza `t_funcionario.professional_situation_id`.
 
 ## 9.4 fn_apply_mobility
 
@@ -1597,7 +1721,7 @@ O cálculo de `working_days` em `leave_requests` exclui:
 | Unitário | JUnit 5 + Mockito | Handlers de comando/query; validações de negócio. |
 | Integração | Testcontainers (PostgreSQL) | Triggers, constraints, queries complexas. |
 | API | RestAssured / MockMvc | Contratos REST, códigos HTTP, formatos de resposta. |
-| Carga | k6 | Endpoints críticos (`GET /employees`, `POST /leave-requests`). |
+| Carga | k6 | Endpoints críticos (`GET /funcionarios`, `POST /leave-requests`). |
 
 ## 10.7 Observabilidade
 

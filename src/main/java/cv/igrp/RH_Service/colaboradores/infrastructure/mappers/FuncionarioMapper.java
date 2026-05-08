@@ -18,16 +18,19 @@ public class FuncionarioMapper {
                 e.getGenero(),
                 e.getEstadoCivil(),
                 e.getNif(),
-                e.getBiNumero(),
-                e.getBiValidade(),
+                e.getDocumentTypeId(),
+                e.getNumeroDocumento(),
+                e.getDataEmissaoDoc(),
+                e.getDataValidadeDoc(),
                 e.getNacionalidade(),
                 e.getEmail(),
                 e.getTelefone(),
                 e.getMorada(),
-                e.getFotoUrl(),
-                e.getSituacaoProfissional(),
+                e.getIlha(),
+                e.getConcelho(),
+                e.getLocalidade(),
+                e.getWorkerStateId(),
                 e.getDataAdmissao(),
-                e.getDataSaida(),
                 e.getIsActive()
         );
     }
@@ -41,16 +44,19 @@ public class FuncionarioMapper {
         e.setGenero(f.getGenero());
         e.setEstadoCivil(f.getEstadoCivil());
         e.setNif(f.getNif());
-        e.setBiNumero(f.getBiNumero());
-        e.setBiValidade(f.getBiValidade());
+        e.setDocumentTypeId(f.getDocumentTypeId());
+        e.setNumeroDocumento(f.getNumeroDocumento());
+        e.setDataEmissaoDoc(f.getDataEmissaoDoc());
+        e.setDataValidadeDoc(f.getDataValidadeDoc());
         e.setNacionalidade(f.getNacionalidade());
         e.setEmail(f.getEmail());
         e.setTelefone(f.getTelefone());
         e.setMorada(f.getMorada());
-        e.setFotoUrl(f.getFotoUrl());
-        e.setSituacaoProfissional(f.getSituacaoProfissional());
+        e.setIlha(f.getIlha());
+        e.setConcelho(f.getConcelho());
+        e.setLocalidade(f.getLocalidade());
+        e.setWorkerStateId(f.getWorkerStateId());
         e.setDataAdmissao(f.getDataAdmissao());
-        e.setDataSaida(f.getDataSaida());
         e.setIsActive(f.getIsActive());
         return e;
     }
@@ -64,16 +70,19 @@ public class FuncionarioMapper {
         r.setGenero(f.getGenero());
         r.setEstadoCivil(f.getEstadoCivil());
         r.setNif(f.getNif());
-        r.setBiNumero(f.getBiNumero());
-        r.setBiValidade(f.getBiValidade());
+        r.setDocumentTypeId(f.getDocumentTypeId() != null ? f.getDocumentTypeId().toString() : null);
+        r.setNumeroDocumento(f.getNumeroDocumento());
+        r.setDataEmissaoDoc(f.getDataEmissaoDoc());
+        r.setDataValidadeDoc(f.getDataValidadeDoc());
         r.setNacionalidade(f.getNacionalidade());
         r.setEmail(f.getEmail());
         r.setTelefone(f.getTelefone());
         r.setMorada(f.getMorada());
-        r.setFotoUrl(f.getFotoUrl());
-        r.setSituacaoProfissional(f.getSituacaoProfissional());
+        r.setIlha(f.getIlha());
+        r.setConcelho(f.getConcelho());
+        r.setLocalidade(f.getLocalidade());
+        r.setWorkerStateId(f.getWorkerStateId() != null ? f.getWorkerStateId().toString() : null);
         r.setDataAdmissao(f.getDataAdmissao());
-        r.setDataSaida(f.getDataSaida());
         r.setIsActive(f.getIsActive());
         return r;
     }

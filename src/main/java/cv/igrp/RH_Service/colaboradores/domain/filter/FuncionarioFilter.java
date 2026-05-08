@@ -10,7 +10,7 @@ import java.util.UUID;
 public class FuncionarioFilter {
     private String nome;
     private String nif;
-    private String situacaoProfissional;
+    private UUID workerStateId;
     private UUID unidadeOrganicaId;
     private UUID careerId;
     private Boolean isActive = true;

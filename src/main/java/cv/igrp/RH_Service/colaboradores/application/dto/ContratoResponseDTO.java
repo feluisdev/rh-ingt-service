@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
@@ -12,9 +13,16 @@ import java.time.LocalDate;
 public class ContratoResponseDTO {
     private String id;
     private String funcionarioId;
-    private String tipoContrato;
-    private LocalDate dataInicio;
-    private LocalDate dataFim;
-    private String numeroContrato;
-    private Boolean isActive;
+    private String contractTypeId;
+    private String contractNumber;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private String terminationReason;
+    private Boolean isCurrent;
+    private String status;
+    private Integer renewalCount;
+    private String regimeTrabalho;
+    private BigDecimal percentagemTempo;
+    private String legalBase;
+    private String notes;
 }

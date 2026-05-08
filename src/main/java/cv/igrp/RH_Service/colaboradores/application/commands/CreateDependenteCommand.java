@@ -8,5 +8,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class CreateDependenteCommand implements Command {
+    private final String funcionarioId;
     private final DependenteRequestDTO request;
 }

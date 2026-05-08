@@ -6,7 +6,8 @@ import lombok.Data;
 @Data
 public class DocumentoResponseDTO {
     private String id;
-    private String funcionarioId;
+    private String referenceEntity;
+    private String referenceId;
     private String documentTypeId;
     private DocumentTypeResponseDTO documentType;
     private String originalFilename;

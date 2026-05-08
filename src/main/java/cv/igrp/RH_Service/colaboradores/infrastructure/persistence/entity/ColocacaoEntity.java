@@ -16,7 +16,7 @@ import java.util.UUID;
 @Entity(name = "ColabsColocacaoEntity")
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "employee_unit_assignments")
+@Table(name = "t_employee_unit_assignments")
 public class ColocacaoEntity extends AuditEntity {
 
     @Id

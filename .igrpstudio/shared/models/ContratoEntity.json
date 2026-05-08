@@ -1,1 +1,147 @@
-{"type":"model","module":"shared","name":"ContratoEntity","tableName":"t_contrato_entity","audit":true,"crud":false,"revision":false,"attributes":[{"name":"id","type":"uuid","length":255,"nullable":true,"unique":false,"primaryKey":true,"generationType":"NONE","skipFieldRevision":false,"objectType":"java"},{"name":"tipo_contrato","type":"TipoContrato","length":255,"nullable":true,"unique":false,"primaryKey":false,"skipFieldRevision":false,"objectType":"enum","module":"shared"},{"name":"data_inicio","type":"date","length":255,"nullable":true,"unique":false,"primaryKey":false,"skipFieldRevision":false,"objectType":"java"},{"name":"data_fim","type":"date","length":255,"nullable":true,"unique":false,"primaryKey":false,"skipFieldRevision":false,"objectType":"java"},{"name":"salario","type":"decimal","length":255,"nullable":true,"unique":false,"primaryKey":false,"skipFieldRevision":false,"objectType":"java"},{"name":"carga_horaria","type":"integer","length":255,"nullable":true,"unique":false,"primaryKey":false,"skipFieldRevision":false,"objectType":"java"},{"name":"observacoes","type":"string","length":255,"nullable":true,"unique":false,"primaryKey":false,"skipFieldRevision":false},{"name":"estado","type":"Estado","length":255,"nullable":true,"unique":false,"primaryKey":false,"skipFieldRevision":false,"objectType":"enum","module":"shared"}],"id":"gipchcgtst","relationReference":[{"type":"OneToMany","entity":"DepartamentoEntity","fetchType":"lazy","fieldName":"id_departamento","mappedBy":"contratos","module":"shared"},{"type":"OneToMany","entity":"FuncionarioEntity","fetchType":"lazy","fieldName":"id_funcionario","mappedBy":"contratos","module":"shared"},{"type":"OneToMany","entity":"CargoEntity","fetchType":"lazy","fieldName":"id_cargo","mappedBy":"contratos","module":"shared"}],"uniqueConstraints":[],"indexes":[]}
+{
+  "type": "model",
+  "module": "shared",
+  "name": "ContratoEntity",
+  "tableName": "t_contrato",
+  "audit": true,
+  "crud": false,
+  "revision": false,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "nullable": false,
+      "unique": true,
+      "primaryKey": true,
+      "generationType": "NONE",
+      "objectType": "java"
+    },
+    {
+      "name": "funcionario_id",
+      "type": "uuid",
+      "nullable": false,
+      "unique": false,
+      "primaryKey": false,
+      "objectType": "java"
+    },
+    {
+      "name": "contract_type_id",
+      "type": "uuid",
+      "nullable": false,
+      "unique": false,
+      "primaryKey": false,
+      "objectType": "java"
+    },
+    {
+      "name": "contract_number",
+      "type": "string",
+      "length": 100,
+      "nullable": true,
+      "unique": true,
+      "primaryKey": false,
+      "objectType": "java"
+    },
+    {
+      "name": "start_date",
+      "type": "date",
+      "nullable": false,
+      "unique": false,
+      "primaryKey": false,
+      "objectType": "java"
+    },
+    {
+      "name": "end_date",
+      "type": "date",
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "objectType": "java"
+    },
+    {
+      "name": "termination_reason",
+      "type": "string",
+      "length": 50,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "objectType": "java"
+    },
+    {
+      "name": "is_current",
+      "type": "boolean",
+      "nullable": false,
+      "unique": false,
+      "primaryKey": false,
+      "objectType": "java"
+    },
+    {
+      "name": "status",
+      "type": "string",
+      "length": 20,
+      "nullable": false,
+      "unique": false,
+      "primaryKey": false,
+      "objectType": "java",
+      "comment": "ATIVO | SUSPENSO | CESSADO — controlado pelo sistema"
+    },
+    {
+      "name": "renewal_count",
+      "type": "integer",
+      "nullable": false,
+      "unique": false,
+      "primaryKey": false,
+      "objectType": "java"
+    },
+    {
+      "name": "regime_trabalho",
+      "type": "RegimeTrabalho",
+      "length": 30,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "objectType": "enum",
+      "module": "shared"
+    },
+    {
+      "name": "percentagem_tempo",
+      "type": "decimal",
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "objectType": "java",
+      "comment": "Preenchido apenas se regime_trabalho = TEMPO_PARCIAL"
+    },
+    {
+      "name": "legal_base",
+      "type": "string",
+      "length": 200,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "objectType": "java"
+    },
+    {
+      "name": "notes",
+      "type": "text",
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "objectType": "java"
+    }
+  ],
+  "relationReference": [
+    {
+      "type": "ManyToOne",
+      "entity": "FuncionarioEntity",
+      "fetchType": "lazy",
+      "fieldName": "funcionario_id",
+      "module": "shared"
+    }
+  ],
+  "uniqueConstraints": [],
+  "indexes": [
+    {
+      "columns": ["funcionario_id", "is_current"]
+    }
+  ]
+}

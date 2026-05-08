@@ -21,7 +21,7 @@ import java.util.Map;
 
 @IgrpController
 @RestController("colabsReciboController")
-@RequestMapping(path = "api/v1/rh")
+@RequestMapping(path = "api/v1/rh/funcionarios/{funcionarioId}/recibos")
 @Tag(name = "Recibos de Vencimento", description = "Gestão de recibos de vencimento dos funcionários")
 public class ReciboController {
 
@@ -34,7 +34,7 @@ public class ReciboController {
         this.queryBus = queryBus;
     }
 
-    @GetMapping("funcionarios/{funcionarioId}/recibos")
+    @GetMapping
     @Operation(summary = "Listar recibos de vencimento do funcionário")
     public ResponseEntity<WrapperListaReciboDTO> listarRecibos(
             @PathVariable String funcionarioId,
@@ -47,16 +47,18 @@ public class ReciboController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
-    @GetMapping("recibos/{reciboId}")
+    @GetMapping("{reciboId}")
     @Operation(summary = "Obter recibo por ID")
-    public ResponseEntity<ReciboVencimentoDTO> getReciboById(@PathVariable String reciboId) {
+    public ResponseEntity<ReciboVencimentoDTO> getReciboById(
+            @PathVariable String funcionarioId,
+            @PathVariable String reciboId) {
         LOGGER.debug("Operation started");
         ResponseEntity<ReciboVencimentoDTO> response = queryBus.handle(new GetReciboVencimentoQuery(reciboId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
-    @PostMapping("funcionarios/{funcionarioId}/recibos")
+    @PostMapping
     @Operation(summary = "Emitir recibo de vencimento")
     public ResponseEntity<Map<String, ?>> criarRecibo(
             @PathVariable String funcionarioId,
@@ -64,6 +66,73 @@ public class ReciboController {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(
                 new CriarReciboVencimentoCommand(funcionarioId, request));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @PostMapping("{reciboId}/documentos")
+    @Operation(summary = "Associar documento a um recibo de vencimento")
+    public ResponseEntity<DocumentoUploadResponseDTO> registarDocumento(
+            @PathVariable String funcionarioId,
+            @PathVariable String reciboId,
+            @Valid @RequestBody UploadDocumentoRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoUploadResponseDTO> response = commandBus.send(
+                new RegistarDocumentoReciboCommand(
+                        funcionarioId, reciboId,
+                        request.getDocumentTypeId(), request.getFileKey(),
+                        request.getOriginalFilename(), request.getContentType(),
+                        request.getFileSize(), request.getDescription()));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("{reciboId}/documentos")
+    @Operation(summary = "Listar documentos de um recibo de vencimento")
+    public ResponseEntity<WrapperListaDocumentoDTO> listarDocumentos(
+            @PathVariable String funcionarioId,
+            @PathVariable String reciboId,
+            @RequestParam(required = false) java.util.UUID documentTypeId,
+            @RequestParam(required = false) Boolean active) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<WrapperListaDocumentoDTO> response = queryBus.handle(
+                new GetDocumentosSubRecursoQuery("RECIBO_VENCIMENTO", java.util.UUID.fromString(reciboId), documentTypeId, active));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("{reciboId}/documentos/{docId}")
+    @Operation(summary = "Obter documento de um recibo por ID")
+    public ResponseEntity<DocumentoResponseDTO> getDocumentoById(
+            @PathVariable String funcionarioId,
+            @PathVariable String reciboId,
+            @PathVariable String docId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoResponseDTO> response = queryBus.handle(new GetDocumentoByIdQuery(funcionarioId, docId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("{reciboId}/documentos/{docId}/download")
+    @Operation(summary = "Obter URL de download de um documento do recibo")
+    public ResponseEntity<DocumentoDownloadResponseDTO> downloadDocumento(
+            @PathVariable String funcionarioId,
+            @PathVariable String reciboId,
+            @PathVariable String docId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoDownloadResponseDTO> response = queryBus.handle(new GetDocumentoDownloadUrlQuery(funcionarioId, docId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @DeleteMapping("{reciboId}/documentos/{docId}")
+    @Operation(summary = "Desactivar documento de um recibo de vencimento")
+    public ResponseEntity<Map<String, ?>> desativarDocumento(
+            @PathVariable String funcionarioId,
+            @PathVariable String reciboId,
+            @PathVariable String docId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<Map<String, ?>> response = commandBus.send(new DesativarDocumentoCommand(funcionarioId, docId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

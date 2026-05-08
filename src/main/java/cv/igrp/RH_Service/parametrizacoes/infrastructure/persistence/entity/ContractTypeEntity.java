@@ -30,6 +30,18 @@ public class ContractTypeEntity extends AuditEntity {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "vinculo_laboral_id")
+    private UUID vinculoLaboralId;
+
+    @Column(name = "is_renewable", nullable = false, columnDefinition = "boolean default false")
+    private Boolean isRenewable;
+
+    @Column(name = "max_renewals")
+    private Integer maxRenewals;
+
+    @Column(name = "max_duration_months")
+    private Integer maxDurationMonths;
+
     @Column(name = "is_active")
     private Boolean isActive;
 }

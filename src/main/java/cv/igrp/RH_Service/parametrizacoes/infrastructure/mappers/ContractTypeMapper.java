@@ -15,6 +15,10 @@ public class ContractTypeMapper {
         entity.setId(domain.getId().getValor());
         entity.setCode(domain.getCode());
         entity.setDescription(domain.getDescription());
+        entity.setVinculoLaboralId(domain.getVinculoLaboralId());
+        entity.setIsRenewable(domain.isRenewable());
+        entity.setMaxRenewals(domain.getMaxRenewals());
+        entity.setMaxDurationMonths(domain.getMaxDurationMonths());
         entity.setIsActive(domain.isActive());
         return entity;
     }
@@ -25,6 +29,10 @@ public class ContractTypeMapper {
             ContractTypeId.from(entity.getId()),
             entity.getCode(),
             entity.getDescription(),
+            entity.getVinculoLaboralId(),
+            Boolean.TRUE.equals(entity.getIsRenewable()),
+            entity.getMaxRenewals(),
+            entity.getMaxDurationMonths(),
             entity.getIsActive() != null && entity.getIsActive()
         );
     }
@@ -35,6 +43,11 @@ public class ContractTypeMapper {
         dto.setId(domain.getId().getStringValor());
         dto.setCode(domain.getCode());
         dto.setDescription(domain.getDescription());
+        dto.setVinculoLaboralId(domain.getVinculoLaboralId() != null
+                ? domain.getVinculoLaboralId().toString() : null);
+        dto.setIsRenewable(domain.isRenewable());
+        dto.setMaxRenewals(domain.getMaxRenewals());
+        dto.setMaxDurationMonths(domain.getMaxDurationMonths());
         dto.setIsActive(domain.isActive());
         return dto;
     }

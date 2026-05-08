@@ -8,11 +8,14 @@ import cv.igrp.framework.stereotype.IgrpEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
+
+import org.hibernate.envers.Audited;
+
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-
+@Audited
 @Getter
 @Setter
 @IgrpEntity

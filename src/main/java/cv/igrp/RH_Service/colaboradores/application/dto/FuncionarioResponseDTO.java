@@ -17,15 +17,18 @@ public class FuncionarioResponseDTO {
     private String genero;
     private String estadoCivil;
     private String nif;
-    private String biNumero;
-    private LocalDate biValidade;
+    private String documentTypeId;
+    private String numeroDocumento;
+    private LocalDate dataEmissaoDoc;
+    private LocalDate dataValidadeDoc;
     private String nacionalidade;
     private String email;
     private String telefone;
     private String morada;
-    private String fotoUrl;
-    private String situacaoProfissional;
+    private String ilha;
+    private String concelho;
+    private String localidade;
+    private String workerStateId;
     private LocalDate dataAdmissao;
-    private LocalDate dataSaida;
     private Boolean isActive;
 }

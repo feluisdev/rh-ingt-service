@@ -43,10 +43,10 @@ public class CreateEnquadramentoCommandHandler
     @Transactional
     public ResponseEntity<Map<String, ?>> handle(CreateEnquadramentoCommand command) {
         var dto = command.getRequest();
-        var funcionarioId = FuncionarioId.from(dto.getFuncionarioId());
+        var funcionarioId = FuncionarioId.from(command.getFuncionarioId());
 
         funcionarioRepository.findById(funcionarioId)
-                .orElseThrow(() -> IgrpResponseStatusException.notFound("Funcionário não encontrado: " + dto.getFuncionarioId()));
+                .orElseThrow(() -> IgrpResponseStatusException.notFound("Funcionário não encontrado: " + command.getFuncionarioId()));
 
         var career = careerRepository.findById(CareerId.from(dto.getCareerId()))
                 .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY, "Carreira não encontrada: " + dto.getCareerId()));

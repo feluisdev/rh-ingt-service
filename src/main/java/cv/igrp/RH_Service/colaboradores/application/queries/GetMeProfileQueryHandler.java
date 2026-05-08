@@ -1,19 +1,26 @@
 package cv.igrp.RH_Service.colaboradores.application.queries;
 
-import cv.igrp.RH_Service.carreiras.infrastructure.persistence.repository.CareerEntityRepository;
-import cv.igrp.RH_Service.carreiras.infrastructure.persistence.repository.CategoryEntityRepository;
-import cv.igrp.RH_Service.carreiras.infrastructure.persistence.repository.GradeEntityRepository;
+import cv.igrp.RH_Service.carreiras.domain.repository.CareerRepository;
+import cv.igrp.RH_Service.carreiras.domain.repository.CategoryRepository;
+import cv.igrp.RH_Service.carreiras.domain.repository.GradeRepository;
+import cv.igrp.RH_Service.carreiras.domain.valueobject.CareerId;
+import cv.igrp.RH_Service.carreiras.domain.valueobject.CategoryId;
+import cv.igrp.RH_Service.carreiras.domain.valueobject.GradeId;
 import cv.igrp.RH_Service.colaboradores.application.dto.MeProfileResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.repository.EnquadramentoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
+import cv.igrp.RH_Service.parametrizacoes.domain.repository.WorkerStateRepository;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.WorkerStateId;
+import cv.igrp.RH_Service.estrutura.domain.repository.JobRepository;
+import cv.igrp.RH_Service.estrutura.domain.repository.OrganizationalUnitRepository;
+import cv.igrp.RH_Service.estrutura.domain.valueobject.JobId;
+import cv.igrp.RH_Service.estrutura.domain.valueobject.OrganizationalUnitId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
-import org.springframework.http.HttpStatus;
-import cv.igrp.RH_Service.estrutura.infrastructure.persistence.repository.JobEntityRepository;
-import cv.igrp.RH_Service.estrutura.infrastructure.persistence.repository.OrganizationalUnitEntityRepository;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -24,12 +31,13 @@ public class GetMeProfileQueryHandler
 
     private final CurrentEmployeeResolver currentEmployeeResolver;
     private final FuncionarioRepository funcionarioRepository;
+    private final WorkerStateRepository workerStateRepository;
     private final EnquadramentoRepository enquadramentoRepository;
-    private final OrganizationalUnitEntityRepository unitEntityRepository;
-    private final JobEntityRepository jobEntityRepository;
-    private final CareerEntityRepository careerEntityRepository;
-    private final CategoryEntityRepository categoryEntityRepository;
-    private final GradeEntityRepository gradeEntityRepository;
+    private final OrganizationalUnitRepository unitRepository;
+    private final JobRepository jobRepository;
+    private final CareerRepository careerRepository;
+    private final CategoryRepository categoryRepository;
+    private final GradeRepository gradeRepository;
 
     @IgrpQueryHandler
     public ResponseEntity<MeProfileResponseDTO> handle(GetMeProfileQuery query) {
@@ -48,29 +56,32 @@ public class GetMeProfileQueryHandler
         response.setNif(funcionario.getNif());
         response.setEmail(funcionario.getEmail());
         response.setPhone(funcionario.getTelefone());
-        response.setWorkerState(funcionario.getSituacaoProfissional());
+        if (funcionario.getWorkerStateId() != null) {
+            workerStateRepository.findById(WorkerStateId.from(funcionario.getWorkerStateId()))
+                    .ifPresent(ws -> response.setWorkerState(ws.getCode()));
+        }
         response.setAdmissionDate(funcionario.getDataAdmissao());
 
         enquadramentoRepository.findCurrentByFuncionarioId(funcionarioId).ifPresent(enq -> {
             if (enq.getUnidadeOrganicaId() != null) {
-                unitEntityRepository.findById(enq.getUnidadeOrganicaId()).ifPresent(u ->
-                        response.setCurrentUnit(new MeProfileResponseDTO.UnitRef(u.getId().toString(), u.getName())));
+                unitRepository.findById(OrganizationalUnitId.from(enq.getUnidadeOrganicaId())).ifPresent(u ->
+                        response.setCurrentUnit(new MeProfileResponseDTO.UnitRef(u.getId().getStringValor(), u.getName())));
             }
             if (enq.getCargoId() != null) {
-                jobEntityRepository.findById(enq.getCargoId()).ifPresent(j ->
-                        response.setCurrentJob(new MeProfileResponseDTO.JobRef(j.getId().toString(), j.getName())));
+                jobRepository.findById(JobId.from(enq.getCargoId())).ifPresent(j ->
+                        response.setCurrentJob(new MeProfileResponseDTO.JobRef(j.getId().getStringValor(), j.getName())));
             }
             if (enq.getCareerId() != null) {
-                careerEntityRepository.findById(enq.getCareerId()).ifPresent(c ->
-                        response.setCareer(new MeProfileResponseDTO.CareerRef(c.getId().toString(), c.getName())));
+                careerRepository.findById(CareerId.from(enq.getCareerId())).ifPresent(c ->
+                        response.setCareer(new MeProfileResponseDTO.CareerRef(c.getId().getStringValor(), c.getName())));
             }
             if (enq.getCategoryId() != null) {
-                categoryEntityRepository.findById(enq.getCategoryId()).ifPresent(c ->
-                        response.setCategory(new MeProfileResponseDTO.CategoryRef(c.getId().toString(), c.getName())));
+                categoryRepository.findById(CategoryId.from(enq.getCategoryId())).ifPresent(c ->
+                        response.setCategory(new MeProfileResponseDTO.CategoryRef(c.getId().getStringValor(), c.getName())));
             }
             if (enq.getGradeId() != null) {
-                gradeEntityRepository.findById(enq.getGradeId()).ifPresent(g ->
-                        response.setGrade(new MeProfileResponseDTO.GradeRef(g.getId().toString(), g.getGradeNumber())));
+                gradeRepository.findById(GradeId.from(enq.getGradeId())).ifPresent(g ->
+                        response.setGrade(new MeProfileResponseDTO.GradeRef(g.getId().getStringValor(), g.getGradeNumber())));
             }
         });
 

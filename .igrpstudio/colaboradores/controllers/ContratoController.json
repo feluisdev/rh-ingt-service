@@ -1,47 +1,374 @@
 {
   "type": "controller",
-  "name": "Contrato",
+  "name": "ContratoController",
   "module": "colaboradores",
-  "basePath": "api/v1/rh/contratos",
-  "description": "Gestão de contratos laborais",
+  "basePath": "api/v1/rh/funcionarios/{funcionarioId}/contratos",
+  "description": "Gestão de contratos laborais dos funcionários",
   "actions": [
+    {
+      "actionName": "getContratosByFuncionario",
+      "method": "GET",
+      "path": "",
+      "pathVariables": [
+        { "type": "string", "name": "funcionarioId", "isRequired": true }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaContrato",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
     {
       "actionName": "createContrato",
       "method": "POST",
-      "requestBody": true
+      "path": "",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ContratoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "CREATED",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "map",
+                "objectType": "java",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "getContratoById",
       "method": "GET",
       "path": "{contratoId}",
       "pathVariables": [
-        {"name": "contratoId", "type": "string"}
-      ]
+        { "type": "string", "name": "contratoId", "isRequired": true }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ContratoResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "updateContrato",
       "method": "PUT",
       "path": "{contratoId}",
       "pathVariables": [
-        {"name": "contratoId", "type": "string"}
+        { "type": "string", "name": "contratoId", "isRequired": true }
       ],
-      "requestBody": true
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ContratoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ContratoResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "deactivateContrato",
       "method": "DELETE",
       "path": "{contratoId}",
       "pathVariables": [
-        {"name": "contratoId", "type": "string"}
-      ]
+        { "type": "string", "name": "contratoId", "isRequired": true }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "map",
+                "objectType": "java",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "closeContrato",
+      "method": "PUT",
+      "path": "{contratoId}/close",
+      "summary": "Encerrar contrato — transição ATIVO → CESSADO com endDate e terminationReason obrigatórios",
+      "pathVariables": [
+        { "type": "string", "name": "contratoId", "isRequired": true }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CloseContratoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "map",
+                "objectType": "java",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "suspendContrato",
+      "method": "PUT",
+      "path": "{contratoId}/suspend",
+      "summary": "Suspender contrato — transição ATIVO → SUSPENSO",
+      "pathVariables": [
+        { "type": "string", "name": "contratoId", "isRequired": true }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "map",
+                "objectType": "java",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "activateContrato",
       "method": "PUT",
       "path": "{contratoId}/activate",
+      "summary": "Reactivar contrato suspenso — transição SUSPENSO → ATIVO",
       "pathVariables": [
-        {"name": "contratoId", "type": "string"}
-      ]
+        { "type": "string", "name": "contratoId", "isRequired": true }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "map",
+                "objectType": "java",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "registarDocumento",
+      "method": "POST",
+      "path": "{contratoId}/documentos",
+      "pathVariables": [
+        { "type": "string", "name": "contratoId", "isRequired": true }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "UploadDocumentoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "CREATED",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "DocumentoUploadResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "listarDocumentos",
+      "method": "GET",
+      "path": "{contratoId}/documentos",
+      "pathVariables": [
+        { "type": "string", "name": "contratoId", "isRequired": true }
+      ],
+      "requestParams": [
+        { "type": "uuid",    "name": "documentTypeId", "isRequired": false },
+        { "type": "boolean", "name": "active",          "isRequired": false }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaDocumento",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getDocumentoById",
+      "method": "GET",
+      "path": "{contratoId}/documentos/{docId}",
+      "pathVariables": [
+        { "type": "string", "name": "contratoId", "isRequired": true },
+        { "type": "string", "name": "docId",      "isRequired": true }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "DocumentoResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "downloadDocumento",
+      "method": "GET",
+      "path": "{contratoId}/documentos/{docId}/download",
+      "pathVariables": [
+        { "type": "string", "name": "contratoId", "isRequired": true },
+        { "type": "string", "name": "docId",      "isRequired": true }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "DocumentoDownloadResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "desativarDocumento",
+      "method": "DELETE",
+      "path": "{contratoId}/documentos/{docId}",
+      "pathVariables": [
+        { "type": "string", "name": "contratoId", "isRequired": true },
+        { "type": "string", "name": "docId",      "isRequired": true }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "map",
+                "objectType": "java",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

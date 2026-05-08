@@ -2,7 +2,7 @@
   "type": "model",
   "name": "EnquadramentoEntity",
   "module": "colaboradores",
-  "tableName": "employee_professional_assignments",
+  "tableName": "t_employee_professional_assignments",
   "revision": true,
   "attributes": [
     {"name": "id", "type": "string", "objectType": "java", "primaryKey": true},
