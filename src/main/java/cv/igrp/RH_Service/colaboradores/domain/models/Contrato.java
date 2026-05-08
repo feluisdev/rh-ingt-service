@@ -7,14 +7,10 @@ import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Set;
 import java.util.UUID;
 
 @Getter
 public class Contrato {
-
-    public static final Set<String> REGIMES_TRABALHO_VALIDOS = Set.of(
-            "TEMPO_COMPLETO", "TEMPO_PARCIAL", "ISENCAO_HORARIO", "DEDICACAO_EXCLUSIVA");
 
     private ContratoId id;
     private FuncionarioId funcionarioId;

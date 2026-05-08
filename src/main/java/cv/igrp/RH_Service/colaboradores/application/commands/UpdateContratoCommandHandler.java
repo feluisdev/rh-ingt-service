@@ -1,8 +1,8 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
 import cv.igrp.RH_Service.colaboradores.application.dto.ContratoResponseDTO;
-import cv.igrp.RH_Service.colaboradores.domain.models.Contrato;
 import cv.igrp.RH_Service.colaboradores.domain.repository.ContratoRepository;
+import cv.igrp.RH_Service.shared.application.constants.RegimeTrabalho;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.ContratoId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.mappers.ContratoMapper;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
@@ -32,9 +32,9 @@ public class UpdateContratoCommandHandler
                 && contratoRepository.existsByContractNumberAndIdNot(dto.getContractNumber(), id))
             throw IgrpResponseStatusException.conflict("Já existe um contrato com número '" + dto.getContractNumber() + "'.");
 
-        if (dto.getRegimeTrabalho() != null && !Contrato.REGIMES_TRABALHO_VALIDOS.contains(dto.getRegimeTrabalho()))
+        if (dto.getRegimeTrabalho() != null && RegimeTrabalho.fromCode(dto.getRegimeTrabalho()).isEmpty())
             throw IgrpResponseStatusException.badRequest(
-                    "Regime de trabalho inválido: '" + dto.getRegimeTrabalho() + "'. Valores aceites: " + Contrato.REGIMES_TRABALHO_VALIDOS);
+                    "Regime de trabalho inválido: '" + dto.getRegimeTrabalho() + "'. Valores aceites: TEMPO_COMPLETO, TEMPO_PARCIAL, ISENCAO_HORARIO, DEDICACAO_EXCLUSIVA");
 
         String regimeEfectivo = dto.getRegimeTrabalho() != null ? dto.getRegimeTrabalho() : contrato.getRegimeTrabalho();
         if ("TEMPO_PARCIAL".equals(regimeEfectivo) && dto.getPercentagemTempo() == null && contrato.getPercentagemTempo() == null)
