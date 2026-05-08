@@ -27,9 +27,10 @@ public class CreateFuncionarioCommandHandler
         if (funcionarioRepository.existsByNif(dto.getNif())) {
             throw IgrpResponseStatusException.conflict("Já existe um funcionário com NIF '" + dto.getNif() + "'.");
         }
-        if (dto.getBiNumero() != null && !dto.getBiNumero().isBlank()
-                && funcionarioRepository.existsByBiNumero(dto.getBiNumero())) {
-            throw IgrpResponseStatusException.conflict("Já existe um funcionário com BI '" + dto.getBiNumero() + "'.");
+        if (dto.getNumeroDocumento() != null && !dto.getNumeroDocumento().isBlank()
+                && funcionarioRepository.existsByNumeroDocumento(dto.getNumeroDocumento())) {
+            throw IgrpResponseStatusException.conflict(
+                    "Já existe um funcionário com número de documento '" + dto.getNumeroDocumento() + "'.");
         }
 
         Long seq = jdbcTemplate.queryForObject("SELECT nextval('seq_numero_funcionario')", Long.class);
@@ -37,10 +38,12 @@ public class CreateFuncionarioCommandHandler
 
         Funcionario saved = funcionarioRepository.save(
                 Funcionario.criar(numeroFuncionario, dto.getNomeCompleto(), dto.getDataNascimento(),
-                        dto.getGenero(), dto.getEstadoCivil(), dto.getNif(), dto.getBiNumero(),
-                        dto.getBiValidade(), dto.getNacionalidade(), dto.getEmail(),
-                        dto.getTelefone(), dto.getMorada(), dto.getFotoUrl(),
-                        "ATIVO", dto.getDataAdmissao(), dto.getDataSaida()));
+                        dto.getGenero(), dto.getEstadoCivil(), dto.getNif(),
+                        dto.getDocumentTypeId(), dto.getNumeroDocumento(),
+                        dto.getDataEmissaoDoc(), dto.getDataValidadeDoc(),
+                        dto.getNacionalidade(), dto.getEmail(), dto.getTelefone(),
+                        dto.getMorada(), dto.getIlha(), dto.getConcelho(), dto.getLocalidade(),
+                        "ATIVO", dto.getDataAdmissao()));
 
         return ResponseEntity.status(201).body(Map.of(
                 "id", saved.getId().getStringValor(),

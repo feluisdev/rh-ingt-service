@@ -16,7 +16,7 @@ public interface FuncionarioRepository {
     long countAll(FuncionarioFilter filter);
     boolean existsByNif(String nif);
     boolean existsByNifAndIdNot(String nif, FuncionarioId id);
-    boolean existsByBiNumero(String biNumero);
-    boolean existsByBiNumeroAndIdNot(String biNumero, FuncionarioId id);
+    boolean existsByNumeroDocumento(String numeroDocumento);
+    boolean existsByNumeroDocumentoAndIdNot(String numeroDocumento, FuncionarioId id);
     List<Funcionario> findAllByIds(Collection<UUID> ids);
 }

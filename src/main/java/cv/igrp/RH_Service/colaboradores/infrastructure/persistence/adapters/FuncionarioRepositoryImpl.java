@@ -67,14 +67,14 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public boolean existsByBiNumero(String biNumero) {
-        return entityRepository.existsByBiNumero(biNumero);
+    public boolean existsByNumeroDocumento(String numeroDocumento) {
+        return entityRepository.existsByNumeroDocumento(numeroDocumento);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public boolean existsByBiNumeroAndIdNot(String biNumero, FuncionarioId id) {
-        return entityRepository.existsByBiNumeroAndIdNot(biNumero, id.getValor());
+    public boolean existsByNumeroDocumentoAndIdNot(String numeroDocumento, FuncionarioId id) {
+        return entityRepository.existsByNumeroDocumentoAndIdNot(numeroDocumento, id.getValor());
     }
 
     @Transactional(readOnly = true)

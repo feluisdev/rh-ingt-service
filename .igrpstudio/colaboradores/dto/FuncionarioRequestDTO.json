@@ -9,14 +9,17 @@
     {"type": "string", "name": "genero", "objectType": "java", "required": true},
     {"type": "string", "name": "estadoCivil", "objectType": "java", "required": true},
     {"type": "string", "name": "nif", "objectType": "java", "required": true},
-    {"type": "string", "name": "biNumero", "objectType": "java", "required": false},
-    {"type": "date", "name": "biValidade", "objectType": "java", "required": false},
+    {"type": "string", "name": "documentTypeId", "objectType": "java", "required": false},
+    {"type": "string", "name": "numeroDocumento", "objectType": "java", "required": false},
+    {"type": "date", "name": "dataEmissaoDoc", "objectType": "java", "required": false},
+    {"type": "date", "name": "dataValidadeDoc", "objectType": "java", "required": false},
     {"type": "string", "name": "nacionalidade", "objectType": "java", "required": false},
     {"type": "string", "name": "email", "objectType": "java", "required": false},
     {"type": "string", "name": "telefone", "objectType": "java", "required": false},
     {"type": "string", "name": "morada", "objectType": "java", "required": false},
-    {"type": "string", "name": "fotoUrl", "objectType": "java", "required": false},
-{"type": "date", "name": "dataAdmissao", "objectType": "java", "required": true},
-    {"type": "date", "name": "dataSaida", "objectType": "java", "required": false}
+    {"type": "string", "name": "ilha", "objectType": "java", "required": false},
+    {"type": "string", "name": "concelho", "objectType": "java", "required": false},
+    {"type": "string", "name": "localidade", "objectType": "java", "required": false},
+    {"type": "date", "name": "dataAdmissao", "objectType": "java", "required": true}
   ]
 }
