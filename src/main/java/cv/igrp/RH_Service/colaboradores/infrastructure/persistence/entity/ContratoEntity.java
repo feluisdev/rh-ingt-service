@@ -44,10 +44,10 @@ public class ContratoEntity extends AuditEntity {
     @Column(name = "termination_reason", length = 50)
     private String terminationReason;
 
-    @Column(name = "is_current", nullable = false, columnDefinition = "boolean default false")
+    @Column(name = "is_current")
     private Boolean isCurrent;
 
-    @Column(name = "status", nullable = false, length = 20)
+    @Column(name = "status", length = 20)
     private String status;
 
     @Column(name = "renewal_count")
