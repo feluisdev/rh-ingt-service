@@ -19,7 +19,7 @@ import java.util.UUID;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "employee_professional_assignments")
+@Table(name = "t_employee_professional_assignments")
 public class EnquadramentoEntity extends AuditEntity {
 
     @Id
