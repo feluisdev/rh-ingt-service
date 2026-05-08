@@ -549,21 +549,19 @@ disciplinary_processes  (Processos Disciplinares)
 ```
 documents  (Documentos do Dossier)
 ├── id                UUID      PK
-├── employee_id       UUID FK→employees              -- null se documento do sistema
 ├── document_type_id  UUID NOT NULL FK→document_types
-├── file_name         VARCHAR(255) NOT NULL             -- nome original do ficheiro
-├── storage_key       VARCHAR(500) NOT NULL             -- chave no MinIO/S3
-├── mime_type         VARCHAR(100) NOT NULL             -- application/pdf, image/jpeg, ...
-├── size_bytes        BIGINT       NOT NULL
+├── original_filename VARCHAR(255) NOT NULL             -- nome original do ficheiro
+├── file_key          VARCHAR(500) NOT NULL             -- chave no MinIO/S3
+├── content_type      VARCHAR(100) NOT NULL             -- application/pdf, image/jpeg, ...
+├── file_size         BIGINT       NOT NULL
 ├── description       TEXT
-├── reference_entity  VARCHAR(100)   -- 'leave_requests', 'trainings', 'disciplinary_processes', 'qualifications', ...
-├── reference_id      UUID           -- ID do registo associado (polimorfismo controlado)
+├── reference_entity  VARCHAR(50)  NOT NULL  -- 'leave_requests', 'trainings', 'disciplinary_processes', 'qualifications', ...
+├── reference_id      UUID         NOT NULL  -- ID do registo associado (polimorfismo controlado)
 ├── is_active         BOOLEAN DEFAULT TRUE
 └── auditoria
 
 -- Tabela genérica para todos os ficheiros do sistema.
 -- reference_entity + reference_id associam o documento ao registo de origem.
--- Se reference_entity IS NULL, o documento é directo do funcionário (CNI, foto, etc.).
 ```
 
 ---
@@ -782,10 +780,11 @@ erDiagram
 
     DOCUMENTS {
         uuid   id PK
-        uuid employee_id FK
         uuid document_type_id FK
-        varchar storage_key
-        varchar mime_type
+        varchar original_filename
+        varchar file_key
+        varchar content_type
+        bigint file_size
         varchar reference_entity
         uuid reference_id
     }
@@ -890,7 +889,7 @@ erDiagram
     EMPLOYEES ||--o{ EMPLOYEE_PROFESSIONAL_ASSIGNMENTS : "tem"
     EMPLOYEES ||--o{ EMPLOYEE_UNIT_ASSIGNMENTS : "tem"
     EMPLOYEES ||--o{ EMPLOYEE_DEPENDENTS : "tem"
-    EMPLOYEES ||--o{ DOCUMENTS : "possui"
+
     EMPLOYEES ||--o{ QUALIFICATIONS : "tem"
     EMPLOYEES ||--o{ TRAININGS : "realizou"
     EMPLOYEES ||--o{ DISCIPLINARY_PROCESSES : "tem"
