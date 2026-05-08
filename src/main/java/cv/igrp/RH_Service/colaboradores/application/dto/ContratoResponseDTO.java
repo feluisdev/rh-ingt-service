@@ -12,9 +12,12 @@ import java.time.LocalDate;
 public class ContratoResponseDTO {
     private String id;
     private String funcionarioId;
-    private String tipoContrato;
-    private LocalDate dataInicio;
-    private LocalDate dataFim;
-    private String numeroContrato;
-    private Boolean isActive;
+    private String contractTypeId;
+    private String contractNumber;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private String terminationReason;
+    private Boolean isCurrent;
+    private String legalBase;
+    private String notes;
 }

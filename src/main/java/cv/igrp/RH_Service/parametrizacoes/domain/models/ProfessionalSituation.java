@@ -12,28 +12,38 @@ public class ProfessionalSituation {
     private ProfessionalSituationId id;
     private String code;
     private String description;
+    private boolean countsSeniority;
+    private boolean eligibleForProgression;
     private boolean active;
 
     private ProfessionalSituation() {}
 
-    private ProfessionalSituation(ProfessionalSituationId id, String code, String description, boolean active) {
+    private ProfessionalSituation(ProfessionalSituationId id, String code, String description,
+                                   boolean countsSeniority, boolean eligibleForProgression, boolean active) {
         this.id = id;
         this.code = code;
         this.description = description;
+        this.countsSeniority = countsSeniority;
+        this.eligibleForProgression = eligibleForProgression;
         this.active = active;
     }
 
-    public static ProfessionalSituation criar(String code, String description) {
+    public static ProfessionalSituation criar(String code, String description,
+                                               boolean countsSeniority, boolean eligibleForProgression) {
         Objects.requireNonNull(code, "code não pode ser nulo");
-        return new ProfessionalSituation(ProfessionalSituationId.gerarNovo(), code, description, true);
+        return new ProfessionalSituation(ProfessionalSituationId.gerarNovo(), code, description,
+                countsSeniority, eligibleForProgression, true);
     }
 
-    public static ProfessionalSituation reconstruir(ProfessionalSituationId id, String code, String description, boolean active) {
-        return new ProfessionalSituation(id, code, description, active);
+    public static ProfessionalSituation reconstruir(ProfessionalSituationId id, String code, String description,
+                                                     boolean countsSeniority, boolean eligibleForProgression, boolean active) {
+        return new ProfessionalSituation(id, code, description, countsSeniority, eligibleForProgression, active);
     }
 
-    public void atualizar(String description) {
+    public void atualizar(String description, boolean countsSeniority, boolean eligibleForProgression) {
         this.description = description;
+        this.countsSeniority = countsSeniority;
+        this.eligibleForProgression = eligibleForProgression;
     }
 
     public void desativar() {

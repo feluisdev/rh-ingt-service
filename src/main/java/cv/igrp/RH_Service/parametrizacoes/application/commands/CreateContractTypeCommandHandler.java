@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -30,8 +31,15 @@ public class CreateContractTypeCommandHandler implements CommandHandler<CreateCo
                 "Já existe um registo com code='" + dto.getCode() + "'.");
         }
 
+        UUID professionalSituationId = dto.getProfessionalSituationId() != null
+                ? UUID.fromString(dto.getProfessionalSituationId()) : null;
+
         ContractType saved = contractTypeRepository.save(
-            ContractType.criar(dto.getCode(), dto.getDescription())
+            ContractType.criar(dto.getCode(), dto.getDescription(),
+                professionalSituationId,
+                Boolean.TRUE.equals(dto.getIsRenewable()),
+                dto.getMaxRenewals(),
+                dto.getMaxDurationMonths())
         );
 
         return ResponseEntity.status(201).body(Map.of(

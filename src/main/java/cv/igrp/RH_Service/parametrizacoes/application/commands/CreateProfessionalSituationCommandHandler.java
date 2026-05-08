@@ -31,7 +31,9 @@ public class CreateProfessionalSituationCommandHandler implements CommandHandler
         }
 
         ProfessionalSituation saved = professionalSituationRepository.save(
-            ProfessionalSituation.criar(dto.getCode(), dto.getDescription())
+            ProfessionalSituation.criar(dto.getCode(), dto.getDescription(),
+                Boolean.TRUE.equals(dto.getCountsSeniority()),
+                Boolean.TRUE.equals(dto.getEligibleForProgression()))
         );
 
         return ResponseEntity.status(201).body(Map.of(

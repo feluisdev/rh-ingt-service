@@ -30,6 +30,12 @@ public class ProfessionalSituationEntity extends AuditEntity {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "counts_seniority", nullable = false, columnDefinition = "boolean default true")
+    private Boolean countsSeniority;
+
+    @Column(name = "eligible_for_progression", nullable = false, columnDefinition = "boolean default true")
+    private Boolean eligibleForProgression;
+
     @Column(name = "is_active")
     private Boolean isActive;
 }

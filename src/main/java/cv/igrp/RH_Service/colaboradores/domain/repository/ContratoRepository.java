@@ -10,9 +10,8 @@ import java.util.Optional;
 public interface ContratoRepository {
     Contrato save(Contrato contrato);
     Optional<Contrato> findById(ContratoId id);
-    List<Contrato> findAllByFuncionarioIdOrderByDataInicioDesc(FuncionarioId funcionarioId);
-    boolean existsActiveByFuncionarioId(FuncionarioId funcionarioId);
-    long countActiveByFuncionarioId(FuncionarioId funcionarioId);
-    boolean existsByNumeroContrato(String numeroContrato);
-    boolean existsByNumeroContratoAndIdNot(String numeroContrato, ContratoId id);
+    Optional<Contrato> findCurrentByFuncionarioId(FuncionarioId funcionarioId);
+    List<Contrato> findAllByFuncionarioIdOrderByStartDateDesc(FuncionarioId funcionarioId);
+    boolean existsByContractNumber(String contractNumber);
+    boolean existsByContractNumberAndIdNot(String contractNumber, ContratoId id);
 }

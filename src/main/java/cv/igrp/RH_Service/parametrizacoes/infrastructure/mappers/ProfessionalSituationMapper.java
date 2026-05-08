@@ -15,6 +15,8 @@ public class ProfessionalSituationMapper {
         entity.setId(domain.getId().getValor());
         entity.setCode(domain.getCode());
         entity.setDescription(domain.getDescription());
+        entity.setCountsSeniority(domain.isCountsSeniority());
+        entity.setEligibleForProgression(domain.isEligibleForProgression());
         entity.setIsActive(domain.isActive());
         return entity;
     }
@@ -25,6 +27,8 @@ public class ProfessionalSituationMapper {
             ProfessionalSituationId.from(entity.getId()),
             entity.getCode(),
             entity.getDescription(),
+            entity.getCountsSeniority() != null && entity.getCountsSeniority(),
+            entity.getEligibleForProgression() != null && entity.getEligibleForProgression(),
             entity.getIsActive() != null && entity.getIsActive()
         );
     }
@@ -35,6 +39,8 @@ public class ProfessionalSituationMapper {
         dto.setId(domain.getId().getStringValor());
         dto.setCode(domain.getCode());
         dto.setDescription(domain.getDescription());
+        dto.setCountsSeniority(domain.isCountsSeniority());
+        dto.setEligibleForProgression(domain.isEligibleForProgression());
         dto.setIsActive(domain.isActive());
         return dto;
     }

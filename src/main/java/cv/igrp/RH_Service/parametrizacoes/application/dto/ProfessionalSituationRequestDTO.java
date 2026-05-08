@@ -12,4 +12,6 @@ import lombok.NoArgsConstructor;
 public class ProfessionalSituationRequestDTO {
     private String code;
     private String description;
+    private Boolean countsSeniority;
+    private Boolean eligibleForProgression;
 }

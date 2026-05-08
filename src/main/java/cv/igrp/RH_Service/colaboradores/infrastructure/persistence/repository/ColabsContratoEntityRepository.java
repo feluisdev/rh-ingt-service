@@ -4,12 +4,12 @@ import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.Contra
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ColabsContratoEntityRepository extends JpaRepository<ContratoEntity, UUID> {
-    boolean existsByFuncionarioIdAndIsActiveTrue(UUID funcionarioId);
-    long countByFuncionarioIdAndIsActiveTrue(UUID funcionarioId);
-    boolean existsByNumeroContrato(String numeroContrato);
-    boolean existsByNumeroContratoAndIdNot(String numeroContrato, UUID id);
-    List<ContratoEntity> findByFuncionarioIdOrderByDataInicioDesc(UUID funcionarioId);
+    Optional<ContratoEntity> findByFuncionarioIdAndIsCurrentTrue(UUID funcionarioId);
+    boolean existsByContractNumber(String contractNumber);
+    boolean existsByContractNumberAndIdNot(String contractNumber, UUID id);
+    List<ContratoEntity> findByFuncionarioIdOrderByStartDateDesc(UUID funcionarioId);
 }

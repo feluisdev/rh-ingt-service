@@ -149,26 +149,37 @@ worker_states  (Estados do Trabalhador)
 
 ```
 professional_situations  (Situações Profissionais / Vínculo)
-├── id         UUID      PK
-├── code       VARCHAR(30)  UNIQUE NOT NULL    -- EFETIVO, CONTRATADO, COMISSIONADO, ESTAGIARIO
-├── name       VARCHAR(100) NOT NULL
-└── is_active  BOOLEAN      DEFAULT TRUE
+├── id                       UUID      PK
+├── code                     VARCHAR(30)  UNIQUE NOT NULL    -- EFETIVO, CONTRATADO, COMISSIONADO, ESTAGIARIO
+├── name                     VARCHAR(100) NOT NULL
+├── counts_seniority         BOOLEAN NOT NULL DEFAULT TRUE   -- conta para antiguidade e progressão (PCFR)
+├── eligible_for_progression BOOLEAN NOT NULL DEFAULT TRUE   -- elegível para progressão na carreira (PCFR)
+└── is_active                BOOLEAN      DEFAULT TRUE
 
 -- Razão de tabela dedicada: EFETIVO vs CONTRATADO têm regras distintas no PCFR
 -- (antiguidade, progressão, direitos). O código é referenciado por lógica de negócio.
+-- counts_seniority e eligible_for_progression são usados nos cálculos de progressão.
 ```
 
 ```
 contract_types  (Tipos de Contrato)
-├── id          UUID      PK
-├── code        VARCHAR(50)  UNIQUE NOT NULL
-│               -- NOMEACAO_DEFINITIVA, CFP, CTFP_TERMO_CERTO, CTFP_TERMO_INCERTO, COMISSAO_SERVICO
-├── name        VARCHAR(150) NOT NULL
-├── description TEXT
-└── is_active   BOOLEAN      DEFAULT TRUE
+├── id                          UUID      PK
+├── code                        VARCHAR(50)  UNIQUE NOT NULL
+│                               -- NOMEACAO_DEFINITIVA, CFP, CTFP_TERMO_CERTO, CTFP_TERMO_INCERTO, COMISSAO_SERVICO
+├── name                        VARCHAR(150) NOT NULL
+├── description                 TEXT
+├── professional_situation_id   UUID FK→professional_situations  -- vínculo laboral que este tipo de contrato implica (LGTFP)
+├── is_renewable                BOOLEAN NOT NULL DEFAULT FALSE    -- CTFP a termo certo é renovável; Nomeação Definitiva não
+├── max_renewals                INTEGER                           -- nº máximo de renovações permitidas por lei (null = sem limite)
+├── max_duration_months         INTEGER                           -- duração máxima legal em meses (null = indefinido)
+└── is_active                   BOOLEAN      DEFAULT TRUE
 
 -- Razão de tabela dedicada: tem historial próprio em employee_contracts.
 -- Cada tipo tem implicações legais distintas (renovabilidade, prazo, direitos).
+-- professional_situation_id: ao criar contrato, o sistema actualiza employees.professional_situation_id
+--   com o vínculo correspondente — parametrizável pelo administrador RH (base: LGTFP).
+-- is_renewable / max_renewals / max_duration_months: permitem ao sistema alertar quando
+--   os limites legais de renovação ou duração se aproximam (base: LGTFP art. CTFP).
 ```
 
 ```
@@ -350,19 +361,28 @@ Os três históricos independentes que compõem o enquadramento completo do func
 
 ```
 employee_contracts  (Contratos do Funcionário)
-├── id                  UUID      PK
-├── employee_id         BIGINT NOT NULL FK→employees
-├── contract_type_id    BIGINT NOT NULL FK→contract_types
-├── start_date          DATE  NOT NULL
-├── end_date            DATE                       -- null = contrato activo
-├── is_current          BOOLEAN NOT NULL DEFAULT FALSE   -- apenas 1 TRUE por funcionário
-├── legal_base          VARCHAR(200)               -- nº despacho / Boletim Oficial
-├── notes               TEXT
+├── id                   UUID      PK
+├── employee_id          BIGINT NOT NULL FK→employees
+├── contract_type_id     BIGINT NOT NULL FK→contract_types
+├── contract_number      VARCHAR(100) UNIQUE              -- nº do instrumento contratual (ex: CTFP); distinto do despacho
+├── start_date           DATE  NOT NULL
+├── end_date             DATE                             -- null = contrato activo
+├── termination_reason   VARCHAR(50)                      -- preenchido apenas quando end_date é definido
+│                        -- CADUCIDADE, ACORDO_MUTUO, RESCISAO_UNILATERAL_ENTIDADE,
+│                        -- APOSENTACAO, FALECIMENTO, DEMISSAO
+├── is_current           BOOLEAN NOT NULL DEFAULT FALSE   -- apenas 1 TRUE por funcionário
+├── legal_base           VARCHAR(200)                     -- nº despacho / Boletim Oficial que autoriza o contrato
+├── notes                TEXT
 └── auditoria
 
 -- Historial independente do enquadramento de carreira.
 -- Muda quando: renovação de CTFP, mudança para nomeação definitiva, comissão de serviço.
 -- NÃO muda quando: promoção de escalão (isso é employee_professional_assignments).
+-- contract_number: número do instrumento CTFP/CFP emitido pela entidade; nullable porque
+--   Nomeação Definitiva e Comissão de Serviço usam apenas o despacho (legal_base).
+-- termination_reason: base LGTFP — o motivo de cessação determina os direitos do funcionário
+--   (compensação, contagem de tempo, elegibilidade para nova nomeação).
+-- Documentos associados: ligados via documents(reference_entity='employee_contracts', reference_id).
 ```
 
 ```

@@ -1,6 +1,5 @@
 package cv.igrp.RH_Service.colaboradores.application.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,10 +12,12 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ContratoRequestDTO {
     private String funcionarioId;
-    @NotBlank
-    private String tipoContrato;
     @NotNull
-    private LocalDate dataInicio;
-    private LocalDate dataFim;
-    private String numeroContrato;
+    private String contractTypeId;
+    private String contractNumber;
+    @NotNull
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private String legalBase;
+    private String notes;
 }

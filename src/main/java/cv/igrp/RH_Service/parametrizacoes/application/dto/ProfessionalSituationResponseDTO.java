@@ -13,5 +13,7 @@ public class ProfessionalSituationResponseDTO {
     private String id;
     private String code;
     private String description;
+    private Boolean countsSeniority;
+    private Boolean eligibleForProgression;
     private Boolean isActive;
 }

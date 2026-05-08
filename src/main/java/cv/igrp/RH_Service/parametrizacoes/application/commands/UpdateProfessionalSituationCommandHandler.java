@@ -33,7 +33,12 @@ public class UpdateProfessionalSituationCommandHandler implements CommandHandler
             .orElseThrow(() -> IgrpResponseStatusException.notFound(
                 "Não encontrado: " + command.getProfessionalSituationId()));
 
-        professionalSituation.atualizar(command.getProfessionalSituationRequest().getDescription());
+        var req = command.getProfessionalSituationRequest();
+        professionalSituation.atualizar(
+            req.getDescription(),
+            Boolean.TRUE.equals(req.getCountsSeniority()),
+            Boolean.TRUE.equals(req.getEligibleForProgression())
+        );
         ProfessionalSituation saved = professionalSituationRepository.save(professionalSituation);
 
         return ResponseEntity.ok(professionalSituationMapper.toDTO(saved));

@@ -84,6 +84,10 @@ public class Funcionario {
         return f;
     }
 
+    public void atualizarSituacaoProfissional(String novaSituacao) {
+        this.situacaoProfissional = novaSituacao;
+    }
+
     public void atualizar(String nomeCompleto, LocalDate dataNascimento, String genero, String estadoCivil,
                           String nif, String biNumero, LocalDate biValidade, String nacionalidade,
                           String email, String telefone, String morada, String fotoUrl,

@@ -34,8 +34,8 @@ public class UpdateFuncionarioCommandHandler
             throw IgrpResponseStatusException.conflict("Já existe um funcionário com BI '" + dto.getBiNumero() + "'.");
         }
 
-        // data_saida só permitida quando situacao_profissional != ATIVO
-        if (dto.getDataSaida() != null && "ATIVO".equalsIgnoreCase(dto.getSituacaoProfissional())) {
+        // situacaoProfissional é gerida automaticamente via contrato — não é editável aqui
+        if (dto.getDataSaida() != null && "ATIVO".equalsIgnoreCase(funcionario.getSituacaoProfissional())) {
             throw IgrpResponseStatusException.badRequest("O campo dataSaida não pode ser preenchido quando situacaoProfissional é ATIVO.");
         }
 
@@ -52,7 +52,7 @@ public class UpdateFuncionarioCommandHandler
                 dto.getTelefone() != null ? dto.getTelefone() : funcionario.getTelefone(),
                 dto.getMorada() != null ? dto.getMorada() : funcionario.getMorada(),
                 dto.getFotoUrl() != null ? dto.getFotoUrl() : funcionario.getFotoUrl(),
-                dto.getSituacaoProfissional() != null ? dto.getSituacaoProfissional() : funcionario.getSituacaoProfissional(),
+                funcionario.getSituacaoProfissional(),
                 dto.getDataAdmissao() != null ? dto.getDataAdmissao() : funcionario.getDataAdmissao(),
                 dto.getDataSaida() != null ? dto.getDataSaida() : funcionario.getDataSaida()
         );

@@ -34,32 +34,27 @@ public class ContratoRepositoryImpl implements ContratoRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Contrato> findAllByFuncionarioIdOrderByDataInicioDesc(FuncionarioId funcionarioId) {
-        return entityRepository.findByFuncionarioIdOrderByDataInicioDesc(funcionarioId.getValor())
+    public Optional<Contrato> findCurrentByFuncionarioId(FuncionarioId funcionarioId) {
+        return entityRepository.findByFuncionarioIdAndIsCurrentTrue(funcionarioId.getValor())
+                .map(mapper::toDomain);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Contrato> findAllByFuncionarioIdOrderByStartDateDesc(FuncionarioId funcionarioId) {
+        return entityRepository.findByFuncionarioIdOrderByStartDateDesc(funcionarioId.getValor())
                 .stream().map(mapper::toDomain).toList();
     }
 
     @Transactional(readOnly = true)
     @Override
-    public boolean existsActiveByFuncionarioId(FuncionarioId funcionarioId) {
-        return entityRepository.existsByFuncionarioIdAndIsActiveTrue(funcionarioId.getValor());
+    public boolean existsByContractNumber(String contractNumber) {
+        return entityRepository.existsByContractNumber(contractNumber);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public long countActiveByFuncionarioId(FuncionarioId funcionarioId) {
-        return entityRepository.countByFuncionarioIdAndIsActiveTrue(funcionarioId.getValor());
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public boolean existsByNumeroContrato(String numeroContrato) {
-        return entityRepository.existsByNumeroContrato(numeroContrato);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public boolean existsByNumeroContratoAndIdNot(String numeroContrato, ContratoId id) {
-        return entityRepository.existsByNumeroContratoAndIdNot(numeroContrato, id.getValor());
+    public boolean existsByContractNumberAndIdNot(String contractNumber, ContratoId id) {
+        return entityRepository.existsByContractNumberAndIdNot(contractNumber, id.getValor());
     }
 }

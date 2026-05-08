@@ -418,6 +418,10 @@ Soft delete (`is_active = false`). Bloqueado se existirem pedidos PENDING.
 
 Historial independente do ciclo de vida contratual: nomeação definitiva, CTFP, comissão de serviço, etc. Não confundir com o enquadramento de carreira (secção 2.4).
 
+Ao criar um novo contrato, o sistema executa automaticamente:
+1. Encerra o contrato anterior (`is_current = false`, `end_date = startDate − 1 dia`), se existir.
+2. Actualiza `employees.professional_situation_id` com o vínculo configurado em `contract_types.professional_situation_id`.
+
 ### GET /employees/{employeeId}/contracts
 
 Devolve o histórico completo de contratos, ordenado por `start_date` descendente.
@@ -430,17 +434,28 @@ Devolve o histórico completo de contratos, ordenado por `start_date` descendent
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
-| `contractTypeId` | integer | Sim | Tipo de contrato (`contract_types`). |
-| `startDate` | date | Sim | Data de início. |
-| `endDate` | date | Não | Data de fim (`null` = contrato activo). |
-| `legalBase` | string | Não | Nº de despacho / Boletim Oficial. |
+| `contractTypeId` | UUID | Sim | Tipo de contrato (`contract_types`). |
+| `contractNumber` | string | Não | Nº do instrumento contratual (ex: CTFP/CFP). Distinto do despacho. Único na tabela. |
+| `startDate` | date | Sim | Data de início (≥ data de admissão do funcionário). |
+| `endDate` | date | Não | Data de fim (`null` = contrato activo; obrigatório para `CTFP_TERMO_CERTO`). |
+| `legalBase` | string | Não | Nº de despacho / Boletim Oficial que autoriza o contrato. |
 | `notes` | text | Não | Observações. |
 
 Ao criar um novo contrato, o anterior (se existir `is_current = true`) é encerrado automaticamente (`end_date = startDate − 1 dia`, `is_current = false`).
 
 ### PUT /employees/{employeeId}/contracts/{id}
 
-Atualiza campos editáveis (`endDate`, `legalBase`, `notes`). O `contractTypeId` e `startDate` são imutáveis.
+Actualiza campos editáveis (`endDate`, `legalBase`, `notes`). Os campos `contractTypeId` e `startDate` são imutáveis após criação.
+
+### PUT /employees/{employeeId}/contracts/{id}/close
+
+Encerra manualmente o contrato activo.
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+|---|---|---|---|
+| `endDate` | date | Sim | Data de fim do contrato. |
+| `terminationReason` | string | Sim | Motivo de cessação (LGTFP): `CADUCIDADE`, `ACORDO_MUTUO`, `RESCISAO_UNILATERAL_ENTIDADE`, `APOSENTACAO`, `FALECIMENTO`, `DEMISSAO`. |
+| `notes` | text | Não | Observações adicionais. |
 
 ---
 
@@ -1015,7 +1030,7 @@ Bloqueado se `is_core = true`.
 
 ## 5.3 Situações Profissionais (Professional Situations)
 
-`professional_situations` — tabela dedicada porque `EFETIVO` vs `CONTRATADO` têm regras distintas no PCFR (antiguidade, progressão, direitos).
+`professional_situations` — tabela dedicada porque `EFETIVO` vs `CONTRATADO` têm regras distintas no PCFR (antiguidade, progressão, direitos). Os campos `counts_seniority` e `eligible_for_progression` são usados pelo sistema nos cálculos de progressão de carreira.
 
 ### GET /professional-situations
 
@@ -1027,14 +1042,18 @@ Bloqueado se `is_core = true`.
 |---|---|---|---|
 | `code` | string | Sim | Ex: `EFETIVO`, `CONTRATADO`, `COMISSIONADO`, `ESTAGIARIO`. |
 | `name` | string | Sim | Designação. |
+| `countsSeniority` | boolean | Sim | Conta para antiguidade e progressão na carreira (PCFR). Default `true`. |
+| `eligibleForProgression` | boolean | Sim | Elegível para progressão de categoria/escalão (PCFR). Default `true`. |
 
 ### PUT /professional-situations/{id}
 
 ### DELETE /professional-situations/{id}
 
+Bloqueado se referenciado por funcionários activos ou por tipos de contrato.
+
 ## 5.4 Tipos de Contrato (Contract Types)
 
-`contract_types` — tabela dedicada porque alimenta `employee_contracts` e cada tipo tem implicações legais distintas (renovabilidade, prazo, direitos, lei aplicável).
+`contract_types` — tabela dedicada porque alimenta `employee_contracts` e cada tipo tem implicações legais distintas (renovabilidade, prazo, direitos, lei aplicável). O campo `professionalSituationId` define o vínculo laboral que o tipo de contrato implica — parametrizável pelo administrador RH com base na LGTFP. Ao criar um contrato para um funcionário, o sistema actualiza automaticamente `employees.professional_situation_id` com o vínculo configurado.
 
 ### GET /contract-types
 
@@ -1047,6 +1066,10 @@ Bloqueado se `is_core = true`.
 | `code` | string | Sim | Ex: `NOMEACAO_DEFINITIVA`, `CFP`, `CTFP_TERMO_CERTO`, `CTFP_TERMO_INCERTO`, `COMISSAO_SERVICO`. |
 | `name` | string | Sim | Designação (máx. 150). |
 | `description` | text | Não | Descrição. |
+| `professionalSituationId` | UUID | Não | Vínculo laboral correspondente (LGTFP). Ao criar contrato deste tipo, `employees.professional_situation_id` é actualizado automaticamente. |
+| `isRenewable` | boolean | Não | Indica se o contrato é renovável (LGTFP). Default `false`. |
+| `maxRenewals` | integer | Não | Número máximo de renovações permitidas por lei (`null` = sem limite). |
+| `maxDurationMonths` | integer | Não | Duração máxima legal em meses (`null` = indefinido). O sistema alerta quando o limite se aproxima. |
 
 ### PUT /contract-types/{id}
 

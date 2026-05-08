@@ -14,19 +14,28 @@ public class ContratoMapper {
         return Contrato.reconstituir(
                 ContratoId.from(e.getId()),
                 FuncionarioId.from(e.getFuncionarioId()),
-                e.getTipoContrato(), e.getDataInicio(), e.getDataFim(),
-                e.getNumeroContrato(), e.getIsActive());
+                e.getContractTypeId(),
+                e.getContractNumber(),
+                e.getStartDate(),
+                e.getEndDate(),
+                e.getTerminationReason(),
+                e.getIsCurrent(),
+                e.getLegalBase(),
+                e.getNotes());
     }
 
     public ContratoEntity toEntity(Contrato c) {
         ContratoEntity e = new ContratoEntity();
         e.setId(c.getId().getValor());
         e.setFuncionarioId(c.getFuncionarioId().getValor());
-        e.setTipoContrato(c.getTipoContrato());
-        e.setDataInicio(c.getDataInicio());
-        e.setDataFim(c.getDataFim());
-        e.setNumeroContrato(c.getNumeroContrato());
-        e.setIsActive(c.getIsActive());
+        e.setContractTypeId(c.getContractTypeId());
+        e.setContractNumber(c.getContractNumber());
+        e.setStartDate(c.getStartDate());
+        e.setEndDate(c.getEndDate());
+        e.setTerminationReason(c.getTerminationReason());
+        e.setIsCurrent(c.getIsCurrent());
+        e.setLegalBase(c.getLegalBase());
+        e.setNotes(c.getNotes());
         return e;
     }
 
@@ -34,11 +43,14 @@ public class ContratoMapper {
         ContratoResponseDTO r = new ContratoResponseDTO();
         r.setId(c.getId().getStringValor());
         r.setFuncionarioId(c.getFuncionarioId().getStringValor());
-        r.setTipoContrato(c.getTipoContrato());
-        r.setDataInicio(c.getDataInicio());
-        r.setDataFim(c.getDataFim());
-        r.setNumeroContrato(c.getNumeroContrato());
-        r.setIsActive(c.getIsActive());
+        r.setContractTypeId(c.getContractTypeId() != null ? c.getContractTypeId().toString() : null);
+        r.setContractNumber(c.getContractNumber());
+        r.setStartDate(c.getStartDate());
+        r.setEndDate(c.getEndDate());
+        r.setTerminationReason(c.getTerminationReason());
+        r.setIsCurrent(c.getIsCurrent());
+        r.setLegalBase(c.getLegalBase());
+        r.setNotes(c.getNotes());
         return r;
     }
 }

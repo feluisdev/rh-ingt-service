@@ -29,18 +29,27 @@ public class ContratoEntity extends AuditEntity {
     @Column(name = "funcionario_id", nullable = false)
     private UUID funcionarioId;
 
-    @Column(name = "tipo_contrato", nullable = false, length = 50)
-    private String tipoContrato;
+    @Column(name = "contract_type_id", nullable = false)
+    private UUID contractTypeId;
 
-    @Column(name = "data_inicio", nullable = false)
-    private LocalDate dataInicio;
+    @Column(name = "contract_number", unique = true, length = 100)
+    private String contractNumber;
 
-    @Column(name = "data_fim")
-    private LocalDate dataFim;
+    @Column(name = "start_date", nullable = false)
+    private LocalDate startDate;
 
-    @Column(name = "numero_contrato", unique = true, length = 100)
-    private String numeroContrato;
+    @Column(name = "end_date")
+    private LocalDate endDate;
 
-    @Column(name = "is_active", nullable = false)
-    private Boolean isActive;
+    @Column(name = "termination_reason", length = 50)
+    private String terminationReason;
+
+    @Column(name = "is_current", nullable = false, columnDefinition = "boolean default false")
+    private Boolean isCurrent;
+
+    @Column(name = "legal_base", length = 200)
+    private String legalBase;
+
+    @Column(name = "notes", columnDefinition = "text")
+    private String notes;
 }
