@@ -45,7 +45,8 @@ public class DocumentoMapper {
     public DocumentoResponseDTO toDTO(Documento d) {
         DocumentoResponseDTO r = new DocumentoResponseDTO();
         r.setId(d.getId().getStringValor());
-        r.setFuncionarioId(d.getReferenceId().toString());
+        r.setReferenceEntity(d.getReferenceEntity());
+        r.setReferenceId(d.getReferenceId().toString());
         r.setDocumentTypeId(d.getDocumentTypeId().getStringValor());
         r.setOriginalFilename(d.getOriginalFilename());
         r.setContentType(d.getContentType());

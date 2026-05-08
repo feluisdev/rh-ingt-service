@@ -4,7 +4,6 @@ import cv.igrp.RH_Service.colaboradores.domain.filter.DocumentoFilter;
 import cv.igrp.RH_Service.colaboradores.domain.models.Documento;
 import cv.igrp.RH_Service.colaboradores.domain.repository.DocumentoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.DocumentoId;
-import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.mappers.DocumentoMapper;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.repository.ColabsDocumentoEntityRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @Repository("colabsDocumentoRepositoryImpl")
@@ -36,12 +36,11 @@ public class DocumentoRepositoryImpl implements DocumentoRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Documento> findAllByFuncionarioId(FuncionarioId funcionarioId, DocumentoFilter filter) {
-        // Por defeito (active=null) retorna apenas activos — FR-007 clarificado
+    public List<Documento> findAllByReference(String referenceEntity, UUID referenceId, DocumentoFilter filter) {
         Boolean activeFilter = filter.getActive() != null ? filter.getActive() : Boolean.TRUE;
 
         Stream<Documento> stream = entityRepository
-                .findAllByReferenceEntityAndReferenceIdAndIsActive("FUNCIONARIO", funcionarioId.getValor(), activeFilter)
+                .findAllByReferenceEntityAndReferenceIdAndIsActive(referenceEntity, referenceId, activeFilter)
                 .stream().map(mapper::toDomain);
 
         if (filter.getDocumentTypeId() != null)

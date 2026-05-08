@@ -44,7 +44,7 @@ public class GetMeDocumentsQueryHandler
         if (StringUtils.hasText(query.getDocumentTypeId()))
             filter.setDocumentTypeId(UUID.fromString(query.getDocumentTypeId()));
 
-        var list = documentoRepository.findAllByFuncionarioId(funcionarioId, filter)
+        var list = documentoRepository.findAllByReference("FUNCIONARIO", funcionarioId.getValor(), filter)
                 .stream().map(mapper::toDTO).toList();
 
         var wrapper = new WrapperListaDocumentoDTO();
