@@ -3,7 +3,6 @@ package cv.igrp.RH_Service.colaboradores.infrastructure.mappers;
 import cv.igrp.RH_Service.colaboradores.application.dto.DocumentoResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.models.Documento;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.DocumentoId;
-import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.DocumentoEntity;
 import cv.igrp.RH_Service.parametrizacoes.application.dto.DocumentTypeResponseDTO;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.DocumentTypeRepository;
@@ -21,7 +20,7 @@ public class DocumentoMapper {
         return Documento.reconstituir(
                 DocumentoId.from(e.getId()),
                 e.getReferenceEntity(),
-                FuncionarioId.from(e.getReferenceId()),
+                e.getReferenceId(),
                 DocumentTypeId.from(e.getDocumentTypeId()),
                 e.getFileKey(), e.getOriginalFilename(),
                 e.getContentType(), e.getFileSize(),
@@ -32,7 +31,7 @@ public class DocumentoMapper {
         DocumentoEntity e = new DocumentoEntity();
         e.setId(d.getId().getValor());
         e.setReferenceEntity(d.getReferenceEntity());
-        e.setReferenceId(d.getReferenceId().getValor());
+        e.setReferenceId(d.getReferenceId());
         e.setDocumentTypeId(d.getDocumentTypeId().getValor());
         e.setFileKey(d.getFileKey());
         e.setOriginalFilename(d.getOriginalFilename());
@@ -46,7 +45,7 @@ public class DocumentoMapper {
     public DocumentoResponseDTO toDTO(Documento d) {
         DocumentoResponseDTO r = new DocumentoResponseDTO();
         r.setId(d.getId().getStringValor());
-        r.setFuncionarioId(d.getReferenceId().getStringValor());
+        r.setFuncionarioId(d.getReferenceId().toString());
         r.setDocumentTypeId(d.getDocumentTypeId().getStringValor());
         r.setOriginalFilename(d.getOriginalFilename());
         r.setContentType(d.getContentType());

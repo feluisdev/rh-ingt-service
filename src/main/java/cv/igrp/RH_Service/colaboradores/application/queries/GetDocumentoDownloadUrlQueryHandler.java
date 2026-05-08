@@ -33,7 +33,7 @@ public class GetDocumentoDownloadUrlQueryHandler
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Documento não encontrado: " + query.getDocumentoId()));
 
-        if (!documento.getReferenceId().getValor().equals(funcionarioId.getValor()))
+        if (!documento.getReferenceId().equals(funcionarioId.getValor()))
             throw IgrpResponseStatusException.notFound(
                     "Documento não encontrado: " + query.getDocumentoId());
 

@@ -1,16 +1,17 @@
 package cv.igrp.RH_Service.colaboradores.domain.models;
 
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.DocumentoId;
-import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.DocumentTypeId;
 import lombok.Getter;
+
+import java.util.UUID;
 
 @Getter
 public class Documento {
 
     private DocumentoId id;
     private String referenceEntity;
-    private FuncionarioId referenceId;
+    private UUID referenceId;
     private DocumentTypeId documentTypeId;
     private String fileKey;
     private String originalFilename;
@@ -21,12 +22,13 @@ public class Documento {
 
     private Documento() {}
 
-    public static Documento criar(FuncionarioId referenceId, DocumentTypeId documentTypeId,
+    public static Documento criar(String referenceEntity, UUID referenceId,
+                                   DocumentTypeId documentTypeId,
                                    String fileKey, String originalFilename,
                                    String contentType, long fileSize, String description) {
         Documento d = new Documento();
         d.id = DocumentoId.gerarNovo();
-        d.referenceEntity = "FUNCIONARIO";
+        d.referenceEntity = referenceEntity;
         d.referenceId = referenceId;
         d.documentTypeId = documentTypeId;
         d.fileKey = fileKey;
@@ -39,7 +41,7 @@ public class Documento {
     }
 
     public static Documento reconstituir(DocumentoId id, String referenceEntity,
-                                          FuncionarioId referenceId, DocumentTypeId documentTypeId,
+                                          UUID referenceId, DocumentTypeId documentTypeId,
                                           String fileKey, String originalFilename,
                                           String contentType, long fileSize, String description,
                                           Boolean isActive) {
