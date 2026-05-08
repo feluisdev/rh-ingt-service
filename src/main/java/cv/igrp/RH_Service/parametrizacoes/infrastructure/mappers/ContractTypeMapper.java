@@ -15,7 +15,7 @@ public class ContractTypeMapper {
         entity.setId(domain.getId().getValor());
         entity.setCode(domain.getCode());
         entity.setDescription(domain.getDescription());
-        entity.setProfessionalSituationId(domain.getProfessionalSituationId());
+        entity.setVinculoLaboralId(domain.getVinculoLaboralId());
         entity.setIsRenewable(domain.isRenewable());
         entity.setMaxRenewals(domain.getMaxRenewals());
         entity.setMaxDurationMonths(domain.getMaxDurationMonths());
@@ -29,7 +29,7 @@ public class ContractTypeMapper {
             ContractTypeId.from(entity.getId()),
             entity.getCode(),
             entity.getDescription(),
-            entity.getProfessionalSituationId(),
+            entity.getVinculoLaboralId(),
             Boolean.TRUE.equals(entity.getIsRenewable()),
             entity.getMaxRenewals(),
             entity.getMaxDurationMonths(),
@@ -43,8 +43,8 @@ public class ContractTypeMapper {
         dto.setId(domain.getId().getStringValor());
         dto.setCode(domain.getCode());
         dto.setDescription(domain.getDescription());
-        dto.setProfessionalSituationId(domain.getProfessionalSituationId() != null
-                ? domain.getProfessionalSituationId().toString() : null);
+        dto.setVinculoLaboralId(domain.getVinculoLaboralId() != null
+                ? domain.getVinculoLaboralId().toString() : null);
         dto.setIsRenewable(domain.isRenewable());
         dto.setMaxRenewals(domain.getMaxRenewals());
         dto.setMaxDurationMonths(domain.getMaxDurationMonths());

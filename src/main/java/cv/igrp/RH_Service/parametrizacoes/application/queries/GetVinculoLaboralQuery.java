@@ -6,9 +6,6 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class ListProfessionalSituationsQuery implements Query {
-    private final String code;
-    private final Boolean isActive;
-    private final String pagina;
-    private final String tamanho;
+public class GetVinculoLaboralQuery implements Query {
+    private final String vinculoLaboralId;
 }

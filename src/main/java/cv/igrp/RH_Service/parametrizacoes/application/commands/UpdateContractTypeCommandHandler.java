@@ -30,12 +30,12 @@ public class UpdateContractTypeCommandHandler implements CommandHandler<UpdateCo
             .orElseThrow(() -> IgrpResponseStatusException.notFound(
                 "Não encontrado: " + command.getContractTypeId()));
 
-        UUID professionalSituationId = req.getProfessionalSituationId() != null
-                ? UUID.fromString(req.getProfessionalSituationId()) : null;
+        UUID vinculoLaboralId = req.getVinculoLaboralId() != null
+                ? UUID.fromString(req.getVinculoLaboralId()) : null;
 
         contractType.atualizar(
             req.getDescription(),
-            professionalSituationId,
+            vinculoLaboralId,
             Boolean.TRUE.equals(req.getIsRenewable()),
             req.getMaxRenewals(),
             req.getMaxDurationMonths()

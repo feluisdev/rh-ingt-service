@@ -13,6 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @IgrpDTO
-public class WrapperListaProfessionalSituationDTO extends PageDTO {
-    private List<ProfessionalSituationResponseDTO> content = new ArrayList<>();
+public class WrapperListaVinculoLaboralDTO extends PageDTO {
+    private List<VinculoLaboralResponseDTO> content = new ArrayList<>();
 }

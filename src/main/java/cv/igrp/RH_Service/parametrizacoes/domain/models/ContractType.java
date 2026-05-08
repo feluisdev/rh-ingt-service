@@ -13,7 +13,7 @@ public class ContractType {
     private ContractTypeId id;
     private String code;
     private String description;
-    private UUID professionalSituationId;
+    private UUID vinculoLaboralId;
     private boolean isRenewable;
     private Integer maxRenewals;
     private Integer maxDurationMonths;
@@ -22,36 +22,36 @@ public class ContractType {
     private ContractType() {}
 
     private ContractType(ContractTypeId id, String code, String description,
-                         UUID professionalSituationId, boolean isRenewable,
+                         UUID vinculoLaboralId, boolean isRenewable,
                          Integer maxRenewals, Integer maxDurationMonths, boolean active) {
         this.id = id;
         this.code = code;
         this.description = description;
-        this.professionalSituationId = professionalSituationId;
+        this.vinculoLaboralId = vinculoLaboralId;
         this.isRenewable = isRenewable;
         this.maxRenewals = maxRenewals;
         this.maxDurationMonths = maxDurationMonths;
         this.active = active;
     }
 
-    public static ContractType criar(String code, String description, UUID professionalSituationId,
+    public static ContractType criar(String code, String description, UUID vinculoLaboralId,
                                      boolean isRenewable, Integer maxRenewals, Integer maxDurationMonths) {
         Objects.requireNonNull(code, "code não pode ser nulo");
         return new ContractType(ContractTypeId.gerarNovo(), code, description,
-                professionalSituationId, isRenewable, maxRenewals, maxDurationMonths, true);
+                vinculoLaboralId, isRenewable, maxRenewals, maxDurationMonths, true);
     }
 
     public static ContractType reconstruir(ContractTypeId id, String code, String description,
-                                            UUID professionalSituationId, boolean isRenewable,
+                                            UUID vinculoLaboralId, boolean isRenewable,
                                             Integer maxRenewals, Integer maxDurationMonths, boolean active) {
-        return new ContractType(id, code, description, professionalSituationId,
+        return new ContractType(id, code, description, vinculoLaboralId,
                 isRenewable, maxRenewals, maxDurationMonths, active);
     }
 
-    public void atualizar(String description, UUID professionalSituationId,
+    public void atualizar(String description, UUID vinculoLaboralId,
                           boolean isRenewable, Integer maxRenewals, Integer maxDurationMonths) {
         this.description = description;
-        this.professionalSituationId = professionalSituationId;
+        this.vinculoLaboralId = vinculoLaboralId;
         this.isRenewable = isRenewable;
         this.maxRenewals = maxRenewals;
         this.maxDurationMonths = maxDurationMonths;

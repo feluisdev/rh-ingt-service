@@ -80,9 +80,6 @@ public class FuncionarioEntity extends AuditEntity {
     @Column(name = "worker_state_id")
     private UUID workerStateId;
 
-    @Column(name = "professional_situation_id")
-    private UUID professionalSituationId;
-
     @Column(name = "data_admissao", nullable = false)
     private LocalDate dataAdmissao;
 

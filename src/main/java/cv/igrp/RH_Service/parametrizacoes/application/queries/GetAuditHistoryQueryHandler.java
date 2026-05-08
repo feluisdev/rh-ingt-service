@@ -34,7 +34,7 @@ public class GetAuditHistoryQueryHandler implements QueryHandler<GetAuditHistory
     private static final Map<String, Class<?>> CATALOG_MAP = Map.of(
         "reference-options",         OptionEntity.class,
         "worker-states",             WorkerStateEntity.class,
-        "professional-situations",   ProfessionalSituationEntity.class,
+        "vinculos-laborais",         VinculoLaboralEntity.class,
         "contract-types",            ContractTypeEntity.class,
         "document-types",            DocumentTypeEntity.class,
         "leave-types",               LeaveTypeEntity.class,

@@ -1,12 +1,12 @@
 {
   "type": "controller",
-  "name": "ProfessionalSituation",
+  "name": "VinculoLaboral",
   "module": "parametrizacoes",
-  "description": "Gestão de situações profissionais",
-  "basePath": "api/v1/rh/catalogs/professional-situations",
+  "description": "Gestão de vínculos laborais",
+  "basePath": "api/v1/rh/catalogs/vinculos-laborais",
   "actions": [
     {
-      "actionName": "listProfessionalSituations",
+      "actionName": "listVinculosLaborais",
       "method": "GET",
       "responses": {
         "200": {
@@ -14,7 +14,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "WrapperListaProfessionalSituation",
+                "type": "WrapperListaVinculoLaboral",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -50,8 +50,8 @@
       ]
     },
     {
-      "actionName": "getProfessionalSituationById",
-      "path": "{professionalSituationId}",
+      "actionName": "getVinculoLaboralById",
+      "path": "{vinculoLaboralId}",
       "method": "GET",
       "responses": {
         "200": {
@@ -59,7 +59,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "ProfessionalSituationResponse",
+                "type": "VinculoLaboralResponse",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -71,20 +71,20 @@
       },
       "pathVariables": [
         {
-          "name": "professionalSituationId",
+          "name": "vinculoLaboralId",
           "type": "string",
           "isRequired": true
         }
       ]
     },
     {
-      "actionName": "createProfessionalSituation",
+      "actionName": "createVinculoLaboral",
       "method": "POST",
       "requestBody": {
         "content": {
           "application/json": {
             "schema": {
-              "type": "ProfessionalSituationRequest",
+              "type": "VinculoLaboralRequest",
               "collectionType": "none",
               "name": "data",
               "objectType": "dto",
@@ -109,14 +109,14 @@
       }
     },
     {
-      "actionName": "updateProfessionalSituation",
-      "path": "{professionalSituationId}",
+      "actionName": "updateVinculoLaboral",
+      "path": "{vinculoLaboralId}",
       "method": "PUT",
       "requestBody": {
         "content": {
           "application/json": {
             "schema": {
-              "type": "ProfessionalSituationRequest",
+              "type": "VinculoLaboralRequest",
               "collectionType": "none",
               "name": "data",
               "objectType": "dto",
@@ -131,7 +131,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "ProfessionalSituationResponse",
+                "type": "VinculoLaboralResponse",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -143,15 +143,15 @@
       },
       "pathVariables": [
         {
-          "name": "professionalSituationId",
+          "name": "vinculoLaboralId",
           "type": "string",
           "isRequired": true
         }
       ]
     },
     {
-      "actionName": "deleteProfessionalSituation",
-      "path": "{professionalSituationId}",
+      "actionName": "deleteVinculoLaboral",
+      "path": "{vinculoLaboralId}",
       "method": "DELETE",
       "responses": {
         "200": {
@@ -169,15 +169,15 @@
       },
       "pathVariables": [
         {
-          "name": "professionalSituationId",
+          "name": "vinculoLaboralId",
           "type": "string",
           "isRequired": true
         }
       ]
     },
     {
-      "actionName": "activateProfessionalSituation",
-      "path": "{professionalSituationId}/activate",
+      "actionName": "activateVinculoLaboral",
+      "path": "{vinculoLaboralId}/activate",
       "method": "PATCH",
       "responses": {
         "200": {
@@ -195,12 +195,12 @@
       },
       "pathVariables": [
         {
-          "name": "professionalSituationId",
+          "name": "vinculoLaboralId",
           "type": "string",
           "isRequired": true
         }
       ]
     }
   ],
-  "id": "professional_situation_ctrl_001"
+  "id": "vinculo_laboral_ctrl_001"
 }

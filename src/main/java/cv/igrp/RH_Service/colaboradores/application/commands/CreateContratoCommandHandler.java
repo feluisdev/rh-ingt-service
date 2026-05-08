@@ -1,7 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
 import cv.igrp.RH_Service.colaboradores.domain.models.Contrato;
-import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
 import cv.igrp.RH_Service.shared.application.constants.RegimeTrabalho;
 import cv.igrp.RH_Service.colaboradores.domain.repository.ContratoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
@@ -35,7 +34,7 @@ public class CreateContratoCommandHandler
             throw IgrpResponseStatusException.badRequest("O campo contractTypeId é obrigatório.");
 
         var funcionarioId = FuncionarioId.from(command.getFuncionarioId());
-        Funcionario funcionario = funcionarioRepository.findById(funcionarioId)
+        funcionarioRepository.findById(funcionarioId)
                 .orElseThrow(() -> IgrpResponseStatusException.notFound("Funcionário não encontrado: " + command.getFuncionarioId()));
 
         var contractTypeId = ContractTypeId.from(UUID.fromString(dto.getContractTypeId()));
@@ -79,12 +78,6 @@ public class CreateContratoCommandHandler
                 renewalCount,
                 dto.getRegimeTrabalho(),
                 dto.getPercentagemTempo()));
-
-        // Actualiza vínculo do funcionário se o tipo de contrato tiver situação profissional configurada
-        if (contractType.getProfessionalSituationId() != null) {
-            funcionario.atualizarProfessionalSituation(contractType.getProfessionalSituationId());
-            funcionarioRepository.save(funcionario);
-        }
 
         return ResponseEntity.status(201).body(Map.of(
                 "id", saved.getId().getStringValor(),

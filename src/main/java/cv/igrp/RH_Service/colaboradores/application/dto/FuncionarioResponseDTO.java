@@ -29,7 +29,6 @@ public class FuncionarioResponseDTO {
     private String concelho;
     private String localidade;
     private String workerStateId;
-    private String professionalSituationId;
     private LocalDate dataAdmissao;
     private Boolean isActive;
 }

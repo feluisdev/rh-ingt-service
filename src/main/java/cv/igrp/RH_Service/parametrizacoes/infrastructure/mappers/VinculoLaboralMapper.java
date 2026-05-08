@@ -1,17 +1,17 @@
 package cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers;
 
-import cv.igrp.RH_Service.parametrizacoes.application.dto.ProfessionalSituationResponseDTO;
-import cv.igrp.RH_Service.parametrizacoes.domain.models.ProfessionalSituation;
-import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.ProfessionalSituationEntity;
-import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.ProfessionalSituationId;
+import cv.igrp.RH_Service.parametrizacoes.application.dto.VinculoLaboralResponseDTO;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.VinculoLaboral;
+import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.VinculoLaboralEntity;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.VinculoLaboralId;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProfessionalSituationMapper {
+public class VinculoLaboralMapper {
 
-    public ProfessionalSituationEntity toEntity(ProfessionalSituation domain) {
+    public VinculoLaboralEntity toEntity(VinculoLaboral domain) {
         if (domain == null) return null;
-        ProfessionalSituationEntity entity = new ProfessionalSituationEntity();
+        VinculoLaboralEntity entity = new VinculoLaboralEntity();
         entity.setId(domain.getId().getValor());
         entity.setCode(domain.getCode());
         entity.setDescription(domain.getDescription());
@@ -21,10 +21,10 @@ public class ProfessionalSituationMapper {
         return entity;
     }
 
-    public ProfessionalSituation toDomain(ProfessionalSituationEntity entity) {
+    public VinculoLaboral toDomain(VinculoLaboralEntity entity) {
         if (entity == null) return null;
-        return ProfessionalSituation.reconstruir(
-            ProfessionalSituationId.from(entity.getId()),
+        return VinculoLaboral.reconstruir(
+            VinculoLaboralId.from(entity.getId()),
             entity.getCode(),
             entity.getDescription(),
             entity.getCountsSeniority() != null && entity.getCountsSeniority(),
@@ -33,9 +33,9 @@ public class ProfessionalSituationMapper {
         );
     }
 
-    public ProfessionalSituationResponseDTO toDTO(ProfessionalSituation domain) {
+    public VinculoLaboralResponseDTO toDTO(VinculoLaboral domain) {
         if (domain == null) return null;
-        var dto = new ProfessionalSituationResponseDTO();
+        var dto = new VinculoLaboralResponseDTO();
         dto.setId(domain.getId().getStringValor());
         dto.setCode(domain.getCode());
         dto.setDescription(domain.getDescription());

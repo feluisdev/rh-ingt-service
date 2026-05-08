@@ -9,11 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @IgrpDTO
-public class ProfessionalSituationResponseDTO {
-    private String id;
+public class VinculoLaboralRequestDTO {
     private String code;
     private String description;
     private Boolean countsSeniority;
     private Boolean eligibleForProgression;
-    private Boolean isActive;
 }

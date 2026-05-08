@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.parametrizacoes.application.commands;
 
-import cv.igrp.RH_Service.parametrizacoes.domain.models.ProfessionalSituation;
-import cv.igrp.RH_Service.parametrizacoes.domain.repository.ProfessionalSituationRepository;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.VinculoLaboral;
+import cv.igrp.RH_Service.parametrizacoes.domain.repository.VinculoLaboralRepository;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
@@ -15,23 +15,23 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class CreateProfessionalSituationCommandHandler implements CommandHandler<CreateProfessionalSituationCommand, ResponseEntity<Map<String, ?>>> {
+public class CreateVinculoLaboralCommandHandler implements CommandHandler<CreateVinculoLaboralCommand, ResponseEntity<Map<String, ?>>> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CreateProfessionalSituationCommandHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CreateVinculoLaboralCommandHandler.class);
 
-    private final ProfessionalSituationRepository professionalSituationRepository;
+    private final VinculoLaboralRepository vinculoLaboralRepository;
 
     @IgrpCommandHandler
-    public ResponseEntity<Map<String, ?>> handle(CreateProfessionalSituationCommand command) {
-        var dto = command.getProfessionalSituationRequest();
+    public ResponseEntity<Map<String, ?>> handle(CreateVinculoLaboralCommand command) {
+        var dto = command.getVinculoLaboralRequest();
 
-        if (professionalSituationRepository.existsByCode(dto.getCode())) {
+        if (vinculoLaboralRepository.existsByCode(dto.getCode())) {
             throw IgrpResponseStatusException.conflict(
                 "Já existe um registo com code='" + dto.getCode() + "'.");
         }
 
-        ProfessionalSituation saved = professionalSituationRepository.save(
-            ProfessionalSituation.criar(dto.getCode(), dto.getDescription(),
+        VinculoLaboral saved = vinculoLaboralRepository.save(
+            VinculoLaboral.criar(dto.getCode(), dto.getDescription(),
                 Boolean.TRUE.equals(dto.getCountsSeniority()),
                 Boolean.TRUE.equals(dto.getEligibleForProgression()))
         );

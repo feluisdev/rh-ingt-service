@@ -1,8 +1,8 @@
 {
   "type": "model",
   "module": "parametrizacoes",
-  "name": "ProfessionalSituationEntity",
-  "tableName": "t_professional_situation",
+  "name": "VinculoLaboralEntity",
+  "tableName": "t_vinculo_laboral",
   "audit": true,
   "crud": false,
   "revision": true,
@@ -47,7 +47,7 @@
       "objectType": "java"
     }
   ],
-  "id": "professional_situation_entity_001",
+  "id": "vinculo_laboral_entity_001",
   "uniqueConstraints": [],
   "indexes": []
 }

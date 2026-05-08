@@ -26,7 +26,13 @@
       "Bash(JAVA_HOME=\"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-23.0.2.7-hotspot\" mvn -B -DskipTests compile)",
       "PowerShell($env:PGPASSWORD = \"postgres\"; & \"C:\\\\Program Files\\\\PostgreSQL\\\\17\\\\bin\\\\psql.exe\" -h localhost -p 5436 -U postgres -d recursoshumanos_db -c \"SELECT id, nome, is_active FROM t_funcionario WHERE is_active = true LIMIT 3;\" 2>&1)",
       "Bash(curl -s http://localhost:8091/api/v1/rh/funcionarios/1983c58b-2dc3-43dc-aefb-0d06d06b18c2/formacoes)",
-      "PowerShell($env:PGPASSWORD = \"postgres\"; & \"C:\\\\Program Files\\\\PostgreSQL\\\\17\\\\bin\\\\psql.exe\" -h localhost -p 5436 -U postgres -d recursoshumanos_db -c \"SELECT id, nome FROM t_tipo_documento LIMIT 3;\" 2>&1)"
+      "PowerShell($env:PGPASSWORD = \"postgres\"; & \"C:\\\\Program Files\\\\PostgreSQL\\\\17\\\\bin\\\\psql.exe\" -h localhost -p 5436 -U postgres -d recursoshumanos_db -c \"SELECT id, nome FROM t_tipo_documento LIMIT 3;\" 2>&1)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-23.0.2.7-hotspot\"; Set-Location \"c:\\\\Users\\\\ivanick.santos\\\\Nick-personal\\\\ta-workspace\\\\projects\\\\Recursos_Humanos\"; mvn -B -DskipTests clean package 2>&1 | Select-Object -Last 15)",
+      "Bash(JAVA_HOME=\"C:/Program Files/Eclipse Adoptium/jdk-23.0.2.7-hotspot\" mvn -B -DskipTests clean package -q)",
+      "Bash(curl -s http://localhost:8091/actuator/mappings)",
+      "Bash(python3 -c ' *)",
+      "Bash(curl -s http://localhost:8091/swagger-ui.html -I)",
+      "Bash(curl -s \"http://localhost:8091/v3/api-docs\")"
     ]
   }
 }

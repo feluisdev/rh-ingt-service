@@ -17,8 +17,8 @@ import java.util.UUID;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "t_professional_situation")
-public class ProfessionalSituationEntity extends AuditEntity {
+@Table(name = "t_vinculo_laboral")
+public class VinculoLaboralEntity extends AuditEntity {
 
     @Id
     @Column(name = "id", unique = true, nullable = false)

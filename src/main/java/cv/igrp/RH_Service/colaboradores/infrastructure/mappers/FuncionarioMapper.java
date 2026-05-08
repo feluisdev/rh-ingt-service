@@ -30,7 +30,6 @@ public class FuncionarioMapper {
                 e.getConcelho(),
                 e.getLocalidade(),
                 e.getWorkerStateId(),
-                e.getProfessionalSituationId(),
                 e.getDataAdmissao(),
                 e.getIsActive()
         );
@@ -57,7 +56,6 @@ public class FuncionarioMapper {
         e.setConcelho(f.getConcelho());
         e.setLocalidade(f.getLocalidade());
         e.setWorkerStateId(f.getWorkerStateId());
-        e.setProfessionalSituationId(f.getProfessionalSituationId());
         e.setDataAdmissao(f.getDataAdmissao());
         e.setIsActive(f.getIsActive());
         return e;
@@ -84,7 +82,6 @@ public class FuncionarioMapper {
         r.setConcelho(f.getConcelho());
         r.setLocalidade(f.getLocalidade());
         r.setWorkerStateId(f.getWorkerStateId() != null ? f.getWorkerStateId().toString() : null);
-        r.setProfessionalSituationId(f.getProfessionalSituationId() != null ? f.getProfessionalSituationId().toString() : null);
         r.setDataAdmissao(f.getDataAdmissao());
         r.setIsActive(f.getIsActive());
         return r;

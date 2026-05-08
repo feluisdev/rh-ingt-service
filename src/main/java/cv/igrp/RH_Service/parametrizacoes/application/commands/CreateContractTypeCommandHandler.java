@@ -31,12 +31,12 @@ public class CreateContractTypeCommandHandler implements CommandHandler<CreateCo
                 "Já existe um registo com code='" + dto.getCode() + "'.");
         }
 
-        UUID professionalSituationId = dto.getProfessionalSituationId() != null
-                ? UUID.fromString(dto.getProfessionalSituationId()) : null;
+        UUID vinculoLaboralId = dto.getVinculoLaboralId() != null
+                ? UUID.fromString(dto.getVinculoLaboralId()) : null;
 
         ContractType saved = contractTypeRepository.save(
             ContractType.criar(dto.getCode(), dto.getDescription(),
-                professionalSituationId,
+                vinculoLaboralId,
                 Boolean.TRUE.equals(dto.getIsRenewable()),
                 dto.getMaxRenewals(),
                 dto.getMaxDurationMonths())

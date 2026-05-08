@@ -18,43 +18,43 @@ import cv.igrp.framework.core.domain.CommandBus;
 import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.RH_Service.parametrizacoes.application.commands.*;
 import cv.igrp.RH_Service.parametrizacoes.application.queries.*;
-import cv.igrp.RH_Service.parametrizacoes.application.dto.WrapperListaProfessionalSituationDTO;
-import cv.igrp.RH_Service.parametrizacoes.application.dto.ProfessionalSituationResponseDTO;
-import cv.igrp.RH_Service.parametrizacoes.application.dto.ProfessionalSituationRequestDTO;
+import cv.igrp.RH_Service.parametrizacoes.application.dto.WrapperListaVinculoLaboralDTO;
+import cv.igrp.RH_Service.parametrizacoes.application.dto.VinculoLaboralResponseDTO;
+import cv.igrp.RH_Service.parametrizacoes.application.dto.VinculoLaboralRequestDTO;
 
 import java.util.Map;
 
 @IgrpController
-@RestController
-@RequestMapping(path = "api/v1/rh/catalogs/professional-situations")
-@Tag(name = "ProfessionalSituation", description = "Gestão de situações profissionais")
-public class ProfessionalSituationController {
+@RestController("paramVinculoLaboralController")
+@RequestMapping(path = "api/v1/rh/catalogs/vinculos-laborais")
+@Tag(name = "VinculoLaboral", description = "Gestão de vínculos laborais")
+public class VinculoLaboralController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProfessionalSituationController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(VinculoLaboralController.class);
 
     private final CommandBus commandBus;
     private final QueryBus queryBus;
 
-    public ProfessionalSituationController(CommandBus commandBus, QueryBus queryBus) {
+    public VinculoLaboralController(CommandBus commandBus, QueryBus queryBus) {
         this.commandBus = commandBus;
         this.queryBus = queryBus;
     }
 
     @GetMapping
     @Operation(
-        summary = "Listar situações profissionais",
-        description = "Retorna a lista paginada de situações profissionais",
+        summary = "Listar vínculos laborais",
+        description = "Retorna a lista paginada de vínculos laborais",
         responses = {
             @ApiResponse(
                 responseCode = "200",
                 content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = WrapperListaProfessionalSituationDTO.class)
+                    schema = @Schema(implementation = WrapperListaVinculoLaboralDTO.class)
                 )
             )
         }
     )
-    public ResponseEntity<WrapperListaProfessionalSituationDTO> listProfessionalSituations(
+    public ResponseEntity<WrapperListaVinculoLaboralDTO> listVinculosLaborais(
         @RequestParam(value = "code", required = false) String code,
         @RequestParam(value = "isActive", required = false) Boolean isActive,
         @RequestParam(value = "pagina", defaultValue = "0") String pagina,
@@ -62,8 +62,8 @@ public class ProfessionalSituationController {
 
         LOGGER.debug("Operation started");
 
-        final var query = new ListProfessionalSituationsQuery(code, isActive, pagina, tamanho);
-        ResponseEntity<WrapperListaProfessionalSituationDTO> response = queryBus.handle(query);
+        final var query = new ListVinculosLaboraisQuery(code, isActive, pagina, tamanho);
+        ResponseEntity<WrapperListaVinculoLaboralDTO> response = queryBus.handle(query);
 
         LOGGER.debug("Operation finished");
 
@@ -72,26 +72,26 @@ public class ProfessionalSituationController {
             .body(response.getBody());
     }
 
-    @GetMapping("{professionalSituationId}")
+    @GetMapping("{vinculoLaboralId}")
     @Operation(
-        summary = "Obter situação profissional por ID",
+        summary = "Obter vínculo laboral por ID",
         responses = {
             @ApiResponse(
                 responseCode = "200",
                 content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = ProfessionalSituationResponseDTO.class)
+                    schema = @Schema(implementation = VinculoLaboralResponseDTO.class)
                 )
             )
         }
     )
-    public ResponseEntity<ProfessionalSituationResponseDTO> getProfessionalSituationById(
-        @PathVariable(value = "professionalSituationId") String professionalSituationId) {
+    public ResponseEntity<VinculoLaboralResponseDTO> getVinculoLaboralById(
+        @PathVariable(value = "vinculoLaboralId") String vinculoLaboralId) {
 
         LOGGER.debug("Operation started");
 
-        final var query = new GetProfessionalSituationQuery(professionalSituationId);
-        ResponseEntity<ProfessionalSituationResponseDTO> response = queryBus.handle(query);
+        final var query = new GetVinculoLaboralQuery(vinculoLaboralId);
+        ResponseEntity<VinculoLaboralResponseDTO> response = queryBus.handle(query);
 
         LOGGER.debug("Operation finished");
 
@@ -102,7 +102,7 @@ public class ProfessionalSituationController {
 
     @PostMapping
     @Operation(
-        summary = "Criar situação profissional",
+        summary = "Criar vínculo laboral",
         responses = {
             @ApiResponse(
                 responseCode = "201",
@@ -110,12 +110,12 @@ public class ProfessionalSituationController {
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> createProfessionalSituation(
-        @Valid @RequestBody ProfessionalSituationRequestDTO createProfessionalSituationRequest) {
+    public ResponseEntity<Map<String, ?>> createVinculoLaboral(
+        @Valid @RequestBody VinculoLaboralRequestDTO createVinculoLaboralRequest) {
 
         LOGGER.debug("Operation started");
 
-        final var command = new CreateProfessionalSituationCommand(createProfessionalSituationRequest);
+        final var command = new CreateVinculoLaboralCommand(createVinculoLaboralRequest);
         ResponseEntity<Map<String, ?>> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
@@ -125,27 +125,27 @@ public class ProfessionalSituationController {
             .body(response.getBody());
     }
 
-    @PutMapping("{professionalSituationId}")
+    @PutMapping("{vinculoLaboralId}")
     @Operation(
-        summary = "Atualizar situação profissional",
+        summary = "Atualizar vínculo laboral",
         responses = {
             @ApiResponse(
                 responseCode = "200",
                 content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = ProfessionalSituationResponseDTO.class)
+                    schema = @Schema(implementation = VinculoLaboralResponseDTO.class)
                 )
             )
         }
     )
-    public ResponseEntity<ProfessionalSituationResponseDTO> updateProfessionalSituation(
-        @Valid @RequestBody ProfessionalSituationRequestDTO updateProfessionalSituationRequest,
-        @PathVariable(value = "professionalSituationId") String professionalSituationId) {
+    public ResponseEntity<VinculoLaboralResponseDTO> updateVinculoLaboral(
+        @Valid @RequestBody VinculoLaboralRequestDTO updateVinculoLaboralRequest,
+        @PathVariable(value = "vinculoLaboralId") String vinculoLaboralId) {
 
         LOGGER.debug("Operation started");
 
-        final var command = new UpdateProfessionalSituationCommand(updateProfessionalSituationRequest, professionalSituationId);
-        ResponseEntity<ProfessionalSituationResponseDTO> response = commandBus.send(command);
+        final var command = new UpdateVinculoLaboralCommand(updateVinculoLaboralRequest, vinculoLaboralId);
+        ResponseEntity<VinculoLaboralResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -154,9 +154,9 @@ public class ProfessionalSituationController {
             .body(response.getBody());
     }
 
-    @DeleteMapping("{professionalSituationId}")
+    @DeleteMapping("{vinculoLaboralId}")
     @Operation(
-        summary = "Desativar situação profissional",
+        summary = "Desativar vínculo laboral",
         responses = {
             @ApiResponse(
                 responseCode = "200",
@@ -164,12 +164,12 @@ public class ProfessionalSituationController {
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> deleteProfessionalSituation(
-        @PathVariable(value = "professionalSituationId") String professionalSituationId) {
+    public ResponseEntity<Map<String, ?>> deleteVinculoLaboral(
+        @PathVariable(value = "vinculoLaboralId") String vinculoLaboralId) {
 
         LOGGER.debug("Operation started");
 
-        final var command = new DesativarProfessionalSituationCommand(professionalSituationId);
+        final var command = new DesativarVinculoLaboralCommand(vinculoLaboralId);
         ResponseEntity<Map<String, ?>> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
@@ -179,9 +179,9 @@ public class ProfessionalSituationController {
             .body(response.getBody());
     }
 
-    @PatchMapping("{professionalSituationId}/activate")
+    @PatchMapping("{vinculoLaboralId}/activate")
     @Operation(
-        summary = "Ativar situação profissional",
+        summary = "Ativar vínculo laboral",
         responses = {
             @ApiResponse(
                 responseCode = "200",
@@ -189,12 +189,12 @@ public class ProfessionalSituationController {
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> activateProfessionalSituation(
-        @PathVariable(value = "professionalSituationId") String professionalSituationId) {
+    public ResponseEntity<Map<String, ?>> activateVinculoLaboral(
+        @PathVariable(value = "vinculoLaboralId") String vinculoLaboralId) {
 
         LOGGER.debug("Operation started");
 
-        final var command = new AtivarProfessionalSituationCommand(professionalSituationId);
+        final var command = new AtivarVinculoLaboralCommand(vinculoLaboralId);
         ResponseEntity<Map<String, ?>> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");

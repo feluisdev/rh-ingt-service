@@ -6,6 +6,6 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class DesativarProfessionalSituationCommand implements Command {
-    private final String professionalSituationId;
+public class AtivarVinculoLaboralCommand implements Command {
+    private final String vinculoLaboralId;
 }

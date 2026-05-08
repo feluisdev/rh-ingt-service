@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ProfessionalSituationFilter {
+public class VinculoLaboralFilter {
     private String code;
     private Boolean isActive;
     private int page = 0;

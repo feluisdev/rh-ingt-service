@@ -1,7 +1,7 @@
 {
   "type": "dto",
   "module": "parametrizacoes",
-  "name": "WrapperListaProfessionalSituation",
+  "name": "WrapperListaVinculoLaboral",
   "template": "classic",
   "enableCustonValidation": false,
   "attributes": [
@@ -13,5 +13,5 @@
       "primaryKey": false
     }
   ],
-  "id": "wrapper_lista_professional_situation_dto_001"
+  "id": "wrapper_lista_vinculo_laboral_dto_001"
 }

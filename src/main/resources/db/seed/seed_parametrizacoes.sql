@@ -25,8 +25,8 @@ INSERT INTO t_worker_state (id, code, description, is_core, is_active, created_d
 ('c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e4', 'APOSENTADO', 'Aposentado', false, true, NOW(), 'system')
 ON CONFLICT (code) DO NOTHING;
 
--- Professional Situations
-INSERT INTO t_professional_situation (id, code, description, is_active, created_date, created_by) VALUES
+-- Vínculos Laborais
+INSERT INTO t_vinculo_laboral (id, code, description, is_active, created_date, created_by) VALUES
 ('d1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1', 'EFETIVO', 'Efetivo', true, NOW(), 'system'),
 ('d1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e2', 'REQUISICAO', 'Em Requisição', true, NOW(), 'system'),
 ('d1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e3', 'COM_SERVICO', 'Em Comissão de Serviço', true, NOW(), 'system')

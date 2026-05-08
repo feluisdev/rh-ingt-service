@@ -28,7 +28,6 @@ public class Funcionario {
     private String concelho;
     private String localidade;
     private UUID workerStateId;
-    private UUID professionalSituationId;
     private LocalDate dataAdmissao;
     private Boolean isActive;
 
@@ -61,7 +60,6 @@ public class Funcionario {
         f.concelho = concelho;
         f.localidade = localidade;
         f.workerStateId = workerStateId;
-        f.professionalSituationId = null;
         f.dataAdmissao = dataAdmissao;
         f.isActive = true;
         return f;
@@ -73,7 +71,7 @@ public class Funcionario {
                                            LocalDate dataEmissaoDoc, LocalDate dataValidadeDoc,
                                            String nacionalidade, String email, String telefone,
                                            String morada, String ilha, String concelho, String localidade,
-                                           UUID workerStateId, UUID professionalSituationId,
+                                           UUID workerStateId,
                                            LocalDate dataAdmissao, Boolean isActive) {
         Funcionario f = new Funcionario();
         f.id = id;
@@ -95,7 +93,6 @@ public class Funcionario {
         f.concelho = concelho;
         f.localidade = localidade;
         f.workerStateId = workerStateId;
-        f.professionalSituationId = professionalSituationId;
         f.dataAdmissao = dataAdmissao;
         f.isActive = isActive;
         return f;
@@ -131,7 +128,4 @@ public class Funcionario {
         this.isActive = isActive;
     }
 
-    public void atualizarProfessionalSituation(UUID professionalSituationId) {
-        this.professionalSituationId = professionalSituationId;
-    }
 }

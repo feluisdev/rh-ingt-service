@@ -35,7 +35,7 @@ public class AuditHistoryController {
     @Operation(
         summary = "Historial de alterações de uma entrada de catálogo",
         description = "Devolve todas as revisões de uma entrada identificada por catalog e entityId. " +
-                      "Valores aceites para catalog: reference-options, worker-states, professional-situations, " +
+                      "Valores aceites para catalog: reference-options, worker-states, vinculos-laborais, " +
                       "contract-types, document-types, leave-types, leave-mobility-subtypes, public-holidays.",
         responses = {
             @ApiResponse(
