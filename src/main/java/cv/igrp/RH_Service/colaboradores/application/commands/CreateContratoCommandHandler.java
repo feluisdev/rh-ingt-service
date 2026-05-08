@@ -47,6 +47,14 @@ public class CreateContratoCommandHandler
                 && contratoRepository.existsByContractNumber(dto.getContractNumber()))
             throw IgrpResponseStatusException.conflict("Já existe um contrato com número '" + dto.getContractNumber() + "'.");
 
+        if (dto.getRegimeTrabalho() != null && !Contrato.REGIMES_TRABALHO_VALIDOS.contains(dto.getRegimeTrabalho()))
+            throw IgrpResponseStatusException.badRequest(
+                    "Regime de trabalho inválido: '" + dto.getRegimeTrabalho() + "'. Valores aceites: " + Contrato.REGIMES_TRABALHO_VALIDOS);
+        if ("TEMPO_PARCIAL".equals(dto.getRegimeTrabalho()) && dto.getPercentagemTempo() == null)
+            throw IgrpResponseStatusException.badRequest("O campo percentagemTempo é obrigatório para regime TEMPO_PARCIAL.");
+        if (!"TEMPO_PARCIAL".equals(dto.getRegimeTrabalho()) && dto.getPercentagemTempo() != null)
+            throw IgrpResponseStatusException.badRequest("O campo percentagemTempo só se aplica ao regime TEMPO_PARCIAL.");
+
         // Encerra contrato actual se existir; calcula renewal_count
         int renewalCount = 0;
         var actual = contratoRepository.findCurrentByFuncionarioId(funcionarioId);

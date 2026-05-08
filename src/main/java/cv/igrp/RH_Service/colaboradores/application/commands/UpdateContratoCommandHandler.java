@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
 import cv.igrp.RH_Service.colaboradores.application.dto.ContratoResponseDTO;
+import cv.igrp.RH_Service.colaboradores.domain.models.Contrato;
 import cv.igrp.RH_Service.colaboradores.domain.repository.ContratoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.ContratoId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.mappers.ContratoMapper;
@@ -30,6 +31,16 @@ public class UpdateContratoCommandHandler
         if (dto.getContractNumber() != null && !dto.getContractNumber().isBlank()
                 && contratoRepository.existsByContractNumberAndIdNot(dto.getContractNumber(), id))
             throw IgrpResponseStatusException.conflict("Já existe um contrato com número '" + dto.getContractNumber() + "'.");
+
+        if (dto.getRegimeTrabalho() != null && !Contrato.REGIMES_TRABALHO_VALIDOS.contains(dto.getRegimeTrabalho()))
+            throw IgrpResponseStatusException.badRequest(
+                    "Regime de trabalho inválido: '" + dto.getRegimeTrabalho() + "'. Valores aceites: " + Contrato.REGIMES_TRABALHO_VALIDOS);
+
+        String regimeEfectivo = dto.getRegimeTrabalho() != null ? dto.getRegimeTrabalho() : contrato.getRegimeTrabalho();
+        if ("TEMPO_PARCIAL".equals(regimeEfectivo) && dto.getPercentagemTempo() == null && contrato.getPercentagemTempo() == null)
+            throw IgrpResponseStatusException.badRequest("O campo percentagemTempo é obrigatório para regime TEMPO_PARCIAL.");
+        if (!"TEMPO_PARCIAL".equals(regimeEfectivo) && dto.getPercentagemTempo() != null)
+            throw IgrpResponseStatusException.badRequest("O campo percentagemTempo só se aplica ao regime TEMPO_PARCIAL.");
 
         contrato.atualizar(
                 dto.getEndDate() != null ? dto.getEndDate() : contrato.getEndDate(),
