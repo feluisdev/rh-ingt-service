@@ -12,7 +12,6 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 public class ContratoRequestDTO {
-    private String funcionarioId;
     @NotNull
     private String contractTypeId;
     private String contractNumber;

@@ -21,7 +21,7 @@ import java.util.Map;
 
 @IgrpController
 @RestController("colabsQualificacaoController")
-@RequestMapping(path = "api/v1/rh/qualificacoes")
+@RequestMapping(path = "api/v1/rh/funcionarios/{funcionarioId}/qualificacoes")
 @Tag(name = "Qualificação", description = "Gestão de qualificações académicas de funcionários")
 public class QualificacaoController {
 
@@ -34,11 +34,22 @@ public class QualificacaoController {
         this.queryBus = queryBus;
     }
 
+    @GetMapping
+    @Operation(summary = "Listar qualificações do funcionário")
+    public ResponseEntity<WrapperListaQualificacaoDTO> getQualificacoesByFuncionario(@PathVariable String funcionarioId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<WrapperListaQualificacaoDTO> response = queryBus.handle(new GetQualificacoesByFuncionarioQuery(funcionarioId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
     @PostMapping
     @Operation(summary = "Criar qualificação")
-    public ResponseEntity<Map<String, ?>> createQualificacao(@Valid @RequestBody QualificacaoRequestDTO request) {
+    public ResponseEntity<Map<String, ?>> createQualificacao(
+            @PathVariable String funcionarioId,
+            @Valid @RequestBody QualificacaoRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateQualificacaoCommand(request));
+        ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateQualificacaoCommand(funcionarioId, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

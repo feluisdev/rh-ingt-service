@@ -21,7 +21,7 @@ import java.util.Map;
 
 @IgrpController
 @RestController("colabsDependenteController")
-@RequestMapping(path = "api/v1/rh/dependentes")
+@RequestMapping(path = "api/v1/rh/funcionarios/{funcionarioId}/dependentes")
 @Tag(name = "Dependente", description = "Gestão de dependentes de funcionários")
 public class DependenteController {
 
@@ -34,18 +34,31 @@ public class DependenteController {
         this.queryBus = queryBus;
     }
 
+    @GetMapping
+    @Operation(summary = "Listar dependentes do funcionário")
+    public ResponseEntity<WrapperListaDependenteDTO> getDependentesByFuncionario(@PathVariable String funcionarioId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<WrapperListaDependenteDTO> response = queryBus.handle(new GetDependentesByFuncionarioQuery(funcionarioId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
     @PostMapping
     @Operation(summary = "Criar dependente")
-    public ResponseEntity<Map<String, ?>> createDependente(@Valid @RequestBody DependenteRequestDTO request) {
+    public ResponseEntity<Map<String, ?>> createDependente(
+            @PathVariable String funcionarioId,
+            @Valid @RequestBody DependenteRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateDependenteCommand(request));
+        ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateDependenteCommand(funcionarioId, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
     @GetMapping("{dependenteId}")
     @Operation(summary = "Obter dependente por ID")
-    public ResponseEntity<DependenteResponseDTO> getDependenteById(@PathVariable String dependenteId) {
+    public ResponseEntity<DependenteResponseDTO> getDependenteById(
+            @PathVariable String funcionarioId,
+            @PathVariable String dependenteId) {
         LOGGER.debug("Operation started");
         ResponseEntity<DependenteResponseDTO> response = queryBus.handle(new GetDependenteByIdQuery(dependenteId));
         LOGGER.debug("Operation finished");
@@ -54,7 +67,10 @@ public class DependenteController {
 
     @PutMapping("{dependenteId}")
     @Operation(summary = "Actualizar dependente")
-    public ResponseEntity<DependenteResponseDTO> updateDependente(@Valid @RequestBody DependenteRequestDTO request, @PathVariable String dependenteId) {
+    public ResponseEntity<DependenteResponseDTO> updateDependente(
+            @PathVariable String funcionarioId,
+            @Valid @RequestBody DependenteRequestDTO request,
+            @PathVariable String dependenteId) {
         LOGGER.debug("Operation started");
         ResponseEntity<DependenteResponseDTO> response = commandBus.send(new UpdateDependenteCommand(request, dependenteId));
         LOGGER.debug("Operation finished");
@@ -63,7 +79,9 @@ public class DependenteController {
 
     @DeleteMapping("{dependenteId}")
     @Operation(summary = "Desactivar dependente (soft delete)")
-    public ResponseEntity<Map<String, ?>> deactivateDependente(@PathVariable String dependenteId) {
+    public ResponseEntity<Map<String, ?>> deactivateDependente(
+            @PathVariable String funcionarioId,
+            @PathVariable String dependenteId) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(new DesativarDependenteCommand(dependenteId));
         LOGGER.debug("Operation finished");
@@ -72,7 +90,9 @@ public class DependenteController {
 
     @PutMapping("{dependenteId}/activate")
     @Operation(summary = "Reactivar dependente")
-    public ResponseEntity<Map<String, ?>> activateDependente(@PathVariable String dependenteId) {
+    public ResponseEntity<Map<String, ?>> activateDependente(
+            @PathVariable String funcionarioId,
+            @PathVariable String dependenteId) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(new AtivarDependenteCommand(dependenteId));
         LOGGER.debug("Operation finished");

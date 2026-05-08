@@ -31,14 +31,12 @@ public class CreateContratoCommandHandler
     public ResponseEntity<Map<String, ?>> handle(CreateContratoCommand command) {
         var dto = command.getRequest();
 
-        if (dto.getFuncionarioId() == null || dto.getFuncionarioId().isBlank())
-            throw IgrpResponseStatusException.badRequest("O campo funcionarioId é obrigatório.");
         if (dto.getContractTypeId() == null || dto.getContractTypeId().isBlank())
             throw IgrpResponseStatusException.badRequest("O campo contractTypeId é obrigatório.");
 
-        var funcionarioId = FuncionarioId.from(dto.getFuncionarioId());
+        var funcionarioId = FuncionarioId.from(command.getFuncionarioId());
         Funcionario funcionario = funcionarioRepository.findById(funcionarioId)
-                .orElseThrow(() -> IgrpResponseStatusException.notFound("Funcionário não encontrado: " + dto.getFuncionarioId()));
+                .orElseThrow(() -> IgrpResponseStatusException.notFound("Funcionário não encontrado: " + command.getFuncionarioId()));
 
         var contractTypeId = ContractTypeId.from(UUID.fromString(dto.getContractTypeId()));
         var contractType = contractTypeRepository.findById(contractTypeId)

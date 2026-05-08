@@ -11,7 +11,6 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 public class DependenteRequestDTO {
-    private String funcionarioId;
     @NotBlank
     private String fullName;
     @NotBlank

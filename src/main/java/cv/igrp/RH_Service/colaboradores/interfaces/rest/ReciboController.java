@@ -21,7 +21,7 @@ import java.util.Map;
 
 @IgrpController
 @RestController("colabsReciboController")
-@RequestMapping(path = "api/v1/rh")
+@RequestMapping(path = "api/v1/rh/funcionarios/{funcionarioId}/recibos")
 @Tag(name = "Recibos de Vencimento", description = "Gestão de recibos de vencimento dos funcionários")
 public class ReciboController {
 
@@ -34,7 +34,7 @@ public class ReciboController {
         this.queryBus = queryBus;
     }
 
-    @GetMapping("funcionarios/{funcionarioId}/recibos")
+    @GetMapping
     @Operation(summary = "Listar recibos de vencimento do funcionário")
     public ResponseEntity<WrapperListaReciboDTO> listarRecibos(
             @PathVariable String funcionarioId,
@@ -47,16 +47,18 @@ public class ReciboController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
-    @GetMapping("recibos/{reciboId}")
+    @GetMapping("{reciboId}")
     @Operation(summary = "Obter recibo por ID")
-    public ResponseEntity<ReciboVencimentoDTO> getReciboById(@PathVariable String reciboId) {
+    public ResponseEntity<ReciboVencimentoDTO> getReciboById(
+            @PathVariable String funcionarioId,
+            @PathVariable String reciboId) {
         LOGGER.debug("Operation started");
         ResponseEntity<ReciboVencimentoDTO> response = queryBus.handle(new GetReciboVencimentoQuery(reciboId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
-    @PostMapping("funcionarios/{funcionarioId}/recibos")
+    @PostMapping
     @Operation(summary = "Emitir recibo de vencimento")
     public ResponseEntity<Map<String, ?>> criarRecibo(
             @PathVariable String funcionarioId,
@@ -68,7 +70,7 @@ public class ReciboController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
-    @PostMapping("funcionarios/{funcionarioId}/recibos/{reciboId}/documentos")
+    @PostMapping("{reciboId}/documentos")
     @Operation(summary = "Associar documento a um recibo de vencimento")
     public ResponseEntity<DocumentoUploadResponseDTO> registarDocumento(
             @PathVariable String funcionarioId,
@@ -85,7 +87,7 @@ public class ReciboController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
-    @GetMapping("funcionarios/{funcionarioId}/recibos/{reciboId}/documentos")
+    @GetMapping("{reciboId}/documentos")
     @Operation(summary = "Listar documentos de um recibo de vencimento")
     public ResponseEntity<WrapperListaDocumentoDTO> listarDocumentos(
             @PathVariable String funcionarioId,
@@ -99,7 +101,7 @@ public class ReciboController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
-    @GetMapping("funcionarios/{funcionarioId}/recibos/{reciboId}/documentos/{docId}")
+    @GetMapping("{reciboId}/documentos/{docId}")
     @Operation(summary = "Obter documento de um recibo por ID")
     public ResponseEntity<DocumentoResponseDTO> getDocumentoById(
             @PathVariable String funcionarioId,
@@ -111,7 +113,7 @@ public class ReciboController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
-    @GetMapping("funcionarios/{funcionarioId}/recibos/{reciboId}/documentos/{docId}/download")
+    @GetMapping("{reciboId}/documentos/{docId}/download")
     @Operation(summary = "Obter URL de download de um documento do recibo")
     public ResponseEntity<DocumentoDownloadResponseDTO> downloadDocumento(
             @PathVariable String funcionarioId,
@@ -123,7 +125,7 @@ public class ReciboController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
-    @DeleteMapping("funcionarios/{funcionarioId}/recibos/{reciboId}/documentos/{docId}")
+    @DeleteMapping("{reciboId}/documentos/{docId}")
     @Operation(summary = "Desactivar documento de um recibo de vencimento")
     public ResponseEntity<Map<String, ?>> desativarDocumento(
             @PathVariable String funcionarioId,

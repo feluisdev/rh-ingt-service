@@ -2,15 +2,14 @@
   "type": "controller",
   "name": "ContratoController",
   "module": "colaboradores",
-  "basePath": "api/v1/rh/contratos",
+  "basePath": "api/v1/rh/funcionarios/{funcionarioId}/contratos",
   "description": "Gestão de contratos laborais dos funcionários",
-  "note": "Recurso plano: o funcionário é identificado via ?funcionarioId= na listagem. Os documentos são sub-recurso aninhado.",
   "actions": [
     {
       "actionName": "getContratosByFuncionario",
       "method": "GET",
       "path": "",
-      "requestParams": [
+      "pathVariables": [
         { "type": "string", "name": "funcionarioId", "isRequired": true }
       ],
       "responses": {

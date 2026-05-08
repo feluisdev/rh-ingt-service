@@ -21,7 +21,7 @@ import java.util.Map;
 
 @IgrpController
 @RestController("colabsContratoController")
-@RequestMapping(path = "api/v1/rh/contratos")
+@RequestMapping(path = "api/v1/rh/funcionarios/{funcionarioId}/contratos")
 @Tag(name = "Contrato", description = "Gestão de contratos laborais")
 public class ContratoController {
 
@@ -35,8 +35,8 @@ public class ContratoController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar contratos por funcionário")
-    public ResponseEntity<WrapperListaContratoDTO> getContratosByFuncionario(@RequestParam String funcionarioId) {
+    @Operation(summary = "Listar contratos do funcionário")
+    public ResponseEntity<WrapperListaContratoDTO> getContratosByFuncionario(@PathVariable String funcionarioId) {
         LOGGER.debug("Operation started");
         ResponseEntity<WrapperListaContratoDTO> response = queryBus.handle(new GetContratosByFuncionarioQuery(funcionarioId));
         LOGGER.debug("Operation finished");
@@ -45,9 +45,11 @@ public class ContratoController {
 
     @PostMapping
     @Operation(summary = "Criar contrato")
-    public ResponseEntity<Map<String, ?>> createContrato(@Valid @RequestBody ContratoRequestDTO request) {
+    public ResponseEntity<Map<String, ?>> createContrato(
+            @PathVariable String funcionarioId,
+            @Valid @RequestBody ContratoRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateContratoCommand(request));
+        ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateContratoCommand(funcionarioId, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

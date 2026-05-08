@@ -11,7 +11,6 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 public class QualificacaoRequestDTO {
-    private String funcionarioId;
     @NotBlank
     private String level;
     private String courseName;

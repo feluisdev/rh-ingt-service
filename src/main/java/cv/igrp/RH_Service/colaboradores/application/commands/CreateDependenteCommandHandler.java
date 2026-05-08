@@ -24,13 +24,10 @@ public class CreateDependenteCommandHandler
     @IgrpCommandHandler
     public ResponseEntity<Map<String, ?>> handle(CreateDependenteCommand command) {
         var dto = command.getRequest();
-        if (dto.getFuncionarioId() == null || dto.getFuncionarioId().isBlank())
-            throw IgrpResponseStatusException.badRequest("O campo funcionarioId é obrigatório.");
-
-        var funcionarioId = FuncionarioId.from(dto.getFuncionarioId());
+        var funcionarioId = FuncionarioId.from(command.getFuncionarioId());
         funcionarioRepository.findById(funcionarioId)
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
-                        "Funcionário não encontrado: " + dto.getFuncionarioId()));
+                        "Funcionário não encontrado: " + command.getFuncionarioId()));
 
         var saved = dependenteRepository.save(Dependente.criar(
                 funcionarioId, dto.getFullName(), dto.getRelationshipType(),

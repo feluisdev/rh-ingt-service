@@ -1,95 +1,90 @@
 {
   "type": "controller",
-  "name": "Qualificacao",
+  "name": "QualificacaoController",
   "module": "colaboradores",
-  "basePath": "api/v1/rh/qualificacoes",
-  "description": "Gestão de qualificações académicas de funcionários",
+  "basePath": "api/v1/rh/funcionarios/{funcionarioId}/qualificacoes",
+  "description": "Gestão de qualificações académicas e profissionais dos funcionários",
   "actions": [
+    {
+      "actionName": "getQualificacoesByFuncionario",
+      "method": "GET",
+      "path": "",
+      "pathVariables": [{ "type": "string", "name": "funcionarioId", "isRequired": true }],
+      "responses": { "200": { "name": "OK", "content": { "application/json": { "schema": { "type": "WrapperListaQualificacao", "objectType": "dto", "name": "data", "collectionType": "none", "module": "colaboradores" } } } } }
+    },
     {
       "actionName": "createQualificacao",
       "method": "POST",
-      "requestBody": true
+      "path": "",
+      "pathVariables": [{ "type": "string", "name": "funcionarioId", "isRequired": true }],
+      "requestBody": { "content": { "application/json": { "schema": { "type": "QualificacaoRequest", "collectionType": "none", "name": "data", "objectType": "dto", "module": "colaboradores" } } } },
+      "responses": { "201": { "name": "CREATED", "content": { "application/json": { "schema": { "type": "map", "objectType": "java", "name": "data", "collectionType": "none" } } } } }
     },
     {
       "actionName": "getQualificacaoById",
       "method": "GET",
       "path": "{qualificacaoId}",
-      "pathVariables": [
-        {"name": "qualificacaoId", "type": "string"}
-      ]
+      "pathVariables": [{ "type": "string", "name": "funcionarioId", "isRequired": true }, { "type": "string", "name": "qualificacaoId", "isRequired": true }],
+      "responses": { "200": { "name": "OK", "content": { "application/json": { "schema": { "type": "QualificacaoResponse", "objectType": "dto", "name": "data", "collectionType": "none", "module": "colaboradores" } } } } }
     },
     {
       "actionName": "updateQualificacao",
       "method": "PUT",
       "path": "{qualificacaoId}",
-      "pathVariables": [
-        {"name": "qualificacaoId", "type": "string"}
-      ],
-      "requestBody": true
+      "pathVariables": [{ "type": "string", "name": "funcionarioId", "isRequired": true }, { "type": "string", "name": "qualificacaoId", "isRequired": true }],
+      "requestBody": { "content": { "application/json": { "schema": { "type": "QualificacaoRequest", "collectionType": "none", "name": "data", "objectType": "dto", "module": "colaboradores" } } } },
+      "responses": { "200": { "name": "OK", "content": { "application/json": { "schema": { "type": "QualificacaoResponse", "objectType": "dto", "name": "data", "collectionType": "none", "module": "colaboradores" } } } } }
     },
     {
       "actionName": "deactivateQualificacao",
       "method": "DELETE",
       "path": "{qualificacaoId}",
-      "pathVariables": [
-        {"name": "qualificacaoId", "type": "string"}
-      ]
+      "pathVariables": [{ "type": "string", "name": "funcionarioId", "isRequired": true }, { "type": "string", "name": "qualificacaoId", "isRequired": true }],
+      "responses": { "200": { "name": "OK", "content": { "application/json": { "schema": { "type": "map", "objectType": "java", "name": "data", "collectionType": "none" } } } } }
     },
     {
       "actionName": "activateQualificacao",
       "method": "PUT",
       "path": "{qualificacaoId}/activate",
-      "pathVariables": [
-        {"name": "qualificacaoId", "type": "string"}
-      ]
+      "pathVariables": [{ "type": "string", "name": "funcionarioId", "isRequired": true }, { "type": "string", "name": "qualificacaoId", "isRequired": true }],
+      "responses": { "200": { "name": "OK", "content": { "application/json": { "schema": { "type": "map", "objectType": "java", "name": "data", "collectionType": "none" } } } } }
     },
     {
       "actionName": "registarDocumento",
       "method": "POST",
       "path": "{qualificacaoId}/documentos",
-      "pathVariables": [
-        {"name": "qualificacaoId", "type": "string"}
-      ],
-      "requestBody": true
+      "pathVariables": [{ "type": "string", "name": "funcionarioId", "isRequired": true }, { "type": "string", "name": "qualificacaoId", "isRequired": true }],
+      "requestBody": { "content": { "application/json": { "schema": { "type": "UploadDocumentoRequest", "collectionType": "none", "name": "data", "objectType": "dto", "module": "colaboradores" } } } },
+      "responses": { "201": { "name": "CREATED", "content": { "application/json": { "schema": { "type": "DocumentoUploadResponse", "objectType": "dto", "name": "data", "collectionType": "none", "module": "colaboradores" } } } } }
     },
     {
       "actionName": "listarDocumentos",
       "method": "GET",
       "path": "{qualificacaoId}/documentos",
-      "pathVariables": [
-        {"name": "qualificacaoId", "type": "string"}
-      ],
-      "requestParams": [
-        {"name": "documentTypeId", "type": "string", "required": false},
-        {"name": "active", "type": "boolean", "required": false}
-      ]
+      "pathVariables": [{ "type": "string", "name": "funcionarioId", "isRequired": true }, { "type": "string", "name": "qualificacaoId", "isRequired": true }],
+      "requestParams": [{ "type": "uuid", "name": "documentTypeId", "isRequired": false }, { "type": "boolean", "name": "active", "isRequired": false }],
+      "responses": { "200": { "name": "OK", "content": { "application/json": { "schema": { "type": "WrapperListaDocumento", "objectType": "dto", "name": "data", "collectionType": "none", "module": "colaboradores" } } } } }
     },
     {
       "actionName": "getDocumentoById",
       "method": "GET",
       "path": "{qualificacaoId}/documentos/{docId}",
-      "pathVariables": [
-        {"name": "qualificacaoId", "type": "string"},
-        {"name": "docId", "type": "string"}
-      ]
+      "pathVariables": [{ "type": "string", "name": "funcionarioId", "isRequired": true }, { "type": "string", "name": "qualificacaoId", "isRequired": true }, { "type": "string", "name": "docId", "isRequired": true }],
+      "responses": { "200": { "name": "OK", "content": { "application/json": { "schema": { "type": "DocumentoResponse", "objectType": "dto", "name": "data", "collectionType": "none", "module": "colaboradores" } } } } }
     },
     {
       "actionName": "downloadDocumento",
       "method": "GET",
       "path": "{qualificacaoId}/documentos/{docId}/download",
-      "pathVariables": [
-        {"name": "qualificacaoId", "type": "string"},
-        {"name": "docId", "type": "string"}
-      ]
+      "pathVariables": [{ "type": "string", "name": "funcionarioId", "isRequired": true }, { "type": "string", "name": "qualificacaoId", "isRequired": true }, { "type": "string", "name": "docId", "isRequired": true }],
+      "responses": { "200": { "name": "OK", "content": { "application/json": { "schema": { "type": "DocumentoDownloadResponse", "objectType": "dto", "name": "data", "collectionType": "none", "module": "colaboradores" } } } } }
     },
     {
       "actionName": "desativarDocumento",
       "method": "DELETE",
       "path": "{qualificacaoId}/documentos/{docId}",
-      "pathVariables": [
-        {"name": "qualificacaoId", "type": "string"},
-        {"name": "docId", "type": "string"}
-      ]
+      "pathVariables": [{ "type": "string", "name": "funcionarioId", "isRequired": true }, { "type": "string", "name": "qualificacaoId", "isRequired": true }, { "type": "string", "name": "docId", "isRequired": true }],
+      "responses": { "200": { "name": "OK", "content": { "application/json": { "schema": { "type": "map", "objectType": "java", "name": "data", "collectionType": "none" } } } } }
     }
   ]
 }
