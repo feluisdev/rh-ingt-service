@@ -396,7 +396,6 @@ Devolve o detalhe completo, incluindo enquadramento corrente, contrato corrente,
 | `nationalityOptionKey` | string | Sim | Nacionalidade (referência `option_entity` ccode=`NATIONALITY`). |
 | `admissionDate` | date | Sim | Data de admissão. |
 | `workerStateId` | integer | Sim | Estado do trabalhador (default ACTIVE). |
-| `professionalSituationId` | integer | Sim | Situação profissional. |
 | `email` | string | Não | Email institucional. |
 | `phone` | string | Não | Telefone. |
 | `nib` | string | Não | NIB/IBAN para pagamentos (21 dígitos). |
@@ -831,7 +830,9 @@ Suporta a modelação de Direções, Departamentos, Divisões e Secções de for
 | `code` | string | Sim | Código único e estável. |
 | `name` | string | Sim | Designação oficial. |
 | `acronym` | string | Não | Sigla. |
-| `unitTypeOptionKey` | string | Sim | Tipo: `DIRECAO`, `DEPARTAMENTO`, `DIVISAO`, `SECCAO`. |
+| `type` | string | Não | Tipo de unidade: ex. `DIRECAO`, `DEPARTAMENTO`, `DIVISAO`, `SECCAO`. |
+| `descricao` | string | Não | Descrição da unidade orgânica. |
+| `estado` | boolean | Não | Estado operacional da unidade. |
 | `parentUnitId` | integer | Não | Unidade-pai (nulo para topo). |
 
 ### PUT /organizational-units/{id}
@@ -855,6 +856,7 @@ Designação oficial atribuída ao funcionário (ex.: Diretor de Serviços, Coor
 | `code` | string | Sim | Código único (máx. 50). |
 | `name` | string | Sim | Designação (máx. 150). |
 | `description` | string | Não | Descrição. |
+| `nivel` | integer | Não | Nível hierárquico do cargo. |
 | `isActive` | boolean | Não | Estado inicial (default true). |
 
 ### PUT /jobs/{id}
@@ -901,7 +903,7 @@ Função efetivamente exercida pelo colaborador.
 
 ## 4.1 Visão Geral
 
-Consolida os catálogos relativos à progressão funcional dos colaboradores conforme o PCFR (Plano de Carreiras, Funções e Remunerações, Decreto-Lei 4/2024): Carreiras, Categorias e Escalões. Hierarquia: `careers → categories → grades`. O índice salarial (`salaryIndex`) e o salário base (`salaryBase`) são definidos ao nível do Escalão. O regime da carreira é configurável via `option_entity` (`ccode='CAREER_REGIME'`). A ordem de progressão dentro de uma carreira é definida ao nível da Categoria.
+Consolida os catálogos relativos à progressão funcional dos colaboradores conforme o PCFR (Plano de Carreiras, Funções e Remunerações, Decreto-Lei 4/2024): Carreiras, Categorias e Escalões. Hierarquia: `careers → categories → grades`. O índice salarial (`salaryIndex`) e o salário base (`salaryBase`) são definidos ao nível do Escalão. O regime da carreira é um campo de texto livre (`regime`) diretamente em `careers`, sem referência a `option_entity`. A ordem de progressão dentro de uma carreira é definida ao nível da Categoria.
 
 ## 4.2 Carreiras (Careers)
 
@@ -918,7 +920,7 @@ Consolida os catálogos relativos à progressão funcional dos colaboradores con
 | `code` | string | Sim | Código único (máx. 50). |
 | `name` | string | Sim | Designação (máx. 150). |
 | `description` | string | Não | Descrição. |
-| `regimeOptionKey` | string | Não | Regime da carreira (`option_entity` ccode=`CAREER_REGIME`): ex. `GERAL`, `ESPECIAL`. |
+| `regime` | string | Não | Regime da carreira: ex. `GERAL`, `ESPECIAL` (valor direto, sem referência a option_entity). |
 | `isActive` | boolean | Não | Estado inicial. |
 
 ### PUT /careers/{id}
@@ -974,6 +976,7 @@ Posição remuneratória dentro de uma categoria. O par `(category_id, grade_num
 |---|---|---|---|
 | `categoryId` | integer | Sim | Categoria. |
 | `gradeNumber` | integer | Sim | Número do escalão (≥ 1). |
+| `codigo` | string | Não | Código alfanumérico do escalão (máx. 50). |
 | `name` | string | Sim | Designação. |
 | `salaryIndex` | number | Não | Índice salarial da grelha PCFR. |
 | `salaryBase` | number | Não | Salário base em CVE correspondente ao índice salarial. |

@@ -240,7 +240,9 @@ organizational_units  (Unidades Orgânicas)
 ├── code                  VARCHAR(50)  UNIQUE NOT NULL
 ├── name                  VARCHAR(150) NOT NULL
 ├── acronym               VARCHAR(20)
-├── unit_type_option_id   UUID FK→option_entity        -- ccode='UNIT_TYPE'
+├── type                  VARCHAR(100)                 -- ex: DIRECAO, DEPARTAMENTO, DIVISAO, SECCAO
+├── descricao             TEXT
+├── estado                BOOLEAN
 ├── parent_unit_id        BIGINT FK→organizational_units  -- null = raiz da hierarquia
 ├── is_active             BOOLEAN DEFAULT TRUE
 └── auditoria
@@ -255,6 +257,7 @@ jobs  (Cargos)
 ├── code        VARCHAR(50)  UNIQUE NOT NULL
 ├── name        VARCHAR(150) NOT NULL
 ├── description TEXT
+├── nivel       INTEGER
 ├── is_active   BOOLEAN      DEFAULT TRUE
 └── auditoria
 ```
@@ -281,7 +284,7 @@ careers  (Carreiras)
 ├── code               VARCHAR(50)  UNIQUE NOT NULL
 ├── name               VARCHAR(150) NOT NULL
 ├── description        TEXT
-├── regime_option_id   UUID FK→option_entity     -- ccode='CAREER_REGIME' (ex: GERAL, ESPECIAL)
+├── regime             VARCHAR(100)              -- ex: GERAL, ESPECIAL (valor direto, sem FK)
 ├── is_active          BOOLEAN      DEFAULT TRUE
 └── auditoria
 ```
@@ -304,6 +307,7 @@ grades  (Escalões)
 ├── id            UUID      PK
 ├── category_id   BIGINT NOT NULL FK→categories
 ├── grade_number  INTEGER      NOT NULL        -- número do escalão (1, 2, 3, ...)
+├── codigo        VARCHAR(50)                  -- código alfanumérico do escalão
 ├── name          VARCHAR(150) NOT NULL
 ├── salary_index  NUMERIC(12,2)                -- índice salarial da grelha PCFR
 ├── salary_base   NUMERIC(12,2)                -- salário base em CVE correspondente ao índice
@@ -655,7 +659,7 @@ erDiagram
         uuid   id PK
         varchar code
         varchar name
-        uuid regime_option_id FK
+        varchar regime
     }
 
     CATEGORIES {
@@ -670,6 +674,7 @@ erDiagram
         uuid   id PK
         bigint category_id FK
         int grade_number
+        varchar codigo
         numeric salary_index
         numeric salary_base
     }
@@ -678,6 +683,7 @@ erDiagram
         uuid   id PK
         varchar code
         varchar name
+        int nivel
     }
 
     FUNCTIONS {
@@ -703,6 +709,9 @@ erDiagram
         uuid   id PK
         varchar code
         varchar name
+        varchar type
+        text descricao
+        boolean estado
         bigint parent_unit_id FK
     }
 
@@ -848,7 +857,6 @@ erDiagram
     EMPLOYEE_PROFESSIONAL_ASSIGNMENTS }o--o| FUNCTIONS : "funcao"
     EMPLOYEE_UNIT_ASSIGNMENTS }o--|| ORGANIZATIONAL_UNITS : "unidade"
 
-    CAREERS }o--o| OPTION_ENTITY : "regime"
     CAREERS ||--o{ CATEGORIES : "tem"
     CATEGORIES ||--o{ GRADES : "tem"
     ORGANIZATIONAL_UNITS }o--o| ORGANIZATIONAL_UNITS : "pai"
@@ -912,7 +920,7 @@ Resumo decisório para implementação:
 | Estado Civil | ✅ Sim | Label puro, sem comportamento |
 | Sexo | ✅ Sim | Label puro |
 | Nacionalidade | ✅ Sim | Lista de países, label puro |
-| Tipo de Unidade Orgânica | ✅ Sim | Label de classificação |
+| Tipo de Unidade Orgânica | ❌ Não | Campo `type` direto em `organizational_units` (string livre) |
 | Categoria de Documento | ✅ Sim | Agrupamento visual no dossier |
 | Categoria de Ausência | ✅ Sim | Agrupamento, sem lógica própria |
 | Nível de Habilitação | ✅ Sim | Label puro |
@@ -920,7 +928,7 @@ Resumo decisório para implementação:
 | Ilha | ✅ Sim | Lista geográfica, label puro |
 | Concelho | ✅ Sim | Lista geográfica, label puro |
 | Tipo de Formação | ✅ Sim | Label de classificação |
-| Regime de Carreira | ✅ Sim | Label puro, configurável pelo administrador |
+| Regime de Carreira | ❌ Não | Campo `regime` direto em `careers` (string livre, sem FK) |
 | Estados do Trabalhador | ❌ Não | Tem `is_core` — comportamento |
 | Situações Profissionais | ❌ Não | Código referenciado por lógica de negócio |
 | Tipos de Contrato | ❌ Não | Tem historial próprio com datas |
