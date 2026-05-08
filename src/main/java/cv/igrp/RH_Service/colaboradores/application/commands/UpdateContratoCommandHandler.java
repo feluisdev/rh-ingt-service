@@ -34,7 +34,9 @@ public class UpdateContratoCommandHandler
         contrato.atualizar(
                 dto.getEndDate() != null ? dto.getEndDate() : contrato.getEndDate(),
                 dto.getLegalBase() != null ? dto.getLegalBase() : contrato.getLegalBase(),
-                dto.getNotes() != null ? dto.getNotes() : contrato.getNotes()
+                dto.getNotes() != null ? dto.getNotes() : contrato.getNotes(),
+                dto.getRegimeTrabalho() != null ? dto.getRegimeTrabalho() : contrato.getRegimeTrabalho(),
+                dto.getPercentagemTempo() != null ? dto.getPercentagemTempo() : contrato.getPercentagemTempo()
         );
 
         return ResponseEntity.ok(mapper.toDTO(contratoRepository.save(contrato)));

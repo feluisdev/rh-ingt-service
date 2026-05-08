@@ -22,6 +22,8 @@ public class ContratoMapper {
                 e.getIsCurrent(),
                 e.getStatus(),
                 e.getRenewalCount(),
+                e.getRegimeTrabalho(),
+                e.getPercentagemTempo(),
                 e.getLegalBase(),
                 e.getNotes());
     }
@@ -38,6 +40,8 @@ public class ContratoMapper {
         e.setIsCurrent(c.getIsCurrent());
         e.setStatus(c.getStatus());
         e.setRenewalCount(c.getRenewalCount());
+        e.setRegimeTrabalho(c.getRegimeTrabalho());
+        e.setPercentagemTempo(c.getPercentagemTempo());
         e.setLegalBase(c.getLegalBase());
         e.setNotes(c.getNotes());
         return e;
@@ -55,6 +59,8 @@ public class ContratoMapper {
         r.setIsCurrent(c.getIsCurrent());
         r.setStatus(c.getStatus());
         r.setRenewalCount(c.getRenewalCount());
+        r.setRegimeTrabalho(c.getRegimeTrabalho());
+        r.setPercentagemTempo(c.getPercentagemTempo());
         r.setLegalBase(c.getLegalBase());
         r.setNotes(c.getNotes());
         return r;

@@ -5,6 +5,7 @@ import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -19,8 +20,10 @@ public class Contrato {
     private LocalDate endDate;
     private String terminationReason;
     private Boolean isCurrent;
-    private String status;       // ATIVO | SUSPENSO | CESSADO
+    private String status;           // ATIVO | SUSPENSO | CESSADO
     private Integer renewalCount;
+    private String regimeTrabalho;   // TEMPO_COMPLETO | TEMPO_PARCIAL | ISENCAO_HORARIO | DEDICACAO_EXCLUSIVA
+    private BigDecimal percentagemTempo; // preenchido apenas se regimeTrabalho = TEMPO_PARCIAL
     private String legalBase;
     private String notes;
 
@@ -28,7 +31,7 @@ public class Contrato {
 
     public static Contrato criar(FuncionarioId funcionarioId, UUID contractTypeId, String contractNumber,
                                   LocalDate startDate, LocalDate endDate, String legalBase, String notes,
-                                  int renewalCount) {
+                                  int renewalCount, String regimeTrabalho, BigDecimal percentagemTempo) {
         Contrato c = new Contrato();
         c.id = ContratoId.gerarNovo();
         c.funcionarioId = funcionarioId;
@@ -41,6 +44,8 @@ public class Contrato {
         c.isCurrent = true;
         c.status = "ATIVO";
         c.renewalCount = renewalCount;
+        c.regimeTrabalho = regimeTrabalho;
+        c.percentagemTempo = percentagemTempo;
         return c;
     }
 
@@ -48,6 +53,7 @@ public class Contrato {
                                          String contractNumber, LocalDate startDate, LocalDate endDate,
                                          String terminationReason, Boolean isCurrent,
                                          String status, Integer renewalCount,
+                                         String regimeTrabalho, BigDecimal percentagemTempo,
                                          String legalBase, String notes) {
         Contrato c = new Contrato();
         c.id = id;
@@ -60,15 +66,20 @@ public class Contrato {
         c.isCurrent = isCurrent;
         c.status = status;
         c.renewalCount = renewalCount;
+        c.regimeTrabalho = regimeTrabalho;
+        c.percentagemTempo = percentagemTempo;
         c.legalBase = legalBase;
         c.notes = notes;
         return c;
     }
 
-    public void atualizar(LocalDate endDate, String legalBase, String notes) {
+    public void atualizar(LocalDate endDate, String legalBase, String notes,
+                          String regimeTrabalho, BigDecimal percentagemTempo) {
         this.endDate = endDate;
         this.legalBase = legalBase;
         this.notes = notes;
+        this.regimeTrabalho = regimeTrabalho;
+        this.percentagemTempo = percentagemTempo;
     }
 
     public void encerrar(LocalDate endDate, String terminationReason) {

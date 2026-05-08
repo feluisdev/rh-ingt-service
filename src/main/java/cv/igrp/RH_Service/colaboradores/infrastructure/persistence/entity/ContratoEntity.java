@@ -53,6 +53,12 @@ public class ContratoEntity extends AuditEntity {
     @Column(name = "renewal_count", nullable = false)
     private Integer renewalCount;
 
+    @Column(name = "regime_trabalho", length = 30)
+    private String regimeTrabalho;
+
+    @Column(name = "percentagem_tempo", precision = 5, scale = 2)
+    private java.math.BigDecimal percentagemTempo;
+
     @Column(name = "legal_base", length = 200)
     private String legalBase;
 

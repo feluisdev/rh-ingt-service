@@ -69,7 +69,9 @@ public class CreateContratoCommandHandler
                 dto.getEndDate(),
                 dto.getLegalBase(),
                 dto.getNotes(),
-                renewalCount));
+                renewalCount,
+                dto.getRegimeTrabalho(),
+                dto.getPercentagemTempo()));
 
         // Actualiza vínculo do funcionário se o tipo de contrato tiver situação profissional configurada
         if (contractType.getProfessionalSituationId() != null) {
