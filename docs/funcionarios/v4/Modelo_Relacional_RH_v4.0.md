@@ -6,8 +6,8 @@
 | **Projeto** | SIPPROG — Sistema de Informação do Pessoal e Progressões |
 | **Entidade** | INGT — Instituto Nacional de Gestão do Território |
 | **Versão** | 4.0 |
-| **Data** | Abril 2026 |
-| **Status** | Draft |
+| **Data** | Maio 2026 |
+| **Status** | Em curso |
 
 ---
 
@@ -351,26 +351,29 @@ grades  (Escalões)
 ### Bloco 4 — Núcleo do Funcionário
 
 ```
-employees  (Funcionários)
-├── id                           UUID      PK
-├── full_name                    VARCHAR(200) NOT NULL
-├── nif                          VARCHAR(20)  UNIQUE NOT NULL
-├── birth_date                   DATE         NOT NULL
-├── sex                          VARCHAR(10)               -- ccode='SEX'; ckey: M, F
-├── marital_status               VARCHAR(30)               -- ccode='MARITAL_STATUS'; ckey: SOLTEIRO, CASADO, UNIAO_FACTO, DIVORCIADO, VIUVO
-├── nationality                  VARCHAR(10)               -- ccode='NATIONALITY'; ckey: CV, PT, SN, ...
-├── worker_state_id              UUID NOT NULL FK→worker_states
-├── professional_situation_id    UUID NOT NULL FK→professional_situations
-├── admission_date               DATE  NOT NULL
-├── email                        VARCHAR(150)
-├── phone                        VARCHAR(30)
-├── nib                          VARCHAR(30)               -- IBAN para pagamentos
-│   -- Endereço
-├── address_street               VARCHAR(200)
-├── address_island               VARCHAR(50)               -- ccode='ISLAND'; ckey: SANTIAGO, SAL, BOA_VISTA, ...
-├── address_concelho             VARCHAR(50)               -- ccode='CONCELHO'; ckey: PRAIA, SANTA_CATARINA, MINDELO, ...
-├── photo_document_id            UUID FK→documents        -- fotografia do funcionário
-├── is_active                    BOOLEAN DEFAULT TRUE
+t_funcionario  (Funcionários)
+├── id                           UUID          PK
+├── numero_funcionario           VARCHAR(10)   UNIQUE NOT NULL  -- ex: 'F000001'; gerado por seq_numero_funcionario; imutável após criação
+├── nome_completo                VARCHAR(200)  NOT NULL
+├── data_nascimento              DATE          NOT NULL
+├── genero                       VARCHAR(50)   NOT NULL          -- valor livre (ex: 'Masculino', 'Feminino')
+├── estado_civil                 VARCHAR(50)   NOT NULL          -- valor livre (ex: 'Solteiro', 'Casado')
+├── nif                          VARCHAR(20)   UNIQUE NOT NULL
+├── document_type_id             UUID          FK→document_types               -- tipo do documento de identificação (nullable)
+├── numero_documento             VARCHAR(50)   UNIQUE                           -- nº do BI/Passaporte/outro; único quando preenchido
+├── data_emissao_doc             DATE                                            -- data de emissão do documento
+├── data_validade_doc            DATE                                            -- data de validade do documento
+├── nacionalidade                VARCHAR(50)   NOT NULL  DEFAULT 'CV'
+├── worker_state_id              UUID          FK→worker_states                  -- atribuído ATIVO por defeito na criação; set pelo CreateFuncionarioCommandHandler
+├── professional_situation_id    UUID          FK→professional_situations        -- nullable até ao primeiro contrato; actualizado pelo CreateContratoCommandHandler
+├── data_admissao                DATE          NOT NULL
+├── email                        VARCHAR(200)  UNIQUE
+├── telefone                     VARCHAR(30)
+├── morada                       TEXT
+├── ilha                         VARCHAR(100)                                    -- valor livre
+├── concelho                     VARCHAR(100)                                    -- valor livre
+├── localidade                   VARCHAR(100)
+├── is_active                    BOOLEAN       NOT NULL  DEFAULT TRUE
 └── auditoria
 ```
 
@@ -463,28 +466,32 @@ employee_unit_assignments  (Colocações / Mobilidade)
 
 ```sql
 SELECT
-    e.*,
-    ct.name          AS contract_type,
+    f.*,
+    ws.code          AS worker_state_code,
+    ps.code          AS professional_situation_code,
+    ct.code          AS contract_type_code,
     ec.start_date    AS contract_start,
     c.name           AS career,
     cat.name         AS category,
     g.grade_number   AS grade,
     g.salary_index,
     j.name           AS job,
-    f.name           AS function_name,
+    func.name        AS function_name,
     ou.name          AS unit
-FROM employees e
-LEFT JOIN employee_contracts ec          ON ec.employee_id = e.id AND ec.is_current = true
+FROM t_funcionario f
+LEFT JOIN worker_states ws               ON ws.id = f.worker_state_id
+LEFT JOIN professional_situations ps     ON ps.id = f.professional_situation_id
+LEFT JOIN t_contrato ec                  ON ec.funcionario_id = f.id AND ec.is_current = true
 LEFT JOIN contract_types ct              ON ct.id = ec.contract_type_id
-LEFT JOIN employee_professional_assignments epa ON epa.employee_id = e.id AND epa.is_current = true
+LEFT JOIN t_enquadramento epa            ON epa.funcionario_id = f.id AND epa.is_current = true
 LEFT JOIN careers c      ON c.id   = epa.career_id
 LEFT JOIN categories cat ON cat.id = epa.category_id
 LEFT JOIN grades g       ON g.id   = epa.grade_id
-LEFT JOIN jobs j         ON j.id   = epa.job_id
-LEFT JOIN functions f    ON f.id   = epa.function_id
-LEFT JOIN employee_unit_assignments eua  ON eua.employee_id = e.id AND eua.is_primary = true AND eua.end_date IS NULL
-LEFT JOIN organizational_units ou        ON ou.id = eua.unit_id
-WHERE e.id = :employeeId;
+LEFT JOIN jobs j         ON j.id   = epa.cargo_id
+LEFT JOIN functions func ON func.id = epa.function_id
+LEFT JOIN t_colocacao eua                ON eua.funcionario_id = f.id AND eua.is_primary = true AND eua.end_date IS NULL
+LEFT JOIN organizational_units ou        ON ou.id = eua.unidade_organica_id
+WHERE f.id = :funcionarioId;
 ```
 
 ---
@@ -650,18 +657,26 @@ erDiagram
 
     EMPLOYEES {
         uuid   id PK
-        varchar full_name
+        varchar numero_funcionario
+        varchar nome_completo
         varchar nif
-        date birth_date
-        varchar sex
-        varchar marital_status
-        varchar nationality
+        date data_nascimento
+        varchar genero
+        varchar estado_civil
+        varchar nacionalidade
+        uuid document_type_id FK
+        varchar numero_documento
+        date data_emissao_doc
+        date data_validade_doc
         uuid worker_state_id FK
         uuid professional_situation_id FK
-        date admission_date
-        varchar nib
-        varchar address_island
-        varchar address_concelho
+        date data_admissao
+        varchar email
+        varchar telefone
+        text morada
+        varchar ilha
+        varchar concelho
+        varchar localidade
         boolean is_active
     }
 
@@ -882,8 +897,9 @@ erDiagram
         boolean is_national
     }
 
-    EMPLOYEES }o--|| WORKER_STATES : "estado"
-    EMPLOYEES }o--|| PROFESSIONAL_SITUATIONS : "situacao"
+    EMPLOYEES }o--o| WORKER_STATES : "estado"
+    EMPLOYEES }o--o| PROFESSIONAL_SITUATIONS : "situacao"
+    EMPLOYEES }o--o| DOCUMENT_TYPES : "tipo doc identificacao"
 
     EMPLOYEES ||--o{ EMPLOYEE_CONTRACTS : "tem"
     EMPLOYEES ||--o{ EMPLOYEE_PROFESSIONAL_ASSIGNMENTS : "tem"
@@ -932,8 +948,10 @@ erDiagram
 
 | Tabela | Constraint |
 |---|---|
-| `employees` | `nif` UNIQUE |
-| `employees` | `nib` UNIQUE (quando preenchido) |
+| `t_funcionario` | `nif` UNIQUE NOT NULL |
+| `t_funcionario` | `numero_funcionario` UNIQUE NOT NULL |
+| `t_funcionario` | `numero_documento` UNIQUE (quando preenchido) |
+| `t_funcionario` | `email` UNIQUE (quando preenchido) |
 | `categories` | UQ `(career_id, code)` |
 | `grades` | UQ `(category_id, grade_number)` |
 | `leave_balances` | UQ `(employee_id, leave_type_id, year)` |
@@ -964,26 +982,26 @@ erDiagram
 
 Resumo decisório para implementação. A coluna "Armazenamento" descreve como o valor é guardado nas tabelas que o referenciam — seguindo o princípio da secção 2.3 (string ckey, sem UUID FK).
 
-| Catálogo | Vai para OptionEntity? | ccode | Armazenamento nas tabelas que o usam |
-|---|---|---|---|
-| Estado Civil | ✅ Sim | `MARITAL_STATUS` | `employees.marital_status VARCHAR(30)` |
-| Sexo | ✅ Sim | `SEX` | `employees.sex VARCHAR(10)` |
-| Nacionalidade | ✅ Sim | `NATIONALITY` | `employees.nationality VARCHAR(10)`, `qualifications.country VARCHAR(10)` |
-| Tipo de Unidade Orgânica | ❌ Não — string livre | — | `organizational_units.type VARCHAR(100)` (sem validação por option_entity) |
-| Categoria de Documento | ✅ Sim | `DOC_CATEGORY` | `document_types.category VARCHAR(50)` |
-| Categoria de Ausência | ✅ Sim | `LEAVE_CATEGORY` | `leave_types.category VARCHAR(50)` |
-| Nível de Habilitação | ✅ Sim | `QUALIFICATION_LEVEL` | `qualifications.level VARCHAR(50)` |
-| Tipo de Parentesco | ✅ Sim | `RELATIONSHIP_TYPE` | `employee_dependents.relationship_type VARCHAR(50)` |
-| Ilha | ✅ Sim | `ISLAND` | `employees.address_island VARCHAR(50)` |
-| Concelho | ✅ Sim | `CONCELHO` | `employees.address_concelho VARCHAR(50)` |
-| Tipo de Formação | ✅ Sim | `TRAINING_TYPE` | `trainings.training_type VARCHAR(50)` |
-| Regime de Carreira | ❌ Não — string livre | — | `careers.regime VARCHAR(100)` (sem validação por option_entity) |
-| Estados do Trabalhador | ❌ Não — tabela dedicada | — | `worker_states` (flag `is_core` protege estados núcleo) |
-| Situações Profissionais | ❌ Não — tabela dedicada | — | `professional_situations` (código referenciado por lógica de negócio) |
-| Tipos de Contrato | ❌ Não — tabela dedicada | — | `contract_types` (historial próprio em `employee_contracts`) |
-| Tipos de Documento | ❌ Não — tabela dedicada | — | `document_types` (`allowed_extensions` valida upload) |
-| Tipos de Ausência | ❌ Não — tabela dedicada | — | `leave_types` (`deducts_balance`, `requires_approval` alteram fluxo) |
-| Subtipos Licença/Mobilidade | ❌ Não — tabela dedicada | — | `leave_mobility_subtypes` (`affects_pay`, `counts_for_seniority`, `can_self_submit`) |
+| Catálogo | Vai para OptionEntity? | ccode | Armazenamento nas tabelas que o usam | Estado actual |
+|---|---|---|---|---|
+| Estado Civil | ✅ Sim (planeado) | `MARITAL_STATUS` | `t_funcionario.estado_civil VARCHAR(50)` | String livre — validação ckey não implementada |
+| Sexo / Género | ✅ Sim (planeado) | `SEX` | `t_funcionario.genero VARCHAR(50)` | String livre — validação ckey não implementada |
+| Nacionalidade | ✅ Sim (planeado) | `NATIONALITY` | `t_funcionario.nacionalidade VARCHAR(50)`, `qualifications.country VARCHAR(10)` | String livre |
+| Tipo de Unidade Orgânica | ❌ Não — string livre | — | `organizational_units.type VARCHAR(100)` | String livre — implementado |
+| Categoria de Documento | ✅ Sim | `DOC_CATEGORY` | `document_types.category VARCHAR(50)` | — |
+| Categoria de Ausência | ✅ Sim | `LEAVE_CATEGORY` | `leave_types.category VARCHAR(50)` | — |
+| Nível de Habilitação | ✅ Sim | `QUALIFICATION_LEVEL` | `qualifications.level VARCHAR(50)` | — |
+| Tipo de Parentesco | ✅ Sim | `RELATIONSHIP_TYPE` | `employee_dependents.relationship_type VARCHAR(50)` | — |
+| Ilha | ✅ Sim (planeado) | `ISLAND` | `t_funcionario.ilha VARCHAR(100)` | String livre — validação ckey não implementada |
+| Concelho | ✅ Sim (planeado) | `CONCELHO` | `t_funcionario.concelho VARCHAR(100)` | String livre — validação ckey não implementada |
+| Tipo de Formação | ✅ Sim | `TRAINING_TYPE` | `trainings.training_type VARCHAR(50)` | — |
+| Regime de Carreira | ❌ Não — string livre | — | `careers.regime VARCHAR(100)` | String livre — implementado |
+| Estados do Trabalhador | ❌ Não — tabela dedicada | — | `worker_states` (flag `is_core` protege estados núcleo) | Implementado |
+| Situações Profissionais | ❌ Não — tabela dedicada | — | `professional_situations` (código referenciado por lógica de negócio) | Implementado |
+| Tipos de Contrato | ❌ Não — tabela dedicada | — | `contract_types` (historial próprio em `employee_contracts`) | Implementado |
+| Tipos de Documento | ❌ Não — tabela dedicada | — | `document_types` (`allowed_extensions` valida upload) | Implementado |
+| Tipos de Ausência | ❌ Não — tabela dedicada | — | `leave_types` (`deducts_balance`, `requires_approval` alteram fluxo) | Implementado |
+| Subtipos Licença/Mobilidade | ❌ Não — tabela dedicada | — | `leave_mobility_subtypes` (`affects_pay`, `counts_for_seniority`, `can_self_submit`) | Implementado |
 
 **Nota de implementação:** Os campos marcados como "string ckey" são validados na camada aplicacional pelo método `OptionValidator.validate(ccode, ckey)` antes de persistir. O frontend obtém os valores disponíveis via `GET /reference/options?ccode={code}`. Os ccodes estão definidos nesta tabela — quando os ccodes concretos forem confirmados, actualizam-se apenas as seeds de `option_entity`, sem alteração de schema.
 

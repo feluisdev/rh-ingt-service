@@ -6,8 +6,8 @@
 | **Projeto** | SIPPROG — Sistema de Informação do Pessoal e Progressões |
 | **Entidade** | INGT — Instituto Nacional de Gestão do Território |
 | **Versão** | 4.0 |
-| **Data** | Abril 2026 |
-| **Status** | Draft |
+| **Data** | Maio 2026 |
+| **Status** | Em curso |
 
 ---
 
@@ -83,64 +83,53 @@ src/main/java/cv/igrp/RH_Service/
 ├── carreiras/                      ← MÓDULO TOP-LEVEL (catálogo PCFR)
 │   └── … (mesma estrutura — BC único)
 │
-├── colaboradores/                  ← MÓDULO TOP-LEVEL (UMBRELLA com 6 sub-domínios)
+├── colaboradores/                  ← MÓDULO TOP-LEVEL (implementação actual: estrutura flat por entidade)
 │   │
-│   ├── domain/                     ← ÚNICA CAMADA DIVIDIDA POR SUB-MÓDULO
-│   │   ├── core/                   -- employees, dependents
-│   │   │   ├── models/
-│   │   │   ├── valueobject/
-│   │   │   ├── repository/
-│   │   │   ├── filter/
-│   │   │   └── service/
-│   │   ├── vida_profissional/      -- contracts, prof_assignments, unit_assignments
-│   │   │   └── … (mesma sub-estrutura)
-│   │   ├── dossier/                -- qualifications, trainings, disciplinary_processes
-│   │   │   └── …
-│   │   ├── documentos/             -- documents polimórficos
-│   │   │   └── …
-│   │   ├── ausencias/              -- leave_*, leaves_mobilities
-│   │   │   └── …
-│   │   ├── recibos/                -- payroll_slips
-│   │   │   └── …
-│   │   └── shared/                 -- value objects partilhados pelos sub-domínios
-│   │       └── valueobject/
+│   ├── domain/                     ← FLAT — todos os modelos no mesmo nível
+│   │   ├── models/                 -- Funcionario, Contrato, Dependente, EnquadramentoProfissional,
+│   │   │                           --   Colocacao, Qualificacao, Formacao, ProcessoDisciplinar,
+│   │   │                           --   ReciboVencimento, Documento, PedidoAusencia, SaldoAusencia,
+│   │   │                           --   LicencaMobilidade, SubtipoLicencaMobilidade, Feriado, AuditRevision
+│   │   ├── valueobject/            -- FuncionarioId, ContratoId, DependenteId, ...
+│   │   ├── repository/             -- interfaces de repositório (uma por aggregate root)
+│   │   ├── filter/                 -- filtros de pesquisa
+│   │   └── service/                -- serviços de domínio
 │   │
-│   ├── application/                ← FLAT PARTILHADO (handlers orquestram cross-sub-domínio)
-│   │   ├── commands/               -- todos os commands juntos
-│   │   ├── queries/                -- todas as queries juntas
-│   │   ├── dto/                    -- todos os DTOs juntos
-│   │   ├── constants/
-│   │   └── port/                   -- portas para sistemas externos (ex: payroll)
+│   ├── application/                ← FLAT
+│   │   ├── commands/               -- todos os command handlers
+│   │   ├── queries/                -- todos os query handlers
+│   │   └── dto/                    -- todos os DTOs (request, response, wrappers)
 │   │
 │   ├── infrastructure/
-│   │   ├── mappers/                ← DIVIDIDO POR SUB-DOMÍNIO
-│   │   │   ├── core/
-│   │   │   ├── vida_profissional/
-│   │   │   ├── dossier/
-│   │   │   ├── documentos/
-│   │   │   ├── ausencias/
-│   │   │   └── recibos/
+│   │   ├── mappers/                ← FLAT — um mapper por entidade
 │   │   ├── persistence/
-│   │   │   ├── entity/             -- FLAT: entities JPA do módulo colaboradores (gerados pelo IGRP)
-│   │   │   ├── repository/         -- FLAT: Spring Data interfaces do módulo
-│   │   │   └── adapters/           ← DIVIDIDO POR SUB-DOMÍNIO
-│   │   │       ├── core/
-│   │   │       ├── vida_profissional/
-│   │   │       ├── dossier/
-│   │   │       ├── documentos/
-│   │   │       ├── ausencias/
-│   │   │       └── recibos/
-│   │   ├── client/                 -- FLAT: integrações externas
-│   │   └── messaging/              -- FLAT: produtores/consumidores Kafka
+│   │   │   ├── entity/             -- FLAT: todas as entities JPA (geradas pelo IGRP)
+│   │   │   ├── repository/         -- FLAT: Spring Data interfaces
+│   │   │   └── adapters/           -- FLAT: implementações dos repositórios
+│   │   └── config/
 │   │
 │   └── interfaces/
-│       └── rest/                   ← FLAT: UM CONTROLLER POR SUB-DOMÍNIO
-│           ├── CoreController.java          (gerado)
-│           ├── VidaProfissionalController.java  (gerado)
-│           ├── DossierController.java       (gerado)
-│           ├── DocumentosController.java    (gerado)
-│           ├── AusenciasController.java     (gerado)
-│           └── RecibosController.java       (gerado)
+│       └── rest/                   ← FLAT: um controller por entidade/área (gerado pelo IGRP Studio)
+│           ├── FuncionarioController.java      (gerado)
+│           ├── ContratoController.java         (gerado)
+│           ├── DependenteController.java       (gerado)
+│           ├── EnquadramentoController.java    (gerado)
+│           ├── ColocacaoController.java        (gerado)
+│           ├── QualificacaoController.java     (gerado)
+│           ├── FormacaoController.java         (gerado)
+│           ├── ProcessoDisciplinarController.java  (gerado)
+│           ├── DocumentoController.java        (gerado)
+│           ├── PedidoAusenciaController.java   (gerado)
+│           ├── SaldoAusenciaController.java    (gerado)
+│           ├── LicencaMobilidadeController.java (gerado)
+│           ├── ReciboController.java           (gerado)
+│           ├── MeController.java               (gerado)
+│           └── ColaboradoresAuditHistoryController.java (gerado)
+│
+│   > **Nota sobre sub-módulos:** a arquitectura prevê uma divisão por sub-domínio (`core/`,
+│   > `vida_profissional/`, `dossier/`, etc.) que não foi implementada na fase actual. A estrutura
+│   > flat adoptada é suficiente enquanto o módulo estiver em crescimento activo. A migração para
+│   > sub-domínios pode ser feita iterativamente quando o isolamento explícito se justificar.
 │
 ├── sigdi/                          ← MÓDULO TOP-LEVEL (já existe — mesmo padrão; entities isoladas)
 │   ├── domain/
@@ -184,17 +173,17 @@ src/main/java/cv/igrp/RH_Service/
 
 ## 3. Mapeamento BC → Módulo → Tabelas
 
-| Bounded Context | Módulo | Tabelas v4.0 | Notas |
+| Bounded Context | Módulo | Tabelas (nomes JPA) | Notas |
 |---|---|---|---|
 | Parametrizações | `parametrizacoes/` | `option_entity`, `worker_states`, `professional_situations`, `contract_types`, `document_types`, `leave_types`, `leave_mobility_subtypes`, `public_holidays` | Transversal — todos os outros módulos consomem |
-| Estrutura Organizacional | `estrutura/` | `organizational_units`, `jobs`, `functions` | Catálogo orgânico — referenciado por colaboradores/* |
+| Estrutura Organizacional | `estrutura/` | `organizational_units`, `jobs`, `functions` | Catálogo orgânico — referenciado por colaboradores |
 | Carreiras e Progressão | `carreiras/` | `careers`, `categories`, `grades` | Grelha PCFR (Decreto-Lei 4/2024) |
-| Funcionário — Núcleo | `colaboradores/core/` | `employees`, `employee_dependents` | Aggregate root: `Funcionario` |
-| Vida Profissional | `colaboradores/vida_profissional/` | `employee_contracts`, `employee_professional_assignments`, `employee_unit_assignments` | Três históricos independentes com `is_current` |
-| Dossier | `colaboradores/dossier/` | `qualifications`, `trainings`, `disciplinary_processes` | Cadastro académico/formativo/disciplinar |
-| Documentos | `colaboradores/documentos/` | `documents`, mapeamento de `document_types` (FK) | Polimórfico via `reference_entity` + `reference_id` |
-| Ausências e Licenças | `colaboradores/ausencias/` | `leave_balances`, `leave_requests`, `leaves_mobilities` | Workflow de aprovação pela chefia |
-| Recibos | `colaboradores/recibos/` | `payroll_slips` | Storage de PDF gerado pelo sistema salarial externo |
+| Funcionário — Núcleo | `colaboradores/` (flat) | `t_funcionario`, `t_dependente` | Aggregate root: `Funcionario` |
+| Vida Profissional | `colaboradores/` (flat) | `t_contrato`, `t_enquadramento`, `t_colocacao` | Três históricos independentes com `is_current` |
+| Dossier | `colaboradores/` (flat) | `t_qualificacao`, `t_formacao`, `t_processo_disciplinar` | Cadastro académico/formativo/disciplinar |
+| Documentos | `colaboradores/` (flat) | `t_documento` | Polimórfico via `reference_entity` + `reference_id` |
+| Ausências e Licenças | `colaboradores/` (flat) | `t_saldo_ausencia`, `t_pedido_ausencia`, `t_licenca_mobilidade` | Workflow de aprovação pela chefia |
+| Recibos | `colaboradores/` (flat) | `t_recibo_vencimento` | Storage de PDF gerado pelo sistema salarial externo |
 
 Total: **9 BCs** organizados em **5 módulos top-level**, com **26 tabelas** (excluindo `change_history` e `employee_external_mapping`).
 
@@ -418,14 +407,25 @@ A organização do `.igrpstudio/` reflecte a estrutura **flat ao nível do módu
 │
 ├── colaboradores/                  ← UM ÚNICO MÓDULO IGRP
 │   ├── module.json                 -- manifest único do módulo
-│   ├── controllers/                -- FLAT: um controller por sub-domínio
-│   │   ├── CoreController.json
-│   │   ├── VidaProfissionalController.json
-│   │   ├── DossierController.json
-│   │   ├── DocumentosController.json
-│   │   ├── AusenciasController.json
-│   │   └── RecibosController.json
-│   └── dto/                        -- FLAT: todos os DTOs do módulo
+│   ├── controllers/                -- FLAT: um controller por entidade/área
+│   │   ├── FuncionarioController.json
+│   │   ├── ContratoController.json
+│   │   ├── DependenteController.json
+│   │   ├── EnquadramentoController.json
+│   │   ├── ColocacaoController.json
+│   │   ├── QualificacaoController.json
+│   │   ├── FormacaoController.json
+│   │   ├── ProcessoDisciplinarController.json
+│   │   ├── DocumentoController.json
+│   │   ├── PedidoAusenciaController.json
+│   │   ├── SaldoAusenciaController.json
+│   │   ├── LicencaMobilidadeController.json
+│   │   ├── ReciboController.json
+│   │   ├── MeController.json
+│   │   └── ColaboradoresAuditHistoryController.json
+│   ├── dto/                        -- FLAT: todos os DTOs do módulo
+│   ├── models/                     -- entity manifests (FuncionarioEntity.json, ...)
+│   └── enum/                       -- enumerações (TipoAfectacao.json, ...)
 │
 ├── sigdi/                          ← já existe (mesmo padrão flat)
 │   ├── module.json

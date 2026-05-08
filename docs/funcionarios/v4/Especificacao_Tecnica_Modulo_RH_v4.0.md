@@ -37,6 +37,7 @@ title: Especificação Técnica — Módulo de Recursos Humanos v4.0
 | 1.0 | 22-04-2026 | TA Digital | Reestruturação conforme menu SIPPROG: Cargos e Funções movidos para Estrutura Organizacional; Mobilidade integrada em Colaboradores; Avaliação de Desempenho tratada como ponto de integração externo. |
 | 3.0 | Abril 2026 | TA Digital | Consolidação dos módulos; introdução dos históricos independentes (contratos, enquadramento, colocação); modelo de documentos polimórfico; endpoints de referência /reference/*. |
 | 4.0 | Abril 2026 | TA Digital | Adoção do Modelo Relacional v4.0: migração de lookups sem lógica para `option_entity`; separação clara entre `employee_contracts`, `employee_professional_assignments` e `employee_unit_assignments`; novos sub-recursos do dossier: dependentes, habilitações, formações, processos disciplinares; refatoração da secção Parametrizações conforme decisão OptionEntity; Modelo de Dados actualizado para 26 tabelas. |
+| 4.1 | Maio 2026 | TA Digital | Actualização conforme implementação real: campos de identificação do funcionário actualizados (`nomeCompleto`, `genero`, `estadoCivil`, `numeroDocumento`, `document_type_id`, `ilha`, `concelho`, `localidade`); `workerStateId` removido do payload de criação (atribuído automaticamente a ATIVO); `professionalSituationId` nullable até ao primeiro contrato; parâmetros de filtro `GET /employees` actualizados para UUIDs. |
 
 ---
 
@@ -241,19 +242,18 @@ Retorna a informação de cabeçalho apresentada na página de perfil: identific
 
 ```json
 {
-  "id": 42,
+  "id": "550e8400-e29b-41d4-a716-446655440000",
   "fullName": "Alex Jailson Barbosa Andrade",
   "nif": "17361994",
-  "email": "Alex.Andrade@ingt.gov.cv",
+  "email": "alex.andrade@ingt.gov.cv",
   "phone": "+238 261 2345",
-  "currentJob": { "id": 7, "name": "Tecnico Superior" },
-  "currentFunction": { "id": 12, "name": "Coordenador de Projeto" },
-  "currentUnit": { "id": 5, "name": "Direccao de Servicos de Gestao Territorial" },
-  "career": { "id": 2, "name": "Nivel Tecnico I" },
-  "category": { "id": 4, "name": "Tecnico Superior Principal" },
-  "grade": { "id": 3, "gradeNumber": 3 },
+  "currentJob": { "id": "uuid-cargo", "name": "Tecnico Superior" },
+  "currentUnit": { "id": "uuid-unidade", "name": "Direccao de Servicos de Gestao Territorial" },
+  "career": { "id": "uuid-carreira", "name": "Nivel Tecnico I" },
+  "category": { "id": "uuid-categoria", "name": "Tecnico Superior Principal" },
+  "grade": { "id": "uuid-escalao", "gradeNumber": 3 },
   "admissionDate": "2018-09-01",
-  "workerState": "ACTIVE"
+  "workerState": "ATIVO"
 }
 ```
 
@@ -348,14 +348,14 @@ O módulo Colaboradores agrega o conjunto de operações relativas aos funcioná
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
-| `search` | string | Não | Pesquisa por nome, NIF ou número mecanográfico. |
-| `unitId` | integer | Não | Filtra por unidade orgânica principal. |
-| `workerStateId` | integer | Não | Filtra por estado do trabalhador. |
-| `careerId` | integer | Não | Filtra por carreira atual. |
-| `isActive` | boolean | Não | Filtra por estado lógico. |
-| `page` | integer | Não | Página (default 1). |
-| `size` | integer | Não | Tamanho da página (default 20, máx. 100). |
-| `sort` | string | Não | Campo de ordenação. Ex.: `fullName,asc`. |
+| `nome` | string | Não | Pesquisa parcial por nome. |
+| `nif` | string | Não | NIF exacto. |
+| `workerStateId` | UUID | Não | Filtra por estado do trabalhador (UUID do registo em `worker_states`). |
+| `unidadeOrganicaId` | UUID | Não | Filtra por unidade orgânica (via enquadramento actual). |
+| `careerId` | UUID | Não | Filtra por carreira (via enquadramento actual). |
+| `active` | boolean | Não | Filtra por `is_active`. Default: `true`. |
+| `pagina` | string | Não | Página (0-based, default `0`). |
+| `tamanho` | string | Não | Tamanho da página (default `20`). |
 
 **Resposta (200 OK)**
 
@@ -363,17 +363,32 @@ O módulo Colaboradores agrega o conjunto de operações relativas aos funcioná
 {
   "content": [
     {
-      "id": 42,
-      "fullName": "Alex Jailson Barbosa Andrade",
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "numeroFuncionario": "F000001",
+      "nomeCompleto": "Alex Jailson Barbosa Andrade",
       "nif": "17361994",
-      "currentUnit": "Direccao de Servicos de Gestao Territorial",
-      "currentJob": "Tecnico Superior",
-      "workerState": "ACTIVE"
+      "genero": "Masculino",
+      "estadoCivil": "Solteiro",
+      "nacionalidade": "CV",
+      "documentTypeId": null,
+      "numeroDocumento": null,
+      "dataEmissaoDoc": null,
+      "dataValidadeDoc": null,
+      "email": "alex.andrade@ingt.gov.cv",
+      "telefone": "+238 261 2345",
+      "morada": "Achada Santo António",
+      "ilha": "Santiago",
+      "concelho": "Praia",
+      "localidade": "Praia",
+      "workerStateId": "aaaa-...",
+      "professionalSituationId": "bbbb-...",
+      "dataAdmissao": "2018-09-01",
+      "isActive": true
     }
   ],
-  "page": 1,
-  "size": 20,
   "totalElements": 132,
+  "pageNumber": 0,
+  "pageSize": 20,
   "totalPages": 7
 }
 ```
@@ -384,28 +399,33 @@ Devolve o detalhe completo, incluindo enquadramento corrente, contrato corrente,
 
 ### POST /employees
 
+O estado do trabalhador (`workerStateId`) é atribuído automaticamente a `ATIVO` pelo sistema — não faz parte do payload de criação.
+
 **Corpo da Requisição**
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
-| `fullName` | string | Sim | Nome completo. |
-| `nif` | string | Sim | Número de identificação fiscal único. |
-| `birthDate` | date | Sim | Data de nascimento. |
-| `sex` | string | Sim | ckey de `option_entity` ccode=`SEX`: `M` ou `F`. |
-| `maritalStatus` | string | Sim | ckey de `option_entity` ccode=`MARITAL_STATUS`: `SOLTEIRO`, `CASADO`, `UNIAO_FACTO`, `DIVORCIADO`, `VIUVO`. |
-| `nationality` | string | Sim | ckey de `option_entity` ccode=`NATIONALITY`: `CV`, `PT`, etc. |
-| `admissionDate` | date | Sim | Data de admissão. |
-| `workerStateId` | UUID | Sim | Estado do trabalhador (default ACTIVE). |
-| `email` | string | Não | Email institucional. |
-| `phone` | string | Não | Telefone. |
-| `nib` | string | Não | NIB/IBAN para pagamentos (21 dígitos). |
-| `addressStreet` | string | Não | Morada. |
-| `addressIsland` | string | Não | ckey de `option_entity` ccode=`ISLAND`: `SANTIAGO`, `SAL`, `SAO_VICENTE`, etc. |
-| `addressConcelho` | string | Não | ckey de `option_entity` ccode=`CONCELHO`: `PRAIA`, `MINDELO`, etc. |
+| `nomeCompleto` | string | Sim | Nome completo (máx. 200 caracteres). |
+| `dataNascimento` | date | Sim | Data de nascimento (`YYYY-MM-DD`). |
+| `genero` | string | Sim | Género (valor livre, ex: `Masculino`, `Feminino`). |
+| `estadoCivil` | string | Sim | Estado civil (valor livre, ex: `Solteiro`, `Casado`). |
+| `nif` | string | Sim | NIF único (máx. 20 caracteres). |
+| `documentTypeId` | UUID | Não | ID do tipo de documento de identificação (FK→document_types). |
+| `numeroDocumento` | string | Não | Número do BI/Passaporte/outro (máx. 50 caract.); único no sistema. |
+| `dataEmissaoDoc` | date | Não | Data de emissão do documento. |
+| `dataValidadeDoc` | date | Não | Data de validade do documento. |
+| `nacionalidade` | string | Não | Código de nacionalidade (ex: `CV`, `PT`). Default: `CV`. |
+| `dataAdmissao` | date | Sim | Data de admissão. |
+| `email` | string | Não | Email (máx. 200 caracteres); único no sistema. |
+| `telefone` | string | Não | Telefone (máx. 30 caracteres). |
+| `morada` | string | Não | Morada/endereço. |
+| `ilha` | string | Não | Ilha (valor livre, máx. 100 caract., ex: `Santiago`, `São Vicente`). |
+| `concelho` | string | Não | Concelho (valor livre, máx. 100 caract., ex: `Praia`, `Mindelo`). |
+| `localidade` | string | Não | Localidade (máx. 100 caracteres). |
 
 ### PUT /employees/{id}
 
-O campo `nif` é imutável após a criação. As restantes propriedades são atualizáveis.
+Os campos `nif` e `numeroFuncionario` são imutáveis após a criação. As restantes propriedades aceitam os mesmos campos do `POST`.
 
 ### DELETE /employees/{id}
 
