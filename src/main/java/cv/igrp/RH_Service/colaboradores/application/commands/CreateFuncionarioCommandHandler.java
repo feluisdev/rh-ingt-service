@@ -36,12 +36,10 @@ public class CreateFuncionarioCommandHandler
                     "Já existe um funcionário com número de documento '" + dto.getNumeroDocumento() + "'.");
         }
 
-        UUID workerStateId = dto.getWorkerStateId() != null
-                ? dto.getWorkerStateId()
-                : workerStateRepository.findByCode("ATIVO")
-                        .orElseThrow(() -> IgrpResponseStatusException.badRequest(
-                                "Estado 'ATIVO' não configurado no sistema."))
-                        .getId().getValor();
+        UUID workerStateId = workerStateRepository.findByCode("ATIVO")
+                .orElseThrow(() -> IgrpResponseStatusException.badRequest(
+                        "Estado 'ATIVO' não configurado no sistema."))
+                .getId().getValor();
 
         Long seq = jdbcTemplate.queryForObject("SELECT nextval('seq_numero_funcionario')", Long.class);
         String numeroFuncionario = String.format("F%06d", seq);
