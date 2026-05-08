@@ -38,6 +38,7 @@ title: Especificação Técnica — Módulo de Recursos Humanos v4.0
 | 3.0 | Abril 2026 | TA Digital | Consolidação dos módulos; introdução dos históricos independentes (contratos, enquadramento, colocação); modelo de documentos polimórfico; endpoints de referência /reference/*. |
 | 4.0 | Abril 2026 | TA Digital | Adoção do Modelo Relacional v4.0: migração de lookups sem lógica para `option_entity`; separação clara entre `employee_contracts`, `employee_professional_assignments` e `employee_unit_assignments`; novos sub-recursos do dossier: dependentes, habilitações, formações, processos disciplinares; refatoração da secção Parametrizações conforme decisão OptionEntity; Modelo de Dados actualizado para 26 tabelas. |
 | 4.1 | Maio 2026 | TA Digital | Actualização conforme implementação real: campos de identificação do funcionário actualizados (`nomeCompleto`, `genero`, `estadoCivil`, `numeroDocumento`, `document_type_id`, `ilha`, `concelho`, `localidade`); `workerStateId` removido do payload de criação (atribuído automaticamente a ATIVO); `professionalSituationId` nullable até ao primeiro contrato; parâmetros de filtro `GET /employees` actualizados para UUIDs. |
+| 4.2 | Maio 2026 | TA Digital | Contrato: adicionados `status` (ATIVO/SUSPENSO/CESSADO) e `renewalCount`; novos endpoints `PUT /contracts/{id}/suspend` e `PUT /contracts/{id}/reactivate`; corrigido esquema `t_contrato` com nomes reais de tabela/colunas; lógica de fecho do contrato anterior documentada como aplicacional (não trigger de BD); secção 9.3 actualizada. |
 
 ---
 
@@ -122,7 +123,7 @@ Novo campo `photo_document_id` em `employees` referencia directamente a tabela `
 
 ### 8. Triggers — adições
 
-Novo trigger `fn_close_current_contract` (secção 9.3) — encerra automaticamente o contrato anterior ao inserir um novo com `is_current = true`. Antes da v4 essa lógica vivia no handler aplicacional; agora é consistência estrutural ao nível da BD.
+O encerramento do contrato anterior ao criar um novo continua a ser feito no `CreateContratoCommandHandler` (lógica aplicacional). Não existe trigger de BD para este efeito — a consistência é garantida pela aplicação.
 
 ### 9. Sumário de impacto na implementação
 
@@ -132,7 +133,7 @@ Novo trigger `fn_close_current_contract` (secção 9.3) — encerra automaticame
 | Migrations | Criar `employee_contracts`, `employee_dependents`, `qualifications`, `trainings`, `disciplinary_processes`, `public_holidays`. |
 | Migrations | Acrescentar campos de endereço e `photo_document_id` em `employees`. |
 | Migrations | Reestruturar `documents` (adicionar `storage_key`, `mime_type`, `size_bytes`, `reference_entity`, `reference_id`). |
-| Triggers | Criar `fn_close_current_contract`. |
+| Handler | `CreateContratoCommandHandler` encerra contrato anterior e calcula `renewalCount`. |
 | Endpoints | Manter aliases temporários para `/marital-statuses` etc. apontando para `/reference/options`. |
 | OpenAPI | Regenerar contratos REST das secções 2.3, 2.10 e 5.9. |
 
@@ -437,9 +438,10 @@ Soft delete (`is_active = false`). Bloqueado se existirem pedidos PENDING.
 
 Historial independente do ciclo de vida contratual: nomeação definitiva, CTFP, comissão de serviço, etc. Não confundir com o enquadramento de carreira (secção 2.4).
 
-Ao criar um novo contrato, o sistema executa automaticamente:
-1. Encerra o contrato anterior (`is_current = false`, `end_date = startDate − 1 dia`), se existir.
-2. Actualiza `employees.professional_situation_id` com o vínculo configurado em `contract_types.professional_situation_id`.
+Ao criar um novo contrato, o `CreateContratoCommandHandler` executa automaticamente:
+1. Encerra o contrato anterior (`status = 'CESSADO'`, `is_current = false`, `end_date = startDate − 1 dia`, `terminationReason = 'SUBSTITUICAO'`), se existir.
+2. Calcula `renewalCount`: incrementa relativamente ao contrato anterior se o tipo for renovável e o mesmo; caso contrário reinicia a 0.
+3. Actualiza `t_funcionario.professional_situation_id` com o vínculo configurado em `contract_types.professional_situation_id`, se definido.
 
 ### GET /employees/{employeeId}/contracts
 
@@ -468,13 +470,38 @@ Actualiza campos editáveis (`endDate`, `legalBase`, `notes`). Os campos `contra
 
 ### PUT /employees/{employeeId}/contracts/{id}/close
 
-Encerra manualmente o contrato activo.
+Encerra manualmente o contrato activo (`status → CESSADO`, `is_current → false`).
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
 | `endDate` | date | Sim | Data de fim do contrato. |
 | `terminationReason` | string | Sim | Motivo de cessação (LGTFP): `CADUCIDADE`, `ACORDO_MUTUO`, `RESCISAO_UNILATERAL_ENTIDADE`, `APOSENTACAO`, `FALECIMENTO`, `DEMISSAO`. |
 | `notes` | text | Não | Observações adicionais. |
+
+### PUT /employees/{employeeId}/contracts/{id}/suspend
+
+Suspende o contrato activo (`status: ATIVO → SUSPENSO`). Tipicamente accionado durante uma licença sem vencimento. Devolve erro 409 se o contrato não estiver ATIVO.
+
+### PUT /employees/{employeeId}/contracts/{id}/reactivate
+
+Reactiva um contrato suspenso (`status: SUSPENSO → ATIVO`). Devolve erro 409 se o contrato não estiver SUSPENSO.
+
+**Campos de resposta comuns a GET e POST:**
+
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `id` | UUID | Identificador do contrato. |
+| `funcionarioId` | UUID | Identificador do funcionário. |
+| `contractTypeId` | UUID | Tipo de contrato. |
+| `contractNumber` | string | Nº do instrumento contratual. |
+| `startDate` | date | Data de início. |
+| `endDate` | date | Data de fim (`null` = sem prazo definido). |
+| `terminationReason` | string | Motivo de cessação (preenchido ao encerrar). |
+| `isCurrent` | boolean | Indica se é o contrato activo do funcionário. |
+| `status` | string | Ciclo de vida: `ATIVO`, `SUSPENSO`, `CESSADO`. |
+| `renewalCount` | integer | Nº de renovações consecutivas do mesmo tipo renovável. |
+| `legalBase` | string | Nº de despacho / Boletim Oficial. |
+| `notes` | text | Observações. |
 
 ---
 
@@ -1456,16 +1483,20 @@ O diagrama ERD do módulo é apresentado no documento `Modelo_Relacional_RH_v4.0
 | `is_active` | BOOLEAN DEFAULT TRUE | Estado lógico. |
 | `created_at/by, updated_at/by` | AUDITORIA | Timestamps e autores. |
 
-### employee_contracts (Contratos do Funcionário)
+### t_contrato (Contratos do Funcionário)
 
 | Coluna | Tipo | Descrição |
 |---|---|---|
 | `id` | UUID PK | Identificador único. |
-| `employee_id` | BIGINT NOT NULL FK→employees | Funcionário. |
-| `contract_type_id` | BIGINT NOT NULL FK→contract_types | Tipo de contrato. |
+| `funcionario_id` | UUID NOT NULL FK→t_funcionario | Funcionário. |
+| `contract_type_id` | UUID NOT NULL FK→contract_types | Tipo de contrato. |
+| `contract_number` | VARCHAR(100) UNIQUE | Nº do instrumento contratual (nullable). |
 | `start_date` | DATE NOT NULL | Data de início. |
-| `end_date` | DATE | Data de fim (`null` = contrato activo). |
-| `is_current` | BOOLEAN NOT NULL DEFAULT FALSE | Apenas 1 TRUE por funcionário. |
+| `end_date` | DATE | Data de fim (`null` = sem prazo definido). |
+| `termination_reason` | VARCHAR(50) | Motivo de cessação (preenchido ao encerrar). |
+| `is_current` | BOOLEAN NOT NULL | Apenas 1 TRUE por funcionário. |
+| `status` | VARCHAR(20) NOT NULL | Ciclo de vida: `ATIVO`, `SUSPENSO`, `CESSADO`. |
+| `renewal_count` | INTEGER NOT NULL | Nº de renovações do mesmo tipo renovável. |
 | `legal_base` | VARCHAR(200) | Nº despacho / Boletim Oficial. |
 | `notes` | TEXT | Observações. |
 
@@ -1580,11 +1611,14 @@ Trigger `BEFORE INSERT OR UPDATE` em `employee_professional_assignments`.
 - Rejeita com EXCEPTION se a hierarquia for incoerente.
 - Garante que apenas um registo tem `is_current = true` por `employee_id`: ao activar o novo, desactiva o anterior (`is_current = false`, `end_date = new.start_date - 1`).
 
-## 9.3 fn_close_current_contract
+## 9.3 Fecho de Contrato Anterior (lógica aplicacional)
 
-Trigger `BEFORE INSERT` em `employee_contracts`.
+A lógica de encerramento do contrato anterior está no `CreateContratoCommandHandler`:
 
-- Ao inserir um novo contrato com `is_current = true`, encerra automaticamente o contrato anterior do mesmo funcionário: `is_current = false`, `end_date = new.start_date - 1 dia`.
+1. Pesquisa o contrato actual com `contratoRepository.findCurrentByFuncionarioId(funcionarioId)`.
+2. Chama `contratoActual.encerrar(startDate − 1 dia, "SUBSTITUICAO")` — define `status = 'CESSADO'`, `is_current = false`.
+3. Calcula `renewalCount`: se o `contract_type` for renovável e coincidir com o do contrato anterior, incrementa; caso contrário reinicia a 0.
+4. Persiste ambos os contratos e actualiza `t_funcionario.professional_situation_id`.
 
 ## 9.4 fn_apply_mobility
 

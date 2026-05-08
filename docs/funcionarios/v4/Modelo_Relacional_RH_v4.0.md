@@ -5,7 +5,7 @@
 | **Documento** | Modelo Relacional RH v4.0 |
 | **Projeto** | SIPPROG — Sistema de Informação do Pessoal e Progressões |
 | **Entidade** | INGT — Instituto Nacional de Gestão do Território |
-| **Versão** | 4.0 |
+| **Versão** | 4.2 |
 | **Data** | Maio 2026 |
 | **Status** | Em curso |
 
@@ -399,29 +399,32 @@ employee_dependents  (Dependentes do Funcionário)
 Os três históricos independentes que compõem o enquadramento completo do funcionário.
 
 ```
-employee_contracts  (Contratos do Funcionário)
+t_contrato  (Contratos do Funcionário)
 ├── id                   UUID      PK
-├── employee_id          UUID NOT NULL FK→employees
+├── funcionario_id       UUID NOT NULL FK→t_funcionario
 ├── contract_type_id     UUID NOT NULL FK→contract_types
 ├── contract_number      VARCHAR(100) UNIQUE              -- nº do instrumento contratual (ex: CTFP); distinto do despacho
 ├── start_date           DATE  NOT NULL
 ├── end_date             DATE                             -- null = contrato activo
-├── termination_reason   VARCHAR(50)                      -- preenchido apenas quando end_date é definido
-│                        -- CADUCIDADE, ACORDO_MUTUO, RESCISAO_UNILATERAL_ENTIDADE,
-│                        -- APOSENTACAO, FALECIMENTO, DEMISSAO
-├── is_current           BOOLEAN NOT NULL DEFAULT FALSE   -- apenas 1 TRUE por funcionário
+├── termination_reason   VARCHAR(50)                      -- preenchido quando encerrado; ex: SUBSTITUICAO, CADUCIDADE
+├── is_current           BOOLEAN NOT NULL                 -- apenas 1 TRUE por funcionário
+├── status               VARCHAR(20) NOT NULL             -- ATIVO | SUSPENSO | CESSADO (controlado pelo sistema)
+├── renewal_count        INTEGER NOT NULL                 -- nº de renovações consecutivas do mesmo tipo renovável
 ├── legal_base           VARCHAR(200)                     -- nº despacho / Boletim Oficial que autoriza o contrato
 ├── notes                TEXT
 └── auditoria
 
 -- Historial independente do enquadramento de carreira.
 -- Muda quando: renovação de CTFP, mudança para nomeação definitiva, comissão de serviço.
--- NÃO muda quando: promoção de escalão (isso é employee_professional_assignments).
--- contract_number: número do instrumento CTFP/CFP emitido pela entidade; nullable porque
---   Nomeação Definitiva e Comissão de Serviço usam apenas o despacho (legal_base).
--- termination_reason: base LGTFP — o motivo de cessação determina os direitos do funcionário
---   (compensação, contagem de tempo, elegibilidade para nova nomeação).
--- Documentos associados: ligados via documents(reference_entity='employee_contracts', reference_id).
+-- NÃO muda quando: promoção de escalão (isso é t_enquadramento).
+-- status: controlado exclusivamente pela aplicação — não é configurável pelo utilizador.
+--   ATIVO → estado inicial; SUSPENSO → durante licença sem vencimento; CESSADO → encerrado.
+--   Ao criar novo contrato, o anterior passa a CESSADO + is_current = false (lógica no handler).
+-- renewal_count: incrementado quando o novo contrato é do mesmo tipo renovável que o anterior.
+--   Permite ao sistema alertar quando o limite legal (contract_types.max_renewals) é atingido.
+-- contract_number: nullable — Nomeação Definitiva e Comissão de Serviço usam apenas legal_base.
+-- termination_reason: motivo de cessação (base LGTFP); determina direitos do funcionário.
+-- Documentos associados: ligados via documents(reference_entity='t_contrato', reference_id).
 ```
 
 ```
@@ -698,13 +701,17 @@ erDiagram
         varchar name
     }
 
-    EMPLOYEE_CONTRACTS {
-        uuid   id PK
-        uuid employee_id FK
-        uuid contract_type_id FK
-        date start_date
-        date end_date
+    T_CONTRATO {
+        uuid    id PK
+        uuid    funcionario_id FK
+        uuid    contract_type_id FK
+        varchar contract_number
+        date    start_date
+        date    end_date
+        varchar termination_reason
         boolean is_current
+        varchar status
+        int     renewal_count
         varchar legal_base
     }
 
@@ -963,7 +970,7 @@ erDiagram
 | Trigger | Tabela | O que valida |
 |---|---|---|
 | `fn_validate_professional_assignment` | `employee_professional_assignments` | `category_id` pertence ao `career_id` indicado; `grade_id` pertence ao `category_id` indicado |
-| `fn_enforce_single_current_contract` | `employee_contracts` | Ao activar `is_current = true`, fecha automaticamente o registo anterior (`is_current = false`, `end_date = new.start_date - 1`) |
+| `fn_enforce_single_current_assignment` (enquadramento) | `t_enquadramento` | Ao activar `is_current = true`, fecha automaticamente o registo anterior (`is_current = false`, `end_date = new.start_date - 1`) |
 | `fn_enforce_single_current_assignment` | `employee_professional_assignments` | Idem para enquadramento profissional |
 | `fn_check_leave_balance` | `leave_requests` | Se `leave_type.deducts_balance = true`, valida que `working_days ≤ leave_balances.available_days` |
 | `fn_check_leave_overlap` | `leave_requests` | Rejeita pedidos sobrepostos para o mesmo funcionário (excepto CANCELLED/REJECTED) |
@@ -972,7 +979,7 @@ erDiagram
 
 ### 5.3 Regras de is_current
 
-- **`employee_contracts.is_current`**: apenas 1 TRUE por `employee_id`. Ao inserir novo contrato com `is_current = true`, o trigger fecha o anterior.
+- **`t_contrato.is_current`**: apenas 1 TRUE por `funcionario_id`. Ao criar novo contrato, o `CreateContratoCommandHandler` encerra o anterior (`status = 'CESSADO'`, `is_current = false`, `end_date = startDate − 1 dia`) antes de persistir o novo. Não existe trigger de BD para esta lógica.
 - **`employee_professional_assignments.is_current`**: idem. Ao criar novo enquadramento, o anterior é fechado com `end_date = new.start_date - 1`.
 - **`employee_unit_assignments`**: não usa `is_current`. Usa `end_date IS NULL` para identificar a colocação actual. `is_primary = true` marca a unidade principal quando há múltiplas.
 
