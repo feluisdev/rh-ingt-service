@@ -81,4 +81,21 @@ public class ProcessoDisciplinarController {
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
+
+    @PostMapping("{processoId}/documentos")
+    @Operation(summary = "Associar documento a um processo disciplinar")
+    public ResponseEntity<DocumentoUploadResponseDTO> registarDocumento(
+            @PathVariable String funcionarioId,
+            @PathVariable String processoId,
+            @Valid @RequestBody UploadDocumentoRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoUploadResponseDTO> response = commandBus.send(
+                new RegistarDocumentoProcessoCommand(
+                        funcionarioId, processoId,
+                        request.getDocumentTypeId(), request.getFileKey(),
+                        request.getOriginalFilename(), request.getContentType(),
+                        request.getFileSize(), request.getDescription()));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
 }

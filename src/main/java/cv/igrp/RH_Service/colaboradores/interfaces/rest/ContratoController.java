@@ -78,4 +78,20 @@ public class ContratoController {
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
+
+    @PostMapping("{contratoId}/documentos")
+    @Operation(summary = "Associar documento a um contrato")
+    public ResponseEntity<DocumentoUploadResponseDTO> registarDocumento(
+            @PathVariable String contratoId,
+            @Valid @RequestBody UploadDocumentoRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoUploadResponseDTO> response = commandBus.send(
+                new RegistarDocumentoContratoCommand(
+                        contratoId,
+                        request.getDocumentTypeId(), request.getFileKey(),
+                        request.getOriginalFilename(), request.getContentType(),
+                        request.getFileSize(), request.getDescription()));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
 }

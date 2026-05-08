@@ -8,8 +8,9 @@ import java.util.UUID;
 
 @Getter
 @RequiredArgsConstructor
-public class UploadDocumentoCommand implements Command {
+public class RegistarDocumentoLicencaCommand implements Command {
     private final String funcionarioId;
+    private final String licencaId;
     private final UUID documentTypeId;
     private final String fileKey;
     private final String originalFilename;

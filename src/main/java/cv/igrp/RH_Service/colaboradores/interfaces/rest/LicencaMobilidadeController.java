@@ -155,4 +155,21 @@ public class LicencaMobilidadeController {
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
+
+    @PostMapping("{licencaId}/documentos")
+    @Operation(summary = "Associar documento a uma licença/mobilidade")
+    public ResponseEntity<DocumentoUploadResponseDTO> registarDocumento(
+            @PathVariable String funcionarioId,
+            @PathVariable String licencaId,
+            @Valid @RequestBody UploadDocumentoRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoUploadResponseDTO> response = commandBus.send(
+                new RegistarDocumentoLicencaCommand(
+                        funcionarioId, licencaId,
+                        request.getDocumentTypeId(), request.getFileKey(),
+                        request.getOriginalFilename(), request.getContentType(),
+                        request.getFileSize(), request.getDescription()));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
 }

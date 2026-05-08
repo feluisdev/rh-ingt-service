@@ -78,4 +78,20 @@ public class QualificacaoController {
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
+
+    @PostMapping("{qualificacaoId}/documentos")
+    @Operation(summary = "Associar documento a uma qualificação")
+    public ResponseEntity<DocumentoUploadResponseDTO> registarDocumento(
+            @PathVariable String qualificacaoId,
+            @Valid @RequestBody UploadDocumentoRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoUploadResponseDTO> response = commandBus.send(
+                new RegistarDocumentoQualificacaoCommand(
+                        qualificacaoId,
+                        request.getDocumentTypeId(), request.getFileKey(),
+                        request.getOriginalFilename(), request.getContentType(),
+                        request.getFileSize(), request.getDescription()));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
 }

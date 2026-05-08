@@ -29,6 +29,5 @@ public class CriarReciboRequestDTO {
     @Positive(message = "O salário líquido deve ser maior que zero")
     private BigDecimal netSalary;
 
-    @NotNull(message = "O documento é obrigatório")
     private UUID documentId;
 }

@@ -4,7 +4,9 @@ import cv.igrp.RH_Service.colaboradores.application.dto.DocumentoUploadResponseD
 import cv.igrp.RH_Service.colaboradores.domain.models.Documento;
 import cv.igrp.RH_Service.colaboradores.domain.repository.DocumentoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
+import cv.igrp.RH_Service.colaboradores.domain.repository.ProcessoDisciplinarRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
+import cv.igrp.RH_Service.colaboradores.domain.valueobject.ProcessoDisciplinarId;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.DocumentTypeRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.DocumentTypeId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
@@ -17,21 +19,31 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
-@Component("colabsUploadDocumentoCommandHandler")
+@Component("colabsRegistarDocumentoProcessoCommandHandler")
 @RequiredArgsConstructor
-public class UploadDocumentoCommandHandler
-        implements CommandHandler<UploadDocumentoCommand, ResponseEntity<DocumentoUploadResponseDTO>> {
+public class RegistarDocumentoProcessoCommandHandler
+        implements CommandHandler<RegistarDocumentoProcessoCommand, ResponseEntity<DocumentoUploadResponseDTO>> {
 
     private final FuncionarioRepository funcionarioRepository;
+    private final ProcessoDisciplinarRepository processoRepository;
     private final DocumentTypeRepository documentTypeRepository;
     private final DocumentoRepository documentoRepository;
 
     @IgrpCommandHandler
-    public ResponseEntity<DocumentoUploadResponseDTO> handle(UploadDocumentoCommand command) {
+    public ResponseEntity<DocumentoUploadResponseDTO> handle(RegistarDocumentoProcessoCommand command) {
         var funcionarioId = FuncionarioId.from(command.getFuncionarioId());
         funcionarioRepository.findById(funcionarioId)
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Funcionário não encontrado: " + command.getFuncionarioId()));
+
+        var processoId = ProcessoDisciplinarId.from(command.getProcessoId());
+        var processo = processoRepository.findById(processoId)
+                .orElseThrow(() -> IgrpResponseStatusException.notFound(
+                        "Processo disciplinar não encontrado: " + command.getProcessoId()));
+
+        if (!processo.getFuncionarioId().equals(funcionarioId))
+            throw IgrpResponseStatusException.notFound(
+                    "Processo disciplinar não encontrado: " + command.getProcessoId());
 
         var tipoId = DocumentTypeId.from(command.getDocumentTypeId());
         var tipo = documentTypeRepository.findById(tipoId)
@@ -39,8 +51,7 @@ public class UploadDocumentoCommandHandler
                         "Tipo de documento não encontrado: " + command.getDocumentTypeId()));
 
         if (!tipo.isActive())
-            throw IgrpResponseStatusException.badRequest(
-                    "Tipo de documento inactivo: " + tipo.getCodigo());
+            throw IgrpResponseStatusException.badRequest("Tipo de documento inactivo: " + tipo.getCodigo());
 
         var extension = FilenameUtils.getExtension(command.getOriginalFilename()).toLowerCase();
         var allowed = Arrays.stream(tipo.getAllowedExtensions().split(","))
@@ -50,19 +61,12 @@ public class UploadDocumentoCommandHandler
                     "Extensão não permitida. Aceites: " + tipo.getAllowedExtensions());
 
         var saved = documentoRepository.save(Documento.criar(
-                "FUNCIONARIO", funcionarioId.getValor(), tipoId,
-                command.getFileKey(),
-                command.getOriginalFilename(),
-                command.getContentType(),
-                command.getFileSize(),
-                command.getDescription()));
+                "PROCESSO_DISCIPLINAR", processoId.getValor(), tipoId,
+                command.getFileKey(), command.getOriginalFilename(),
+                command.getContentType(), command.getFileSize(), command.getDescription()));
 
         return ResponseEntity.status(201).body(new DocumentoUploadResponseDTO(
-                saved.getId().getStringValor(),
-                saved.getFileKey(),
-                saved.getOriginalFilename(),
-                saved.getContentType(),
-                saved.getFileSize(),
-                "Documento registado com sucesso"));
+                saved.getId().getStringValor(), saved.getFileKey(), saved.getOriginalFilename(),
+                saved.getContentType(), saved.getFileSize(), "Documento registado com sucesso"));
     }
 }

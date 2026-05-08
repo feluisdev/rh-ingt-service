@@ -67,4 +67,21 @@ public class ReciboController {
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
+
+    @PostMapping("funcionarios/{funcionarioId}/recibos/{reciboId}/documentos")
+    @Operation(summary = "Associar documento a um recibo de vencimento")
+    public ResponseEntity<DocumentoUploadResponseDTO> registarDocumento(
+            @PathVariable String funcionarioId,
+            @PathVariable String reciboId,
+            @Valid @RequestBody UploadDocumentoRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoUploadResponseDTO> response = commandBus.send(
+                new RegistarDocumentoReciboCommand(
+                        funcionarioId, reciboId,
+                        request.getDocumentTypeId(), request.getFileKey(),
+                        request.getOriginalFilename(), request.getContentType(),
+                        request.getFileSize(), request.getDescription()));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
 }
