@@ -37,9 +37,10 @@ title: Especificação Técnica — Módulo de Recursos Humanos v4.0
 | 1.0 | 22-04-2026 | TA Digital | Reestruturação conforme menu SIPPROG: Cargos e Funções movidos para Estrutura Organizacional; Mobilidade integrada em Colaboradores; Avaliação de Desempenho tratada como ponto de integração externo. |
 | 3.0 | Abril 2026 | TA Digital | Consolidação dos módulos; introdução dos históricos independentes (contratos, enquadramento, colocação); modelo de documentos polimórfico; endpoints de referência /reference/*. |
 | 4.0 | Abril 2026 | TA Digital | Adoção do Modelo Relacional v4.0: migração de lookups sem lógica para `option_entity`; separação clara entre `employee_contracts`, `employee_professional_assignments` e `employee_unit_assignments`; novos sub-recursos do dossier: dependentes, habilitações, formações, processos disciplinares; refatoração da secção Parametrizações conforme decisão OptionEntity; Modelo de Dados actualizado para 26 tabelas. |
-| 4.1 | Maio 2026 | TA Digital | Actualização conforme implementação real: campos de identificação do funcionário actualizados (`nomeCompleto`, `genero`, `estadoCivil`, `numeroDocumento`, `document_type_id`, `ilha`, `concelho`, `localidade`); `workerStateId` removido do payload de criação (atribuído automaticamente a ATIVO); `professionalSituationId` nullable até ao primeiro contrato; parâmetros de filtro `GET /employees` actualizados para UUIDs. |
-| 4.2 | Maio 2026 | TA Digital | Contrato: adicionados `status` (ATIVO/SUSPENSO/CESSADO) e `renewalCount`; novos endpoints `PUT /contracts/{id}/suspend` e `PUT /contracts/{id}/reactivate`; corrigido esquema `t_contrato` com nomes reais de tabela/colunas; lógica de fecho do contrato anterior documentada como aplicacional (não trigger de BD); secção 9.3 actualizada. |
+| 4.1 | Maio 2026 | TA Digital | Actualização conforme implementação real: campos de identificação do funcionário actualizados (`nomeCompleto`, `genero`, `estadoCivil`, `numeroDocumento`, `document_type_id`, `ilha`, `concelho`, `localidade`); `workerStateId` removido do payload de criação (atribuído automaticamente a ATIVO); `professionalSituationId` nullable até ao primeiro contrato; parâmetros de filtro `GET /funcionarios` actualizados para UUIDs. |
+| 4.2 | Maio 2026 | TA Digital | Contrato: adicionados `status` (ATIVO/SUSPENSO/CESSADO) e `renewalCount`; novos endpoints `PUT /contratos/{id}/suspend` e `PUT /contratos/{id}/activate`; corrigido esquema `t_contrato` com nomes reais de tabela/colunas; lógica de fecho do contrato anterior documentada como aplicacional (não trigger de BD); secção 9.3 actualizada. |
 | 4.3 | Maio 2026 | TA Digital | Contrato: adicionados `regimeTrabalho` (enum `RegimeTrabalho`, base legal LGTFP art.123-129) e `percentagemTempo`; validação dinâmica via `RegimeTrabalho.codigosValidos()`. Nova entidade `t_dados_bancarios` (banco/conta/IBAN/INPS) com API completa em secção 2.11. Manifestos `.igrpstudio` actualizados: `RegimeTrabalho.json`, `ContratoEntity.json`, `DadosBancariosEntity.json`. |
+| 4.4 | Maio 2026 | TA Digital | Normalização de paths REST: todos os sub-recursos de funcionário migrados para prefixo `/funcionarios/{funcionarioId}/X` (contratos, enquadramentos, dependentes, qualificações, recibos, dados-bancários, documentos); `funcionarioId` removido dos request bodies e passado via path variable; endpoints proxy em `FuncionarioController` eliminados; tabela `VALID_CCODES` (Option) alargada com `CAREER_REGIME`, `BANCO` e `WORK_REGIME`; manifestos `.igrpstudio` actualizados. |
 
 ---
 
@@ -82,7 +83,7 @@ Na v3, o enquadramento profissional misturava progressão de carreira com tipo d
 | `employee_professional_assignments` | Promoção de categoria, progressão de escalão, mudança de cargo/função | `is_current = true` |
 | `employee_unit_assignments` | Mobilidade interna, destacamento, cedência | `end_date IS NULL` |
 
-**Impacto na API:** novo sub-recurso `/employees/{id}/contracts` (secção 2.3). O enquadramento profissional deixa de carregar o tipo de contrato.
+**Impacto na API:** novo sub-recurso `/funcionarios/{id}/contratos` (secção 2.3). O enquadramento profissional deixa de carregar o tipo de contrato.
 
 ### 3. Novos sub-recursos do dossier (secção 2.10)
 
@@ -90,10 +91,10 @@ Tabelas e endpoints novos, ausentes em v3:
 
 | Recurso | Tabela | Endpoint base |
 |---|---|---|
-| Dependentes | `employee_dependents` | `/employees/{id}/dependents` |
-| Habilitações Literárias | `qualifications` | `/employees/{id}/qualifications` |
-| Formações Profissionais | `trainings` | `/employees/{id}/trainings` |
-| Processos Disciplinares | `disciplinary_processes` | `/employees/{id}/disciplinary-processes` |
+| Dependentes | `employee_dependents` | `/funcionarios/{id}/dependentes` |
+| Habilitações Literárias | `qualifications` | `/funcionarios/{id}/qualificacoes` |
+| Formações Profissionais | `trainings` | `/funcionarios/{id}/formacoes` |
+| Processos Disciplinares | `disciplinary_processes` | `/funcionarios/{id}/processos-disciplinares` |
 
 ### 4. Documentos polimórficos
 
@@ -261,14 +262,14 @@ Retorna a informação de cabeçalho apresentada na página de perfil: identific
 
 ## 1.3 Os Meus Recibos
 
-### GET /me/payroll-slips
+### GET /me/recibos
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
 | `periodYear` | integer | Não | Filtra por ano de referência. |
 | `periodMonth` | integer | Não | Filtra por mês (1-12). |
 
-### GET /me/payroll-slips/{id}/download
+### GET /me/recibos/{id}/download
 
 Devolve o ficheiro PDF do recibo. Valida que o registo pertence ao colaborador autenticado.
 
@@ -342,11 +343,11 @@ Esta secção é alimentada por integração com o Sistema de Avaliação de Des
 
 ## 2.1 Visão Geral
 
-O módulo Colaboradores agrega o conjunto de operações relativas aos funcionários do INGT, abrangendo o cadastro, a vida profissional (contratos, enquadramento e atribuições orgânicas), os processos de ausência e licença, os recibos de vencimento, o dossier completo (habilitações, formações, processos disciplinares, dependentes) e os documentos pessoais. Todos os sub-recursos do dossier são acessíveis sob o prefixo `/employees/{employeeId}/`.
+O módulo Colaboradores agrega o conjunto de operações relativas aos funcionários do INGT, abrangendo o cadastro, a vida profissional (contratos, enquadramento e atribuições orgânicas), os processos de ausência e licença, os recibos de vencimento, o dossier completo (habilitações, formações, processos disciplinares, dependentes) e os documentos pessoais. Todos os sub-recursos do dossier são acessíveis sob o prefixo `/funcionarios/{funcionarioId}/`.
 
 ## 2.2 Funcionários (Employees) — CRUD
 
-### GET /employees
+### GET /funcionarios
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
@@ -395,11 +396,11 @@ O módulo Colaboradores agrega o conjunto de operações relativas aos funcioná
 }
 ```
 
-### GET /employees/{id}
+### GET /funcionarios/{id}
 
 Devolve o detalhe completo, incluindo enquadramento corrente, contrato corrente, unidade principal e contactos.
 
-### POST /employees
+### POST /funcionarios
 
 O estado do trabalhador (`workerStateId`) é atribuído automaticamente a `ATIVO` pelo sistema — não faz parte do payload de criação.
 
@@ -425,11 +426,11 @@ O estado do trabalhador (`workerStateId`) é atribuído automaticamente a `ATIVO
 | `concelho` | string | Não | Concelho (valor livre, máx. 100 caract., ex: `Praia`, `Mindelo`). |
 | `localidade` | string | Não | Localidade (máx. 100 caracteres). |
 
-### PUT /employees/{id}
+### PUT /funcionarios/{id}
 
 Os campos `nif` e `numeroFuncionario` são imutáveis após a criação. As restantes propriedades aceitam os mesmos campos do `POST`.
 
-### DELETE /employees/{id}
+### DELETE /funcionarios/{id}
 
 Soft delete (`is_active = false`). Bloqueado se existirem pedidos PENDING.
 
@@ -444,13 +445,13 @@ Ao criar um novo contrato, o `CreateContratoCommandHandler` executa automaticame
 2. Calcula `renewalCount`: incrementa relativamente ao contrato anterior se o tipo for renovável e o mesmo; caso contrário reinicia a 0.
 3. Actualiza `t_funcionario.professional_situation_id` com o vínculo configurado em `contract_types.professional_situation_id`, se definido.
 
-### GET /employees/{employeeId}/contracts
+### GET /funcionarios/{funcionarioId}/contratos
 
 Devolve o histórico completo de contratos, ordenado por `start_date` descendente.
 
-### GET /employees/{employeeId}/contracts/{id}
+### GET /funcionarios/{funcionarioId}/contratos/{id}
 
-### POST /employees/{employeeId}/contracts
+### POST /funcionarios/{funcionarioId}/contratos
 
 **Corpo da Requisição**
 
@@ -467,11 +468,11 @@ Devolve o histórico completo de contratos, ordenado por `start_date` descendent
 
 Ao criar um novo contrato, o anterior (se existir `is_current = true`) é encerrado automaticamente (`end_date = startDate − 1 dia`, `is_current = false`).
 
-### PUT /employees/{employeeId}/contracts/{id}
+### PUT /funcionarios/{funcionarioId}/contratos/{id}
 
 Actualiza campos editáveis (`endDate`, `legalBase`, `notes`). Os campos `contractTypeId` e `startDate` são imutáveis após criação.
 
-### PUT /employees/{employeeId}/contracts/{id}/close
+### PUT /funcionarios/{funcionarioId}/contratos/{id}/close
 
 Encerra manualmente o contrato activo (`status → CESSADO`, `is_current → false`).
 
@@ -481,11 +482,11 @@ Encerra manualmente o contrato activo (`status → CESSADO`, `is_current → fal
 | `terminationReason` | string | Sim | Motivo de cessação (LGTFP): `CADUCIDADE`, `ACORDO_MUTUO`, `RESCISAO_UNILATERAL_ENTIDADE`, `APOSENTACAO`, `FALECIMENTO`, `DEMISSAO`. |
 | `notes` | text | Não | Observações adicionais. |
 
-### PUT /employees/{employeeId}/contracts/{id}/suspend
+### PUT /funcionarios/{funcionarioId}/contratos/{id}/suspend
 
 Suspende o contrato activo (`status: ATIVO → SUSPENSO`). Tipicamente accionado durante uma licença sem vencimento. Devolve erro 409 se o contrato não estiver ATIVO.
 
-### PUT /employees/{employeeId}/contracts/{id}/reactivate
+### PUT /funcionarios/{funcionarioId}/contratos/{id}/activate
 
 Reactiva um contrato suspenso (`status: SUSPENSO → ATIVO`). Devolve erro 409 se o contrato não estiver SUSPENSO.
 
@@ -512,11 +513,11 @@ Reactiva um contrato suspenso (`status: SUSPENSO → ATIVO`). Devolve erro 409 s
 
 Materializa a relação entre o funcionário e a sua carreira, categoria, escalão, cargo e função num dado período. O sistema mantém historial completo garantindo apenas um enquadramento activo (`is_current = true`) por funcionário. As validações asseguram a consistência hierárquica carreira → categoria → escalão.
 
-### GET /employees/{employeeId}/professional-assignments
+### GET /funcionarios/{funcionarioId}/enquadramentos
 
-### GET /employees/{employeeId}/professional-assignments/{id}
+### GET /funcionarios/{funcionarioId}/enquadramentos/{id}
 
-### POST /employees/{employeeId}/professional-assignments
+### POST /funcionarios/{funcionarioId}/enquadramentos
 
 **Corpo da Requisição**
 
@@ -533,7 +534,7 @@ Materializa a relação entre o funcionário e a sua carreira, categoria, escal�
 
 Ao criar um novo enquadramento, o anterior é encerrado automaticamente (`end_date = startDate − 1 dia`).
 
-### PUT /employees/{employeeId}/professional-assignments/{id}
+### PUT /funcionarios/{funcionarioId}/enquadramentos/{id}
 
 ---
 
@@ -541,9 +542,9 @@ Ao criar um novo enquadramento, o anterior é encerrado automaticamente (`end_da
 
 Um colaborador pode estar atribuído a uma ou mais unidades, sendo uma delas obrigatoriamente marcada como principal (`isPrimary = true`). As atribuições têm vigência (`startDate`, `endDate`).
 
-### GET /employees/{employeeId}/unit-assignments
+### GET /funcionarios/{funcionarioId}/colocacoes
 
-### POST /employees/{employeeId}/unit-assignments
+### POST /funcionarios/{funcionarioId}/colocacoes
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
@@ -552,7 +553,7 @@ Um colaborador pode estar atribuído a uma ou mais unidades, sendo uma delas obr
 | `startDate` | date | Sim | Data de início. |
 | `endDate` | date | Não | Data de fim (vazio se em curso). |
 
-### PUT /employees/{employeeId}/unit-assignments/{id}/close
+### PUT /funcionarios/{funcionarioId}/colocacoes/{id}/close
 
 ---
 
@@ -598,13 +599,13 @@ Suporta o ciclo de vida completo dos pedidos de ausência: submissão, aprovaç�
 
 ## 2.7 Saldos de Ausências (Leave Balances)
 
-### GET /employees/{employeeId}/leave-balances
+### GET /funcionarios/{funcionarioId}/saldos-ausencia
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
 | `year` | integer | Não | Ano de referência (default ano corrente). |
 
-### PUT /employees/{employeeId}/leave-balances/{balanceId}
+### PUT /funcionarios/{funcionarioId}/saldos-ausencia/{balanceId}
 
 Permite ao RH ajustar o saldo (`assignedDays` e `usedDays`). Operação auditada.
 
@@ -655,17 +656,17 @@ Encerra o registo (estado `CLOSED`). Em mobilidades temporárias, restaura a atr
 
 ### PUT /leaves-mobilities/{id}/cancel
 
-### GET /employees/{employeeId}/leaves-mobilities
+### GET /funcionarios/{funcionarioId}/ausencias
 
 ---
 
 ## 2.9 Recibos de Vencimento (Payroll Slips)
 
-### GET /employees/{employeeId}/payroll-slips
+### GET /funcionarios/{funcionarioId}/recibos
 
-### GET /payroll-slips/{id}
+### GET /funcionarios/{funcionarioId}/recibos/{id}
 
-### POST /employees/{employeeId}/payroll-slips
+### POST /funcionarios/{funcionarioId}/recibos
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
@@ -684,11 +685,11 @@ Encerra o registo (estado `CLOSED`). Em mobilidades temporárias, restaura a atr
 
 Cônjuge, filhos e outros dependentes para efeitos de INPS e subsídios familiares.
 
-#### GET /employees/{employeeId}/dependents
+#### GET /funcionarios/{funcionarioId}/dependentes
 
-#### GET /employees/{employeeId}/dependents/{id}
+#### GET /funcionarios/{funcionarioId}/dependentes/{id}
 
-#### POST /employees/{employeeId}/dependents
+#### POST /funcionarios/{funcionarioId}/dependentes
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
@@ -697,19 +698,19 @@ Cônjuge, filhos e outros dependentes para efeitos de INPS e subsídios familiar
 | `relationshipType` | string | Sim | Tipo de parentesco — ckey de `option_entity` ccode=`RELATIONSHIP_TYPE`: `CONJUGE`, `FILHO`, `PAI`, `MAE`, `IRMAO`, etc. |
 | `nif` | string | Não | NIF do dependente. |
 
-#### PUT /employees/{employeeId}/dependents/{id}
+#### PUT /funcionarios/{funcionarioId}/dependentes/{id}
 
-#### DELETE /employees/{employeeId}/dependents/{id}
+#### DELETE /funcionarios/{funcionarioId}/dependentes/{id}
 
 Soft delete.
 
 ### 2.10.2 Habilitações Literárias (Qualifications)
 
-#### GET /employees/{employeeId}/qualifications
+#### GET /funcionarios/{funcionarioId}/qualificacoes
 
-#### GET /employees/{employeeId}/qualifications/{id}
+#### GET /funcionarios/{funcionarioId}/qualificacoes/{id}
 
-#### POST /employees/{employeeId}/qualifications
+#### POST /funcionarios/{funcionarioId}/qualificacoes
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
@@ -721,23 +722,23 @@ Soft delete.
 | `endDate` | date | Não | Data de conclusão. |
 | `completed` | boolean | Não | `true` = concluído com certificado; `false` = em curso. |
 
-Documentos (diploma, certidão) são associados após criação via `POST /employees/{id}/documents` com `referenceEntity=qualifications` e `referenceId={qualificationId}`.
+Documentos (diploma, certidão) são associados após criação via `POST /funcionarios/{id}/documentos` com `referenceEntity=qualifications` e `referenceId={qualificationId}`.
 
-#### PUT /employees/{employeeId}/qualifications/{id}
+#### PUT /funcionarios/{funcionarioId}/qualificacoes/{id}
 
-#### DELETE /employees/{employeeId}/qualifications/{id}
+#### DELETE /funcionarios/{funcionarioId}/qualificacoes/{id}
 
 ### 2.10.3 Formações Profissionais (Trainings)
 
-#### GET /employees/{employeeId}/trainings
+#### GET /funcionarios/{funcionarioId}/formacoes
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
 | `year` | integer | Não | Filtra por ano. |
 
-#### GET /employees/{employeeId}/trainings/{id}
+#### GET /funcionarios/{funcionarioId}/formacoes/{id}
 
-#### POST /employees/{employeeId}/trainings
+#### POST /funcionarios/{funcionarioId}/formacoes
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
@@ -748,21 +749,21 @@ Documentos (diploma, certidão) são associados após criação via `POST /emplo
 | `endDate` | date | Não | Data de fim. |
 | `durationHours` | integer | Não | Duração em horas. |
 
-Documentos (certificado de participação) são associados após criação via `POST /employees/{id}/documents` com `referenceEntity=trainings` e `referenceId={trainingId}`.
+Documentos (certificado de participação) são associados após criação via `POST /funcionarios/{id}/documentos` com `referenceEntity=trainings` e `referenceId={trainingId}`.
 
-#### PUT /employees/{employeeId}/trainings/{id}
+#### PUT /funcionarios/{funcionarioId}/formacoes/{id}
 
-#### DELETE /employees/{employeeId}/trainings/{id}
+#### DELETE /funcionarios/{funcionarioId}/formacoes/{id}
 
 ### 2.10.4 Processos Disciplinares (Disciplinary Processes)
 
 > **Acesso restrito:** `ROLE_HR_ADMIN` e `ROLE_SYSTEM_ADMIN`. Operações de leitura permitidas a `ROLE_HR_OPERATOR`.
 
-#### GET /employees/{employeeId}/disciplinary-processes
+#### GET /funcionarios/{funcionarioId}/processos-disciplinares
 
-#### GET /employees/{employeeId}/disciplinary-processes/{id}
+#### GET /funcionarios/{funcionarioId}/processos-disciplinares/{id}
 
-#### POST /employees/{employeeId}/disciplinary-processes
+#### POST /funcionarios/{funcionarioId}/processos-disciplinares
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
@@ -775,9 +776,9 @@ Documentos (certificado de participação) são associados após criação via `
 | `officialBulletin` | string | Não | Nº Boletim Oficial. |
 | `notes` | text | Não | Observações. |
 
-Documentos (processo digitalizado) são associados após criação via `POST /employees/{id}/documents` com `referenceEntity=disciplinary_processes` e `referenceId={processId}`.
+Documentos (processo digitalizado) são associados após criação via `POST /funcionarios/{id}/documentos` com `referenceEntity=disciplinary_processes` e `referenceId={processId}`.
 
-#### PUT /employees/{employeeId}/disciplinary-processes/{id}
+#### PUT /funcionarios/{funcionarioId}/processos-disciplinares/{id}
 
 ---
 
@@ -785,33 +786,32 @@ Documentos (processo digitalizado) são associados após criação via `POST /em
 
 Dados bancários para processamento de vencimento e declarações INPS. Um funcionário pode ter vários registos activos (conta principal, poupança). O campo `banco` referencia a `option_entity` com `ccode=BANCO`.
 
-### GET /dados-bancarios?funcionarioId={id}
+### GET /funcionarios/{funcionarioId}/dados-bancarios
 
 Devolve todos os dados bancários activos do funcionário.
 
-### GET /dados-bancarios/{id}
+### GET /funcionarios/{funcionarioId}/dados-bancarios/{id}
 
-### POST /dados-bancarios
+### POST /funcionarios/{funcionarioId}/dados-bancarios
 
 **Corpo da Requisição**
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
-| `funcionarioId` | UUID | Sim | Funcionário. |
 | `banco` | string | Não | Banco (ckey `option_entity` ccode=`BANCO`). |
 | `numeroConta` | string | Não | Número de conta. |
 | `iban` | string | Não | IBAN/NIB (máx. 34 chars). |
 | `numeroSegurancaSocial` | string | Não | Número de beneficiário INPS. |
 
-### PUT /dados-bancarios/{id}
+### PUT /funcionarios/{funcionarioId}/dados-bancarios/{id}
 
 Actualiza os campos preenchidos (null mantém o valor existente).
 
-### DELETE /dados-bancarios/{id}
+### DELETE /funcionarios/{funcionarioId}/dados-bancarios/{id}
 
 Soft delete — marca `is_active = false`.
 
-### PUT /dados-bancarios/{id}/activate
+### PUT /funcionarios/{funcionarioId}/dados-bancarios/{id}/activate
 
 Reactiva um registo desactivado.
 
@@ -821,9 +821,9 @@ Reactiva um registo desactivado.
 
 Gestão dos documentos pessoais associados ao funcionário (CNI, contratos, certidões). Ver Capítulo 7 para detalhe da API genérica de Anexos.
 
-### GET /employees/{employeeId}/documents
+### GET /funcionarios/{funcionarioId}/documentos
 
-### POST /employees/{employeeId}/documents
+### POST /funcionarios/{funcionarioId}/documentos
 
 ---
 
@@ -1288,6 +1288,8 @@ Os lookups sem lógica de negócio (estado civil, sexo, nacionalidade, ilha, con
 | `CONCELHO` | Concelho | `PRAIA`, `SANTA_CATARINA`, `SAO_DOMINGOS`, `MINDELO` |
 | `TRAINING_TYPE` | Tipo de Formação | `PRESENCIAL`, `ELEARNING`, `SEMINARIO`, `CONGRESSO` |
 | `CAREER_REGIME` | Regime de Carreira | `GERAL`, `ESPECIAL` |
+| `BANCO` | Banco (para dados bancários) | `BCA`, `BCN`, `CECV`, `BAI` |
+| `WORK_REGIME` | Regime de Trabalho (LGTFP art.123-129) | `TEMPO_INTEIRO`, `TEMPO_PARCIAL`, `EXCLUSIVIDADE` |
 
 **Resposta (200 OK)**
 
@@ -1335,7 +1337,7 @@ Os lookups sem lógica de negócio (estado civil, sexo, nacionalidade, ilha, con
 A Avaliação de Desempenho é externa ao Módulo RH e é gerida pelo Sistema de Avaliação de Desempenho (SAD). A integração é assente em dois mecanismos: leituras diretas (read-through com cache) para os endpoints de consulta de avaliações, e webhooks do SAD para notificação proativa de eventos.
 
 ```
-SIPPROG (/me/external/*, GET /employees/{id}/evaluations)
+SIPPROG (/me/external/*, GET /funcionarios/{id}/evaluations)
         ↕ REST + JWT (OAuth2 client_credentials)
 SAD (Sistema de Avaliação de Desempenho — externo)
         ↕ Webhook → POST /webhooks/sad/*
@@ -1343,9 +1345,9 @@ SAD (Sistema de Avaliação de Desempenho — externo)
 
 ## 6.2 Endpoints de Leitura (Read-Through)
 
-### GET /employees/{employeeId}/external/evaluations
+### GET /funcionarios/{funcionarioId}/external/evaluations
 
-### GET /employees/{employeeId}/external/evaluations/{externalId}
+### GET /funcionarios/{funcionarioId}/external/evaluations/{externalId}
 
 ### GET /external/evaluation-cycles
 
@@ -1427,7 +1429,7 @@ Devolve o ficheiro com `Content-Type` e `Content-Disposition` apropriados. Permi
 
 ## 7.4 Listagem por Funcionário
 
-### GET /employees/{employeeId}/documents
+### GET /funcionarios/{funcionarioId}/documentos
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
@@ -1719,7 +1721,7 @@ O cálculo de `working_days` em `leave_requests` exclui:
 | Unitário | JUnit 5 + Mockito | Handlers de comando/query; validações de negócio. |
 | Integração | Testcontainers (PostgreSQL) | Triggers, constraints, queries complexas. |
 | API | RestAssured / MockMvc | Contratos REST, códigos HTTP, formatos de resposta. |
-| Carga | k6 | Endpoints críticos (`GET /employees`, `POST /leave-requests`). |
+| Carga | k6 | Endpoints críticos (`GET /funcionarios`, `POST /leave-requests`). |
 
 ## 10.7 Observabilidade
 
