@@ -1,10 +1,8 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
 import cv.igrp.RH_Service.colaboradores.domain.models.Formacao;
-import cv.igrp.RH_Service.colaboradores.domain.repository.DocumentoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FormacaoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
-import cv.igrp.RH_Service.colaboradores.domain.valueobject.DocumentoId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.framework.core.domain.CommandHandler;
@@ -22,7 +20,6 @@ public class CriarFormacaoCommandHandler
 
     private final FuncionarioRepository funcionarioRepository;
     private final FormacaoRepository formacaoRepository;
-    private final DocumentoRepository documentoRepository;
 
     @IgrpCommandHandler
     public ResponseEntity<Map<String, ?>> handle(CriarFormacaoCommand command) {
@@ -37,16 +34,10 @@ public class CriarFormacaoCommandHandler
             throw IgrpResponseStatusException.badRequest(
                     "Não é possível registar formação para funcionário inactivo.");
 
-        if (dto.getDocumentId() != null) {
-            documentoRepository.findById(DocumentoId.from(dto.getDocumentId()))
-                    .orElseThrow(() -> IgrpResponseStatusException.badRequest(
-                            "Documento não encontrado: " + dto.getDocumentId()));
-        }
-
         var saved = formacaoRepository.save(Formacao.criar(
                 funcionarioId, dto.getName(), dto.getInstitution(),
-                dto.getTypeOptionKey(), dto.getStartDate(), dto.getEndDate(),
-                dto.getDurationHours(), dto.getDocumentId()));
+                dto.getTrainingType(), dto.getStartDate(), dto.getEndDate(),
+                dto.getDurationHours()));
 
         return ResponseEntity.status(201).body(Map.of("id", saved.getId().getStringValor()));
     }

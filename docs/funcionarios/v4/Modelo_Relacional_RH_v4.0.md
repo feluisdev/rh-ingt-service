@@ -75,7 +75,37 @@ São independentes porque mudam por razões diferentes:
 
 Quando um histórico muda, o registo anterior fecha (`end_date` preenchido, `is_current = false`) e cria-se um novo (`is_current = true`). Apenas **um registo activo** por funcionário em cada dimensão.
 
-### 2.3 Documentos Polimórficos
+### 2.3 Referências a OptionEntity — Valores String (sem FK)
+
+Os campos que referenciam um registo de `option_entity` **não guardam o UUID** da linha. Guardam directamente o `ckey` como `VARCHAR`. Exemplos:
+
+```
+sex             VARCHAR(10)   → 'M', 'F'
+marital_status  VARCHAR(30)   → 'SOLTEIRO', 'CASADO', 'VIUVO'
+level           VARCHAR(50)   → 'LICENCIATURA', 'MESTRADO'
+training_type   VARCHAR(50)   → 'PRESENCIAL', 'ELEARNING'
+```
+
+**Razão:** o `ckey` é estável e legível; um UUID exige JOIN para qualquer leitura do valor. A validação (verificar que o ckey existe no ccode correcto) é responsabilidade da camada aplicacional — um método reutilizável `OptionValidator.validate(ccode, ckey)` será aplicado em todos os handlers que recebem campos deste tipo.
+
+**Convenção de nomeação nas tabelas:**
+
+| ccode | Nome do campo na tabela | Tipo |
+|---|---|---|
+| `SEX` | `sex` | `VARCHAR(10)` |
+| `MARITAL_STATUS` | `marital_status` | `VARCHAR(30)` |
+| `NATIONALITY` | `nationality` / `country` | `VARCHAR(10)` |
+| `ISLAND` | `address_island` | `VARCHAR(50)` |
+| `CONCELHO` | `address_concelho` | `VARCHAR(50)` |
+| `RELATIONSHIP_TYPE` | `relationship_type` | `VARCHAR(50)` |
+| `QUALIFICATION_LEVEL` | `level` | `VARCHAR(50)` |
+| `TRAINING_TYPE` | `training_type` | `VARCHAR(50)` |
+| `LEAVE_CATEGORY` | `category` | `VARCHAR(50)` |
+| `DOC_CATEGORY` | `category` | `VARCHAR(50)` |
+
+Os ccodes exactos de cada campo serão documentados na secção 6.
+
+### 2.4 Documentos Polimórficos
 
 A tabela `documents` é genérica e pode associar-se a qualquer entidade do sistema através dos campos:
 
@@ -86,7 +116,7 @@ reference_id      → ID do registo associado    (ex: 42)
 
 Isto permite que um documento seja o justificativo de uma ausência, o certificado de uma formação, ou o processo disciplinar, sem criar tabelas de documentos separadas para cada entidade.
 
-### 2.4 Soft Delete e Auditoria
+### 2.5 Soft Delete e Auditoria
 
 - Nenhuma tabela usa `DELETE` físico. O soft delete é feito por `is_active = false`
 - Todas as tabelas de negócio têm colunas de auditoria: `created_at`, `created_by`, `updated_at`, `updated_by`
@@ -189,12 +219,12 @@ document_types  (Tipos de Documento)
 │                        -- CNI, PASSAPORTE, CONTRATO, CERTIDAO, HABILITACAO,
 │                        -- FORMACAO, DISCIPLINAR, RECIBO, JUSTIFICATIVO, OUTRO
 ├── name                 VARCHAR(100) NOT NULL
-├── category_option_id   UUID FK→option_entity     -- ccode='DOC_CATEGORY'
+├── category             VARCHAR(50)                -- ccode='DOC_CATEGORY'; ckey: PESSOAL, CONTRATUAL, FORMACAO, DISCIPLINAR, AVALIACAO
 ├── allowed_extensions   VARCHAR(200)               -- ex: 'pdf,jpg,png'
 └── is_active            BOOLEAN DEFAULT TRUE
 
 -- Razão de tabela dedicada: allowed_extensions determina validação no upload.
--- category_option_id agrupa tipos por secção do dossier.
+-- category agrupa tipos por secção do dossier (valor string ckey, sem FK UUID).
 ```
 
 ```
@@ -203,7 +233,7 @@ leave_types  (Tipos de Ausência)
 ├── code                 VARCHAR(30)  UNIQUE NOT NULL
 │                        -- FERIAS, DOENCA, MATERNIDADE, PATERNIDADE, LUTO, CASAMENTO
 ├── name                 VARCHAR(100) NOT NULL
-├── category_option_id   UUID FK→option_entity      -- ccode='LEAVE_CATEGORY'
+├── category             VARCHAR(50)                     -- ccode='LEAVE_CATEGORY'; ckey: FERIAS, DOENCA, FAMILIA, OUTRO
 ├── deducts_balance      BOOLEAN NOT NULL DEFAULT TRUE   -- desconta saldo anual
 ├── requires_approval    BOOLEAN NOT NULL DEFAULT TRUE   -- exige aprovação da chefia
 ├── max_days_per_year    INTEGER                         -- null = sem limite legal
@@ -212,6 +242,7 @@ leave_types  (Tipos de Ausência)
 
 -- Razão de tabela dedicada: deducts_balance e requires_approval alteram
 -- completamente o fluxo de processamento do pedido de ausência.
+-- category é valor string ckey, sem FK UUID para option_entity.
 ```
 
 ```
@@ -325,9 +356,9 @@ employees  (Funcionários)
 ├── full_name                    VARCHAR(200) NOT NULL
 ├── nif                          VARCHAR(20)  UNIQUE NOT NULL
 ├── birth_date                   DATE         NOT NULL
-├── sex_option_id                UUID FK→option_entity      -- ccode='SEX'
-├── marital_status_option_id     UUID FK→option_entity      -- ccode='MARITAL_STATUS'
-├── nationality_option_id        UUID FK→option_entity      -- ccode='NATIONALITY'
+├── sex                          VARCHAR(10)               -- ccode='SEX'; ckey: M, F
+├── marital_status               VARCHAR(30)               -- ccode='MARITAL_STATUS'; ckey: SOLTEIRO, CASADO, UNIAO_FACTO, DIVORCIADO, VIUVO
+├── nationality                  VARCHAR(10)               -- ccode='NATIONALITY'; ckey: CV, PT, SN, ...
 ├── worker_state_id              BIGINT NOT NULL FK→worker_states
 ├── professional_situation_id    BIGINT NOT NULL FK→professional_situations
 ├── admission_date               DATE  NOT NULL
@@ -336,8 +367,8 @@ employees  (Funcionários)
 ├── nib                          VARCHAR(30)               -- IBAN para pagamentos
 │   -- Endereço
 ├── address_street               VARCHAR(200)
-├── address_island_option_id     UUID FK→option_entity      -- ccode='ISLAND'
-├── address_concelho_option_id   UUID FK→option_entity      -- ccode='CONCELHO'
+├── address_island               VARCHAR(50)               -- ccode='ISLAND'; ckey: SANTIAGO, SAL, BOA_VISTA, ...
+├── address_concelho             VARCHAR(50)               -- ccode='CONCELHO'; ckey: PRAIA, SANTA_CATARINA, MINDELO, ...
 ├── photo_document_id            BIGINT FK→documents        -- fotografia do funcionário
 ├── is_active                    BOOLEAN DEFAULT TRUE
 └── auditoria
@@ -345,16 +376,17 @@ employees  (Funcionários)
 
 ```
 employee_dependents  (Dependentes do Funcionário)
-├── id                        UUID      PK
-├── employee_id               BIGINT NOT NULL FK→employees
-├── full_name                 VARCHAR(200) NOT NULL
-├── birth_date                DATE
-├── relationship_option_id    UUID FK→option_entity    -- ccode='RELATIONSHIP_TYPE'
-├── nif                       VARCHAR(20)
-├── is_active                 BOOLEAN DEFAULT TRUE
+├── id                   UUID      PK
+├── employee_id          BIGINT NOT NULL FK→employees
+├── full_name            VARCHAR(200) NOT NULL
+├── birth_date           DATE
+├── relationship_type    VARCHAR(50)               -- ccode='RELATIONSHIP_TYPE'; ckey: CONJUGE, FILHO, PAI, MAE, IRMAO
+├── nif                  VARCHAR(20)
+├── is_active            BOOLEAN DEFAULT TRUE
 └── auditoria
 
 -- Cônjuge, filhos e outros dependentes para efeitos de INPS e subsídios familiares.
+-- relationship_type é valor string ckey, sem FK UUID para option_entity.
 ```
 
 ---
@@ -461,31 +493,36 @@ WHERE e.id = :employeeId;
 
 ```
 qualifications  (Habilitações Literárias)
-├── id                   UUID      PK
-├── employee_id          BIGINT NOT NULL FK→employees
-├── level_option_id      UUID FK→option_entity    -- ccode='QUALIFICATION_LEVEL'
-├── course_name          VARCHAR(200)
-├── institution          VARCHAR(200)
-├── country_option_id    UUID FK→option_entity    -- ccode='NATIONALITY' (reusa países)
-├── start_date           DATE
-├── end_date             DATE
-├── completed            BOOLEAN DEFAULT FALSE
-├── document_id          BIGINT FK→documents      -- certificado/diploma digitalizado
+├── id            UUID      PK
+├── employee_id   BIGINT NOT NULL FK→employees
+├── level         VARCHAR(50)               -- ccode='QUALIFICATION_LEVEL'; ckey: BASICO, SECUNDARIO, LICENCIATURA, MESTRADO, DOUTORAMENTO
+├── course_name   VARCHAR(200)             -- designação do curso / área de estudo
+├── institution   VARCHAR(200)             -- instituição de ensino
+├── country       VARCHAR(10)              -- ccode='NATIONALITY'; ckey: CV, PT, ... (país da instituição)
+├── start_date    DATE                     -- início do curso
+├── end_date      DATE                     -- conclusão do curso
+├── completed     BOOLEAN NOT NULL DEFAULT FALSE   -- TRUE = concluído com certificado
 └── auditoria
+
+-- level e country são valores string ckey, sem FK UUID para option_entity.
+-- completed + end_date permitem registar formações em curso (completed=false, end_date=null).
+-- Documentos associados (diploma, certificado) ligados via documents(reference_entity='qualifications', reference_id=id).
 ```
 
 ```
 trainings  (Formações Profissionais)
-├── id               UUID      PK
-├── employee_id      BIGINT NOT NULL FK→employees
-├── name             VARCHAR(200) NOT NULL
-├── institution      VARCHAR(200)
-├── type_option_id   UUID FK→option_entity    -- ccode='TRAINING_TYPE'
-├── start_date       DATE
-├── end_date         DATE
-├── duration_hours   INTEGER
-├── document_id      BIGINT FK→documents      -- certificado de participação
+├── id              UUID      PK
+├── employee_id     BIGINT NOT NULL FK→employees
+├── name            VARCHAR(200) NOT NULL    -- designação da formação
+├── institution     VARCHAR(200)             -- entidade formadora
+├── training_type   VARCHAR(50)              -- ccode='TRAINING_TYPE'; ckey: PRESENCIAL, ELEARNING, SEMINARIO, CONGRESSO
+├── start_date      DATE
+├── end_date        DATE
+├── duration_hours  INTEGER                  -- duração em horas
 └── auditoria
+
+-- training_type é valor string ckey, sem FK UUID para option_entity.
+-- Documentos associados (certificado de participação) ligados via documents(reference_entity='trainings', reference_id=id).
 ```
 
 ```
@@ -500,8 +537,9 @@ disciplinary_processes  (Processos Disciplinares)
 ├── penalty_end_date     DATE
 ├── official_bulletin    VARCHAR(100)        -- nº Boletim Oficial
 ├── notes                TEXT
-├── document_id          BIGINT FK→documents -- processo digitalizado
 └── auditoria
+
+-- Documentos associados (processo digitalizado) ligados via documents(reference_entity='disciplinary_processes', reference_id=id).
 ```
 
 ---
@@ -518,8 +556,8 @@ documents  (Documentos do Dossier)
 ├── mime_type         VARCHAR(100) NOT NULL             -- application/pdf, image/jpeg, ...
 ├── size_bytes        BIGINT       NOT NULL
 ├── description       TEXT
-├── reference_entity  VARCHAR(100)   -- 'leave_requests', 'trainings', 'disciplinary_processes'
-├── reference_id      BIGINT         -- ID do registo associado (polimorfismo controlado)
+├── reference_entity  VARCHAR(100)   -- 'leave_requests', 'trainings', 'disciplinary_processes', 'qualifications', ...
+├── reference_id      UUID           -- ID do registo associado (polimorfismo controlado)
 ├── uploaded_at       TIMESTAMP    NOT NULL
 ├── uploaded_by       BIGINT       NOT NULL             -- ID do utilizador
 └── is_active         BOOLEAN DEFAULT TRUE
@@ -618,12 +656,15 @@ erDiagram
         varchar full_name
         varchar nif
         date birth_date
-        uuid sex_option_id FK
-        uuid marital_status_option_id FK
+        varchar sex
+        varchar marital_status
+        varchar nationality
         bigint worker_state_id FK
         bigint professional_situation_id FK
         date admission_date
         varchar nib
+        varchar address_island
+        varchar address_concelho
         boolean is_active
     }
 
@@ -728,7 +769,10 @@ erDiagram
         uuid   id PK
         bigint employee_id FK
         varchar full_name
-        uuid relationship_option_id FK
+        date birth_date
+        varchar relationship_type
+        varchar nif
+        boolean is_active
     }
 
     DOCUMENT_TYPES {
@@ -744,23 +788,30 @@ erDiagram
         varchar storage_key
         varchar mime_type
         varchar reference_entity
-        bigint reference_id
+        uuid reference_id
     }
 
     QUALIFICATIONS {
         uuid   id PK
         bigint employee_id FK
-        uuid level_option_id FK
+        varchar level
         varchar course_name
-        bigint document_id FK
+        varchar institution
+        varchar country
+        date start_date
+        date end_date
+        boolean completed
     }
 
     TRAININGS {
         uuid   id PK
         bigint employee_id FK
         varchar name
-        uuid type_option_id FK
-        bigint document_id FK
+        varchar institution
+        varchar training_type
+        date start_date
+        date end_date
+        int duration_hours
     }
 
     DISCIPLINARY_PROCESSES {
@@ -768,7 +819,8 @@ erDiagram
         bigint employee_id FK
         varchar process_number
         varchar penalty
-        bigint document_id FK
+        date start_date
+        date end_date
     }
 
     LEAVE_TYPES {
@@ -834,7 +886,6 @@ erDiagram
 
     EMPLOYEES }o--|| WORKER_STATES : "estado"
     EMPLOYEES }o--|| PROFESSIONAL_SITUATIONS : "situacao"
-    EMPLOYEES }o--o| OPTION_ENTITY : "sexo / estado_civil / nacionalidade"
 
     EMPLOYEES ||--o{ EMPLOYEE_CONTRACTS : "tem"
     EMPLOYEES ||--o{ EMPLOYEE_PROFESSIONAL_ASSIGNMENTS : "tem"
@@ -862,9 +913,9 @@ erDiagram
     ORGANIZATIONAL_UNITS }o--o| ORGANIZATIONAL_UNITS : "pai"
 
     DOCUMENTS }o--|| DOCUMENT_TYPES : "tipo"
-    QUALIFICATIONS }o--o| DOCUMENTS : "certificado"
-    TRAININGS }o--o| DOCUMENTS : "certificado"
-    DISCIPLINARY_PROCESSES }o--o| DOCUMENTS : "processo"
+    DOCUMENTS }o--o{ QUALIFICATIONS : "reference_entity/id"
+    DOCUMENTS }o--o{ TRAININGS : "reference_entity/id"
+    DOCUMENTS }o--o{ DISCIPLINARY_PROCESSES : "reference_entity/id"
 
     LEAVE_REQUESTS }o--|| LEAVE_TYPES : "tipo"
     LEAVE_REQUESTS }o--o| DOCUMENTS : "justificativo"
@@ -913,28 +964,30 @@ erDiagram
 
 ## 6. O que vai para OptionEntity
 
-Resumo decisório para implementação:
+Resumo decisório para implementação. A coluna "Armazenamento" descreve como o valor é guardado nas tabelas que o referenciam — seguindo o princípio da secção 2.3 (string ckey, sem UUID FK).
 
-| Catálogo | Vai para OptionEntity? | Razão |
-|---|---|---|
-| Estado Civil | ✅ Sim | Label puro, sem comportamento |
-| Sexo | ✅ Sim | Label puro |
-| Nacionalidade | ✅ Sim | Lista de países, label puro |
-| Tipo de Unidade Orgânica | ❌ Não | Campo `type` direto em `organizational_units` (string livre) |
-| Categoria de Documento | ✅ Sim | Agrupamento visual no dossier |
-| Categoria de Ausência | ✅ Sim | Agrupamento, sem lógica própria |
-| Nível de Habilitação | ✅ Sim | Label puro |
-| Tipo de Parentesco | ✅ Sim | Label puro |
-| Ilha | ✅ Sim | Lista geográfica, label puro |
-| Concelho | ✅ Sim | Lista geográfica, label puro |
-| Tipo de Formação | ✅ Sim | Label de classificação |
-| Regime de Carreira | ❌ Não | Campo `regime` direto em `careers` (string livre, sem FK) |
-| Estados do Trabalhador | ❌ Não | Tem `is_core` — comportamento |
-| Situações Profissionais | ❌ Não | Código referenciado por lógica de negócio |
-| Tipos de Contrato | ❌ Não | Tem historial próprio com datas |
-| Tipos de Documento | ❌ Não | Tem `allowed_extensions` — validação |
-| Tipos de Ausência | ❌ Não | Tem `deducts_balance`, `requires_approval` |
-| Subtipos Licença/Mobilidade | ❌ Não | Tem `affects_pay`, `counts_for_seniority`, `can_self_submit` |
+| Catálogo | Vai para OptionEntity? | ccode | Armazenamento nas tabelas que o usam |
+|---|---|---|---|
+| Estado Civil | ✅ Sim | `MARITAL_STATUS` | `employees.marital_status VARCHAR(30)` |
+| Sexo | ✅ Sim | `SEX` | `employees.sex VARCHAR(10)` |
+| Nacionalidade | ✅ Sim | `NATIONALITY` | `employees.nationality VARCHAR(10)`, `qualifications.country VARCHAR(10)` |
+| Tipo de Unidade Orgânica | ❌ Não — string livre | — | `organizational_units.type VARCHAR(100)` (sem validação por option_entity) |
+| Categoria de Documento | ✅ Sim | `DOC_CATEGORY` | `document_types.category VARCHAR(50)` |
+| Categoria de Ausência | ✅ Sim | `LEAVE_CATEGORY` | `leave_types.category VARCHAR(50)` |
+| Nível de Habilitação | ✅ Sim | `QUALIFICATION_LEVEL` | `qualifications.level VARCHAR(50)` |
+| Tipo de Parentesco | ✅ Sim | `RELATIONSHIP_TYPE` | `employee_dependents.relationship_type VARCHAR(50)` |
+| Ilha | ✅ Sim | `ISLAND` | `employees.address_island VARCHAR(50)` |
+| Concelho | ✅ Sim | `CONCELHO` | `employees.address_concelho VARCHAR(50)` |
+| Tipo de Formação | ✅ Sim | `TRAINING_TYPE` | `trainings.training_type VARCHAR(50)` |
+| Regime de Carreira | ❌ Não — string livre | — | `careers.regime VARCHAR(100)` (sem validação por option_entity) |
+| Estados do Trabalhador | ❌ Não — tabela dedicada | — | `worker_states` (flag `is_core` protege estados núcleo) |
+| Situações Profissionais | ❌ Não — tabela dedicada | — | `professional_situations` (código referenciado por lógica de negócio) |
+| Tipos de Contrato | ❌ Não — tabela dedicada | — | `contract_types` (historial próprio em `employee_contracts`) |
+| Tipos de Documento | ❌ Não — tabela dedicada | — | `document_types` (`allowed_extensions` valida upload) |
+| Tipos de Ausência | ❌ Não — tabela dedicada | — | `leave_types` (`deducts_balance`, `requires_approval` alteram fluxo) |
+| Subtipos Licença/Mobilidade | ❌ Não — tabela dedicada | — | `leave_mobility_subtypes` (`affects_pay`, `counts_for_seniority`, `can_self_submit`) |
+
+**Nota de implementação:** Os campos marcados como "string ckey" são validados na camada aplicacional pelo método `OptionValidator.validate(ccode, ckey)` antes de persistir. O frontend obtém os valores disponíveis via `GET /reference/options?ccode={code}`. Os ccodes estão definidos nesta tabela — quando os ccodes concretos forem confirmados, actualizam-se apenas as seeds de `option_entity`, sem alteração de schema.
 
 ---
 

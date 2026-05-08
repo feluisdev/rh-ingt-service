@@ -105,7 +105,7 @@ Isto unifica os dois conceitos do modelo INPS (`DocumentoPessoalEntity` + `Docum
 
 ### 5. Endereço e contacto no `employees`
 
-A v3 tratava endereço como entidade separada. A v4 inline no `employees`: `address_street`, `address_island_option_id`, `address_concelho_option_id`. Justificação: cada funcionário tem **um** endereço corrente; histórico de endereços não é requisito do dossier.
+A v3 tratava endereço como entidade separada. A v4 inline no `employees`: `address_street`, `address_island`, `address_concelho`. Justificação: cada funcionário tem **um** endereço corrente; histórico de endereços não é requisito do dossier.
 
 ### 6. Funcionário com fotografia
 
@@ -221,7 +221,7 @@ Authorization: Bearer {token}
 | Erros | Resposta JSON com `timestamp`, `status`, `error`, `message`, `path` e `fields[]` com erros de validação por campo. |
 | Soft delete | Operações `DELETE` marcam `is_active = false`; não há remoção física exposta. |
 | Auditoria | Todas as escritas registam `created_by`/`updated_by` e geram entrada em `change_history` via trigger. |
-| OptionEntity | Lookups sem lógica de negócio (sexo, estado civil, nacionalidade, ilha, concelho, tipo de unidade orgânica) são servidos pelo endpoint `/reference/options?ccode={code}`. |
+| Referências a Options | Os campos que referenciam `option_entity` guardam o `ckey` como string (ex: `"LICENCIATURA"`, `"CONJUGE"`). **Não** são UUIDs. O frontend obtém os valores disponíveis via `GET /reference/options?ccode={code}`. A API valida que o ckey enviado existe no ccode esperado antes de persistir. |
 
 ---
 
@@ -391,17 +391,17 @@ Devolve o detalhe completo, incluindo enquadramento corrente, contrato corrente,
 | `fullName` | string | Sim | Nome completo. |
 | `nif` | string | Sim | Número de identificação fiscal único. |
 | `birthDate` | date | Sim | Data de nascimento. |
-| `sexOptionKey` | string | Sim | `M` ou `F` (referência `option_entity` ccode=`SEX`). |
-| `maritalStatusOptionKey` | string | Sim | Estado civil (referência `option_entity` ccode=`MARITAL_STATUS`). |
-| `nationalityOptionKey` | string | Sim | Nacionalidade (referência `option_entity` ccode=`NATIONALITY`). |
+| `sex` | string | Sim | ckey de `option_entity` ccode=`SEX`: `M` ou `F`. |
+| `maritalStatus` | string | Sim | ckey de `option_entity` ccode=`MARITAL_STATUS`: `SOLTEIRO`, `CASADO`, `UNIAO_FACTO`, `DIVORCIADO`, `VIUVO`. |
+| `nationality` | string | Sim | ckey de `option_entity` ccode=`NATIONALITY`: `CV`, `PT`, etc. |
 | `admissionDate` | date | Sim | Data de admissão. |
-| `workerStateId` | integer | Sim | Estado do trabalhador (default ACTIVE). |
+| `workerStateId` | UUID | Sim | Estado do trabalhador (default ACTIVE). |
 | `email` | string | Não | Email institucional. |
 | `phone` | string | Não | Telefone. |
 | `nib` | string | Não | NIB/IBAN para pagamentos (21 dígitos). |
 | `addressStreet` | string | Não | Morada. |
-| `addressIslandOptionKey` | string | Não | Ilha (referência `option_entity` ccode=`ISLAND`). |
-| `addressConcelhoOptionKey` | string | Não | Concelho (referência `option_entity` ccode=`CONCELHO`). |
+| `addressIsland` | string | Não | ckey de `option_entity` ccode=`ISLAND`: `SANTIAGO`, `SAL`, `SAO_VICENTE`, etc. |
+| `addressConcelho` | string | Não | ckey de `option_entity` ccode=`CONCELHO`: `PRAIA`, `MINDELO`, etc. |
 
 ### PUT /employees/{id}
 
@@ -644,7 +644,7 @@ Cônjuge, filhos e outros dependentes para efeitos de INPS e subsídios familiar
 |---|---|---|---|
 | `fullName` | string | Sim | Nome completo do dependente. |
 | `birthDate` | date | Não | Data de nascimento. |
-| `relationshipOptionKey` | string | Sim | Tipo de parentesco (`option_entity` ccode=`RELATIONSHIP_TYPE`): `CONJUGE`, `FILHO`, `PAI`, `MAE`, `IRMAO`, etc. |
+| `relationshipType` | string | Sim | Tipo de parentesco — ckey de `option_entity` ccode=`RELATIONSHIP_TYPE`: `CONJUGE`, `FILHO`, `PAI`, `MAE`, `IRMAO`, etc. |
 | `nif` | string | Não | NIF do dependente. |
 
 #### PUT /employees/{employeeId}/dependents/{id}
@@ -663,14 +663,15 @@ Soft delete.
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
-| `levelOptionKey` | string | Sim | Nível académico (`option_entity` ccode=`QUALIFICATION_LEVEL`): `BASICO`, `SECUNDARIO`, `LICENCIATURA`, `MESTRADO`, `DOUTORAMENTO`. |
-| `courseName` | string | Não | Designação do curso. |
+| `level` | string | Sim | Nível académico — ckey de `option_entity` ccode=`QUALIFICATION_LEVEL`: `BASICO`, `SECUNDARIO`, `LICENCIATURA`, `MESTRADO`, `DOUTORAMENTO`. |
+| `courseName` | string | Não | Designação do curso / área de estudo. |
 | `institution` | string | Não | Instituição de ensino. |
-| `countryOptionKey` | string | Não | País da instituição (`option_entity` ccode=`NATIONALITY`). |
-| `startDate` | date | Não | Data de início. |
+| `country` | string | Não | País da instituição — ckey de `option_entity` ccode=`NATIONALITY` (ex: `CV`, `PT`). |
+| `startDate` | date | Não | Data de início do curso. |
 | `endDate` | date | Não | Data de conclusão. |
-| `completed` | boolean | Não | Indica se concluído. |
-| `documentId` | integer | Não | Certificado/diploma digitalizado (documento previamente carregado). |
+| `completed` | boolean | Não | `true` = concluído com certificado; `false` = em curso. |
+
+Documentos (diploma, certidão) são associados após criação via `POST /employees/{id}/documents` com `referenceEntity=qualifications` e `referenceId={qualificationId}`.
 
 #### PUT /employees/{employeeId}/qualifications/{id}
 
@@ -692,11 +693,12 @@ Soft delete.
 |---|---|---|---|
 | `name` | string | Sim | Designação da formação. |
 | `institution` | string | Não | Entidade formadora. |
-| `typeOptionKey` | string | Não | Tipo (`option_entity` ccode=`TRAINING_TYPE`): `PRESENCIAL`, `ELEARNING`, `SEMINARIO`, `CONGRESSO`. |
+| `trainingType` | string | Não | Tipo — ckey de `option_entity` ccode=`TRAINING_TYPE`: `PRESENCIAL`, `ELEARNING`, `SEMINARIO`, `CONGRESSO`. |
 | `startDate` | date | Não | Data de início. |
 | `endDate` | date | Não | Data de fim. |
 | `durationHours` | integer | Não | Duração em horas. |
-| `documentId` | integer | Não | Certificado de participação (documento previamente carregado). |
+
+Documentos (certificado de participação) são associados após criação via `POST /employees/{id}/documents` com `referenceEntity=trainings` e `referenceId={trainingId}`.
 
 #### PUT /employees/{employeeId}/trainings/{id}
 
@@ -722,7 +724,8 @@ Soft delete.
 | `penaltyEndDate` | date | Não | Fim do cumprimento da pena. |
 | `officialBulletin` | string | Não | Nº Boletim Oficial. |
 | `notes` | text | Não | Observações. |
-| `documentId` | integer | Não | Processo digitalizado. |
+
+Documentos (processo digitalizado) são associados após criação via `POST /employees/{id}/documents` com `referenceEntity=disciplinary_processes` e `referenceId={processId}`.
 
 #### PUT /employees/{employeeId}/disciplinary-processes/{id}
 
@@ -1132,7 +1135,7 @@ Bloqueado se referenciado por contratos activos.
 
 ## 5.7 Tipos de Documento (Document Types)
 
-`document_types` — tabela dedicada porque `allowed_extensions` determina validação no upload e `category_option_id` agrupa tipos por secção do dossier.
+`document_types` — tabela dedicada porque `allowed_extensions` determina validação no upload e `category` (string ckey, ccode=`DOC_CATEGORY`) agrupa tipos por secção do dossier.
 
 ### GET /document-types
 
@@ -1417,9 +1420,9 @@ O diagrama ERD do módulo é apresentado no documento `Modelo_Relacional_RH_v4.0
 | `full_name` | VARCHAR(200) NOT NULL | Nome completo. |
 | `nif` | VARCHAR(20) UNIQUE NOT NULL | NIF único. |
 | `birth_date` | DATE NOT NULL | Data de nascimento. |
-| `sex_option_id` | UUID FK→option_entity | Sexo (ccode=`SEX`). |
-| `marital_status_option_id` | UUID FK→option_entity | Estado civil (ccode=`MARITAL_STATUS`). |
-| `nationality_option_id` | UUID FK→option_entity | Nacionalidade (ccode=`NATIONALITY`). |
+| `sex` | VARCHAR(10) | ckey ccode=`SEX`: `M`, `F`. |
+| `marital_status` | VARCHAR(30) | ckey ccode=`MARITAL_STATUS`: `SOLTEIRO`, `CASADO`, etc. |
+| `nationality` | VARCHAR(10) | ckey ccode=`NATIONALITY`: `CV`, `PT`, etc. |
 | `worker_state_id` | BIGINT NOT NULL FK→worker_states | Estado do trabalhador. |
 | `professional_situation_id` | BIGINT NOT NULL FK→professional_situations | Situação profissional. |
 | `admission_date` | DATE NOT NULL | Data de admissão. |
@@ -1427,8 +1430,8 @@ O diagrama ERD do módulo é apresentado no documento `Modelo_Relacional_RH_v4.0
 | `phone` | VARCHAR(30) | Telefone. |
 | `nib` | VARCHAR(30) | IBAN para pagamentos. |
 | `address_street` | VARCHAR(200) | Morada. |
-| `address_island_option_id` | UUID FK→option_entity | Ilha (ccode=`ISLAND`). |
-| `address_concelho_option_id` | UUID FK→option_entity | Concelho (ccode=`CONCELHO`). |
+| `address_island` | VARCHAR(50) | ckey ccode=`ISLAND`: `SANTIAGO`, `SAL`, etc. |
+| `address_concelho` | VARCHAR(50) | ckey ccode=`CONCELHO`: `PRAIA`, `MINDELO`, etc. |
 | `photo_document_id` | BIGINT FK→documents | Fotografia do funcionário. |
 | `is_active` | BOOLEAN DEFAULT TRUE | Estado lógico. |
 | `created_at/by, updated_at/by` | AUDITORIA | Timestamps e autores. |

@@ -14,16 +14,17 @@ public class DependenteMapper {
         return Dependente.reconstituir(
                 DependenteId.from(e.getId()),
                 FuncionarioId.from(e.getFuncionarioId()),
-                e.getNome(), e.getParentesco(), e.getDataNascimento(), e.getNif(), e.getIsActive());
+                e.getFullName(), e.getRelationshipType(),
+                e.getBirthDate(), e.getNif(), e.getIsActive());
     }
 
     public DependenteEntity toEntity(Dependente d) {
         DependenteEntity e = new DependenteEntity();
         e.setId(d.getId().getValor());
         e.setFuncionarioId(d.getFuncionarioId().getValor());
-        e.setNome(d.getNome());
-        e.setParentesco(d.getParentesco());
-        e.setDataNascimento(d.getDataNascimento());
+        e.setFullName(d.getFullName());
+        e.setRelationshipType(d.getRelationshipType());
+        e.setBirthDate(d.getBirthDate());
         e.setNif(d.getNif());
         e.setIsActive(d.getIsActive());
         return e;
@@ -33,9 +34,9 @@ public class DependenteMapper {
         DependenteResponseDTO r = new DependenteResponseDTO();
         r.setId(d.getId().getStringValor());
         r.setFuncionarioId(d.getFuncionarioId().getStringValor());
-        r.setNome(d.getNome());
-        r.setParentesco(d.getParentesco());
-        r.setDataNascimento(d.getDataNascimento());
+        r.setFullName(d.getFullName());
+        r.setRelationshipType(d.getRelationshipType());
+        r.setBirthDate(d.getBirthDate());
         r.setNif(d.getNif());
         r.setIsActive(d.getIsActive());
         return r;

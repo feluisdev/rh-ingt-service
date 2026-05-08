@@ -29,11 +29,12 @@ public class CreateDependenteCommandHandler
 
         var funcionarioId = FuncionarioId.from(dto.getFuncionarioId());
         funcionarioRepository.findById(funcionarioId)
-                .orElseThrow(() -> IgrpResponseStatusException.notFound("Funcionário não encontrado: " + dto.getFuncionarioId()));
+                .orElseThrow(() -> IgrpResponseStatusException.notFound(
+                        "Funcionário não encontrado: " + dto.getFuncionarioId()));
 
         var saved = dependenteRepository.save(Dependente.criar(
-                funcionarioId, dto.getNome(), dto.getParentesco(),
-                dto.getDataNascimento(), dto.getNif()));
+                funcionarioId, dto.getFullName(), dto.getRelationshipType(),
+                dto.getBirthDate(), dto.getNif()));
 
         return ResponseEntity.status(201).body(Map.of(
                 "id", saved.getId().getStringValor(),

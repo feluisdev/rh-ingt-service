@@ -25,14 +25,17 @@ public class UpdateQualificacaoCommandHandler
         var id = QualificacaoId.from(command.getQualificacaoId());
 
         var qualificacao = qualificacaoRepository.findById(id)
-                .orElseThrow(() -> IgrpResponseStatusException.notFound("Qualificação não encontrada: " + command.getQualificacaoId()));
+                .orElseThrow(() -> IgrpResponseStatusException.notFound(
+                        "Qualificação não encontrada: " + command.getQualificacaoId()));
 
         qualificacao.atualizar(
-                dto.getNivelAcademico() != null ? dto.getNivelAcademico() : qualificacao.getNivelAcademico(),
-                dto.getCurso() != null ? dto.getCurso() : qualificacao.getCurso(),
-                dto.getInstituicao() != null ? dto.getInstituicao() : qualificacao.getInstituicao(),
-                dto.getAnoConclusao() != null ? dto.getAnoConclusao() : qualificacao.getAnoConclusao(),
-                dto.getPais() != null ? dto.getPais() : qualificacao.getPais()
+                dto.getLevel() != null ? dto.getLevel() : qualificacao.getLevel(),
+                dto.getCourseName() != null ? dto.getCourseName() : qualificacao.getCourseName(),
+                dto.getInstitution() != null ? dto.getInstitution() : qualificacao.getInstitution(),
+                dto.getCountry() != null ? dto.getCountry() : qualificacao.getCountry(),
+                dto.getStartDate() != null ? dto.getStartDate() : qualificacao.getStartDate(),
+                dto.getEndDate() != null ? dto.getEndDate() : qualificacao.getEndDate(),
+                dto.getCompleted() != null ? dto.getCompleted() : qualificacao.getCompleted()
         );
 
         return ResponseEntity.ok(mapper.toDTO(qualificacaoRepository.save(qualificacao)));
