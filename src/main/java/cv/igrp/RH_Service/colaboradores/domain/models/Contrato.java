@@ -19,13 +19,16 @@ public class Contrato {
     private LocalDate endDate;
     private String terminationReason;
     private Boolean isCurrent;
+    private String status;       // ATIVO | SUSPENSO | CESSADO
+    private Integer renewalCount;
     private String legalBase;
     private String notes;
 
     private Contrato() {}
 
     public static Contrato criar(FuncionarioId funcionarioId, UUID contractTypeId, String contractNumber,
-                                  LocalDate startDate, LocalDate endDate, String legalBase, String notes) {
+                                  LocalDate startDate, LocalDate endDate, String legalBase, String notes,
+                                  int renewalCount) {
         Contrato c = new Contrato();
         c.id = ContratoId.gerarNovo();
         c.funcionarioId = funcionarioId;
@@ -36,12 +39,15 @@ public class Contrato {
         c.legalBase = legalBase;
         c.notes = notes;
         c.isCurrent = true;
+        c.status = "ATIVO";
+        c.renewalCount = renewalCount;
         return c;
     }
 
     public static Contrato reconstituir(ContratoId id, FuncionarioId funcionarioId, UUID contractTypeId,
                                          String contractNumber, LocalDate startDate, LocalDate endDate,
                                          String terminationReason, Boolean isCurrent,
+                                         String status, Integer renewalCount,
                                          String legalBase, String notes) {
         Contrato c = new Contrato();
         c.id = id;
@@ -52,6 +58,8 @@ public class Contrato {
         c.endDate = endDate;
         c.terminationReason = terminationReason;
         c.isCurrent = isCurrent;
+        c.status = status;
+        c.renewalCount = renewalCount;
         c.legalBase = legalBase;
         c.notes = notes;
         return c;
@@ -64,10 +72,23 @@ public class Contrato {
     }
 
     public void encerrar(LocalDate endDate, String terminationReason) {
-        if (Boolean.FALSE.equals(this.isCurrent))
-            throw IgrpResponseStatusException.conflict("O contrato já está encerrado.");
+        if ("CESSADO".equals(this.status))
+            throw IgrpResponseStatusException.conflict("O contrato já está cessado.");
         this.endDate = endDate;
         this.terminationReason = terminationReason;
         this.isCurrent = false;
+        this.status = "CESSADO";
+    }
+
+    public void suspender() {
+        if (!"ATIVO".equals(this.status))
+            throw IgrpResponseStatusException.conflict("Só é possível suspender um contrato ATIVO.");
+        this.status = "SUSPENSO";
+    }
+
+    public void reativar() {
+        if (!"SUSPENSO".equals(this.status))
+            throw IgrpResponseStatusException.conflict("Só é possível reativar um contrato SUSPENSO.");
+        this.status = "ATIVO";
     }
 }

@@ -47,6 +47,12 @@ public class ContratoEntity extends AuditEntity {
     @Column(name = "is_current", nullable = false, columnDefinition = "boolean default false")
     private Boolean isCurrent;
 
+    @Column(name = "status", nullable = false, length = 20)
+    private String status;
+
+    @Column(name = "renewal_count", nullable = false)
+    private Integer renewalCount;
+
     @Column(name = "legal_base", length = 200)
     private String legalBase;
 

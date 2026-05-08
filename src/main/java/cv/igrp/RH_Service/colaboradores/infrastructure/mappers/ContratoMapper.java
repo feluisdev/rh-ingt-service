@@ -20,6 +20,8 @@ public class ContratoMapper {
                 e.getEndDate(),
                 e.getTerminationReason(),
                 e.getIsCurrent(),
+                e.getStatus(),
+                e.getRenewalCount(),
                 e.getLegalBase(),
                 e.getNotes());
     }
@@ -34,6 +36,8 @@ public class ContratoMapper {
         e.setEndDate(c.getEndDate());
         e.setTerminationReason(c.getTerminationReason());
         e.setIsCurrent(c.getIsCurrent());
+        e.setStatus(c.getStatus());
+        e.setRenewalCount(c.getRenewalCount());
         e.setLegalBase(c.getLegalBase());
         e.setNotes(c.getNotes());
         return e;
@@ -49,6 +53,8 @@ public class ContratoMapper {
         r.setEndDate(c.getEndDate());
         r.setTerminationReason(c.getTerminationReason());
         r.setIsCurrent(c.getIsCurrent());
+        r.setStatus(c.getStatus());
+        r.setRenewalCount(c.getRenewalCount());
         r.setLegalBase(c.getLegalBase());
         r.setNotes(c.getNotes());
         return r;

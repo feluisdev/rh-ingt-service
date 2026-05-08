@@ -47,11 +47,19 @@ public class CreateContratoCommandHandler
                 && contratoRepository.existsByContractNumber(dto.getContractNumber()))
             throw IgrpResponseStatusException.conflict("Já existe um contrato com número '" + dto.getContractNumber() + "'.");
 
-        // Encerra contrato actual se existir
-        contratoRepository.findCurrentByFuncionarioId(funcionarioId).ifPresent(actual -> {
-            actual.encerrar(dto.getStartDate().minusDays(1), "SUBSTITUICAO");
-            contratoRepository.save(actual);
-        });
+        // Encerra contrato actual se existir; calcula renewal_count
+        int renewalCount = 0;
+        var actual = contratoRepository.findCurrentByFuncionarioId(funcionarioId);
+        if (actual.isPresent()) {
+            var contratoActual = actual.get();
+            // é renovação se o tipo de contrato é renovável e coincide com o anterior
+            if (contractType.isRenewable()
+                    && contractType.getId().getValor().equals(contratoActual.getContractTypeId())) {
+                renewalCount = (contratoActual.getRenewalCount() != null ? contratoActual.getRenewalCount() : 0) + 1;
+            }
+            contratoActual.encerrar(dto.getStartDate().minusDays(1), "SUBSTITUICAO");
+            contratoRepository.save(contratoActual);
+        }
 
         var saved = contratoRepository.save(Contrato.criar(
                 funcionarioId,
@@ -60,7 +68,8 @@ public class CreateContratoCommandHandler
                 dto.getStartDate(),
                 dto.getEndDate(),
                 dto.getLegalBase(),
-                dto.getNotes()));
+                dto.getNotes(),
+                renewalCount));
 
         // Actualiza vínculo do funcionário se o tipo de contrato tiver situação profissional configurada
         if (contractType.getProfessionalSituationId() != null) {
