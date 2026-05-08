@@ -558,9 +558,8 @@ documents  (Documentos do Dossier)
 ├── description       TEXT
 ├── reference_entity  VARCHAR(100)   -- 'leave_requests', 'trainings', 'disciplinary_processes', 'qualifications', ...
 ├── reference_id      UUID           -- ID do registo associado (polimorfismo controlado)
-├── uploaded_at       TIMESTAMP    NOT NULL
-├── uploaded_by       VARCHAR(100) NOT NULL             -- sub UUID do utilizador Keycloak
-└── is_active         BOOLEAN DEFAULT TRUE
+├── is_active         BOOLEAN DEFAULT TRUE
+└── auditoria
 
 -- Tabela genérica para todos os ficheiros do sistema.
 -- reference_entity + reference_id associam o documento ao registo de origem.
