@@ -54,7 +54,6 @@ public class UpdateFuncionarioCommandHandler
                 dto.getIlha() != null ? dto.getIlha() : funcionario.getIlha(),
                 dto.getConcelho() != null ? dto.getConcelho() : funcionario.getConcelho(),
                 dto.getLocalidade() != null ? dto.getLocalidade() : funcionario.getLocalidade(),
-                funcionario.getSituacaoProfissional(),
                 dto.getDataAdmissao() != null ? dto.getDataAdmissao() : funcionario.getDataAdmissao()
         );
 

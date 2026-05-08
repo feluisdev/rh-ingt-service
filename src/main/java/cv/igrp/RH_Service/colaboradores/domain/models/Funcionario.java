@@ -27,7 +27,8 @@ public class Funcionario {
     private String ilha;
     private String concelho;
     private String localidade;
-    private String situacaoProfissional;
+    private UUID workerStateId;
+    private UUID professionalSituationId;
     private LocalDate dataAdmissao;
     private Boolean isActive;
 
@@ -39,7 +40,7 @@ public class Funcionario {
                                     LocalDate dataEmissaoDoc, LocalDate dataValidadeDoc,
                                     String nacionalidade, String email, String telefone,
                                     String morada, String ilha, String concelho, String localidade,
-                                    String situacaoProfissional, LocalDate dataAdmissao) {
+                                    UUID workerStateId, LocalDate dataAdmissao) {
         Funcionario f = new Funcionario();
         f.id = FuncionarioId.gerarNovo();
         f.numeroFuncionario = numeroFuncionario;
@@ -59,9 +60,10 @@ public class Funcionario {
         f.ilha = ilha;
         f.concelho = concelho;
         f.localidade = localidade;
-        f.situacaoProfissional = situacaoProfissional;
+        f.workerStateId = workerStateId;
+        f.professionalSituationId = null;
         f.dataAdmissao = dataAdmissao;
-        f.isActive = "ATIVO".equalsIgnoreCase(situacaoProfissional);
+        f.isActive = true;
         return f;
     }
 
@@ -71,7 +73,8 @@ public class Funcionario {
                                            LocalDate dataEmissaoDoc, LocalDate dataValidadeDoc,
                                            String nacionalidade, String email, String telefone,
                                            String morada, String ilha, String concelho, String localidade,
-                                           String situacaoProfissional, LocalDate dataAdmissao, Boolean isActive) {
+                                           UUID workerStateId, UUID professionalSituationId,
+                                           LocalDate dataAdmissao, Boolean isActive) {
         Funcionario f = new Funcionario();
         f.id = id;
         f.numeroFuncionario = numeroFuncionario;
@@ -91,14 +94,11 @@ public class Funcionario {
         f.ilha = ilha;
         f.concelho = concelho;
         f.localidade = localidade;
-        f.situacaoProfissional = situacaoProfissional;
+        f.workerStateId = workerStateId;
+        f.professionalSituationId = professionalSituationId;
         f.dataAdmissao = dataAdmissao;
         f.isActive = isActive;
         return f;
-    }
-
-    public void atualizarSituacaoProfissional(String novaSituacao) {
-        this.situacaoProfissional = novaSituacao;
     }
 
     public void atualizar(String nomeCompleto, LocalDate dataNascimento, String genero, String estadoCivil,
@@ -106,7 +106,7 @@ public class Funcionario {
                           LocalDate dataEmissaoDoc, LocalDate dataValidadeDoc,
                           String nacionalidade, String email, String telefone,
                           String morada, String ilha, String concelho, String localidade,
-                          String situacaoProfissional, LocalDate dataAdmissao) {
+                          LocalDate dataAdmissao) {
         this.nomeCompleto = nomeCompleto;
         this.dataNascimento = dataNascimento;
         this.genero = genero;
@@ -123,8 +123,15 @@ public class Funcionario {
         this.ilha = ilha;
         this.concelho = concelho;
         this.localidade = localidade;
-        this.situacaoProfissional = situacaoProfissional;
         this.dataAdmissao = dataAdmissao;
-        this.isActive = "ATIVO".equalsIgnoreCase(situacaoProfissional);
+    }
+
+    public void atualizarWorkerState(UUID workerStateId, boolean isActive) {
+        this.workerStateId = workerStateId;
+        this.isActive = isActive;
+    }
+
+    public void atualizarProfessionalSituation(UUID professionalSituationId) {
+        this.professionalSituationId = professionalSituationId;
     }
 }

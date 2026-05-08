@@ -26,7 +26,9 @@ public class GetFuncionariosQueryHandler
         var filter = new FuncionarioFilter();
         filter.setNome(query.getNome());
         filter.setNif(query.getNif());
-        filter.setSituacaoProfissional(query.getSituacaoProfissional());
+        if (query.getWorkerStateId() != null && !query.getWorkerStateId().isBlank()) {
+            filter.setWorkerStateId(UUID.fromString(query.getWorkerStateId()));
+        }
         if (query.getUnidadeOrganicaId() != null && !query.getUnidadeOrganicaId().isBlank()) {
             filter.setUnidadeOrganicaId(UUID.fromString(query.getUnidadeOrganicaId()));
         }

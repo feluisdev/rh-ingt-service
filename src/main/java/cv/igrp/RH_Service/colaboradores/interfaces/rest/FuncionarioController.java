@@ -43,14 +43,14 @@ public class FuncionarioController {
     public ResponseEntity<WrapperListaFuncionarioDTO> getFuncionarios(
             @RequestParam(value = "nome", required = false) String nome,
             @RequestParam(value = "nif", required = false) String nif,
-            @RequestParam(value = "situacaoProfissional", required = false) String situacaoProfissional,
+            @RequestParam(value = "workerStateId", required = false) String workerStateId,
             @RequestParam(value = "unidadeOrganicaId", required = false) String unidadeOrganicaId,
             @RequestParam(value = "careerId", required = false) String careerId,
             @RequestParam(value = "active", required = false) Boolean active,
             @RequestParam(value = "pagina", defaultValue = "0") String pagina,
             @RequestParam(value = "tamanho", defaultValue = "20") String tamanho) {
         LOGGER.debug("Operation started");
-        final var query = new GetFuncionariosQuery(nome, nif, situacaoProfissional, unidadeOrganicaId, careerId, active, pagina, tamanho);
+        final var query = new GetFuncionariosQuery(nome, nif, workerStateId, unidadeOrganicaId, careerId, active, pagina, tamanho);
         ResponseEntity<WrapperListaFuncionarioDTO> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());

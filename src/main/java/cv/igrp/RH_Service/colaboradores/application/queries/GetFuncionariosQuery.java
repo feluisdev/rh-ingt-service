@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 public class GetFuncionariosQuery implements Query {
     private final String nome;
     private final String nif;
-    private final String situacaoProfissional;
+    private final String workerStateId;
     private final String unidadeOrganicaId;
     private final String careerId;
     private final Boolean active;

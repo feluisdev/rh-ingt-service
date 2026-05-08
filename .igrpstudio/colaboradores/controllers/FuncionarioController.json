@@ -11,7 +11,7 @@
       "requestParams": [
         {"name": "nome", "type": "string", "required": false},
         {"name": "nif", "type": "string", "required": false},
-        {"name": "situacaoProfissional", "type": "string", "required": false},
+        {"name": "workerStateId", "type": "string", "required": false},
         {"name": "unidadeOrganicaId", "type": "string", "required": false},
         {"name": "careerId", "type": "string", "required": false},
         {"name": "active", "type": "boolean", "required": false},

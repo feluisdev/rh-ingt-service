@@ -97,9 +97,8 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
             if (filter.getNif() != null && !filter.getNif().isBlank()) {
                 predicates = cb.and(predicates, cb.equal(root.get("nif"), filter.getNif()));
             }
-            if (filter.getSituacaoProfissional() != null && !filter.getSituacaoProfissional().isBlank()) {
-                predicates = cb.and(predicates,
-                        cb.equal(root.get("situacaoProfissional"), filter.getSituacaoProfissional()));
+            if (filter.getWorkerStateId() != null) {
+                predicates = cb.and(predicates, cb.equal(root.get("workerStateId"), filter.getWorkerStateId()));
             }
             if (filter.getUnidadeOrganicaId() != null) {
                 Subquery<UUID> sub = query.subquery(UUID.class);

@@ -77,8 +77,11 @@ public class FuncionarioEntity extends AuditEntity {
     @Column(name = "localidade", length = 100)
     private String localidade;
 
-    @Column(name = "situacao_profissional", nullable = false, length = 50)
-    private String situacaoProfissional;
+    @Column(name = "worker_state_id")
+    private UUID workerStateId;
+
+    @Column(name = "professional_situation_id")
+    private UUID professionalSituationId;
 
     @Column(name = "data_admissao", nullable = false)
     private LocalDate dataAdmissao;

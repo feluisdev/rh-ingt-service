@@ -9,6 +9,8 @@ import cv.igrp.RH_Service.carreiras.domain.valueobject.GradeId;
 import cv.igrp.RH_Service.colaboradores.application.dto.MeProfileResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.repository.EnquadramentoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
+import cv.igrp.RH_Service.parametrizacoes.domain.repository.WorkerStateRepository;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.WorkerStateId;
 import cv.igrp.RH_Service.estrutura.domain.repository.JobRepository;
 import cv.igrp.RH_Service.estrutura.domain.repository.OrganizationalUnitRepository;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.JobId;
@@ -29,6 +31,7 @@ public class GetMeProfileQueryHandler
 
     private final CurrentEmployeeResolver currentEmployeeResolver;
     private final FuncionarioRepository funcionarioRepository;
+    private final WorkerStateRepository workerStateRepository;
     private final EnquadramentoRepository enquadramentoRepository;
     private final OrganizationalUnitRepository unitRepository;
     private final JobRepository jobRepository;
@@ -53,7 +56,10 @@ public class GetMeProfileQueryHandler
         response.setNif(funcionario.getNif());
         response.setEmail(funcionario.getEmail());
         response.setPhone(funcionario.getTelefone());
-        response.setWorkerState(funcionario.getSituacaoProfissional());
+        if (funcionario.getWorkerStateId() != null) {
+            workerStateRepository.findById(WorkerStateId.from(funcionario.getWorkerStateId()))
+                    .ifPresent(ws -> response.setWorkerState(ws.getCode()));
+        }
         response.setAdmissionDate(funcionario.getDataAdmissao());
 
         enquadramentoRepository.findCurrentByFuncionarioId(funcionarioId).ifPresent(enq -> {

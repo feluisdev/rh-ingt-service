@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.colaboradores.application.commands;
 
 import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
+import cv.igrp.RH_Service.parametrizacoes.domain.repository.WorkerStateRepository;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
@@ -11,6 +12,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Component("colabsCreateFuncionarioCommandHandler")
 @RequiredArgsConstructor
@@ -18,6 +20,7 @@ public class CreateFuncionarioCommandHandler
         implements CommandHandler<CreateFuncionarioCommand, ResponseEntity<Map<String, ?>>> {
 
     private final FuncionarioRepository funcionarioRepository;
+    private final WorkerStateRepository workerStateRepository;
     private final JdbcTemplate jdbcTemplate;
 
     @IgrpCommandHandler
@@ -33,6 +36,13 @@ public class CreateFuncionarioCommandHandler
                     "Já existe um funcionário com número de documento '" + dto.getNumeroDocumento() + "'.");
         }
 
+        UUID workerStateId = dto.getWorkerStateId() != null
+                ? dto.getWorkerStateId()
+                : workerStateRepository.findByCode("ATIVO")
+                        .orElseThrow(() -> IgrpResponseStatusException.badRequest(
+                                "Estado 'ATIVO' não configurado no sistema."))
+                        .getId().getValor();
+
         Long seq = jdbcTemplate.queryForObject("SELECT nextval('seq_numero_funcionario')", Long.class);
         String numeroFuncionario = String.format("F%06d", seq);
 
@@ -43,7 +53,7 @@ public class CreateFuncionarioCommandHandler
                         dto.getDataEmissaoDoc(), dto.getDataValidadeDoc(),
                         dto.getNacionalidade(), dto.getEmail(), dto.getTelefone(),
                         dto.getMorada(), dto.getIlha(), dto.getConcelho(), dto.getLocalidade(),
-                        "ATIVO", dto.getDataAdmissao()));
+                        workerStateId, dto.getDataAdmissao()));
 
         return ResponseEntity.status(201).body(Map.of(
                 "id", saved.getId().getStringValor(),

@@ -28,7 +28,8 @@ public class FuncionarioResponseDTO {
     private String ilha;
     private String concelho;
     private String localidade;
-    private String situacaoProfissional;
+    private String workerStateId;
+    private String professionalSituationId;
     private LocalDate dataAdmissao;
     private Boolean isActive;
 }

@@ -64,7 +64,7 @@ public class CreateContratoCommandHandler
 
         // Actualiza vínculo do funcionário se o tipo de contrato tiver situação profissional configurada
         if (contractType.getProfessionalSituationId() != null) {
-            funcionario.atualizarSituacaoProfissional(contractType.getProfessionalSituationId().toString());
+            funcionario.atualizarProfessionalSituation(contractType.getProfessionalSituationId());
             funcionarioRepository.save(funcionario);
         }
 

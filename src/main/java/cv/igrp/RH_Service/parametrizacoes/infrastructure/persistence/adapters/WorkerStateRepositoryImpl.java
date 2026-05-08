@@ -46,6 +46,12 @@ public class WorkerStateRepositoryImpl implements WorkerStateRepository {
 
     @Transactional(readOnly = true)
     @Override
+    public java.util.Optional<WorkerState> findByCode(String code) {
+        return workerStateEntityRepository.findByCodeIgnoreCase(code).map(workerStateMapper::toDomain);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public PageResult<WorkerState> findAll(WorkerStateFilter filter) {
         var pageable = PageRequest.of(filter.getPage(), filter.getSize());
 
