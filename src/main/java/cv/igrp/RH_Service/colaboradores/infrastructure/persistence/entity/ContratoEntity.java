@@ -29,13 +29,13 @@ public class ContratoEntity extends AuditEntity {
     @Column(name = "funcionario_id", nullable = false)
     private UUID funcionarioId;
 
-    @Column(name = "contract_type_id", nullable = false)
+    @Column(name = "contract_type_id")
     private UUID contractTypeId;
 
     @Column(name = "contract_number", unique = true, length = 100)
     private String contractNumber;
 
-    @Column(name = "start_date", nullable = false)
+    @Column(name = "start_date")
     private LocalDate startDate;
 
     @Column(name = "end_date")
@@ -50,7 +50,7 @@ public class ContratoEntity extends AuditEntity {
     @Column(name = "status", nullable = false, length = 20)
     private String status;
 
-    @Column(name = "renewal_count", nullable = false)
+    @Column(name = "renewal_count")
     private Integer renewalCount;
 
     @Column(name = "regime_trabalho", length = 30)
