@@ -34,5 +34,5 @@ spec:
             - name: SPRING_DATASOURCE_PASSWORD
               value: "postgres"
             - name: SPRING_FLYWAY_CLEAN_ON_STARTUP
-              value: "false"  # Mude para "false" após a limpeza ou mantenha em segredos de CI
+              value: "true"  # Mude para "false" após a limpeza ou mantenha em segredos de CI
           
