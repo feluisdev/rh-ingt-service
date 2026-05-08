@@ -26,7 +26,7 @@ public class QualificacaoEntity extends AuditEntity {
     @Column(name = "funcionario_id", nullable = false)
     private UUID funcionarioId;
 
-    @Column(name = "level", nullable = false, length = 50)
+    @Column(name = "level", length = 50)
     private String level;
 
     @Column(name = "course_name", length = 200)
@@ -44,7 +44,7 @@ public class QualificacaoEntity extends AuditEntity {
     @Column(name = "end_date")
     private LocalDate endDate;
 
-    @Column(name = "completed", nullable = false, columnDefinition = "boolean default false")
+    @Column(name = "completed")
     private Boolean completed;
 
     @Column(name = "is_active", nullable = false)

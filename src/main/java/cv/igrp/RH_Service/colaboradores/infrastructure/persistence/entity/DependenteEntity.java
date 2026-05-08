@@ -26,10 +26,10 @@ public class DependenteEntity extends AuditEntity {
     @Column(name = "funcionario_id", nullable = false)
     private UUID funcionarioId;
 
-    @Column(name = "full_name", nullable = false, length = 200)
+    @Column(name = "full_name", length = 200)
     private String fullName;
 
-    @Column(name = "relationship_type", nullable = false, length = 50)
+    @Column(name = "relationship_type", length = 50)
     private String relationshipType;
 
     @Column(name = "birth_date")
