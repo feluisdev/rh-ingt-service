@@ -1,0 +1,174 @@
+{
+  "type": "controller",
+  "name": "DadosBancariosController",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh/dados-bancarios",
+  "description": "Gestão de dados bancários (banco, conta, IBAN, INPS) dos funcionários",
+  "note": "Recurso plano com ?funcionarioId= na listagem. Candidato a migrar para /funcionarios/{id}/dados-bancarios em futura versão.",
+  "actions": [
+    {
+      "actionName": "getDadosBancariossByFuncionario",
+      "method": "GET",
+      "path": "",
+      "requestParams": [
+        { "type": "string", "name": "funcionarioId", "isRequired": true }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaDadosBancarios",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "createDadosBancarios",
+      "method": "POST",
+      "path": "",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "DadosBancariosRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "CREATED",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "map",
+                "objectType": "java",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getDadosBancariosById",
+      "method": "GET",
+      "path": "{dadosBancariosId}",
+      "pathVariables": [
+        { "type": "string", "name": "dadosBancariosId", "isRequired": true }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "DadosBancariosResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "updateDadosBancarios",
+      "method": "PUT",
+      "path": "{dadosBancariosId}",
+      "pathVariables": [
+        { "type": "string", "name": "dadosBancariosId", "isRequired": true }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "DadosBancariosRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "DadosBancariosResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "deactivateDadosBancarios",
+      "method": "DELETE",
+      "path": "{dadosBancariosId}",
+      "pathVariables": [
+        { "type": "string", "name": "dadosBancariosId", "isRequired": true }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "map",
+                "objectType": "java",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "activateDadosBancarios",
+      "method": "PUT",
+      "path": "{dadosBancariosId}/activate",
+      "pathVariables": [
+        { "type": "string", "name": "dadosBancariosId", "isRequired": true }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "map",
+                "objectType": "java",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

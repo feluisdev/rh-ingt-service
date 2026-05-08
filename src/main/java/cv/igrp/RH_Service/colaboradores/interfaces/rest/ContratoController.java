@@ -34,6 +34,15 @@ public class ContratoController {
         this.queryBus = queryBus;
     }
 
+    @GetMapping
+    @Operation(summary = "Listar contratos por funcionário")
+    public ResponseEntity<WrapperListaContratoDTO> getContratosByFuncionario(@RequestParam String funcionarioId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<WrapperListaContratoDTO> response = queryBus.handle(new GetContratosByFuncionarioQuery(funcionarioId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
     @PostMapping
     @Operation(summary = "Criar contrato")
     public ResponseEntity<Map<String, ?>> createContrato(@Valid @RequestBody ContratoRequestDTO request) {
@@ -70,11 +79,32 @@ public class ContratoController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
+    @PutMapping("{contratoId}/close")
+    @Operation(summary = "Encerrar contrato (cessação)")
+    public ResponseEntity<Map<String, ?>> closeContrato(
+            @PathVariable String contratoId,
+            @Valid @RequestBody CloseContratoRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<Map<String, ?>> response = commandBus.send(
+                new CloseContratoCommand(contratoId, request.getEndDate(), request.getTerminationReason(), request.getNotes()));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @PutMapping("{contratoId}/suspend")
+    @Operation(summary = "Suspender contrato")
+    public ResponseEntity<Map<String, ?>> suspendContrato(@PathVariable String contratoId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<Map<String, ?>> response = commandBus.send(new SuspenderContratoCommand(contratoId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
     @PutMapping("{contratoId}/activate")
-    @Operation(summary = "Reactivar contrato")
+    @Operation(summary = "Reactivar contrato suspenso")
     public ResponseEntity<Map<String, ?>> activateContrato(@PathVariable String contratoId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new AtivarContratoCommand(contratoId));
+        ResponseEntity<Map<String, ?>> response = commandBus.send(new ReativarContratoCommand(contratoId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
