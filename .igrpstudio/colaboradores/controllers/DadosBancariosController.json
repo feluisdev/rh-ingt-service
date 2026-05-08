@@ -2,15 +2,14 @@
   "type": "controller",
   "name": "DadosBancariosController",
   "module": "colaboradores",
-  "basePath": "api/v1/rh/dados-bancarios",
+  "basePath": "api/v1/rh/funcionarios/{funcionarioId}/dados-bancarios",
   "description": "Gestão de dados bancários (banco, conta, IBAN, INPS) dos funcionários",
-  "note": "Recurso plano com ?funcionarioId= na listagem. Candidato a migrar para /funcionarios/{id}/dados-bancarios em futura versão.",
   "actions": [
     {
       "actionName": "getDadosBancariossByFuncionario",
       "method": "GET",
       "path": "",
-      "requestParams": [
+      "pathVariables": [
         { "type": "string", "name": "funcionarioId", "isRequired": true }
       ],
       "responses": {

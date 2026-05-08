@@ -21,7 +21,7 @@ import java.util.Map;
 
 @IgrpController
 @RestController("colabsDadosBancariosController")
-@RequestMapping(path = "api/v1/rh/dados-bancarios")
+@RequestMapping(path = "api/v1/rh/funcionarios/{funcionarioId}/dados-bancarios")
 @Tag(name = "Dados Bancários", description = "Gestão de dados bancários dos funcionários")
 public class DadosBancariosController {
 
@@ -36,16 +36,18 @@ public class DadosBancariosController {
 
     @PostMapping
     @Operation(summary = "Registar dados bancários")
-    public ResponseEntity<Map<String, ?>> createDadosBancarios(@Valid @RequestBody DadosBancariosRequestDTO request) {
+    public ResponseEntity<Map<String, ?>> createDadosBancarios(
+            @PathVariable String funcionarioId,
+            @Valid @RequestBody DadosBancariosRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateDadosBancariosCommand(request));
+        ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateDadosBancariosCommand(funcionarioId, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
     @GetMapping
-    @Operation(summary = "Listar dados bancários por funcionário")
-    public ResponseEntity<WrapperListaDadosBancariosDTO> getDadosBancariossByFuncionario(@RequestParam String funcionarioId) {
+    @Operation(summary = "Listar dados bancários do funcionário")
+    public ResponseEntity<WrapperListaDadosBancariosDTO> getDadosBancariossByFuncionario(@PathVariable String funcionarioId) {
         LOGGER.debug("Operation started");
         ResponseEntity<WrapperListaDadosBancariosDTO> response = queryBus.handle(new GetDadosBancariossByFuncionarioQuery(funcionarioId));
         LOGGER.debug("Operation finished");
@@ -54,7 +56,9 @@ public class DadosBancariosController {
 
     @GetMapping("{dadosBancariosId}")
     @Operation(summary = "Obter dados bancários por ID")
-    public ResponseEntity<DadosBancariosResponseDTO> getDadosBancariosById(@PathVariable String dadosBancariosId) {
+    public ResponseEntity<DadosBancariosResponseDTO> getDadosBancariosById(
+            @PathVariable String funcionarioId,
+            @PathVariable String dadosBancariosId) {
         LOGGER.debug("Operation started");
         ResponseEntity<DadosBancariosResponseDTO> response = queryBus.handle(new GetDadosBancariossByIdQuery(dadosBancariosId));
         LOGGER.debug("Operation finished");
@@ -63,7 +67,10 @@ public class DadosBancariosController {
 
     @PutMapping("{dadosBancariosId}")
     @Operation(summary = "Actualizar dados bancários")
-    public ResponseEntity<DadosBancariosResponseDTO> updateDadosBancarios(@Valid @RequestBody DadosBancariosRequestDTO request, @PathVariable String dadosBancariosId) {
+    public ResponseEntity<DadosBancariosResponseDTO> updateDadosBancarios(
+            @PathVariable String funcionarioId,
+            @Valid @RequestBody DadosBancariosRequestDTO request,
+            @PathVariable String dadosBancariosId) {
         LOGGER.debug("Operation started");
         ResponseEntity<DadosBancariosResponseDTO> response = commandBus.send(new UpdateDadosBancariosCommand(request, dadosBancariosId));
         LOGGER.debug("Operation finished");
@@ -72,7 +79,9 @@ public class DadosBancariosController {
 
     @DeleteMapping("{dadosBancariosId}")
     @Operation(summary = "Desactivar dados bancários (soft delete)")
-    public ResponseEntity<Map<String, ?>> deactivateDadosBancarios(@PathVariable String dadosBancariosId) {
+    public ResponseEntity<Map<String, ?>> deactivateDadosBancarios(
+            @PathVariable String funcionarioId,
+            @PathVariable String dadosBancariosId) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(new DesativarDadosBancariosCommand(dadosBancariosId));
         LOGGER.debug("Operation finished");
@@ -81,7 +90,9 @@ public class DadosBancariosController {
 
     @PutMapping("{dadosBancariosId}/activate")
     @Operation(summary = "Reactivar dados bancários")
-    public ResponseEntity<Map<String, ?>> activateDadosBancarios(@PathVariable String dadosBancariosId) {
+    public ResponseEntity<Map<String, ?>> activateDadosBancarios(
+            @PathVariable String funcionarioId,
+            @PathVariable String dadosBancariosId) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(new AtivarDadosBancariosCommand(dadosBancariosId));
         LOGGER.debug("Operation finished");

@@ -8,7 +8,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class DadosBancariosRequestDTO {
-    private String funcionarioId;
     private String banco;
     private String numeroConta;
     private String iban;

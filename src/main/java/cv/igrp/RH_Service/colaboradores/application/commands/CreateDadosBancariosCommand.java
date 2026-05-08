@@ -8,5 +8,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class CreateDadosBancariosCommand implements Command {
+    private final String funcionarioId;
     private final DadosBancariosRequestDTO request;
 }
