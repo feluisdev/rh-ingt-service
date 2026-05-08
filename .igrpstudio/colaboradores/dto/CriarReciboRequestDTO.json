@@ -9,6 +9,6 @@
     {"type": "date", "name": "issueDate", "objectType": "java", "required": true},
     {"type": "decimal", "name": "grossSalary", "objectType": "java", "required": true},
     {"type": "decimal", "name": "netSalary", "objectType": "java", "required": true},
-    {"type": "string", "name": "documentId", "objectType": "java", "required": true}
+    {"type": "string", "name": "documentId", "objectType": "java", "required": false}
   ]
 }

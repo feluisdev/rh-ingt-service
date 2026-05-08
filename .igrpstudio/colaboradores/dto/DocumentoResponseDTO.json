@@ -5,7 +5,8 @@
   "module": "colaboradores",
   "attributes": [
     {"type": "string", "name": "id", "objectType": "java", "required": false},
-    {"type": "string", "name": "funcionarioId", "objectType": "java", "required": false},
+    {"type": "string", "name": "referenceEntity", "objectType": "java", "required": false},
+    {"type": "string", "name": "referenceId", "objectType": "java", "required": false},
     {"type": "string", "name": "documentTypeId", "objectType": "java", "required": false},
     {"type": "string", "name": "documentType", "objectType": "java", "required": false},
     {"type": "string", "name": "originalFilename", "objectType": "java", "required": false},

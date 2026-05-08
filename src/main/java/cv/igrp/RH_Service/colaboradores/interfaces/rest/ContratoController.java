@@ -94,4 +94,53 @@ public class ContratoController {
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
+
+    @GetMapping("{contratoId}/documentos")
+    @Operation(summary = "Listar documentos de um contrato")
+    public ResponseEntity<WrapperListaDocumentoDTO> listarDocumentos(
+            @PathVariable String contratoId,
+            @RequestParam(required = false) java.util.UUID documentTypeId,
+            @RequestParam(required = false) Boolean active) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<WrapperListaDocumentoDTO> response = queryBus.handle(
+                new GetDocumentosSubRecursoQuery("CONTRATO", java.util.UUID.fromString(contratoId), documentTypeId, active));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("{contratoId}/documentos/{docId}")
+    @Operation(summary = "Obter documento de um contrato por ID")
+    public ResponseEntity<DocumentoResponseDTO> getDocumentoById(
+            @PathVariable String contratoId,
+            @PathVariable String docId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoResponseDTO> response = queryBus.handle(
+                new GetDocumentoSubRecursoByIdQuery("CONTRATO", java.util.UUID.fromString(contratoId), docId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("{contratoId}/documentos/{docId}/download")
+    @Operation(summary = "Obter URL de download de um documento do contrato")
+    public ResponseEntity<DocumentoDownloadResponseDTO> downloadDocumento(
+            @PathVariable String contratoId,
+            @PathVariable String docId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoDownloadResponseDTO> response = queryBus.handle(
+                new GetDocumentoDownloadSubRecursoQuery("CONTRATO", java.util.UUID.fromString(contratoId), docId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @DeleteMapping("{contratoId}/documentos/{docId}")
+    @Operation(summary = "Desactivar documento de um contrato")
+    public ResponseEntity<Map<String, ?>> desativarDocumento(
+            @PathVariable String contratoId,
+            @PathVariable String docId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<Map<String, ?>> response = commandBus.send(
+                new DesativarDocumentoSubRecursoCommand("CONTRATO", java.util.UUID.fromString(contratoId), docId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
 }

@@ -94,4 +94,76 @@ public class FormacaoController {
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
+
+    // ── Documentos ───────────────────────────────────────────────────────────
+
+    @PostMapping("{formacaoId}/documentos")
+    @Operation(summary = "Associar documento a uma formação")
+    public ResponseEntity<DocumentoUploadResponseDTO> registarDocumento(
+            @PathVariable String funcionarioId,
+            @PathVariable String formacaoId,
+            @Valid @RequestBody UploadDocumentoRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoUploadResponseDTO> response = commandBus.send(
+                new RegistarDocumentoFormacaoCommand(
+                        funcionarioId, formacaoId,
+                        request.getDocumentTypeId(), request.getFileKey(),
+                        request.getOriginalFilename(), request.getContentType(),
+                        request.getFileSize(), request.getDescription()));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("{formacaoId}/documentos")
+    @Operation(summary = "Listar documentos de uma formação")
+    public ResponseEntity<WrapperListaDocumentoDTO> listarDocumentos(
+            @PathVariable String funcionarioId,
+            @PathVariable String formacaoId,
+            @RequestParam(required = false) java.util.UUID documentTypeId,
+            @RequestParam(required = false) Boolean active) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<WrapperListaDocumentoDTO> response = queryBus.handle(
+                new GetDocumentosSubRecursoQuery("FORMACAO", java.util.UUID.fromString(formacaoId), documentTypeId, active));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("{formacaoId}/documentos/{docId}")
+    @Operation(summary = "Obter documento de uma formação por ID")
+    public ResponseEntity<DocumentoResponseDTO> getDocumentoById(
+            @PathVariable String funcionarioId,
+            @PathVariable String formacaoId,
+            @PathVariable String docId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoResponseDTO> response = queryBus.handle(
+                new GetDocumentoByIdQuery(funcionarioId, docId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("{formacaoId}/documentos/{docId}/download")
+    @Operation(summary = "Obter URL de download de um documento de formação")
+    public ResponseEntity<DocumentoDownloadResponseDTO> downloadDocumento(
+            @PathVariable String funcionarioId,
+            @PathVariable String formacaoId,
+            @PathVariable String docId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoDownloadResponseDTO> response = queryBus.handle(
+                new GetDocumentoDownloadUrlQuery(funcionarioId, docId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @DeleteMapping("{formacaoId}/documentos/{docId}")
+    @Operation(summary = "Desactivar documento de uma formação")
+    public ResponseEntity<Map<String, ?>> desativarDocumento(
+            @PathVariable String funcionarioId,
+            @PathVariable String formacaoId,
+            @PathVariable String docId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<Map<String, ?>> response = commandBus.send(
+                new DesativarDocumentoCommand(funcionarioId, docId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
 }

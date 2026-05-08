@@ -38,6 +38,59 @@
         {"name": "processoId", "type": "string"}
       ],
       "requestBody": true
+    },
+    {
+      "actionName": "registarDocumento",
+      "method": "POST",
+      "path": "{processoId}/documentos",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "processoId", "type": "string"}
+      ],
+      "requestBody": true
+    },
+    {
+      "actionName": "listarDocumentos",
+      "method": "GET",
+      "path": "{processoId}/documentos",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "processoId", "type": "string"}
+      ],
+      "requestParams": [
+        {"name": "documentTypeId", "type": "string", "required": false},
+        {"name": "active", "type": "boolean", "required": false}
+      ]
+    },
+    {
+      "actionName": "getDocumentoById",
+      "method": "GET",
+      "path": "{processoId}/documentos/{docId}",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "processoId", "type": "string"},
+        {"name": "docId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "downloadDocumento",
+      "method": "GET",
+      "path": "{processoId}/documentos/{docId}/download",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "processoId", "type": "string"},
+        {"name": "docId", "type": "string"}
+      ]
+    },
+    {
+      "actionName": "desativarDocumento",
+      "method": "DELETE",
+      "path": "{processoId}/documentos/{docId}",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string"},
+        {"name": "processoId", "type": "string"},
+        {"name": "docId", "type": "string"}
+      ]
     }
   ]
 }

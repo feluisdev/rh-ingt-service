@@ -172,4 +172,54 @@ public class LicencaMobilidadeController {
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
+
+    @GetMapping("{licencaId}/documentos")
+    @Operation(summary = "Listar documentos de uma licença/mobilidade")
+    public ResponseEntity<WrapperListaDocumentoDTO> listarDocumentos(
+            @PathVariable String funcionarioId,
+            @PathVariable String licencaId,
+            @RequestParam(required = false) java.util.UUID documentTypeId,
+            @RequestParam(required = false) Boolean active) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<WrapperListaDocumentoDTO> response = queryBus.handle(
+                new GetDocumentosSubRecursoQuery("LICENCA_MOBILIDADE", java.util.UUID.fromString(licencaId), documentTypeId, active));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("{licencaId}/documentos/{docId}")
+    @Operation(summary = "Obter documento de uma licença por ID")
+    public ResponseEntity<DocumentoResponseDTO> getDocumentoById(
+            @PathVariable String funcionarioId,
+            @PathVariable String licencaId,
+            @PathVariable String docId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoResponseDTO> response = queryBus.handle(new GetDocumentoByIdQuery(funcionarioId, docId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("{licencaId}/documentos/{docId}/download")
+    @Operation(summary = "Obter URL de download de um documento da licença")
+    public ResponseEntity<DocumentoDownloadResponseDTO> downloadDocumento(
+            @PathVariable String funcionarioId,
+            @PathVariable String licencaId,
+            @PathVariable String docId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<DocumentoDownloadResponseDTO> response = queryBus.handle(new GetDocumentoDownloadUrlQuery(funcionarioId, docId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @DeleteMapping("{licencaId}/documentos/{docId}")
+    @Operation(summary = "Desactivar documento de uma licença/mobilidade")
+    public ResponseEntity<Map<String, ?>> desativarDocumento(
+            @PathVariable String funcionarioId,
+            @PathVariable String licencaId,
+            @PathVariable String docId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<Map<String, ?>> response = commandBus.send(new DesativarDocumentoCommand(funcionarioId, docId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
 }
