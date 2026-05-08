@@ -49,8 +49,12 @@ public class UploadDocumentoCommandHandler
             throw IgrpResponseStatusException.badRequest(
                     "Extensão não permitida. Aceites: " + tipo.getAllowedExtensions());
 
+        var refId = command.getReferenceId() != null
+                ? command.getReferenceId()
+                : funcionarioId.getValor();
+
         var saved = documentoRepository.save(Documento.criar(
-                "employees", funcionarioId.getValor(), tipoId,
+                command.getReferenceEntity(), refId, tipoId,
                 command.getFileKey(),
                 command.getOriginalFilename(),
                 command.getContentType(),

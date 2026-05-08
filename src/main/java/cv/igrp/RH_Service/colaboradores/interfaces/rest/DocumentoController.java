@@ -53,6 +53,8 @@ public class DocumentoController {
                 new UploadDocumentoCommand(
                         funcionarioId,
                         request.getDocumentTypeId(),
+                        request.getReferenceEntity(),
+                        request.getReferenceId(),
                         request.getFileKey(),
                         request.getOriginalFilename(),
                         request.getContentType(),

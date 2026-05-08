@@ -11,6 +11,8 @@ import java.util.UUID;
 public class UploadDocumentoCommand implements Command {
     private final String funcionarioId;
     private final UUID documentTypeId;
+    private final String referenceEntity;
+    private final UUID referenceId;
     private final String fileKey;
     private final String originalFilename;
     private final String contentType;
