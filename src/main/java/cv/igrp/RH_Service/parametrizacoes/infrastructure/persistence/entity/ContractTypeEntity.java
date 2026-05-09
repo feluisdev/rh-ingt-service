@@ -42,6 +42,9 @@ public class ContractTypeEntity extends AuditEntity {
     @Column(name = "max_duration_months")
     private Integer maxDurationMonths;
 
+    @Column(name = "requires_career_structure")
+    private Boolean requiresCareerStructure;
+
     @Column(name = "is_active")
     private Boolean isActive;
 }

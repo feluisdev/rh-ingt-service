@@ -16,4 +16,5 @@ public class ContractTypeRequestDTO {
     private Boolean isRenewable;
     private Integer maxRenewals;
     private Integer maxDurationMonths;
+    private Boolean requiresCareerStructure;
 }

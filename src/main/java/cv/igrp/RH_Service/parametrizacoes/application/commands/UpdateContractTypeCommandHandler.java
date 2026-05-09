@@ -38,7 +38,8 @@ public class UpdateContractTypeCommandHandler implements CommandHandler<UpdateCo
             vinculoLaboralId,
             Boolean.TRUE.equals(req.getIsRenewable()),
             req.getMaxRenewals(),
-            req.getMaxDurationMonths()
+            req.getMaxDurationMonths(),
+            Boolean.TRUE.equals(req.getRequiresCareerStructure())
         );
         ContractType saved = contractTypeRepository.save(contractType);
 

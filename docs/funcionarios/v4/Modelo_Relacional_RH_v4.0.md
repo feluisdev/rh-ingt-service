@@ -205,6 +205,7 @@ t_contract_type  (Tipos de Contrato)
 ├── is_renewable                BOOLEAN NOT NULL DEFAULT FALSE    -- CTFP a termo certo é renovável; Nomeação Definitiva não
 ├── max_renewals                INTEGER                           -- nº máximo de renovações permitidas por lei (null = sem limite)
 ├── max_duration_months         INTEGER                           -- duração máxima legal em meses (null = indefinido)
+├── requires_career_structure   BOOLEAN      DEFAULT FALSE        -- true = obriga career/category/grade no enquadramento
 └── is_active                   BOOLEAN      DEFAULT TRUE
 
 -- Razão de tabela dedicada: tem historial próprio em t_contrato.
@@ -459,23 +460,26 @@ t_contrato  (Contratos do Funcionário)
 
 ```
 t_employee_professional_assignments  (Enquadramento Profissional)
-├── id              UUID      PK
-├── funcionario_id  UUID NOT NULL FK→t_funcionario
-├── career_id       UUID NOT NULL FK→t_career
-├── category_id     UUID NOT NULL FK→t_category   -- validado vs career por trigger
-├── grade_id        UUID NOT NULL FK→t_grade       -- validado vs category por trigger
-├── cargo_id        UUID FK→t_job
-├── function_id     UUID FK→t_funcao
-├── start_date      DATE  NOT NULL
-├── end_date        DATE                             -- null = enquadramento actual
-├── is_current      BOOLEAN NOT NULL DEFAULT FALSE   -- apenas 1 TRUE por funcionário
-├── notes           TEXT
+├── id                  UUID      PK
+├── funcionario_id      UUID NOT NULL FK→t_funcionario
+├── career_id           UUID FK→t_career              -- nullable: só obrigatório se contractType.requires_career_structure = true
+├── category_id         UUID FK→t_category            -- nullable: idem
+├── grade_id            UUID FK→t_grade               -- nullable: idem
+├── cargo_id            UUID NOT NULL FK→t_job        -- sempre obrigatório
+├── function_id         UUID FK→t_funcao
+├── unidade_organica_id UUID NOT NULL FK→t_unidade_organica
+├── data_inicio         DATE  NOT NULL
+├── data_fim            DATE                           -- null = enquadramento actual
+├── is_current          BOOLEAN NOT NULL               -- apenas 1 TRUE por funcionário
 └── auditoria
 
--- Historial de progressão de carreira.
--- Muda quando: promoção de categoria, progressão de escalão, mudança de cargo/função.
+-- Historial de progressão na estrutura orgânica e de carreira.
+-- Muda quando: promoção de categoria, progressão de escalão, mudança de cargo/função/unidade.
 -- NÃO muda quando: renovação de contrato (isso é t_contrato).
--- Trigger fn_validate_professional_assignment garante: category ∈ career, grade ∈ category.
+-- Regras cruzadas com t_contrato:
+--   1. Criação exige contrato ATIVO; data_inicio dentro do período do contrato.
+--   2. requires_career_structure = true → career_id, category_id, grade_id obrigatórios.
+--   3. Cessação do contrato encerra automaticamente o enquadramento activo.
 ```
 
 ```

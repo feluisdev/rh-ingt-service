@@ -7,9 +7,9 @@
   "attributes": [
     {"name": "id", "type": "string", "objectType": "java", "primaryKey": true},
     {"name": "funcionarioId", "type": "string", "objectType": "java", "primaryKey": false},
-    {"name": "careerId", "type": "string", "objectType": "java", "primaryKey": false},
-    {"name": "categoryId", "type": "string", "objectType": "java", "primaryKey": false},
-    {"name": "gradeId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "careerId", "type": "string", "objectType": "java", "primaryKey": false, "nullable": true},
+    {"name": "categoryId", "type": "string", "objectType": "java", "primaryKey": false, "nullable": true},
+    {"name": "gradeId", "type": "string", "objectType": "java", "primaryKey": false, "nullable": true},
     {"name": "cargoId", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "functionId", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "unidadeOrganicaId", "type": "string", "objectType": "java", "primaryKey": false},

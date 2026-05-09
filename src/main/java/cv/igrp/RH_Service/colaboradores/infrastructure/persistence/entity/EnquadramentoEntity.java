@@ -29,13 +29,13 @@ public class EnquadramentoEntity extends AuditEntity {
     @Column(name = "funcionario_id", nullable = false)
     private UUID funcionarioId;
 
-    @Column(name = "career_id", nullable = false)
+    @Column(name = "career_id")
     private UUID careerId;
 
-    @Column(name = "category_id", nullable = false)
+    @Column(name = "category_id")
     private UUID categoryId;
 
-    @Column(name = "grade_id", nullable = false)
+    @Column(name = "grade_id")
     private UUID gradeId;
 
     @Column(name = "cargo_id", nullable = false)

@@ -133,6 +133,7 @@ Campos críticos:
 - **`is_renewable`** — `CTFP a termo certo` é renovável; `Nomeação Definitiva` não é.
 - **`max_renewals`** — nº máximo de renovações permitidas por lei (controla alertas do sistema).
 - **`max_duration_months`** — duração máxima legal em meses.
+- **`requires_career_structure`** — `true` para vínculos de carreira (Nomeação, CTFP); `false` para tarefeiros, prestadores de serviços e outros vínculos sem grelha salarial. Controla quais campos do enquadramento são obrigatórios.
 
 ### 4.4 Tipos de Documento (`t_tipo_documento`)
 
@@ -326,20 +327,30 @@ Regista cada instrumento contratual do funcionário.
 
 ### 8.2 Enquadramento Profissional (`t_employee_professional_assignments`)
 
-Regista o posicionamento do funcionário na grelha PCFR.
+Regista o posicionamento do funcionário na estrutura orgânica e (quando aplicável) na grelha de carreira.
 
-| Campo | Significado |
-|---|---|
-| `career_id` | A carreira em que está enquadrado. |
-| `category_id` | A categoria dentro da carreira (validado por trigger). |
-| `grade_id` | O escalão dentro da categoria (validado por trigger). |
-| `cargo_id` | O cargo que ocupa (FK→`t_job`). |
-| `function_id` | A função que exerce (FK→`t_funcao`). |
+| Campo | Obrigatório | Significado |
+|---|---|---|
+| `career_id` | Condicional | A carreira em que está enquadrado. Obrigatório se `contractType.requiresCareerStructure = true`. |
+| `category_id` | Condicional | A categoria dentro da carreira. Obrigatório se `requiresCareerStructure = true`. |
+| `grade_id` | Condicional | O escalão dentro da categoria. Obrigatório se `requiresCareerStructure = true`. |
+| `cargo_id` | Sempre | O cargo que ocupa (FK→`t_job`). |
+| `function_id` | Opcional | A função que exerce (FK→`t_funcao`). Deve pertencer ao cargo. |
+| `unidade_organica_id` | Sempre | Onde está colocado. |
 
-**Fluxo típico:**
-1. Admitido na carreira `TECNICO_SUPERIOR_I`, categoria `TSA`, escalão 1.
+**Regras de negócio (validações cruzadas com contrato):**
+- O funcionário **tem de ter um contrato com status `ATIVO`** para criar enquadramento.
+- A `data_inicio` do enquadramento deve estar dentro do período do contrato (`startDate` ≤ `data_inicio` ≤ `endDate`).
+- Se `contractType.requiresCareerStructure = true`: `careerId`, `categoryId` e `gradeId` são obrigatórios.
+- Ao **cessar um contrato** (`CloseContrato`), o enquadramento activo é encerrado automaticamente na mesma data.
+
+**Fluxo típico (trabalhador de carreira):**
+1. Admitido com contrato `CTFP_TERMO_CERTO` + enquadramento na carreira `TECNICO_SUPERIOR_I`, categoria `TSA`, escalão 1.
 2. Após 2 anos, progressão para escalão 2 → novo enquadramento; anterior fecha.
-3. Após promoção, passa a categoria `TSP`, escalão 1 → novo enquadramento.
+3. Nomeação definitiva → novo contrato `NOMEACAO_DEFINITIVA` (CTFP cessa, enquadramento cessa automaticamente) + novo enquadramento.
+
+**Fluxo típico (trabalhador sem carreira):**
+1. Admitido com contrato `TAREFEIRO` (`requiresCareerStructure = false`) → enquadramento apenas com `cargo_id` e `unidade_organica_id`.
 
 ### 8.3 Colocações (`t_employee_unit_assignments`)
 

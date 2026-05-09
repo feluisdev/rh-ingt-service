@@ -18,6 +18,41 @@
       "type": "string",
       "required": false,
       "primaryKey": false
+    },
+    {
+      "name": "vinculoLaboralId",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "isRenewable",
+      "objectType": "java",
+      "type": "boolean",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "maxRenewals",
+      "objectType": "java",
+      "type": "integer",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "maxDurationMonths",
+      "objectType": "java",
+      "type": "integer",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "requiresCareerStructure",
+      "objectType": "java",
+      "type": "boolean",
+      "required": false,
+      "primaryKey": false
     }
   ],
   "id": "contract_type_req_dto_001"

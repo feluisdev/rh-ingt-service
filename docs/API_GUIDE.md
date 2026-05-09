@@ -271,11 +271,16 @@ Content-Type: application/json
 
 {
   "code": "CTFP_TERMO_CERTO",
-  "name": "Contrato de Trabalho em Funções Públicas a Termo Certo",
   "description": "CTFP celebrado por prazo determinado, nos termos do DL 4/2024.",
-  "vinculoLaboralId": "uuid-do-vinculo-contratado"
+  "vinculoLaboralId": "uuid-do-vinculo-contratado",
+  "isRenewable": true,
+  "maxRenewals": 3,
+  "maxDurationMonths": 36,
+  "requiresCareerStructure": true
 }
 ```
+
+> `requiresCareerStructure: true` — o sistema obriga `careerId`, `categoryId` e `gradeId` ao criar enquadramentos para funcionários com este tipo de contrato. Use `false` para tarefeiros, prestadores de serviços e outros vínculos sem grelha salarial.
 
 > Bloqueado se referenciado por contratos activos.
 
@@ -639,11 +644,16 @@ GET api/v1/rh/funcionarios/{funcionarioId}/contratos
 
 ### 8.4 Enquadramento Profissional (`/funcionarios/{funcionarioId}/enquadramentos`)
 
-**Depende de:** Funcionário + Carreira + Categoria (da carreira) + Escalão (da categoria) + Cargo + Unidade Orgânica.
+**Depende de:** Funcionário (com contrato ATIVO) + Cargo + Unidade Orgânica. Carreira/Categoria/Escalão são obrigatórios apenas quando `contractType.requiresCareerStructure = true`.
 
-O trigger `fn_validate_professional_assignment` valida automaticamente que `categoryId` pertence à `careerId` e que `gradeId` pertence à `categoryId`. Se a hierarquia for incoerente, recebe HTTP 422.
+**Validações cruzadas com o contrato:**
+- O funcionário deve ter um contrato com `status = ATIVO`. Caso contrário → HTTP 422.
+- `dataInicio` deve ser ≥ `contrato.startDate` e ≤ `contrato.endDate` (se definido) → HTTP 422.
+- Se `contractType.requiresCareerStructure = true`: `careerId`, `categoryId` e `gradeId` são obrigatórios → HTTP 422.
+- Ao criar um novo enquadramento, o anterior é **encerrado automaticamente** (`dataFim = dataInicio - 1 dia`).
+- Ao **cessar um contrato** (`PATCH .../close`), o enquadramento activo é encerrado automaticamente na mesma data.
 
-Tal como nos contratos, ao criar um novo enquadramento, o anterior é **encerrado automaticamente**.
+**Trabalhador de carreira** (`requiresCareerStructure = true`):
 
 ```http
 POST api/v1/rh/funcionarios/{funcionarioId}/enquadramentos
@@ -657,6 +667,19 @@ Content-Type: application/json
   "functionId": "uuid-da-funcao-coord-projeto",
   "unidadeOrganicaId": "uuid-da-unidade-organica",
   "dataInicio": "2018-09-01"
+}
+```
+
+**Trabalhador sem carreira** (`requiresCareerStructure = false`, ex: tarefeiro):
+
+```http
+POST api/v1/rh/funcionarios/{funcionarioId}/enquadramentos
+Content-Type: application/json
+
+{
+  "cargoId": "uuid-do-cargo",
+  "unidadeOrganicaId": "uuid-da-unidade-organica",
+  "dataInicio": "2024-03-01"
 }
 ```
 
