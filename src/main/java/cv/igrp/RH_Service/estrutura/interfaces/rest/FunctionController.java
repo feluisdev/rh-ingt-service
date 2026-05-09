@@ -56,12 +56,13 @@ public class FunctionController {
     )
     public ResponseEntity<WrapperListaFunctionDTO> getFunctions(
         @RequestParam(value = "active", required = false) Boolean active,
+        @RequestParam(value = "jobId", required = false) String jobId,
         @RequestParam(value = "pagina", defaultValue = "0") String pagina,
         @RequestParam(value = "tamanho", defaultValue = "20") String tamanho) {
 
         LOGGER.debug("Operation started");
 
-        final var query = new GetFunctionsQuery(active, pagina, tamanho);
+        final var query = new GetFunctionsQuery(active, jobId, pagina, tamanho);
         ResponseEntity<WrapperListaFunctionDTO> response = queryBus.handle(query);
 
         LOGGER.debug("Operation finished");

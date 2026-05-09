@@ -39,7 +39,8 @@ public class CreateContractTypeCommandHandler implements CommandHandler<CreateCo
                 vinculoLaboralId,
                 Boolean.TRUE.equals(dto.getIsRenewable()),
                 dto.getMaxRenewals(),
-                dto.getMaxDurationMonths())
+                dto.getMaxDurationMonths(),
+                Boolean.TRUE.equals(dto.getRequiresCareerStructure()))
         );
 
         return ResponseEntity.status(201).body(Map.of(

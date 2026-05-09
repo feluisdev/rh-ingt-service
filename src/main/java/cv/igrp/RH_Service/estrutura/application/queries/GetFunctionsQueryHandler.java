@@ -26,6 +26,9 @@ public class GetFunctionsQueryHandler
         filter.setIsActive(query.getActive());
         filter.setPage(query.getPagina() != null ? Integer.parseInt(query.getPagina()) : 0);
         filter.setSize(query.getTamanho() != null ? Integer.parseInt(query.getTamanho()) : 20);
+        if (query.getJobId() != null && !query.getJobId().isBlank()) {
+            filter.setJobId(java.util.UUID.fromString(query.getJobId()));
+        }
 
         var pageResult = functionRepository.findAll(filter);
         var content = pageResult.getData().stream().map(mapper::toDTO).toList();

@@ -8,6 +8,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class GetFunctionsQuery implements Query {
     private final Boolean active;
+    private final String jobId;
     private final String pagina;
     private final String tamanho;
 }

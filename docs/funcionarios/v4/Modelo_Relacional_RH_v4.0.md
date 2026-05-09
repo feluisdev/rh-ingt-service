@@ -5,7 +5,7 @@
 | **Documento** | Modelo Relacional RH v4.0 |
 | **Projeto** | SIPPROG — Sistema de Informação do Pessoal e Progressões |
 | **Entidade** | INGT — Instituto Nacional de Gestão do Território |
-| **Versão** | 4.3 |
+| **Versão** | 4.4 |
 | **Data** | Maio 2026 |
 | **Status** | Em curso |
 
@@ -29,12 +29,12 @@ O modelo relacional do Módulo RH organiza-se em **9 blocos funcionais** e **26 
 
 A filosofia central é a separação clara de responsabilidades:
 
-- **Dados pessoais** ficam em `employees`
-- **Historial de contrato** fica em `employee_contracts` com o seu próprio ciclo de vida
-- **Historial de enquadramento** (carreira + categoria + escalão + cargo + função) fica em `employee_professional_assignments`
-- **Historial de colocação** (onde o funcionário está) fica em `employee_unit_assignments`
-- **Documentos** (ficheiros físicos/digitais) ficam numa tabela genérica `documents`
-- **Lookups simples** (estados civis, sexo, ilhas) ficam em `option_entity`
+- **Dados pessoais** ficam em `t_funcionario`
+- **Historial de contrato** fica em `t_contrato` com o seu próprio ciclo de vida
+- **Historial de enquadramento** (carreira + categoria + escalão + cargo + função) fica em `t_employee_professional_assignments`
+- **Historial de colocação** (onde o funcionário está) fica em `t_employee_unit_assignments`
+- **Documentos** (ficheiros físicos/digitais) ficam numa tabela genérica `t_document`
+- **Lookups simples** (estados civis, sexo, ilhas) ficam em `t_option_entity`
 - **Parametrizações com comportamento** (tipos de ausência, subtipos de licença, tipos de contrato) ficam em tabelas próprias
 
 ---
@@ -43,7 +43,7 @@ A filosofia central é a separação clara de responsabilidades:
 
 ### 2.1 OptionEntity — Lookups Genéricos
 
-O `option_entity` é uma tabela chave-valor que serve como catálogo genérico para todos os lookups que são **apenas labels sem lógica de negócio associada**. A sua estrutura:
+O `t_option_entity` é uma tabela chave-valor que serve como catálogo genérico para todos os lookups que são **apenas labels sem lógica de negócio associada**. A sua estrutura:
 
 ```
 option_entity
@@ -56,7 +56,7 @@ option_entity
   description → descrição opcional
 ```
 
-**Regra de uso:** Se o catálogo tem campos que alteram o comportamento do sistema (flags booleanos, limites numéricos, relações entre si), usa uma **tabela dedicada**. Se é apenas um label configurável pelo administrador, vai para `option_entity`.
+**Regra de uso:** Se o catálogo tem campos que alteram o comportamento do sistema (flags booleanos, limites numéricos, relações entre si), usa uma **tabela dedicada**. Se é apenas um label configurável pelo administrador, vai para `t_option_entity`.
 
 ### 2.2 Históricos Independentes — O Padrão is_current
 
@@ -65,8 +65,8 @@ O dossier do funcionário tem **três dimensões de historial independentes**, c
 | Historial | Tabela | Marcador de actual |
 |---|---|---|
 | Contrato | `t_contrato` | `is_current = true` |
-| Enquadramento profissional | `employee_professional_assignments` | `is_current = true` |
-| Colocação / Unidade | `employee_unit_assignments` | `end_date IS NULL` |
+| Enquadramento profissional | `t_employee_professional_assignments` | `is_current = true` |
+| Colocação / Unidade | `t_employee_unit_assignments` | `is_current = true` |
 
 São independentes porque mudam por razões diferentes:
 - O **contrato** muda quando há renovação ou mudança de vínculo (CTFP → Nomeação Definitiva)
@@ -77,7 +77,7 @@ Quando um histórico muda, o registo anterior fecha (`end_date` preenchido, `is_
 
 ### 2.3 Referências a OptionEntity — Valores String (sem FK)
 
-Os campos que referenciam um registo de `option_entity` **não guardam o UUID** da linha. Guardam directamente o `ckey` como `VARCHAR`. Exemplos:
+Os campos que referenciam um registo de `t_option_entity` **não guardam o UUID** da linha. Guardam directamente o `ckey` como `VARCHAR`. Exemplos:
 
 ```
 sex             VARCHAR(10)   → 'M', 'F'
@@ -107,10 +107,10 @@ Os ccodes exactos de cada campo serão documentados na secção 6.
 
 ### 2.4 Documentos Polimórficos
 
-A tabela `documents` é genérica e pode associar-se a qualquer entidade do sistema através dos campos:
+A tabela `t_document` é genérica e pode associar-se a qualquer entidade do sistema através dos campos:
 
 ```
-reference_entity  → nome da tabela de origem  (ex: 'leave_requests')
+reference_entity  → nome da tabela de origem  (ex: 't_leave_request')
 reference_id      → ID do registo associado    (ex: 42)
 ```
 
@@ -131,7 +131,7 @@ Isto permite que um documento seja o justificativo de uma ausência, o certifica
 ### Bloco 0 — OptionEntity (Tabela de Opções Genéricas)
 
 ```
-option_entity  (Opções / Lookups Genéricos)
+t_option_entity  (Opções / Lookups Genéricos)
 ├── id           UUID          PK
 ├── ccode        VARCHAR(50)   NOT NULL    -- categoria: 'MARITAL_STATUS', 'SEX', ...
 ├── ckey         VARCHAR(50)              -- chave: 'SOLTEIRO', 'M', ...
@@ -142,7 +142,7 @@ option_entity  (Opções / Lookups Genéricos)
 └── description  TEXT
 ```
 
-**Categorias cobertas por `option_entity`:**
+**Categorias cobertas por `t_option_entity`:**
 
 | ccode | Descrição | Exemplos de ckey |
 |---|---|---|
@@ -158,18 +158,20 @@ option_entity  (Opções / Lookups Genéricos)
 | `CONCELHO` | Concelho | `PRAIA`, `SANTA_CATARINA`, `SAO_DOMINGOS`, `MINDELO` |
 | `TRAINING_TYPE` | Tipo de Formação | `PRESENCIAL`, `ELEARNING`, `SEMINARIO`, `CONGRESSO` |
 | `CAREER_REGIME` | Regime da Carreira (PCFR) | `GERAL`, `ESPECIAL` |
+| `BANCO` | Banco (para dados bancários) | `BCA`, `BCN`, `CECV`, `BAI` |
+| `WORK_REGIME` | Regime de Trabalho (LGTFP art.123-129) | `TEMPO_COMPLETO`, `TEMPO_PARCIAL`, `ISENCAO_HORARIO`, `DEDICACAO_EXCLUSIVA` |
 
 ---
 
 ### Bloco 1 — Parametrizações com Comportamento
 
-Tabelas dedicadas porque os seus campos **alteram o comportamento do sistema**. Não podem estar em `option_entity`.
+Tabelas dedicadas porque os seus campos **alteram o comportamento do sistema**. Não podem estar em `t_option_entity`.
 
 ```
-worker_states  (Estados do Trabalhador)
+t_worker_state  (Estados do Trabalhador)
 ├── id         UUID      PK
 ├── code       VARCHAR(30)  UNIQUE NOT NULL    -- ACTIVE, INACTIVE, SUSPENDED
-├── name       VARCHAR(100) NOT NULL
+├── description TEXT
 ├── is_core    BOOLEAN      DEFAULT FALSE      -- TRUE = não pode ser desactivado
 └── is_active  BOOLEAN      DEFAULT TRUE
 
@@ -178,10 +180,10 @@ worker_states  (Estados do Trabalhador)
 ```
 
 ```
-professional_situations  (Situações Profissionais / Vínculo)
+t_vinculo_laboral  (Vínculos Laborais)
 ├── id                       UUID      PK
 ├── code                     VARCHAR(30)  UNIQUE NOT NULL    -- EFETIVO, CONTRATADO, COMISSIONADO, ESTAGIARIO
-├── name                     VARCHAR(100) NOT NULL
+├── description              TEXT                            -- designação do vínculo
 ├── counts_seniority         BOOLEAN NOT NULL DEFAULT TRUE   -- conta para antiguidade e progressão (PCFR)
 ├── eligible_for_progression BOOLEAN NOT NULL DEFAULT TRUE   -- elegível para progressão na carreira (PCFR)
 └── is_active                BOOLEAN      DEFAULT TRUE
@@ -189,31 +191,33 @@ professional_situations  (Situações Profissionais / Vínculo)
 -- Razão de tabela dedicada: EFETIVO vs CONTRATADO têm regras distintas no PCFR
 -- (antiguidade, progressão, direitos). O código é referenciado por lógica de negócio.
 -- counts_seniority e eligible_for_progression são usados nos cálculos de progressão.
+-- Referenciado por t_contract_type.vinculo_laboral_id (parametrizável pelo administrador RH).
 ```
 
 ```
-contract_types  (Tipos de Contrato)
+t_contract_type  (Tipos de Contrato)
 ├── id                          UUID      PK
 ├── code                        VARCHAR(50)  UNIQUE NOT NULL
 │                               -- NOMEACAO_DEFINITIVA, CFP, CTFP_TERMO_CERTO, CTFP_TERMO_INCERTO, COMISSAO_SERVICO
 ├── name                        VARCHAR(150) NOT NULL
 ├── description                 TEXT
-├── professional_situation_id   UUID FK→professional_situations  -- vínculo laboral que este tipo de contrato implica (LGTFP)
+├── vinculo_laboral_id          UUID FK→t_vinculo_laboral  -- vínculo laboral que este tipo de contrato implica (LGTFP)
 ├── is_renewable                BOOLEAN NOT NULL DEFAULT FALSE    -- CTFP a termo certo é renovável; Nomeação Definitiva não
 ├── max_renewals                INTEGER                           -- nº máximo de renovações permitidas por lei (null = sem limite)
 ├── max_duration_months         INTEGER                           -- duração máxima legal em meses (null = indefinido)
+├── requires_career_structure   BOOLEAN      DEFAULT FALSE        -- true = obriga career/category/grade no enquadramento
 └── is_active                   BOOLEAN      DEFAULT TRUE
 
--- Razão de tabela dedicada: tem historial próprio em employee_contracts.
+-- Razão de tabela dedicada: tem historial próprio em t_contrato.
 -- Cada tipo tem implicações legais distintas (renovabilidade, prazo, direitos).
--- professional_situation_id: ao criar contrato, o sistema actualiza employees.professional_situation_id
---   com o vínculo correspondente — parametrizável pelo administrador RH (base: LGTFP).
+-- vinculo_laboral_id: classifica o vínculo laboral que o tipo de contrato implica (base: LGTFP).
+--   Parametrizável pelo administrador RH — não actualiza nenhum campo em t_funcionario.
 -- is_renewable / max_renewals / max_duration_months: permitem ao sistema alertar quando
---   os limites legais de renovação ou duração se aproximam (base: LGTFP art. CTFP).
+--   os limites legais de renovação ou duração se aproximam (base: LGTFP art. CTFP). Ver `t_contract_type.max_renewals`.
 ```
 
 ```
-document_types  (Tipos de Documento)
+t_tipo_documento  (Tipos de Documento)
 ├── id                   UUID      PK
 ├── code                 VARCHAR(30)  UNIQUE NOT NULL
 │                        -- CNI, PASSAPORTE, CONTRATO, CERTIDAO, HABILITACAO,
@@ -228,7 +232,7 @@ document_types  (Tipos de Documento)
 ```
 
 ```
-leave_types  (Tipos de Ausência)
+t_leave_type  (Tipos de Ausência)
 ├── id                   UUID      PK
 ├── code                 VARCHAR(30)  UNIQUE NOT NULL
 │                        -- FERIAS, DOENCA, MATERNIDADE, PATERNIDADE, LUTO, CASAMENTO
@@ -246,7 +250,7 @@ leave_types  (Tipos de Ausência)
 ```
 
 ```
-leave_mobility_subtypes  (Subtipos de Licença e Mobilidade)
+t_leave_mobility_subtype  (Subtipos de Licença e Mobilidade)
 ├── id                    UUID      PK
 ├── code                  VARCHAR(50)  UNIQUE NOT NULL
 ├── name                  VARCHAR(150) NOT NULL
@@ -266,7 +270,7 @@ leave_mobility_subtypes  (Subtipos de Licença e Mobilidade)
 ### Bloco 2 — Estrutura Organizacional
 
 ```
-organizational_units  (Unidades Orgânicas)
+t_unidade_organica  (Unidades Orgânicas)
 ├── id                    UUID      PK
 ├── code                  VARCHAR(50)  UNIQUE NOT NULL
 ├── name                  VARCHAR(150) NOT NULL
@@ -274,7 +278,7 @@ organizational_units  (Unidades Orgânicas)
 ├── type                  VARCHAR(100)                 -- ex: DIRECAO, DEPARTAMENTO, DIVISAO, SECCAO
 ├── descricao             TEXT
 ├── estado                BOOLEAN
-├── parent_unit_id        UUID FK→organizational_units  -- null = raiz da hierarquia
+├── parent_unit_id        UUID FK→t_unidade_organica  -- null = raiz da hierarquia
 ├── is_active             BOOLEAN DEFAULT TRUE
 └── auditoria
 
@@ -283,7 +287,7 @@ organizational_units  (Unidades Orgânicas)
 ```
 
 ```
-jobs  (Cargos)
+t_job  (Cargos)
 ├── id          UUID      PK
 ├── code        VARCHAR(50)  UNIQUE NOT NULL
 ├── name        VARCHAR(150) NOT NULL
@@ -294,13 +298,19 @@ jobs  (Cargos)
 ```
 
 ```
-functions  (Funções)
+t_funcao  (Funções)
 ├── id          UUID      PK
 ├── code        VARCHAR(50)  UNIQUE NOT NULL
 ├── name        VARCHAR(150) NOT NULL
 ├── description TEXT
+├── job_id      UUID      FK→t_job   -- cargo ao qual a função pertence (nullable = função genérica)
 ├── is_active   BOOLEAN      DEFAULT TRUE
 └── auditoria
+
+-- job_id nullable: permite funções genéricas não ligadas a nenhum cargo específico.
+-- Validação de domínio: ao criar um enquadramento com cargo + função, a aplicação
+--   verifica que função.job_id == cargo_id (ou que job_id é null).
+-- Filtro de API: GET /estrutura/functions?jobId={cargoId} devolve as funções do cargo.
 ```
 
 ---
@@ -310,7 +320,7 @@ functions  (Funções)
 A hierarquia `careers → categories → grades` modela a grelha do PCFR (Plano de Carreiras, Funções e Remunerações, Decreto-Lei 4/2024).
 
 ```
-careers  (Carreiras)
+t_career  (Carreiras)
 ├── id                 UUID      PK
 ├── code               VARCHAR(50)  UNIQUE NOT NULL
 ├── name               VARCHAR(150) NOT NULL
@@ -321,9 +331,9 @@ careers  (Carreiras)
 ```
 
 ```
-categories  (Categorias)
+t_category  (Categorias)
 ├── id                UUID      PK
-├── career_id         UUID NOT NULL FK→careers
+├── career_id         UUID NOT NULL FK→t_career
 ├── code              VARCHAR(50)  NOT NULL
 ├── name              VARCHAR(150) NOT NULL
 ├── description       TEXT
@@ -334,9 +344,9 @@ categories  (Categorias)
 ```
 
 ```
-grades  (Escalões)
+t_grade  (Escalões)
 ├── id            UUID      PK
-├── category_id   UUID NOT NULL FK→categories
+├── category_id   UUID NOT NULL FK→t_category
 ├── grade_number  INTEGER      NOT NULL        -- número do escalão (1, 2, 3, ...)
 ├── codigo        VARCHAR(50)                  -- código alfanumérico do escalão
 ├── name          VARCHAR(150) NOT NULL
@@ -359,13 +369,12 @@ t_funcionario  (Funcionários)
 ├── genero                       VARCHAR(50)   NOT NULL          -- valor livre (ex: 'Masculino', 'Feminino')
 ├── estado_civil                 VARCHAR(50)   NOT NULL          -- valor livre (ex: 'Solteiro', 'Casado')
 ├── nif                          VARCHAR(20)   UNIQUE NOT NULL
-├── document_type_id             UUID          FK→document_types               -- tipo do documento de identificação (nullable)
+├── document_type_id             UUID          FK→t_tipo_documento               -- tipo do documento de identificação (nullable)
 ├── numero_documento             VARCHAR(50)   UNIQUE                           -- nº do BI/Passaporte/outro; único quando preenchido
 ├── data_emissao_doc             DATE                                            -- data de emissão do documento
 ├── data_validade_doc            DATE                                            -- data de validade do documento
 ├── nacionalidade                VARCHAR(50)   NOT NULL  DEFAULT 'CV'
-├── worker_state_id              UUID          FK→worker_states                  -- atribuído ATIVO por defeito na criação; set pelo CreateFuncionarioCommandHandler
-├── professional_situation_id    UUID          FK→professional_situations        -- nullable até ao primeiro contrato; actualizado pelo CreateContratoCommandHandler
+├── worker_state_id              UUID          FK→t_worker_state  -- atribuído ATIVO por defeito na criação; set pelo CreateFuncionarioCommandHandler
 ├── data_admissao                DATE          NOT NULL
 ├── email                        VARCHAR(200)  UNIQUE
 ├── telefone                     VARCHAR(30)
@@ -419,7 +428,7 @@ Os três históricos independentes que compõem o enquadramento completo do func
 t_contrato  (Contratos do Funcionário)
 ├── id                   UUID      PK
 ├── funcionario_id       UUID NOT NULL FK→t_funcionario
-├── contract_type_id     UUID NOT NULL FK→contract_types
+├── contract_type_id     UUID NOT NULL FK→t_contract_type
 ├── contract_number      VARCHAR(100) UNIQUE              -- nº do instrumento contratual (ex: CTFP); distinto do despacho
 ├── start_date           DATE  NOT NULL
 ├── end_date             DATE                             -- null = contrato activo
@@ -450,41 +459,46 @@ t_contrato  (Contratos do Funcionário)
 ```
 
 ```
-employee_professional_assignments  (Enquadramento Profissional)
-├── id              UUID      PK
-├── employee_id     UUID NOT NULL FK→employees
-├── career_id       UUID NOT NULL FK→careers
-├── category_id     UUID NOT NULL FK→categories   -- validado vs career por trigger
-├── grade_id        UUID NOT NULL FK→grades        -- validado vs category por trigger
-├── job_id          UUID FK→jobs
-├── function_id     UUID FK→functions
-├── start_date      DATE  NOT NULL
-├── end_date        DATE                             -- null = enquadramento actual
-├── is_current      BOOLEAN NOT NULL DEFAULT FALSE   -- apenas 1 TRUE por funcionário
-├── legal_base      VARCHAR(200)                     -- despacho de progressão
-├── notes           TEXT
+t_employee_professional_assignments  (Enquadramento Profissional)
+├── id                  UUID      PK
+├── funcionario_id      UUID NOT NULL FK→t_funcionario
+├── career_id           UUID FK→t_career              -- nullable: só obrigatório se contractType.requires_career_structure = true
+├── category_id         UUID FK→t_category            -- nullable: idem
+├── grade_id            UUID FK→t_grade               -- nullable: idem
+├── cargo_id            UUID NOT NULL FK→t_job        -- sempre obrigatório
+├── function_id         UUID FK→t_funcao
+├── unidade_organica_id UUID NOT NULL FK→t_unidade_organica
+├── data_inicio         DATE  NOT NULL
+├── data_fim            DATE                           -- null = enquadramento actual
+├── is_current          BOOLEAN NOT NULL               -- apenas 1 TRUE por funcionário
 └── auditoria
 
--- Historial de progressão de carreira.
--- Muda quando: promoção de categoria, progressão de escalão, mudança de cargo/função.
--- NÃO muda quando: renovação de contrato (isso é employee_contracts).
--- Trigger fn_validate_professional_assignment garante: category ∈ career, grade ∈ category.
+-- Historial de progressão na estrutura orgânica e de carreira.
+-- Muda quando: promoção de categoria, progressão de escalão, mudança de cargo/função/unidade.
+-- NÃO muda quando: renovação de contrato (isso é t_contrato).
+-- Regras cruzadas com t_contrato:
+--   1. Criação exige contrato ATIVO; data_inicio dentro do período do contrato.
+--   2. requires_career_structure = true → career_id, category_id, grade_id obrigatórios.
+--   3. Cessação do contrato encerra automaticamente o enquadramento activo.
 ```
 
 ```
-employee_unit_assignments  (Colocações / Mobilidade)
-├── id            UUID      PK
-├── employee_id   UUID NOT NULL FK→employees
-├── unit_id       UUID NOT NULL FK→organizational_units
-├── is_primary    BOOLEAN NOT NULL DEFAULT FALSE    -- unidade orgânica principal
-├── start_date    DATE  NOT NULL
-├── end_date      DATE                             -- null = colocação actual
-├── notes         TEXT
+t_employee_unit_assignments  (Colocações / Mobilidade)
+├── id                   UUID      PK
+├── funcionario_id       UUID NOT NULL FK→t_funcionario
+├── unit_id              UUID FK→t_unidade_organica
+├── job_id               UUID FK→t_job              -- cargo na unidade de destino (opcional)
+├── start_date           DATE  NOT NULL
+├── end_date             DATE                        -- null = colocação actual
+├── is_current           BOOLEAN NOT NULL            -- TRUE = colocação principal activa
+├── is_active            BOOLEAN NOT NULL
+├── assignment_type      VARCHAR(50) NOT NULL        -- tipo de atribuição
+├── notes                TEXT
 └── auditoria
 
 -- Historial de onde o funcionário está colocado.
 -- Muda quando: mobilidade interna, destacamento, cedência.
--- Um funcionário pode estar em múltiplas unidades (is_primary marca a principal).
+-- is_current = TRUE marca a colocação activa principal.
 ```
 
 **Leitura do estado completo actual de um funcionário:**
@@ -493,7 +507,6 @@ employee_unit_assignments  (Colocações / Mobilidade)
 SELECT
     f.*,
     ws.code          AS worker_state_code,
-    ps.code          AS professional_situation_code,
     ct.code          AS contract_type_code,
     ec.start_date    AS contract_start,
     c.name           AS career,
@@ -504,18 +517,19 @@ SELECT
     func.name        AS function_name,
     ou.name          AS unit
 FROM t_funcionario f
-LEFT JOIN worker_states ws               ON ws.id = f.worker_state_id
-LEFT JOIN professional_situations ps     ON ps.id = f.professional_situation_id
+LEFT JOIN t_worker_state ws              ON ws.id = f.worker_state_id
 LEFT JOIN t_contrato ec                  ON ec.funcionario_id = f.id AND ec.is_current = true
-LEFT JOIN contract_types ct              ON ct.id = ec.contract_type_id
-LEFT JOIN t_enquadramento epa            ON epa.funcionario_id = f.id AND epa.is_current = true
-LEFT JOIN careers c      ON c.id   = epa.career_id
-LEFT JOIN categories cat ON cat.id = epa.category_id
-LEFT JOIN grades g       ON g.id   = epa.grade_id
-LEFT JOIN jobs j         ON j.id   = epa.cargo_id
-LEFT JOIN functions func ON func.id = epa.function_id
-LEFT JOIN t_colocacao eua                ON eua.funcionario_id = f.id AND eua.is_primary = true AND eua.end_date IS NULL
-LEFT JOIN organizational_units ou        ON ou.id = eua.unidade_organica_id
+LEFT JOIN t_contract_type ct             ON ct.id = ec.contract_type_id
+LEFT JOIN t_employee_professional_assignments epa
+                                         ON epa.funcionario_id = f.id AND epa.is_current = true
+LEFT JOIN t_career c     ON c.id   = epa.career_id
+LEFT JOIN t_category cat ON cat.id = epa.category_id
+LEFT JOIN t_grade g      ON g.id   = epa.grade_id
+LEFT JOIN t_job j        ON j.id   = epa.cargo_id
+LEFT JOIN t_funcao func  ON func.id = epa.function_id
+LEFT JOIN t_employee_unit_assignments eua
+                                         ON eua.funcionario_id = f.id AND eua.is_current = true AND eua.end_date IS NULL
+LEFT JOIN t_unidade_organica ou          ON ou.id = eua.unidade_organica_id
 WHERE f.id = :funcionarioId;
 ```
 
@@ -524,9 +538,9 @@ WHERE f.id = :funcionarioId;
 ### Bloco 6 — Dossier: Formação e Disciplinar
 
 ```
-qualifications  (Habilitações Literárias)
+t_qualificacao  (Habilitações Literárias)
 ├── id            UUID      PK
-├── employee_id   UUID NOT NULL FK→employees
+├── funcionario_id UUID NOT NULL FK→t_funcionario
 ├── level         VARCHAR(50)               -- ccode='QUALIFICATION_LEVEL'; ckey: BASICO, SECUNDARIO, LICENCIATURA, MESTRADO, DOUTORAMENTO
 ├── course_name   VARCHAR(200)             -- designação do curso / área de estudo
 ├── institution   VARCHAR(200)             -- instituição de ensino
@@ -538,13 +552,13 @@ qualifications  (Habilitações Literárias)
 
 -- level e country são valores string ckey, sem FK UUID para option_entity.
 -- completed + end_date permitem registar formações em curso (completed=false, end_date=null).
--- Documentos associados (diploma, certificado) ligados via documents(reference_entity='qualifications', reference_id=id).
+-- Documentos associados (diploma, certificado) ligados via documents(reference_entity='t_qualificacao', reference_id=id).
 ```
 
 ```
-trainings  (Formações Profissionais)
+t_training  (Formações Profissionais)
 ├── id              UUID      PK
-├── employee_id     UUID NOT NULL FK→employees
+├── funcionario_id   UUID NOT NULL FK→t_funcionario
 ├── name            VARCHAR(200) NOT NULL    -- designação da formação
 ├── institution     VARCHAR(200)             -- entidade formadora
 ├── training_type   VARCHAR(50)              -- ccode='TRAINING_TYPE'; ckey: PRESENCIAL, ELEARNING, SEMINARIO, CONGRESSO
@@ -554,13 +568,13 @@ trainings  (Formações Profissionais)
 └── auditoria
 
 -- training_type é valor string ckey, sem FK UUID para option_entity.
--- Documentos associados (certificado de participação) ligados via documents(reference_entity='trainings', reference_id=id).
+-- Documentos associados (certificado de participação) ligados via documents(reference_entity='t_training', reference_id=id).
 ```
 
 ```
-disciplinary_processes  (Processos Disciplinares)
+t_disciplinary_process  (Processos Disciplinares)
 ├── id                   UUID      PK
-├── employee_id          UUID NOT NULL FK→employees
+├── employee_id          UUID NOT NULL FK→t_funcionario
 ├── process_number       VARCHAR(50)
 ├── start_date           DATE NOT NULL
 ├── end_date             DATE
@@ -571,7 +585,7 @@ disciplinary_processes  (Processos Disciplinares)
 ├── notes                TEXT
 └── auditoria
 
--- Documentos associados (processo digitalizado) ligados via documents(reference_entity='disciplinary_processes', reference_id=id).
+-- Documentos associados (processo digitalizado) ligados via documents(reference_entity='t_disciplinary_process', reference_id=id).
 ```
 
 ---
@@ -581,13 +595,13 @@ disciplinary_processes  (Processos Disciplinares)
 ```
 documents  (Documentos do Dossier)
 ├── id                UUID      PK
-├── document_type_id  UUID NOT NULL FK→document_types
+├── document_type_id  UUID NOT NULL FK→t_tipo_documento
 ├── original_filename VARCHAR(255) NOT NULL             -- nome original do ficheiro
 ├── file_key          VARCHAR(500) NOT NULL             -- chave no MinIO/S3
 ├── content_type      VARCHAR(100) NOT NULL             -- application/pdf, image/jpeg, ...
 ├── file_size         BIGINT       NOT NULL
 ├── description       TEXT
-├── reference_entity  VARCHAR(50)  NOT NULL  -- 'leave_requests', 'trainings', 'disciplinary_processes', 'qualifications', ...
+├── reference_entity  VARCHAR(50)  NOT NULL  -- 't_leave_request', 't_training', 't_disciplinary_process', 't_qualificacao', ...
 ├── reference_id      UUID         NOT NULL  -- ID do registo associado (polimorfismo controlado)
 ├── is_active         BOOLEAN DEFAULT TRUE
 └── auditoria
@@ -601,10 +615,10 @@ documents  (Documentos do Dossier)
 ### Bloco 8 — Ausências, Licenças e Recibos
 
 ```
-leave_balances  (Saldos de Ausência)
+t_leave_balance  (Saldos de Ausência)
 ├── id              UUID      PK
-├── employee_id     UUID NOT NULL FK→employees
-├── leave_type_id   UUID NOT NULL FK→leave_types
+├── funcionario_id   UUID NOT NULL FK→t_funcionario
+├── leave_type_id   UUID NOT NULL FK→t_leave_type
 ├── year            INTEGER      NOT NULL
 ├── assigned_days   NUMERIC(5,2) NOT NULL
 ├── used_days       NUMERIC(5,2) NOT NULL DEFAULT 0
@@ -614,8 +628,8 @@ leave_balances  (Saldos de Ausência)
 ```
 leave_requests  (Pedidos de Ausência)
 ├── id              UUID      PK
-├── employee_id     UUID NOT NULL FK→employees
-├── leave_type_id   UUID NOT NULL FK→leave_types
+├── funcionario_id   UUID NOT NULL FK→t_funcionario
+├── leave_type_id   UUID NOT NULL FK→t_leave_type
 ├── approver_id     UUID FK→employees                -- chefia aprovadora
 ├── start_date      DATE NOT NULL
 ├── end_date        DATE NOT NULL
@@ -629,9 +643,9 @@ leave_requests  (Pedidos de Ausência)
 ```
 leaves_mobilities  (Licenças e Mobilidades)
 ├── id                     UUID      PK
-├── employee_id            UUID NOT NULL FK→employees
-├── subtype_id             UUID NOT NULL FK→leave_mobility_subtypes
-├── destination_unit_id    UUID FK→organizational_units   -- destino (se mobilidade)
+├── employee_id            UUID NOT NULL FK→t_funcionario
+├── subtype_id             UUID NOT NULL FK→t_leave_mobility_subtype
+├── destination_unit_id    UUID FK→t_unidade_organica   -- destino (se mobilidade)
 ├── start_date             DATE NOT NULL
 ├── end_date               DATE
 ├── status                 VARCHAR(20) NOT NULL             -- PENDING, ACTIVE, CLOSED
@@ -641,9 +655,9 @@ leaves_mobilities  (Licenças e Mobilidades)
 ```
 
 ```
-payroll_slips  (Recibos de Vencimento)
+t_payroll_slip  (Recibos de Vencimento)
 ├── id             UUID      PK
-├── employee_id    UUID NOT NULL FK→employees
+├── employee_id    UUID NOT NULL FK→t_funcionario
 ├── period_year    INTEGER      NOT NULL
 ├── period_month   INTEGER      NOT NULL    -- 1 a 12
 ├── document_id    UUID FK→documents      -- PDF do recibo gerado pelo sistema salarial
@@ -657,7 +671,7 @@ payroll_slips  (Recibos de Vencimento)
 ### Bloco 9 — Sistema
 
 ```
-public_holidays  (Feriados)
+t_public_holiday  (Feriados)
 ├── id            UUID      PK
 ├── holiday_date  DATE         NOT NULL UNIQUE
 ├── name          VARCHAR(100) NOT NULL
@@ -680,7 +694,7 @@ erDiagram
         varchar cvalue
     }
 
-    EMPLOYEES {
+    T_FUNCIONARIO {
         uuid   id PK
         varchar numero_funcionario
         varchar nome_completo
@@ -694,7 +708,7 @@ erDiagram
         date data_emissao_doc
         date data_validade_doc
         uuid worker_state_id FK
-        uuid professional_situation_id FK
+
         date data_admissao
         varchar email
         varchar telefone
@@ -711,7 +725,7 @@ erDiagram
         boolean is_core
     }
 
-    PROFESSIONAL_SITUATIONS {
+    VINCULO_LABORAL {
         uuid   id PK
         varchar code
         varchar name
@@ -784,6 +798,7 @@ erDiagram
         uuid   id PK
         varchar code
         varchar name
+        uuid job_id FK
     }
 
     EMPLOYEE_PROFESSIONAL_ASSIGNMENTS {
@@ -938,30 +953,31 @@ erDiagram
         boolean is_national
     }
 
-    EMPLOYEES }o--o| WORKER_STATES : "estado"
-    EMPLOYEES }o--o| PROFESSIONAL_SITUATIONS : "situacao"
-    EMPLOYEES }o--o| DOCUMENT_TYPES : "tipo doc identificacao"
+    T_FUNCIONARIO }o--o| WORKER_STATES : "estado"
+    T_FUNCIONARIO }o--o| VINCULO_LABORAL : "situacao"
+    T_FUNCIONARIO }o--o| DOCUMENT_TYPES : "tipo doc identificacao"
 
-    EMPLOYEES ||--o{ EMPLOYEE_CONTRACTS : "tem"
-    EMPLOYEES ||--o{ EMPLOYEE_PROFESSIONAL_ASSIGNMENTS : "tem"
-    EMPLOYEES ||--o{ EMPLOYEE_UNIT_ASSIGNMENTS : "tem"
-    EMPLOYEES ||--o{ EMPLOYEE_DEPENDENTS : "tem"
-    EMPLOYEES ||--o{ T_DADOS_BANCARIOS : "tem"
+    T_FUNCIONARIO ||--o{ T_CONTRATO : "tem"
+    T_FUNCIONARIO ||--o{ EMPLOYEE_PROFESSIONAL_ASSIGNMENTS : "tem"
+    T_FUNCIONARIO ||--o{ EMPLOYEE_UNIT_ASSIGNMENTS : "tem"
+    T_FUNCIONARIO ||--o{ EMPLOYEE_DEPENDENTS : "tem"
+    T_FUNCIONARIO ||--o{ T_DADOS_BANCARIOS : "tem"
 
-    EMPLOYEES ||--o{ QUALIFICATIONS : "tem"
-    EMPLOYEES ||--o{ TRAININGS : "realizou"
-    EMPLOYEES ||--o{ DISCIPLINARY_PROCESSES : "tem"
-    EMPLOYEES ||--o{ LEAVE_REQUESTS : "solicita"
-    EMPLOYEES ||--o{ LEAVE_BALANCES : "tem saldo"
-    EMPLOYEES ||--o{ LEAVES_MOBILITIES : "tem"
-    EMPLOYEES ||--o{ PAYROLL_SLIPS : "recebe"
+    T_FUNCIONARIO ||--o{ QUALIFICATIONS : "tem"
+    T_FUNCIONARIO ||--o{ TRAININGS : "realizou"
+    T_FUNCIONARIO ||--o{ DISCIPLINARY_PROCESSES : "tem"
+    T_FUNCIONARIO ||--o{ LEAVE_REQUESTS : "solicita"
+    T_FUNCIONARIO ||--o{ LEAVE_BALANCES : "tem saldo"
+    T_FUNCIONARIO ||--o{ LEAVES_MOBILITIES : "tem"
+    T_FUNCIONARIO ||--o{ PAYROLL_SLIPS : "recebe"
 
-    EMPLOYEE_CONTRACTS }o--|| CONTRACT_TYPES : "tipo"
+    T_CONTRATO }o--|| CONTRACT_TYPES : "tipo"
     EMPLOYEE_PROFESSIONAL_ASSIGNMENTS }o--|| CAREERS : "carreira"
     EMPLOYEE_PROFESSIONAL_ASSIGNMENTS }o--|| CATEGORIES : "categoria"
     EMPLOYEE_PROFESSIONAL_ASSIGNMENTS }o--|| GRADES : "escalao"
     EMPLOYEE_PROFESSIONAL_ASSIGNMENTS }o--o| JOBS : "cargo"
     EMPLOYEE_PROFESSIONAL_ASSIGNMENTS }o--o| FUNCTIONS : "funcao"
+    FUNCTIONS }o--o| JOBS : "pertence a cargo"
     EMPLOYEE_UNIT_ASSIGNMENTS }o--|| ORGANIZATIONAL_UNITS : "unidade"
 
     CAREERS ||--o{ CATEGORIES : "tem"
@@ -994,21 +1010,21 @@ erDiagram
 | `t_funcionario` | `numero_funcionario` UNIQUE NOT NULL |
 | `t_funcionario` | `numero_documento` UNIQUE (quando preenchido) |
 | `t_funcionario` | `email` UNIQUE (quando preenchido) |
-| `categories` | UQ `(career_id, code)` |
-| `grades` | UQ `(category_id, grade_number)` |
-| `leave_balances` | UQ `(employee_id, leave_type_id, year)` |
-| `payroll_slips` | UQ `(employee_id, period_year, period_month)` |
-| `public_holidays` | `holiday_date` UNIQUE |
+| `t_category` | UQ `(career_id, code)` |
+| `t_grade` | UQ `(category_id, grade_number)` |
+| `t_leave_balance` | UQ `(employee_id, leave_type_id, year)` |
+| `t_payroll_slip` | UQ `(employee_id, period_year, period_month)` |
+| `t_public_holiday` | `holiday_date` UNIQUE |
 
 ### 5.2 Validações por Trigger
 
 | Trigger | Tabela | O que valida |
 |---|---|---|
-| `fn_validate_professional_assignment` | `employee_professional_assignments` | `category_id` pertence ao `career_id` indicado; `grade_id` pertence ao `category_id` indicado |
+| `fn_validate_professional_assignment` | `t_employee_professional_assignments` | `category_id` pertence ao `career_id` indicado; `grade_id` pertence ao `category_id` indicado |
 | `fn_enforce_single_current_assignment` (enquadramento) | `t_enquadramento` | Ao activar `is_current = true`, fecha automaticamente o registo anterior (`is_current = false`, `end_date = new.start_date - 1`) |
-| `fn_enforce_single_current_assignment` | `employee_professional_assignments` | Idem para enquadramento profissional |
-| `fn_check_leave_balance` | `leave_requests` | Se `leave_type.deducts_balance = true`, valida que `working_days ≤ leave_balances.available_days` |
-| `fn_check_leave_overlap` | `leave_requests` | Rejeita pedidos sobrepostos para o mesmo funcionário (excepto CANCELLED/REJECTED) |
+| `fn_enforce_single_current_assignment` | `t_employee_professional_assignments` | Idem para enquadramento profissional |
+| `fn_check_leave_balance` | `t_leave_request` | Se `leave_type.deducts_balance = true`, valida que `working_days ≤ leave_balances.available_days` |
+| `fn_check_leave_overlap` | `t_leave_request` | Rejeita pedidos sobrepostos para o mesmo funcionário (excepto CANCELLED/REJECTED) |
 | `fn_audit_generic` | Todas | Regista alterações em `change_history` com `old_data` e `new_data` JSONB |
 | `fn_set_updated_at` | Todas | Actualiza automaticamente `updated_at` em cada UPDATE |
 
@@ -1016,7 +1032,7 @@ erDiagram
 
 - **`t_contrato.is_current`**: apenas 1 TRUE por `funcionario_id`. Ao criar novo contrato, o `CreateContratoCommandHandler` encerra o anterior (`status = 'CESSADO'`, `is_current = false`, `end_date = startDate − 1 dia`) antes de persistir o novo. Não existe trigger de BD para esta lógica.
 - **`employee_professional_assignments.is_current`**: idem. Ao criar novo enquadramento, o anterior é fechado com `end_date = new.start_date - 1`.
-- **`employee_unit_assignments`**: não usa `is_current`. Usa `end_date IS NULL` para identificar a colocação actual. `is_primary = true` marca a unidade principal quando há múltiplas.
+- **`t_employee_unit_assignments`**: não usa `is_current`. Usa `end_date IS NULL` para identificar a colocação actual. `is_primary = true` marca a unidade principal quando há múltiplas.
 
 ---
 
@@ -1028,24 +1044,24 @@ Resumo decisório para implementação. A coluna "Armazenamento" descreve como o
 |---|---|---|---|---|
 | Estado Civil | ✅ Sim (planeado) | `MARITAL_STATUS` | `t_funcionario.estado_civil VARCHAR(50)` | String livre — validação ckey não implementada |
 | Sexo / Género | ✅ Sim (planeado) | `SEX` | `t_funcionario.genero VARCHAR(50)` | String livre — validação ckey não implementada |
-| Nacionalidade | ✅ Sim (planeado) | `NATIONALITY` | `t_funcionario.nacionalidade VARCHAR(50)`, `qualifications.country VARCHAR(10)` | String livre |
-| Tipo de Unidade Orgânica | ❌ Não — string livre | — | `organizational_units.type VARCHAR(100)` | String livre — implementado |
-| Categoria de Documento | ✅ Sim | `DOC_CATEGORY` | `document_types.category VARCHAR(50)` | — |
-| Categoria de Ausência | ✅ Sim | `LEAVE_CATEGORY` | `leave_types.category VARCHAR(50)` | — |
-| Nível de Habilitação | ✅ Sim | `QUALIFICATION_LEVEL` | `qualifications.level VARCHAR(50)` | — |
-| Tipo de Parentesco | ✅ Sim | `RELATIONSHIP_TYPE` | `employee_dependents.relationship_type VARCHAR(50)` | — |
+| Nacionalidade | ✅ Sim (planeado) | `NATIONALITY` | `t_funcionario.nacionalidade VARCHAR(50)`, `t_qualificacao.country VARCHAR(10)` | String livre |
+| Tipo de Unidade Orgânica | ❌ Não — string livre | — | `t_unidade_organica.type VARCHAR(100)` | String livre — implementado |
+| Categoria de Documento | ✅ Sim | `DOC_CATEGORY` | `t_tipo_documento.category VARCHAR(50)` | — |
+| Categoria de Ausência | ✅ Sim | `LEAVE_CATEGORY` | `t_leave_type.category VARCHAR(50)` | — |
+| Nível de Habilitação | ✅ Sim | `QUALIFICATION_LEVEL` | `t_qualificacao.level VARCHAR(50)` | — |
+| Tipo de Parentesco | ✅ Sim | `RELATIONSHIP_TYPE` | `t_dependente.relationship_type VARCHAR(50)` | — |
 | Ilha | ✅ Sim (planeado) | `ISLAND` | `t_funcionario.ilha VARCHAR(100)` | String livre — validação ckey não implementada |
 | Concelho | ✅ Sim (planeado) | `CONCELHO` | `t_funcionario.concelho VARCHAR(100)` | String livre — validação ckey não implementada |
-| Tipo de Formação | ✅ Sim | `TRAINING_TYPE` | `trainings.training_type VARCHAR(50)` | — |
-| Regime de Carreira | ❌ Não — string livre | — | `careers.regime VARCHAR(100)` | String livre — implementado |
-| Estados do Trabalhador | ❌ Não — tabela dedicada | — | `worker_states` (flag `is_core` protege estados núcleo) | Implementado |
-| Situações Profissionais | ❌ Não — tabela dedicada | — | `professional_situations` (código referenciado por lógica de negócio) | Implementado |
-| Tipos de Contrato | ❌ Não — tabela dedicada | — | `contract_types` (historial próprio em `employee_contracts`) | Implementado |
-| Tipos de Documento | ❌ Não — tabela dedicada | — | `document_types` (`allowed_extensions` valida upload) | Implementado |
-| Tipos de Ausência | ❌ Não — tabela dedicada | — | `leave_types` (`deducts_balance`, `requires_approval` alteram fluxo) | Implementado |
-| Subtipos Licença/Mobilidade | ❌ Não — tabela dedicada | — | `leave_mobility_subtypes` (`affects_pay`, `counts_for_seniority`, `can_self_submit`) | Implementado |
+| Tipo de Formação | ✅ Sim | `TRAINING_TYPE` | `t_training.training_type VARCHAR(50)` | — |
+| Regime de Carreira | ❌ Não — string livre | — | `t_career.regime VARCHAR(100)` | String livre — implementado |
+| Estados do Trabalhador | ❌ Não — tabela dedicada | — | `t_worker_state` (flag `is_core` protege estados núcleo) | Implementado |
+| Vínculos Laborais | ❌ Não — tabela dedicada | — | `t_vinculo_laboral` (código referenciado por lógica de negócio) | Implementado |
+| Tipos de Contrato | ❌ Não — tabela dedicada | — | `t_contract_type` (historial próprio em `t_contrato`) | Implementado |
+| Tipos de Documento | ❌ Não — tabela dedicada | — | `t_tipo_documento` (`allowed_extensions` valida upload) | Implementado |
+| Tipos de Ausência | ❌ Não — tabela dedicada | — | `t_leave_type` (`deducts_balance`, `requires_approval` alteram fluxo) | Implementado |
+| Subtipos Licença/Mobilidade | ❌ Não — tabela dedicada | — | `t_leave_mobility_subtype` (`affects_pay`, `counts_for_seniority`, `can_self_submit`) | Implementado |
 
-**Nota de implementação:** Os campos marcados como "string ckey" são validados na camada aplicacional pelo método `OptionValidator.validate(ccode, ckey)` antes de persistir. O frontend obtém os valores disponíveis via `GET /reference/options?ccode={code}`. Os ccodes estão definidos nesta tabela — quando os ccodes concretos forem confirmados, actualizam-se apenas as seeds de `option_entity`, sem alteração de schema.
+**Nota de implementação:** Os campos marcados como "string ckey" são validados na camada aplicacional pelo método `OptionValidator.validate(ccode, ckey)` antes de persistir. O frontend obtém os valores disponíveis via `GET /reference/options?ccode={code}`. Os ccodes estão definidos nesta tabela — quando os ccodes concretos forem confirmados, actualizam-se apenas as seeds de `t_option_entity`, sem alteração de schema.
 
 ---
 
@@ -1055,14 +1071,14 @@ Resumo decisório para implementação. A coluna "Armazenamento" descreve como o
 
 | Entidade INPS (anterior) | Decisão | Substituída por |
 |---|---|---|
-| `TiposRelacionamentoEntity` | Eliminada | `employee_professional_assignments` (historial limpo com `is_current`) |
+| `TiposRelacionamentoEntity` | Eliminada | `t_employee_professional_assignments` (historial limpo com `is_current`) |
 | `DocumentoPessoalEntity` | Consolidada | `documents` (tabela única com `document_type_id`) |
-| `ContratoEntity` (god object) | Simplificada | `employee_contracts` (dados essenciais apenas) |
-| `ParamSituacaoEntity` (25+ campos) | Dividida | `leave_types` + `leave_mobility_subtypes` |
-| `MobilidadeEntity` | Absorvida | `employee_unit_assignments` (mobilidade = atribuição a nova unidade) |
+| `ContratoEntity` (god object) | Simplificada | `t_contrato` (dados essenciais apenas) |
+| `ParamSituacaoEntity` (25+ campos) | Dividida | `t_leave_type` + `t_leave_mobility_subtype` |
+| `MobilidadeEntity` | Absorvida | `t_employee_unit_assignments` (mobilidade = atribuição a nova unidade) |
 | `DefinicaoRemuneracaoEntity` | Fora de âmbito | Processamento salarial é sistema externo |
 | `DefPagamentoEntity` | Fora de âmbito | Idem |
-| `RegimeTrabalhoEntity` | Absorvida | `leave_mobility_subtypes` + `professional_situations` |
+| `RegimeTrabalhoEntity` | Absorvida | `t_leave_mobility_subtype` + `t_vinculo_laboral` |
 | `OrdemServicoEntity` | Fora de âmbito | Fluxo operacional, não dossier |
 | `ValidacaoEntity` | Fora de âmbito | Idem |
 
@@ -1072,10 +1088,10 @@ Resumo decisório para implementação. A coluna "Armazenamento" descreve como o
 |---|---|
 | Hierarquia Carreira → Categoria → Escalão | Mantida. Adicionados `salary_index` e `salary_base` no escalão; `regime` na carreira; `ordem_progressao` na categoria |
 | Dossier de documentos | Unificado em `documents` com `storage_key`, `mime_type`, `size_bytes` |
-| Habilitações literárias | Mantidas como tabela própria (`qualifications`) |
-| Familiares/Dependentes | Mantidos como `employee_dependents` |
-| Processo disciplinar | Mantido com estrutura mais limpa (`disciplinary_processes`) |
-| Ausências e Férias | Separadas correctamente: saldo (`leave_balances`) + pedido (`leave_requests`) |
+| Habilitações literárias | Mantidas como tabela própria (`t_qualificacao`) |
+| Familiares/Dependentes | Mantidos como `t_dependente` |
+| Processo disciplinar | Mantido com estrutura mais limpa (`t_disciplinary_process`) |
+| Ausências e Férias | Separadas correctamente: saldo (`t_leave_balance`) + pedido (`t_leave_request`) |
 
 ### Contagem de tabelas
 
@@ -1084,4 +1100,4 @@ Resumo decisório para implementação. A coluna "Armazenamento" descreve como o
 | 45+ tabelas (incluindo views e tabelas de processamento) | 26 tabelas (foco no dossier) |
 | `TiposRelacionamentoEntity` como god table | 3 históricos independentes e limpos |
 | 2 tabelas de documentos sobrepostas | 1 tabela `documents` unificada |
-| `ParamSituacaoEntity` com 25+ campos | `leave_types` + `leave_mobility_subtypes` focados |
+| `ParamSituacaoEntity` com 25+ campos | `t_leave_type` + `t_leave_mobility_subtype` focados |

@@ -16,6 +16,7 @@ public class FunctionMapper {
         entity.setCode(domain.getCode());
         entity.setName(domain.getName());
         entity.setDescription(domain.getDescription());
+        entity.setJobId(domain.getJobId());
         entity.setIsActive(domain.isActive());
         return entity;
     }
@@ -27,6 +28,7 @@ public class FunctionMapper {
                 entity.getCode(),
                 entity.getName(),
                 entity.getDescription(),
+                entity.getJobId(),
                 entity.getIsActive() != null && entity.getIsActive()
         );
     }
@@ -38,6 +40,7 @@ public class FunctionMapper {
         dto.setCode(domain.getCode());
         dto.setName(domain.getName());
         dto.setDescription(domain.getDescription());
+        dto.setJobId(domain.getJobId() != null ? domain.getJobId().toString() : null);
         dto.setIsActive(domain.isActive());
         dto.setEstadoDesc(Boolean.TRUE.equals(domain.isActive()) ? "Ativo" : "Inativo");
         return dto;

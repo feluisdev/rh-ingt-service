@@ -19,6 +19,7 @@ public class ContractTypeMapper {
         entity.setIsRenewable(domain.isRenewable());
         entity.setMaxRenewals(domain.getMaxRenewals());
         entity.setMaxDurationMonths(domain.getMaxDurationMonths());
+        entity.setRequiresCareerStructure(domain.isRequiresCareerStructure());
         entity.setIsActive(domain.isActive());
         return entity;
     }
@@ -33,6 +34,7 @@ public class ContractTypeMapper {
             Boolean.TRUE.equals(entity.getIsRenewable()),
             entity.getMaxRenewals(),
             entity.getMaxDurationMonths(),
+            Boolean.TRUE.equals(entity.getRequiresCareerStructure()),
             entity.getIsActive() != null && entity.getIsActive()
         );
     }
@@ -48,6 +50,7 @@ public class ContractTypeMapper {
         dto.setIsRenewable(domain.isRenewable());
         dto.setMaxRenewals(domain.getMaxRenewals());
         dto.setMaxDurationMonths(domain.getMaxDurationMonths());
+        dto.setRequiresCareerStructure(domain.isRequiresCareerStructure());
         dto.setIsActive(domain.isActive());
         return dto;
     }

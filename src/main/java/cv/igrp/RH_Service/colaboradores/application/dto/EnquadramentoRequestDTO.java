@@ -12,11 +12,8 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 public class EnquadramentoRequestDTO {
-    @NotBlank
     private String careerId;
-    @NotBlank
     private String categoryId;
-    @NotBlank
     private String gradeId;
     @NotBlank
     private String cargoId;

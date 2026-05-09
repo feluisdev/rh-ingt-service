@@ -12,6 +12,7 @@ public class FunctionResponseDTO {
     private String code;
     private String name;
     private String description;
+    private String jobId;
     private Boolean isActive;
     private String estadoDesc;
 }

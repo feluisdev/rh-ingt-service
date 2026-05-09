@@ -8,6 +8,8 @@
     {"name": "code", "type": "string", "required": false},
     {"name": "name", "type": "string", "required": false},
     {"name": "description", "type": "string", "required": false},
-    {"name": "isActive", "type": "boolean", "required": false}
+    {"name": "jobId", "type": "string", "required": false},
+    {"name": "isActive", "type": "boolean", "required": false},
+    {"name": "estadoDesc", "type": "string", "required": false}
   ]
 }
