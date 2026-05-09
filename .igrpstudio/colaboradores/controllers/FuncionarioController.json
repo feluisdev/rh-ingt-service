@@ -1,4 +1,4 @@
-{
+﻿{
   "type": "controller",
   "name": "Funcionario",
   "module": "colaboradores",
@@ -78,8 +78,29 @@
       "method": "GET",
       "path": "{funcionarioId}/qualificacoes",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"}
-      ]
+        {"name": "funcionarioId", "type": "string"  ,
+    {
+      "actionName": "getCombobox",
+      "path": "combobox",
+      "method": "GET",
+      "requestParams": [
+        { "type": "string", "name": "q", "isRequired": false }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ComboboxItem",
+                "objectType": "dto",
+                "collectionType": "list",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

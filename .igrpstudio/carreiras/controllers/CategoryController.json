@@ -4,5 +4,14 @@
   "module": "carreiras",
   "path": "/api/v1/rh/categories",
   "beanPrefix": "carreiras",
-  "operations": ["findAll", "findById", "create", "update", "delete", "activate", "findGradesByCategory"]
+  "operations": ["findAll", "findById", "create", "update", "delete", "activate", "findGradesByCategory"],
+  "extraActions": [
+    {
+      "actionName": "getCombobox",
+      "path": "combobox",
+      "method": "GET",
+      "queryClass": "GetCategoriesComboboxQuery",
+      "responseType": "List<ComboboxItemDTO>"
+    }
+  ]
 }
