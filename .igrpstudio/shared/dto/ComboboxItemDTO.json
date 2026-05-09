@@ -1,0 +1,10 @@
+{
+  "type": "dto",
+  "module": "shared",
+  "name": "ComboboxItemDTO",
+  "template": "classic",
+  "attributes": [
+    { "name": "key", "type": "string" },
+    { "name": "label", "type": "string" }
+  ]
+}

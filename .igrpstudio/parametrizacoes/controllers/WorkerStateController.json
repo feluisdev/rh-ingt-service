@@ -201,6 +201,27 @@
         }
       ]
     }
+  ,
+    {
+      "actionName": "getCombobox",
+      "path": "combobox",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ComboboxItem",
+                "objectType": "dto",
+                "collectionType": "list",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
+    }
   ],
   "id": "worker_state_ctrl_001"
 }
