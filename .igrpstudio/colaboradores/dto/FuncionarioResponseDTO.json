@@ -22,7 +22,7 @@
     {"type": "string", "name": "ilha", "objectType": "java", "required": false},
     {"type": "string", "name": "concelho", "objectType": "java", "required": false},
     {"type": "string", "name": "localidade", "objectType": "java", "required": false},
-    {"type": "string", "name": "situacaoProfissional", "objectType": "java", "required": false},
+    {"type": "string", "name": "workerStateId", "objectType": "java", "required": false},
     {"type": "date", "name": "dataAdmissao", "objectType": "java", "required": false},
     {"type": "boolean", "name": "isActive", "objectType": "java", "required": false}
   ]

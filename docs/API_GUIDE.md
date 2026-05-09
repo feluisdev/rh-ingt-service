@@ -142,7 +142,7 @@ PublicHoliday ──────────────────────
                                                                         │
 OrganizationalUnit ──────────────────────────────────────────────────► Colocação
 Job (Cargo) ─────────────────────────────────────────────────────────► Enquadramento
-Function (Função) ───────────────────────────────────────────────────► Colocação
+Function (Função) ───────────────────────────────────────────────────► Enquadramento
                                                                         │
 Career ──────────────────────────────────────────────────────────────► Enquadramento
   └── Category ────────────────────────────────────────────────────► Enquadramento
@@ -433,7 +433,7 @@ Content-Type: application/json
 
 ### 6.3 Funções (`/estrutura/functions`)
 
-Função efectivamente exercida pelo colaborador dentro do cargo.
+Função efectivamente exercida pelo colaborador dentro do cargo. Cada função pode estar associada a um cargo específico via `jobId` — ao criar um enquadramento com cargo + função, o sistema valida que a função pertence ao cargo. Funções com `jobId = null` são genéricas e compatíveis com qualquer cargo.
 
 ```http
 POST api/v1/rh/estrutura/functions
@@ -442,8 +442,15 @@ Content-Type: application/json
 {
   "code": "COORD_PROJETO",
   "name": "Coordenador de Projeto",
-  "description": "Coordenação e acompanhamento de projetos de modernização."
+  "description": "Coordenação e acompanhamento de projetos de modernização.",
+  "jobId": "uuid-do-cargo-tecnico-superior"
 }
+```
+
+Listar funções de um cargo específico:
+
+```http
+GET api/v1/rh/estrutura/functions?jobId={cargoId}
 ```
 
 ---

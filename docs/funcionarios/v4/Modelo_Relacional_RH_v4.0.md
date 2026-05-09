@@ -302,8 +302,14 @@ t_funcao  (Funções)
 ├── code        VARCHAR(50)  UNIQUE NOT NULL
 ├── name        VARCHAR(150) NOT NULL
 ├── description TEXT
+├── job_id      UUID      FK→t_job   -- cargo ao qual a função pertence (nullable = função genérica)
 ├── is_active   BOOLEAN      DEFAULT TRUE
 └── auditoria
+
+-- job_id nullable: permite funções genéricas não ligadas a nenhum cargo específico.
+-- Validação de domínio: ao criar um enquadramento com cargo + função, a aplicação
+--   verifica que função.job_id == cargo_id (ou que job_id é null).
+-- Filtro de API: GET /estrutura/functions?jobId={cargoId} devolve as funções do cargo.
 ```
 
 ---
@@ -788,6 +794,7 @@ erDiagram
         uuid   id PK
         varchar code
         varchar name
+        uuid job_id FK
     }
 
     EMPLOYEE_PROFESSIONAL_ASSIGNMENTS {
@@ -966,6 +973,7 @@ erDiagram
     EMPLOYEE_PROFESSIONAL_ASSIGNMENTS }o--|| GRADES : "escalao"
     EMPLOYEE_PROFESSIONAL_ASSIGNMENTS }o--o| JOBS : "cargo"
     EMPLOYEE_PROFESSIONAL_ASSIGNMENTS }o--o| FUNCTIONS : "funcao"
+    FUNCTIONS }o--o| JOBS : "pertence a cargo"
     EMPLOYEE_UNIT_ASSIGNMENTS }o--|| ORGANIZATIONAL_UNITS : "unidade"
 
     CAREERS ||--o{ CATEGORIES : "tem"
