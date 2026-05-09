@@ -32,14 +32,6 @@ public class RecursosHumanosApplication {
     return () -> Optional.of(LocalDateTime.now());
   }
 
-  @Bean
-  public ApplicationRunner databaseSetup(JdbcTemplate jdbcTemplate) {
-    return args -> {
-      jdbcTemplate.execute("CREATE SCHEMA IF NOT EXISTS audit_schema");
-      log.info("audit_schema verificado/criado com sucesso");
-    };
-  }
-
   public static void main(String[] args) {
     SpringApplication.run(RecursosHumanosApplication.class, args);
   }
