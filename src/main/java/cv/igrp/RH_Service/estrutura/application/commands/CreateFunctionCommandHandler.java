@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -27,8 +28,11 @@ public class CreateFunctionCommandHandler
                     "Já existe uma função com code='" + dto.getCode() + "'.");
         }
 
+        UUID jobId = dto.getJobId() != null && !dto.getJobId().isBlank()
+                ? UUID.fromString(dto.getJobId()) : null;
+
         OrgFunction saved = functionRepository.save(
-                OrgFunction.criar(dto.getCode(), dto.getName(), dto.getDescription()));
+                OrgFunction.criar(dto.getCode(), dto.getName(), dto.getDescription(), jobId));
 
         return ResponseEntity.status(201).body(Map.of(
                 "id", saved.getId().getStringValor(),

@@ -10,8 +10,10 @@ import cv.igrp.RH_Service.colaboradores.domain.models.EnquadramentoProfissional;
 import cv.igrp.RH_Service.colaboradores.domain.repository.EnquadramentoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
+import cv.igrp.RH_Service.estrutura.domain.repository.FunctionRepository;
 import cv.igrp.RH_Service.estrutura.domain.repository.JobRepository;
 import cv.igrp.RH_Service.estrutura.domain.repository.OrganizationalUnitRepository;
+import cv.igrp.RH_Service.estrutura.domain.valueobject.FunctionId;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.JobId;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.OrganizationalUnitId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
@@ -37,6 +39,7 @@ public class CreateEnquadramentoCommandHandler
     private final CategoryRepository categoryRepository;
     private final GradeRepository gradeRepository;
     private final JobRepository jobRepository;
+    private final FunctionRepository functionRepository;
     private final OrganizationalUnitRepository organizationalUnitRepository;
 
     @IgrpCommandHandler
@@ -83,8 +86,14 @@ public class CreateEnquadramentoCommandHandler
             enquadramentoRepository.save(prev);
         }
 
-        UUID functionId = dto.getFunctionId() != null && !dto.getFunctionId().isBlank()
-                ? UUID.fromString(dto.getFunctionId()) : null;
+        UUID functionId = null;
+        if (dto.getFunctionId() != null && !dto.getFunctionId().isBlank()) {
+            functionId = UUID.fromString(dto.getFunctionId());
+            var funcao = functionRepository.findById(FunctionId.from(functionId))
+                    .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                            "Função não encontrada: " + dto.getFunctionId()));
+            funcao.validarCompatibilidadeComCargo(UUID.fromString(dto.getCargoId()));
+        }
 
         var saved = enquadramentoRepository.save(
                 EnquadramentoProfissional.criar(funcionarioId,

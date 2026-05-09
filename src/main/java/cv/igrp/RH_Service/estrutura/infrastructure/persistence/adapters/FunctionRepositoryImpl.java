@@ -56,6 +56,10 @@ public class FunctionRepositoryImpl implements FunctionRepository {
                 predicates = cb.and(predicates, cb.equal(root.get("isActive"), true));
             }
 
+            if (filter.getJobId() != null) {
+                predicates = cb.and(predicates, cb.equal(root.get("jobId"), filter.getJobId()));
+            }
+
             return predicates;
         };
 

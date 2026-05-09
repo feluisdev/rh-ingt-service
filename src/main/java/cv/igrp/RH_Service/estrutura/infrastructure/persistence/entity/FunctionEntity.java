@@ -34,6 +34,9 @@ public class FunctionEntity extends AuditEntity {
     @Column(name = "description", length = 500)
     private String description;
 
+    @Column(name = "job_id")
+    private UUID jobId;
+
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 }

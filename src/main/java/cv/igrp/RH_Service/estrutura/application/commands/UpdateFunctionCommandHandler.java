@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 @RequiredArgsConstructor
 public class UpdateFunctionCommandHandler
@@ -37,7 +39,10 @@ public class UpdateFunctionCommandHandler
                     "Já existe uma função com code='" + dto.getCode() + "'.");
         }
 
-        function.atualizar(dto.getCode(), dto.getName(), dto.getDescription());
+        UUID jobId = dto.getJobId() != null && !dto.getJobId().isBlank()
+                ? UUID.fromString(dto.getJobId()) : null;
+
+        function.atualizar(dto.getCode(), dto.getName(), dto.getDescription(), jobId);
         var updated = functionRepository.save(function);
 
         return ResponseEntity.ok(mapper.toDTO(updated));
