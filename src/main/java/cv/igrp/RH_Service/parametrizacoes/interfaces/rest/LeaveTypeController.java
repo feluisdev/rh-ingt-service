@@ -23,6 +23,8 @@ import cv.igrp.RH_Service.parametrizacoes.application.dto.LeaveTypeResponseDTO;
 import cv.igrp.RH_Service.parametrizacoes.application.dto.LeaveTypeRequestDTO;
 
 import java.util.Map;
+import java.util.List;
+import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
 
 @IgrpController
 @RestController
@@ -188,6 +190,26 @@ public class LeaveTypeController {
         LOGGER.debug("Operation started");
         final var command = new AtivarLeaveTypeCommand(leaveTypeId);
         ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode())
+            .headers(response.getHeaders())
+            .body(response.getBody());
+    }
+
+    @GetMapping("combobox")
+    @Operation(
+        summary = "Listar para combobox",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                content = @Content(mediaType = "application/json")
+            )
+        }
+    )
+    public ResponseEntity<List<ComboboxItemDTO>> getCombobox() {
+        LOGGER.debug("Operation started");
+        final var query = new GetLeaveTypesComboboxQuery();
+        ResponseEntity<List<ComboboxItemDTO>> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())
             .headers(response.getHeaders())

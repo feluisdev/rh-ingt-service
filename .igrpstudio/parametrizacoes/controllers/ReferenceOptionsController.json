@@ -211,6 +211,30 @@
         }
       ]
     }
+  ,
+    {
+      "actionName": "getCombobox",
+      "path": "combobox",
+      "method": "GET",
+      "requestParams": [
+        { "type": "string", "name": "ccode", "isRequired": false }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ComboboxItem",
+                "objectType": "dto",
+                "collectionType": "list",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
+    }
   ],
   "id": "ref_opt_ctrl_001"
 }

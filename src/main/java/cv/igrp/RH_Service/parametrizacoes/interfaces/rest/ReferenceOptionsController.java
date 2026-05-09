@@ -24,6 +24,8 @@ import cv.igrp.RH_Service.parametrizacoes.application.queries.*;
 
 import cv.igrp.RH_Service.parametrizacoes.application.dto.WrapperListaOptionDTO;
 import java.util.Map;
+import java.util.List;
+import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
 import cv.igrp.RH_Service.parametrizacoes.application.dto.OptionResponseDTO;
 import cv.igrp.RH_Service.parametrizacoes.application.dto.OptionRequestDTO;
 
@@ -272,4 +274,25 @@ public class ReferenceOptionsController {
               .body(response.getBody());
   }
 
+
+    @GetMapping("combobox")
+    @Operation(
+        summary = "Listar opções para combobox",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                content = @Content(mediaType = "application/json")
+            )
+        }
+    )
+    public ResponseEntity<List<ComboboxItemDTO>> getCombobox(
+        @RequestParam(value = "ccode", required = false) String ccode) {
+        LOGGER.debug("Operation started");
+        final var query = new GetOptionsComboboxQuery(ccode);
+        ResponseEntity<List<ComboboxItemDTO>> response = queryBus.handle(query);
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode())
+            .headers(response.getHeaders())
+            .body(response.getBody());
+    }
 }

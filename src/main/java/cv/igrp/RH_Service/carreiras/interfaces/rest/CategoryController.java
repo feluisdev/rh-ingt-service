@@ -24,6 +24,8 @@ import cv.igrp.RH_Service.carreiras.application.dto.CategoryResponseDTO;
 import cv.igrp.RH_Service.carreiras.application.dto.CategoryRequestDTO;
 
 import java.util.Map;
+import java.util.List;
+import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
 
 @IgrpController
 @RestController
@@ -228,6 +230,26 @@ public class CategoryController {
 
         LOGGER.debug("Operation finished");
 
+        return ResponseEntity.status(response.getStatusCode())
+            .headers(response.getHeaders())
+            .body(response.getBody());
+    }
+
+    @GetMapping("combobox")
+    @Operation(
+        summary = "Listar para combobox",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                content = @Content(mediaType = "application/json")
+            )
+        }
+    )
+    public ResponseEntity<List<ComboboxItemDTO>> getCombobox() {
+        LOGGER.debug("Operation started");
+        final var query = new GetCategoriesComboboxQuery();
+        ResponseEntity<List<ComboboxItemDTO>> response = queryBus.handle(query);
+        LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())
             .headers(response.getHeaders())
             .body(response.getBody());

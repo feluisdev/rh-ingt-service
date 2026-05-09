@@ -206,6 +206,27 @@
         }
       ]
     }
+  ,
+    {
+      "actionName": "getCombobox",
+      "path": "combobox",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ComboboxItem",
+                "objectType": "dto",
+                "collectionType": "list",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
+    }
   ],
   "id": "leave_mobility_subtype_ctrl_001"
 }

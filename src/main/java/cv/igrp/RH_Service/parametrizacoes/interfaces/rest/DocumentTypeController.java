@@ -23,6 +23,8 @@ import cv.igrp.RH_Service.parametrizacoes.application.dto.DocumentTypeResponseDT
 import cv.igrp.RH_Service.parametrizacoes.application.dto.DocumentTypeRequestDTO;
 
 import java.util.Map;
+import java.util.List;
+import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
 
 @IgrpController
 @RestController
@@ -188,6 +190,26 @@ public class DocumentTypeController {
         LOGGER.debug("Operation started");
         final var command = new AtivarDocumentTypeCommand(documentTypeId);
         ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode())
+            .headers(response.getHeaders())
+            .body(response.getBody());
+    }
+
+    @GetMapping("combobox")
+    @Operation(
+        summary = "Listar para combobox",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                content = @Content(mediaType = "application/json")
+            )
+        }
+    )
+    public ResponseEntity<List<ComboboxItemDTO>> getCombobox() {
+        LOGGER.debug("Operation started");
+        final var query = new GetDocumentTypesComboboxQuery();
+        ResponseEntity<List<ComboboxItemDTO>> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())
             .headers(response.getHeaders())

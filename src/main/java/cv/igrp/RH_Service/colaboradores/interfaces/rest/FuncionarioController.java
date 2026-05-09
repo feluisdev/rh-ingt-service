@@ -21,6 +21,8 @@ import cv.igrp.RH_Service.colaboradores.application.queries.*;
 import cv.igrp.RH_Service.colaboradores.application.dto.*;
 
 import java.util.Map;
+import java.util.List;
+import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
 
 @IgrpController
 @RestController("colabsFuncionarioController")
@@ -90,4 +92,25 @@ public class FuncionarioController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
+
+    @GetMapping("combobox")
+    @Operation(
+        summary = "Listar funcionários para combobox",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                content = @Content(mediaType = "application/json")
+            )
+        }
+    )
+    public ResponseEntity<List<ComboboxItemDTO>> getCombobox(
+        @RequestParam(value = "q", required = false) String q) {
+        LOGGER.debug("Operation started");
+        final var query = new GetFuncionariosComboboxQuery(q);
+        ResponseEntity<List<ComboboxItemDTO>> response = queryBus.handle(query);
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode())
+            .headers(response.getHeaders())
+            .body(response.getBody());
+    }
 }
