@@ -175,15 +175,15 @@ src/main/java/cv/igrp/RH_Service/
 
 | Bounded Context | Módulo | Tabelas (nomes JPA) | Notas |
 |---|---|---|---|
-| Parametrizações | `parametrizacoes/` | `option_entity`, `worker_states`, `professional_situations`, `contract_types`, `document_types`, `leave_types`, `leave_mobility_subtypes`, `public_holidays` | Transversal — todos os outros módulos consomem |
-| Estrutura Organizacional | `estrutura/` | `organizational_units`, `jobs`, `functions` | Catálogo orgânico — referenciado por colaboradores |
-| Carreiras e Progressão | `carreiras/` | `careers`, `categories`, `grades` | Grelha PCFR (Decreto-Lei 4/2024) |
-| Funcionário — Núcleo | `colaboradores/` (flat) | `t_funcionario`, `t_dependente` | Aggregate root: `Funcionario` |
-| Vida Profissional | `colaboradores/` (flat) | `t_contrato`, `t_enquadramento`, `t_colocacao` | Três históricos independentes com `is_current` |
-| Dossier | `colaboradores/` (flat) | `t_qualificacao`, `t_formacao`, `t_processo_disciplinar` | Cadastro académico/formativo/disciplinar |
-| Documentos | `colaboradores/` (flat) | `t_documento` | Polimórfico via `reference_entity` + `reference_id` |
-| Ausências e Licenças | `colaboradores/` (flat) | `t_saldo_ausencia`, `t_pedido_ausencia`, `t_licenca_mobilidade` | Workflow de aprovação pela chefia |
-| Recibos | `colaboradores/` (flat) | `t_recibo_vencimento` | Storage de PDF gerado pelo sistema salarial externo |
+| Parametrizações | `parametrizacoes/` | `t_option_entity`, `t_worker_state`, `t_vinculo_laboral`, `t_contract_type`, `t_tipo_documento`, `t_leave_type`, `t_leave_mobility_subtype`, `t_public_holiday` | Transversal — todos os outros módulos consomem |
+| Estrutura Organizacional | `estrutura/` | `t_unidade_organica`, `t_job`, `t_funcao` | Catálogo orgânico — referenciado por colaboradores |
+| Carreiras e Progressão | `carreiras/` | `t_career`, `t_category`, `t_grade` | Grelha PCFR (Decreto-Lei 4/2024) |
+| Funcionário — Núcleo | `colaboradores/` (flat) | `t_funcionario`, `t_dependente`, `t_dados_bancarios` | Aggregate root: `Funcionario` |
+| Vida Profissional | `colaboradores/` (flat) | `t_contrato`, `t_employee_professional_assignments`, `t_employee_unit_assignments` | Três históricos independentes com `is_current` |
+| Dossier | `colaboradores/` (flat) | `t_qualificacao`, `t_training`, `t_disciplinary_process` | Cadastro académico/formativo/disciplinar |
+| Documentos | `colaboradores/` (flat) | `t_document` | Polimórfico via `reference_entity` + `reference_id` |
+| Ausências e Licenças | `colaboradores/` (flat) | `t_leave_balance`, `t_leave_request`, `t_leave_mobility` | Workflow de aprovação pela chefia |
+| Recibos | `colaboradores/` (flat) | `t_payroll_slip` | Storage de PDF gerado pelo sistema salarial externo |
 
 Total: **9 BCs** organizados em **5 módulos top-level**, com **26 tabelas** (excluindo `change_history` e `employee_external_mapping`).
 

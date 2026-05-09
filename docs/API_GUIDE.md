@@ -1,6 +1,6 @@
 # Guia de Utilização da API — Módulo de Recursos Humanos (SIPPROG)
 
-> Versão 4.0 · Abril 2026  
+> Versão 4.5 · Maio 2026  
 > Sistema de Informação do Pessoal e Progressões — INGT, Cabo Verde
 
 ---
@@ -29,8 +29,8 @@
 
 A API foi desenhada com integridade referencial estrita. Vários recursos só podem ser criados se outros já existirem. Por exemplo:
 
-- Um **Funcionário** exige uma **Situação Profissional** e um **Estado do Trabalhador**.
-- Um **Contrato** exige um **Tipo de Contrato** e um **Funcionário**.
+- Um **Funcionário** exige um **Estado do Trabalhador**.
+- Um **Contrato** exige um **Tipo de Contrato** (que referencia um **Vínculo Laboral**) e um **Funcionário**.
 - Um **Enquadramento Profissional** exige uma **Carreira**, uma **Categoria** (que pertence à carreira), um **Escalão** (que pertence à categoria) e um **Funcionário**.
 
 A hierarquia de dependências tem três camadas:
@@ -47,8 +47,8 @@ Camada 4 — Sub-recursos do Funcionário (contratos, enquadramento, colocaçõe
 
 | Tipo | Endpoint base | Quando usar |
 |---|---|---|
-| **OptionEntity** (lookups simples) | `GET /reference/options?ccode=...` | Sexo, estado civil, nacionalidade, ilha, tipo de unidade, nível de habilitação, parentesco, etc. |
-| **Tabelas dedicadas** | `/worker-states`, `/contract-types`, etc. | Catálogos com flags que alteram o comportamento do sistema (ex: `deducts_balance`, `is_core`). |
+| **OptionEntity** (lookups simples) | `GET api/v1/rh/reference/options?ccode=...` | Sexo, estado civil, nacionalidade, ilha, tipo de unidade, nível de habilitação, parentesco, etc. |
+| **Tabelas dedicadas** | `api/v1/rh/catalogs/worker-states`, `api/v1/rh/catalogs/contract-types`, etc. | Catálogos com flags que alteram o comportamento do sistema (ex: `deducts_balance`, `is_core`). |
 
 ### Soft Delete
 
@@ -82,12 +82,18 @@ Authorization: Bearer {token}
 
 | Aspecto | Detalhe |
 |---|---|
-| **Base URL** | `https://api.sipprog.ingt.gov.cv/v1/rh` (produção) · `http://localhost:8091` (local) |
+| **Base URL** | `http://localhost:8091` (local) |
+| **Prefixo de API** | Todos os endpoints têm o prefixo `api/v1/rh/` |
 | **Formato de data** | ISO-8601: `YYYY-MM-DD` para datas; `YYYY-MM-DDTHH:mm:ss` para timestamps UTC |
 | **Paginação** | `page` (1-based, default 1) e `size` (default 20, máx. 100) |
 | **Ordenação** | `sort=campo,asc` ou `sort=campo,desc` |
 | **IDs** | UUID (`xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`) |
 | **Content-Type** | `application/json` (exceto upload de ficheiros: `multipart/form-data`) |
+
+**Exemplo de chamada completa (local):**
+```
+GET http://localhost:8091/api/v1/rh/funcionarios
+```
 
 ### Estrutura de resposta de lista
 
@@ -105,11 +111,11 @@ Authorization: Bearer {token}
 
 ```json
 {
-  "timestamp": "2026-04-22T10:00:00Z",
+  "timestamp": "2026-05-08T10:00:00Z",
   "status": 422,
   "error": "Unprocessable Entity",
   "message": "Campo obrigatório em falta.",
-  "path": "/v1/rh/employees",
+  "path": "/api/v1/rh/funcionarios",
   "fields": [
     { "field": "nif", "message": "O NIF é obrigatório." }
   ]
@@ -126,37 +132,38 @@ O diagrama abaixo representa as dependências entre recursos. Uma seta `A → B`
 OptionEntity ──────────────────────────────────────────────────────────┐
                                                                         │
 WorkerState ──────────────────────────────────────────────────────────► Funcionário
-ProfessionalSituation ───────────────────────────────────────────────► Funcionário
                                                                         │
+VinculoLaboral ──────────────────────────────────────────────────────► ContractType
 ContractType ────────────────────────────────────────────────────────► Contrato
 DocumentType ────────────────────────────────────────────────────────► Documento
 LeaveType ───────────────────────────────────────────────────────────► PedidoAusência
 LeaveMobilitySubtype ────────────────────────────────────────────────► Licença/Mobilidade
 PublicHoliday ───────────────────────────────────────────────────────► (cálculo de dias úteis)
                                                                         │
-OrganizationalUnit ──────────────────────────────────────────────────► EnquadramentoProfissional
-Job (Cargo) ─────────────────────────────────────────────────────────► EnquadramentoProfissional
-Function (Função) ───────────────────────────────────────────────────► EnquadramentoProfissional
+OrganizationalUnit ──────────────────────────────────────────────────► Colocação
+Job (Cargo) ─────────────────────────────────────────────────────────► Enquadramento
+Function (Função) ───────────────────────────────────────────────────► Colocação
                                                                         │
-Career ──────────────────────────────────────────────────────────────► EnquadramentoProfissional
-  └── Category ────────────────────────────────────────────────────► EnquadramentoProfissional
-        └── Grade ─────────────────────────────────────────────────► EnquadramentoProfissional
+Career ──────────────────────────────────────────────────────────────► Enquadramento
+  └── Category ────────────────────────────────────────────────────► Enquadramento
+        └── Grade ─────────────────────────────────────────────────► Enquadramento
 ```
 
 **Resumo da ordem obrigatória:**
 
 ```
 1. OptionEntity (sexo, estado civil, etc.)
-2. WorkerStates + ProfessionalSituations + ContractTypes + DocumentTypes
+2. WorkerStates + VinculosLaborais + ContractTypes + DocumentTypes
    + LeaveTypes + LeaveMobilitySubtypes + PublicHolidays
 3. OrganizationalUnits + Jobs + Functions
 4. Careers → Categories → Grades
 5. Funcionário
-6. Contrato (do funcionário)
-7. Enquadramento Profissional (do funcionário)
-8. Colocação em Unidade Orgânica (do funcionário)
-9. Dossier: Dependentes, Habilitações, Formações, Processos Disciplinares
-10. Documentos, Pedidos de Ausência, Licenças/Mobilidades
+6. Dados Bancários (do funcionário)
+7. Contrato (do funcionário)
+8. Enquadramento Profissional (do funcionário)
+9. Colocação em Unidade Orgânica (do funcionário)
+10. Dossier: Dependentes, Qualificações, Formações, Processos Disciplinares
+11. Documentos, Pedidos de Ausência, Licenças/Mobilidades, Recibos
 ```
 
 ---
@@ -170,7 +177,7 @@ Antes de qualquer outra coisa, verifique se os grupos de opções base estão po
 **Consultar opções de um grupo:**
 
 ```http
-GET /reference/options?ccode=MARITAL_STATUS
+GET api/v1/rh/reference/options?ccode=MARITAL_STATUS
 ```
 
 **Grupos disponíveis e os seus `ckey` comuns:**
@@ -189,11 +196,13 @@ GET /reference/options?ccode=MARITAL_STATUS
 | `ISLAND` | Ilha | `SANTIAGO`, `SAL`, `SAO_VICENTE`, `FOGO`, `BOA_VISTA` |
 | `CONCELHO` | Concelho | `PRAIA`, `SANTA_CATARINA`, `MINDELO`, `SAO_DOMINGOS` |
 | `CAREER_REGIME` | Regime da Carreira (PCFR) | `GERAL`, `ESPECIAL` |
+| `BANCO` | Banco | `BCA`, `BCN`, `CECV`, `CAIXA` |
+| `WORK_REGIME` | Regime de Trabalho | `TEMPO_INTEIRO`, `TEMPO_PARCIAL` |
 
 **Criar uma nova opção (caso necessário):**
 
 ```http
-POST /reference/options
+POST api/v1/rh/reference/options
 Content-Type: application/json
 
 {
@@ -209,7 +218,7 @@ Content-Type: application/json
 
 ---
 
-### 5.2 Estados do Trabalhador (`/worker-states`)
+### 5.2 Estados do Trabalhador (`/catalogs/worker-states`)
 
 Controlam o estado laboral do funcionário. Os estados `ACTIVE` e `INACTIVE` são núcleo (`is_core = true`) e não podem ser desativados.
 
@@ -218,52 +227,53 @@ Controlam o estado laboral do funcionário. Os estados `ACTIVE` e `INACTIVE` sã
 **Criar um estado personalizado:**
 
 ```http
-POST /worker-states
+POST api/v1/rh/catalogs/worker-states
 Content-Type: application/json
 
 {
   "code": "LICENCA_SEM_VENCIMENTO",
-  "name": "Em Licença Sem Vencimento",
+  "description": "Em Licença Sem Vencimento",
   "isCore": false
 }
 ```
 
-> `DELETE /worker-states/{id}` falha com HTTP 409 se `is_core = true` ou se referenciado por funcionários activos.
+> `DELETE api/v1/rh/catalogs/worker-states/{id}` falha com HTTP 409 se `is_core = true` ou se referenciado por funcionários activos.
 
 ---
 
-### 5.3 Situações Profissionais (`/professional-situations`)
+### 5.3 Vínculos Laborais (`/catalogs/vinculos-laborais`)
 
-Determinam as regras de progressão PCFR (Efetivo vs Contratado têm direitos distintos).
+Determinam a natureza do vínculo laboral (Efetivo vs Contratado têm direitos distintos). Cada tipo de contrato referencia um vínculo laboral.
 
 **Seed padrão:** `EFETIVO`, `CONTRATADO`, `COMISSIONADO`, `ESTAGIARIO`.
 
 ```http
-POST /professional-situations
+POST api/v1/rh/catalogs/vinculos-laborais
 Content-Type: application/json
 
 {
   "code": "EFETIVO",
-  "name": "Funcionário Efetivo"
+  "description": "Funcionário Efetivo"
 }
 ```
 
 ---
 
-### 5.4 Tipos de Contrato (`/contract-types`)
+### 5.4 Tipos de Contrato (`/catalogs/contract-types`)
 
-Cada tipo representa uma figura legal distinta (Decreto-Lei 4/2024).
+Cada tipo representa uma figura legal distinta (Decreto-Lei 4/2024) e está associado a um vínculo laboral.
 
 **Exemplos de código:** `NOMEACAO_DEFINITIVA`, `CFP`, `CTFP_TERMO_CERTO`, `CTFP_TERMO_INCERTO`, `COMISSAO_SERVICO`.
 
 ```http
-POST /contract-types
+POST api/v1/rh/catalogs/contract-types
 Content-Type: application/json
 
 {
   "code": "CTFP_TERMO_CERTO",
   "name": "Contrato de Trabalho em Funções Públicas a Termo Certo",
-  "description": "CTFP celebrado por prazo determinado, nos termos do DL 4/2024."
+  "description": "CTFP celebrado por prazo determinado, nos termos do DL 4/2024.",
+  "vinculoLaboralId": "uuid-do-vinculo-contratado"
 }
 ```
 
@@ -271,14 +281,14 @@ Content-Type: application/json
 
 ---
 
-### 5.5 Tipos de Ausência (`/leave-types`)
+### 5.5 Tipos de Ausência (`/catalogs/leave-types`)
 
 Os campos `deducts_balance` e `requires_approval` alteram completamente o fluxo de processamento do pedido de ausência.
 
 **Seed padrão:** `FERIAS`, `DOENCA`, `MATERNIDADE`, `PATERNIDADE`, `LUTO`, `CASAMENTO`.
 
 ```http
-POST /leave-types
+POST api/v1/rh/catalogs/leave-types
 Content-Type: application/json
 
 {
@@ -299,12 +309,12 @@ Content-Type: application/json
 
 ---
 
-### 5.6 Subtipos de Licença/Mobilidade (`/leave-mobility-subtypes`)
+### 5.6 Subtipos de Licença/Mobilidade (`/catalogs/leave-mobility-subtypes`)
 
 Distinguem licenças (sem vencimento, parental, formação) de mobilidades (comissão de serviço, requisição, destacamento).
 
 ```http
-POST /leave-mobility-subtypes
+POST api/v1/rh/catalogs/leave-mobility-subtypes
 Content-Type: application/json
 
 {
@@ -322,34 +332,36 @@ Content-Type: application/json
 | `recordType` | `LICENCA`, `MOBILIDADE` ou `AMBOS` — determina onde aparece na interface. |
 | `affectsPay` | Se `true`, o processamento salarial é afectado. |
 | `countsForSeniority` | Se `false`, o período não conta para antiguidade. |
-| `canSelfSubmit` | Se `true`, o próprio colaborador pode submeter via `/me/leaves-mobilities`. |
+| `canSelfSubmit` | Se `true`, o próprio colaborador pode submeter via `/me`. |
 
 ---
 
-### 5.7 Tipos de Documento (`/document-types`)
+### 5.7 Tipos de Documento (`/catalogs/document-types`)
 
 Controlam que extensões de ficheiro são aceites no upload.
 
 ```http
-POST /document-types
+POST api/v1/rh/catalogs/document-types
 Content-Type: application/json
 
 {
-  "code": "CNI",
-  "name": "Cartão Nacional de Identidade",
-  "categoryOptionKey": "PESSOAL",
+  "codigo": "CNI",
+  "descricao": "Cartão Nacional de Identidade",
+  "categoryOptionId": "uuid-da-opcao-pessoal",
   "allowedExtensions": "pdf,jpg,png"
 }
 ```
 
+> Os campos usam nomenclatura portuguesa: `codigo` e `descricao` (não `code`/`name`).
+
 ---
 
-### 5.8 Feriados (`/public-holidays`)
+### 5.8 Feriados (`/catalogs/public-holidays`)
 
 Usados no cálculo de dias úteis em pedidos de ausência. Feriados nacionais aplicam-se a todos; feriados municipais aplicam-se segundo o concelho da unidade orgânica do funcionário.
 
 ```http
-POST /public-holidays
+POST api/v1/rh/catalogs/public-holidays
 Content-Type: application/json
 
 {
@@ -365,12 +377,12 @@ Content-Type: application/json
 
 ## 6. Fase 2 — Estrutura Organizacional
 
-### 6.1 Unidades Orgânicas (`/organizational-units`)
+### 6.1 Unidades Orgânicas (`/estrutura/organizational-units`)
 
 Modelam a hierarquia da organização: Direção → Departamento → Divisão → Secção. A raiz tem `parentUnitId` a `null`.
 
 ```http
-POST /organizational-units
+POST api/v1/rh/estrutura/organizational-units
 Content-Type: application/json
 
 {
@@ -385,7 +397,7 @@ Content-Type: application/json
 Para criar uma sub-unidade, indique o ID da unidade-pai:
 
 ```http
-POST /organizational-units
+POST api/v1/rh/estrutura/organizational-units
 Content-Type: application/json
 
 {
@@ -402,12 +414,12 @@ Content-Type: application/json
 
 ---
 
-### 6.2 Cargos / Jobs (`/jobs`)
+### 6.2 Cargos (`/estrutura/jobs`)
 
 Designação oficial do cargo (ex: Diretor de Serviços, Coordenador, Técnico Superior).
 
 ```http
-POST /jobs
+POST api/v1/rh/estrutura/jobs
 Content-Type: application/json
 
 {
@@ -419,12 +431,12 @@ Content-Type: application/json
 
 ---
 
-### 6.3 Funções (`/functions`)
+### 6.3 Funções (`/estrutura/functions`)
 
 Função efectivamente exercida pelo colaborador dentro do cargo.
 
 ```http
-POST /functions
+POST api/v1/rh/estrutura/functions
 Content-Type: application/json
 
 {
@@ -443,7 +455,7 @@ A hierarquia é sempre: **Carreira → Categoria → Escalão**. Não é possív
 ### 7.1 Carreiras (`/careers`)
 
 ```http
-POST /careers
+POST api/v1/rh/careers
 Content-Type: application/json
 
 {
@@ -457,7 +469,7 @@ Content-Type: application/json
 Listar as categorias de uma carreira:
 
 ```http
-GET /careers/{careerId}/categories
+GET api/v1/rh/careers/{careerId}/categories
 ```
 
 ---
@@ -467,7 +479,7 @@ GET /careers/{careerId}/categories
 Dependem de uma Carreira. O par `(career_id, code)` é único.
 
 ```http
-POST /categories
+POST api/v1/rh/categories
 Content-Type: application/json
 
 {
@@ -481,7 +493,7 @@ Content-Type: application/json
 Listar os escalões de uma categoria:
 
 ```http
-GET /categories/{categoryId}/grades
+GET api/v1/rh/categories/{categoryId}/grades
 ```
 
 ---
@@ -491,7 +503,7 @@ GET /categories/{categoryId}/grades
 Dependem de uma Categoria. O par `(category_id, grade_number)` é único.
 
 ```http
-POST /grades
+POST api/v1/rh/grades
 Content-Type: application/json
 
 {
@@ -510,30 +522,32 @@ Content-Type: application/json
 
 ## 8. Fase 4 — Funcionário e Dossier
 
-### 8.1 Criar o Funcionário (`/employees`)
+### 8.1 Criar o Funcionário (`/funcionarios`)
 
-Este é o passo central. Requer que já existam: **Estado do Trabalhador**, **Situação Profissional** e as opções de **Sexo**, **Estado Civil** e **Nacionalidade** em `option_entity`.
+Este é o passo central. Requer que já exista um **Estado do Trabalhador** e as opções de **Sexo**, **Estado Civil** e **Nacionalidade** em `option_entity`.
 
 ```http
-POST /employees
+POST api/v1/rh/funcionarios
 Content-Type: application/json
 
 {
-  "fullName": "Alex Jailson Barbosa Andrade",
+  "nomeCompleto": "Alex Jailson Barbosa Andrade",
+  "dataNascimento": "1990-03-15",
+  "genero": "M",
+  "estadoCivil": "CASADO",
   "nif": "17361994",
-  "birthDate": "1990-03-15",
-  "sexOptionKey": "M",
-  "maritalStatusOptionKey": "CASADO",
-  "nationalityOptionKey": "CV",
-  "admissionDate": "2018-09-01",
-  "workerStateId": "uuid-do-estado-active",
-  "professionalSituationId": "uuid-da-situacao-efetivo",
+  "documentTypeId": "uuid-do-tipo-cni",
+  "numeroDocumento": "1234567",
+  "dataEmissaoDoc": "2015-06-01",
+  "dataValidadeDoc": "2025-06-01",
+  "nacionalidade": "CV",
   "email": "alex.andrade@ingt.gov.cv",
-  "phone": "+238 261 2345",
-  "nib": "CV64000300004569832014185",
-  "addressStreet": "Rua da Independência, Nº 12",
-  "addressIslandOptionKey": "SANTIAGO",
-  "addressConcelhoOptionKey": "PRAIA"
+  "telefone": "+238 261 2345",
+  "morada": "Rua da Independência, Nº 12",
+  "ilha": "SANTIAGO",
+  "concelho": "PRAIA",
+  "localidade": "Achada Santo António",
+  "dataAdmissao": "2018-09-01"
 }
 ```
 
@@ -542,27 +556,52 @@ Content-Type: application/json
 | Campo | Regra |
 |---|---|
 | `nif` | Único no sistema; imutável após criação. |
-| `nib` | 21 dígitos; único. |
-| `birthDate` | Funcionário deve ter ≥ 18 anos. |
-| `admissionDate` | Não pode ser posterior à data actual. |
-| `sexOptionKey` | Apenas `M` ou `F`. |
+| `dataNascimento` | Funcionário deve ter ≥ 18 anos. |
+| `dataAdmissao` | Não pode ser posterior à data actual. |
+| `genero` | Valores do grupo `SEX` (`M` ou `F`). |
+| `estadoCivil` | Valores do grupo `MARITAL_STATUS`. |
+| `nacionalidade` | Valores do grupo `NATIONALITY`. |
+| `ilha` / `concelho` | Valores dos grupos `ISLAND` / `CONCELHO`. |
 
 ---
 
-### 8.2 Contrato do Funcionário (`/employees/{id}/contracts`)
+### 8.2 Dados Bancários (`/funcionarios/{funcionarioId}/dados-bancarios`)
+
+Registo dos dados bancários e de segurança social do funcionário.
+
+```http
+POST api/v1/rh/funcionarios/{funcionarioId}/dados-bancarios
+Content-Type: application/json
+
+{
+  "banco": "BCA",
+  "numeroConta": "000300004569832014",
+  "iban": "CV64000300004569832014185",
+  "numeroSegurancaSocial": "123456789"
+}
+```
+
+> `banco` usa valores do grupo `BANCO` de `option_entity`.
+
+---
+
+### 8.3 Contrato do Funcionário (`/funcionarios/{funcionarioId}/contratos`)
 
 **Depende de:** Funcionário + Tipo de Contrato.
 
 Ao criar um novo contrato, o anterior (se existir) é **encerrado automaticamente** (`end_date = novo_start_date − 1 dia`, `is_current = false`). Este comportamento é garantido por trigger na base de dados.
 
 ```http
-POST /employees/{employeeId}/contracts
+POST api/v1/rh/funcionarios/{funcionarioId}/contratos
 Content-Type: application/json
 
 {
   "contractTypeId": "uuid-do-tipo-ctfp-termo-certo",
+  "contractNumber": "CTFP/2018/001",
   "startDate": "2018-09-01",
   "endDate": "2020-08-31",
+  "regimeTrabalho": "TEMPO_INTEIRO",
+  "percentagemTempo": 100.00,
   "legalBase": "Despacho Nº 15/2018 — Boletim Oficial Nº 35/2018",
   "notes": "Contrato inicial por 2 anos."
 }
@@ -571,7 +610,7 @@ Content-Type: application/json
 Para renovar / mudar tipo de contrato, basta criar um novo — o anterior fecha automaticamente:
 
 ```http
-POST /employees/{employeeId}/contracts
+POST api/v1/rh/funcionarios/{funcionarioId}/contratos
 Content-Type: application/json
 
 {
@@ -581,104 +620,107 @@ Content-Type: application/json
 }
 ```
 
+> `regimeTrabalho` usa valores do grupo `WORK_REGIME` de `option_entity`.
+
 Consultar o histórico completo:
 
 ```http
-GET /employees/{employeeId}/contracts
+GET api/v1/rh/funcionarios/{funcionarioId}/contratos
 ```
 
 ---
 
-### 8.3 Enquadramento Profissional (`/employees/{id}/professional-assignments`)
+### 8.4 Enquadramento Profissional (`/funcionarios/{funcionarioId}/enquadramentos`)
 
-**Depende de:** Funcionário + Carreira + Categoria (da carreira) + Escalão (da categoria) + Cargo (opcional) + Função (opcional).
+**Depende de:** Funcionário + Carreira + Categoria (da carreira) + Escalão (da categoria) + Cargo + Unidade Orgânica.
 
 O trigger `fn_validate_professional_assignment` valida automaticamente que `categoryId` pertence à `careerId` e que `gradeId` pertence à `categoryId`. Se a hierarquia for incoerente, recebe HTTP 422.
 
 Tal como nos contratos, ao criar um novo enquadramento, o anterior é **encerrado automaticamente**.
 
 ```http
-POST /employees/{employeeId}/professional-assignments
+POST api/v1/rh/funcionarios/{funcionarioId}/enquadramentos
 Content-Type: application/json
 
 {
   "careerId": "uuid-da-carreira",
   "categoryId": "uuid-da-categoria-tsp",
   "gradeId": "uuid-do-escalao-1",
-  "jobId": "uuid-do-cargo-tecnico-superior",
+  "cargoId": "uuid-do-cargo-tecnico-superior",
   "functionId": "uuid-da-funcao-coord-projeto",
-  "startDate": "2018-09-01",
-  "legalBase": "Despacho Nº 15/2018",
-  "notes": "Enquadramento inicial."
+  "unidadeOrganicaId": "uuid-da-unidade-organica",
+  "dataInicio": "2018-09-01"
 }
 ```
 
 Para registar uma progressão (promoção de categoria ou escalão):
 
 ```http
-POST /employees/{employeeId}/professional-assignments
+POST api/v1/rh/funcionarios/{funcionarioId}/enquadramentos
 Content-Type: application/json
 
 {
   "careerId": "uuid-da-carreira",
   "categoryId": "uuid-da-nova-categoria",
   "gradeId": "uuid-do-novo-escalao",
-  "startDate": "2024-01-01",
-  "legalBase": "Despacho de Progressão Nº 5/2024"
+  "cargoId": "uuid-do-cargo",
+  "unidadeOrganicaId": "uuid-da-unidade-organica",
+  "dataInicio": "2024-01-01"
 }
 ```
 
 ---
 
-### 8.4 Colocação em Unidade Orgânica (`/employees/{id}/unit-assignments`)
+### 8.5 Colocação em Unidade Orgânica (`/funcionarios/{funcionarioId}/colocacoes`)
 
 **Depende de:** Funcionário + Unidade Orgânica.
 
-Um funcionário pode ter múltiplas atribuições, mas apenas uma principal (`isPrimary = true`).
+Regista a atribuição formal do funcionário a uma unidade orgânica, com o cargo e tipo de afectação.
 
 ```http
-POST /employees/{employeeId}/unit-assignments
+POST api/v1/rh/funcionarios/{funcionarioId}/colocacoes
 Content-Type: application/json
 
 {
   "unitId": "uuid-da-unidade-dsgt",
-  "isPrimary": true,
-  "startDate": "2018-09-01"
+  "jobId": "uuid-do-cargo",
+  "startDate": "2018-09-01",
+  "assignmentType": "PRIMARIA",
+  "notes": "Colocação inicial."
 }
 ```
 
-Para encerrar uma colocação (ex: ao transferir para outra unidade):
-
-```http
-PUT /employees/{employeeId}/unit-assignments/{assignmentId}/close
-```
+| Campo | Detalhe |
+|---|---|
+| `assignmentType` | Tipo de afectação (ex: `PRIMARIA`, `SECUNDARIA`, `TEMPORARIA`). |
+| `jobId` | Cargo exercido nesta unidade (opcional). |
 
 ---
 
-### 8.5 Dependentes (`/employees/{id}/dependents`)
+### 8.6 Dependentes (`/funcionarios/{funcionarioId}/dependentes`)
 
-**Depende de:** Funcionário. O campo `relationshipOptionKey` usa o grupo `RELATIONSHIP_TYPE` de `option_entity`.
+**Depende de:** Funcionário. O campo `relationshipType` usa os valores do grupo `RELATIONSHIP_TYPE` de `option_entity`.
 
 ```http
-POST /employees/{employeeId}/dependents
+POST api/v1/rh/funcionarios/{funcionarioId}/dependentes
 Content-Type: application/json
 
 {
   "fullName": "Maria Andrade",
   "birthDate": "2015-06-20",
-  "relationshipOptionKey": "FILHO",
+  "relationshipType": "FILHO",
   "nif": "11223344"
 }
 ```
 
 ---
 
-### 8.6 Habilitações Literárias (`/employees/{id}/qualifications`)
+### 8.7 Qualificações Literárias (`/funcionarios/{funcionarioId}/qualificacoes`)
 
 **Depende de:** Funcionário. O campo `levelOptionKey` usa o grupo `QUALIFICATION_LEVEL`.
 
 ```http
-POST /employees/{employeeId}/qualifications
+POST api/v1/rh/funcionarios/{funcionarioId}/qualificacoes
 Content-Type: application/json
 
 {
@@ -693,16 +735,16 @@ Content-Type: application/json
 }
 ```
 
-> `documentId` refere um documento previamente carregado via `POST /documents` (ver [secção 11](#11-api-de-documentos--ficheiros)).
+> `documentId` refere um documento previamente carregado via `POST api/v1/rh/funcionarios/{id}/documentos`.
 
 ---
 
-### 8.7 Formações Profissionais (`/employees/{id}/trainings`)
+### 8.8 Formações Profissionais (`/funcionarios/{funcionarioId}/formacoes`)
 
 **Depende de:** Funcionário. `typeOptionKey` usa o grupo `TRAINING_TYPE`.
 
 ```http
-POST /employees/{employeeId}/trainings
+POST api/v1/rh/funcionarios/{funcionarioId}/formacoes
 Content-Type: application/json
 
 {
@@ -718,12 +760,12 @@ Content-Type: application/json
 
 ---
 
-### 8.8 Processos Disciplinares (`/employees/{id}/disciplinary-processes`)
+### 8.9 Processos Disciplinares (`/funcionarios/{funcionarioId}/processos-disciplinares`)
 
 **Acesso restrito:** `ROLE_HR_ADMIN` e `ROLE_SYSTEM_ADMIN`.
 
 ```http
-POST /employees/{employeeId}/disciplinary-processes
+POST api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares
 Content-Type: application/json
 
 {
@@ -744,29 +786,27 @@ Content-Type: application/json
 
 ### 9.1 Pedidos de Ausência
 
-**Depende de:** Funcionário + Tipo de Ausência + (opcional) Documento de suporte.
+**Depende de:** Funcionário + Tipo de Ausência.
 
 O ciclo de vida de um pedido é: `PENDING → APPROVED | REJECTED → CANCELLED`.
 
-**1. Submeter um pedido (pelo RH ou pelo próprio via `/me`):**
+**1. Submeter um pedido:**
 
 ```http
-POST /leave-requests
+POST api/v1/rh/funcionarios/{funcionarioId}/pedidos-ausencia
 Content-Type: application/json
 
 {
-  "employeeId": "uuid-do-funcionario",
   "leaveTypeId": "uuid-do-tipo-ferias",
   "startDate": "2026-08-10",
   "endDate": "2026-08-21",
-  "justification": "Período de férias anuais.",
-  "attachmentDocumentId": null
+  "justification": "Período de férias anuais."
 }
 ```
 
 **Regras aplicadas automaticamente:**
 - `endDate ≥ startDate`.
-- Cálculo de dias úteis exclui sábados, domingos e feriados (`public_holidays`).
+- Cálculo de dias úteis exclui sábados, domingos e feriados (`t_public_holiday`).
 - Se `deducts_balance = true`: verifica se `dias_pedido ≤ saldo_disponível`.
 - Se `requires_approval = false`: o pedido vai direto para `APPROVED`.
 - Não são permitidos pedidos sobrepostos para o mesmo funcionário (excepto `CANCELLED` ou `REJECTED`).
@@ -774,13 +814,13 @@ Content-Type: application/json
 **2. Aprovar (pela chefia — `ROLE_CHEFIA`):**
 
 ```http
-PUT /leave-requests/{id}/approve
+PUT api/v1/rh/funcionarios/{funcionarioId}/pedidos-ausencia/{id}/approve
 ```
 
 **3. Rejeitar com justificação:**
 
 ```http
-PUT /leave-requests/{id}/reject
+PUT api/v1/rh/funcionarios/{funcionarioId}/pedidos-ausencia/{id}/reject
 Content-Type: application/json
 
 {
@@ -791,19 +831,19 @@ Content-Type: application/json
 **4. Cancelar (apenas pedidos em `PENDING`):**
 
 ```http
-PUT /leave-requests/{id}/cancel
+PUT api/v1/rh/funcionarios/{funcionarioId}/pedidos-ausencia/{id}/cancel
 ```
 
-**Consultar saldo de ausências de um funcionário:**
+**Consultar saldo de ausências:**
 
 ```http
-GET /employees/{employeeId}/leave-balances?year=2026
+GET api/v1/rh/funcionarios/{funcionarioId}/saldos-ausencia?year=2026
 ```
 
 **Ajustar saldo manualmente (ROLE_HR_ADMIN):**
 
 ```http
-PUT /employees/{employeeId}/leave-balances/{balanceId}
+PUT api/v1/rh/funcionarios/{funcionarioId}/saldos-ausencia/{balanceId}
 Content-Type: application/json
 
 {
@@ -823,11 +863,10 @@ O ciclo de vida é: `PENDING → ACTIVE | CANCELLED → CLOSED`.
 **1. Registar uma licença sem vencimento:**
 
 ```http
-POST /leaves-mobilities
+POST api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade
 Content-Type: application/json
 
 {
-  "employeeId": "uuid-do-funcionario",
   "recordType": "LICENCA",
   "subtypeId": "uuid-do-subtipo-licenca-sem-vencimento",
   "startDate": "2026-09-01",
@@ -840,11 +879,10 @@ Content-Type: application/json
 **2. Registar uma mobilidade (comissão de serviço):**
 
 ```http
-POST /leaves-mobilities
+POST api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade
 Content-Type: application/json
 
 {
-  "employeeId": "uuid-do-funcionario",
   "recordType": "MOBILIDADE",
   "subtypeId": "uuid-do-subtipo-comissao-servico",
   "startDate": "2026-07-01",
@@ -862,7 +900,7 @@ Content-Type: application/json
 Ao aprovar, o sistema executa automaticamente `fn_apply_mobility`: encerra a atribuição orgânica actual e cria uma nova na unidade de destino.
 
 ```http
-PUT /leaves-mobilities/{id}/approve
+PUT api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade/{id}/approve
 ```
 
 **4. Encerrar a mobilidade:**
@@ -870,7 +908,7 @@ PUT /leaves-mobilities/{id}/approve
 Em mobilidades temporárias, o encerramento **restaura a atribuição orgânica anterior** do colaborador.
 
 ```http
-PUT /leaves-mobilities/{id}/close
+PUT api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade/{id}/close
 ```
 
 ---
@@ -878,7 +916,7 @@ PUT /leaves-mobilities/{id}/close
 ### 9.3 Recibos de Vencimento
 
 ```http
-POST /employees/{employeeId}/payroll-slips
+POST api/v1/rh/funcionarios/{funcionarioId}/recibos
 Content-Type: application/json
 
 {
@@ -892,48 +930,47 @@ Content-Type: application/json
 ```
 
 **Regras:**
-- `(employee_id, period_month, period_year)` é único.
+- `(funcionario_id, period_month, period_year)` é único.
 - `grossSalary > 0`, `netSalary > 0`, `netSalary ≤ grossSalary`.
 
 ---
 
 ## 10. Área Reservada do Colaborador (`/me`)
 
-Todos os endpoints `/me` são restritos ao colaborador autenticado. O `employee_id` é extraído automaticamente do JWT — não é possível consultar dados de outro colaborador.
+Todos os endpoints `/me` são restritos ao colaborador autenticado. O `funcionario_id` é extraído automaticamente do JWT — não é possível consultar dados de outro colaborador.
 
 | Endpoint | Descrição |
 |---|---|
-| `GET /me/profile` | Perfil completo: dados pessoais, enquadramento actual, cargo, função, unidade. |
-| `GET /me/leave-requests` | Os meus pedidos de ausência (filtros: `status`, `leaveTypeId`, `year`). |
-| `GET /me/leave-balances` | Os meus saldos de ausência por tipo. |
-| `POST /me/leave-requests` | Submeter pedido de ausência. |
-| `PUT /me/leave-requests/{id}/cancel` | Cancelar pedido próprio (apenas `PENDING`). |
-| `GET /me/leaves-mobilities` | As minhas licenças e mobilidades. |
-| `POST /me/leaves-mobilities` | Submeter licença/mobilidade (apenas subtipos com `canSelfSubmit = true`). |
-| `GET /me/payroll-slips` | Os meus recibos (filtros: `periodYear`, `periodMonth`). |
-| `GET /me/payroll-slips/{id}/download` | Download do PDF do recibo. |
-| `GET /me/documents` | Os meus documentos pessoais. |
-| `GET /me/documents/{id}/download` | Download de documento pessoal. |
+| `GET api/v1/rh/me/profile` | Perfil completo: dados pessoais, enquadramento actual, cargo, função, unidade. |
+| `GET api/v1/rh/me/leave-requests` | Os meus pedidos de ausência (filtros: `status`, `leaveTypeId`, `year`). |
+| `GET api/v1/rh/me/leave-balances` | Os meus saldos de ausência por tipo. |
+| `POST api/v1/rh/me/leave-requests` | Submeter pedido de ausência. |
+| `PUT api/v1/rh/me/leave-requests/{id}/cancel` | Cancelar pedido próprio (apenas `PENDING`). |
+| `GET api/v1/rh/me/leaves-mobilities` | As minhas licenças e mobilidades. |
+| `POST api/v1/rh/me/leaves-mobilities` | Submeter licença/mobilidade (apenas subtipos com `canSelfSubmit = true`). |
+| `GET api/v1/rh/me/payroll-slips` | Os meus recibos (filtros: `periodYear`, `periodMonth`). |
+| `GET api/v1/rh/me/payroll-slips/{id}/download` | Download do PDF do recibo. |
+| `GET api/v1/rh/me/documents` | Os meus documentos pessoais. |
+| `GET api/v1/rh/me/documents/{id}/download` | Download de documento pessoal. |
 
 **Restrições:**
 - O colaborador deve ter `is_active = true`; se estiver inactivo, recebe HTTP 403.
-- Avaliações de desempenho (`/me/external/evaluations`) são servidas por integração com o SAD externo — apenas avaliações concluídas/homologadas são visíveis.
+- Em ambiente `development` o JWT não é validado — qualquer chamada é aceite.
 
 ---
 
 ## 11. API de Documentos / Ficheiros
 
-A tabela `documents` é polimórfica: pode associar ficheiros ao funcionário directamente ou a qualquer entidade (pedido de ausência, formação, processo disciplinar, etc.).
+Os documentos são associados ao funcionário e podem depois ser referenciados em entidades específicas (pedidos de ausência, formações, processos disciplinares, etc.).
 
 ### Upload de ficheiro
 
 ```http
-POST /documents
+POST api/v1/rh/funcionarios/{funcionarioId}/documentos
 Content-Type: multipart/form-data
 
 file: [binário do ficheiro]
 documentTypeId: uuid-do-tipo-cni
-employeeId: uuid-do-funcionario
 description: "Cópia do CNI frente e verso"
 ```
 
@@ -943,21 +980,20 @@ description: "Cópia do CNI frente e verso"
 {
   "id": "uuid-do-documento",
   "fileName": "cni_alex.pdf",
-  "documentType": "CNI",
   "mimeType": "application/pdf",
   "sizeBytes": 245680,
-  "uploadedAt": "2026-04-22T10:14:00Z",
-  "employeeId": "uuid-do-funcionario",
-  "storageKey": "employees/{id}/cni_alex.pdf"
+  "uploadedAt": "2026-05-08T10:14:00Z",
+  "funcionarioId": "uuid-do-funcionario",
+  "storageKey": "funcionarios/{id}/cni_alex.pdf"
 }
 ```
 
-**Limites:** 10 MB por ficheiro. Extensões aceites definidas pelo `document_type.allowedExtensions`.
+**Limites:** 10 MB por ficheiro. Extensões aceites definidas pelo `document_type.allowed_extensions`.
 
 ### Download
 
 ```http
-GET /documents/{documentId}/download
+GET api/v1/rh/funcionarios/{funcionarioId}/documentos/{documentId}/download
 ```
 
 Devolve o ficheiro com `Content-Type` e `Content-Disposition` apropriados. Gerada uma URL pré-assinada para o MinIO — o ficheiro não é enviado directamente pelo servidor.
@@ -965,21 +1001,7 @@ Devolve o ficheiro com `Content-Type` e `Content-Disposition` apropriados. Gerad
 ### Listar documentos de um funcionário
 
 ```http
-GET /employees/{employeeId}/documents?documentTypeId=uuid&referenceEntity=leave_requests
-```
-
-### Associar documento a uma entidade (polimorfismo)
-
-Após o upload, pode associar o documento a um pedido de ausência, formação, etc.:
-
-```http
-PUT /documents/{documentId}/reference
-Content-Type: application/json
-
-{
-  "referenceEntity": "leave_requests",
-  "referenceId": "uuid-do-pedido-de-ausencia"
-}
+GET api/v1/rh/funcionarios/{funcionarioId}/documentos
 ```
 
 ---
@@ -990,100 +1012,85 @@ Content-Type: application/json
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| `GET` | `/reference/options?ccode={code}` | Listar opções de um grupo |
-| `POST` | `/reference/options` | Criar opção |
-| `PUT` | `/reference/options/{id}` | Actualizar opção |
-| `DELETE` | `/reference/options/{id}` | Desativar opção |
-| `POST` | `/reference/options/{id}/activate` | Reativar opção |
-| `GET/POST/PUT/DELETE` | `/worker-states/{id?}` | Estados do trabalhador |
-| `GET/POST/PUT/DELETE` | `/professional-situations/{id?}` | Situações profissionais |
-| `GET/POST/PUT/DELETE` | `/contract-types/{id?}` | Tipos de contrato |
-| `GET/POST/PUT/DELETE` | `/leave-types/{id?}` | Tipos de ausência |
-| `GET/POST/PUT/DELETE` | `/leave-mobility-subtypes/{id?}` | Subtipos de licença/mobilidade |
-| `GET/POST/PUT/DELETE` | `/document-types/{id?}` | Tipos de documento |
-| `GET/POST/PUT/DELETE` | `/public-holidays/{id?}` | Feriados |
+| `GET` | `api/v1/rh/reference/options?ccode={code}` | Listar opções de um grupo |
+| `POST` | `api/v1/rh/reference/options` | Criar opção |
+| `PUT` | `api/v1/rh/reference/options/{id}` | Actualizar opção |
+| `DELETE` | `api/v1/rh/reference/options/{id}` | Desativar opção |
+| `GET/POST/PUT/DELETE` | `api/v1/rh/catalogs/worker-states/{id?}` | Estados do trabalhador |
+| `GET/POST/PUT/DELETE` | `api/v1/rh/catalogs/vinculos-laborais/{id?}` | Vínculos laborais |
+| `GET/POST/PUT/DELETE` | `api/v1/rh/catalogs/contract-types/{id?}` | Tipos de contrato |
+| `GET/POST/PUT/DELETE` | `api/v1/rh/catalogs/leave-types/{id?}` | Tipos de ausência |
+| `GET/POST/PUT/DELETE` | `api/v1/rh/catalogs/leave-mobility-subtypes/{id?}` | Subtipos de licença/mobilidade |
+| `GET/POST/PUT/DELETE` | `api/v1/rh/catalogs/document-types/{id?}` | Tipos de documento |
+| `GET/POST/PUT/DELETE` | `api/v1/rh/catalogs/public-holidays/{id?}` | Feriados |
 
 ### Estrutura Organizacional
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| `GET` | `/organizational-units` | Listar unidades (filtros: `parentUnitId`, `unitType`, `isActive`) |
-| `GET` | `/organizational-units/{id}` | Detalhe de unidade |
-| `POST` | `/organizational-units` | Criar unidade |
-| `PUT` | `/organizational-units/{id}` | Actualizar unidade |
-| `DELETE` | `/organizational-units/{id}` | Desativar unidade |
-| `GET/POST/PUT/DELETE` | `/jobs/{id?}` | Cargos |
-| `GET/POST/PUT/DELETE` | `/functions/{id?}` | Funções |
+| `GET` | `api/v1/rh/estrutura/organizational-units` | Listar unidades (filtros: `parentUnitId`, `unitType`, `isActive`) |
+| `GET` | `api/v1/rh/estrutura/organizational-units/{id}` | Detalhe de unidade |
+| `POST` | `api/v1/rh/estrutura/organizational-units` | Criar unidade |
+| `PUT` | `api/v1/rh/estrutura/organizational-units/{id}` | Actualizar unidade |
+| `DELETE` | `api/v1/rh/estrutura/organizational-units/{id}` | Desativar unidade |
+| `GET/POST/PUT/DELETE` | `api/v1/rh/estrutura/jobs/{id?}` | Cargos |
+| `GET/POST/PUT/DELETE` | `api/v1/rh/estrutura/functions/{id?}` | Funções |
 
 ### Carreiras
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| `GET` | `/careers` | Listar carreiras |
-| `GET` | `/careers/{id}/categories` | Categorias de uma carreira |
-| `POST` | `/careers` | Criar carreira |
-| `GET` | `/categories?careerId={id}` | Listar categorias |
-| `GET` | `/categories/{id}/grades` | Escalões de uma categoria |
-| `POST` | `/categories` | Criar categoria (requer `careerId`) |
-| `GET` | `/grades?categoryId={id}` | Listar escalões |
-| `POST` | `/grades` | Criar escalão (requer `categoryId`) |
+| `GET` | `api/v1/rh/careers` | Listar carreiras |
+| `GET` | `api/v1/rh/careers/{id}/categories` | Categorias de uma carreira |
+| `POST` | `api/v1/rh/careers` | Criar carreira |
+| `GET` | `api/v1/rh/categories?careerId={id}` | Listar categorias |
+| `GET` | `api/v1/rh/categories/{id}/grades` | Escalões de uma categoria |
+| `POST` | `api/v1/rh/categories` | Criar categoria (requer `careerId`) |
+| `GET` | `api/v1/rh/grades?categoryId={id}` | Listar escalões |
+| `POST` | `api/v1/rh/grades` | Criar escalão (requer `categoryId`) |
 
 ### Funcionários
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| `GET` | `/employees` | Listar funcionários (filtros: `search`, `unitId`, `workerStateId`, `careerId`) |
-| `GET` | `/employees/{id}` | Detalhe completo |
-| `POST` | `/employees` | Criar funcionário |
-| `PUT` | `/employees/{id}` | Actualizar (NIF imutável) |
-| `DELETE` | `/employees/{id}` | Desativar (bloqueado se pedidos PENDING) |
-| `GET` | `/employees/{id}/contracts` | Histórico de contratos |
-| `POST` | `/employees/{id}/contracts` | Novo contrato (encerra o anterior) |
-| `GET` | `/employees/{id}/professional-assignments` | Histórico de enquadramentos |
-| `POST` | `/employees/{id}/professional-assignments` | Novo enquadramento (encerra o anterior) |
-| `GET` | `/employees/{id}/unit-assignments` | Colocações orgânicas |
-| `POST` | `/employees/{id}/unit-assignments` | Nova colocação |
-| `PUT` | `/employees/{id}/unit-assignments/{aid}/close` | Encerrar colocação |
-| `GET/POST/PUT/DELETE` | `/employees/{id}/dependents/{did?}` | Dependentes |
-| `GET/POST/PUT/DELETE` | `/employees/{id}/qualifications/{qid?}` | Habilitações |
-| `GET/POST/PUT/DELETE` | `/employees/{id}/trainings/{tid?}` | Formações |
-| `GET/POST/PUT/DELETE` | `/employees/{id}/disciplinary-processes/{pid?}` | Processos disciplinares |
-| `GET` | `/employees/{id}/documents` | Documentos do funcionário |
-| `GET` | `/employees/{id}/leave-balances` | Saldos de ausência |
-| `PUT` | `/employees/{id}/leave-balances/{bid}` | Ajustar saldo |
-| `GET` | `/employees/{id}/leaves-mobilities` | Licenças/mobilidades do funcionário |
-| `GET` | `/employees/{id}/payroll-slips` | Recibos |
-| `POST` | `/employees/{id}/payroll-slips` | Registar recibo |
+| `GET` | `api/v1/rh/funcionarios` | Listar funcionários (filtros: `search`, `unitId`, `workerStateId`, `careerId`) |
+| `GET` | `api/v1/rh/funcionarios/{id}` | Detalhe completo |
+| `POST` | `api/v1/rh/funcionarios` | Criar funcionário |
+| `PUT` | `api/v1/rh/funcionarios/{id}` | Actualizar (NIF imutável) |
+| `DELETE` | `api/v1/rh/funcionarios/{id}` | Desativar (bloqueado se pedidos PENDING) |
+| `GET/POST` | `api/v1/rh/funcionarios/{id}/dados-bancarios` | Dados bancários e segurança social |
+| `GET` | `api/v1/rh/funcionarios/{id}/contratos` | Histórico de contratos |
+| `POST` | `api/v1/rh/funcionarios/{id}/contratos` | Novo contrato (encerra o anterior) |
+| `GET` | `api/v1/rh/funcionarios/{id}/enquadramentos` | Histórico de enquadramentos |
+| `POST` | `api/v1/rh/funcionarios/{id}/enquadramentos` | Novo enquadramento (encerra o anterior) |
+| `GET` | `api/v1/rh/funcionarios/{id}/colocacoes` | Colocações orgânicas |
+| `POST` | `api/v1/rh/funcionarios/{id}/colocacoes` | Nova colocação |
+| `GET/POST/PUT/DELETE` | `api/v1/rh/funcionarios/{id}/dependentes/{did?}` | Dependentes |
+| `GET/POST/PUT/DELETE` | `api/v1/rh/funcionarios/{id}/qualificacoes/{qid?}` | Qualificações |
+| `GET/POST/PUT/DELETE` | `api/v1/rh/funcionarios/{id}/formacoes/{tid?}` | Formações |
+| `GET/POST/PUT/DELETE` | `api/v1/rh/funcionarios/{id}/processos-disciplinares/{pid?}` | Processos disciplinares |
+| `GET` | `api/v1/rh/funcionarios/{id}/documentos` | Documentos do funcionário |
+| `POST` | `api/v1/rh/funcionarios/{id}/documentos` | Upload de documento |
+| `GET` | `api/v1/rh/funcionarios/{id}/saldos-ausencia` | Saldos de ausência |
+| `PUT` | `api/v1/rh/funcionarios/{id}/saldos-ausencia/{bid}` | Ajustar saldo |
+| `GET/POST` | `api/v1/rh/funcionarios/{id}/pedidos-ausencia/{pid?}` | Pedidos de ausência |
+| `PUT` | `api/v1/rh/funcionarios/{id}/pedidos-ausencia/{pid}/approve` | Aprovar pedido |
+| `PUT` | `api/v1/rh/funcionarios/{id}/pedidos-ausencia/{pid}/reject` | Rejeitar pedido |
+| `PUT` | `api/v1/rh/funcionarios/{id}/pedidos-ausencia/{pid}/cancel` | Cancelar pedido |
+| `GET/POST` | `api/v1/rh/funcionarios/{id}/licencas-mobilidade/{lid?}` | Licenças e mobilidades |
+| `PUT` | `api/v1/rh/funcionarios/{id}/licencas-mobilidade/{lid}/approve` | Aprovar licença/mobilidade |
+| `PUT` | `api/v1/rh/funcionarios/{id}/licencas-mobilidade/{lid}/close` | Encerrar licença/mobilidade |
+| `PUT` | `api/v1/rh/funcionarios/{id}/licencas-mobilidade/{lid}/cancel` | Cancelar licença/mobilidade |
+| `GET/POST` | `api/v1/rh/funcionarios/{id}/recibos/{rid?}` | Recibos de vencimento |
 
-### Pedidos de Ausência
-
-| Método | Endpoint | Descrição |
-|---|---|---|
-| `GET` | `/leave-requests` | Listar pedidos (filtros: `employeeId`, `status`, `leaveTypeId`) |
-| `GET` | `/leave-requests/{id}` | Detalhe |
-| `POST` | `/leave-requests` | Submeter pedido |
-| `PUT` | `/leave-requests/{id}/approve` | Aprovar |
-| `PUT` | `/leave-requests/{id}/reject` | Rejeitar (requer `rejectionReason`) |
-| `PUT` | `/leave-requests/{id}/cancel` | Cancelar |
-
-### Licenças e Mobilidades
+### Auditoria
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| `GET` | `/leaves-mobilities` | Listar (filtros: `employeeId`, `recordType`, `status`) |
-| `POST` | `/leaves-mobilities` | Criar |
-| `PUT` | `/leaves-mobilities/{id}/approve` | Aprovar (trigger fn_apply_mobility) |
-| `PUT` | `/leaves-mobilities/{id}/reject` | Rejeitar |
-| `PUT` | `/leaves-mobilities/{id}/close` | Encerrar (restaura colocação anterior se temporária) |
-| `PUT` | `/leaves-mobilities/{id}/cancel` | Cancelar |
-
-### Documentos
-
-| Método | Endpoint | Descrição |
-|---|---|---|
-| `POST` | `/documents` | Upload (multipart/form-data) |
-| `GET` | `/documents/{id}/download` | Download |
-| `PUT` | `/documents/{id}/reference` | Associar a entidade |
+| `GET` | `api/v1/rh/colaboradores/audit` | Histórico de alterações — colaboradores |
+| `GET` | `api/v1/rh/carreiras/audit` | Histórico de alterações — carreiras |
+| `GET` | `api/v1/rh/estrutura/audit` | Histórico de alterações — estrutura organizacional |
+| `GET` | `api/v1/rh/catalogs/audit` | Histórico de alterações — catálogos/parametrizações |
 
 ---
 
@@ -1104,4 +1111,4 @@ Content-Type: application/json
 
 ---
 
-*Documento gerado em Maio de 2026 — Módulo RH v4.0 — SIPPROG/INGT*
+*Documento atualizado em Maio de 2026 — Módulo RH v4.5 — SIPPROG/INGT*
