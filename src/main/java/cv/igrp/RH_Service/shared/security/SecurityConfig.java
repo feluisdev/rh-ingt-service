@@ -1,5 +1,7 @@
 package cv.igrp.RH_Service.shared.security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import cv.igrp.RH_Service.shared.infrastructure.security.IAMUserProfileSyncFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -15,6 +17,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.TokenExchangeOAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -31,7 +34,9 @@ import org.springframework.web.cors.CorsConfiguration;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+  private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConfig.class);
+
+  @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private String jwtIssuer;
 
     @Value("${app.security.enabled:true}")
@@ -78,16 +83,27 @@ public class SecurityConfig {
     // chain and SecurityContext is populated with JwtAuthenticationToken when a valid Bearer
     // token is present — required for IAMUserProfileSyncFilter to work regardless of whether
     // app.security.enabled is true or false.
-    http.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
+    /*http.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
-    );
+    );*/
 
     if (isSecurityDisabled()) {
-      // Security disabled — only allowed in development profile via SECURITY_ENABLED=false.
-      // Token is still parsed when present so IAMUserProfileSyncFilter can sync the profile.
+      LOGGER.warn("Security disabled — running in development mode without authentication enforcement.");
+      http.oauth2ResourceServer(oauth2 -> {
+        if (jwtIssuer == null || jwtIssuer.isBlank()) {
+          // No issuer configured — ignore any token sent, requests pass through.
+          LOGGER.warn("AUTH_JWT_ISSUER not configured — tokens will be ignored.");
+          oauth2.bearerTokenResolver(request -> null);
+        }
+        oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()));
+      });
       http.csrf(AbstractHttpConfigurer::disable);
       http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
     } else {
+      LOGGER.info("Security enabled — issuer: {}", jwtIssuer);
+      http.oauth2ResourceServer(oauth2 -> oauth2
+          .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+      );
       http.authorizeHttpRequests(authorize -> authorize
               .requestMatchers(
                   "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
@@ -130,12 +146,22 @@ public class SecurityConfig {
    */
   @Bean
   public JwtDecoder jwtDecoder() {
-    if (isSecurityDisabled()) {
+    if (jwtIssuer == null || jwtIssuer.isBlank()) {
+      LOGGER.warn("AUTH_JWT_ISSUER not configured — JWT decoder disabled.");
       return token -> null;
     }
-    return NimbusJwtDecoder.withIssuerLocation(jwtIssuer).build();
+    try {
+      LOGGER.info("JWT decoder configured — issuer: {}", jwtIssuer);
+      return NimbusJwtDecoder.withIssuerLocation(jwtIssuer).build();
+    } catch (Exception e) {
+      LOGGER.error("Failed to reach Keycloak at '{}': {}", jwtIssuer, e.getMessage());
+      if (isSecurityDisabled()) {
+        LOGGER.warn("Running in development mode — token validation will be unavailable until Keycloak is reachable.");
+        return token -> { throw new BadJwtException("Keycloak is not reachable. Fix AUTH_JWT_ISSUER in your .env file."); };
+      }
+      throw new IllegalStateException("Cannot start: Keycloak is not reachable at '" + jwtIssuer + "'.", e);
+    }
   }
-
   /**
    * Creates a bean for an OAuth2AuthorizedClientProvider that supports token exchange.
    *
