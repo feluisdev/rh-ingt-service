@@ -151,7 +151,7 @@ public class SecurityConfig {
       return token -> null;
     }
     try {
-      LOGGER.info("JWT decoder configured — issuer: {}", jwtIssuer);
+      LOGGER.info("JWT decoder configured!! — issuer: {}", jwtIssuer);
       return NimbusJwtDecoder.withIssuerLocation(jwtIssuer).build();
     } catch (Exception e) {
       LOGGER.error("Failed to reach Keycloak at '{}': {}", jwtIssuer, e.getMessage());
