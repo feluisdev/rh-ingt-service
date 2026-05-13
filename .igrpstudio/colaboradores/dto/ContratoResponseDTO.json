@@ -10,6 +10,7 @@
     {"type": "date", "name": "dataInicio", "objectType": "java", "required": false},
     {"type": "date", "name": "dataFim", "objectType": "java", "required": false},
     {"type": "string", "name": "numeroContrato", "objectType": "java", "required": false},
-    {"type": "boolean", "name": "isActive", "objectType": "java", "required": false}
+    {"type": "boolean", "name": "isCurrent", "objectType": "java", "required": false},
+    {"type": "string", "name": "isCurrentDesc", "objectType": "java", "required": false}
   ]
 }

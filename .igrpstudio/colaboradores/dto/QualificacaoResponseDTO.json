@@ -11,6 +11,9 @@
     {"type": "string", "name": "instituicao", "objectType": "java", "required": false},
     {"type": "integer", "name": "anoConclusao", "objectType": "java", "required": false},
     {"type": "string", "name": "pais", "objectType": "java", "required": false},
-    {"type": "boolean", "name": "isActive", "objectType": "java", "required": false}
+    {"type": "boolean", "name": "completed", "objectType": "java", "required": false},
+    {"type": "string", "name": "completedDesc", "objectType": "java", "required": false},
+    {"type": "boolean", "name": "isActive", "objectType": "java", "required": false},
+    {"type": "string", "name": "estadoDesc", "objectType": "java", "required": false}
   ]
 }

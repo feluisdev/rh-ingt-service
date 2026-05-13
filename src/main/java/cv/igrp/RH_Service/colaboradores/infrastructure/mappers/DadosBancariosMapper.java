@@ -39,6 +39,7 @@ public class DadosBancariosMapper {
         r.setIban(d.getIban());
         r.setNumeroSegurancaSocial(d.getNumeroSegurancaSocial());
         r.setIsActive(d.getIsActive());
+        r.setEstadoDesc(Boolean.TRUE.equals(d.getIsActive()) ? "Ativo" : "Inativo");
         return r;
     }
 }

@@ -42,6 +42,7 @@ public class DocumentTypeMapper {
         dto.setAllowedExtensions(domain.getAllowedExtensions());
         dto.setCategory(domain.getCategory());
         dto.setIsActive(domain.isActive());
+        dto.setEstadoDesc(Boolean.TRUE.equals(domain.isActive()) ? "Ativo" : "Inativo");
         return dto;
     }
 }

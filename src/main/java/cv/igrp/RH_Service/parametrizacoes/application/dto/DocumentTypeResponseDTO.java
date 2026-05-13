@@ -22,4 +22,5 @@ public class DocumentTypeResponseDTO {
     private String category;
 
     private Boolean isActive;
+    private String estadoDesc;
 }

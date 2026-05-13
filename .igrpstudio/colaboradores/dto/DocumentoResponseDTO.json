@@ -13,6 +13,7 @@
     {"type": "string", "name": "contentType", "objectType": "java", "required": false},
     {"type": "long", "name": "fileSize", "objectType": "java", "required": false},
     {"type": "string", "name": "description", "objectType": "java", "required": false},
-    {"type": "boolean", "name": "isActive", "objectType": "java", "required": false}
+    {"type": "boolean", "name": "isActive", "objectType": "java", "required": false},
+    {"type": "string", "name": "estadoDesc", "objectType": "java", "required": false}
   ]
 }

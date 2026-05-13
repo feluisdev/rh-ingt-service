@@ -17,4 +17,5 @@ public class DependenteResponseDTO {
     private LocalDate birthDate;
     private String nif;
     private Boolean isActive;
+    private String estadoDesc;
 }

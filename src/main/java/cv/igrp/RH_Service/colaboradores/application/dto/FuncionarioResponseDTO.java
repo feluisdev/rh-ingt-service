@@ -31,4 +31,5 @@ public class FuncionarioResponseDTO {
     private String workerStateId;
     private LocalDate dataAdmissao;
     private Boolean isActive;
+    private String estadoDesc;
 }

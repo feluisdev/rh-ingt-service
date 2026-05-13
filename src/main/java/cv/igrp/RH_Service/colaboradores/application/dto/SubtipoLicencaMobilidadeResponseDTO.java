@@ -16,4 +16,5 @@ public class SubtipoLicencaMobilidadeResponseDTO {
     private Boolean countsForSeniority;
     private Boolean canSelfSubmit;
     private Boolean isActive;
+    private String estadoDesc;
 }

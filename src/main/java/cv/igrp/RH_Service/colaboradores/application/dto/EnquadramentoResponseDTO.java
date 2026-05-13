@@ -21,4 +21,5 @@ public class EnquadramentoResponseDTO {
     private LocalDate dataInicio;
     private LocalDate dataFim;
     private Boolean isCurrent;
+    private String isCurrentDesc;
 }

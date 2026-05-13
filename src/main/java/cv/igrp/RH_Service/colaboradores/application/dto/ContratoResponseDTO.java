@@ -19,6 +19,7 @@ public class ContratoResponseDTO {
     private LocalDate endDate;
     private String terminationReason;
     private Boolean isCurrent;
+    private String isCurrentDesc;
     private String status;
     private Integer renewalCount;
     private String regimeTrabalho;

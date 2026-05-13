@@ -48,6 +48,7 @@ public class LeaveTypeMapper {
         dto.setMaxDaysPerYear(domain.getMaxDaysPerYear());
         dto.setCategory(domain.getCategory());
         dto.setIsActive(domain.isActive());
+        dto.setEstadoDesc(Boolean.TRUE.equals(domain.isActive()) ? "Ativo" : "Inativo");
         return dto;
     }
 }

@@ -48,6 +48,7 @@ public class LeaveMobilitySubtypeMapper {
         dto.setCountsForSeniority(domain.isCountsForSeniority());
         dto.setCanSelfSubmit(domain.isCanSelfSubmit());
         dto.setIsActive(domain.isActive());
+        dto.setEstadoDesc(Boolean.TRUE.equals(domain.isActive()) ? "Ativo" : "Inativo");
         return dto;
     }
 }

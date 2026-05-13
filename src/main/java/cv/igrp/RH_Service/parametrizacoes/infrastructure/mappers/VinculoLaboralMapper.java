@@ -42,6 +42,7 @@ public class VinculoLaboralMapper {
         dto.setCountsSeniority(domain.isCountsSeniority());
         dto.setEligibleForProgression(domain.isEligibleForProgression());
         dto.setIsActive(domain.isActive());
+        dto.setEstadoDesc(Boolean.TRUE.equals(domain.isActive()) ? "Ativo" : "Inativo");
         return dto;
     }
 }

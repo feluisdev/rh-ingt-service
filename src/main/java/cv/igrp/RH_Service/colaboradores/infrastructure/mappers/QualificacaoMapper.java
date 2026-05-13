@@ -45,7 +45,9 @@ public class QualificacaoMapper {
         r.setStartDate(q.getStartDate());
         r.setEndDate(q.getEndDate());
         r.setCompleted(q.getCompleted());
+        r.setCompletedDesc(Boolean.TRUE.equals(q.getCompleted()) ? "Concluída" : "Em curso");
         r.setIsActive(q.getIsActive());
+        r.setEstadoDesc(Boolean.TRUE.equals(q.getIsActive()) ? "Ativo" : "Inativo");
         return r;
     }
 }

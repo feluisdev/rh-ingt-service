@@ -39,6 +39,7 @@ public class WorkerStateMapper {
         dto.setDescription(domain.getDescription());
         dto.setIsCore(domain.isCore());
         dto.setIsActive(domain.isActive());
+        dto.setEstadoDesc(Boolean.TRUE.equals(domain.isActive()) ? "Ativo" : "Inativo");
         return dto;
     }
 }

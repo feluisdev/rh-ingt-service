@@ -35,6 +35,7 @@ public class OptionResponseDTO {
 
   private boolean active ;
 
+  private String estadoDesc ;
 
   private String description ;
 

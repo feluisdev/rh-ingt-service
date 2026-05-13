@@ -22,4 +22,5 @@ public class PedidoAusenciaResponseDTO {
     private LocalDate dataDecisao;
     private String observacoesDecisao;
     private Boolean isActive;
+    private String estadoDesc;
 }

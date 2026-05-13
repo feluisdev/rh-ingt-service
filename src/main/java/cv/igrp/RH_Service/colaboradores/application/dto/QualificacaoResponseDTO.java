@@ -19,5 +19,7 @@ public class QualificacaoResponseDTO {
     private LocalDate startDate;
     private LocalDate endDate;
     private Boolean completed;
+    private String completedDesc;
     private Boolean isActive;
+    private String estadoDesc;
 }

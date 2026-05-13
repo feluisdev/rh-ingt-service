@@ -39,6 +39,13 @@
       "type": "boolean",
       "required": false,
       "primaryKey": false
+    },
+    {
+      "name": "estadoDesc",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
     }
   ],
   "id": "worker_state_res_dto_001"

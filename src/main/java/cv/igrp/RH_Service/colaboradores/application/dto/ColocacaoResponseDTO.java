@@ -17,7 +17,9 @@ public class ColocacaoResponseDTO {
     private LocalDate startDate;
     private LocalDate endDate;
     private Boolean isCurrent;
+    private String isCurrentDesc;
     private Boolean isActive;
+    private String estadoDesc;
     private String assignmentType;
     private String notes;
 }

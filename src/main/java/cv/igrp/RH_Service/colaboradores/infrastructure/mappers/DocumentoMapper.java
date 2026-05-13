@@ -53,6 +53,7 @@ public class DocumentoMapper {
         r.setFileSize(d.getFileSize());
         r.setDescription(d.getDescription());
         r.setIsActive(d.getIsActive());
+        r.setEstadoDesc(Boolean.TRUE.equals(d.getIsActive()) ? "Ativo" : "Inativo");
         documentTypeRepository.findById(d.getDocumentTypeId()).ifPresent(tipo -> {
             DocumentTypeResponseDTO dto = new DocumentTypeResponseDTO();
             dto.setId(tipo.getId().getStringValor());
@@ -61,6 +62,7 @@ public class DocumentoMapper {
             dto.setAllowedExtensions(tipo.getAllowedExtensions());
             dto.setCategory(tipo.getCategory());
             dto.setIsActive(tipo.isActive());
+            dto.setEstadoDesc(Boolean.TRUE.equals(tipo.isActive()) ? "Ativo" : "Inativo");
             r.setDocumentType(dto);
         });
         return r;
