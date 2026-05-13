@@ -46,6 +46,13 @@
       "type": "boolean",
       "required": false,
       "primaryKey": false
+    },
+    {
+      "name": "estadoDesc",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
     }
   ],
   "id": "public_holiday_res_dto_001"

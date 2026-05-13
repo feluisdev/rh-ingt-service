@@ -16,4 +16,5 @@ public class PublicHolidayResponseDTO {
     private Boolean isNational;
     private String description;
     private Boolean isActive;
+    private String estadoDesc;
 }

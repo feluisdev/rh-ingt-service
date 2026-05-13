@@ -16,4 +16,5 @@ public class VinculoLaboralResponseDTO {
     private Boolean countsSeniority;
     private Boolean eligibleForProgression;
     private Boolean isActive;
+    private String estadoDesc;
 }

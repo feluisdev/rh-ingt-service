@@ -26,4 +26,5 @@ public class LeaveMobilitySubtypeResponseDTO {
     private boolean canSelfSubmit;
 
     private Boolean isActive;
+    private String estadoDesc;
 }

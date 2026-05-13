@@ -24,6 +24,7 @@
     {"type": "string", "name": "localidade", "objectType": "java", "required": false},
     {"type": "string", "name": "workerStateId", "objectType": "java", "required": false},
     {"type": "date", "name": "dataAdmissao", "objectType": "java", "required": false},
-    {"type": "boolean", "name": "isActive", "objectType": "java", "required": false}
+    {"type": "boolean", "name": "isActive", "objectType": "java", "required": false},
+    {"type": "string", "name": "estadoDesc", "objectType": "java", "required": false}
   ]
 }

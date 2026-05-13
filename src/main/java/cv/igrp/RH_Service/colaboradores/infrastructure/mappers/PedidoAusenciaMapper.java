@@ -56,6 +56,7 @@ public class PedidoAusenciaMapper {
         r.setMaxDaysPerYear(t.getMaxDaysPerYear());
         r.setCategoryOptionCkey(t.getCategoryOptionCkey());
         r.setIsActive(t.getIsActive());
+        r.setEstadoDesc(Boolean.TRUE.equals(t.getIsActive()) ? "Ativo" : "Inativo");
         return r;
     }
 
@@ -72,6 +73,7 @@ public class PedidoAusenciaMapper {
         r.setDataDecisao(p.getDataDecisao());
         r.setObservacoesDecisao(p.getObservacoesDecisao());
         r.setIsActive(p.getIsActive());
+        r.setEstadoDesc(Boolean.TRUE.equals(p.getIsActive()) ? "Ativo" : "Inativo");
         tipoAusenciaRepository.findById(p.getTipoAusenciaId())
                 .ifPresent(t -> r.setTipoAusencia(toTipoDTO(t)));
         return r;

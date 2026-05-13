@@ -84,6 +84,7 @@ public class FuncionarioMapper {
         r.setWorkerStateId(f.getWorkerStateId() != null ? f.getWorkerStateId().toString() : null);
         r.setDataAdmissao(f.getDataAdmissao());
         r.setIsActive(f.getIsActive());
+        r.setEstadoDesc(Boolean.TRUE.equals(f.getIsActive()) ? "Ativo" : "Inativo");
         return r;
     }
 }

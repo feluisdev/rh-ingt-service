@@ -49,7 +49,9 @@ public class ColocacaoMapper {
         r.setStartDate(c.getStartDate());
         r.setEndDate(c.getEndDate());
         r.setIsCurrent(c.getIsCurrent());
+        r.setIsCurrentDesc(Boolean.TRUE.equals(c.getIsCurrent()) ? "Atual" : "Anterior");
         r.setIsActive(c.getIsActive());
+        r.setEstadoDesc(Boolean.TRUE.equals(c.getIsActive()) ? "Ativo" : "Inativo");
         r.setAssignmentType(c.getAssignmentType().name());
         r.setNotes(c.getNotes());
         return r;

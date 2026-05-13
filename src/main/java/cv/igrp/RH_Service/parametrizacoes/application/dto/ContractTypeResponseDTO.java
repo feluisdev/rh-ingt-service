@@ -19,4 +19,5 @@ public class ContractTypeResponseDTO {
     private Integer maxDurationMonths;
     private Boolean requiresCareerStructure;
     private Boolean isActive;
+    private String estadoDesc;
 }

@@ -16,4 +16,5 @@ public class TipoAusenciaResponseDTO {
     private Integer maxDaysPerYear;
     private String categoryOptionCkey;
     private Boolean isActive;
+    private String estadoDesc;
 }

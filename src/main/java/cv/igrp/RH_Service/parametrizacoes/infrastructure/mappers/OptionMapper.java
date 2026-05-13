@@ -47,6 +47,7 @@ public class OptionMapper {
         dto.setLocale(domain.getLocale());
         dto.setSortOrder(domain.getSortOrder());
         dto.setActive(domain.isActive());
+        dto.setEstadoDesc(domain.isActive() ? "Ativo" : "Inativo");
         dto.setDescription(domain.getDescription());
         return dto;
     }

@@ -15,6 +15,7 @@
     {"type": "string", "name": "aprovadoPor", "objectType": "java", "required": false},
     {"type": "date", "name": "dataDecisao", "objectType": "java", "required": false},
     {"type": "string", "name": "observacoesDecisao", "objectType": "java", "required": false},
-    {"type": "boolean", "name": "isActive", "objectType": "java", "required": false}
+    {"type": "boolean", "name": "isActive", "objectType": "java", "required": false},
+    {"type": "string", "name": "estadoDesc", "objectType": "java", "required": false}
   ]
 }

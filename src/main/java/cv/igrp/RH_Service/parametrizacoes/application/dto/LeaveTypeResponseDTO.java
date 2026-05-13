@@ -26,4 +26,5 @@ public class LeaveTypeResponseDTO {
     private String category;
 
     private Boolean isActive;
+    private String estadoDesc;
 }

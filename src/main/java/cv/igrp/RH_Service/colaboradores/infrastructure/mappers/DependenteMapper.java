@@ -39,6 +39,7 @@ public class DependenteMapper {
         r.setBirthDate(d.getBirthDate());
         r.setNif(d.getNif());
         r.setIsActive(d.getIsActive());
+        r.setEstadoDesc(Boolean.TRUE.equals(d.getIsActive()) ? "Ativo" : "Inativo");
         return r;
     }
 }

@@ -16,6 +16,7 @@ public class LicencaMobilidadeResponseDTO {
     private String despachoNumero;
     private String observacoes;
     private Boolean isActive;
+    private String estadoDesc;
     private String status;
     private String destinationUnitId;
     private String justification;

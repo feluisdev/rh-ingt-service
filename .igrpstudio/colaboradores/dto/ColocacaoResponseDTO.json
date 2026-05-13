@@ -11,7 +11,9 @@
     {"type": "date", "name": "startDate", "objectType": "java", "required": false},
     {"type": "date", "name": "endDate", "objectType": "java", "required": false},
     {"type": "boolean", "name": "isCurrent", "objectType": "java", "required": false},
+    {"type": "string", "name": "isCurrentDesc", "objectType": "java", "required": false},
     {"type": "boolean", "name": "isActive", "objectType": "java", "required": false},
+    {"type": "string", "name": "estadoDesc", "objectType": "java", "required": false},
     {"type": "string", "name": "assignmentType", "objectType": "java", "required": false},
     {"type": "string", "name": "notes", "objectType": "java", "required": false}
   ]

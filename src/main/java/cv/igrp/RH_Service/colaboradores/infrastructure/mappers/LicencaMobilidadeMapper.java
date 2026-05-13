@@ -59,6 +59,7 @@ public class LicencaMobilidadeMapper {
         r.setCountsForSeniority(s.getCountsForSeniority());
         r.setCanSelfSubmit(s.getCanSelfSubmit());
         r.setIsActive(s.getIsActive());
+        r.setEstadoDesc(Boolean.TRUE.equals(s.getIsActive()) ? "Ativo" : "Inativo");
         return r;
     }
 
@@ -73,6 +74,7 @@ public class LicencaMobilidadeMapper {
         r.setDespachoNumero(l.getDespachoNumero());
         r.setObservacoes(l.getObservacoes());
         r.setIsActive(l.getIsActive());
+        r.setEstadoDesc(Boolean.TRUE.equals(l.getIsActive()) ? "Ativo" : "Inativo");
         r.setStatus(l.getStatus());
         r.setDestinationUnitId(l.getDestinationUnitId() != null ? l.getDestinationUnitId().toString() : null);
         r.setJustification(l.getJustification());

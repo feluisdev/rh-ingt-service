@@ -90,6 +90,13 @@
       "primaryKey": false
     },
     {
+      "name": "estadoDesc",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
       "name": "description",
       "objectType": "java",
       "type": "string",

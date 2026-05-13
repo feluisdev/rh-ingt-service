@@ -15,4 +15,5 @@ public class DadosBancariosResponseDTO {
     private String iban;
     private String numeroSegurancaSocial;
     private Boolean isActive;
+    private String estadoDesc;
 }

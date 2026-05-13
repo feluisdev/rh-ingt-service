@@ -55,6 +55,7 @@ public class EnquadramentoMapper {
         r.setDataInicio(e.getDataInicio());
         r.setDataFim(e.getDataFim());
         r.setIsCurrent(e.getIsCurrent());
+        r.setIsCurrentDesc(Boolean.TRUE.equals(e.getIsCurrent()) ? "Atual" : "Anterior");
         return r;
     }
 }

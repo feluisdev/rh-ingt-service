@@ -52,6 +52,7 @@ public class ContractTypeMapper {
         dto.setMaxDurationMonths(domain.getMaxDurationMonths());
         dto.setRequiresCareerStructure(domain.isRequiresCareerStructure());
         dto.setIsActive(domain.isActive());
+        dto.setEstadoDesc(Boolean.TRUE.equals(domain.isActive()) ? "Ativo" : "Inativo");
         return dto;
     }
 }

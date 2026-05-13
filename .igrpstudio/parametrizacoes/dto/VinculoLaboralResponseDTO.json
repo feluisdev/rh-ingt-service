@@ -32,6 +32,13 @@
       "type": "boolean",
       "required": false,
       "primaryKey": false
+    },
+    {
+      "name": "estadoDesc",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
     }
   ],
   "id": "vinculo_laboral_res_dto_001"

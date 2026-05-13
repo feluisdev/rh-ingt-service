@@ -15,4 +15,5 @@ public class DocumentoResponseDTO {
     private long fileSize;
     private String description;
     private Boolean isActive;
+    private String estadoDesc;
 }
