@@ -2,7 +2,6 @@ package cv.igrp.RH_Service.shared.security;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import cv.igrp.RH_Service.shared.infrastructure.security.IAMUserProfileSyncFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;

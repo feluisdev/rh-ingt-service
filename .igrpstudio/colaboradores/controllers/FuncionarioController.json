@@ -80,6 +80,34 @@
       "pathVariables": [
         {"name": "funcionarioId", "type": "string"  ,
     {
+      "actionName": "registarColaborador",
+      "method": "POST",
+      "path": "registar",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "RegistarColaboradorRequestDTO",
+              "objectType": "dto"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "RegistarColaboradorResponseDTO",
+                "objectType": "dto"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "actionName": "getCombobox",
       "path": "combobox",
       "method": "GET",

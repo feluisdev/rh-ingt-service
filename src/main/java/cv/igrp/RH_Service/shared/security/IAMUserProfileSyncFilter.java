@@ -1,4 +1,4 @@
-package cv.igrp.RH_Service.shared.infrastructure.security;
+package cv.igrp.RH_Service.shared.security;
 
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.repository.ColabsFuncionarioEntityRepository;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.entity.IAMUserProfileEntity;
