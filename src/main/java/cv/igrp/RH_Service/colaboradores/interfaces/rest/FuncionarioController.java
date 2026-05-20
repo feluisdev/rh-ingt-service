@@ -93,6 +93,17 @@ public class FuncionarioController {
     }
 
 
+    @PostMapping("registar")
+    @Operation(summary = "Registar colaborador completo (dados pessoais, contrato, enquadramento e dados bancários)")
+    public ResponseEntity<RegistarColaboradorResponseDTO> registarColaborador(
+            @Valid @RequestBody RegistarColaboradorRequestDTO request) {
+        LOGGER.debug("Operation started");
+        final var command = new RegistarColaboradorCommand(request);
+        ResponseEntity<RegistarColaboradorResponseDTO> response = commandBus.send(command);
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
     @GetMapping("combobox")
     @Operation(
         summary = "Listar funcionários para combobox",
