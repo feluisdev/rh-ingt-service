@@ -31,9 +31,9 @@ public class FuncionarioService {
             throw IgrpResponseStatusException.conflict(
                     "Já existe um funcionário com número de documento '" + dto.getNumeroDocumento() + "'.");
 
-        UUID workerStateId = workerStateRepository.findByCode("ATIVO")
+        UUID workerStateId = workerStateRepository.findByCode("ACTIVE")
                 .orElseThrow(() -> IgrpResponseStatusException.badRequest(
-                        "Estado 'ATIVO' não configurado no sistema."))
+                        "Estado 'ACTIVE' não configurado no sistema."))
                 .getId().getValor();
 
         Long seq = jdbcTemplate.queryForObject("SELECT nextval('seq_numero_funcionario')", Long.class);
