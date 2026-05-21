@@ -6,7 +6,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.http.HttpStatus;
-import java.util.Optional;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -23,6 +24,10 @@ public interface OptionEntityRepository extends
 
       boolean existsByCkeyAndCcodeAndLocale(String ckey, String ccode, String locale);
 
-      java.util.List<OptionEntity> findAllByCcodeAndLocaleAndActive(String ccode, String locale, boolean active);
+      List<OptionEntity> findAllByCcodeAndLocaleAndActive(String ccode, String locale, boolean active);
+
+      List<OptionEntity> findAllByCcodeAndCkeyAndActive(String ccode, String ckey, boolean active);
+
+      List<OptionEntity> findAllByCcodeAndCkeyInAndActive(String ccode, Collection<String> ckeys, boolean active);
 
 }
