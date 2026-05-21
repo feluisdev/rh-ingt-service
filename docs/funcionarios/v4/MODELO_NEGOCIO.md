@@ -190,14 +190,20 @@ Designação oficial do cargo que o funcionário ocupa: `DIRETOR_SERVICOS`, `TEC
 
 ### 5.3 Funções (`t_funcao`)
 
-Função efectivamente exercida dentro do cargo. Um `TECNICO_SUPERIOR` (cargo) pode exercer a função de `COORDENADOR_PROJETO` ou `ANALISTA_SISTEMAS`. Referenciada pelos enquadramentos.
+Função efectivamente exercida dentro do cargo. Um `TECNICO_SUPERIOR` (cargo) pode exercer a função de `COORDENADOR_PROJETO` ou `ANALISTA_SISTEMAS`.
 
 Cada função tem um campo `job_id UUID FK→t_job` (nullable) que a liga ao cargo ao qual pertence:
 
-- **`job_id` preenchido** — função específica de um cargo. Ao criar um enquadramento com esse cargo, só estas funções são válidas.
+- **`job_id` preenchido** — função específica de um cargo. O funcionário com esse cargo **herda** todas as funções a ele associadas — pode exercer qualquer uma delas.
 - **`job_id = null`** — função genérica, compatível com qualquer cargo.
 
-A validação é feita na camada de domínio (`OrgFunction.validarCompatibilidadeComCargo()`): se `job_id != null` e não coincide com o `cargo_id` do enquadramento, o sistema rejeita com HTTP 422.
+**Distinção importante entre catálogo e enquadramento:**
+
+O `job_id` em `t_funcao` serve dois propósitos:
+1. **Organizar o catálogo** — agrupa as funções por cargo para apresentação na UI.
+2. **Validar o enquadramento** — ao registar um enquadramento com `function_id`, a aplicação verifica que `funcao.job_id == cargo_id` (ou `job_id IS NULL`). Se incompatível → HTTP 422.
+
+O facto de um funcionário "herdar" todas as funções do cargo significa que *pode* exercê-las. O `function_id` no enquadramento regista *qual* está efectivamente a exercer naquele período — informação necessária para despachos de nomeação, historial profissional e relatórios RH. É opcional: há funcionários para quem a função específica não é relevante registar.
 
 O endpoint `GET api/v1/rh/estrutura/functions?jobId={cargoId}` permite ao frontend filtrar as funções disponíveis ao seleccionar um cargo.
 
@@ -335,7 +341,7 @@ Regista o posicionamento do funcionário na estrutura orgânica e (quando aplic�
 | `category_id` | Condicional | A categoria dentro da carreira. Obrigatório se `requiresCareerStructure = true`. |
 | `grade_id` | Condicional | O escalão dentro da categoria. Obrigatório se `requiresCareerStructure = true`. |
 | `cargo_id` | Sempre | O cargo que ocupa (FK→`t_job`). |
-| `function_id` | Opcional | A função que exerce (FK→`t_funcao`). Deve pertencer ao cargo. |
+| `function_id` | Opcional | A função que está efectivamente a exercer naquele período (FK→`t_funcao`). O funcionário herda todas as funções do seu cargo — este campo regista qual delas está a desempenhar. Necessário para despachos, historial e relatórios. |
 | `unidade_organica_id` | Sempre | Onde está colocado. |
 
 **Regras de negócio (validações cruzadas com contrato):**

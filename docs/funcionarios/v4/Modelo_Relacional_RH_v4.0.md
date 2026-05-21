@@ -308,8 +308,12 @@ t_funcao  (Funções)
 └── auditoria
 
 -- job_id nullable: permite funções genéricas não ligadas a nenhum cargo específico.
+-- Semântica de herança: um funcionário com um cargo herda todas as funções onde job_id = cargo_id.
+--   Isso significa que PODE exercer qualquer uma delas. O function_id no enquadramento
+--   regista QUAL está efectivamente a exercer naquele período (opcional — não todos os
+--   funcionários têm função específica registada).
 -- Validação de domínio: ao criar um enquadramento com cargo + função, a aplicação
---   verifica que função.job_id == cargo_id (ou que job_id é null).
+--   verifica que função.job_id == cargo_id (ou que job_id é null). Rejeita com HTTP 422 se incompatível.
 -- Filtro de API: GET /estrutura/functions?jobId={cargoId} devolve as funções do cargo.
 ```
 
@@ -466,7 +470,7 @@ t_employee_professional_assignments  (Enquadramento Profissional)
 ├── category_id         UUID FK→t_category            -- nullable: idem
 ├── grade_id            UUID FK→t_grade               -- nullable: idem
 ├── cargo_id            UUID NOT NULL FK→t_job        -- sempre obrigatório
-├── function_id         UUID FK→t_funcao
+├── function_id         UUID FK→t_funcao              -- nullable: função específica que exerce neste período
 ├── unidade_organica_id UUID NOT NULL FK→t_unidade_organica
 ├── data_inicio         DATE  NOT NULL
 ├── data_fim            DATE                           -- null = enquadramento actual
@@ -480,6 +484,11 @@ t_employee_professional_assignments  (Enquadramento Profissional)
 --   1. Criação exige contrato ATIVO; data_inicio dentro do período do contrato.
 --   2. requires_career_structure = true → career_id, category_id, grade_id obrigatórios.
 --   3. Cessação do contrato encerra automaticamente o enquadramento activo.
+-- function_id vs herança de funções do cargo:
+--   O funcionário herda todas as funções do seu cargo (t_funcao WHERE job_id = cargo_id).
+--   O function_id não duplica essa relação — regista qual função específica está a exercer
+--   naquele período. Necessário para despachos oficiais, historial e relatórios RH.
+--   É opcional: funcionários sem função específica atribuída deixam este campo a null.
 ```
 
 ```
