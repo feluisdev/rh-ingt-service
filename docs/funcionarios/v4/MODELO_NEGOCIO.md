@@ -32,7 +32,7 @@ Este documento explica o modelo de negócio do módulo de Recursos Humanos de A 
 
 O RH-Service gere o **dossier completo do funcionário público** da administração de Cabo Verde. Cobre o ciclo de vida desde a admissão até à cessação: identificação pessoal, contratos, enquadramento na grelha de carreiras (PCFR), colocação em unidades orgânicas, documentos, ausências, licenças, mobilidades e recibos de vencimento.
 
-O modelo organiza-se em **9 blocos funcionais** e **26 tabelas**, seguindo três princípios fundamentais:
+O modelo organiza-se em **9 blocos funcionais** e **28 tabelas**, seguindo três princípios fundamentais:
 
 - **Separação de históricos**: contrato, enquadramento de carreira e colocação têm tabelas próprias e ciclos de vida independentes.
 - **Dois tipos de catálogo**: lookups simples (sem lógica) ficam num único repositório genérico (`t_option_entity`); catálogos com comportamento têm tabela própria.
