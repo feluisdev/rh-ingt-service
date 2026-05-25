@@ -15,6 +15,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,6 +48,21 @@ public class OptionRepositoryImpl implements OptionRepository {
             .stream()
             .map(optionMapper::toDomain)
             .toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Option> findByCcodeAndCkey(String ccode, String ckey, boolean active) {
+        return optionEntityRepository.findAllByCcodeAndCkeyAndActive(ccode, ckey, active)
+                .stream().map(optionMapper::toDomain).toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Option> findAllByCcodeAndCkeyIn(String ccode, Collection<String> ckeys, boolean active) {
+        if (ckeys == null || ckeys.isEmpty()) return List.of();
+        return optionEntityRepository.findAllByCcodeAndCkeyInAndActive(ccode, ckeys, active)
+                .stream().map(optionMapper::toDomain).toList();
     }
 
     @Transactional(readOnly = true)

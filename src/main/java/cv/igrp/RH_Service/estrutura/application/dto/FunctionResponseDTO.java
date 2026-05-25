@@ -13,6 +13,8 @@ public class FunctionResponseDTO {
     private String name;
     private String description;
     private String jobId;
+    private String jobName;
+    private String jobDescription;
     private Boolean isActive;
     private String estadoDesc;
 }

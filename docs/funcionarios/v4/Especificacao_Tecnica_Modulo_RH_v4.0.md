@@ -956,7 +956,20 @@ Soft delete. Rejeitado se associado a atribuições profissionais ativas.
 
 ## 3.4 Funções (Functions)
 
-Função efetivamente exercida pelo colaborador.
+Função efetivamente exercida pelo colaborador dentro de um cargo.
+
+**Relação entre função e cargo (`job_id`):**
+
+O campo `jobId` (FK→`t_job`, nullable) associa uma função a um cargo específico:
+
+- `jobId` preenchido → função específica de um cargo. O funcionário com esse cargo **herda** automaticamente todas as funções a ele ligadas — ou seja, pode exercer qualquer uma delas.
+- `jobId = null` → função genérica, válida para qualquer cargo.
+
+Esta relação serve dois propósitos: organizar o catálogo de funções por cargo (para apresentação na UI) e validar o enquadramento profissional (ao registar `functionId` num enquadramento, a aplicação verifica que a função pertence ao cargo indicado).
+
+**Distinção entre herança e enquadramento:**
+
+"Herdar as funções do cargo" significa que o funcionário *pode* exercê-las. O campo `functionId` no enquadramento regista *qual* está efectivamente a exercer naquele período — informação necessária para despachos oficiais, historial profissional e relatórios RH. É opcional: nem todos os funcionários têm função específica registada.
 
 ### GET /functions
 
@@ -969,6 +982,7 @@ Função efetivamente exercida pelo colaborador.
 | `code` | string | Sim | Código único (máx. 50). |
 | `name` | string | Sim | Designação (máx. 150). |
 | `description` | string | Não | Descrição. |
+| `jobId` | UUID | Não | Cargo ao qual a função pertence. `null` = função genérica compatível com qualquer cargo. |
 | `isActive` | boolean | Não | Estado inicial (default true). |
 
 ### PUT /functions/{id}
@@ -1550,7 +1564,7 @@ O diagrama ERD do módulo é apresentado no documento `Modelo_Relacional_RH_v4.0
 | `category_id` | BIGINT NOT NULL FK→t_category | Categoria (validada vs career por trigger). |
 | `grade_id` | BIGINT NOT NULL FK→t_grade | Escalão (validado vs category por trigger). |
 | `job_id` | BIGINT FK→t_job | Cargo exercido. |
-| `function_id` | BIGINT FK→t_funcao | Função exercida. |
+| `function_id` | BIGINT FK→t_funcao | Função específica que o funcionário está a exercer neste período (opcional). O funcionário herda todas as funções do seu cargo — este campo regista qual está efectivamente a desempenhar. |
 | `start_date` | DATE NOT NULL | Data de início. |
 | `end_date` | DATE | Data de fim (`null` = enquadramento actual). |
 | `is_current` | BOOLEAN NOT NULL DEFAULT FALSE | Apenas 1 TRUE por funcionário. |
