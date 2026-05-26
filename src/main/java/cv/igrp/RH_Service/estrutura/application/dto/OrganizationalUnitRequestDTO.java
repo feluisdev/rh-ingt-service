@@ -15,6 +15,5 @@ public class OrganizationalUnitRequestDTO {
     private String acronym;
     private String unitType;
     private String descricao;
-    private Boolean estado;
     private UUID parentUnitId;
 }

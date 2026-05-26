@@ -205,6 +205,27 @@ São as listas que aparecem nos menus de selecção (dropdowns) em todo o sistem
 
 ---
 
+### Motivo de Mudança de Estado (`WORKER_STATE_REASON`)
+
+> Usado no endpoint `PATCH /funcionarios/{id}/worker-state`. O campo `motivoCkey` é opcional mas recomendado para rastreabilidade.
+
+| Chave | Valor |
+|---|---|
+| `DISCIPLINARY_SUSPENSION` | Suspensão Disciplinar |
+| `MEDICAL_SUSPENSION` | Suspensão por Motivo de Saúde |
+| `OWN_REQUEST_SUSPENSION` | Suspensão a Pedido Próprio |
+| `AGE_RETIREMENT` | Aposentação por Limite de Idade |
+| `DISABILITY_RETIREMENT` | Aposentação por Invalidez |
+| `VOLUNTARY_RETIREMENT` | Aposentação Voluntária |
+| `CONTRACT_TERMINATION` | Cessação de Contrato |
+| `MUTUAL_AGREEMENT` | Rescisão por Acordo Mútuo |
+| `DISCIPLINARY_DISMISSAL` | Demissão Disciplinar |
+| `DEATH` | Falecimento |
+| `SUSPENSION_RETURN` | Regresso de Suspensão |
+| `REINTEGRATION` | Reintegração |
+
+---
+
 ## 2. Estados do Trabalhador
 
 > ⚠️ Os estados `ACTIVE` e `INACTIVE` são obrigatórios e protegidos — o sistema não funciona sem eles.
@@ -389,4 +410,4 @@ Repita para todas as categorias de todas as carreiras, usando os índices e sal�
 
 ---
 
-*Valores de Configuração — RH-Service v4.5 — SIPPROG/INGT · Maio 2026*
+*Valores de Configuração — RH-Service v4.6 — SIPPROG/INGT · Maio 2026*

@@ -104,6 +104,29 @@ public class FuncionarioController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
+    @PatchMapping("{funcionarioId}/worker-state")
+    @Operation(summary = "Mudar estado do colaborador")
+    public ResponseEntity<Map<String, ?>> mudarEstadoColaborador(
+            @PathVariable String funcionarioId,
+            @Valid @RequestBody MudarEstadoColaboradorRequestDTO request) {
+        LOGGER.debug("Operation started");
+        final var command = new MudarEstadoColaboradorCommand(funcionarioId, request);
+        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("{funcionarioId}/worker-state/historico")
+    @Operation(summary = "Histórico de mudanças de estado do colaborador")
+    public ResponseEntity<List<HistoricoEstadoColaboradorResponseDTO>> getHistoricoEstadoColaborador(
+            @PathVariable String funcionarioId) {
+        LOGGER.debug("Operation started");
+        final var query = new GetHistoricoEstadoColaboradorQuery(funcionarioId);
+        ResponseEntity<List<HistoricoEstadoColaboradorResponseDTO>> response = queryBus.handle(query);
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
     @GetMapping("combobox")
     @Operation(
         summary = "Listar funcionários para combobox",

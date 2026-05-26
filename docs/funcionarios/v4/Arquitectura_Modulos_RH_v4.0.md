@@ -89,7 +89,8 @@ src/main/java/cv/igrp/RH_Service/
 │   │   ├── models/                 -- Funcionario, Contrato, Dependente, EnquadramentoProfissional,
 │   │   │                           --   Colocacao, Qualificacao, Formacao, ProcessoDisciplinar,
 │   │   │                           --   ReciboVencimento, Documento, PedidoAusencia, SaldoAusencia,
-│   │   │                           --   LicencaMobilidade, SubtipoLicencaMobilidade, Feriado, AuditRevision
+│   │   │                           --   LicencaMobilidade, SubtipoLicencaMobilidade, Feriado,
+│   │   │                           --   HistoricoEstadoColaborador, AuditRevision
 │   │   ├── valueobject/            -- FuncionarioId, ContratoId, DependenteId, ...
 │   │   ├── repository/             -- interfaces de repositório (uma por aggregate root)
 │   │   ├── filter/                 -- filtros de pesquisa
@@ -178,14 +179,14 @@ src/main/java/cv/igrp/RH_Service/
 | Parametrizações | `parametrizacoes/` | `t_option_entity`, `t_worker_state`, `t_vinculo_laboral`, `t_contract_type`, `t_tipo_documento`, `t_leave_type`, `t_leave_mobility_subtype`, `t_public_holiday` | Transversal — todos os outros módulos consomem |
 | Estrutura Organizacional | `estrutura/` | `t_unidade_organica`, `t_job`, `t_funcao` | Catálogo orgânico — referenciado por colaboradores |
 | Carreiras e Progressão | `carreiras/` | `t_career`, `t_category`, `t_grade` | Grelha PCFR (Decreto-Lei 4/2024) |
-| Funcionário — Núcleo | `colaboradores/` (flat) | `t_funcionario`, `t_dependente`, `t_dados_bancarios` | Aggregate root: `Funcionario` |
+| Funcionário — Núcleo | `colaboradores/` (flat) | `t_funcionario`, `t_dependente`, `t_dados_bancarios`, `t_historico_estado_colaborador` | Aggregate root: `Funcionario`; histórico de estados imutável |
 | Vida Profissional | `colaboradores/` (flat) | `t_contrato`, `t_employee_professional_assignments`, `t_employee_unit_assignments` | Três históricos independentes com `is_current` |
 | Dossier | `colaboradores/` (flat) | `t_qualificacao`, `t_training`, `t_disciplinary_process` | Cadastro académico/formativo/disciplinar |
 | Documentos | `colaboradores/` (flat) | `t_document` | Polimórfico via `reference_entity` + `reference_id` |
 | Ausências e Licenças | `colaboradores/` (flat) | `t_leave_balance`, `t_leave_request`, `t_leave_mobility` | Workflow de aprovação pela chefia |
 | Recibos | `colaboradores/` (flat) | `t_payroll_slip` | Storage de PDF gerado pelo sistema salarial externo |
 
-Total: **9 BCs** organizados em **5 módulos top-level**, com **26 tabelas** (excluindo `change_history` e `employee_external_mapping`).
+Total: **9 BCs** organizados em **5 módulos top-level**, com **29 tabelas** (excluindo `change_history` e `employee_external_mapping`).
 
 ---
 

@@ -38,6 +38,11 @@ public class GetOrganizationalUnitByIdQueryHandler
                     .ifPresent(opt -> dto.setUnitTypeDesc(opt.cvalue()));
         }
 
+        if (unit.getParentUnitId() != null) {
+            unitRepository.findById(unit.getParentUnitId())
+                    .ifPresent(parent -> dto.setParentUnitName(parent.getName()));
+        }
+
         return ResponseEntity.ok(dto);
     }
 }

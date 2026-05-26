@@ -1,0 +1,20 @@
+{
+  "type": "dto",
+  "name": "HistoricoEstadoColaboradorResponseDTO",
+  "module": "colaboradores",
+  "template": "classic",
+  "attributes": [
+    {"name": "id",                     "type": "string",   "required": false},
+    {"name": "funcionarioId",          "type": "string",   "required": false},
+    {"name": "estadoAnteriorId",       "type": "string",   "required": false},
+    {"name": "estadoAnteriorDescricao","type": "string",   "required": false},
+    {"name": "estadoNovoId",           "type": "string",   "required": false},
+    {"name": "estadoNovoDescricao",    "type": "string",   "required": false},
+    {"name": "motivoCkey",             "type": "string",   "required": false},
+    {"name": "motivoDescricao",        "type": "string",   "required": false},
+    {"name": "dataEfectividade",       "type": "date",     "required": false},
+    {"name": "observacao",             "type": "string",   "required": false},
+    {"name": "registadoPor",           "type": "string",   "required": false},
+    {"name": "registadoEm",            "type": "datetime", "required": false}
+  ]
+}

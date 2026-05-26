@@ -17,8 +17,8 @@ public class OrganizationalUnitResponseDTO {
     private String unitType;
     private String unitTypeDesc;
     private String descricao;
-    private Boolean estado;
     private UUID parentUnitId;
+    private String parentUnitName;
     private Boolean isActive;
     private String estadoDesc;
     private Long nColaboradores;

@@ -4,6 +4,8 @@ import cv.igrp.RH_Service.estrutura.application.dto.OrganizationalUnitResponseDT
 import cv.igrp.RH_Service.estrutura.domain.repository.OrganizationalUnitRepository;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.OrganizationalUnitId;
 import cv.igrp.RH_Service.estrutura.infrastructure.mappers.OrganizationalUnitMapper;
+import cv.igrp.RH_Service.parametrizacoes.application.port.OptionLookupPort;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.OptionCcode;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
@@ -22,6 +24,7 @@ public class UpdateOrganizationalUnitCommandHandler
 
     private final OrganizationalUnitRepository unitRepository;
     private final OrganizationalUnitMapper mapper;
+    private final OptionLookupPort optionLookupPort;
 
     @IgrpCommandHandler
     public ResponseEntity<OrganizationalUnitResponseDTO> handle(UpdateOrganizationalUnitCommand command) {
@@ -43,10 +46,19 @@ public class UpdateOrganizationalUnitCommandHandler
         }
 
         unit.atualizar(dto.getCode(), dto.getName(), dto.getAcronym(), dto.getUnitType(),
-                dto.getDescricao(), dto.getEstado(), parentId);
+                dto.getDescricao(), parentId);
         var updated = unitRepository.save(unit);
 
-        return ResponseEntity.ok(mapper.toDTO(updated));
+        var responseDto = mapper.toDTO(updated);
+        if (updated.getUnitType() != null) {
+            optionLookupPort.findByCcodeAndCkey(OptionCcode.UNIT_TYPE.getCode(), updated.getUnitType())
+                    .ifPresent(opt -> responseDto.setUnitTypeDesc(opt.cvalue()));
+        }
+        if (parentId != null) {
+            unitRepository.findById(parentId)
+                    .ifPresent(parent -> responseDto.setParentUnitName(parent.getName()));
+        }
+        return ResponseEntity.ok(responseDto);
     }
 
     private OrganizationalUnitId validateAndGetParentId(String parentUnitIdStr, OrganizationalUnitId selfId) {

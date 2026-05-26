@@ -268,3 +268,19 @@ INSERT INTO t_option_entity (id, ccode, ckey, cvalue, locale, sort_order, active
 ('2e000001-0000-0000-0000-000000000003', 'WORK_REGIME', 'ISENCAO_HORARIO',     'Isenção de Horário',  'pt', 3, true, 'Sem horário fixo obrigatório',     NOW(), 'system'),
 ('2e000001-0000-0000-0000-000000000004', 'WORK_REGIME', 'DEDICACAO_EXCLUSIVA', 'Dedicação Exclusiva', 'pt', 4, true, 'Exclusividade ao serviço público', NOW(), 'system')
 ON CONFLICT (id) DO NOTHING;
+
+-- WORKER_STATE_REASON — motivos de mudança de estado do colaborador
+INSERT INTO t_option_entity (id, ccode, ckey, cvalue, locale, sort_order, active, description, created_date, created_by) VALUES
+('2f000001-0000-0000-0000-000000000001', 'WORKER_STATE_REASON', 'DISCIPLINARY_SUSPENSION', 'Suspensão disciplinar',         'pt', 1, true, 'Suspensão na sequência de processo disciplinar',      NOW(), 'system'),
+('2f000001-0000-0000-0000-000000000002', 'WORKER_STATE_REASON', 'MEDICAL_SUSPENSION',      'Suspensão por razões médicas',  'pt', 2, true, 'Incapacidade prolongada por doença ou acidente',      NOW(), 'system'),
+('2f000001-0000-0000-0000-000000000003', 'WORKER_STATE_REASON', 'OWN_REQUEST_SUSPENSION',  'Suspensão a pedido próprio',    'pt', 3, true, 'Licença sem vencimento ou situação assimilada',       NOW(), 'system'),
+('2f000001-0000-0000-0000-000000000004', 'WORKER_STATE_REASON', 'AGE_RETIREMENT',          'Aposentação por limite de idade','pt',4, true, 'Limite de idade previsto no Estatuto do Pessoal',    NOW(), 'system'),
+('2f000001-0000-0000-0000-000000000005', 'WORKER_STATE_REASON', 'DISABILITY_RETIREMENT',   'Aposentação por invalidez',     'pt', 5, true, 'Incapacidade permanente para o exercício de funções', NOW(), 'system'),
+('2f000001-0000-0000-0000-000000000006', 'WORKER_STATE_REASON', 'VOLUNTARY_RETIREMENT',    'Aposentação voluntária',        'pt', 6, true, 'Reforma antecipada por vontade do trabalhador',       NOW(), 'system'),
+('2f000001-0000-0000-0000-000000000007', 'WORKER_STATE_REASON', 'CONTRACT_TERMINATION',    'Extinção do vínculo',           'pt', 7, true, 'Término natural ou administrativo do contrato',       NOW(), 'system'),
+('2f000001-0000-0000-0000-000000000008', 'WORKER_STATE_REASON', 'MUTUAL_AGREEMENT',        'Rescisão por mútuo acordo',     'pt', 8, true, 'Acordo entre as partes para cessação do contrato',    NOW(), 'system'),
+('2f000001-0000-0000-0000-000000000009', 'WORKER_STATE_REASON', 'DISCIPLINARY_DISMISSAL',  'Rescisão disciplinar',          'pt', 9, true, 'Demissão na sequência de processo disciplinar grave',  NOW(), 'system'),
+('2f000001-0000-0000-0000-000000000010', 'WORKER_STATE_REASON', 'DEATH',                   'Falecimento',                   'pt',10, true, 'Cessação por morte do trabalhador',                   NOW(), 'system'),
+('2f000001-0000-0000-0000-000000000011', 'WORKER_STATE_REASON', 'SUSPENSION_RETURN',       'Regresso de suspensão',         'pt',11, true, 'Retorno ao serviço activo após suspensão',            NOW(), 'system'),
+('2f000001-0000-0000-0000-000000000012', 'WORKER_STATE_REASON', 'REINTEGRATION',           'Reintegração',                  'pt',12, true, 'Reintegração na sequência de decisão judicial/adm.',  NOW(), 'system')
+ON CONFLICT (id) DO NOTHING;
