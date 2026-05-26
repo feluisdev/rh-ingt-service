@@ -87,7 +87,7 @@ public class SecurityConfig {
     );*/
 
     if (isSecurityDisabled()) {
-      LOGGER.warn("Security disabled — running in development mode without authentication enforcement.");
+      LOGGER.warn("Security disabled — running in development mode without authentication enforcement!!!!");
       http.oauth2ResourceServer(oauth2 -> {
         if (jwtIssuer == null || jwtIssuer.isBlank()) {
           // No issuer configured — ignore any token sent, requests pass through.
