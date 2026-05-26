@@ -18,7 +18,6 @@ public class OrganizationalUnitMapper {
         entity.setAcronym(domain.getAcronym());
         entity.setUnitType(domain.getUnitType());
         entity.setDescricao(domain.getDescricao());
-        entity.setEstado(domain.getEstado());
         entity.setParentUnitId(domain.getParentUnitId() != null ? domain.getParentUnitId().getValor() : null);
         entity.setIsActive(domain.isActive());
         return entity;
@@ -35,7 +34,6 @@ public class OrganizationalUnitMapper {
                 entity.getAcronym(),
                 entity.getUnitType(),
                 entity.getDescricao(),
-                entity.getEstado(),
                 parentId,
                 entity.getIsActive() != null && entity.getIsActive()
         );
@@ -50,7 +48,6 @@ public class OrganizationalUnitMapper {
         dto.setAcronym(domain.getAcronym());
         dto.setUnitType(domain.getUnitType());
         dto.setDescricao(domain.getDescricao());
-        dto.setEstado(domain.getEstado());
         dto.setParentUnitId(domain.getParentUnitId() != null ? domain.getParentUnitId().getValor() : null);
         dto.setIsActive(domain.isActive());
         dto.setEstadoDesc(domain.isActive() ? "Ativo" : "Inativo");

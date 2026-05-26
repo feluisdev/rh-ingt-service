@@ -46,7 +46,7 @@ public class UpdateOrganizationalUnitCommandHandler
         }
 
         unit.atualizar(dto.getCode(), dto.getName(), dto.getAcronym(), dto.getUnitType(),
-                dto.getDescricao(), dto.getEstado(), parentId);
+                dto.getDescricao(), parentId);
         var updated = unitRepository.save(unit);
 
         var responseDto = mapper.toDTO(updated);

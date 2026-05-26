@@ -9,7 +9,6 @@
     {"name": "acronym", "type": "string", "required": false},
     {"name": "unitType", "type": "string", "required": false},
     {"name": "descricao", "type": "string", "required": false},
-    {"name": "estado", "type": "boolean", "required": false},
     {"name": "parentUnitId", "type": "string", "required": false}
   ]
 }
