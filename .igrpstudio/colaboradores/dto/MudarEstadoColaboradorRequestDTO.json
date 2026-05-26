@@ -1,0 +1,12 @@
+{
+  "type": "dto",
+  "name": "MudarEstadoColaboradorRequestDTO",
+  "module": "colaboradores",
+  "template": "classic",
+  "attributes": [
+    {"name": "workerStateId",    "type": "string", "required": true},
+    {"name": "motivoCkey",       "type": "string", "required": false},
+    {"name": "dataEfectividade", "type": "date",   "required": false},
+    {"name": "observacao",       "type": "string", "required": false}
+  ]
+}

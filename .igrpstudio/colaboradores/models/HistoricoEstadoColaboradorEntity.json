@@ -1,0 +1,16 @@
+{
+  "type": "model",
+  "name": "HistoricoEstadoColaboradorEntity",
+  "module": "colaboradores",
+  "tableName": "t_historico_estado_colaborador",
+  "revision": true,
+  "attributes": [
+    {"name": "id",               "type": "string",  "objectType": "java", "primaryKey": true},
+    {"name": "funcionarioId",    "type": "string",  "objectType": "java", "primaryKey": false, "nullable": false},
+    {"name": "estadoAnteriorId", "type": "string",  "objectType": "java", "primaryKey": false, "nullable": true},
+    {"name": "estadoNovoId",     "type": "string",  "objectType": "java", "primaryKey": false, "nullable": false},
+    {"name": "motivoCkey",       "type": "string",  "objectType": "java", "primaryKey": false, "nullable": true},
+    {"name": "dataEfectividade", "type": "date",    "objectType": "java", "primaryKey": false, "nullable": false},
+    {"name": "observacao",       "type": "string",  "objectType": "java", "primaryKey": false, "nullable": true}
+  ]
+}
