@@ -47,12 +47,22 @@ public class GetOrganizationalUnitsQueryHandler
         Map<String, OptionDTO> unitTypeDescs = optionLookupPort
                 .findAllByCcodeAndCkeys(OptionCcode.UNIT_TYPE.getCode(), unitTypes);
 
+        Set<UUID> parentIds = pageResult.getData().stream()
+                .filter(u -> u.getParentUnitId() != null)
+                .map(u -> u.getParentUnitId().getValor())
+                .collect(Collectors.toSet());
+        Map<UUID, String> parentNames = unitRepository.findAllByIds(parentIds).stream()
+                .collect(Collectors.toMap(u -> u.getId().getValor(), u -> u.getName()));
+
         var content = pageResult.getData().stream().map(unit -> {
             var dto = mapper.toDTO(unit);
             dto.setNColaboradores(colocacaoRepository.countByUnitIdAndIsCurrentTrueAndIsActiveTrue(unit.getId().getValor()));
             if (unit.getUnitType() != null) {
                 OptionDTO opt = unitTypeDescs.get(unit.getUnitType());
                 if (opt != null) dto.setUnitTypeDesc(opt.cvalue());
+            }
+            if (unit.getParentUnitId() != null) {
+                dto.setParentUnitName(parentNames.get(unit.getParentUnitId().getValor()));
             }
             return dto;
         }).toList();

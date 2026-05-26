@@ -13,6 +13,7 @@
     {"name": "descricao", "type": "string", "required": false},
     {"name": "estado", "type": "boolean", "required": false},
     {"name": "parentUnitId", "type": "string", "required": false},
+    {"name": "parentUnitName", "type": "string", "required": false},
     {"name": "isActive", "type": "boolean", "required": false},
     {"name": "estadoDesc", "type": "string", "required": false}
   ]
