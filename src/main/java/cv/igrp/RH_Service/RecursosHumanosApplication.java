@@ -32,6 +32,7 @@ public class RecursosHumanosApplication {
     return () -> Optional.of(LocalDateTime.now());
   }
 
+
   public static void main(String[] args) {
     SpringApplication.run(RecursosHumanosApplication.class, args);
   }
