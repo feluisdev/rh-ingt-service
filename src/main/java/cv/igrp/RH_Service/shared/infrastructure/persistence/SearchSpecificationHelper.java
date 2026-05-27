@@ -8,8 +8,11 @@ import jakarta.persistence.criteria.Predicate;
  * Reusable predicates for JPA Specifications.
  *
  * code  → exact, case-insensitive match (uses = with lower())
- * nome  → pg_trgm similarity (requires pg_trgm extension in PostgreSQL)
- *         threshold 0.3 — matches ~30 % trigram overlap
+ * nome  → pg_trgm word_similarity (requires pg_trgm extension in PostgreSQL)
+ *         word_similarity(term, field) > 0.3
+ *         Unlike similarity(), this measures how well the search term matches
+ *         the best contiguous substring of the field — suitable for finding
+ *         short words inside longer names.
  */
 public final class SearchSpecificationHelper {
 
@@ -17,24 +20,15 @@ public final class SearchSpecificationHelper {
 
     private SearchSpecificationHelper() {}
 
-    /**
-     * Case-insensitive exact match. Replaces the common anti-pattern of
-     * using LIKE '%code%' for code/identifier fields.
-     */
     public static Predicate exactCode(CriteriaBuilder cb, Path<String> field, String value) {
         return cb.equal(cb.lower(field), value.trim().toLowerCase());
     }
 
-    /**
-     * Trigram similarity search via PostgreSQL pg_trgm.
-     * Handles partial names, accent folding (lower-cased), and typo tolerance.
-     * Never produces a full-table LIKE scan — relies on a GIN index.
-     */
     public static Predicate nameSimilarity(CriteriaBuilder cb, Path<String> field, String value) {
         return cb.greaterThan(
-            cb.function("similarity", Double.class,
-                cb.lower(field),
-                cb.literal(value.trim().toLowerCase())
+            cb.function("word_similarity", Double.class,
+                cb.literal(value.trim().toLowerCase()),
+                cb.lower(field)
             ),
             SIMILARITY_THRESHOLD
         );
