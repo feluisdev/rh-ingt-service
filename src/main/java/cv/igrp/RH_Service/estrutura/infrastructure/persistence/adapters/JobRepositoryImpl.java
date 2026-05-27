@@ -8,6 +8,7 @@ import cv.igrp.RH_Service.estrutura.infrastructure.mappers.JobMapper;
 import cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.JobEntity;
 import cv.igrp.RH_Service.estrutura.infrastructure.persistence.repository.JobEntityRepository;
 import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.SearchSpecificationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -49,6 +50,16 @@ public class JobRepositoryImpl implements JobRepository {
 
         Specification<JobEntity> spec = (root, query, cb) -> {
             var predicates = cb.conjunction();
+
+            if (filter.getCode() != null && !filter.getCode().isBlank()) {
+                predicates = cb.and(predicates,
+                    SearchSpecificationHelper.exactCode(cb, root.get("code"), filter.getCode()));
+            }
+
+            if (filter.getNome() != null && !filter.getNome().isBlank()) {
+                predicates = cb.and(predicates,
+                    SearchSpecificationHelper.nameSimilarity(cb, root.get("name"), filter.getNome()));
+            }
 
             if (filter.getIsActive() != null) {
                 predicates = cb.and(predicates, cb.equal(root.get("isActive"), filter.getIsActive()));

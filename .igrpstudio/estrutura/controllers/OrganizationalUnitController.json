@@ -27,6 +27,8 @@
       "requestParams": [
         { "type": "boolean", "name": "active", "isRequired": false },
         { "type": "string",  "name": "parentUnitId", "isRequired": false },
+        { "type": "string",  "name": "code", "isRequired": false },
+        { "type": "string",  "name": "nome", "isRequired": false },
         { "type": "string",  "name": "pagina",  "value": "0",  "isRequired": true },
         { "type": "string",  "name": "tamanho", "value": "20", "isRequired": true }
       ]
@@ -156,5 +158,17 @@
       ]
     }
   ],
-  "id": "org_unit_ctrl_001"
+  "id": "org_unit_ctrl_001",
+  "extraActions": [
+    {
+      "actionName": "getCombobox",
+      "path": "combobox",
+      "method": "GET",
+      "queryClass": "GetOrganizationalUnitsComboboxQuery",
+      "responseType": "List<ComboboxItemDTO>",
+      "params": [
+        { "name": "parentUnitId", "type": "String", "required": false }
+      ]
+    }
+  ]
 }

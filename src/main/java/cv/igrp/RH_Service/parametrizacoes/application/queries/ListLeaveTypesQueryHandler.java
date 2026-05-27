@@ -26,6 +26,7 @@ public class ListLeaveTypesQueryHandler implements QueryHandler<ListLeaveTypesQu
         var filter = new LeaveTypeFilter();
         filter.setCode(query.getCode());
         filter.setActive(query.getActive());
+        filter.setNome(query.getNome());
         filter.setPage(query.getPagina() != null ? Integer.parseInt(query.getPagina()) : 0);
         filter.setSize(query.getTamanho() != null ? Integer.parseInt(query.getTamanho()) : 20);
 

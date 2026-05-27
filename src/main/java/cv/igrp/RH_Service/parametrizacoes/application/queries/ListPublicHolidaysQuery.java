@@ -14,4 +14,5 @@ public class ListPublicHolidaysQuery implements Query {
     private final Boolean isActive;
     private final String pagina;
     private final String tamanho;
+    private final String nome;
 }

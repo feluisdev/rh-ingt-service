@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.util.UUID;
 
 @Component
@@ -35,10 +34,9 @@ public class UpdatePublicHolidayCommandHandler implements CommandHandler<UpdateP
             .orElseThrow(() -> IgrpResponseStatusException.notFound(
                 "Não encontrado: " + command.getPublicHolidayId()));
 
-        LocalDate holidayDate = LocalDate.parse(dto.getHolidayDate());
         boolean national = dto.getIsNational() != null && dto.getIsNational();
 
-        holiday.atualizar(dto.getName(), holidayDate, national, dto.getDescription());
+        holiday.atualizar(dto.getName(), dto.getHolidayDate(), national, dto.getDescription());
         PublicHoliday saved = publicHolidayRepository.save(holiday);
 
         return ResponseEntity.ok(publicHolidayMapper.toDTO(saved));

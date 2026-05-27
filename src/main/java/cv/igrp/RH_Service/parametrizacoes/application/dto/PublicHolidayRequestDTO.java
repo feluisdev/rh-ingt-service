@@ -5,13 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @IgrpDTO
 public class PublicHolidayRequestDTO {
     private String name;
-    private String holidayDate;
+    private LocalDate holidayDate;
     private Boolean isNational;
     private String description;
 }

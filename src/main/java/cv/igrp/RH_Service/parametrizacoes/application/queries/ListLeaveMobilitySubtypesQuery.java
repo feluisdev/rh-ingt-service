@@ -15,4 +15,5 @@ public class ListLeaveMobilitySubtypesQuery implements Query {
     private Boolean active;
     private String pagina;
     private String tamanho;
+    private String nome;
 }

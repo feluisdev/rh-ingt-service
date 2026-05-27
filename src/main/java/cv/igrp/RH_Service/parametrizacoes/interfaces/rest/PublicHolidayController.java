@@ -61,11 +61,12 @@ public class PublicHolidayController {
         @RequestParam(value = "dateTo", required = false) String dateTo,
         @RequestParam(value = "isActive", required = false) Boolean isActive,
         @RequestParam(value = "pagina", defaultValue = "0") String pagina,
-        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho) {
+        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho,
+        @RequestParam(value = "nome", required = false) String nome) {
 
         LOGGER.debug("Operation started");
 
-        final var query = new ListPublicHolidaysQuery(year, isNational, dateFrom, dateTo, isActive, pagina, tamanho);
+        final var query = new ListPublicHolidaysQuery(year, isNational, dateFrom, dateTo, isActive, pagina, tamanho, nome);
         ResponseEntity<WrapperListaPublicHolidayDTO> response = queryBus.handle(query);
 
         LOGGER.debug("Operation finished");

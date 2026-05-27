@@ -24,6 +24,9 @@ public class GetFunctionsComboboxQueryHandler
         filter.setIsActive(true);
         filter.setPage(0);
         filter.setSize(500);
+        if (query.getJobId() != null) {
+            filter.setJobId(java.util.UUID.fromString(query.getJobId()));
+        }
         var items = functionRepository.findAll(filter).getData().stream()
                 .map(f -> new ComboboxItemDTO(f.getId().getStringValor(), f.getName()))
                 .toList();

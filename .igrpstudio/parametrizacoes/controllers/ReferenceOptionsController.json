@@ -56,6 +56,11 @@
           "name": "tamanho",
           "value": "20",
           "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "nome",
+          "isRequired": false
         }
       ]
     },

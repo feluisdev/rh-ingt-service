@@ -61,11 +61,13 @@ public class CategoryController {
         @RequestParam(value = "careerId", required = false) String careerId,
         @RequestParam(value = "active", required = false) Boolean active,
         @RequestParam(value = "pagina", defaultValue = "0") String pagina,
-        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho) {
+        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho,
+        @RequestParam(value = "code", required = false) String code,
+        @RequestParam(value = "nome", required = false) String nome) {
 
         LOGGER.debug("Operation started");
 
-        final var query = new GetCategoriesQuery(careerId, active, pagina, tamanho);
+        final var query = new GetCategoriesQuery(careerId, active, pagina, tamanho, code, nome);
         ResponseEntity<WrapperListaCategoryDTO> response = queryBus.handle(query);
 
         LOGGER.debug("Operation finished");
@@ -245,9 +247,10 @@ public class CategoryController {
             )
         }
     )
-    public ResponseEntity<List<ComboboxItemDTO>> getCombobox() {
+    public ResponseEntity<List<ComboboxItemDTO>> getCombobox(
+        @RequestParam(value = "careerId", required = false) String careerId) {
         LOGGER.debug("Operation started");
-        final var query = new GetCategoriesComboboxQuery();
+        final var query = new GetCategoriesComboboxQuery(careerId);
         ResponseEntity<List<ComboboxItemDTO>> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())

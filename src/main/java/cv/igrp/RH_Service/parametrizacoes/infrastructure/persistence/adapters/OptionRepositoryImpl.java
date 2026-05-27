@@ -9,6 +9,7 @@ import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.SearchSpecificationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -92,6 +93,11 @@ public class OptionRepositoryImpl implements OptionRepository {
             if (filter.getCkey() != null && !filter.getCkey().isBlank()) {
                 predicates = cb.and(predicates,
                     cb.like(cb.lower(root.get("ckey")), "%" + filter.getCkey().trim().toLowerCase() + "%"));
+            }
+
+            if (filter.getNome() != null && !filter.getNome().isBlank()) {
+                predicates = cb.and(predicates,
+                    SearchSpecificationHelper.nameSimilarity(cb, root.get("cvalue"), filter.getNome()));
             }
 
             if (filter.getActive() != null) {

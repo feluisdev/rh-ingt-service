@@ -27,6 +27,12 @@ public class GetFuncionariosComboboxQueryHandler
         if (query.getQ() != null && !query.getQ().isBlank()) {
             filter.setNome(query.getQ().trim());
         }
+        if (query.getUnidadeOrganicaId() != null) {
+            filter.setUnidadeOrganicaId(java.util.UUID.fromString(query.getUnidadeOrganicaId()));
+        }
+        if (query.getWorkerStateId() != null) {
+            filter.setWorkerStateId(java.util.UUID.fromString(query.getWorkerStateId()));
+        }
         var items = funcionarioRepository.findAll(filter).stream()
                 .map(f -> new ComboboxItemDTO(
                         f.getId().getStringValor(),

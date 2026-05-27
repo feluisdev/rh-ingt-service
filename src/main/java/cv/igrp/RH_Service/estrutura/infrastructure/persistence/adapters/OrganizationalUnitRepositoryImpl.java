@@ -8,6 +8,7 @@ import cv.igrp.RH_Service.estrutura.infrastructure.mappers.OrganizationalUnitMap
 import cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.OrganizationalUnitEntity;
 import cv.igrp.RH_Service.estrutura.infrastructure.persistence.repository.OrganizationalUnitEntityRepository;
 import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.SearchSpecificationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -61,6 +62,16 @@ public class OrganizationalUnitRepositoryImpl implements OrganizationalUnitRepos
 
             if (filter.getParentUnitId() != null) {
                 predicates = cb.and(predicates, cb.equal(root.get("parentUnitId"), filter.getParentUnitId()));
+            }
+
+            if (filter.getCode() != null && !filter.getCode().isBlank()) {
+                predicates = cb.and(predicates,
+                    SearchSpecificationHelper.exactCode(cb, root.get("code"), filter.getCode()));
+            }
+
+            if (filter.getNome() != null && !filter.getNome().isBlank()) {
+                predicates = cb.and(predicates,
+                    SearchSpecificationHelper.nameSimilarity(cb, root.get("name"), filter.getNome()));
             }
 
             return predicates;
