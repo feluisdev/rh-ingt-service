@@ -15,7 +15,7 @@
     {
       "name": "holidayDate",
       "objectType": "java",
-      "type": "string",
+      "type": "date",
       "required": false,
       "primaryKey": false
     },

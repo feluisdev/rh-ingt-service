@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.util.Map;
 
 @Component
@@ -26,7 +25,7 @@ public class CreatePublicHolidayCommandHandler implements CommandHandler<CreateP
     public ResponseEntity<Map<String, ?>> handle(CreatePublicHolidayCommand command) {
         var dto = command.getPublicHolidayRequest();
 
-        LocalDate holidayDate = LocalDate.parse(dto.getHolidayDate());
+        var holidayDate = dto.getHolidayDate();
         boolean national = dto.getIsNational() != null && dto.getIsNational();
 
         if (national && publicHolidayRepository.existsByHolidayDateAndNational(holidayDate, true)) {
