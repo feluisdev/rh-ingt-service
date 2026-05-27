@@ -63,6 +63,10 @@ public class ContractTypeRepositoryImpl implements ContractTypeRepository {
                 predicates = cb.and(predicates, cb.equal(root.get("isActive"), true));
             }
 
+            if (filter.getVinculoLaboralId() != null) {
+                predicates = cb.and(predicates, cb.equal(root.get("vinculoLaboralId"), filter.getVinculoLaboralId()));
+            }
+
             return predicates;
         };
 

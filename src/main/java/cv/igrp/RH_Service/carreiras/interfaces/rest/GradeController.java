@@ -216,9 +216,10 @@ public class GradeController {
             )
         }
     )
-    public ResponseEntity<List<ComboboxItemDTO>> getCombobox() {
+    public ResponseEntity<List<ComboboxItemDTO>> getCombobox(
+        @RequestParam(value = "categoryId", required = false) String categoryId) {
         LOGGER.debug("Operation started");
-        final var query = new GetGradesComboboxQuery();
+        final var query = new GetGradesComboboxQuery(categoryId);
         ResponseEntity<List<ComboboxItemDTO>> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())

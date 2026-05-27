@@ -156,5 +156,17 @@
       ]
     }
   ],
-  "id": "function_ctrl_001"
+  "id": "function_ctrl_001",
+  "extraActions": [
+    {
+      "actionName": "getCombobox",
+      "path": "combobox",
+      "method": "GET",
+      "queryClass": "GetFunctionsComboboxQuery",
+      "responseType": "List<ComboboxItemDTO>",
+      "params": [
+        { "name": "jobId", "type": "String", "required": false }
+      ]
+    }
+  ]
 }

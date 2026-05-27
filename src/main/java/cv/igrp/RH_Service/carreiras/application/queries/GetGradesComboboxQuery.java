@@ -7,4 +7,5 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class GetGradesComboboxQuery implements Query {
+    private final String categoryId;
 }

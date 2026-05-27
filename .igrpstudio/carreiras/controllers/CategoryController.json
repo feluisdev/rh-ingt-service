@@ -11,7 +11,10 @@
       "path": "combobox",
       "method": "GET",
       "queryClass": "GetCategoriesComboboxQuery",
-      "responseType": "List<ComboboxItemDTO>"
+      "responseType": "List<ComboboxItemDTO>",
+      "params": [
+        { "name": "careerId", "type": "String", "required": false }
+      ]
     }
   ]
 }

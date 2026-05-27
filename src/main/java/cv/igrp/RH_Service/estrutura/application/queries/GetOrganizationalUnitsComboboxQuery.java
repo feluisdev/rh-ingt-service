@@ -7,4 +7,5 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class GetOrganizationalUnitsComboboxQuery implements Query {
+    private final String parentUnitId;
 }

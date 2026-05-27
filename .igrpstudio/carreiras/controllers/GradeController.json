@@ -11,7 +11,10 @@
       "path": "combobox",
       "method": "GET",
       "queryClass": "GetGradesComboboxQuery",
-      "responseType": "List<ComboboxItemDTO>"
+      "responseType": "List<ComboboxItemDTO>",
+      "params": [
+        { "name": "categoryId", "type": "String", "required": false }
+      ]
     }
   ]
 }

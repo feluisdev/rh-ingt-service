@@ -176,7 +176,9 @@
       "path": "combobox",
       "method": "GET",
       "requestParams": [
-        {"type": "string", "name": "q", "isRequired": false}
+        {"type": "string", "name": "q",                "isRequired": false},
+        {"type": "string", "name": "unidadeOrganicaId","isRequired": false},
+        {"type": "string", "name": "workerStateId",    "isRequired": false}
       ],
       "responses": {
         "200": {

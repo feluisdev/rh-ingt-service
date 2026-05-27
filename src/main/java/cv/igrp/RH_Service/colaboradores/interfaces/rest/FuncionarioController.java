@@ -138,9 +138,11 @@ public class FuncionarioController {
         }
     )
     public ResponseEntity<List<ComboboxItemDTO>> getCombobox(
-        @RequestParam(value = "q", required = false) String q) {
+        @RequestParam(value = "q", required = false) String q,
+        @RequestParam(value = "unidadeOrganicaId", required = false) String unidadeOrganicaId,
+        @RequestParam(value = "workerStateId", required = false) String workerStateId) {
         LOGGER.debug("Operation started");
-        final var query = new GetFuncionariosComboboxQuery(q);
+        final var query = new GetFuncionariosComboboxQuery(q, unidadeOrganicaId, workerStateId);
         ResponseEntity<List<ComboboxItemDTO>> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())

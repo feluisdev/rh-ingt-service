@@ -216,9 +216,10 @@ public class ContractTypeController {
             )
         }
     )
-    public ResponseEntity<List<ComboboxItemDTO>> getCombobox() {
+    public ResponseEntity<List<ComboboxItemDTO>> getCombobox(
+        @RequestParam(value = "vinculoLaboralId", required = false) String vinculoLaboralId) {
         LOGGER.debug("Operation started");
-        final var query = new GetContractTypesComboboxQuery();
+        final var query = new GetContractTypesComboboxQuery(vinculoLaboralId);
         ResponseEntity<List<ComboboxItemDTO>> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())

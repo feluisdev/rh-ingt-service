@@ -245,9 +245,10 @@ public class CategoryController {
             )
         }
     )
-    public ResponseEntity<List<ComboboxItemDTO>> getCombobox() {
+    public ResponseEntity<List<ComboboxItemDTO>> getCombobox(
+        @RequestParam(value = "careerId", required = false) String careerId) {
         LOGGER.debug("Operation started");
-        final var query = new GetCategoriesComboboxQuery();
+        final var query = new GetCategoriesComboboxQuery(careerId);
         ResponseEntity<List<ComboboxItemDTO>> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())

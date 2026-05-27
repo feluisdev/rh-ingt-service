@@ -216,9 +216,10 @@ public class OrganizationalUnitController {
             )
         }
     )
-    public ResponseEntity<List<ComboboxItemDTO>> getCombobox() {
+    public ResponseEntity<List<ComboboxItemDTO>> getCombobox(
+        @RequestParam(value = "parentUnitId", required = false) String parentUnitId) {
         LOGGER.debug("Operation started");
-        final var query = new GetOrganizationalUnitsComboboxQuery();
+        final var query = new GetOrganizationalUnitsComboboxQuery(parentUnitId);
         ResponseEntity<List<ComboboxItemDTO>> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())

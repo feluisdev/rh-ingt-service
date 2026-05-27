@@ -156,5 +156,17 @@
       ]
     }
   ],
-  "id": "org_unit_ctrl_001"
+  "id": "org_unit_ctrl_001",
+  "extraActions": [
+    {
+      "actionName": "getCombobox",
+      "path": "combobox",
+      "method": "GET",
+      "queryClass": "GetOrganizationalUnitsComboboxQuery",
+      "responseType": "List<ComboboxItemDTO>",
+      "params": [
+        { "name": "parentUnitId", "type": "String", "required": false }
+      ]
+    }
+  ]
 }

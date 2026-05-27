@@ -206,6 +206,9 @@
       "actionName": "getCombobox",
       "path": "combobox",
       "method": "GET",
+      "requestParams": [
+        { "type": "string", "name": "vinculoLaboralId", "isRequired": false }
+      ],
       "responses": {
         "200": {
           "name": "OK",

@@ -24,6 +24,9 @@ public class GetContractTypesComboboxQueryHandler
         filter.setIsActive(true);
         filter.setPage(0);
         filter.setSize(500);
+        if (query.getVinculoLaboralId() != null) {
+            filter.setVinculoLaboralId(java.util.UUID.fromString(query.getVinculoLaboralId()));
+        }
         var items = contractTypeRepository.findAll(filter).getData().stream()
                 .map(ct -> new ComboboxItemDTO(ct.getId().getStringValor(), ct.getDescription()))
                 .toList();
