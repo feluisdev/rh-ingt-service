@@ -60,11 +60,13 @@ public class GradeController {
         @RequestParam(value = "categoryId", required = false) String categoryId,
         @RequestParam(value = "active", required = false) Boolean active,
         @RequestParam(value = "pagina", defaultValue = "0") String pagina,
-        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho) {
+        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho,
+        @RequestParam(value = "code", required = false) String code,
+        @RequestParam(value = "nome", required = false) String nome) {
 
         LOGGER.debug("Operation started");
 
-        final var query = new GetGradesQuery(categoryId, active, pagina, tamanho);
+        final var query = new GetGradesQuery(categoryId, active, pagina, tamanho, code, nome);
         ResponseEntity<WrapperListaGradeDTO> response = queryBus.handle(query);
 
         LOGGER.debug("Operation finished");

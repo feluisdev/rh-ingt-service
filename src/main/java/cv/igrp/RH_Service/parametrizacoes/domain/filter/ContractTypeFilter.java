@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class ContractTypeFilter {
     private String code;
+    private String nome;
     private Boolean isActive;
     private java.util.UUID vinculoLaboralId;
     private int page = 0;

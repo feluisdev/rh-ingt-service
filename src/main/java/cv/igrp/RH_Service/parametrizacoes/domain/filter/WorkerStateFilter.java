@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class WorkerStateFilter {
     private String code;
+    private String nome;
     private Boolean isActive;
     private int page = 0;
     private int size = 20;

@@ -60,11 +60,12 @@ public class ContractTypeController {
         @RequestParam(value = "code", required = false) String code,
         @RequestParam(value = "isActive", required = false) Boolean isActive,
         @RequestParam(value = "pagina", defaultValue = "0") String pagina,
-        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho) {
+        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho,
+        @RequestParam(value = "nome", required = false) String nome) {
 
         LOGGER.debug("Operation started");
 
-        final var query = new ListContractTypesQuery(code, isActive, pagina, tamanho);
+        final var query = new ListContractTypesQuery(code, isActive, pagina, tamanho, nome);
         ResponseEntity<WrapperListaContractTypeDTO> response = queryBus.handle(query);
 
         LOGGER.debug("Operation finished");

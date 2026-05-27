@@ -8,6 +8,7 @@ import cv.igrp.RH_Service.colaboradores.infrastructure.mappers.FuncionarioMapper
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.EnquadramentoEntity;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.FuncionarioEntity;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.repository.ColabsFuncionarioEntityRepository;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.SearchSpecificationHelper;
 import jakarta.persistence.criteria.Subquery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -92,7 +93,7 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
 
             if (filter.getNome() != null && !filter.getNome().isBlank()) {
                 predicates = cb.and(predicates,
-                        cb.like(cb.lower(root.get("nomeCompleto")), "%" + filter.getNome().toLowerCase() + "%"));
+                    SearchSpecificationHelper.nameSimilarity(cb, root.get("nomeCompleto"), filter.getNome()));
             }
             if (filter.getNif() != null && !filter.getNif().isBlank()) {
                 predicates = cb.and(predicates, cb.equal(root.get("nif"), filter.getNif()));

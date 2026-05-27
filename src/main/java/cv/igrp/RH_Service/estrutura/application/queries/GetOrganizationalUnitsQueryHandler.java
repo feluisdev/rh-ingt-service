@@ -35,6 +35,8 @@ public class GetOrganizationalUnitsQueryHandler
         var filter = new OrganizationalUnitFilter();
         filter.setIsActive(query.getActive());
         filter.setParentUnitId(query.getParentUnitId() != null ? UUID.fromString(query.getParentUnitId()) : null);
+        filter.setCode(query.getCode());
+        filter.setNome(query.getNome());
         filter.setPage(query.getPagina() != null ? Integer.parseInt(query.getPagina()) : 0);
         filter.setSize(query.getTamanho() != null ? Integer.parseInt(query.getTamanho()) : 20);
 

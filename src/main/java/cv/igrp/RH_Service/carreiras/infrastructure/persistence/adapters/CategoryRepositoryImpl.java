@@ -10,6 +10,7 @@ import cv.igrp.RH_Service.carreiras.infrastructure.persistence.entity.CategoryEn
 import cv.igrp.RH_Service.carreiras.infrastructure.persistence.repository.CategoryEntityRepository;
 import cv.igrp.RH_Service.carreiras.infrastructure.persistence.repository.GradeEntityRepository;
 import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.SearchSpecificationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -50,6 +51,16 @@ public class CategoryRepositoryImpl implements CategoryRepository {
 
             if (filter.getCareerId() != null) {
                 predicates = cb.and(predicates, cb.equal(root.get("careerId"), filter.getCareerId()));
+            }
+
+            if (filter.getCode() != null && !filter.getCode().isBlank()) {
+                predicates = cb.and(predicates,
+                    SearchSpecificationHelper.exactCode(cb, root.get("code"), filter.getCode()));
+            }
+
+            if (filter.getNome() != null && !filter.getNome().isBlank()) {
+                predicates = cb.and(predicates,
+                    SearchSpecificationHelper.nameSimilarity(cb, root.get("name"), filter.getNome()));
             }
 
             if (filter.getIsActive() != null) {

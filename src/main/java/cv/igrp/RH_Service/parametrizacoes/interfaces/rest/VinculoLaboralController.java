@@ -60,11 +60,12 @@ public class VinculoLaboralController {
         @RequestParam(value = "code", required = false) String code,
         @RequestParam(value = "isActive", required = false) Boolean isActive,
         @RequestParam(value = "pagina", defaultValue = "0") String pagina,
-        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho) {
+        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho,
+        @RequestParam(value = "nome", required = false) String nome) {
 
         LOGGER.debug("Operation started");
 
-        final var query = new ListVinculosLaboraisQuery(code, isActive, pagina, tamanho);
+        final var query = new ListVinculosLaboraisQuery(code, isActive, pagina, tamanho, nome);
         ResponseEntity<WrapperListaVinculoLaboralDTO> response = queryBus.handle(query);
 
         LOGGER.debug("Operation finished");

@@ -13,6 +13,7 @@ public class PublicHolidayFilter {
     private LocalDate dateFrom;
     private LocalDate dateTo;
     private Boolean isActive;
+    private String nome;
     private int page = 0;
     private int size = 20;
 }

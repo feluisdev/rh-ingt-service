@@ -60,11 +60,13 @@ public class OrganizationalUnitController {
         @RequestParam(value = "active", required = false) Boolean active,
         @RequestParam(value = "parentUnitId", required = false) String parentUnitId,
         @RequestParam(value = "pagina", defaultValue = "0") String pagina,
-        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho) {
+        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho,
+        @RequestParam(value = "code", required = false) String code,
+        @RequestParam(value = "nome", required = false) String nome) {
 
         LOGGER.debug("Operation started");
 
-        final var query = new GetOrganizationalUnitsQuery(active, parentUnitId, pagina, tamanho);
+        final var query = new GetOrganizationalUnitsQuery(active, parentUnitId, pagina, tamanho, code, nome);
         ResponseEntity<WrapperListaOrganizationalUnitDTO> response = queryBus.handle(query);
 
         LOGGER.debug("Operation finished");

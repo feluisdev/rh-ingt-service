@@ -7,6 +7,8 @@ import lombok.Setter;
 @Setter
 public class JobFilter {
     private Boolean isActive;
+    private String code;
+    private String nome;
     private int page = 0;
     private int size = 20;
 }

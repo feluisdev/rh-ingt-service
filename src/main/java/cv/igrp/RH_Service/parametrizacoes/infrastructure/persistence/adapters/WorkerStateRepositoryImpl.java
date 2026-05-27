@@ -8,6 +8,7 @@ import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.Work
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.WorkerStateEntityRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.WorkerStateId;
 import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.SearchSpecificationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -60,7 +61,12 @@ public class WorkerStateRepositoryImpl implements WorkerStateRepository {
 
             if (filter.getCode() != null && !filter.getCode().isBlank()) {
                 predicates = cb.and(predicates,
-                    cb.like(cb.lower(root.get("code")), "%" + filter.getCode().trim().toLowerCase() + "%"));
+                    SearchSpecificationHelper.exactCode(cb, root.get("code"), filter.getCode()));
+            }
+
+            if (filter.getNome() != null && !filter.getNome().isBlank()) {
+                predicates = cb.and(predicates,
+                    SearchSpecificationHelper.nameSimilarity(cb, root.get("description"), filter.getNome()));
             }
 
             if (filter.getIsActive() != null) {

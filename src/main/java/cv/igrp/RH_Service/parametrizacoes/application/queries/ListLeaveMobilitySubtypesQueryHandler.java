@@ -27,6 +27,7 @@ public class ListLeaveMobilitySubtypesQueryHandler implements QueryHandler<ListL
         filter.setCode(query.getCode());
         filter.setRecordType(query.getRecordType());
         filter.setActive(query.getActive());
+        filter.setNome(query.getNome());
         filter.setPage(query.getPagina() != null ? Integer.parseInt(query.getPagina()) : 0);
         filter.setSize(query.getTamanho() != null ? Integer.parseInt(query.getTamanho()) : 20);
 

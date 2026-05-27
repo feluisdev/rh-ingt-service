@@ -10,6 +10,8 @@ import java.util.UUID;
 public class GradeFilter {
     private UUID categoryId;
     private Boolean isActive;
+    private String code;
+    private String nome;
     private int page = 0;
     private int size = 20;
 }

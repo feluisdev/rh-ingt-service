@@ -8,6 +8,7 @@ import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.Leav
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.LeaveMobilitySubtypeEntityRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.LeaveMobilitySubtypeId;
 import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.SearchSpecificationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -54,7 +55,12 @@ public class LeaveMobilitySubtypeRepositoryImpl implements LeaveMobilitySubtypeR
 
             if (filter.getCode() != null && !filter.getCode().isBlank()) {
                 predicates = cb.and(predicates,
-                    cb.like(cb.lower(root.get("code")), "%" + filter.getCode().trim().toLowerCase() + "%"));
+                    SearchSpecificationHelper.exactCode(cb, root.get("code"), filter.getCode()));
+            }
+
+            if (filter.getNome() != null && !filter.getNome().isBlank()) {
+                predicates = cb.and(predicates,
+                    SearchSpecificationHelper.nameSimilarity(cb, root.get("description"), filter.getNome()));
             }
 
             if (filter.getRecordType() != null && !filter.getRecordType().isBlank()) {

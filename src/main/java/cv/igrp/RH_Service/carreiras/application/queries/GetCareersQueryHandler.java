@@ -30,6 +30,8 @@ public class GetCareersQueryHandler
     public ResponseEntity<WrapperListaCareerDTO> handle(GetCareersQuery query) {
         var filter = new CareerFilter();
         filter.setIsActive(query.getActive());
+        filter.setCode(query.getCode());
+        filter.setNome(query.getNome());
         filter.setPage(query.getPagina() != null ? Integer.parseInt(query.getPagina()) : 0);
         filter.setSize(query.getTamanho() != null ? Integer.parseInt(query.getTamanho()) : 20);
 
