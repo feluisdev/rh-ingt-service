@@ -127,6 +127,17 @@ public class FuncionarioController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
+    @GetMapping("{funcionarioId}/details")
+    @Operation(summary = "Obter dados completos do colaborador (funcionário, contrato, enquadramento, dados bancários e documentos)")
+    public ResponseEntity<ColaboradorDetailsResponseDTO> getColaboradorDetails(
+            @PathVariable(value = "funcionarioId") String funcionarioId) {
+        LOGGER.debug("Operation started");
+        final var query = new GetColaboradorDetailsQuery(funcionarioId);
+        ResponseEntity<ColaboradorDetailsResponseDTO> response = queryBus.handle(query);
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
     @GetMapping("combobox")
     @Operation(
         summary = "Listar funcionários para combobox",
