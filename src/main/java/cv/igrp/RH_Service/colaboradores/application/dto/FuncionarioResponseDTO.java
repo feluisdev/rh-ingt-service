@@ -18,6 +18,7 @@ public class FuncionarioResponseDTO {
     private String estadoCivil;
     private String nif;
     private String documentTypeId;
+    private String documentTypeName;
     private String numeroDocumento;
     private LocalDate dataEmissaoDoc;
     private LocalDate dataValidadeDoc;

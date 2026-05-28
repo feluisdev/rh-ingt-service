@@ -13,11 +13,17 @@ public class EnquadramentoResponseDTO {
     private String id;
     private String funcionarioId;
     private String careerId;
+    private String careerName;
     private String categoryId;
+    private String categoryName;
     private String gradeId;
+    private String gradeName;
     private String cargoId;
+    private String cargoName;
     private String functionId;
+    private String functionName;
     private String unidadeOrganicaId;
+    private String unitName;
     private LocalDate dataInicio;
     private LocalDate dataFim;
     private Boolean isCurrent;

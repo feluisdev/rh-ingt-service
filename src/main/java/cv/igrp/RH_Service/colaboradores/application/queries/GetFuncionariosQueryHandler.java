@@ -5,7 +5,9 @@ import cv.igrp.RH_Service.colaboradores.domain.filter.FuncionarioFilter;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.infrastructure.mappers.FuncionarioMapper;
 import cv.igrp.RH_Service.parametrizacoes.domain.filter.WorkerStateFilter;
+import cv.igrp.RH_Service.parametrizacoes.domain.repository.DocumentTypeRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.WorkerStateRepository;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.DocumentTypeId;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ public class GetFuncionariosQueryHandler
     private final FuncionarioRepository funcionarioRepository;
     private final FuncionarioMapper mapper;
     private final WorkerStateRepository workerStateRepository;
+    private final DocumentTypeRepository documentTypeRepository;
 
     @IgrpQueryHandler
     public ResponseEntity<WrapperListaFuncionarioDTO> handle(GetFuncionariosQuery query) {
@@ -50,13 +53,23 @@ public class GetFuncionariosQueryHandler
         Map<UUID, String> wsNameMap = workerStateRepository.findAll(wsFilter).getData().stream()
                 .collect(Collectors.toMap(ws -> ws.getId().getValor(), ws -> ws.getDescription()));
 
-        var content = funcionarioRepository.findAll(filter).stream()
+        var funcionarios = funcionarioRepository.findAll(filter);
+
+        var dtIds = funcionarios.stream().map(f -> f.getDocumentTypeId())
+                .filter(id -> id != null).collect(Collectors.toSet());
+        Map<UUID, String> dtNameMap = dtIds.stream()
+                .collect(Collectors.toMap(id -> id,
+                        id -> documentTypeRepository.findById(DocumentTypeId.from(id)).map(dt -> dt.getDescricao()).orElse(null),
+                        (a, b) -> a));
+
+        var content = funcionarios.stream()
                 .map(f -> {
                     var dto = mapper.toDTO(f);
                     if (f.getWorkerStateId() != null) {
                         String name = wsNameMap.get(f.getWorkerStateId());
                         if (name != null) dto.setWorkerStateName(name);
                     }
+                    if (f.getDocumentTypeId() != null) dto.setDocumentTypeName(dtNameMap.get(f.getDocumentTypeId()));
                     return dto;
                 }).toList();
         long total = funcionarioRepository.countAll(filter);
