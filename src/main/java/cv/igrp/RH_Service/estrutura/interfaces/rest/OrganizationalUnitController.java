@@ -158,7 +158,7 @@ public class OrganizationalUnitController {
             .body(response.getBody());
     }
 
-    @PatchMapping("{unitId}/deactivate")
+    @DeleteMapping("{unitId}/deactivate")
     @Operation(
         summary = "Desativar unidade orgânica (soft delete)",
         responses = {
