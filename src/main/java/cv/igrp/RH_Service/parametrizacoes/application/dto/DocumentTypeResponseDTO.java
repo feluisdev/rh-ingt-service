@@ -20,6 +20,7 @@ public class DocumentTypeResponseDTO {
     private String allowedExtensions;
 
     private String category;
+    private String categoryDesc;
 
     private Boolean isActive;
     private String estadoDesc;

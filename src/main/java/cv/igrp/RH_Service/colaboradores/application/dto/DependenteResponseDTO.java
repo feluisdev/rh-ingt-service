@@ -14,6 +14,7 @@ public class DependenteResponseDTO {
     private String funcionarioId;
     private String fullName;
     private String relationshipType;
+    private String relationshipTypeDesc;
     private LocalDate birthDate;
     private String nif;
     private Boolean isActive;
