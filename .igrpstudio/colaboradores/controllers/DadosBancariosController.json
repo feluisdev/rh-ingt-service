@@ -124,7 +124,7 @@
       }
     },
     {
-      "actionName": "deactivateDadosBancarios",
+      "actionName": "desativarDadosBancarios",
       "method": "DELETE",
       "path": "{dadosBancariosId}",
       "pathVariables": [

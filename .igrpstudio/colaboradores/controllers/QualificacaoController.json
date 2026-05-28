@@ -36,7 +36,7 @@
       "responses": { "200": { "name": "OK", "content": { "application/json": { "schema": { "type": "QualificacaoResponse", "objectType": "dto", "name": "data", "collectionType": "none", "module": "colaboradores" } } } } }
     },
     {
-      "actionName": "deactivateQualificacao",
+      "actionName": "desativarQualificacao",
       "method": "DELETE",
       "path": "{qualificacaoId}",
       "pathVariables": [{ "type": "string", "name": "funcionarioId", "isRequired": true }, { "type": "string", "name": "qualificacaoId", "isRequired": true }],

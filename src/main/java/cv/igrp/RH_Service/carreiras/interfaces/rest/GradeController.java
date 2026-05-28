@@ -168,7 +168,7 @@ public class GradeController {
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> deactivateGrade(
+    public ResponseEntity<Map<String, ?>> desativarGrade(
         @PathVariable(value = "gradeId") String gradeId) {
 
         LOGGER.debug("Operation started");

@@ -16,7 +16,7 @@
         { "name": "tamanho", "type": "String", "required": true, "default": "20" }
       ]
     },
-    "findById", "create", "update", "delete", "activate"
+    "findById", "create", "update", "desativar", "activate"
   ],
   "extraActions": [
     {

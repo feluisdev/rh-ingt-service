@@ -79,7 +79,7 @@ public class DependenteController {
 
     @DeleteMapping("{dependenteId}")
     @Operation(summary = "Desactivar dependente (soft delete)")
-    public ResponseEntity<Map<String, ?>> deactivateDependente(
+    public ResponseEntity<Map<String, ?>> desativarDependente(
             @PathVariable String funcionarioId,
             @PathVariable String dependenteId) {
         LOGGER.debug("Operation started");
