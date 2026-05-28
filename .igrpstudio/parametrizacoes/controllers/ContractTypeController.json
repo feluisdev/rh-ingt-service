@@ -155,7 +155,7 @@
       ]
     },
     {
-      "actionName": "deleteContractType",
+      "actionName": "desativarContractType",
       "path": "{contractTypeId}",
       "method": "DELETE",
       "responses": {

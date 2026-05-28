@@ -169,7 +169,7 @@ public class CategoryController {
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> deactivateCategory(
+    public ResponseEntity<Map<String, ?>> desativarCategory(
         @PathVariable(value = "categoryId") String categoryId) {
 
         LOGGER.debug("Operation started");

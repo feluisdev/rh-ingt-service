@@ -28,6 +28,30 @@
       ]
     },
     {
+      "actionName": "getColaboradorDetails",
+      "method": "GET",
+      "path": "{funcionarioId}/details",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string", "isRequired": true}
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ColaboradorDetailsResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "actionName": "createFuncionario",
       "method": "POST",
       "requestBody": true

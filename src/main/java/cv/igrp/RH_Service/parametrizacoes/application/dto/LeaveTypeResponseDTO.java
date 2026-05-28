@@ -24,6 +24,7 @@ public class LeaveTypeResponseDTO {
     private Integer maxDaysPerYear;
 
     private String category;
+    private String categoryDesc;
 
     private Boolean isActive;
     private String estadoDesc;

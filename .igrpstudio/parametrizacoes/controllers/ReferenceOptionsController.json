@@ -165,7 +165,7 @@
       ]
     },
     {
-      "actionName": "deleteOption",
+      "actionName": "desativarOption",
       "path": "{optionId}",
       "method": "DELETE",
       "responses": {

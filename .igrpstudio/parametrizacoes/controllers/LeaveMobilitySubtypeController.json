@@ -160,7 +160,7 @@
       ]
     },
     {
-      "actionName": "deleteLeaveMobilitySubtype",
+      "actionName": "desativarLeaveMobilitySubtype",
       "path": "{leaveMobilitySubtypeId}",
       "method": "DELETE",
       "responses": {

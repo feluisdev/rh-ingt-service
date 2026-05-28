@@ -11,6 +11,7 @@ public class FormacaoDTO {
     private String name;
     private String institution;
     private String trainingType;
+    private String trainingTypeDesc;
     private LocalDate startDate;
     private LocalDate endDate;
     private Integer durationHours;

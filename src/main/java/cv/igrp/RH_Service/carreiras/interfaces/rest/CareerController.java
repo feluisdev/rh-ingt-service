@@ -168,7 +168,7 @@ public class CareerController {
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> deactivateCareer(
+    public ResponseEntity<Map<String, ?>> desativarCareer(
         @PathVariable(value = "careerId") String careerId) {
 
         LOGGER.debug("Operation started");

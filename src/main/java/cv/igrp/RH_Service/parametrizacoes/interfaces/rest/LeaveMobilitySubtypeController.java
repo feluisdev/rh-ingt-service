@@ -161,7 +161,7 @@ public class LeaveMobilitySubtypeController {
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> deleteLeaveMobilitySubtype(
+    public ResponseEntity<Map<String, ?>> desativarLeaveMobilitySubtype(
         @PathVariable(value = "leaveMobilitySubtypeId") String leaveMobilitySubtypeId) {
 
         LOGGER.debug("Operation started");

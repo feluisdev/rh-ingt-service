@@ -1,0 +1,13 @@
+{
+  "type": "dto",
+  "name": "ColaboradorDetailsResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "FuncionarioResponseDTO",    "name": "funcionario",    "objectType": "dto", "required": false, "module": "colaboradores"},
+    {"type": "ContratoResponseDTO",       "name": "contrato",       "objectType": "dto", "required": false, "module": "colaboradores"},
+    {"type": "EnquadramentoResponseDTO",  "name": "enquadramento",  "objectType": "dto", "required": false, "module": "colaboradores"},
+    {"type": "DadosBancariosResponseDTO", "name": "dadosBancarios", "objectType": "dto", "required": false, "module": "colaboradores"},
+    {"type": "DocumentoResponseDTO",      "name": "documentos",     "objectType": "dto", "required": false, "module": "colaboradores", "collectionType": "list"}
+  ]
+}

@@ -11,6 +11,7 @@ public class DadosBancariosResponseDTO {
     private String id;
     private String funcionarioId;
     private String banco;
+    private String bancoDesc;
     private String numeroConta;
     private String iban;
     private String numeroSegurancaSocial;

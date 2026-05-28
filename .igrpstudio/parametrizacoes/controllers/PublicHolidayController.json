@@ -170,7 +170,7 @@
       ]
     },
     {
-      "actionName": "deletePublicHoliday",
+      "actionName": "desativarPublicHoliday",
       "path": "{publicHolidayId}",
       "method": "DELETE",
       "responses": {

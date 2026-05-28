@@ -167,7 +167,7 @@ public class WorkerStateController {
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> deleteWorkerState(
+    public ResponseEntity<Map<String, ?>> desativarWorkerState(
         @PathVariable(value = "workerStateId") String workerStateId) {
 
         LOGGER.debug("Operation started");

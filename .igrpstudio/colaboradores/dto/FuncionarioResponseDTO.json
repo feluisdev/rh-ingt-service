@@ -12,6 +12,7 @@
     {"type": "string", "name": "estadoCivil", "objectType": "java", "required": false},
     {"type": "string", "name": "nif", "objectType": "java", "required": false},
     {"type": "string", "name": "documentTypeId", "objectType": "java", "required": false},
+    {"type": "string", "name": "documentTypeName", "objectType": "java", "required": false},
     {"type": "string", "name": "numeroDocumento", "objectType": "java", "required": false},
     {"type": "date", "name": "dataEmissaoDoc", "objectType": "java", "required": false},
     {"type": "date", "name": "dataValidadeDoc", "objectType": "java", "required": false},
@@ -23,6 +24,7 @@
     {"type": "string", "name": "concelho", "objectType": "java", "required": false},
     {"type": "string", "name": "localidade", "objectType": "java", "required": false},
     {"type": "string", "name": "workerStateId", "objectType": "java", "required": false},
+    {"type": "string", "name": "workerStateName", "objectType": "java", "required": false},
     {"type": "date", "name": "dataAdmissao", "objectType": "java", "required": false},
     {"type": "boolean", "name": "isActive", "objectType": "java", "required": false},
     {"type": "string", "name": "estadoDesc", "objectType": "java", "required": false}

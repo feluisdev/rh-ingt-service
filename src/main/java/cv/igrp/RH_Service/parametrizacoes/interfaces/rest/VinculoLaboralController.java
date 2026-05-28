@@ -167,7 +167,7 @@ public class VinculoLaboralController {
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> deleteVinculoLaboral(
+    public ResponseEntity<Map<String, ?>> desativarVinculoLaboral(
         @PathVariable(value = "vinculoLaboralId") String vinculoLaboralId) {
 
         LOGGER.debug("Operation started");

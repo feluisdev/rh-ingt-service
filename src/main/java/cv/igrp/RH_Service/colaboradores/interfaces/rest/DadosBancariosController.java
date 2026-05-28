@@ -79,7 +79,7 @@ public class DadosBancariosController {
 
     @DeleteMapping("{dadosBancariosId}")
     @Operation(summary = "Desactivar dados bancários (soft delete)")
-    public ResponseEntity<Map<String, ?>> deactivateDadosBancarios(
+    public ResponseEntity<Map<String, ?>> desativarDadosBancarios(
             @PathVariable String funcionarioId,
             @PathVariable String dadosBancariosId) {
         LOGGER.debug("Operation started");

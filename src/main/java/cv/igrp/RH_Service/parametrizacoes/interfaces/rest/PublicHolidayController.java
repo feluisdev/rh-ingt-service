@@ -168,7 +168,7 @@ public class PublicHolidayController {
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> deletePublicHoliday(
+    public ResponseEntity<Map<String, ?>> desativarPublicHoliday(
         @PathVariable(value = "publicHolidayId") String publicHolidayId) {
 
         LOGGER.debug("Operation started");

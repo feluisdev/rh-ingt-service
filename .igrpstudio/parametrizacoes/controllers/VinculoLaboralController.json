@@ -155,7 +155,7 @@
       ]
     },
     {
-      "actionName": "deleteVinculoLaboral",
+      "actionName": "desativarVinculoLaboral",
       "path": "{vinculoLaboralId}",
       "method": "DELETE",
       "responses": {
