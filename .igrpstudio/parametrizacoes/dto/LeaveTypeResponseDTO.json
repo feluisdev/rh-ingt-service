@@ -48,7 +48,14 @@
       "primaryKey": false
     },
     {
-      "name": "categoryOptionId",
+      "name": "category",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "categoryDesc",
       "objectType": "java",
       "type": "string",
       "required": false,
