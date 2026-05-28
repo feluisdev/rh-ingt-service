@@ -160,7 +160,7 @@ public class OrganizationalUnitController {
 
     @PatchMapping("{unitId}/deactivate")
     @Operation(
-        summary = "Desativar unidade orgânica",
+        summary = "Desativar unidade orgânica (soft delete)",
         responses = {
             @ApiResponse(
                 responseCode = "200",
