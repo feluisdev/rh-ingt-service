@@ -205,8 +205,8 @@ public class ReferenceOptionsController {
     value = "{optionId}"
   )
   @Operation(
-    summary = "DELETE method to handle operations for deleteOption",
-    description = "DELETE method to handle operations for deleteOption",
+    summary = "Desativar opção",
+    description = "Desativa uma opção de catálogo existente",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -221,7 +221,7 @@ public class ReferenceOptionsController {
     }
   )
 
-  public ResponseEntity<Map<String, ?>> deleteOption(
+  public ResponseEntity<Map<String, ?>> desativarOption(
     @PathVariable(value = "optionId") String optionId)
   {
 

@@ -155,7 +155,7 @@
       ]
     },
     {
-      "actionName": "deleteDocumentType",
+      "actionName": "desativarDocumentType",
       "path": "{documentTypeId}",
       "method": "DELETE",
       "responses": {

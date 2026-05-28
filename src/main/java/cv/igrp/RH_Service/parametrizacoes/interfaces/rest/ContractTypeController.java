@@ -167,7 +167,7 @@ public class ContractTypeController {
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> deleteContractType(
+    public ResponseEntity<Map<String, ?>> desativarContractType(
         @PathVariable(value = "contractTypeId") String contractTypeId) {
 
         LOGGER.debug("Operation started");

@@ -155,7 +155,7 @@
       ]
     },
     {
-      "actionName": "deleteWorkerState",
+      "actionName": "desativarWorkerState",
       "path": "{workerStateId}",
       "method": "DELETE",
       "responses": {

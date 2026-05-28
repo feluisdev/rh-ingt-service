@@ -155,7 +155,7 @@
       ]
     },
     {
-      "actionName": "deleteLeaveType",
+      "actionName": "desativarLeaveType",
       "path": "{leaveTypeId}",
       "method": "DELETE",
       "responses": {

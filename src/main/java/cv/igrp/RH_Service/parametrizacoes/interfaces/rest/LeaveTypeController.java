@@ -160,7 +160,7 @@ public class LeaveTypeController {
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> deleteLeaveType(
+    public ResponseEntity<Map<String, ?>> desativarLeaveType(
         @PathVariable(value = "leaveTypeId") String leaveTypeId) {
 
         LOGGER.debug("Operation started");

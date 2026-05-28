@@ -160,7 +160,7 @@ public class DocumentTypeController {
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> deleteDocumentType(
+    public ResponseEntity<Map<String, ?>> desativarDocumentType(
         @PathVariable(value = "documentTypeId") String documentTypeId) {
 
         LOGGER.debug("Operation started");
