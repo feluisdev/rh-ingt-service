@@ -45,7 +45,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -144,7 +143,7 @@ public class GetColaboradorDetailsQueryHandler
         var filter = new DocumentoFilter();
         filter.setActive(true);
         var documentos = documentoRepository
-                .findAllByReference("FUNCIONARIO", UUID.fromString(query.getFuncionarioId()), filter)
+                .findAllByReference("FUNCIONARIO", funcionarioId.getValor(), filter)
                 .stream().map(documentoMapper::toDTO).collect(Collectors.toList());
 
         return ResponseEntity.ok(new ColaboradorDetailsResponseDTO(
