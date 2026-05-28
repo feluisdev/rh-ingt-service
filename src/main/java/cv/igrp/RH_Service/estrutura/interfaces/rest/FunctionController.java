@@ -158,7 +158,7 @@ public class FunctionController {
             .body(response.getBody());
     }
 
-    @PatchMapping("{functionId}/deactivate")
+    @DeleteMapping("{functionId}/deactivate")
     @Operation(
         summary = "Desativar função",
         responses = {

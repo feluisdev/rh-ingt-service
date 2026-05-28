@@ -157,7 +157,7 @@ public class JobController {
             .body(response.getBody());
     }
 
-    @PatchMapping("{jobId}/deactivate")
+    @DeleteMapping("{jobId}/deactivate")
     @Operation(
         summary = "Desativar cargo",
         responses = {

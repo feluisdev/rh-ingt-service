@@ -124,7 +124,7 @@
     {
       "actionName": "deactivateFunction",
       "path": "{functionId}/deactivate",
-      "method": "PATCH",
+      "method": "DELETE",
       "responses": {
         "200": {
           "name": "OK",

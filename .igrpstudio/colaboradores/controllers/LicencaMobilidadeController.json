@@ -91,7 +91,7 @@
     },
     {
       "actionName": "desativar",
-      "method": "PATCH",
+      "method": "DELETE",
       "path": "{licencaId}/desativar",
       "pathVariables": [
         {"name": "funcionarioId", "type": "string"},
