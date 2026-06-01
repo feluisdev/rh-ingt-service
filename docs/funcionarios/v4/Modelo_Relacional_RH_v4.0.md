@@ -161,6 +161,7 @@ t_option_entity  (Opções / Lookups Genéricos)
 | `BANCO` | Banco (para dados bancários) | `BCA`, `BCN`, `CECV`, `BAI` |
 | `WORK_REGIME` | Regime de Trabalho (LGTFP art.123-129) | `TEMPO_COMPLETO`, `TEMPO_PARCIAL`, `ISENCAO_HORARIO`, `DEDICACAO_EXCLUSIVA` |
 | `WORKER_STATE_REASON` | Motivo de Mudança de Estado do Colaborador | `DISCIPLINARY_SUSPENSION`, `MEDICAL_SUSPENSION`, `OWN_REQUEST_SUSPENSION`, `AGE_RETIREMENT`, `DISABILITY_RETIREMENT`, `VOLUNTARY_RETIREMENT`, `CONTRACT_TERMINATION`, `MUTUAL_AGREEMENT`, `DISCIPLINARY_DISMISSAL`, `DEATH`, `SUSPENSION_RETURN`, `REINTEGRATION` |
+| `RECORD_TYPE` | Tipo de Registo de Licença/Mobilidade | `LICENCA`, `MOBILIDADE`, `AMBOS` |
 
 ---
 
@@ -255,7 +256,7 @@ t_leave_mobility_subtype  (Subtipos de Licença e Mobilidade)
 ├── id                    UUID      PK
 ├── code                  VARCHAR(50)  UNIQUE NOT NULL
 ├── name                  VARCHAR(150) NOT NULL
-├── record_type           VARCHAR(20)  NOT NULL       -- LICENCA, MOBILIDADE, AMBOS
+├── record_type           VARCHAR(20)  NOT NULL       -- ccode='RECORD_TYPE'; ckey: LICENCA, MOBILIDADE, AMBOS
 ├── affects_pay           BOOLEAN NOT NULL DEFAULT FALSE     -- afecta remuneração
 ├── counts_for_seniority  BOOLEAN NOT NULL DEFAULT TRUE      -- conta para antiguidade
 ├── can_self_submit       BOOLEAN NOT NULL DEFAULT FALSE     -- colaborador pode submeter
@@ -1103,6 +1104,7 @@ Resumo decisório para implementação. A coluna "Armazenamento" descreve como o
 | Tipos de Ausência | ❌ Não — tabela dedicada | — | `t_leave_type` (`deducts_balance`, `requires_approval` alteram fluxo) | Implementado |
 | Subtipos Licença/Mobilidade | ❌ Não — tabela dedicada | — | `t_leave_mobility_subtype` (`affects_pay`, `counts_for_seniority`, `can_self_submit`) | Implementado |
 | Motivo de Mudança de Estado | ✅ Sim | `WORKER_STATE_REASON` | `t_historico_estado_colaborador.motivo_ckey VARCHAR(100)` | Implementado — seed com 12 valores |
+| Tipo de Registo Licença/Mobilidade | ✅ Sim | `RECORD_TYPE` | `t_leave_mobility_subtype.record_type VARCHAR(20)` | Implementado — seed com 3 valores (LICENCA, MOBILIDADE, AMBOS) |
 
 **Nota de implementação:** Os campos marcados como "string ckey" são validados na camada aplicacional pelo método `OptionValidator.validate(ccode, ckey)` antes de persistir. O frontend obtém os valores disponíveis via `GET /reference/options?ccode={code}`. Os ccodes estão definidos nesta tabela — quando os ccodes concretos forem confirmados, actualizam-se apenas as seeds de `t_option_entity`, sem alteração de schema.
 

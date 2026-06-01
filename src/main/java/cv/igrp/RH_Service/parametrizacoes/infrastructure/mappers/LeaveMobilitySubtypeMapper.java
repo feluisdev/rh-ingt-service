@@ -44,6 +44,7 @@ public class LeaveMobilitySubtypeMapper {
         dto.setCode(domain.getCode());
         dto.setDescription(domain.getDescription());
         dto.setRecordType(domain.getRecordType());
+        dto.setRecordTypeDesc(domain.getRecordType());
         dto.setAffectsPay(domain.isAffectsPay());
         dto.setCountsForSeniority(domain.isCountsForSeniority());
         dto.setCanSelfSubmit(domain.isCanSelfSubmit());

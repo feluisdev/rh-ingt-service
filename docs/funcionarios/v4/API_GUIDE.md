@@ -1,6 +1,6 @@
 # Guia de Utilização da API — Módulo de Recursos Humanos (SIPPROG)
 
-> Versão 4.6 · Maio 2026  
+> Versão 4.7 · Junho 2026  
 > Sistema de Informação do Pessoal e Progressões — INGT, Cabo Verde
 
 ---
@@ -199,6 +199,7 @@ GET api/v1/rh/reference/options?ccode=MARITAL_STATUS
 | `BANCO` | Banco | `BCA`, `BCN`, `CECV`, `CAIXA` |
 | `WORK_REGIME` | Regime de Trabalho | `TEMPO_INTEIRO`, `TEMPO_PARCIAL` |
 | `WORKER_STATE_REASON` | Motivo de Mudança de Estado | `DISCIPLINARY_SUSPENSION`, `MEDICAL_SUSPENSION`, `AGE_RETIREMENT`, `CONTRACT_TERMINATION`, etc. |
+| `RECORD_TYPE` | Tipo de Registo de Licença/Mobilidade | `LICENCA`, `MOBILIDADE`, `AMBOS` |
 
 **Criar uma nova opção (caso necessário):**
 
@@ -325,7 +326,7 @@ Content-Type: application/json
 
 {
   "code": "COMISSAO_SERVICO",
-  "name": "Comissão de Serviço",
+  "description": "Comissão de Serviço",
   "recordType": "MOBILIDADE",
   "affectsPay": false,
   "countsForSeniority": true,
@@ -335,7 +336,7 @@ Content-Type: application/json
 
 | Campo | Impacto |
 |---|---|
-| `recordType` | `LICENCA`, `MOBILIDADE` ou `AMBOS` — determina onde aparece na interface. |
+| `recordType` | `LICENCA`, `MOBILIDADE` ou `AMBOS` — determina onde aparece na interface. Valores disponíveis via `GET /reference/options?ccode=RECORD_TYPE`. |
 | `affectsPay` | Se `true`, o processamento salarial é afectado. |
 | `countsForSeniority` | Se `false`, o período não conta para antiguidade. |
 | `canSelfSubmit` | Se `true`, o próprio colaborador pode submeter via `/me`. |
@@ -828,15 +829,15 @@ POST api/v1/rh/funcionarios/{funcionarioId}/pedidos-ausencia
 Content-Type: application/json
 
 {
-  "leaveTypeId": "uuid-do-tipo-ferias",
-  "startDate": "2026-08-10",
-  "endDate": "2026-08-21",
-  "justification": "Período de férias anuais."
+  "tipoAusenciaId": "uuid-do-tipo-ferias",
+  "dataInicio": "2026-08-10",
+  "dataFim": "2026-08-21",
+  "motivo": "Período de férias anuais."
 }
 ```
 
 **Regras aplicadas automaticamente:**
-- `endDate ≥ startDate`.
+- `dataFim ≥ dataInicio`.
 - Cálculo de dias úteis exclui sábados, domingos e feriados (`t_public_holiday`).
 - Se `deducts_balance = true`: verifica se `dias_pedido ≤ saldo_disponível`.
 - Se `requires_approval = false`: o pedido vai direto para `APPROVED`.
@@ -845,42 +846,56 @@ Content-Type: application/json
 **2. Aprovar (pela chefia — `ROLE_CHEFIA`):**
 
 ```http
-PUT api/v1/rh/funcionarios/{funcionarioId}/pedidos-ausencia/{id}/approve
+PATCH api/v1/rh/funcionarios/{funcionarioId}/pedidos-ausencia/{id}/aprovar
+Content-Type: application/json
+
+{
+  "aprovadoPorId": "uuid-do-utilizador-que-aprova",
+  "observacoesDecisao": "Aprovado."
+}
 ```
 
 **3. Rejeitar com justificação:**
 
 ```http
-PUT api/v1/rh/funcionarios/{funcionarioId}/pedidos-ausencia/{id}/reject
+PATCH api/v1/rh/funcionarios/{funcionarioId}/pedidos-ausencia/{id}/rejeitar
 Content-Type: application/json
 
 {
-  "rejectionReason": "Período de maior afluência de trabalho. Reagendar para setembro."
+  "aprovadoPorId": "uuid-do-utilizador-que-rejeita",
+  "observacoesDecisao": "Período de maior afluência de trabalho. Reagendar para setembro."
 }
 ```
 
 **4. Cancelar (apenas pedidos em `PENDING`):**
 
 ```http
-PUT api/v1/rh/funcionarios/{funcionarioId}/pedidos-ausencia/{id}/cancel
+PATCH api/v1/rh/funcionarios/{funcionarioId}/pedidos-ausencia/{id}/cancelar
 ```
 
 **Consultar saldo de ausências:**
 
 ```http
-GET api/v1/rh/funcionarios/{funcionarioId}/saldos-ausencia?year=2026
+GET api/v1/rh/funcionarios/{funcionarioId}/saldos-ausencia?ano=2026
 ```
 
-**Ajustar saldo manualmente (ROLE_HR_ADMIN):**
+**Inicializar saldo (ROLE_HR_ADMIN):**
 
 ```http
-PUT api/v1/rh/funcionarios/{funcionarioId}/saldos-ausencia/{balanceId}
+POST api/v1/rh/funcionarios/{funcionarioId}/saldos-ausencia
 Content-Type: application/json
 
 {
-  "assignedDays": 22,
-  "usedDays": 5
+  "tipoAusenciaId": "uuid-do-tipo-ferias",
+  "ano": 2026,
+  "diasDireito": 22
 }
+```
+
+**Ajustar dias de direito do saldo (ROLE_HR_ADMIN):**
+
+```http
+PUT api/v1/rh/funcionarios/{funcionarioId}/saldos-ausencia/{saldoId}?diasDireito=22
 ```
 
 ---
@@ -898,14 +913,15 @@ POST api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade
 Content-Type: application/json
 
 {
-  "recordType": "LICENCA",
-  "subtypeId": "uuid-do-subtipo-licenca-sem-vencimento",
-  "startDate": "2026-09-01",
-  "endDate": "2027-08-31",
-  "isTemporary": true,
-  "justification": "Licença para frequência de doutoramento."
+  "subtipoId": "uuid-do-subtipo-licenca-sem-vencimento",
+  "dataInicio": "2026-09-01",
+  "dataFim": "2027-08-31",
+  "justification": "Licença para frequência de doutoramento.",
+  "observacoes": "Autorizada por despacho interno."
 }
 ```
+
+> O `recordType` (LICENCA/MOBILIDADE) é determinado pelo subtipo — não precisa de ser enviado no pedido.
 
 **2. Registar uma mobilidade (comissão de serviço):**
 
@@ -914,15 +930,14 @@ POST api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade
 Content-Type: application/json
 
 {
-  "recordType": "MOBILIDADE",
-  "subtypeId": "uuid-do-subtipo-comissao-servico",
-  "startDate": "2026-07-01",
-  "endDate": "2027-06-30",
-  "isTemporary": true,
-  "targetUnitId": "uuid-da-unidade-destino",
-  "targetFunctionId": "uuid-da-funcao-destino",
-  "legalBase": "Despacho Nº 8/2026",
-  "justification": "Reforço temporário por necessidade de serviço."
+  "subtipoId": "uuid-do-subtipo-comissao-servico",
+  "dataInicio": "2026-07-01",
+  "dataFim": "2027-06-30",
+  "destinationUnitId": "uuid-da-unidade-destino",
+  "entidadeDestino": "Ministério das Finanças",
+  "despachoNumero": "Despacho Nº 8/2026",
+  "justification": "Reforço temporário por necessidade de serviço.",
+  "observacoes": "Autorizado pelo Conselho de Ministros."
 }
 ```
 
@@ -934,12 +949,49 @@ Ao aprovar, o sistema executa automaticamente `fn_apply_mobility`: encerra a atr
 PUT api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade/{id}/approve
 ```
 
-**4. Encerrar a mobilidade:**
+**4. Rejeitar:**
 
-Em mobilidades temporárias, o encerramento **restaura a atribuição orgânica anterior** do colaborador.
+```http
+PUT api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade/{id}/reject
+Content-Type: application/json
+
+{
+  "rejectionReason": "Documentação insuficiente. Resubmeter com despacho ministerial."
+}
+```
+
+**5. Encerrar a mobilidade:**
+
+Em mobilidades, o encerramento **restaura a atribuição orgânica anterior** do colaborador.
 
 ```http
 PUT api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade/{id}/close
+```
+
+**6. Cancelar (enquanto `PENDING` ou `ACTIVE`):**
+
+```http
+PUT api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade/{id}/cancel
+```
+
+**7. Documentos associados a uma licença/mobilidade:**
+
+```http
+POST api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade/{id}/documentos
+Content-Type: application/json
+
+{
+  "documentTypeId": "uuid-do-tipo",
+  "fileKey": "storage/key/do/ficheiro",
+  "originalFilename": "despacho.pdf",
+  "contentType": "application/pdf",
+  "fileSize": 204800,
+  "description": "Despacho de autorização"
+}
+
+GET api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade/{id}/documentos
+GET api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade/{id}/documentos/{docId}/download
+DELETE api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade/{id}/documentos/{docId}
 ```
 
 ---
@@ -1175,16 +1227,22 @@ GET api/v1/rh/funcionarios/{funcionarioId}/documentos
 | `GET/POST/PUT/DELETE` | `api/v1/rh/funcionarios/{id}/processos-disciplinares/{pid?}` | Processos disciplinares |
 | `GET` | `api/v1/rh/funcionarios/{id}/documentos` | Documentos do funcionário |
 | `POST` | `api/v1/rh/funcionarios/{id}/documentos` | Upload de documento |
-| `GET` | `api/v1/rh/funcionarios/{id}/saldos-ausencia` | Saldos de ausência |
-| `PUT` | `api/v1/rh/funcionarios/{id}/saldos-ausencia/{bid}` | Ajustar saldo |
-| `GET/POST` | `api/v1/rh/funcionarios/{id}/pedidos-ausencia/{pid?}` | Pedidos de ausência |
-| `PUT` | `api/v1/rh/funcionarios/{id}/pedidos-ausencia/{pid}/approve` | Aprovar pedido |
-| `PUT` | `api/v1/rh/funcionarios/{id}/pedidos-ausencia/{pid}/reject` | Rejeitar pedido |
-| `PUT` | `api/v1/rh/funcionarios/{id}/pedidos-ausencia/{pid}/cancel` | Cancelar pedido |
+| `GET` | `api/v1/rh/funcionarios/{id}/saldos-ausencia?ano={ano}` | Saldos de ausência (filtros: `ano`, `tipoAusenciaId`) |
+| `POST` | `api/v1/rh/funcionarios/{id}/saldos-ausencia` | Inicializar saldo de ausência |
+| `PUT` | `api/v1/rh/funcionarios/{id}/saldos-ausencia/{saldoId}?diasDireito={n}` | Ajustar dias de direito |
+| `GET/POST` | `api/v1/rh/funcionarios/{id}/pedidos-ausencia/{pid?}` | Pedidos de ausência (filtros: `estado`, `tipoAusenciaId`, `ano`) |
+| `PATCH` | `api/v1/rh/funcionarios/{id}/pedidos-ausencia/{pid}/aprovar` | Aprovar pedido (body: `aprovadoPorId`, `observacoesDecisao`) |
+| `PATCH` | `api/v1/rh/funcionarios/{id}/pedidos-ausencia/{pid}/rejeitar` | Rejeitar pedido (body: `aprovadoPorId`, `observacoesDecisao`) |
+| `PATCH` | `api/v1/rh/funcionarios/{id}/pedidos-ausencia/{pid}/cancelar` | Cancelar pedido |
 | `GET/POST` | `api/v1/rh/funcionarios/{id}/licencas-mobilidade/{lid?}` | Licenças e mobilidades |
+| `PUT` | `api/v1/rh/funcionarios/{id}/licencas-mobilidade/{lid}` | Actualizar licença/mobilidade |
 | `PUT` | `api/v1/rh/funcionarios/{id}/licencas-mobilidade/{lid}/approve` | Aprovar licença/mobilidade |
+| `PUT` | `api/v1/rh/funcionarios/{id}/licencas-mobilidade/{lid}/reject` | Rejeitar (body: `rejectionReason`) |
 | `PUT` | `api/v1/rh/funcionarios/{id}/licencas-mobilidade/{lid}/close` | Encerrar licença/mobilidade |
 | `PUT` | `api/v1/rh/funcionarios/{id}/licencas-mobilidade/{lid}/cancel` | Cancelar licença/mobilidade |
+| `GET/POST` | `api/v1/rh/funcionarios/{id}/licencas-mobilidade/{lid}/documentos` | Documentos da licença/mobilidade |
+| `GET` | `api/v1/rh/funcionarios/{id}/licencas-mobilidade/{lid}/documentos/{docId}/download` | Download de documento da licença |
+| `DELETE` | `api/v1/rh/funcionarios/{id}/licencas-mobilidade/{lid}/documentos/{docId}` | Desativar documento da licença |
 | `GET/POST` | `api/v1/rh/funcionarios/{id}/recibos/{rid?}` | Recibos de vencimento |
 
 ### Auditoria
@@ -1215,4 +1273,4 @@ GET api/v1/rh/funcionarios/{funcionarioId}/documentos
 
 ---
 
-*Documento atualizado em Maio de 2026 — Módulo RH v4.6 — SIPPROG/INGT*
+*Documento atualizado em Junho de 2026 — Módulo RH v4.7 — SIPPROG/INGT*
