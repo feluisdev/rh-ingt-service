@@ -11,4 +11,5 @@ public interface DadosBancariosRepository {
     DadosBancarios save(DadosBancarios dadosBancarios);
     Optional<DadosBancarios> findById(DadosBancariosId id);
     List<DadosBancarios> findAllByFuncionarioId(FuncionarioId funcionarioId);
+    Optional<DadosBancarios> findActiveByFuncionarioId(FuncionarioId funcionarioId);
 }

@@ -60,10 +60,38 @@
       "actionName": "updateFuncionario",
       "method": "PUT",
       "path": "{funcionarioId}",
+      "summary": "Actualizar dados pessoais e bancários do funcionário",
       "pathVariables": [
         {"name": "funcionarioId", "type": "string"}
       ],
-      "requestBody": true
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AtualizarFuncionarioRequestDTO",
+              "objectType": "dto",
+              "name": "data",
+              "collectionType": "none",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "map",
+                "objectType": "java",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "mudarEstadoColaborador",

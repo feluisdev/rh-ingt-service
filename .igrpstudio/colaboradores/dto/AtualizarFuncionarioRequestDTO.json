@@ -1,0 +1,10 @@
+{
+  "type": "dto",
+  "name": "AtualizarFuncionarioRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "FuncionarioRequestDTO",    "name": "dadosPessoais",   "objectType": "dto", "required": true,  "module": "colaboradores"},
+    {"type": "DadosBancariosRequestDTO", "name": "dadosBancarios",  "objectType": "dto", "required": false, "module": "colaboradores"}
+  ]
+}

@@ -38,4 +38,11 @@ public class DadosBancariosRepositoryImpl implements DadosBancariosRepository {
         return entityRepository.findByFuncionarioId(funcionarioId.getValor())
                 .stream().map(mapper::toDomain).toList();
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<DadosBancarios> findActiveByFuncionarioId(FuncionarioId funcionarioId) {
+        return entityRepository.findByFuncionarioIdAndIsActiveTrue(funcionarioId.getValor())
+                .map(mapper::toDomain);
+    }
 }
