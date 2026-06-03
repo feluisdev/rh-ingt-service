@@ -20,6 +20,5 @@ public class EnquadramentoRequestDTO {
     private String functionId;
     @NotBlank
     private String unidadeOrganicaId;
-    @NotNull
     private LocalDate dataInicio;
 }
