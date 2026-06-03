@@ -22,6 +22,9 @@ public class FuncionarioService {
 
     @Transactional
     public Funcionario criarFuncionario(FuncionarioRequestDTO dto) {
+        if (dto.getDataAdmissao() == null)
+            throw IgrpResponseStatusException.badRequest("A data de admissão é obrigatória.");
+
         if (funcionarioRepository.existsByNif(dto.getNif()))
             throw IgrpResponseStatusException.conflict(
                     "Já existe um funcionário com NIF '" + dto.getNif() + "'.");

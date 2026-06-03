@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.colaboradores.application.commands;
 
 import cv.igrp.RH_Service.colaboradores.application.services.EnquadramentoService;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,9 @@ public class CreateEnquadramentoCommandHandler
     @IgrpCommandHandler
     @Transactional
     public ResponseEntity<Map<String, ?>> handle(CreateEnquadramentoCommand command) {
+        if (command.getRequest().getDataInicio() == null)
+            throw IgrpResponseStatusException.badRequest("A data de início é obrigatória.");
+
         var funcionarioId = FuncionarioId.from(command.getFuncionarioId());
         var saved = enquadramentoService.criarEnquadramento(funcionarioId, command.getRequest());
         return ResponseEntity.status(201).body(Map.of(
