@@ -1,6 +1,6 @@
 # Valores de Configuração do Sistema RH
 
-> SIPPROG — INGT, Cabo Verde · Versão 1.0 · Maio 2026
+> SIPPROG — INGT, Cabo Verde · Versão 1.2 · Junho 2026
 
 Este documento lista **todos os valores que têm de ser configurados** no sistema antes de ser possível registar funcionários. A ordem das secções deve ser respeitada.
 

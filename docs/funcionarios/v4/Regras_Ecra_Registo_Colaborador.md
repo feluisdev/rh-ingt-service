@@ -4,8 +4,8 @@
 |---|---|
 | **Documento** | Regras de Ecrã — Registo Colaborador |
 | **Módulo** | Colaboradores |
-| **Versão** | 1.0 |
-| **Data** | Maio 2026 |
+| **Versão** | 1.2 |
+| **Data** | Junho 2026 |
 | **Status** | Em curso |
 
 ---

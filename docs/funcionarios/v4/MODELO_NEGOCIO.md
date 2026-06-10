@@ -1,6 +1,6 @@
 # Modelo de Negócio — RH-Service (SIPPROG)
 
-> Versão 1.1 · Maio 2026  
+> Versão 1.2 · Junho 2026  
 > Sistema de Informação do Pessoal e Progressões — INGT, Cabo Verde
 
 Este documento explica o modelo de negócio do módulo de Recursos Humanos de A a Z: o que existe, porquê existe, como se relaciona e que regras governa.
@@ -24,7 +24,7 @@ Este documento explica o modelo de negócio do módulo de Recursos Humanos de A 
 13. [Sistema de Feriados](#13-sistema-de-feriados)
 14. [Fluxo Completo de Dependências](#14-fluxo-completo-de-dependências)
 15. [Regras de Negócio Críticas](#15-regras-de-negócio-críticas)
-16. [Resumo das 29 Tabelas](#16-resumo-das-29-tabelas)
+16. [Resumo das 30 Tabelas](#16-resumo-das-30-tabelas)
 
 ---
 
@@ -32,7 +32,7 @@ Este documento explica o modelo de negócio do módulo de Recursos Humanos de A 
 
 O RH-Service gere o **dossier completo do funcionário público** da administração de Cabo Verde. Cobre o ciclo de vida desde a admissão até à cessação: identificação pessoal, contratos, enquadramento na grelha de carreiras (PCFR), colocação em unidades orgânicas, documentos, ausências, licenças, mobilidades e recibos de vencimento.
 
-O modelo organiza-se em **9 blocos funcionais** e **29 tabelas**, seguindo três princípios fundamentais:
+O modelo organiza-se em **10 blocos funcionais** e **30 tabelas** (29 RH + 1 IAM em shared/), seguindo três princípios fundamentais:
 
 - **Separação de históricos**: contrato, enquadramento de carreira e colocação têm tabelas próprias e ciclos de vida independentes.
 - **Dois tipos de catálogo**: lookups simples (sem lógica) ficam num único repositório genérico (`t_option_entity`); catálogos com comportamento têm tabela própria.
@@ -426,22 +426,43 @@ O tipo de documento (`t_tipo_documento`) define as extensões aceites no upload 
 
 ### 11.1 Saldos de Ausência (`t_leave_balance`)
 
-Um registo por funcionário/tipo de ausência/ano. O sistema cria automaticamente os saldos anuais para os tipos que deduzem saldo (`deducts_balance = true`). O constraint `UQ(employee_id, leave_type_id, year)` impede duplicados.
+Um registo por funcionário/tipo de ausência/ano. Os campos são **inteiros** (não decimais):
+
+- `dias_direito` — dias anuais de direito.
+- `dias_gozados` — dias já aprovados e consumidos.
+- `dias_pendentes` — dias reservados por pedidos em PENDENTE (ainda não aprovados).
+- `dias_disponiveis` — campo **calculado** (não persistido): `dias_direito − dias_gozados − dias_pendentes`.
+
+O sistema cria automaticamente os saldos anuais para os tipos que deduzem saldo (`deducts_balance = true`). O constraint `UQ(funcionario_id, tipo_ausencia_id, ano)` impede duplicados.
 
 ### 11.2 Pedidos de Ausência (`t_leave_request`)
 
 Ausências de curta duração (férias, doença, luto, maternidade, etc.).
 
-**Ciclo de vida:** `PENDING → APPROVED | REJECTED → CANCELLED`
+**Campos principais:**
+
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `tipo_ausencia_id` | UUID FK | Tipo de ausência (liga a `t_leave_type`) |
+| `data_inicio` / `data_fim` | DATE | Período do pedido |
+| `numero_dias` | INTEGER | Dias úteis do pedido (inteiro, não decimal) |
+| `motivo` | TEXT | Justificação do pedido |
+| `estado` | VARCHAR | `PENDENTE`, `APROVADO`, `REJEITADO`, `CANCELADO` |
+| `aprovado_por` | UUID | Identificador do aprovador (sem FK rígida) |
+| `data_decisao` | DATE | Data em que a chefia decidiu |
+| `observacoes_decisao` | TEXT | Notas da chefia na aprovação/rejeição |
+| `is_active` | BOOLEAN | Soft delete |
+
+**Ciclo de vida:** `PENDENTE → APROVADO | REJEITADO → CANCELADO`
 
 **Regras automáticas ao submeter:**
-1. `end_date ≥ start_date`.
-2. `working_days` calculado automaticamente, excluindo fins-de-semana e `t_public_holiday`.
-3. Se `deducts_balance = true` → valida `working_days ≤ saldo_disponível`.
-4. Se `requires_approval = false` → vai directamente para `APPROVED`.
-5. Rejeita sobreposições para o mesmo funcionário (excepto pedidos `CANCELLED`/`REJECTED`).
+1. `data_fim ≥ data_inicio`.
+2. `numero_dias` calculado automaticamente, excluindo fins-de-semana e `t_public_holiday`.
+3. Se `deducts_balance = true` → valida `numero_dias ≤ saldo_disponível`.
+4. Se `requires_approval = false` → vai directamente para `APROVADO`.
+5. Rejeita sobreposições para o mesmo funcionário (excepto pedidos `CANCELADO`/`REJEITADO`).
 
-O campo `approver_id` regista a chefia que aprovou/rejeitou.
+Nota: documentos justificativos (ex: atestado médico) são ligados via `t_document(reference_entity='t_leave_request')` — não existe `document_id` directo na tabela.
 
 ### 11.3 Licenças e Mobilidades (`t_leave_mobility`)
 
@@ -458,9 +479,15 @@ Ausências de longa duração e movimentações entre serviços.
 
 ## 12. Recibos de Vencimento
 
-A tabela `t_payroll_slip` é um **repositório de PDFs** gerados pelo sistema salarial externo. O RH-Service não processa vencimentos — apenas armazena e disponibiliza os recibos.
+A tabela `t_payroll_slip` é um **repositório de recibos** gerados pelo sistema salarial externo. O RH-Service não processa vencimentos — apenas armazena e disponibiliza os recibos.
 
-O constraint `UQ(employee_id, period_year, period_month)` garante um único recibo por funcionário por mês. O PDF é armazenado no MinIO e referenciado por `document_id`.
+Além do PDF (referenciado por `document_id` e armazenado no MinIO), a tabela guarda metadados extraídos do recibo para consulta e filtragem sem abrir o ficheiro:
+
+- `issue_date` (DATE) — data de emissão do recibo.
+- `gross_salary` (NUMERIC 15,2) — salário bruto em CVE.
+- `net_salary` (NUMERIC 15,2) — salário líquido em CVE.
+
+O constraint `UQ(funcionario_id, period_year, period_month)` garante um único recibo por funcionário por mês.
 
 ---
 
@@ -542,8 +569,8 @@ PASSO 9 — Operação corrente
 | `t_funcionario` | `email` | Único quando preenchido |
 | `t_category` | `(career_id, code)` | Código único dentro da carreira |
 | `t_grade` | `(category_id, grade_number)` | Escalão único dentro da categoria |
-| `t_leave_balance` | `(employee_id, leave_type_id, year)` | Um saldo por funcionário/tipo/ano |
-| `t_payroll_slip` | `(employee_id, period_year, period_month)` | Um recibo por funcionário por mês |
+| `t_leave_balance` | `(funcionario_id, tipo_ausencia_id, ano)` | Um saldo por funcionário/tipo/ano |
+| `t_payroll_slip` | `(funcionario_id, period_year, period_month)` | Um recibo por funcionário por mês |
 | `t_public_holiday` | `holiday_date` (nacional) | Um feriado nacional activo por data |
 
 ### Triggers e validações automáticas
@@ -588,7 +615,7 @@ Apenas **um registo activo** por funcionário em cada historial:
 
 ---
 
-## 16. Resumo das 29 Tabelas
+## 16. Resumo das 30 Tabelas
 
 | # | Tabela | Bloco | Descrição |
 |---|---|---|---|
@@ -621,7 +648,8 @@ Apenas **um registo activo** por funcionário em cada historial:
 | 27 | `t_payroll_slip` | 8 | Recibos de vencimento |
 | 28 | `t_public_holiday` | 9 | Feriados (cálculo de dias úteis) |
 | 29 | `t_historico_estado_colaborador` | 9 | Histórico imutável de mudanças de estado laboral |
+| 30 | `t_iam_user_profile` | 10 (shared/) | Perfis IAM sincronizados do Keycloak; liga utilizador autenticado ao dossier RH |
 
 ---
 
-*Documento gerado em Maio de 2026 — RH-Service v4.6 — SIPPROG/INGT*
+*Documento gerado em Junho de 2026 — RH-Service v4.8 — SIPPROG/INGT*

@@ -5,8 +5,8 @@
 | **Documento** | Modelo Relacional RH v4.0 |
 | **Projeto** | SIPPROG — Sistema de Informação do Pessoal e Progressões |
 | **Entidade** | INGT — Instituto Nacional de Gestão do Território |
-| **Versão** | 4.5 |
-| **Data** | Maio 2026 |
+| **Versão** | 4.6 |
+| **Data** | Junho 2026 |
 | **Status** | Em curso |
 
 ---
@@ -25,7 +25,7 @@
 
 ## 1. Visão Geral
 
-O modelo relacional do Módulo RH organiza-se em **9 blocos funcionais** e **29 tabelas**, cobrindo o ciclo completo do dossier do funcionário público: desde a identificação pessoal, passando pelo historial profissional (contrato, enquadramento de carreira, colocação), até aos documentos, ausências e licenças.
+O modelo relacional do Módulo RH organiza-se em **10 blocos funcionais** e **30 tabelas** (29 RH + 1 IAM em shared/), cobrindo o ciclo completo do dossier do funcionário público: desde a identificação pessoal, passando pelo historial profissional (contrato, enquadramento de carreira, colocação), até aos documentos, ausências e licenças.
 
 A filosofia central é a separação clara de responsabilidades:
 
@@ -604,7 +604,7 @@ t_disciplinary_process  (Processos Disciplinares)
 ### Bloco 7 — Documentos
 
 ```
-documents  (Documentos do Dossier)
+t_document  (Documentos do Dossier)
 ├── id                UUID      PK
 ├── document_type_id  UUID NOT NULL FK→t_tipo_documento
 ├── original_filename VARCHAR(255) NOT NULL             -- nome original do ficheiro
@@ -629,52 +629,80 @@ documents  (Documentos do Dossier)
 t_leave_balance  (Saldos de Ausência)
 ├── id              UUID      PK
 ├── funcionario_id   UUID NOT NULL FK→t_funcionario
-├── leave_type_id   UUID NOT NULL FK→t_leave_type
-├── year            INTEGER      NOT NULL
-├── assigned_days   NUMERIC(5,2) NOT NULL
-├── used_days       NUMERIC(5,2) NOT NULL DEFAULT 0
-└── UQ (employee_id, leave_type_id, year)   -- um saldo por funcionário/tipo/ano
+├── tipo_ausencia_id UUID NOT NULL FK→t_leave_type
+├── ano             INTEGER      NOT NULL
+├── dias_direito    INTEGER      NOT NULL          -- dias anuais de direito (inteiro, não decimal)
+├── dias_gozados    INTEGER      NOT NULL DEFAULT 0 -- dias já gozados (aprovados e consumidos)
+├── dias_pendentes  INTEGER      NOT NULL DEFAULT 0 -- dias em pedidos PENDING (reservados mas não aprovados)
+├── auditoria
+└── UQ (funcionario_id, tipo_ausencia_id, ano)   -- um saldo por funcionário/tipo/ano
+
+-- dias_disponiveis = dias_direito - dias_gozados - dias_pendentes (campo calculado, não persistido).
 ```
 
 ```
-leave_requests  (Pedidos de Ausência)
-├── id              UUID      PK
-├── funcionario_id   UUID NOT NULL FK→t_funcionario
-├── leave_type_id   UUID NOT NULL FK→t_leave_type
-├── approver_id     UUID FK→employees                -- chefia aprovadora
-├── start_date      DATE NOT NULL
-├── end_date        DATE NOT NULL
-├── working_days    NUMERIC(5,2) NOT NULL               -- calculado (exclui feriados e fins-de-semana)
-├── justification   TEXT
-├── status          VARCHAR(20)  NOT NULL               -- PENDING, APPROVED, REJECTED, CANCELLED
-├── document_id     UUID FK→documents                 -- justificativo (ex: atestado médico)
+t_leave_request  (Pedidos de Ausência)
+├── id                  UUID      PK
+├── funcionario_id       UUID NOT NULL FK→t_funcionario
+├── tipo_ausencia_id    UUID NOT NULL FK→t_leave_type
+├── data_inicio         DATE NOT NULL
+├── data_fim            DATE NOT NULL
+├── numero_dias         INTEGER NOT NULL                  -- dias úteis do pedido (inteiro, não decimal)
+├── motivo              TEXT                              -- justificação do pedido
+├── estado              VARCHAR(20)  NOT NULL             -- PENDENTE, APROVADO, REJEITADO, CANCELADO
+├── aprovado_por        UUID                              -- UUID do aprovador (sem FK rígida)
+├── data_decisao        DATE                              -- data em que a chefia decidiu
+├── observacoes_decisao TEXT                              -- notas da chefia na aprovação/rejeição
+├── is_active           BOOLEAN NOT NULL DEFAULT TRUE     -- soft delete
 └── auditoria
+
+-- Campos renomeados face ao modelo anterior: leave_type_id → tipo_ausencia_id,
+--   working_days (NUMERIC) → numero_dias (INTEGER), justification → motivo,
+--   status → estado, approver_id → aprovado_por.
+-- document_id removido: documentos justificativos são ligados via t_document(reference_entity='t_leave_request').
+-- aprovado_por: UUID livre (sem FK rígida para t_funcionario) — permite identificar aprovadores externos.
 ```
 
 ```
-leaves_mobilities  (Licenças e Mobilidades)
+t_leave_mobility  (Licenças e Mobilidades)
 ├── id                     UUID      PK
-├── employee_id            UUID NOT NULL FK→t_funcionario
-├── subtype_id             UUID NOT NULL FK→t_leave_mobility_subtype
+├── funcionario_id          UUID NOT NULL FK→t_funcionario
+├── subtipo_id             UUID NOT NULL FK→t_leave_mobility_subtype
 ├── destination_unit_id    UUID FK→t_unidade_organica   -- destino (se mobilidade)
-├── start_date             DATE NOT NULL
-├── end_date               DATE
+├── data_inicio            DATE NOT NULL
+├── data_fim               DATE
 ├── status                 VARCHAR(20) NOT NULL             -- PENDING, ACTIVE, CLOSED
-├── notes                  TEXT
-├── document_id            UUID FK→documents
+├── observacoes            TEXT                              -- notas gerais
+├── entidade_destino       VARCHAR(200)                     -- nome da entidade externa de destino (mobilidade inter-institucional)
+├── despacho_numero        VARCHAR(100)                     -- nº do despacho de autorização
+├── justification          TEXT                              -- justificação do pedido
+├── rejection_reason       TEXT                              -- motivo da rejeição (preenchido pelo aprovador)
+├── document_id            UUID FK→t_document              -- documento principal associado
+├── is_active              BOOLEAN NOT NULL DEFAULT TRUE    -- soft delete
 └── auditoria
+
+-- Campos renomeados: employee_id → funcionario_id, subtype_id → subtipo_id,
+--   start_date → data_inicio, end_date → data_fim, notes → observacoes.
+-- Novos campos: entidade_destino, despacho_numero, justification, rejection_reason, is_active.
+-- document_id mantém FK directa (ao contrário de t_leave_request que usa padrão polimórfico).
 ```
 
 ```
 t_payroll_slip  (Recibos de Vencimento)
 ├── id             UUID      PK
-├── employee_id    UUID NOT NULL FK→t_funcionario
-├── period_year    INTEGER      NOT NULL
+├── funcionario_id  UUID NOT NULL FK→t_funcionario
 ├── period_month   INTEGER      NOT NULL    -- 1 a 12
-├── document_id    UUID FK→documents      -- PDF do recibo gerado pelo sistema salarial
+├── period_year    INTEGER      NOT NULL
+├── issue_date     DATE         NOT NULL    -- data de emissão do recibo
+├── gross_salary   NUMERIC(15,2) NOT NULL   -- salário bruto em CVE
+├── net_salary     NUMERIC(15,2) NOT NULL   -- salário líquido em CVE
+├── document_id    UUID FK→t_document      -- PDF do recibo gerado pelo sistema salarial
 ├── is_active      BOOLEAN DEFAULT TRUE
-└── auditoria
-└── UQ (employee_id, period_year, period_month)
+├── auditoria
+└── UQ (funcionario_id, period_year, period_month)
+
+-- issue_date, gross_salary, net_salary: metadados extraídos do recibo importado,
+--   permitem consulta e filtragem sem abrir o PDF.
 ```
 
 ---
@@ -708,6 +736,27 @@ t_historico_estado_colaborador  (Histórico de Mudanças de Estado)
 -- motivo_ckey referencia t_option_entity(ccode='WORKER_STATE_REASON') por string (sem UUID FK).
 -- Efeitos colaterais no contrato (suspensão/reactivação/cessação) e colocação (fecho)
 -- são aplicados transaccionalmente pelo MudarEstadoColaboradorCommandHandler.
+```
+
+---
+
+### Bloco 10 — Shared / IAM
+
+```
+t_iam_user_profile  (Perfis IAM Sincronizados)
+├── id              UUID      PK
+├── sub             VARCHAR(255) UNIQUE NOT NULL     -- subject ID do Keycloak (token claim "sub")
+├── username        VARCHAR(200) NOT NULL
+├── email           VARCHAR(200)
+├── first_name      VARCHAR(150)
+├── last_name       VARCHAR(150)
+├── full_name       VARCHAR(300)
+├── funcionario_id   UUID FK→t_funcionario           -- associação ao colaborador RH (nullable)
+└── auditoria
+
+-- Tabela do módulo shared/ — mantém perfil sincronizado do Keycloak.
+-- Permite identificar o utilizador autenticado sem consultar o IdP em cada pedido.
+-- funcionario_id: ligação opcional ao dossier RH (preenchida após associação explícita).
 ```
 
 ---
@@ -930,22 +979,27 @@ erDiagram
 
     LEAVE_BALANCES {
         uuid   id PK
-        uuid employee_id FK
-        uuid leave_type_id FK
-        int year
-        numeric assigned_days
-        numeric used_days
+        uuid funcionario_id FK
+        uuid tipo_ausencia_id FK
+        int ano
+        int dias_direito
+        int dias_gozados
+        int dias_pendentes
     }
 
     LEAVE_REQUESTS {
         uuid   id PK
-        uuid employee_id FK
-        uuid leave_type_id FK
-        uuid approver_id FK
-        date start_date
-        date end_date
-        varchar status
-        uuid document_id FK
+        uuid funcionario_id FK
+        uuid tipo_ausencia_id FK
+        date data_inicio
+        date data_fim
+        int numero_dias
+        text motivo
+        varchar estado
+        uuid aprovado_por
+        date data_decisao
+        text observacoes_decisao
+        boolean is_active
     }
 
     LEAVE_MOBILITY_SUBTYPES {
@@ -957,22 +1011,43 @@ erDiagram
         boolean can_self_submit
     }
 
-    LEAVES_MOBILITIES {
+    LEAVE_MOBILITIES {
         uuid   id PK
-        uuid employee_id FK
-        uuid subtype_id FK
+        uuid funcionario_id FK
+        uuid subtipo_id FK
         uuid destination_unit_id FK
-        date start_date
+        date data_inicio
+        date data_fim
         varchar status
+        text observacoes
+        varchar entidade_destino
+        varchar despacho_numero
+        text justification
+        text rejection_reason
         uuid document_id FK
+        boolean is_active
     }
 
     PAYROLL_SLIPS {
         uuid   id PK
-        uuid employee_id FK
-        int period_year
+        uuid funcionario_id FK
         int period_month
+        int period_year
+        date issue_date
+        numeric gross_salary
+        numeric net_salary
         uuid document_id FK
+    }
+
+    IAM_USER_PROFILES {
+        uuid   id PK
+        varchar sub
+        varchar username
+        varchar email
+        varchar first_name
+        varchar last_name
+        varchar full_name
+        uuid funcionario_id FK
     }
 
     PUBLIC_HOLIDAYS {
@@ -1007,8 +1082,9 @@ erDiagram
     T_FUNCIONARIO ||--o{ DISCIPLINARY_PROCESSES : "tem"
     T_FUNCIONARIO ||--o{ LEAVE_REQUESTS : "solicita"
     T_FUNCIONARIO ||--o{ LEAVE_BALANCES : "tem saldo"
-    T_FUNCIONARIO ||--o{ LEAVES_MOBILITIES : "tem"
+    T_FUNCIONARIO ||--o{ LEAVE_MOBILITIES : "tem"
     T_FUNCIONARIO ||--o{ PAYROLL_SLIPS : "recebe"
+    T_FUNCIONARIO ||--o| IAM_USER_PROFILES : "perfil IAM"
 
     T_CONTRATO }o--|| CONTRACT_TYPES : "tipo"
     EMPLOYEE_PROFESSIONAL_ASSIGNMENTS }o--|| CAREERS : "carreira"
@@ -1029,11 +1105,10 @@ erDiagram
     DOCUMENTS }o--o{ DISCIPLINARY_PROCESSES : "reference_entity/id"
 
     LEAVE_REQUESTS }o--|| LEAVE_TYPES : "tipo"
-    LEAVE_REQUESTS }o--o| DOCUMENTS : "justificativo"
     LEAVE_BALANCES }o--|| LEAVE_TYPES : "tipo"
-    LEAVES_MOBILITIES }o--|| LEAVE_MOBILITY_SUBTYPES : "subtipo"
-    LEAVES_MOBILITIES }o--o| ORGANIZATIONAL_UNITS : "destino"
-    LEAVES_MOBILITIES }o--o| DOCUMENTS : "documento"
+    LEAVE_MOBILITIES }o--|| LEAVE_MOBILITY_SUBTYPES : "subtipo"
+    LEAVE_MOBILITIES }o--o| ORGANIZATIONAL_UNITS : "destino"
+    LEAVE_MOBILITIES }o--o| DOCUMENTS : "documento"
     PAYROLL_SLIPS }o--o| DOCUMENTS : "pdf"
 
     T_FUNCIONARIO ||--o{ T_HISTORICO_ESTADO_COLABORADOR : "historico estados"
@@ -1055,8 +1130,8 @@ erDiagram
 | `t_funcionario` | `email` UNIQUE (quando preenchido) |
 | `t_category` | UQ `(career_id, code)` |
 | `t_grade` | UQ `(category_id, grade_number)` |
-| `t_leave_balance` | UQ `(employee_id, leave_type_id, year)` |
-| `t_payroll_slip` | UQ `(employee_id, period_year, period_month)` |
+| `t_leave_balance` | UQ `(funcionario_id, tipo_ausencia_id, ano)` |
+| `t_payroll_slip` | UQ `(funcionario_id, period_year, period_month)` |
 | `t_public_holiday` | `holiday_date` UNIQUE |
 
 ### 5.2 Validações por Trigger
@@ -1066,8 +1141,8 @@ erDiagram
 | `fn_validate_professional_assignment` | `t_employee_professional_assignments` | `category_id` pertence ao `career_id` indicado; `grade_id` pertence ao `category_id` indicado |
 | `fn_enforce_single_current_assignment` (enquadramento) | `t_enquadramento` | Ao activar `is_current = true`, fecha automaticamente o registo anterior (`is_current = false`, `end_date = new.start_date - 1`) |
 | `fn_enforce_single_current_assignment` | `t_employee_professional_assignments` | Idem para enquadramento profissional |
-| `fn_check_leave_balance` | `t_leave_request` | Se `leave_type.deducts_balance = true`, valida que `working_days ≤ leave_balances.available_days` |
-| `fn_check_leave_overlap` | `t_leave_request` | Rejeita pedidos sobrepostos para o mesmo funcionário (excepto CANCELLED/REJECTED) |
+| `fn_check_leave_balance` | `t_leave_request` | Se `leave_type.deducts_balance = true`, valida que `numero_dias ≤ saldo.dias_disponiveis` |
+| `fn_check_leave_overlap` | `t_leave_request` | Rejeita pedidos sobrepostos para o mesmo funcionário (excepto CANCELADO/REJEITADO) |
 | `fn_audit_generic` | Todas | Regista alterações em `change_history` com `old_data` e `new_data` JSONB |
 | `fn_set_updated_at` | Todas | Actualiza automaticamente `updated_at` em cada UPDATE |
 
@@ -1075,7 +1150,7 @@ erDiagram
 
 - **`t_contrato.is_current`**: apenas 1 TRUE por `funcionario_id`. Ao criar novo contrato, o `CreateContratoCommandHandler` encerra o anterior (`status = 'CESSADO'`, `is_current = false`, `end_date = startDate − 1 dia`) antes de persistir o novo. Não existe trigger de BD para esta lógica.
 - **`employee_professional_assignments.is_current`**: idem. Ao criar novo enquadramento, o anterior é fechado com `end_date = new.start_date - 1`.
-- **`t_employee_unit_assignments`**: não usa `is_current`. Usa `end_date IS NULL` para identificar a colocação actual. `is_primary = true` marca a unidade principal quando há múltiplas.
+- **`t_employee_unit_assignments`**: usa `is_current = true` para marcar a colocação activa principal. `end_date IS NULL` é equivalente para a colocação corrente.
 
 ---
 
@@ -1132,7 +1207,7 @@ Resumo decisório para implementação. A coluna "Armazenamento" descreve como o
 | Conceito | Melhoria |
 |---|---|
 | Hierarquia Carreira → Categoria → Escalão | Mantida. Adicionados `salary_index` e `salary_base` no escalão; `regime` na carreira; `ordem_progressao` na categoria |
-| Dossier de documentos | Unificado em `documents` com `storage_key`, `mime_type`, `size_bytes` |
+| Dossier de documentos | Unificado em `t_document` com `file_key`, `content_type`, `file_size` |
 | Habilitações literárias | Mantidas como tabela própria (`t_qualificacao`) |
 | Familiares/Dependentes | Mantidos como `t_dependente` |
 | Processo disciplinar | Mantido com estrutura mais limpa (`t_disciplinary_process`) |
@@ -1142,7 +1217,7 @@ Resumo decisório para implementação. A coluna "Armazenamento" descreve como o
 
 | Modelo INPS (anterior) | Modelo v4 |
 |---|---|
-| 45+ tabelas (incluindo views e tabelas de processamento) | 29 tabelas (foco no dossier) |
+| 45+ tabelas (incluindo views e tabelas de processamento) | 30 tabelas (29 RH + 1 IAM shared/) |
 | `TiposRelacionamentoEntity` como god table | 3 históricos independentes e limpos |
-| 2 tabelas de documentos sobrepostas | 1 tabela `documents` unificada |
+| 2 tabelas de documentos sobrepostas | 1 tabela `t_document` unificada |
 | `ParamSituacaoEntity` com 25+ campos | `t_leave_type` + `t_leave_mobility_subtype` focados |
