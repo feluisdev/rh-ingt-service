@@ -87,7 +87,7 @@ Authorization: Bearer {token}
 | **Base URL** | `http://localhost:8091` (local) |
 | **Prefixo de API** | Todos os endpoints têm o prefixo `api/v1/rh/` |
 | **Formato de data** | ISO-8601: `YYYY-MM-DD` para datas; `YYYY-MM-DDTHH:mm:ss` para timestamps UTC |
-| **Paginação** | `page` (1-based, default 1) e `size` (default 20, máx. 100) |
+| **Paginação** | `pagina` (0-based, default 0) e `tamanho` (default 20) |
 | **Ordenação** | `sort=campo,asc` ou `sort=campo,desc` |
 | **IDs** | UUID (`xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`) |
 | **Content-Type** | `application/json` (exceto upload de ficheiros: `multipart/form-data`) |
@@ -101,11 +101,13 @@ GET http://localhost:8091/api/v1/rh/funcionarios
 
 ```json
 {
-  "content": [ ... ],
-  "page": 1,
-  "size": 20,
+  "data": [ ... ],
+  "pageNumber": 0,
+  "pageSize": 20,
   "totalElements": 132,
-  "totalPages": 7
+  "totalPages": 7,
+  "first": true,
+  "last": false
 }
 ```
 
@@ -192,14 +194,14 @@ GET api/v1/rh/reference/options?ccode=MARITAL_STATUS
 | `UNIT_TYPE` | Tipo de Unidade Orgânica | `DIRECAO`, `DEPARTAMENTO`, `DIVISAO`, `SECCAO` |
 | `QUALIFICATION_LEVEL` | Nível de Habilitação | `BASICO`, `SECUNDARIO`, `LICENCIATURA`, `MESTRADO`, `DOUTORAMENTO` |
 | `RELATIONSHIP_TYPE` | Parentesco | `CONJUGE`, `FILHO`, `PAI`, `MAE`, `IRMAO` |
-| `TRAINING_TYPE` | Tipo de Formação | `PRESENCIAL`, `ELEARNING`, `SEMINARIO`, `CONGRESSO` |
-| `DOC_CATEGORY` | Categoria de Documento | `PESSOAL`, `CONTRATUAL`, `FORMACAO`, `DISCIPLINAR`, `AVALIACAO` |
-| `LEAVE_CATEGORY` | Categoria de Ausência | `FERIAS`, `DOENCA`, `FAMILIA`, `OUTRO` |
+| `TRAINING_TYPE` | Tipo de Formação | `CURSO`, `SEMINARIO`, `WORKSHOP`, `CONGRESSO`, `CONFERENCIA`, `ELEARNING` |
+| `DOC_CATEGORY` | Categoria de Documento | `IDENTIFICACAO`, `CONTRATO`, `FORMACAO`, `DISCIPLINAR`, `MEDICO`, `FINANCEIRO`, `OUTRO` |
+| `LEAVE_CATEGORY` | Categoria de Ausência | `GOZAMENTO`, `SAUDE`, `FAMILIAR`, `PESSOAL`, `LEGAL` |
 | `ISLAND` | Ilha | `SANTIAGO`, `SAL`, `SAO_VICENTE`, `FOGO`, `BOA_VISTA` |
 | `CONCELHO` | Concelho | `PRAIA`, `SANTA_CATARINA`, `MINDELO`, `SAO_DOMINGOS` |
 | `CAREER_REGIME` | Regime da Carreira (PCFR) | `GERAL`, `ESPECIAL` |
 | `BANCO` | Banco | `BCA`, `BCN`, `CECV`, `CAIXA` |
-| `WORK_REGIME` | Regime de Trabalho | `TEMPO_INTEIRO`, `TEMPO_PARCIAL` |
+| `WORK_REGIME` | Regime de Trabalho | `TEMPO_COMPLETO`, `TEMPO_PARCIAL`, `ISENCAO_HORARIO`, `DEDICACAO_EXCLUSIVA` |
 | `WORKER_STATE_REASON` | Motivo de Mudança de Estado | `DISCIPLINARY_SUSPENSION`, `MEDICAL_SUSPENSION`, `AGE_RETIREMENT`, `CONTRACT_TERMINATION`, etc. |
 | `RECORD_TYPE` | Tipo de Registo de Licença/Mobilidade | `LICENCA`, `MOBILIDADE`, `AMBOS` |
 
@@ -302,8 +304,8 @@ Content-Type: application/json
 
 {
   "code": "FERIAS",
-  "name": "Férias Anuais",
-  "categoryOptionKey": "FERIAS",
+  "description": "Férias Anuais",
+  "category": "GOZAMENTO",
   "deductsBalance": true,
   "requiresApproval": true,
   "maxDaysPerYear": 22
@@ -724,7 +726,7 @@ Content-Type: application/json
   "contractNumber": "CTFP/2018/001",
   "startDate": "2018-09-01",
   "endDate": "2020-08-31",
-  "regimeTrabalho": "TEMPO_INTEIRO",
+  "regimeTrabalho": "TEMPO_COMPLETO",
   "percentagemTempo": 100.00,
   "legalBase": "Despacho Nº 15/2018 — Boletim Oficial Nº 35/2018",
   "notes": "Contrato inicial por 2 anos."
@@ -912,7 +914,7 @@ Content-Type: application/json
 {
   "name": "Gestão de Projetos com PRINCE2",
   "institution": "IFP — Instituto de Formação Profissional",
-  "trainingType": "PRESENCIAL",
+  "trainingType": "CURSO",
   "startDate": "2023-03-06",
   "endDate": "2023-03-10",
   "durationHours": 40
@@ -927,8 +929,8 @@ Content-Type: application/json
   "funcionarioId": "uuid",
   "name": "Gestão de Projetos com PRINCE2",
   "institution": "IFP — Instituto de Formação Profissional",
-  "trainingType": "PRESENCIAL",
-  "trainingTypeDesc": "Presencial",
+  "trainingType": "CURSO",
+  "trainingTypeDesc": "Curso",
   "startDate": "2023-03-06",
   "endDate": "2023-03-10",
   "durationHours": 40
@@ -1419,7 +1421,7 @@ Esta secção documenta as estruturas de resposta de cada recurso, essenciais pa
   "isCurrentDesc": "Sim",
   "status": "ATIVO",
   "renewalCount": 0,
-  "regimeTrabalho": "TEMPO_INTEIRO",
+  "regimeTrabalho": "TEMPO_COMPLETO",
   "percentagemTempo": 100.00,
   "legalBase": "Despacho Nº 15/2018",
   "notes": null
@@ -1516,11 +1518,14 @@ Esta secção documenta as estruturas de resposta de cada recurso, essenciais pa
   "funcionarioId": "uuid",
   "tipoAusencia": {
     "id": "uuid",
-    "code": "FERIAS",
-    "name": "Férias Anuais",
+    "codigo": "FERIAS",
+    "nome": "Férias Anuais",
     "deductsBalance": true,
     "requiresApproval": true,
-    "maxDaysPerYear": 22
+    "maxDaysPerYear": 22,
+    "categoryOptionCkey": "GOZAMENTO",
+    "isActive": true,
+    "estadoDesc": "Ativo"
   },
   "dataInicio": "2026-08-10",
   "dataFim": "2026-08-21",
@@ -1542,7 +1547,7 @@ Esta secção documenta as estruturas de resposta de cada recurso, essenciais pa
   "id": "uuid",
   "funcionarioId": "uuid",
   "tipoAusenciaId": "uuid",
-  "tipoAusencia": { "id": "uuid", "code": "FERIAS", "name": "Férias Anuais" },
+  "tipoAusencia": { "id": "uuid", "codigo": "FERIAS", "nome": "Férias Anuais" },
   "ano": 2026,
   "diasDireito": 22,
   "diasGozados": 8,
