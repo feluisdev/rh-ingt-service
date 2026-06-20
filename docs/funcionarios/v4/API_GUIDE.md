@@ -101,13 +101,11 @@ GET http://localhost:8091/api/v1/rh/funcionarios
 
 ```json
 {
-  "data": [ ... ],
+  "content": [ ... ],
   "pageNumber": 0,
   "pageSize": 20,
   "totalElements": 132,
-  "totalPages": 7,
-  "first": true,
-  "last": false
+  "totalPages": 7
 }
 ```
 
@@ -259,7 +257,9 @@ Content-Type: application/json
 
 {
   "code": "EFETIVO",
-  "description": "Funcionário Efetivo"
+  "description": "Funcionário Efetivo",
+  "countsSeniority": true,
+  "eligibleForProgression": true
 }
 ```
 
@@ -358,7 +358,7 @@ Content-Type: application/json
 {
   "codigo": "CNI",
   "descricao": "Cartão Nacional de Identidade",
-  "categoryOptionId": "uuid-da-opcao-pessoal",
+  "category": "IDENTIFICACAO",
   "allowedExtensions": "pdf,jpg,png"
 }
 ```
@@ -399,8 +399,9 @@ Content-Type: application/json
 {
   "code": "DSGT",
   "name": "Direção de Serviços de Gestão Territorial",
+  "descricao": "Direcção responsável pela gestão territorial",
   "acronym": "DSGT",
-  "unitTypeOptionKey": "DIRECAO",
+  "unitType": "DIRECAO",
   "parentUnitId": null
 }
 ```
@@ -414,8 +415,9 @@ Content-Type: application/json
 {
   "code": "DAM",
   "name": "Departamento de Administração e Modernização",
+  "descricao": "Departamento de apoio administrativo e modernização",
   "acronym": "DAM",
-  "unitTypeOptionKey": "DEPARTAMENTO",
+  "unitType": "DEPARTAMENTO",
   "parentUnitId": "uuid-da-direcao-mae"
 }
 ```
@@ -436,7 +438,8 @@ Content-Type: application/json
 {
   "code": "TECNICO_SUPERIOR",
   "name": "Técnico Superior",
-  "description": "Técnico de nível superior com funções de análise e estudo."
+  "description": "Técnico de nível superior com funções de análise e estudo.",
+  "nivel": 3
 }
 ```
 
@@ -522,6 +525,7 @@ Content-Type: application/json
   "careerId": "uuid-da-carreira",
   "code": "TSP",
   "name": "Técnico Superior Principal",
+  "description": "Categoria de progressão para técnicos superiores",
   "ordemProgressao": 1
 }
 ```
@@ -754,6 +758,47 @@ Consultar o histórico completo:
 GET api/v1/rh/funcionarios/{funcionarioId}/contratos
 ```
 
+#### Gestão do ciclo de vida do contrato
+
+**Cessar (encerrar) um contrato:**
+
+```http
+PUT api/v1/rh/funcionarios/{funcionarioId}/contratos/{contratoId}/close
+Content-Type: application/json
+
+{
+  "endDate": "2026-06-30",
+  "terminationReason": "Termo do prazo contratual",
+  "notes": "Não renovado por decisão administrativa."
+}
+```
+
+> Ao cessar um contrato, o enquadramento activo é encerrado automaticamente na mesma data.
+
+**Suspender um contrato:**
+
+```http
+PUT api/v1/rh/funcionarios/{funcionarioId}/contratos/{contratoId}/suspend
+```
+
+**Reactivar um contrato suspenso:**
+
+```http
+PUT api/v1/rh/funcionarios/{funcionarioId}/contratos/{contratoId}/activate
+```
+
+#### Documentos associados ao contrato
+
+```http
+POST api/v1/rh/funcionarios/{funcionarioId}/contratos/{contratoId}/documentos
+GET  api/v1/rh/funcionarios/{funcionarioId}/contratos/{contratoId}/documentos
+GET  api/v1/rh/funcionarios/{funcionarioId}/contratos/{contratoId}/documentos/{docId}
+GET  api/v1/rh/funcionarios/{funcionarioId}/contratos/{contratoId}/documentos/{docId}/download
+DELETE api/v1/rh/funcionarios/{funcionarioId}/contratos/{contratoId}/documentos/{docId}
+```
+
+> O POST de documento usa o mesmo `UploadDocumentoRequestDTO` descrito na secção 8.10. Os parâmetros de consulta opcionais na listagem são `documentTypeId` (UUID) e `active` (boolean).
+
 ---
 
 ### 8.4 Enquadramento Profissional (`/funcionarios/{funcionarioId}/enquadramentos`)
@@ -765,7 +810,7 @@ GET api/v1/rh/funcionarios/{funcionarioId}/contratos
 - `dataInicio` deve ser ≥ `contrato.startDate` e ≤ `contrato.endDate` (se definido) → HTTP 422.
 - Se `contractType.requiresCareerStructure = true`: `careerId`, `categoryId` e `gradeId` são obrigatórios → HTTP 422.
 - Ao criar um novo enquadramento, o anterior é **encerrado automaticamente** (`dataFim = dataInicio - 1 dia`).
-- Ao **cessar um contrato** (`PATCH .../close`), o enquadramento activo é encerrado automaticamente na mesma data.
+- Ao **cessar um contrato** (`PUT .../close`), o enquadramento activo é encerrado automaticamente na mesma data.
 
 **Trabalhador de carreira** (`requiresCareerStructure = true`):
 
@@ -839,6 +884,30 @@ Content-Type: application/json
 | `assignmentType` | Tipo de afectação (ex: `PRIMARIA`, `SECUNDARIA`, `TEMPORARIA`). |
 | `jobId` | Cargo exercido nesta unidade (opcional). |
 
+**Actualizar colocação:**
+
+```http
+PUT api/v1/rh/funcionarios/{funcionarioId}/colocacoes/{colocacaoId}
+Content-Type: application/json
+
+{
+  "endDate": "2026-06-30",
+  "notes": "Transferência para outra unidade."
+}
+```
+
+**Encerrar colocação:**
+
+```http
+PUT api/v1/rh/funcionarios/{funcionarioId}/colocacoes/{colocacaoId}/close
+```
+
+**Desactivar colocação (soft delete):**
+
+```http
+DELETE api/v1/rh/funcionarios/{funcionarioId}/colocacoes/{colocacaoId}
+```
+
 ---
 
 ### 8.6 Dependentes (`/funcionarios/{funcionarioId}/dependentes`)
@@ -899,7 +968,17 @@ Content-Type: application/json
 }
 ```
 
-> Para associar um documento (certificado), carregue-o separadamente via `POST api/v1/rh/funcionarios/{id}/documentos`.
+#### Documentos associados à qualificação
+
+```http
+POST   api/v1/rh/funcionarios/{funcionarioId}/qualificacoes/{qualificacaoId}/documentos
+GET    api/v1/rh/funcionarios/{funcionarioId}/qualificacoes/{qualificacaoId}/documentos
+GET    api/v1/rh/funcionarios/{funcionarioId}/qualificacoes/{qualificacaoId}/documentos/{docId}
+GET    api/v1/rh/funcionarios/{funcionarioId}/qualificacoes/{qualificacaoId}/documentos/{docId}/download
+DELETE api/v1/rh/funcionarios/{funcionarioId}/qualificacoes/{qualificacaoId}/documentos/{docId}
+```
+
+> O POST de documento usa o mesmo `UploadDocumentoRequestDTO` descrito na secção 8.10. Parâmetros de consulta opcionais na listagem: `documentTypeId` (UUID) e `active` (boolean).
 
 ---
 
@@ -937,7 +1016,17 @@ Content-Type: application/json
 }
 ```
 
-> Para associar um certificado, carregue-o separadamente via `POST api/v1/rh/funcionarios/{id}/documentos`.
+#### Documentos associados à formação
+
+```http
+POST   api/v1/rh/funcionarios/{funcionarioId}/formacoes/{formacaoId}/documentos
+GET    api/v1/rh/funcionarios/{funcionarioId}/formacoes/{formacaoId}/documentos
+GET    api/v1/rh/funcionarios/{funcionarioId}/formacoes/{formacaoId}/documentos/{docId}
+GET    api/v1/rh/funcionarios/{funcionarioId}/formacoes/{formacaoId}/documentos/{docId}/download
+DELETE api/v1/rh/funcionarios/{funcionarioId}/formacoes/{formacaoId}/documentos/{docId}
+```
+
+> O POST de documento usa o mesmo `UploadDocumentoRequestDTO` descrito na secção 8.10. Parâmetros de consulta opcionais na listagem: `documentTypeId` (UUID) e `active` (boolean).
 
 ---
 
@@ -978,7 +1067,35 @@ Content-Type: application/json
 }
 ```
 
-> Para associar o processo digitalizado, carregue-o separadamente via `POST api/v1/rh/funcionarios/{id}/documentos`.
+**Actualizar processo disciplinar:**
+
+```http
+PUT api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}
+Content-Type: application/json
+
+{
+  "processNumber": "PD/2024/001",
+  "startDate": "2024-02-10",
+  "endDate": "2024-04-15",
+  "penalty": "Suspensão de 30 dias",
+  "penaltyStartDate": "2024-05-01",
+  "penaltyEndDate": "2024-05-30",
+  "officialBulletin": "BO Nº 15/2024",
+  "notes": "Pena agravada após recurso."
+}
+```
+
+#### Documentos associados ao processo disciplinar
+
+```http
+POST   api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/documentos
+GET    api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/documentos
+GET    api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/documentos/{docId}
+GET    api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/documentos/{docId}/download
+DELETE api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/documentos/{docId}
+```
+
+> O POST de documento usa o mesmo `UploadDocumentoRequestDTO` descrito na secção 8.10. Parâmetros de consulta opcionais na listagem: `documentTypeId` (UUID) e `active` (boolean).
 
 ---
 
@@ -1157,8 +1274,9 @@ Content-Type: application/json
   "description": "Despacho de autorização"
 }
 
-GET api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade/{id}/documentos
-GET api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade/{id}/documentos/{docId}/download
+GET    api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade/{id}/documentos
+GET    api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade/{id}/documentos/{docId}
+GET    api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade/{id}/documentos/{docId}/download
 DELETE api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade/{id}/documentos/{docId}
 ```
 
@@ -1183,6 +1301,18 @@ Content-Type: application/json
 **Regras:**
 - `(funcionario_id, period_month, period_year)` é único.
 - `grossSalary > 0`, `netSalary > 0`, `netSalary ≤ grossSalary`.
+
+#### Documentos associados ao recibo
+
+```http
+POST   api/v1/rh/funcionarios/{funcionarioId}/recibos/{reciboId}/documentos
+GET    api/v1/rh/funcionarios/{funcionarioId}/recibos/{reciboId}/documentos
+GET    api/v1/rh/funcionarios/{funcionarioId}/recibos/{reciboId}/documentos/{docId}
+GET    api/v1/rh/funcionarios/{funcionarioId}/recibos/{reciboId}/documentos/{docId}/download
+DELETE api/v1/rh/funcionarios/{funcionarioId}/recibos/{reciboId}/documentos/{docId}
+```
+
+> O POST de documento usa o mesmo `UploadDocumentoRequestDTO`. Parâmetros de consulta opcionais na listagem: `documentTypeId` (UUID) e `active` (boolean).
 
 ---
 
@@ -1244,11 +1374,16 @@ GET api/v1/rh/funcionarios/{funcionarioId}/worker-state/historico
 ```json
 [
   {
+    "id": "uuid-do-historico",
+    "funcionarioId": "uuid-do-funcionario",
+    "estadoAnteriorId": "uuid-estado-anterior",
     "estadoAnteriorDescricao": "ACTIVE",
+    "estadoNovoId": "uuid-estado-novo",
     "estadoNovoDescricao": "SUSPENDED",
     "motivoCkey": "MEDICAL_SUSPENSION",
     "motivoDescricao": "Suspensão por Motivo de Saúde",
     "dataEfectividade": "2026-05-20",
+    "observacao": "Suspensão temporária por motivo de saúde",
     "registadoPor": "rh.admin@ingt.gov.cv",
     "registadoEm": "2026-05-20T09:15:00"
   }
@@ -1275,6 +1410,48 @@ Todos os endpoints `/me` são restritos ao colaborador autenticado. O `funcionar
 | `GET api/v1/rh/me/payroll-slips/{id}/download` | Download do PDF do recibo. |
 | `GET api/v1/rh/me/documents` | Os meus documentos pessoais. |
 | `GET api/v1/rh/me/documents/{id}/download` | Download de documento pessoal. |
+
+**Submeter pedido de ausência (self-service):**
+
+> **Nota:** os campos do pedido self-service usam nomes em inglês, diferindo do endpoint administrativo.
+
+```http
+POST api/v1/rh/me/leave-requests
+Content-Type: application/json
+
+{
+  "leaveTypeId": "uuid-do-tipo-ferias",
+  "startDate": "2026-08-10",
+  "endDate": "2026-08-21",
+  "notes": "Período de férias anuais."
+}
+```
+
+| Campo self-service | Equivalente admin |
+|---|---|
+| `leaveTypeId` (UUID) | `tipoAusenciaId` (String) |
+| `startDate` | `dataInicio` |
+| `endDate` | `dataFim` |
+| `notes` | `motivo` |
+
+**Submeter licença/mobilidade (self-service):**
+
+```http
+POST api/v1/rh/me/leaves-mobilities
+Content-Type: application/json
+
+{
+  "subtipoId": "uuid-do-subtipo",
+  "dataInicio": "2026-09-01",
+  "dataFim": "2027-08-31",
+  "entidadeDestino": "Ministério das Finanças",
+  "despachoNumero": "Despacho Nº 10/2026",
+  "observacoes": "Licença para formação.",
+  "justification": "Mestrado em Gestão Pública."
+}
+```
+
+> Apenas subtipos com `canSelfSubmit = true` são aceites neste endpoint. O campo `destinationUnitId` **não está disponível** no self-service — apenas no endpoint administrativo.
 
 **Restrições:**
 - O colaborador deve ter `is_active = true`; se estiver inactivo, recebe HTTP 403.
@@ -1567,12 +1744,14 @@ Esta secção documenta as estruturas de resposta de cada recurso, essenciais pa
   "subtipoId": "uuid",
   "subtipo": {
     "id": "uuid",
-    "code": "COMISSAO_SERVICO",
-    "description": "Comissão de Serviço",
+    "codigo": "COMISSAO_SERVICO",
+    "nome": "Comissão de Serviço",
     "recordType": "MOBILIDADE",
     "affectsPay": false,
     "countsForSeniority": true,
-    "canSelfSubmit": false
+    "canSelfSubmit": false,
+    "isActive": true,
+    "estadoDesc": "Ativo"
   },
   "dataInicio": "2026-07-01",
   "dataFim": "2027-06-30",
@@ -1726,15 +1905,20 @@ Esta secção documenta as estruturas de resposta de cada recurso, essenciais pa
 | `POST` | `api/v1/rh/funcionarios` | Criar funcionário (só dados pessoais) |
 | `POST` | `api/v1/rh/funcionarios/registar` | Registo completo (pessoais + contrato + enquadramento + bancários + dossier) |
 | `PUT` | `api/v1/rh/funcionarios/{id}` | Actualizar (wrapper: `dadosPessoais` + `dadosBancarios`; NIF imutável) |
-| `DELETE` | `api/v1/rh/funcionarios/{id}` | Desativar (bloqueado se pedidos PENDING) |
 | `PATCH` | `api/v1/rh/funcionarios/{id}/worker-state` | Mudar estado laboral (com efeitos em cascata) |
 | `GET` | `api/v1/rh/funcionarios/{id}/worker-state/historico` | Histórico de mudanças de estado |
 | `GET/POST/PUT/DELETE` | `api/v1/rh/funcionarios/{id}/dados-bancarios/{did?}` | Dados bancários e segurança social |
+| `PUT` | `api/v1/rh/funcionarios/{id}/dados-bancarios/{did}/activate` | Reactivar dados bancários |
 | `GET` | `api/v1/rh/funcionarios/{id}/contratos` | Histórico de contratos |
 | `GET` | `api/v1/rh/funcionarios/{id}/contratos/{cid}` | Detalhe de contrato |
 | `POST` | `api/v1/rh/funcionarios/{id}/contratos` | Novo contrato (encerra o anterior) |
 | `PUT` | `api/v1/rh/funcionarios/{id}/contratos/{cid}` | Actualizar contrato |
 | `DELETE` | `api/v1/rh/funcionarios/{id}/contratos/{cid}` | Desativar contrato |
+| `PUT` | `api/v1/rh/funcionarios/{id}/contratos/{cid}/close` | Cessar contrato (body: `endDate`, `terminationReason`, `notes`) |
+| `PUT` | `api/v1/rh/funcionarios/{id}/contratos/{cid}/suspend` | Suspender contrato |
+| `PUT` | `api/v1/rh/funcionarios/{id}/contratos/{cid}/activate` | Reactivar contrato suspenso |
+| `POST` | `api/v1/rh/funcionarios/{id}/contratos/{cid}/documentos` | Associar documento ao contrato |
+| `GET` | `api/v1/rh/funcionarios/{id}/contratos/{cid}/documentos` | Documentos do contrato |
 | `GET` | `api/v1/rh/funcionarios/{id}/enquadramentos` | Histórico de enquadramentos |
 | `GET` | `api/v1/rh/funcionarios/{id}/enquadramentos/atual` | Enquadramento actual |
 | `GET` | `api/v1/rh/funcionarios/{id}/enquadramentos/{eid}` | Detalhe de enquadramento |
@@ -1743,10 +1927,16 @@ Esta secção documenta as estruturas de resposta de cada recurso, essenciais pa
 | `GET` | `api/v1/rh/funcionarios/{id}/colocacoes/atual` | Colocação actual |
 | `GET` | `api/v1/rh/funcionarios/{id}/colocacoes/{cid}` | Detalhe de colocação |
 | `POST` | `api/v1/rh/funcionarios/{id}/colocacoes` | Nova colocação (encerra a anterior) |
+| `PUT` | `api/v1/rh/funcionarios/{id}/colocacoes/{cid}` | Actualizar colocação (body: `endDate`, `notes`) |
+| `PUT` | `api/v1/rh/funcionarios/{id}/colocacoes/{cid}/close` | Encerrar colocação |
+| `DELETE` | `api/v1/rh/funcionarios/{id}/colocacoes/{cid}` | Desativar colocação |
 | `GET/POST/PUT/DELETE` | `api/v1/rh/funcionarios/{id}/dependentes/{did?}` | Dependentes |
 | `GET/POST/PUT/DELETE` | `api/v1/rh/funcionarios/{id}/qualificacoes/{qid?}` | Qualificações |
+| `POST/GET/DELETE` | `api/v1/rh/funcionarios/{id}/qualificacoes/{qid}/documentos/{docId?}` | Documentos da qualificação |
 | `GET/POST/PUT/DELETE` | `api/v1/rh/funcionarios/{id}/formacoes/{tid?}` | Formações |
-| `GET/POST/PUT/DELETE` | `api/v1/rh/funcionarios/{id}/processos-disciplinares/{pid?}` | Processos disciplinares |
+| `POST/GET/DELETE` | `api/v1/rh/funcionarios/{id}/formacoes/{tid}/documentos/{docId?}` | Documentos da formação |
+| `GET/POST/PUT` | `api/v1/rh/funcionarios/{id}/processos-disciplinares/{pid?}` | Processos disciplinares |
+| `POST/GET/DELETE` | `api/v1/rh/funcionarios/{id}/processos-disciplinares/{pid}/documentos/{docId?}` | Documentos do processo |
 | `GET` | `api/v1/rh/funcionarios/{id}/documentos` | Documentos do funcionário (filtros: `documentTypeId`, `active`) |
 | `GET` | `api/v1/rh/funcionarios/{id}/documentos/{did}` | Metadados de documento |
 | `GET` | `api/v1/rh/funcionarios/{id}/documentos/{did}/download` | URL pré-assinada de download |
@@ -1765,13 +1955,17 @@ Esta secção documenta as estruturas de resposta de cada recurso, essenciais pa
 | `PUT` | `api/v1/rh/funcionarios/{id}/licencas-mobilidade/{lid}/reject` | Rejeitar (body: `rejectionReason`) |
 | `PUT` | `api/v1/rh/funcionarios/{id}/licencas-mobilidade/{lid}/close` | Encerrar licença/mobilidade |
 | `PUT` | `api/v1/rh/funcionarios/{id}/licencas-mobilidade/{lid}/cancel` | Cancelar licença/mobilidade |
-| `GET/POST` | `api/v1/rh/funcionarios/{id}/licencas-mobilidade/{lid}/documentos` | Documentos da licença/mobilidade |
+| `POST/GET` | `api/v1/rh/funcionarios/{id}/licencas-mobilidade/{lid}/documentos` | Documentos da licença/mobilidade |
+| `GET` | `api/v1/rh/funcionarios/{id}/licencas-mobilidade/{lid}/documentos/{docId}` | Detalhe de documento da licença |
 | `GET` | `api/v1/rh/funcionarios/{id}/licencas-mobilidade/{lid}/documentos/{docId}/download` | Download de documento da licença |
 | `DELETE` | `api/v1/rh/funcionarios/{id}/licencas-mobilidade/{lid}/documentos/{docId}` | Desativar documento da licença |
 | `GET` | `api/v1/rh/funcionarios/{id}/recibos` | Listar recibos (filtros: `periodYear`, `periodMonth`) |
 | `GET` | `api/v1/rh/funcionarios/{id}/recibos/{rid}` | Detalhe de recibo |
 | `POST` | `api/v1/rh/funcionarios/{id}/recibos` | Criar recibo |
-| `POST` | `api/v1/rh/funcionarios/{id}/recibos/{rid}/documentos` | Associar documento ao recibo |
+| `POST/GET` | `api/v1/rh/funcionarios/{id}/recibos/{rid}/documentos` | Documentos do recibo |
+| `GET` | `api/v1/rh/funcionarios/{id}/recibos/{rid}/documentos/{docId}` | Detalhe de documento do recibo |
+| `GET` | `api/v1/rh/funcionarios/{id}/recibos/{rid}/documentos/{docId}/download` | Download de documento do recibo |
+| `DELETE` | `api/v1/rh/funcionarios/{id}/recibos/{rid}/documentos/{docId}` | Desativar documento do recibo |
 
 ### Auditoria
 
