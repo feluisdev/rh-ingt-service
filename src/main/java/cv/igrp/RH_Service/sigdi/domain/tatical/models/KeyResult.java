@@ -28,17 +28,20 @@ public class KeyResult {
   private final BigDecimal currentValue;
   private final KeyResultMetricUnit metricUnit;
   private final List<KeyResultCheckin> checkins;
-  private final String criteriaSuperado;
-  private final String criteriaSeguranca;
-  private final String criteriaAlcancado;
-  private final String criteriaInsuficiente;
+  private final BigDecimal criteriaSuperado;
+  private final BigDecimal criteriaSegurancaMin;
+  private final BigDecimal criteriaSegurancaMax;
+  private final BigDecimal criteriaAlcancadoMin;
+  private final BigDecimal criteriaAlcancadoMax;
+  private final BigDecimal criteriaInsuficiente;
 
   private KeyResult(KeyResultId id, UUID institutionId, TacticalActivityId activityId, String title,
       BigDecimal targetValue, BigDecimal currentValue,
       KeyResultMetricUnit metricUnit,
       List<KeyResultCheckin> checkins,
-      String criteriaSuperado, String criteriaSeguranca,
-      String criteriaAlcancado, String criteriaInsuficiente) {
+      BigDecimal criteriaSuperado, BigDecimal criteriaSegurancaMin,
+      BigDecimal criteriaSegurancaMax, BigDecimal criteriaAlcancadoMin,
+      BigDecimal criteriaAlcancadoMax, BigDecimal criteriaInsuficiente) {
     if (title == null || title.isBlank())
       throw new IllegalArgumentException("title é obrigatório");
     if (targetValue == null || targetValue.compareTo(BigDecimal.ZERO) <= 0)
@@ -54,18 +57,21 @@ public class KeyResult {
     this.metricUnit = metricUnit;
     this.checkins = (checkins != null) ? checkins : new ArrayList<>();
     this.criteriaSuperado = criteriaSuperado;
-    this.criteriaSeguranca = criteriaSeguranca;
-    this.criteriaAlcancado = criteriaAlcancado;
+    this.criteriaSegurancaMin = criteriaSegurancaMin;
+    this.criteriaSegurancaMax = criteriaSegurancaMax;
+    this.criteriaAlcancadoMin = criteriaAlcancadoMin;
+    this.criteriaAlcancadoMax = criteriaAlcancadoMax;
     this.criteriaInsuficiente = criteriaInsuficiente;
   }
 
   public static KeyResult create(UUID institutionId, TacticalActivityId activityId, String title,
       BigDecimal targetValue, KeyResultMetricUnit metricUnit,
-      String criteriaSuperado, String criteriaSeguranca,
-      String criteriaAlcancado, String criteriaInsuficiente) {
+      BigDecimal criteriaSuperado, BigDecimal criteriaSegurancaMin,
+      BigDecimal criteriaSegurancaMax, BigDecimal criteriaAlcancadoMin,
+      BigDecimal criteriaAlcancadoMax, BigDecimal criteriaInsuficiente) {
     return new KeyResult(KeyResultId.gerarNovo(), institutionId, activityId, title, targetValue,
         BigDecimal.ZERO, metricUnit, new ArrayList<>(), 
-        criteriaSuperado, criteriaSeguranca, criteriaAlcancado, criteriaInsuficiente);
+        criteriaSuperado, criteriaSegurancaMin, criteriaSegurancaMax, criteriaAlcancadoMin, criteriaAlcancadoMax, criteriaInsuficiente);
   }
  
   public static KeyResult reconstruct(KeyResultId id, UUID institutionId,
@@ -73,10 +79,11 @@ public class KeyResult {
       BigDecimal targetValue, BigDecimal currentValue,
       KeyResultMetricUnit metricUnit,
       List<KeyResultCheckin> checkins,
-      String criteriaSuperado, String criteriaSeguranca,
-      String criteriaAlcancado, String criteriaInsuficiente) {
+      BigDecimal criteriaSuperado, BigDecimal criteriaSegurancaMin,
+      BigDecimal criteriaSegurancaMax, BigDecimal criteriaAlcancadoMin,
+      BigDecimal criteriaAlcancadoMax, BigDecimal criteriaInsuficiente) {
     return new KeyResult(id, institutionId, activityId, title, targetValue, currentValue,
-        metricUnit, checkins, criteriaSuperado, criteriaSeguranca, criteriaAlcancado, criteriaInsuficiente);
+        metricUnit, checkins, criteriaSuperado, criteriaSegurancaMin, criteriaSegurancaMax, criteriaAlcancadoMin, criteriaAlcancadoMax, criteriaInsuficiente);
   }
 
   public List<KeyResultCheckin> getCheckins() {
@@ -117,7 +124,7 @@ public class KeyResult {
 
     return new KeyResult(this.id, this.institutionId, this.activityId, this.title,
         this.targetValue, newValue, this.metricUnit, newCheckins,
-        this.criteriaSuperado, this.criteriaSeguranca, this.criteriaAlcancado, this.criteriaInsuficiente);
+        this.criteriaSuperado, this.criteriaSegurancaMin, this.criteriaSegurancaMax, this.criteriaAlcancadoMin, this.criteriaAlcancadoMax, this.criteriaInsuficiente);
   }
 
   public KeyResult updateDetails(String title, BigDecimal targetValue, KeyResultMetricUnit metricUnit) {
@@ -131,6 +138,6 @@ public class KeyResult {
     }
     return new KeyResult(this.id, this.institutionId, this.activityId, title, targetValue,
         this.currentValue, metricUnit, this.checkins,
-        this.criteriaSuperado, this.criteriaSeguranca, this.criteriaAlcancado, this.criteriaInsuficiente);
+        this.criteriaSuperado, this.criteriaSegurancaMin, this.criteriaSegurancaMax, this.criteriaAlcancadoMin, this.criteriaAlcancadoMax, this.criteriaInsuficiente);
   }
 }

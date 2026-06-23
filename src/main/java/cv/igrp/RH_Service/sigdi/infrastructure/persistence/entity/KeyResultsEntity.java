@@ -62,16 +62,22 @@ private List<KeyResultsCheckinEntity> keyResultCheckins = new ArrayList<>();
     private BigDecimal weight;
 
     @Column(name = "criteria_superado")
-    private String criteriaSuperado;
+    private BigDecimal criteriaSuperado;
 
-    @Column(name = "criteria_seguranca")
-    private String criteriaSeguranca;
+    @Column(name = "criteria_seguranca_min")
+    private BigDecimal criteriaSegurancaMin;
 
-    @Column(name = "criteria_alcancado")
-    private String criteriaAlcancado;
+    @Column(name = "criteria_seguranca_max")
+    private BigDecimal criteriaSegurancaMax;
+
+    @Column(name = "criteria_alcancado_min")
+    private BigDecimal criteriaAlcancadoMin;
+
+    @Column(name = "criteria_alcancado_max")
+    private BigDecimal criteriaAlcancadoMax;
 
     @Column(name = "criteria_insuficiente")
-    private String criteriaInsuficiente;
+    private BigDecimal criteriaInsuficiente;
 
      @ManyToOne(fetch = FetchType.LAZY)
    @JoinColumn(name = "activity_id")

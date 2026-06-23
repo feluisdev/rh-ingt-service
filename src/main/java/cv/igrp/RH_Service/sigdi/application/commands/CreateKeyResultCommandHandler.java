@@ -58,8 +58,10 @@ public class CreateKeyResultCommandHandler
         request.getTargetValue(),
         metricUnit,
         request.getCriteriaSuperado(),
-        request.getCriteriaSeguranca(),
-        request.getCriteriaAlcancado(),
+        request.getCriteriaSegurancaMin(),
+        request.getCriteriaSegurancaMax(),
+        request.getCriteriaAlcancadoMin(),
+        request.getCriteriaAlcancadoMax(),
         request.getCriteriaInsuficiente()
     );
 

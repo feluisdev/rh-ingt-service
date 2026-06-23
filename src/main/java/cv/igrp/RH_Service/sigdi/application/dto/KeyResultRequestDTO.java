@@ -36,10 +36,12 @@ public class KeyResultRequestDTO  {
   
   private UUID activityId ;
 
-  private String criteriaSuperado;
-  private String criteriaSeguranca;
-  private String criteriaAlcancado;
-  private String criteriaInsuficiente;
+  private BigDecimal criteriaSuperado;
+  private BigDecimal criteriaSegurancaMin;
+  private BigDecimal criteriaSegurancaMax;
+  private BigDecimal criteriaAlcancadoMin;
+  private BigDecimal criteriaAlcancadoMax;
+  private BigDecimal criteriaInsuficiente;
 
   private BigDecimal weight;
   private UUID okrId;

@@ -119,8 +119,10 @@ public class GetTacticalActivityByIdQueryHandler
     dto.setMetricUnit(entity.getMetricUnit());
     dto.setWeight(entity.getWeight());
     dto.setCriteriaSuperado(entity.getCriteriaSuperado());
-    dto.setCriteriaSeguranca(entity.getCriteriaSeguranca());
-    dto.setCriteriaAlcancado(entity.getCriteriaAlcancado());
+    dto.setCriteriaSegurancaMin(entity.getCriteriaSegurancaMin());
+    dto.setCriteriaSegurancaMax(entity.getCriteriaSegurancaMax());
+    dto.setCriteriaAlcancadoMin(entity.getCriteriaAlcancadoMin());
+    dto.setCriteriaAlcancadoMax(entity.getCriteriaAlcancadoMax());
     dto.setCriteriaInsuficiente(entity.getCriteriaInsuficiente());
     dto.setActivityId(entity.getActivityId() != null ? entity.getActivityId().getId() : null);
     dto.setOkrId(entity.getOkrId() != null ? entity.getOkrId().getId() : null);
@@ -131,7 +133,12 @@ public class GetTacticalActivityByIdQueryHandler
     WorkflowHistoryItemDTO item = new WorkflowHistoryItemDTO();
     item.setAction(h.getAction());
     item.setActorId(h.getActorId() != null ? h.getActorId().toString() : null);
-    item.setActorName(null);
+    if (h.getActorId() != null) {
+      funcionarioLookupPort.findById(h.getActorId())
+          .ifPresent(f -> item.setActorName(f.getNomeCompleto()));
+    } else {
+      item.setActorName(null);
+    }
     item.setFromStatus(h.getFromStatus());
     item.setToStatus(h.getToStatus());
     item.setComment(h.getComment());
