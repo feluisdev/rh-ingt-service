@@ -46,6 +46,11 @@
           "name": "tamanho",
           "value": "20",
           "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "nome",
+          "isRequired": false
         }
       ]
     },
@@ -150,7 +155,7 @@
       ]
     },
     {
-      "actionName": "deleteContractType",
+      "actionName": "desativarContractType",
       "path": "{contractTypeId}",
       "method": "DELETE",
       "responses": {
@@ -206,6 +211,9 @@
       "actionName": "getCombobox",
       "path": "combobox",
       "method": "GET",
+      "requestParams": [
+        { "type": "string", "name": "vinculoLaboralId", "isRequired": false }
+      ],
       "responses": {
         "200": {
           "name": "OK",

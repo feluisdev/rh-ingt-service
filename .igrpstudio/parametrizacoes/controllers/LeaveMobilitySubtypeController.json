@@ -51,6 +51,11 @@
           "name": "tamanho",
           "value": "20",
           "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "nome",
+          "isRequired": false
         }
       ]
     },
@@ -155,7 +160,7 @@
       ]
     },
     {
-      "actionName": "deleteLeaveMobilitySubtype",
+      "actionName": "desativarLeaveMobilitySubtype",
       "path": "{leaveMobilitySubtypeId}",
       "method": "DELETE",
       "responses": {

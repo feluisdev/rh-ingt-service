@@ -49,7 +49,9 @@ public class ContratoService {
         if ("TEMPO_PARCIAL".equals(dto.getRegimeTrabalho()) && dto.getPercentagemTempo() == null)
             throw IgrpResponseStatusException.badRequest(
                     "O campo percentagemTempo é obrigatório para regime TEMPO_PARCIAL.");
-        if (!"TEMPO_PARCIAL".equals(dto.getRegimeTrabalho()) && dto.getPercentagemTempo() != null)
+        if (!"TEMPO_PARCIAL".equals(dto.getRegimeTrabalho())
+                && dto.getPercentagemTempo() != null
+                && dto.getPercentagemTempo().compareTo(java.math.BigDecimal.ZERO) != 0)
             throw IgrpResponseStatusException.badRequest(
                     "O campo percentagemTempo só se aplica ao regime TEMPO_PARCIAL.");
 

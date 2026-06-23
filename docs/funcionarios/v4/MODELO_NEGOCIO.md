@@ -1,6 +1,6 @@
 # Modelo de Negócio — RH-Service (SIPPROG)
 
-> Versão 1.0 · Maio 2026  
+> Versão 1.1 · Maio 2026  
 > Sistema de Informação do Pessoal e Progressões — INGT, Cabo Verde
 
 Este documento explica o modelo de negócio do módulo de Recursos Humanos de A a Z: o que existe, porquê existe, como se relaciona e que regras governa.
@@ -24,7 +24,7 @@ Este documento explica o modelo de negócio do módulo de Recursos Humanos de A 
 13. [Sistema de Feriados](#13-sistema-de-feriados)
 14. [Fluxo Completo de Dependências](#14-fluxo-completo-de-dependências)
 15. [Regras de Negócio Críticas](#15-regras-de-negócio-críticas)
-16. [Resumo das 26 Tabelas](#16-resumo-das-26-tabelas)
+16. [Resumo das 29 Tabelas](#16-resumo-das-29-tabelas)
 
 ---
 
@@ -32,7 +32,7 @@ Este documento explica o modelo de negócio do módulo de Recursos Humanos de A 
 
 O RH-Service gere o **dossier completo do funcionário público** da administração de Cabo Verde. Cobre o ciclo de vida desde a admissão até à cessação: identificação pessoal, contratos, enquadramento na grelha de carreiras (PCFR), colocação em unidades orgânicas, documentos, ausências, licenças, mobilidades e recibos de vencimento.
 
-O modelo organiza-se em **9 blocos funcionais** e **26 tabelas**, seguindo três princípios fundamentais:
+O modelo organiza-se em **9 blocos funcionais** e **29 tabelas**, seguindo três princípios fundamentais:
 
 - **Separação de históricos**: contrato, enquadramento de carreira e colocação têm tabelas próprias e ciclos de vida independentes.
 - **Dois tipos de catálogo**: lookups simples (sem lógica) ficam num único repositório genérico (`t_option_entity`); catálogos com comportamento têm tabela própria.
@@ -89,6 +89,7 @@ locale → idioma         (ex: 'pt-CV')
 | `CAREER_REGIME` | Regime da carreira PCFR (string livre em implementação actual) |
 | `BANCO` | Banco para dados bancários (`t_dados_bancarios.banco`) |
 | `WORK_REGIME` | Regime de trabalho do contrato (`t_contrato.regime_trabalho`) |
+| `WORKER_STATE_REASON` | Motivo da mudança de estado do colaborador (`t_historico_estado_colaborador.motivo_ckey`) |
 
 ### Como os valores são guardados
 
@@ -113,6 +114,19 @@ Campo crítico: **`is_core = true`** — impede a desactivação de estados núc
 O `worker_state_id` é o único FK de catálogo guardado directamente no `t_funcionario`. Todos os outros catálogos ficam nos históricos ou nos sub-recursos.
 
 Impacto: funcionários `INACTIVE` não podem aceder à área reservada `/me`.
+
+**Mudança de estado e historial (`t_historico_estado_colaborador`):**
+
+A transição entre estados é feita via `PATCH /funcionarios/{id}/worker-state` e não pelo endpoint de actualização geral do funcionário. Cada transição é **imutável** — fica registada na tabela `t_historico_estado_colaborador` com o estado anterior, o estado novo, o motivo (ckey de `WORKER_STATE_REASON`), a data de efectividade e quem registou.
+
+Efeitos automáticos na transição:
+
+| Novo Estado | Efeito no contrato | Efeito na colocação |
+|---|---|---|
+| `SUSPENDED` | `status → SUSPENSO` | Nenhum |
+| `ACTIVE` (após suspensão) | `status: SUSPENSO → ATIVO` | Nenhum |
+| `RETIRED` | `status → CESSADO`, `is_current → false` | Fechada (`end_date = dataEfectividade`) |
+| `INACTIVE` | `status → CESSADO`, `is_current → false` | Fechada (`end_date = dataEfectividade`) |
 
 ### 4.2 Vínculos Laborais (`t_vinculo_laboral`)
 
@@ -190,14 +204,20 @@ Designação oficial do cargo que o funcionário ocupa: `DIRETOR_SERVICOS`, `TEC
 
 ### 5.3 Funções (`t_funcao`)
 
-Função efectivamente exercida dentro do cargo. Um `TECNICO_SUPERIOR` (cargo) pode exercer a função de `COORDENADOR_PROJETO` ou `ANALISTA_SISTEMAS`. Referenciada pelos enquadramentos.
+Função efectivamente exercida dentro do cargo. Um `TECNICO_SUPERIOR` (cargo) pode exercer a função de `COORDENADOR_PROJETO` ou `ANALISTA_SISTEMAS`.
 
 Cada função tem um campo `job_id UUID FK→t_job` (nullable) que a liga ao cargo ao qual pertence:
 
-- **`job_id` preenchido** — função específica de um cargo. Ao criar um enquadramento com esse cargo, só estas funções são válidas.
+- **`job_id` preenchido** — função específica de um cargo. O funcionário com esse cargo **herda** todas as funções a ele associadas — pode exercer qualquer uma delas.
 - **`job_id = null`** — função genérica, compatível com qualquer cargo.
 
-A validação é feita na camada de domínio (`OrgFunction.validarCompatibilidadeComCargo()`): se `job_id != null` e não coincide com o `cargo_id` do enquadramento, o sistema rejeita com HTTP 422.
+**Distinção importante entre catálogo e enquadramento:**
+
+O `job_id` em `t_funcao` serve dois propósitos:
+1. **Organizar o catálogo** — agrupa as funções por cargo para apresentação na UI.
+2. **Validar o enquadramento** — ao registar um enquadramento com `function_id`, a aplicação verifica que `funcao.job_id == cargo_id` (ou `job_id IS NULL`). Se incompatível → HTTP 422.
+
+O facto de um funcionário "herdar" todas as funções do cargo significa que *pode* exercê-las. O `function_id` no enquadramento regista *qual* está efectivamente a exercer naquele período — informação necessária para despachos de nomeação, historial profissional e relatórios RH. É opcional: há funcionários para quem a função específica não é relevante registar.
 
 O endpoint `GET api/v1/rh/estrutura/functions?jobId={cargoId}` permite ao frontend filtrar as funções disponíveis ao seleccionar um cargo.
 
@@ -335,7 +355,7 @@ Regista o posicionamento do funcionário na estrutura orgânica e (quando aplic�
 | `category_id` | Condicional | A categoria dentro da carreira. Obrigatório se `requiresCareerStructure = true`. |
 | `grade_id` | Condicional | O escalão dentro da categoria. Obrigatório se `requiresCareerStructure = true`. |
 | `cargo_id` | Sempre | O cargo que ocupa (FK→`t_job`). |
-| `function_id` | Opcional | A função que exerce (FK→`t_funcao`). Deve pertencer ao cargo. |
+| `function_id` | Opcional | A função que está efectivamente a exercer naquele período (FK→`t_funcao`). O funcionário herda todas as funções do seu cargo — este campo regista qual delas está a desempenhar. Necessário para despachos, historial e relatórios. |
 | `unidade_organica_id` | Sempre | Onde está colocado. |
 
 **Regras de negócio (validações cruzadas com contrato):**
@@ -505,6 +525,7 @@ PASSO 9 — Operação corrente
   ↓ t_leave_balance    → saldos de ausência (por tipo/ano)
   ↓ t_leave_mobility   → licenças e mobilidades
   ↓ t_payroll_slip     → recibos de vencimento
+  ↓ t_historico_estado_colaborador → mudanças de estado laboral (gerado automaticamente pelo PATCH worker-state)
 ```
 
 ---
@@ -547,6 +568,16 @@ PASSO 9 — Operação corrente
 | `DELETE t_grade` | Referenciado por enquadramentos activos |
 | `DELETE t_funcionario` | Tem pedidos de ausência em `PENDING` |
 
+### Regras de mudança de estado
+
+| Regra | Detalhe |
+|---|---|
+| Não é possível transitar para o mesmo estado actual | HTTP 409 |
+| `INACTIVE` não é destino directo | A inactivação resulta de `RETIRED` ou cessação de contrato |
+| Cada transição é imutável | Registada em `t_historico_estado_colaborador` — sem `UPDATE` ou `DELETE` |
+| Efeitos em cascata são transaccionais | Contrato e colocação são afectados na mesma transacção |
+| `is_core = true` bloqueia desactivação do catálogo | `ACTIVE` e `INACTIVE` em `t_worker_state` nunca podem ser desactivados |
+
 ### Regras do `is_current`
 
 Apenas **um registo activo** por funcionário em cada historial:
@@ -557,7 +588,7 @@ Apenas **um registo activo** por funcionário em cada historial:
 
 ---
 
-## 16. Resumo das 26 Tabelas
+## 16. Resumo das 29 Tabelas
 
 | # | Tabela | Bloco | Descrição |
 |---|---|---|---|
@@ -589,7 +620,8 @@ Apenas **um registo activo** por funcionário em cada historial:
 | 26 | `t_leave_mobility` | 8 | Licenças e mobilidades (longa duração) |
 | 27 | `t_payroll_slip` | 8 | Recibos de vencimento |
 | 28 | `t_public_holiday` | 9 | Feriados (cálculo de dias úteis) |
+| 29 | `t_historico_estado_colaborador` | 9 | Histórico imutável de mudanças de estado laboral |
 
 ---
 
-*Documento gerado em Maio de 2026 — RH-Service v4.5 — SIPPROG/INGT*
+*Documento gerado em Maio de 2026 — RH-Service v4.6 — SIPPROG/INGT*

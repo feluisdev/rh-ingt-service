@@ -24,6 +24,9 @@ public class GetGradesComboboxQueryHandler
         filter.setIsActive(true);
         filter.setPage(0);
         filter.setSize(500);
+        if (query.getCategoryId() != null) {
+            filter.setCategoryId(java.util.UUID.fromString(query.getCategoryId()));
+        }
         var items = gradeRepository.findAll(filter).getData().stream()
                 .map(g -> new ComboboxItemDTO(g.getId().getStringValor(), g.getName()))
                 .toList();

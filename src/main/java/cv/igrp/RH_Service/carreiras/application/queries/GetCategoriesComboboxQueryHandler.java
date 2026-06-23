@@ -24,6 +24,9 @@ public class GetCategoriesComboboxQueryHandler
         filter.setIsActive(true);
         filter.setPage(0);
         filter.setSize(500);
+        if (query.getCareerId() != null) {
+            filter.setCareerId(java.util.UUID.fromString(query.getCareerId()));
+        }
         var items = categoryRepository.findAll(filter).getData().stream()
                 .map(cat -> new ComboboxItemDTO(cat.getId().getStringValor(), cat.getName()))
                 .toList();

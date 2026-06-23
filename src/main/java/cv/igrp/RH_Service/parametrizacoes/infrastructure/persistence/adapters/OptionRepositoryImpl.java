@@ -9,12 +9,14 @@ import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
 import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.SearchSpecificationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,6 +53,21 @@ public class OptionRepositoryImpl implements OptionRepository {
 
     @Transactional(readOnly = true)
     @Override
+    public List<Option> findByCcodeAndCkey(String ccode, String ckey, boolean active) {
+        return optionEntityRepository.findAllByCcodeAndCkeyAndActive(ccode, ckey, active)
+                .stream().map(optionMapper::toDomain).toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Option> findAllByCcodeAndCkeyIn(String ccode, Collection<String> ckeys, boolean active) {
+        if (ckeys == null || ckeys.isEmpty()) return List.of();
+        return optionEntityRepository.findAllByCcodeAndCkeyInAndActive(ccode, ckeys, active)
+                .stream().map(optionMapper::toDomain).toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public boolean existsByCcodeAndCkeyAndLocale(String ccode, String ckey, String locale) {
         return optionEntityRepository.existsByCkeyAndCcodeAndLocale(ckey, ccode, locale);
     }
@@ -76,6 +93,11 @@ public class OptionRepositoryImpl implements OptionRepository {
             if (filter.getCkey() != null && !filter.getCkey().isBlank()) {
                 predicates = cb.and(predicates,
                     cb.like(cb.lower(root.get("ckey")), "%" + filter.getCkey().trim().toLowerCase() + "%"));
+            }
+
+            if (filter.getNome() != null && !filter.getNome().isBlank()) {
+                predicates = cb.and(predicates,
+                    SearchSpecificationHelper.nameSimilarity(cb, root.get("cvalue"), filter.getNome()));
             }
 
             if (filter.getActive() != null) {

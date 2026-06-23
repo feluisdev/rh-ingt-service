@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component("colabsColocacaoMapper")
 public class ColocacaoMapper {
 
-    public Colocacao toDomain(ColocacaoEntity e) {
+    public  Colocacao toDomain(ColocacaoEntity e) {
         return Colocacao.reconstituir(
                 ColocacaoId.from(e.getId()),
                 FuncionarioId.from(e.getFuncionarioId()),

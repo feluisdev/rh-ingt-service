@@ -46,6 +46,11 @@
           "name": "tamanho",
           "value": "20",
           "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "nome",
+          "isRequired": false
         }
       ]
     },
@@ -150,7 +155,7 @@
       ]
     },
     {
-      "actionName": "deleteWorkerState",
+      "actionName": "desativarWorkerState",
       "path": "{workerStateId}",
       "method": "DELETE",
       "responses": {

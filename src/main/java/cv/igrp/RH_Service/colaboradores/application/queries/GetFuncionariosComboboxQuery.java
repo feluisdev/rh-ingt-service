@@ -8,4 +8,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class GetFuncionariosComboboxQuery implements Query {
     private final String q;
+    private final String unidadeOrganicaId;
+    private final String workerStateId;
 }

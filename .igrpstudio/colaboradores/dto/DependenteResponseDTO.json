@@ -6,9 +6,10 @@
   "attributes": [
     {"type": "string", "name": "id", "objectType": "java", "required": false},
     {"type": "string", "name": "funcionarioId", "objectType": "java", "required": false},
-    {"type": "string", "name": "nome", "objectType": "java", "required": false},
-    {"type": "string", "name": "parentesco", "objectType": "java", "required": false},
-    {"type": "date", "name": "dataNascimento", "objectType": "java", "required": false},
+    {"type": "string", "name": "fullName", "objectType": "java", "required": false},
+    {"type": "string", "name": "relationshipType", "objectType": "java", "required": false},
+    {"type": "string", "name": "relationshipTypeDesc", "objectType": "java", "required": false},
+    {"type": "date", "name": "birthDate", "objectType": "java", "required": false},
     {"type": "string", "name": "nif", "objectType": "java", "required": false},
     {"type": "boolean", "name": "isActive", "objectType": "java", "required": false},
     {"type": "string", "name": "estadoDesc", "objectType": "java", "required": false}

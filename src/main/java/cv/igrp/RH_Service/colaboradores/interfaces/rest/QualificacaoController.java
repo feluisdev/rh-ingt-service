@@ -74,7 +74,7 @@ public class QualificacaoController {
 
     @DeleteMapping("{qualificacaoId}")
     @Operation(summary = "Desactivar qualificação (soft delete)")
-    public ResponseEntity<Map<String, ?>> deactivateQualificacao(@PathVariable String qualificacaoId) {
+    public ResponseEntity<Map<String, ?>> desativarQualificacao(@PathVariable String qualificacaoId) {
         LOGGER.debug("Operation started");
         ResponseEntity<Map<String, ?>> response = commandBus.send(new DesativarQualificacaoCommand(qualificacaoId));
         LOGGER.debug("Operation finished");

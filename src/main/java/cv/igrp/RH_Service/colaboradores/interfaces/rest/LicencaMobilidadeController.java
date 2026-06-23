@@ -145,7 +145,7 @@ public class LicencaMobilidadeController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
-    @PatchMapping("{licencaId}/desativar")
+    @DeleteMapping("{licencaId}/desativar")
     @Operation(summary = "Desactivar licença/mobilidade (alias de /cancel, mantido por compatibilidade)")
     public ResponseEntity<Map<String, ?>> desativar(
             @PathVariable String funcionarioId,

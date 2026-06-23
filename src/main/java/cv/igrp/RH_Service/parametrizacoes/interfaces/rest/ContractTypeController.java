@@ -60,11 +60,12 @@ public class ContractTypeController {
         @RequestParam(value = "code", required = false) String code,
         @RequestParam(value = "isActive", required = false) Boolean isActive,
         @RequestParam(value = "pagina", defaultValue = "0") String pagina,
-        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho) {
+        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho,
+        @RequestParam(value = "nome", required = false) String nome) {
 
         LOGGER.debug("Operation started");
 
-        final var query = new ListContractTypesQuery(code, isActive, pagina, tamanho);
+        final var query = new ListContractTypesQuery(code, isActive, pagina, tamanho, nome);
         ResponseEntity<WrapperListaContractTypeDTO> response = queryBus.handle(query);
 
         LOGGER.debug("Operation finished");
@@ -166,7 +167,7 @@ public class ContractTypeController {
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> deleteContractType(
+    public ResponseEntity<Map<String, ?>> desativarContractType(
         @PathVariable(value = "contractTypeId") String contractTypeId) {
 
         LOGGER.debug("Operation started");
@@ -216,9 +217,10 @@ public class ContractTypeController {
             )
         }
     )
-    public ResponseEntity<List<ComboboxItemDTO>> getCombobox() {
+    public ResponseEntity<List<ComboboxItemDTO>> getCombobox(
+        @RequestParam(value = "vinculoLaboralId", required = false) String vinculoLaboralId) {
         LOGGER.debug("Operation started");
-        final var query = new GetContractTypesComboboxQuery();
+        final var query = new GetContractTypesComboboxQuery(vinculoLaboralId);
         ResponseEntity<List<ComboboxItemDTO>> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())

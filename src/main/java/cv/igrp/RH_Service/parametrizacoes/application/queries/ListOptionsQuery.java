@@ -16,4 +16,5 @@ public class ListOptionsQuery implements Query {
     private String ckey;
     private String pagina;
     private String tamanho;
+    private String nome;
 }

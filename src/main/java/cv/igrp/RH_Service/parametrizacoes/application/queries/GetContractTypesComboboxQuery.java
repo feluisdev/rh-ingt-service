@@ -7,4 +7,5 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class GetContractTypesComboboxQuery implements Query {
+    private final String vinculoLaboralId;
 }

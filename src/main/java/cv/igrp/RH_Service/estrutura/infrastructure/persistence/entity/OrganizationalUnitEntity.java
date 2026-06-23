@@ -40,9 +40,6 @@ public class OrganizationalUnitEntity extends AuditEntity {
     @Column(name = "descricao")
     private String descricao;
 
-    @Column(name = "estado")
-    private Boolean estado;
-
     @Column(name = "parent_unit_id")
     private UUID parentUnitId;
 

@@ -13,9 +13,11 @@ public class QualificacaoResponseDTO {
     private String id;
     private String funcionarioId;
     private String level;
+    private String levelDesc;
     private String courseName;
     private String institution;
     private String country;
+    private String countryDesc;
     private LocalDate startDate;
     private LocalDate endDate;
     private Boolean completed;

@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.SearchSpecificationHelper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +51,16 @@ public class GradeRepositoryImpl implements GradeRepository {
 
             if (filter.getCategoryId() != null) {
                 predicates = cb.and(predicates, cb.equal(root.get("categoryId"), filter.getCategoryId()));
+            }
+
+            if (filter.getCode() != null && !filter.getCode().isBlank()) {
+                predicates = cb.and(predicates,
+                    SearchSpecificationHelper.exactCode(cb, root.get("codigo"), filter.getCode()));
+            }
+
+            if (filter.getNome() != null && !filter.getNome().isBlank()) {
+                predicates = cb.and(predicates,
+                    SearchSpecificationHelper.nameSimilarity(cb, root.get("name"), filter.getNome()));
             }
 
             if (filter.getIsActive() != null) {

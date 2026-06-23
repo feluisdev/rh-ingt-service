@@ -8,6 +8,7 @@ import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.Publ
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.PublicHolidayEntityRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.PublicHolidayId;
 import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.SearchSpecificationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -81,6 +82,11 @@ public class PublicHolidayRepositoryImpl implements PublicHolidayRepository {
             } else {
                 predicates = cb.and(predicates,
                     cb.equal(root.get("isActive"), true));
+            }
+
+            if (filter.getNome() != null && !filter.getNome().isBlank()) {
+                predicates = cb.and(predicates,
+                    SearchSpecificationHelper.nameSimilarity(cb, root.get("name"), filter.getNome()));
             }
 
             return predicates;

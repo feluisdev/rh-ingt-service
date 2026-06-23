@@ -4,14 +4,30 @@
   "module": "carreiras",
   "path": "/api/v1/rh/categories",
   "beanPrefix": "carreiras",
-  "operations": ["findAll", "findById", "create", "update", "delete", "activate", "findGradesByCategory"],
+  "operations": [
+    {
+      "name": "findAll",
+      "params": [
+        { "name": "careerId", "type": "String", "required": false },
+        { "name": "code", "type": "String", "required": false },
+        { "name": "nome", "type": "String", "required": false },
+        { "name": "active", "type": "Boolean", "required": false },
+        { "name": "pagina", "type": "String", "required": true, "default": "0" },
+        { "name": "tamanho", "type": "String", "required": true, "default": "20" }
+      ]
+    },
+    "findById", "create", "update", "desativar", "activate", "findGradesByCategory"
+  ],
   "extraActions": [
     {
       "actionName": "getCombobox",
       "path": "combobox",
       "method": "GET",
       "queryClass": "GetCategoriesComboboxQuery",
-      "responseType": "List<ComboboxItemDTO>"
+      "responseType": "List<ComboboxItemDTO>",
+      "params": [
+        { "name": "careerId", "type": "String", "required": false }
+      ]
     }
   ]
 }

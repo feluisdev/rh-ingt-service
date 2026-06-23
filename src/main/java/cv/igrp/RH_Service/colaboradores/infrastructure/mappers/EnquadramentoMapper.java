@@ -46,12 +46,12 @@ public class EnquadramentoMapper {
         EnquadramentoResponseDTO r = new EnquadramentoResponseDTO();
         r.setId(e.getId().getStringValor());
         r.setFuncionarioId(e.getFuncionarioId().getStringValor());
-        r.setCareerId(e.getCareerId().toString());
-        r.setCategoryId(e.getCategoryId().toString());
-        r.setGradeId(e.getGradeId().toString());
-        r.setCargoId(e.getCargoId().toString());
+        r.setCareerId(e.getCareerId() != null ? e.getCareerId().toString() : null);
+        r.setCategoryId(e.getCategoryId() != null ? e.getCategoryId().toString() : null);
+        r.setGradeId(e.getGradeId() != null ? e.getGradeId().toString() : null);
+        r.setCargoId(e.getCargoId() != null ? e.getCargoId().toString() : null);
         r.setFunctionId(e.getFunctionId() != null ? e.getFunctionId().toString() : null);
-        r.setUnidadeOrganicaId(e.getUnidadeOrganicaId().toString());
+        r.setUnidadeOrganicaId(e.getUnidadeOrganicaId() != null ? e.getUnidadeOrganicaId().toString() : null);
         r.setDataInicio(e.getDataInicio());
         r.setDataFim(e.getDataFim());
         r.setIsCurrent(e.getIsCurrent());

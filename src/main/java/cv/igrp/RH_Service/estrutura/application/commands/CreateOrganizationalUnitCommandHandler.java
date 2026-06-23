@@ -39,7 +39,7 @@ public class CreateOrganizationalUnitCommandHandler
 
         OrganizationalUnit saved = unitRepository.save(
                 OrganizationalUnit.criar(dto.getCode(), dto.getName(), dto.getAcronym(),
-                        dto.getUnitType(), dto.getDescricao(), dto.getEstado(), parentId));
+                        dto.getUnitType(), dto.getDescricao(), parentId));
 
         return ResponseEntity.status(201).body(Map.of(
                 "id", saved.getId().getStringValor(),

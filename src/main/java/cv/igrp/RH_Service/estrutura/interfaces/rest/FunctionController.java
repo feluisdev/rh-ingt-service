@@ -60,11 +60,13 @@ public class FunctionController {
         @RequestParam(value = "active", required = false) Boolean active,
         @RequestParam(value = "jobId", required = false) String jobId,
         @RequestParam(value = "pagina", defaultValue = "0") String pagina,
-        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho) {
+        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho,
+        @RequestParam(value = "code", required = false) String code,
+        @RequestParam(value = "nome", required = false) String nome) {
 
         LOGGER.debug("Operation started");
 
-        final var query = new GetFunctionsQuery(active, jobId, pagina, tamanho);
+        final var query = new GetFunctionsQuery(active, jobId, pagina, tamanho, code, nome);
         ResponseEntity<WrapperListaFunctionDTO> response = queryBus.handle(query);
 
         LOGGER.debug("Operation finished");
@@ -156,7 +158,7 @@ public class FunctionController {
             .body(response.getBody());
     }
 
-    @PatchMapping("{functionId}/deactivate")
+    @DeleteMapping("{functionId}/deactivate")
     @Operation(
         summary = "Desativar função",
         responses = {
@@ -216,9 +218,10 @@ public class FunctionController {
             )
         }
     )
-    public ResponseEntity<List<ComboboxItemDTO>> getCombobox() {
+    public ResponseEntity<List<ComboboxItemDTO>> getCombobox(
+        @RequestParam(value = "jobId", required = false) String jobId) {
         LOGGER.debug("Operation started");
-        final var query = new GetFunctionsComboboxQuery();
+        final var query = new GetFunctionsComboboxQuery(jobId);
         ResponseEntity<List<ComboboxItemDTO>> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())

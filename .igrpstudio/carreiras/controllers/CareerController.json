@@ -4,7 +4,19 @@
   "module": "carreiras",
   "path": "/api/v1/rh/careers",
   "beanPrefix": "carreiras",
-  "operations": ["findAll", "findById", "create", "update", "delete", "activate", "findCategoriesByCareer"],
+  "operations": [
+    {
+      "name": "findAll",
+      "params": [
+        { "name": "code", "type": "String", "required": false },
+        { "name": "nome", "type": "String", "required": false },
+        { "name": "active", "type": "Boolean", "required": false },
+        { "name": "pagina", "type": "String", "required": true, "default": "0" },
+        { "name": "tamanho", "type": "String", "required": true, "default": "20" }
+      ]
+    },
+    "findById", "create", "update", "desativar", "activate", "findCategoriesByCareer"
+  ],
   "extraActions": [
     {
       "actionName": "getCombobox",

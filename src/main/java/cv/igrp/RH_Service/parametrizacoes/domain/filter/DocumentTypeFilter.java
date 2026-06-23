@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class DocumentTypeFilter {
     private String codigo;
+    private String nome;
     private Boolean active;
     private int page = 0;
     private int size = 20;

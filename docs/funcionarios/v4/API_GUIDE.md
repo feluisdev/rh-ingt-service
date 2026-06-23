@@ -1,6 +1,6 @@
 # Guia de Utilização da API — Módulo de Recursos Humanos (SIPPROG)
 
-> Versão 4.5 · Maio 2026  
+> Versão 4.6 · Maio 2026  
 > Sistema de Informação do Pessoal e Progressões — INGT, Cabo Verde
 
 ---
@@ -198,6 +198,7 @@ GET api/v1/rh/reference/options?ccode=MARITAL_STATUS
 | `CAREER_REGIME` | Regime da Carreira (PCFR) | `GERAL`, `ESPECIAL` |
 | `BANCO` | Banco | `BCA`, `BCN`, `CECV`, `CAIXA` |
 | `WORK_REGIME` | Regime de Trabalho | `TEMPO_INTEIRO`, `TEMPO_PARCIAL` |
+| `WORKER_STATE_REASON` | Motivo de Mudança de Estado | `DISCIPLINARY_SUSPENSION`, `MEDICAL_SUSPENSION`, `AGE_RETIREMENT`, `CONTRACT_TERMINATION`, etc. |
 
 **Criar uma nova opção (caso necessário):**
 
@@ -965,6 +966,77 @@ Content-Type: application/json
 
 ---
 
+### 9.4 Mudança de Estado do Colaborador
+
+A mudança de estado laboral (ACTIVE, SUSPENDED, RETIRED, INACTIVE) é feita por um endpoint dedicado — **não** pelo `PUT /funcionarios/{id}`.
+
+**Estados disponíveis** (seed padrão): `ACTIVE` (core), `INACTIVE` (core), `SUSPENDED`, `RETIRED`.
+
+**Consultar os estados disponíveis:**
+
+```http
+GET api/v1/rh/catalogs/worker-states
+```
+
+**Consultar os motivos disponíveis:**
+
+```http
+GET api/v1/rh/reference/options?ccode=WORKER_STATE_REASON
+```
+
+**Mudar o estado:**
+
+```http
+PATCH api/v1/rh/funcionarios/{funcionarioId}/worker-state
+Content-Type: application/json
+
+{
+  "workerStateId": "uuid-do-estado-suspended",
+  "motivoCkey": "MEDICAL_SUSPENSION",
+  "dataEfectividade": "2026-05-20",
+  "observacao": "Internamento hospitalar. Regresso previsto em 30 dias."
+}
+```
+
+**Efeitos automáticos:**
+
+| Novo Estado | Contrato | Colocação |
+|---|---|---|
+| `SUSPENDED` | `status → SUSPENSO` | Sem alteração |
+| `ACTIVE` (reactivação) | `status: SUSPENSO → ATIVO` | Sem alteração |
+| `RETIRED` | `status → CESSADO` | Fechada |
+| `INACTIVE` | `status → CESSADO` | Fechada |
+
+**Erros comuns:**
+
+| HTTP | Motivo |
+|---|---|
+| 409 | Tentativa de transitar para o mesmo estado actual |
+| 404 | `workerStateId` não existe |
+
+**Consultar o histórico de mudanças:**
+
+```http
+GET api/v1/rh/funcionarios/{funcionarioId}/worker-state/historico
+```
+
+**Resposta:**
+```json
+[
+  {
+    "estadoAnteriorDescricao": "ACTIVE",
+    "estadoNovoDescricao": "SUSPENDED",
+    "motivoCkey": "MEDICAL_SUSPENSION",
+    "motivoDescricao": "Suspensão por Motivo de Saúde",
+    "dataEfectividade": "2026-05-20",
+    "registadoPor": "rh.admin@ingt.gov.cv",
+    "registadoEm": "2026-05-20T09:15:00"
+  }
+]
+```
+
+---
+
 ## 10. Área Reservada do Colaborador (`/me`)
 
 Todos os endpoints `/me` são restritos ao colaborador autenticado. O `funcionario_id` é extraído automaticamente do JWT — não é possível consultar dados de outro colaborador.
@@ -1088,6 +1160,8 @@ GET api/v1/rh/funcionarios/{funcionarioId}/documentos
 | `POST` | `api/v1/rh/funcionarios` | Criar funcionário |
 | `PUT` | `api/v1/rh/funcionarios/{id}` | Actualizar (NIF imutável) |
 | `DELETE` | `api/v1/rh/funcionarios/{id}` | Desativar (bloqueado se pedidos PENDING) |
+| `PATCH` | `api/v1/rh/funcionarios/{id}/worker-state` | Mudar estado laboral (com efeitos em cascata) |
+| `GET` | `api/v1/rh/funcionarios/{id}/worker-state/historico` | Histórico de mudanças de estado |
 | `GET/POST` | `api/v1/rh/funcionarios/{id}/dados-bancarios` | Dados bancários e segurança social |
 | `GET` | `api/v1/rh/funcionarios/{id}/contratos` | Histórico de contratos |
 | `POST` | `api/v1/rh/funcionarios/{id}/contratos` | Novo contrato (encerra o anterior) |
@@ -1141,4 +1215,4 @@ GET api/v1/rh/funcionarios/{funcionarioId}/documentos
 
 ---
 
-*Documento atualizado em Maio de 2026 — Módulo RH v4.5 — SIPPROG/INGT*
+*Documento atualizado em Maio de 2026 — Módulo RH v4.6 — SIPPROG/INGT*

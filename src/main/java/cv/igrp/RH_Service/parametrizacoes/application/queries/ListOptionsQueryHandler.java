@@ -22,7 +22,7 @@ public class ListOptionsQueryHandler implements QueryHandler<ListOptionsQuery, R
     private final OptionRepository optionRepository;
     private final OptionMapper optionMapper;
 
-    @Cacheable(value = "reference-options", key = "'list_' + #query.ccode + '_' + #query.locale + '_' + #query.active + '_' + #query.pagina + '_' + #query.tamanho")
+    @Cacheable(value = "reference-options", key = "'list_' + #query.ccode + '_' + #query.locale + '_' + #query.active + '_' + #query.ckey + '_' + #query.nome + '_' + #query.pagina + '_' + #query.tamanho")
     @IgrpQueryHandler
     public ResponseEntity<WrapperListaOptionDTO> handle(ListOptionsQuery query) {
         var filter = new OptionFilter();
@@ -30,6 +30,7 @@ public class ListOptionsQueryHandler implements QueryHandler<ListOptionsQuery, R
         filter.setLocale(query.getLocale());
         filter.setActive(query.getActive());
         filter.setCkey(query.getCkey());
+        filter.setNome(query.getNome());
         filter.setPage(query.getPagina() != null ? Integer.parseInt(query.getPagina()) : 0);
         filter.setSize(query.getTamanho() != null ? Integer.parseInt(query.getTamanho()) : 20);
 

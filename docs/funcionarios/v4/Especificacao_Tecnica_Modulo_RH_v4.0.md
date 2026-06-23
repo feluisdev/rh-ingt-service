@@ -42,6 +42,7 @@ title: Especificação Técnica — Módulo de Recursos Humanos v4.0
 | 4.3 | Maio 2026 | TA Digital | Contrato: adicionados `regimeTrabalho` (enum `RegimeTrabalho`, base legal LGTFP art.123-129) e `percentagemTempo`; validação dinâmica via `RegimeTrabalho.codigosValidos()`. Nova entidade `t_dados_bancarios` (banco/conta/IBAN/INPS) com API completa em secção 2.11. Manifestos `.igrpstudio` actualizados: `RegimeTrabalho.json`, `ContratoEntity.json`, `DadosBancariosEntity.json`. |
 | 4.4 | Maio 2026 | TA Digital | Normalização de paths REST: todos os sub-recursos de funcionário migrados para prefixo `/funcionarios/{funcionarioId}/X` (contratos, enquadramentos, dependentes, qualificações, recibos, dados-bancários, documentos); `funcionarioId` removido dos request bodies e passado via path variable; endpoints proxy em `FuncionarioController` eliminados; tabela `VALID_CCODES` (Option) alargada com `CAREER_REGIME`, `BANCO` e `WORK_REGIME`; manifestos `.igrpstudio` actualizados. |
 | 4.5 | Maio 2026 | TA Digital | Alinhamento ubíquo e nomenclatura de tabelas: `professional_situations` → `t_vinculo_laboral` em todas as camadas; `professional_situation_id` removido de `t_funcionario`; `contract_types.professional_situation_id` → `vinculo_laboral_id`; prefixo `t_` adicionado a todas as tabelas; nomes JPA reais documentados (`t_employee_professional_assignments`, `t_employee_unit_assignments`, `t_qualificacao`, `t_training`, `t_disciplinary_process`, etc.); `nullable = false` removido dos `@Column` para compatibilidade com `ddl-auto=update`; secção `GET /vinculos-laborais` substituiu `/professional-situations`. |
+| 4.6 | Maio 2026 | TA Digital | Mudança de estado do colaborador: nova secção 2.2.1 com `PATCH /funcionarios/{id}/worker-state` e `GET /funcionarios/{id}/worker-state/historico`; tabela `t_historico_estado_colaborador` (Bloco 9 do Modelo Relacional); catálogo `WORKER_STATE_REASON` em `t_option_entity`; efeitos em cascata no contrato (suspensão/reactivação/cessação) e colocação (fecho). |
 
 ---
 
@@ -433,6 +434,94 @@ Os campos `nif` e `numeroFuncionario` são imutáveis após a criação. As rest
 ### DELETE /funcionarios/{id}
 
 Soft delete (`is_active = false`). Bloqueado se existirem pedidos PENDING.
+
+---
+
+## 2.2.1 Estado do Colaborador
+
+Gestão do ciclo de vida do colaborador através de transições de estado controladas. O estado é armazenado em `t_funcionario.worker_state_id` e cada transição fica registada em `t_historico_estado_colaborador`.
+
+**Estados possíveis** (tabela `t_worker_state`, `is_core = true` para ACTIVE e INACTIVE):
+
+| Código | Descrição |
+|---|---|
+| `ACTIVE` | Colaborador activo (estado inicial na admissão) |
+| `SUSPENDED` | Colaborador suspenso (ex: processo disciplinar, licença sem vencimento) |
+| `RETIRED` | Aposentado / Reformado |
+| `INACTIVE` | Inactivo (cessação de contrato, demissão) |
+
+**Regras de transição:**
+
+- Não é permitido transitar para o mesmo estado actual (HTTP 409).
+- Não é permitido transitar directamente para `INACTIVE` por este endpoint — a inactivação é consequência de `RETIRED` ou de uma cessação de contrato.
+- Os estados `ACTIVE` e `INACTIVE` têm `is_core = true` e não podem ser desactivados da tabela de parâmetros.
+
+**Efeitos em cascata (aplicados transaccionalmente):**
+
+| Novo Estado | Contrato Actual | Colocação Actual |
+|---|---|---|
+| `SUSPENDED` | `status → SUSPENSO` | Sem alteração |
+| `ACTIVE` (após suspensão) | `status: SUSPENSO → ATIVO` | Sem alteração |
+| `RETIRED` | `status → CESSADO`, `is_current → false` | Fechada (`end_date = dataEfectividade`) |
+| `INACTIVE` | `status → CESSADO`, `is_current → false` | Fechada (`end_date = dataEfectividade`) |
+
+### PATCH /funcionarios/{funcionarioId}/worker-state
+
+Muda o estado do colaborador com registo de motivo, data de efectividade e observações.
+
+**Corpo da Requisição**
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+|---|---|---|---|
+| `workerStateId` | UUID | Sim | ID do novo estado (`t_worker_state`). |
+| `motivoCkey` | string | Não | Motivo da mudança (ckey de `WORKER_STATE_REASON`, ex: `AGE_RETIREMENT`, `MEDICAL_SUSPENSION`). |
+| `dataEfectividade` | date | Sim | Data de efeito da mudança (`YYYY-MM-DD`). |
+| `observacao` | string | Não | Observações adicionais. |
+
+**Resposta (200 OK)**
+
+```json
+{
+  "message": "Estado do colaborador actualizado com sucesso",
+  "funcionarioId": "550e8400-...",
+  "estadoAnterior": "ACTIVE",
+  "estadoNovo": "SUSPENDED"
+}
+```
+
+**Erros:**
+
+| HTTP | Condição |
+|---|---|
+| 404 | Funcionário não encontrado. |
+| 404 | Estado (`workerStateId`) não encontrado. |
+| 409 | Novo estado igual ao estado actual. |
+| 422 | Tentativa de transitar directamente para `INACTIVE`. |
+
+### GET /funcionarios/{funcionarioId}/worker-state/historico
+
+Lista o histórico completo de mudanças de estado do colaborador, ordenado por `data_efectividade` descendente.
+
+**Resposta (200 OK)**
+
+```json
+[
+  {
+    "id": "...",
+    "funcionarioId": "...",
+    "estadoAnteriorId": "...",
+    "estadoAnteriorDescricao": "ACTIVE",
+    "estadoNovoId": "...",
+    "estadoNovoDescricao": "SUSPENDED",
+    "motivoCkey": "MEDICAL_SUSPENSION",
+    "motivoDescricao": "Suspensão por Motivo de Saúde",
+    "dataEfectividade": "2026-05-15",
+    "observacao": "Internamento hospitalar prolongado",
+    "registadoPor": "admin@ingt.gov.cv",
+    "registadoEm": "2026-05-15T10:23:00"
+  }
+]
+```
 
 ---
 
@@ -956,7 +1045,20 @@ Soft delete. Rejeitado se associado a atribuições profissionais ativas.
 
 ## 3.4 Funções (Functions)
 
-Função efetivamente exercida pelo colaborador.
+Função efetivamente exercida pelo colaborador dentro de um cargo.
+
+**Relação entre função e cargo (`job_id`):**
+
+O campo `jobId` (FK→`t_job`, nullable) associa uma função a um cargo específico:
+
+- `jobId` preenchido → função específica de um cargo. O funcionário com esse cargo **herda** automaticamente todas as funções a ele ligadas — ou seja, pode exercer qualquer uma delas.
+- `jobId = null` → função genérica, válida para qualquer cargo.
+
+Esta relação serve dois propósitos: organizar o catálogo de funções por cargo (para apresentação na UI) e validar o enquadramento profissional (ao registar `functionId` num enquadramento, a aplicação verifica que a função pertence ao cargo indicado).
+
+**Distinção entre herança e enquadramento:**
+
+"Herdar as funções do cargo" significa que o funcionário *pode* exercê-las. O campo `functionId` no enquadramento regista *qual* está efectivamente a exercer naquele período — informação necessária para despachos oficiais, historial profissional e relatórios RH. É opcional: nem todos os funcionários têm função específica registada.
 
 ### GET /functions
 
@@ -969,6 +1071,7 @@ Função efetivamente exercida pelo colaborador.
 | `code` | string | Sim | Código único (máx. 50). |
 | `name` | string | Sim | Designação (máx. 150). |
 | `description` | string | Não | Descrição. |
+| `jobId` | UUID | Não | Cargo ao qual a função pertence. `null` = função genérica compatível com qualquer cargo. |
 | `isActive` | boolean | Não | Estado inicial (default true). |
 
 ### PUT /functions/{id}
@@ -1550,7 +1653,7 @@ O diagrama ERD do módulo é apresentado no documento `Modelo_Relacional_RH_v4.0
 | `category_id` | BIGINT NOT NULL FK→t_category | Categoria (validada vs career por trigger). |
 | `grade_id` | BIGINT NOT NULL FK→t_grade | Escalão (validado vs category por trigger). |
 | `job_id` | BIGINT FK→t_job | Cargo exercido. |
-| `function_id` | BIGINT FK→t_funcao | Função exercida. |
+| `function_id` | BIGINT FK→t_funcao | Função específica que o funcionário está a exercer neste período (opcional). O funcionário herda todas as funções do seu cargo — este campo regista qual está efectivamente a desempenhar. |
 | `start_date` | DATE NOT NULL | Data de início. |
 | `end_date` | DATE | Data de fim (`null` = enquadramento actual). |
 | `is_current` | BOOLEAN NOT NULL DEFAULT FALSE | Apenas 1 TRUE por funcionário. |

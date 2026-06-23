@@ -39,7 +39,9 @@ public class UpdateContratoCommandHandler
         String regimeEfectivo = dto.getRegimeTrabalho() != null ? dto.getRegimeTrabalho() : contrato.getRegimeTrabalho();
         if ("TEMPO_PARCIAL".equals(regimeEfectivo) && dto.getPercentagemTempo() == null && contrato.getPercentagemTempo() == null)
             throw IgrpResponseStatusException.badRequest("O campo percentagemTempo é obrigatório para regime TEMPO_PARCIAL.");
-        if (!"TEMPO_PARCIAL".equals(regimeEfectivo) && dto.getPercentagemTempo() != null)
+        if (!"TEMPO_PARCIAL".equals(regimeEfectivo)
+                && dto.getPercentagemTempo() != null
+                && dto.getPercentagemTempo().compareTo(java.math.BigDecimal.ZERO) != 0)
             throw IgrpResponseStatusException.badRequest("O campo percentagemTempo só se aplica ao regime TEMPO_PARCIAL.");
 
         contrato.atualizar(

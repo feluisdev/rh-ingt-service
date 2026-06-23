@@ -13,7 +13,9 @@ public class ColocacaoResponseDTO {
     private String id;
     private String funcionarioId;
     private String unitId;
+    private String unitName;
     private String jobId;
+    private String jobName;
     private LocalDate startDate;
     private LocalDate endDate;
     private Boolean isCurrent;

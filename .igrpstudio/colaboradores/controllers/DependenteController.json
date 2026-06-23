@@ -36,7 +36,7 @@
       "responses": { "200": { "name": "OK", "content": { "application/json": { "schema": { "type": "DependenteResponse", "objectType": "dto", "name": "data", "collectionType": "none", "module": "colaboradores" } } } } }
     },
     {
-      "actionName": "deactivateDependente",
+      "actionName": "desativarDependente",
       "method": "DELETE",
       "path": "{dependenteId}",
       "pathVariables": [{ "type": "string", "name": "funcionarioId", "isRequired": true }, { "type": "string", "name": "dependenteId", "isRequired": true }],

@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class LeaveTypeFilter {
     private String code;
+    private String nome;
     private Boolean active;
     private int page = 0;
     private int size = 20;

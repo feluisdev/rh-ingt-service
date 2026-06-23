@@ -60,10 +60,11 @@ public class LeaveMobilitySubtypeController {
         @RequestParam(value = "recordType", required = false) String recordType,
         @RequestParam(value = "active", required = false) Boolean active,
         @RequestParam(value = "pagina", defaultValue = "0") String pagina,
-        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho) {
+        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho,
+        @RequestParam(value = "nome", required = false) String nome) {
 
         LOGGER.debug("Operation started");
-        final var query = new ListLeaveMobilitySubtypesQuery(code, recordType, active, pagina, tamanho);
+        final var query = new ListLeaveMobilitySubtypesQuery(code, recordType, active, pagina, tamanho, nome);
         ResponseEntity<WrapperListaLeaveMobilitySubtypeDTO> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())
@@ -160,7 +161,7 @@ public class LeaveMobilitySubtypeController {
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> deleteLeaveMobilitySubtype(
+    public ResponseEntity<Map<String, ?>> desativarLeaveMobilitySubtype(
         @PathVariable(value = "leaveMobilitySubtypeId") String leaveMobilitySubtypeId) {
 
         LOGGER.debug("Operation started");

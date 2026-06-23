@@ -74,12 +74,13 @@ public class ReferenceOptionsController {
     @RequestParam(value = "active", required = false) Boolean active,
     @RequestParam(value = "ckey", required = false) String ckey,
     @RequestParam(value = "pagina", defaultValue = "0") String pagina,
-    @RequestParam(value = "tamanho", defaultValue = "20") String tamanho)
+    @RequestParam(value = "tamanho", defaultValue = "20") String tamanho,
+    @RequestParam(value = "nome", required = false) String nome)
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new ListOptionsQuery(ccode, locale, active, ckey, pagina, tamanho);
+      final var query = new ListOptionsQuery(ccode, locale, active, ckey, pagina, tamanho, nome);
 
       ResponseEntity<WrapperListaOptionDTO> response = queryBus.handle(query);
 
@@ -204,8 +205,8 @@ public class ReferenceOptionsController {
     value = "{optionId}"
   )
   @Operation(
-    summary = "DELETE method to handle operations for deleteOption",
-    description = "DELETE method to handle operations for deleteOption",
+    summary = "Desativar opção",
+    description = "Desativa uma opção de catálogo existente",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -220,7 +221,7 @@ public class ReferenceOptionsController {
     }
   )
 
-  public ResponseEntity<Map<String, ?>> deleteOption(
+  public ResponseEntity<Map<String, ?>> desativarOption(
     @PathVariable(value = "optionId") String optionId)
   {
 

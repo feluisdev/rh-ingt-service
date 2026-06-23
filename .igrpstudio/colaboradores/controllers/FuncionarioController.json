@@ -1,4 +1,4 @@
-﻿{
+{
   "type": "controller",
   "name": "Funcionario",
   "module": "colaboradores",
@@ -9,14 +9,14 @@
       "actionName": "getFuncionarios",
       "method": "GET",
       "requestParams": [
-        {"name": "nome", "type": "string", "required": false},
-        {"name": "nif", "type": "string", "required": false},
-        {"name": "workerStateId", "type": "string", "required": false},
-        {"name": "unidadeOrganicaId", "type": "string", "required": false},
-        {"name": "careerId", "type": "string", "required": false},
-        {"name": "active", "type": "boolean", "required": false},
-        {"name": "pagina", "type": "string", "required": false},
-        {"name": "tamanho", "type": "string", "required": false}
+        {"name": "nome",              "type": "string",  "required": false},
+        {"name": "nif",               "type": "string",  "required": false},
+        {"name": "workerStateId",     "type": "string",  "required": false},
+        {"name": "unidadeOrganicaId", "type": "string",  "required": false},
+        {"name": "careerId",          "type": "string",  "required": false},
+        {"name": "active",            "type": "boolean", "required": false},
+        {"name": "pagina",            "type": "string",  "required": false},
+        {"name": "tamanho",           "type": "string",  "required": false}
       ]
     },
     {
@@ -26,6 +26,30 @@
       "pathVariables": [
         {"name": "funcionarioId", "type": "string"}
       ]
+    },
+    {
+      "actionName": "getColaboradorDetails",
+      "method": "GET",
+      "path": "{funcionarioId}/details",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string", "isRequired": true}
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ColaboradorDetailsResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "createFuncionario",
@@ -40,6 +64,68 @@
         {"name": "funcionarioId", "type": "string"}
       ],
       "requestBody": true
+    },
+    {
+      "actionName": "mudarEstadoColaborador",
+      "method": "PATCH",
+      "path": "{funcionarioId}/worker-state",
+      "summary": "Muda o estado do colaborador (ACTIVE, SUSPENDED, RETIRED, INACTIVE) com motivo, data de efectividade e efeitos em contrato/colocação",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string", "isRequired": true}
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "MudarEstadoColaboradorRequestDTO",
+              "objectType": "dto",
+              "name": "data",
+              "collectionType": "none",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "map",
+                "objectType": "java",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getHistoricoEstadoColaborador",
+      "method": "GET",
+      "path": "{funcionarioId}/worker-state/historico",
+      "summary": "Lista o histórico de mudanças de estado do colaborador, ordenado por data efectividade descendente",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string", "isRequired": true}
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "HistoricoEstadoColaboradorResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "getEnquadramentoAtual",
@@ -78,7 +164,9 @@
       "method": "GET",
       "path": "{funcionarioId}/qualificacoes",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"  ,
+        {"name": "funcionarioId", "type": "string"}
+      ]
+    },
     {
       "actionName": "registarColaborador",
       "method": "POST",
@@ -112,7 +200,9 @@
       "path": "combobox",
       "method": "GET",
       "requestParams": [
-        { "type": "string", "name": "q", "isRequired": false }
+        {"type": "string", "name": "q",                "isRequired": false},
+        {"type": "string", "name": "unidadeOrganicaId","isRequired": false},
+        {"type": "string", "name": "workerStateId",    "isRequired": false}
       ],
       "responses": {
         "200": {

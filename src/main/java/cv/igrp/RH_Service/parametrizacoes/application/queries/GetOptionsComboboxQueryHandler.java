@@ -26,7 +26,7 @@ public class GetOptionsComboboxQueryHandler
         filter.setPage(0);
         filter.setSize(500);
         var items = optionRepository.findAll(filter).getData().stream()
-                .map(opt -> new ComboboxItemDTO(opt.getId().getStringValor(), opt.getCvalue()))
+                .map(opt -> new ComboboxItemDTO(opt.getCkey(), opt.getCvalue()))
                 .toList();
         return ResponseEntity.ok(items);
     }

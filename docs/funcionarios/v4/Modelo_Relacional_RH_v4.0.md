@@ -5,7 +5,7 @@
 | **Documento** | Modelo Relacional RH v4.0 |
 | **Projeto** | SIPPROG — Sistema de Informação do Pessoal e Progressões |
 | **Entidade** | INGT — Instituto Nacional de Gestão do Território |
-| **Versão** | 4.4 |
+| **Versão** | 4.5 |
 | **Data** | Maio 2026 |
 | **Status** | Em curso |
 
@@ -25,7 +25,7 @@
 
 ## 1. Visão Geral
 
-O modelo relacional do Módulo RH organiza-se em **9 blocos funcionais** e **26 tabelas**, cobrindo o ciclo completo do dossier do funcionário público: desde a identificação pessoal, passando pelo historial profissional (contrato, enquadramento de carreira, colocação), até aos documentos, ausências e licenças.
+O modelo relacional do Módulo RH organiza-se em **9 blocos funcionais** e **29 tabelas**, cobrindo o ciclo completo do dossier do funcionário público: desde a identificação pessoal, passando pelo historial profissional (contrato, enquadramento de carreira, colocação), até aos documentos, ausências e licenças.
 
 A filosofia central é a separação clara de responsabilidades:
 
@@ -160,6 +160,7 @@ t_option_entity  (Opções / Lookups Genéricos)
 | `CAREER_REGIME` | Regime da Carreira (PCFR) | `GERAL`, `ESPECIAL` |
 | `BANCO` | Banco (para dados bancários) | `BCA`, `BCN`, `CECV`, `BAI` |
 | `WORK_REGIME` | Regime de Trabalho (LGTFP art.123-129) | `TEMPO_COMPLETO`, `TEMPO_PARCIAL`, `ISENCAO_HORARIO`, `DEDICACAO_EXCLUSIVA` |
+| `WORKER_STATE_REASON` | Motivo de Mudança de Estado do Colaborador | `DISCIPLINARY_SUSPENSION`, `MEDICAL_SUSPENSION`, `OWN_REQUEST_SUSPENSION`, `AGE_RETIREMENT`, `DISABILITY_RETIREMENT`, `VOLUNTARY_RETIREMENT`, `CONTRACT_TERMINATION`, `MUTUAL_AGREEMENT`, `DISCIPLINARY_DISMISSAL`, `DEATH`, `SUSPENSION_RETURN`, `REINTEGRATION` |
 
 ---
 
@@ -308,8 +309,12 @@ t_funcao  (Funções)
 └── auditoria
 
 -- job_id nullable: permite funções genéricas não ligadas a nenhum cargo específico.
+-- Semântica de herança: um funcionário com um cargo herda todas as funções onde job_id = cargo_id.
+--   Isso significa que PODE exercer qualquer uma delas. O function_id no enquadramento
+--   regista QUAL está efectivamente a exercer naquele período (opcional — não todos os
+--   funcionários têm função específica registada).
 -- Validação de domínio: ao criar um enquadramento com cargo + função, a aplicação
---   verifica que função.job_id == cargo_id (ou que job_id é null).
+--   verifica que função.job_id == cargo_id (ou que job_id é null). Rejeita com HTTP 422 se incompatível.
 -- Filtro de API: GET /estrutura/functions?jobId={cargoId} devolve as funções do cargo.
 ```
 
@@ -466,7 +471,7 @@ t_employee_professional_assignments  (Enquadramento Profissional)
 ├── category_id         UUID FK→t_category            -- nullable: idem
 ├── grade_id            UUID FK→t_grade               -- nullable: idem
 ├── cargo_id            UUID NOT NULL FK→t_job        -- sempre obrigatório
-├── function_id         UUID FK→t_funcao
+├── function_id         UUID FK→t_funcao              -- nullable: função específica que exerce neste período
 ├── unidade_organica_id UUID NOT NULL FK→t_unidade_organica
 ├── data_inicio         DATE  NOT NULL
 ├── data_fim            DATE                           -- null = enquadramento actual
@@ -480,6 +485,11 @@ t_employee_professional_assignments  (Enquadramento Profissional)
 --   1. Criação exige contrato ATIVO; data_inicio dentro do período do contrato.
 --   2. requires_career_structure = true → career_id, category_id, grade_id obrigatórios.
 --   3. Cessação do contrato encerra automaticamente o enquadramento activo.
+-- function_id vs herança de funções do cargo:
+--   O funcionário herda todas as funções do seu cargo (t_funcao WHERE job_id = cargo_id).
+--   O function_id não duplica essa relação — regista qual função específica está a exercer
+--   naquele período. Necessário para despachos oficiais, historial e relatórios RH.
+--   É opcional: funcionários sem função específica atribuída deixam este campo a null.
 ```
 
 ```
@@ -679,6 +689,24 @@ t_public_holiday  (Feriados)
 
 -- Usado pelo cálculo de dias úteis em leave_requests.
 -- Feriados municipais (ex: Dia de Santiago) podem ser configurados por concelho.
+```
+
+```
+t_historico_estado_colaborador  (Histórico de Mudanças de Estado)
+├── id                  UUID      PK
+├── funcionario_id      UUID NOT NULL FK→t_funcionario
+├── estado_anterior_id  UUID FK→t_worker_state        -- estado antes da mudança (null = admissão inicial)
+├── estado_novo_id      UUID NOT NULL FK→t_worker_state  -- novo estado efectivado
+├── motivo_ckey         VARCHAR(100)                  -- ccode='WORKER_STATE_REASON'; valor string sem UUID FK
+├── data_efectividade   DATE NOT NULL                 -- data de efeito da mudança de estado
+├── observacao          TEXT                          -- observações adicionais opcionais
+└── auditoria           (AuditEntity: created_at/by, updated_at/by — created_by = utilizador que registou)
+
+-- Registo imutável: cada linha representa uma mudança de estado.
+-- Ordenado por data_efectividade DESC na leitura.
+-- motivo_ckey referencia t_option_entity(ccode='WORKER_STATE_REASON') por string (sem UUID FK).
+-- Efeitos colaterais no contrato (suspensão/reactivação/cessação) e colocação (fecho)
+-- são aplicados transaccionalmente pelo MudarEstadoColaboradorCommandHandler.
 ```
 
 ---
@@ -953,6 +981,16 @@ erDiagram
         boolean is_national
     }
 
+    T_HISTORICO_ESTADO_COLABORADOR {
+        uuid   id PK
+        uuid   funcionario_id FK
+        uuid   estado_anterior_id FK
+        uuid   estado_novo_id FK
+        varchar motivo_ckey
+        date   data_efectividade
+        text   observacao
+    }
+
     T_FUNCIONARIO }o--o| WORKER_STATES : "estado"
     T_FUNCIONARIO }o--o| VINCULO_LABORAL : "situacao"
     T_FUNCIONARIO }o--o| DOCUMENT_TYPES : "tipo doc identificacao"
@@ -996,6 +1034,10 @@ erDiagram
     LEAVES_MOBILITIES }o--o| ORGANIZATIONAL_UNITS : "destino"
     LEAVES_MOBILITIES }o--o| DOCUMENTS : "documento"
     PAYROLL_SLIPS }o--o| DOCUMENTS : "pdf"
+
+    T_FUNCIONARIO ||--o{ T_HISTORICO_ESTADO_COLABORADOR : "historico estados"
+    T_HISTORICO_ESTADO_COLABORADOR }o--o| WORKER_STATES : "estado anterior"
+    T_HISTORICO_ESTADO_COLABORADOR }o--|| WORKER_STATES : "estado novo"
 ```
 
 ---
@@ -1060,6 +1102,7 @@ Resumo decisório para implementação. A coluna "Armazenamento" descreve como o
 | Tipos de Documento | ❌ Não — tabela dedicada | — | `t_tipo_documento` (`allowed_extensions` valida upload) | Implementado |
 | Tipos de Ausência | ❌ Não — tabela dedicada | — | `t_leave_type` (`deducts_balance`, `requires_approval` alteram fluxo) | Implementado |
 | Subtipos Licença/Mobilidade | ❌ Não — tabela dedicada | — | `t_leave_mobility_subtype` (`affects_pay`, `counts_for_seniority`, `can_self_submit`) | Implementado |
+| Motivo de Mudança de Estado | ✅ Sim | `WORKER_STATE_REASON` | `t_historico_estado_colaborador.motivo_ckey VARCHAR(100)` | Implementado — seed com 12 valores |
 
 **Nota de implementação:** Os campos marcados como "string ckey" são validados na camada aplicacional pelo método `OptionValidator.validate(ccode, ckey)` antes de persistir. O frontend obtém os valores disponíveis via `GET /reference/options?ccode={code}`. Os ccodes estão definidos nesta tabela — quando os ccodes concretos forem confirmados, actualizam-se apenas as seeds de `t_option_entity`, sem alteração de schema.
 
@@ -1097,7 +1140,7 @@ Resumo decisório para implementação. A coluna "Armazenamento" descreve como o
 
 | Modelo INPS (anterior) | Modelo v4 |
 |---|---|
-| 45+ tabelas (incluindo views e tabelas de processamento) | 26 tabelas (foco no dossier) |
+| 45+ tabelas (incluindo views e tabelas de processamento) | 29 tabelas (foco no dossier) |
 | `TiposRelacionamentoEntity` como god table | 3 históricos independentes e limpos |
 | 2 tabelas de documentos sobrepostas | 1 tabela `documents` unificada |
 | `ParamSituacaoEntity` com 25+ campos | `t_leave_type` + `t_leave_mobility_subtype` focados |

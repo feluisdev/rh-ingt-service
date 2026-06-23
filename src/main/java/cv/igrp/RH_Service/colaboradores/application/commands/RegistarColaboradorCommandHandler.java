@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.colaboradores.application.commands;
 import cv.igrp.RH_Service.colaboradores.application.dto.RegistarColaboradorResponseDTO;
 import cv.igrp.RH_Service.colaboradores.application.services.ContratoService;
 import cv.igrp.RH_Service.colaboradores.application.services.DadosBancariosService;
+import cv.igrp.RH_Service.colaboradores.application.services.ColaboradorDocumentoService;
 import cv.igrp.RH_Service.colaboradores.application.services.EnquadramentoService;
 import cv.igrp.RH_Service.colaboradores.application.services.FuncionarioService;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
@@ -13,6 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class RegistarColaboradorCommandHandler
@@ -22,6 +26,7 @@ public class RegistarColaboradorCommandHandler
     private final ContratoService contratoService;
     private final EnquadramentoService enquadramentoService;
     private final DadosBancariosService dadosBancariosService;
+    private final ColaboradorDocumentoService documentoService;
 
     @IgrpCommandHandler
     @Transactional
@@ -53,12 +58,21 @@ public class RegistarColaboradorCommandHandler
             dadosBancariosId = dadosBancarios.getId().getStringValor();
         }
 
+        List<String> documentoIds = new ArrayList<>();
+        if (dto.getDossier() != null) {
+            for (var item : dto.getDossier()) {
+                var doc = documentoService.registarDocumento(funcionarioId, item);
+                documentoIds.add(doc.getId().getStringValor());
+            }
+        }
+
         return ResponseEntity.status(201).body(new RegistarColaboradorResponseDTO(
                 funcionario.getId().getStringValor(),
                 funcionario.getNumeroFuncionario(),
                 contratoId,
                 enquadramentoId,
                 dadosBancariosId,
+                documentoIds,
                 "Colaborador registado com sucesso"));
     }
 }

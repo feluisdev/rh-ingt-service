@@ -5,12 +5,12 @@ import cv.igrp.RH_Service.estrutura.application.dto.OrganizationalUnitResponseDT
 import cv.igrp.RH_Service.estrutura.domain.repository.OrganizationalUnitRepository;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.OrganizationalUnitId;
 import cv.igrp.RH_Service.estrutura.infrastructure.mappers.OrganizationalUnitMapper;
+import cv.igrp.RH_Service.parametrizacoes.application.port.OptionLookupPort;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.OptionCcode;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -19,11 +19,10 @@ import org.springframework.stereotype.Component;
 public class GetOrganizationalUnitByIdQueryHandler
         implements QueryHandler<GetOrganizationalUnitByIdQuery, ResponseEntity<OrganizationalUnitResponseDTO>> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GetOrganizationalUnitByIdQueryHandler.class);
-
     private final OrganizationalUnitRepository unitRepository;
     private final OrganizationalUnitMapper mapper;
     private final ColabsColocacaoEntityRepository colocacaoRepository;
+    private final OptionLookupPort optionLookupPort;
 
     @IgrpQueryHandler
     public ResponseEntity<OrganizationalUnitResponseDTO> handle(GetOrganizationalUnitByIdQuery query) {
@@ -33,6 +32,17 @@ public class GetOrganizationalUnitByIdQueryHandler
 
         var dto = mapper.toDTO(unit);
         dto.setNColaboradores(colocacaoRepository.countByUnitIdAndIsCurrentTrueAndIsActiveTrue(unit.getId().getValor()));
+
+        if (unit.getUnitType() != null) {
+            optionLookupPort.findByCcodeAndCkey(OptionCcode.UNIT_TYPE.getCode(), unit.getUnitType())
+                    .ifPresent(opt -> dto.setUnitTypeDesc(opt.cvalue()));
+        }
+
+        if (unit.getParentUnitId() != null) {
+            unitRepository.findById(unit.getParentUnitId())
+                    .ifPresent(parent -> dto.setParentUnitName(parent.getName()));
+        }
+
         return ResponseEntity.ok(dto);
     }
 }

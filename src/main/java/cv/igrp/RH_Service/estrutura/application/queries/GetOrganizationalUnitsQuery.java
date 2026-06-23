@@ -11,4 +11,6 @@ public class GetOrganizationalUnitsQuery implements Query {
     private final String parentUnitId;
     private final String pagina;
     private final String tamanho;
+    private final String code;
+    private final String nome;
 }

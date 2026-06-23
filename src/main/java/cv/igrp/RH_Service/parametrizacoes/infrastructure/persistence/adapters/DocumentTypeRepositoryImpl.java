@@ -8,6 +8,7 @@ import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.Docu
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.DocumentTypeEntityRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.DocumentTypeId;
 import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.SearchSpecificationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -54,7 +55,12 @@ public class DocumentTypeRepositoryImpl implements DocumentTypeRepository {
 
             if (filter.getCodigo() != null && !filter.getCodigo().isBlank()) {
                 predicates = cb.and(predicates,
-                    cb.like(cb.lower(root.get("codigo")), "%" + filter.getCodigo().trim().toLowerCase() + "%"));
+                    SearchSpecificationHelper.exactCode(cb, root.get("codigo"), filter.getCodigo()));
+            }
+
+            if (filter.getNome() != null && !filter.getNome().isBlank()) {
+                predicates = cb.and(predicates,
+                    SearchSpecificationHelper.nameSimilarity(cb, root.get("descricao"), filter.getNome()));
             }
 
             if (filter.getActive() != null) {

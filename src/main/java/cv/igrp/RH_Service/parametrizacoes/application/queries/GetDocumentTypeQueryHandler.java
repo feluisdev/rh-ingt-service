@@ -1,15 +1,15 @@
 package cv.igrp.RH_Service.parametrizacoes.application.queries;
 
 import cv.igrp.RH_Service.parametrizacoes.application.dto.DocumentTypeResponseDTO;
+import cv.igrp.RH_Service.parametrizacoes.application.port.OptionLookupPort;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.OptionCcode;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.DocumentTypeRepository;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.DocumentTypeId;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.DocumentTypeMapper;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.DocumentTypeId;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -17,10 +17,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class GetDocumentTypeQueryHandler implements QueryHandler<GetDocumentTypeQuery, ResponseEntity<DocumentTypeResponseDTO>> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GetDocumentTypeQueryHandler.class);
-
     private final DocumentTypeRepository documentTypeRepository;
     private final DocumentTypeMapper documentTypeMapper;
+    private final OptionLookupPort optionLookupPort;
 
     @IgrpQueryHandler
     public ResponseEntity<DocumentTypeResponseDTO> handle(GetDocumentTypeQuery query) {
@@ -30,6 +29,11 @@ public class GetDocumentTypeQueryHandler implements QueryHandler<GetDocumentType
             .orElseThrow(() -> IgrpResponseStatusException.notFound(
                 "Tipo de documento não encontrado: " + query.getDocumentTypeId()));
 
-        return ResponseEntity.ok(documentTypeMapper.toDTO(documentType));
+        var dto = documentTypeMapper.toDTO(documentType);
+        if (documentType.getCategory() != null) {
+            optionLookupPort.findByCcodeAndCkey(OptionCcode.DOC_CATEGORY.getCode(), documentType.getCategory())
+                    .ifPresent(opt -> dto.setCategoryDesc(opt.cvalue()));
+        }
+        return ResponseEntity.ok(dto);
     }
 }

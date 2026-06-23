@@ -59,11 +59,13 @@ public class JobController {
     public ResponseEntity<WrapperListaJobDTO> getJobs(
         @RequestParam(value = "active", required = false) Boolean active,
         @RequestParam(value = "pagina", defaultValue = "0") String pagina,
-        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho) {
+        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho,
+        @RequestParam(value = "code", required = false) String code,
+        @RequestParam(value = "nome", required = false) String nome) {
 
         LOGGER.debug("Operation started");
 
-        final var query = new GetJobsQuery(active, pagina, tamanho);
+        final var query = new GetJobsQuery(active, pagina, tamanho, code, nome);
         ResponseEntity<WrapperListaJobDTO> response = queryBus.handle(query);
 
         LOGGER.debug("Operation finished");
@@ -155,7 +157,7 @@ public class JobController {
             .body(response.getBody());
     }
 
-    @PatchMapping("{jobId}/deactivate")
+    @DeleteMapping("{jobId}/deactivate")
     @Operation(
         summary = "Desativar cargo",
         responses = {

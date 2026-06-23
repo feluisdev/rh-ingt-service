@@ -14,6 +14,7 @@ public class ContratoResponseDTO {
     private String id;
     private String funcionarioId;
     private String contractTypeId;
+    private String contractTypeName;
     private String contractNumber;
     private LocalDate startDate;
     private LocalDate endDate;

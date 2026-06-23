@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class LeaveMobilitySubtypeFilter {
     private String code;
+    private String nome;
     private String recordType;
     private Boolean active;
     private int page = 0;

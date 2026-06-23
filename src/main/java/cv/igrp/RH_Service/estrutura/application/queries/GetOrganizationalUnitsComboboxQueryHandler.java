@@ -24,6 +24,9 @@ public class GetOrganizationalUnitsComboboxQueryHandler
         filter.setIsActive(true);
         filter.setPage(0);
         filter.setSize(500);
+        if (query.getParentUnitId() != null) {
+            filter.setParentUnitId(java.util.UUID.fromString(query.getParentUnitId()));
+        }
         var items = organizationalUnitRepository.findAll(filter).getData().stream()
                 .map(u -> new ComboboxItemDTO(u.getId().getStringValor(), u.getName()))
                 .toList();

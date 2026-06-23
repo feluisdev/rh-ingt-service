@@ -38,6 +38,7 @@ public class ListPublicHolidaysQueryHandler implements QueryHandler<ListPublicHo
         if (query.getDateTo() != null && !query.getDateTo().isBlank()) {
             filter.setDateTo(LocalDate.parse(query.getDateTo()));
         }
+        filter.setNome(query.getNome());
 
         var pageResult = publicHolidayRepository.findAll(filter);
         var content = pageResult.getData().stream().map(publicHolidayMapper::toDTO).toList();

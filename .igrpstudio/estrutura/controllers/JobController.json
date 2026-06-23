@@ -26,6 +26,8 @@
       },
       "requestParams": [
         { "type": "boolean", "name": "active", "isRequired": false },
+        { "type": "string",  "name": "code", "isRequired": false },
+        { "type": "string",  "name": "nome", "isRequired": false },
         { "type": "string",  "name": "pagina",  "value": "0",  "isRequired": true },
         { "type": "string",  "name": "tamanho", "value": "20", "isRequired": true }
       ]
@@ -121,7 +123,7 @@
     {
       "actionName": "deactivateJob",
       "path": "{jobId}/deactivate",
-      "method": "PATCH",
+      "method": "DELETE",
       "responses": {
         "200": {
           "name": "OK",

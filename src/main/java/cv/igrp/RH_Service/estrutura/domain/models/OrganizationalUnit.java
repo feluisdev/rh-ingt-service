@@ -13,14 +13,13 @@ public class OrganizationalUnit {
     private String acronym;
     private String unitType;
     private String descricao;
-    private Boolean estado;
     private OrganizationalUnitId parentUnitId;
     private boolean active;
 
     private OrganizationalUnit() {}
 
     private OrganizationalUnit(OrganizationalUnitId id, String code, String name, String acronym,
-                                String unitType, String descricao, Boolean estado,
+                                String unitType, String descricao,
                                 OrganizationalUnitId parentUnitId, boolean active) {
         this.id = id;
         this.code = code;
@@ -28,32 +27,30 @@ public class OrganizationalUnit {
         this.acronym = acronym;
         this.unitType = unitType;
         this.descricao = descricao;
-        this.estado = estado;
         this.parentUnitId = parentUnitId;
         this.active = active;
     }
 
     public static OrganizationalUnit criar(String code, String name, String acronym,
-                                            String unitType, String descricao, Boolean estado,
+                                            String unitType, String descricao,
                                             OrganizationalUnitId parentUnitId) {
         return new OrganizationalUnit(OrganizationalUnitId.gerarNovo(), code, name, acronym,
-                unitType, descricao, estado != null ? estado : true, parentUnitId, true);
+                unitType, descricao, parentUnitId, true);
     }
 
     public static OrganizationalUnit reconstruir(OrganizationalUnitId id, String code, String name, String acronym,
-                                                  String unitType, String descricao, Boolean estado,
+                                                  String unitType, String descricao,
                                                   OrganizationalUnitId parentUnitId, boolean active) {
-        return new OrganizationalUnit(id, code, name, acronym, unitType, descricao, estado, parentUnitId, active);
+        return new OrganizationalUnit(id, code, name, acronym, unitType, descricao, parentUnitId, active);
     }
 
     public void atualizar(String code, String name, String acronym, String unitType,
-                          String descricao, Boolean estado, OrganizationalUnitId parentUnitId) {
+                          String descricao, OrganizationalUnitId parentUnitId) {
         this.code = code;
         this.name = name;
         this.acronym = acronym;
         this.unitType = unitType;
         this.descricao = descricao;
-        this.estado = estado;
         this.parentUnitId = parentUnitId;
     }
 

@@ -6,11 +6,19 @@
   "attributes": [
     {"type": "string", "name": "id", "objectType": "java", "required": false},
     {"type": "string", "name": "funcionarioId", "objectType": "java", "required": false},
-    {"type": "string", "name": "tipoContrato", "objectType": "java", "required": false},
-    {"type": "date", "name": "dataInicio", "objectType": "java", "required": false},
-    {"type": "date", "name": "dataFim", "objectType": "java", "required": false},
-    {"type": "string", "name": "numeroContrato", "objectType": "java", "required": false},
+    {"type": "string", "name": "contractTypeId", "objectType": "java", "required": false},
+    {"type": "string", "name": "contractTypeName", "objectType": "java", "required": false},
+    {"type": "string", "name": "contractNumber", "objectType": "java", "required": false},
+    {"type": "date", "name": "startDate", "objectType": "java", "required": false},
+    {"type": "date", "name": "endDate", "objectType": "java", "required": false},
+    {"type": "string", "name": "terminationReason", "objectType": "java", "required": false},
     {"type": "boolean", "name": "isCurrent", "objectType": "java", "required": false},
-    {"type": "string", "name": "isCurrentDesc", "objectType": "java", "required": false}
+    {"type": "string", "name": "isCurrentDesc", "objectType": "java", "required": false},
+    {"type": "string", "name": "status", "objectType": "java", "required": false},
+    {"type": "integer", "name": "renewalCount", "objectType": "java", "required": false},
+    {"type": "string", "name": "regimeTrabalho", "objectType": "java", "required": false},
+    {"type": "decimal", "name": "percentagemTempo", "objectType": "java", "required": false},
+    {"type": "string", "name": "legalBase", "objectType": "java", "required": false},
+    {"type": "string", "name": "notes", "objectType": "java", "required": false}
   ]
 }

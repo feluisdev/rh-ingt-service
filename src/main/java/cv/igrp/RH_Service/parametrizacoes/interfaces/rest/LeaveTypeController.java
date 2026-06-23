@@ -59,10 +59,11 @@ public class LeaveTypeController {
         @RequestParam(value = "code", required = false) String code,
         @RequestParam(value = "active", required = false) Boolean active,
         @RequestParam(value = "pagina", defaultValue = "0") String pagina,
-        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho) {
+        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho,
+        @RequestParam(value = "nome", required = false) String nome) {
 
         LOGGER.debug("Operation started");
-        final var query = new ListLeaveTypesQuery(code, active, pagina, tamanho);
+        final var query = new ListLeaveTypesQuery(code, active, pagina, tamanho, nome);
         ResponseEntity<WrapperListaLeaveTypeDTO> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())
@@ -159,7 +160,7 @@ public class LeaveTypeController {
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> deleteLeaveType(
+    public ResponseEntity<Map<String, ?>> desativarLeaveType(
         @PathVariable(value = "leaveTypeId") String leaveTypeId) {
 
         LOGGER.debug("Operation started");

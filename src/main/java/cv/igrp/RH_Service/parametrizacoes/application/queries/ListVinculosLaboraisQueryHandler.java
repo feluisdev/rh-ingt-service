@@ -26,6 +26,7 @@ public class ListVinculosLaboraisQueryHandler implements QueryHandler<ListVincul
         var filter = new VinculoLaboralFilter();
         filter.setCode(query.getCode());
         filter.setIsActive(query.getIsActive());
+        filter.setNome(query.getNome());
         filter.setPage(query.getPagina() != null ? Integer.parseInt(query.getPagina()) : 0);
         filter.setSize(query.getTamanho() != null ? Integer.parseInt(query.getTamanho()) : 20);
 

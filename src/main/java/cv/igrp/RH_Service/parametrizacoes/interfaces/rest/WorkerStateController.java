@@ -60,11 +60,12 @@ public class WorkerStateController {
         @RequestParam(value = "code", required = false) String code,
         @RequestParam(value = "isActive", required = false) Boolean isActive,
         @RequestParam(value = "pagina", defaultValue = "0") String pagina,
-        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho) {
+        @RequestParam(value = "tamanho", defaultValue = "20") String tamanho,
+        @RequestParam(value = "nome", required = false) String nome) {
 
         LOGGER.debug("Operation started");
 
-        final var query = new ListWorkerStatesQuery(code, isActive, pagina, tamanho);
+        final var query = new ListWorkerStatesQuery(code, isActive, pagina, tamanho, nome);
         ResponseEntity<WrapperListaWorkerStateDTO> response = queryBus.handle(query);
 
         LOGGER.debug("Operation finished");
@@ -166,7 +167,7 @@ public class WorkerStateController {
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> deleteWorkerState(
+    public ResponseEntity<Map<String, ?>> desativarWorkerState(
         @PathVariable(value = "workerStateId") String workerStateId) {
 
         LOGGER.debug("Operation started");

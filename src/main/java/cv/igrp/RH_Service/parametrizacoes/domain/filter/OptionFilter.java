@@ -11,6 +11,7 @@ public class OptionFilter {
     private String locale;
     private Boolean active;
     private String ckey;
+    private String nome;
     private int page = 0;
     private int size = 20;
 }
