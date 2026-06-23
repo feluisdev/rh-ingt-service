@@ -37,8 +37,10 @@ public class KeyResultMapper {
         KeyResultMetricUnit.fromCodeOrThrow(entity.getMetricUnit()),
         new ArrayList<KeyResultCheckin>(),
         entity.getCriteriaSuperado(),
-        entity.getCriteriaSeguranca(),
-        entity.getCriteriaAlcancado(),
+        entity.getCriteriaSegurancaMin(),
+        entity.getCriteriaSegurancaMax(),
+        entity.getCriteriaAlcancadoMin(),
+        entity.getCriteriaAlcancadoMax(),
         entity.getCriteriaInsuficiente()
     );
   }
@@ -63,8 +65,10 @@ public class KeyResultMapper {
         KeyResultMetricUnit.fromCodeOrThrow(entity.getMetricUnit()),
         checkins,
         entity.getCriteriaSuperado(),
-        entity.getCriteriaSeguranca(),
-        entity.getCriteriaAlcancado(),
+        entity.getCriteriaSegurancaMin(),
+        entity.getCriteriaSegurancaMax(),
+        entity.getCriteriaAlcancadoMin(),
+        entity.getCriteriaAlcancadoMax(),
         entity.getCriteriaInsuficiente());
   }
 
@@ -79,8 +83,10 @@ public class KeyResultMapper {
     entity.setCurrentValue(domain.getCurrentValue());
     entity.setMetricUnit(domain.getMetricUnit().getCode());
     entity.setCriteriaSuperado(domain.getCriteriaSuperado());
-    entity.setCriteriaSeguranca(domain.getCriteriaSeguranca());
-    entity.setCriteriaAlcancado(domain.getCriteriaAlcancado());
+    entity.setCriteriaSegurancaMin(domain.getCriteriaSegurancaMin());
+    entity.setCriteriaSegurancaMax(domain.getCriteriaSegurancaMax());
+    entity.setCriteriaAlcancadoMin(domain.getCriteriaAlcancadoMin());
+    entity.setCriteriaAlcancadoMax(domain.getCriteriaAlcancadoMax());
     entity.setCriteriaInsuficiente(domain.getCriteriaInsuficiente());
 
     if (domain.getActivityId() != null) {

@@ -170,7 +170,7 @@ public class TacticalActivity {
 
   public KeyResult addKeyResult(String title, BigDecimal targetValue,
       KeyResultMetricUnit metricUnit) {
-    KeyResult kr = KeyResult.create(this.institutionId, this.id, title, targetValue, metricUnit, null, null, null, null);
+    KeyResult kr = KeyResult.create(this.institutionId, this.id, title, targetValue, metricUnit, null, null, null, null, null, null);
     keyResults.add(kr);
     return kr;
   }

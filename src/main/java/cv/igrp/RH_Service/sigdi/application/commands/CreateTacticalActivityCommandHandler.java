@@ -12,6 +12,11 @@ import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.Budget;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.DateRange;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.TacticalActivitiesEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.TaticalActivityHistoryEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.TacticalActivitiesEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.TaticalActivityHistoryEntityRepository;
+import java.util.UUID;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import org.springframework.http.HttpStatus;
@@ -34,19 +39,25 @@ public class CreateTacticalActivityCommandHandler
   private final SecurityContextHelper securityContextHelper;
   private final OrganicaLookupPort organicaLookupPort;
   private final FuncionarioLookupPort funcionarioLookupPort;
+  private final TaticalActivityHistoryEntityRepository historyRepository;
+  private final TacticalActivitiesEntityRepository entityRepository;
 
   public CreateTacticalActivityCommandHandler(EconomicClassifierPort economicClassifierPort,
       StrategicGoalRepository goalRepository,
       TacticalActivityRepository activityRepository,
       SecurityContextHelper securityContextHelper,
       OrganicaLookupPort organicaLookupPort,
-      FuncionarioLookupPort funcionarioLookupPort) {
+      FuncionarioLookupPort funcionarioLookupPort,
+      TaticalActivityHistoryEntityRepository historyRepository,
+      TacticalActivitiesEntityRepository entityRepository) {
     this.economicClassifierPort = economicClassifierPort;
     this.goalRepository = goalRepository;
     this.activityRepository = activityRepository;
     this.securityContextHelper = securityContextHelper;
     this.organicaLookupPort = organicaLookupPort;
     this.funcionarioLookupPort = funcionarioLookupPort;
+    this.historyRepository = historyRepository;
+    this.entityRepository = entityRepository;
   }
 
   @IgrpCommandHandler
@@ -101,6 +112,23 @@ public class CreateTacticalActivityCommandHandler
         budget);
 
     TacticalActivity saved = activityRepository.save(activity);
+
+    // Save initial history
+    TacticalActivitiesEntity actEntity = entityRepository.findById(saved.getId().getValor().getValor()).orElse(null);
+    if (actEntity != null) {
+      TaticalActivityHistoryEntity history = new TaticalActivityHistoryEntity();
+      history.setInstitutionId(actEntity.getInstitutionId());
+      history.setActivityId(actEntity);
+      history.setAction(saved.getStatus().getCode());
+      try {
+        history.setActorId(UUID.fromString(securityContextHelper.getCurrentUserId()));
+      } catch (Exception e) {
+        history.setActorId(null);
+      }
+      history.setFromStatus("NEW");
+      history.setToStatus(saved.getStatus().getCode());
+      historyRepository.save(history);
+    }
 
     TacticalActivityResponseDTO response = new TacticalActivityResponseDTO();
     response.setId(saved.getId().getValor().getValor());
