@@ -107,6 +107,14 @@ public class TacticalActivitiesEntity extends AuditEntity {
     private String status;
 
 
+    @Column(name="paa_level", columnDefinition="VARCHAR(50) DEFAULT 'UNIT_LEVEL'")
+    private String paaLevel = "UNIT_LEVEL";
+
+
+    @Column(name="acceptance_status")
+    private String acceptanceStatus;
+
+
     @Column(name="version")
     private Integer version;
 

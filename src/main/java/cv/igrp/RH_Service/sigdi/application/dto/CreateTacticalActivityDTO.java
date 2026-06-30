@@ -44,8 +44,6 @@ public class CreateTacticalActivityDTO  {
 	@Size(max = 2000, message = "The field length <locationWhere> cannot be more than 2000 characters")
   
   private String locationWhere ;
-  @NotNull(message = "The field <responsibleWho> is required")
-  
   private UUID responsibleWho ;
   @Size(min = 1, message = "The field length <methodologyHow> must be at least 1 characters")
 	@Size(max = 2000, message = "The field length <methodologyHow> cannot be more than 2000 characters")
@@ -59,5 +57,8 @@ public class CreateTacticalActivityDTO  {
   private LocalDate endDate ;
   private BigDecimal budgetEstimated ;
   private String economicClassifier ;
+
+  // PAA Level: UNIT_LEVEL (default) or INDIVIDUAL_LEVEL
+  private String paaLevel;
 
 }

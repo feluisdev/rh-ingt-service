@@ -21,6 +21,8 @@ public interface TacticalActivitiesEntityRepository extends
 
       List<TacticalActivitiesEntity> findAllByFiscalYearAndOrganicUnitId(Integer fiscalYear, UUID organicUnitId);
 
+      List<TacticalActivitiesEntity> findAllByAcceptanceStatusAndEndDateBefore(String acceptanceStatus, java.time.LocalDate date);
+
       default TacticalActivitiesEntity findByIdOrThrow(UUID id) {
           return this.findById(id)
           .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND,"TacticalActivitiesEntity not found for id: " + id));

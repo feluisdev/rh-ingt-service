@@ -1,6 +1,8 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.mappers.tatical;
 
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.TacticalActivitiesEntity;
+import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
+import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.TacticalActivityStatus;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.KeyResult;
@@ -41,7 +43,9 @@ public class TacticalActivityMapper {
             Budget.of(entity.getBudgetEstimated(), entity.getEconomicClassifier()) : null,
         TacticalActivityStatus.fromCodeOrThrow(entity.getStatus()),
         entity.getVersion(),
-        new ArrayList<>()
+        new ArrayList<>(),
+        entity.getPaaLevel() != null ? PaaLevel.fromCodeOrThrow(entity.getPaaLevel()) : PaaLevel.UNIT_LEVEL,
+        entity.getAcceptanceStatus() != null ? AcceptanceStatus.fromCodeOrThrow(entity.getAcceptanceStatus()) : null
     );
   }
 
@@ -68,7 +72,9 @@ public class TacticalActivityMapper {
             Budget.of(entity.getBudgetEstimated(), entity.getEconomicClassifier()) : null,
         TacticalActivityStatus.fromCodeOrThrow(entity.getStatus()),
         entity.getVersion(),
-        keyResults
+        keyResults,
+        entity.getPaaLevel() != null ? PaaLevel.fromCodeOrThrow(entity.getPaaLevel()) : PaaLevel.UNIT_LEVEL,
+        entity.getAcceptanceStatus() != null ? AcceptanceStatus.fromCodeOrThrow(entity.getAcceptanceStatus()) : null
     );
   }
 
@@ -94,6 +100,10 @@ public class TacticalActivityMapper {
     }
     entity.setStatus(domain.getStatus().getCode());
     entity.setVersion(domain.getVersion());
+    entity.setPaaLevel(domain.getPaaLevel() != null ? domain.getPaaLevel().getCode() : PaaLevel.UNIT_LEVEL.getCode());
+    if (domain.getAcceptanceStatus() != null) {
+      entity.setAcceptanceStatus(domain.getAcceptanceStatus().getCode());
+    }
 
     return entity;
   }

@@ -54,4 +54,12 @@ public class TaticalActivityResumeDTO  {
   
   private String statusDesc ;
 
+  private String paaLevel;
+
+  private String paaLevelDesc;
+
+  private String acceptanceStatus;
+
+  private String acceptanceStatusDesc;
+
 }

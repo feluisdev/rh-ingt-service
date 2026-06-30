@@ -38,6 +38,10 @@ import cv.igrp.RH_Service.sigdi.application.dto.CreateOkrDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.OkrResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityDetailDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperWorkflowInboxDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.CreatePaaSubmissionPeriodDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.PaaSubmissionPeriodResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.WrapperListPaaSubmissionPeriodDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.NegotiateActivityDTO;
 
 @IgrpController
 @RestController
@@ -81,10 +85,11 @@ public class TaticalController {
     @RequestParam(value = "pageSize", required = false) String pageSize,
     @RequestParam(value = "status", required = false) String status,
     @RequestParam(value = "unidade", required = false) String unidade,
-    @RequestParam(value = "data", required = false) String data)
+    @RequestParam(value = "data", required = false) String data,
+    @RequestParam(value = "paaLevel", required = false) String paaLevel)
   {
 
-      final var query = new GetTaticalActivitiesQuery(pageNumber, pageSize, status, unidade, data);
+      final var query = new GetTaticalActivitiesQuery(pageNumber, pageSize, status, unidade, data, paaLevel);
 
       return queryBus.handle(query);
 
@@ -568,6 +573,74 @@ public class TaticalController {
   {
       assignBudgetRequest.setActivityId(java.util.UUID.fromString(id));
       final var command = new AssignTacticalActivityBudgetCommand(assignBudgetRequest);
+      return commandBus.send(command);
+  }
+
+  @PostMapping(value = "periods")
+  @Operation(
+      summary = "Create PAA Submission Period",
+      description = "Cria um período de submissão PAA (UNIT ou INDIVIDUAL)"
+  )
+  public ResponseEntity<PaaSubmissionPeriodResponseDTO> createPaaSubmissionPeriod(
+      @Valid @RequestBody CreatePaaSubmissionPeriodDTO createPaaSubmissionPeriodRequest) {
+      final var command = new CreatePaaSubmissionPeriodCommand(createPaaSubmissionPeriodRequest);
+      return commandBus.send(command);
+  }
+
+  @PutMapping(value = "periods/{id}/close")
+  @Operation(
+      summary = "Close PAA Submission Period",
+      description = "Fecha um período de submissão PAA"
+  )
+  public ResponseEntity<PaaSubmissionPeriodResponseDTO> closePaaSubmissionPeriod(
+      @PathVariable(value = "id") String id) {
+      final var command = new ClosePaaSubmissionPeriodCommand(java.util.UUID.fromString(id));
+      return commandBus.send(command);
+  }
+
+  @GetMapping(value = "periods/active")
+  @Operation(
+      summary = "Get Active PAA Submission Period",
+      description = "Retorna o período de submissão ativo para o tipo solicitado"
+  )
+  public ResponseEntity<PaaSubmissionPeriodResponseDTO> getActiveSubmissionPeriod(
+      @RequestParam(value = "type") String type) {
+      final var query = new GetActiveSubmissionPeriodQuery(type);
+      return queryBus.handle(query);
+  }
+
+  @GetMapping(value = "periods")
+  @Operation(
+      summary = "Get All PAA Submission Periods",
+      description = "Lista todos os períodos de submissão PAA"
+  )
+  public ResponseEntity<WrapperListPaaSubmissionPeriodDTO> getAllSubmissionPeriods(
+      @RequestParam(value = "pageNumber", required = false, defaultValue = "0") String pageNumber,
+      @RequestParam(value = "pageSize", required = false, defaultValue = "20") String pageSize) {
+      final var query = new GetAllSubmissionPeriodsQuery(pageNumber, pageSize);
+      return queryBus.handle(query);
+  }
+
+  @PostMapping(value = "activities/{id}/accept")
+  @Operation(
+      summary = "Accept Individual PAA",
+      description = "Colaborador aceita o plano de atividades individual"
+  )
+  public ResponseEntity<TacticalActivityResponseDTO> acceptTacticalActivity(
+      @PathVariable(value = "id") String id) {
+      final var command = new AcceptTacticalActivityCommand(id);
+      return commandBus.send(command);
+  }
+
+  @PostMapping(value = "activities/{id}/negotiate")
+  @Operation(
+      summary = "Negotiate Individual PAA",
+      description = "Colaborador recusa o plano de atividades individual e solicita negociação"
+  )
+  public ResponseEntity<TacticalActivityResponseDTO> negotiateTacticalActivity(
+      @PathVariable(value = "id") String id,
+      @Valid @RequestBody NegotiateActivityDTO body) {
+      final var command = new NegotiateTacticalActivityCommand(id, body);
       return commandBus.send(command);
   }
 }

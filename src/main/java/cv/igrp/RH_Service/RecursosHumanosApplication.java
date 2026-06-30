@@ -15,9 +15,12 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import org.springframework.scheduling.annotation.EnableScheduling;
+
 @SpringBootApplication
 @EnableJpaAuditing(auditorAwareRef = "auditAware", dateTimeProviderRef = "auditDateTimeProvider")
 @EnableCaching
+@EnableScheduling
 public class RecursosHumanosApplication {
 
   private static final Logger log = LoggerFactory.getLogger(RecursosHumanosApplication.class);

@@ -24,4 +24,6 @@ public class GetTaticalActivitiesQuery implements Query {
   @NotBlank(message = "The field <data> is required")
   private String data;
 
+  private String paaLevel;
+
 }
