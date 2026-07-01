@@ -1,7 +1,9 @@
 package cv.igrp.RH_Service.sigdi.domain.tatical.models;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
 import cv.igrp.RH_Service.sigdi.application.constants.KeyResultMetricUnit;
+import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.TacticalActivityStatus;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.Budget;
@@ -34,6 +36,8 @@ public class TacticalActivity {
   private final TacticalActivityStatus status;
   private final Integer version;
   private final List<KeyResult> keyResults;
+  private final PaaLevel paaLevel;
+  private final AcceptanceStatus acceptanceStatus;
 
   private TacticalActivity(TacticalActivityId id, UUID institutionId,
       StrategicGoalId strategicGoalId,
@@ -41,7 +45,7 @@ public class TacticalActivity {
       String justificationWhy, String locationWhere, UUID responsibleWho,
       String methodologyHow, DateRange dateRange, Budget budget,
       TacticalActivityStatus status, Integer version,
-      List<KeyResult> keyResults) {
+      List<KeyResult> keyResults, PaaLevel paaLevel, AcceptanceStatus acceptanceStatus) {
     if (strategicGoalId == null)
       throw new IllegalArgumentException("strategicGoalId é obrigatório");
     if (organicUnitId == null)
@@ -66,17 +70,27 @@ public class TacticalActivity {
     this.status = (status != null) ? status : TacticalActivityStatus.DRAFT;
     this.version = (version != null) ? version : 0;
     this.keyResults = (keyResults != null) ? new ArrayList<>(keyResults) : new ArrayList<>();
+    this.paaLevel = (paaLevel != null) ? paaLevel : PaaLevel.UNIT_LEVEL;
+    this.acceptanceStatus = acceptanceStatus;
   }
 
   public static TacticalActivity create(UUID institutionId, StrategicGoalId strategicGoalId,
       UUID organicUnitId, String title, String descriptionWhat, String justificationWhy,
       String locationWhere, UUID responsibleWho,
-      String methodologyHow, DateRange dateRange, Budget budget) {
+      String methodologyHow, DateRange dateRange, Budget budget, PaaLevel paaLevel) {
+
+    if (PaaLevel.INDIVIDUAL_LEVEL.equals(paaLevel) && responsibleWho == null)
+      throw IgrpResponseStatusException.badRequest(
+          "responsibleWho é obrigatório para PAA de nível Individual");
+
     TacticalActivityStatus initialStatus = (budget != null) ? TacticalActivityStatus.DRAFT : TacticalActivityStatus.PENDING_BUDGET;
+    AcceptanceStatus initialAcceptance = PaaLevel.INDIVIDUAL_LEVEL.equals(paaLevel)
+        ? AcceptanceStatus.PENDING_ACCEPTANCE : null;
+
     return new TacticalActivity(TacticalActivityId.gerarNovo(), institutionId, strategicGoalId,
         organicUnitId, title, descriptionWhat, justificationWhy, locationWhere,
         responsibleWho, methodologyHow, dateRange, budget,
-        initialStatus, 0, new ArrayList<>());
+        initialStatus, 0, new ArrayList<>(), paaLevel, initialAcceptance);
   }
 
   public static TacticalActivity reconstruct(TacticalActivityId id, UUID institutionId,
@@ -86,10 +100,10 @@ public class TacticalActivity {
       UUID responsibleWho, String methodologyHow,
       DateRange dateRange, Budget budget,
       TacticalActivityStatus status, Integer version,
-      List<KeyResult> keyResults) {
+      List<KeyResult> keyResults, PaaLevel paaLevel, AcceptanceStatus acceptanceStatus) {
     return new TacticalActivity(id, institutionId, strategicGoalId, organicUnitId, title,
         descriptionWhat, justificationWhy, locationWhere, responsibleWho, methodologyHow,
-        dateRange, budget, status, version, keyResults);
+        dateRange, budget, status, version, keyResults, paaLevel, acceptanceStatus);
   }
 
   public List<KeyResult> getKeyResults() {
@@ -140,7 +154,7 @@ public class TacticalActivity {
         this.descriptionWhat, this.justificationWhy, this.locationWhere,
         this.responsibleWho, this.methodologyHow, newDateRange,
         newBudget, TacticalActivityStatus.PENDING_TACTICAL,
-        this.version + 1, this.keyResults);
+        this.version + 1, this.keyResults, this.paaLevel, this.acceptanceStatus);
   }
 
   public TacticalActivity assignBudget(Budget budget) {
@@ -154,7 +168,7 @@ public class TacticalActivity {
         this.organicUnitId, this.title,
         this.descriptionWhat, this.justificationWhy, this.locationWhere,
         this.responsibleWho, this.methodologyHow, this.dateRange,
-        budget, nextStatus, this.version, this.keyResults);
+        budget, nextStatus, this.version, this.keyResults, this.paaLevel, this.acceptanceStatus);
   }
 
   public BigDecimal getWeightedProgress() {
@@ -188,7 +202,48 @@ public class TacticalActivity {
         this.organicUnitId, this.title,
         this.descriptionWhat, this.justificationWhy, this.locationWhere,
         this.responsibleWho, this.methodologyHow, this.dateRange,
-        this.budget, newStatus, this.version, this.keyResults);
+        this.budget, newStatus, this.version, this.keyResults, this.paaLevel, this.acceptanceStatus);
+  }
+
+  private TacticalActivity changeAcceptanceStatus(AcceptanceStatus newAcceptanceStatus) {
+    if (!PaaLevel.INDIVIDUAL_LEVEL.equals(this.paaLevel))
+      throw IgrpResponseStatusException.badRequest(
+          "Apenas atividades PAA Individual têm fluxo de aceitação");
+    return new TacticalActivity(this.id, this.institutionId, this.strategicGoalId,
+        this.organicUnitId, this.title,
+        this.descriptionWhat, this.justificationWhy, this.locationWhere,
+        this.responsibleWho, this.methodologyHow, this.dateRange,
+        this.budget, this.status, this.version, this.keyResults, this.paaLevel, newAcceptanceStatus);
+  }
+
+  public TacticalActivity accept() {
+    if (!AcceptanceStatus.PENDING_ACCEPTANCE.equals(this.acceptanceStatus) &&
+        !AcceptanceStatus.NEGOTIATING.equals(this.acceptanceStatus))
+      throw IgrpResponseStatusException.badRequest(
+          "Apenas atividades pendentes de aceitação ou em negociação podem ser aceites");
+    return changeAcceptanceStatus(AcceptanceStatus.ACCEPTED);
+  }
+
+  public TacticalActivity negotiate() {
+    if (!AcceptanceStatus.PENDING_ACCEPTANCE.equals(this.acceptanceStatus))
+      throw IgrpResponseStatusException.badRequest(
+          "Apenas atividades pendentes de aceitação podem iniciar negociação");
+    return changeAcceptanceStatus(AcceptanceStatus.NEGOTIATING);
+  }
+
+  public TacticalActivity applyTacitAcceptance() {
+    if (!AcceptanceStatus.PENDING_ACCEPTANCE.equals(this.acceptanceStatus))
+      throw IgrpResponseStatusException.badRequest(
+          "Aceitação tácita apenas aplicável a atividades pendentes de aceitação");
+    return changeAcceptanceStatus(AcceptanceStatus.TACITLY_ACCEPTED);
+  }
+
+  public boolean isIndividualLevel() {
+    return PaaLevel.INDIVIDUAL_LEVEL.equals(this.paaLevel);
+  }
+
+  public boolean isUnitLevel() {
+    return PaaLevel.UNIT_LEVEL.equals(this.paaLevel);
   }
 
   public TacticalActivity updateKeyResult(KeyResult updated) {
@@ -200,7 +255,7 @@ public class TacticalActivity {
         this.organicUnitId, this.title,
         this.descriptionWhat, this.justificationWhy, this.locationWhere,
         this.responsibleWho, this.methodologyHow,
-        this.dateRange, this.budget, this.status, this.version, updatedList);
+        this.dateRange, this.budget, this.status, this.version, updatedList, this.paaLevel, this.acceptanceStatus);
   }
 
   public TacticalActivity update(StrategicGoalId strategicGoalId, UUID organicUnitId, String title, 
@@ -213,6 +268,6 @@ public class TacticalActivity {
     return new TacticalActivity(this.id, this.institutionId, strategicGoalId,
         organicUnitId, title, descriptionWhat, justificationWhy, locationWhere,
         responsibleWho, methodologyHow, dateRange, budget,
-        nextStatus, this.version, this.keyResults);
+        nextStatus, this.version, this.keyResults, this.paaLevel, this.acceptanceStatus);
   }
 }

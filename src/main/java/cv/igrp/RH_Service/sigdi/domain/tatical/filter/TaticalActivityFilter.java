@@ -9,5 +9,6 @@ public class TaticalActivityFilter {
 
   private final Integer pageNumber;
   private final Integer pageSize;
+  private final String paaLevel;
 }
 

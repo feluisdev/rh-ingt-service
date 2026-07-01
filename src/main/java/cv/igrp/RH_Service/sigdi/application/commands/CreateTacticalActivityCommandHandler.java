@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.security.SecurityContextHelper;
+import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.dto.BudgetInfoDTO;
 import cv.igrp.RH_Service.sigdi.application.port.EconomicClassifierPort;
 import cv.igrp.RH_Service.sigdi.application.port.FuncionarioLookupPort;
@@ -98,6 +99,11 @@ public class CreateTacticalActivityCommandHandler
       budget = Budget.of(request.getBudgetEstimated(), request.getEconomicClassifier());
     }
 
+    // Resolve PaaLevel
+    PaaLevel paaLevel = (request.getPaaLevel() != null && !request.getPaaLevel().isBlank())
+        ? PaaLevel.fromCodeOrThrow(request.getPaaLevel())
+        : PaaLevel.UNIT_LEVEL;
+
     TacticalActivity activity = TacticalActivity.create(
         securityContextHelper.getCurrentInstitutionId(),
         strategicGoalId,
@@ -109,7 +115,8 @@ public class CreateTacticalActivityCommandHandler
         request.getResponsibleWho(),
         request.getMethodologyHow(),
         dateRange,
-        budget);
+        budget,
+        paaLevel);
 
     TacticalActivity saved = activityRepository.save(activity);
 
@@ -150,6 +157,12 @@ public class CreateTacticalActivityCommandHandler
     response.setVersion(saved.getVersion());
     response.setStatus(saved.getStatus().getCode());
     response.setStatusDesc(saved.getStatus().getDescription());
+    response.setPaaLevel(saved.getPaaLevel() != null ? saved.getPaaLevel().getCode() : PaaLevel.UNIT_LEVEL.getCode());
+    response.setPaaLevelDesc(saved.getPaaLevel() != null ? saved.getPaaLevel().getDescription() : PaaLevel.UNIT_LEVEL.getDescription());
+    if (saved.getAcceptanceStatus() != null) {
+      response.setAcceptanceStatus(saved.getAcceptanceStatus().getCode());
+      response.setAcceptanceStatusDesc(saved.getAcceptanceStatus().getDescription());
+    }
 
     if (saved.getOrganicUnitId() != null) {
       organicaLookupPort.findById(saved.getOrganicUnitId())

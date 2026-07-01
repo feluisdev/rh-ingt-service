@@ -52,6 +52,7 @@ public class GetTaticalActivitiesQueryHandler implements QueryHandler<GetTatical
     TaticalActivityFilter filter = TaticalActivityFilter.builder()
         .pageNumber(pageNumber)
         .pageSize(pageSize)
+        .paaLevel(query.getPaaLevel())
         .build();
 
     var page = repository.findAll(filter);
@@ -137,6 +138,10 @@ public class GetTaticalActivitiesQueryHandler implements QueryHandler<GetTatical
     dto.setEnd_date(activity.getDateRange().getEndDate().toString());
     dto.setStatus(activity.getStatus().getCode());
     dto.setStatusDesc(activity.getStatus().getDescription());
+    dto.setPaaLevel(activity.getPaaLevel() != null ? activity.getPaaLevel().getCode() : null);
+    dto.setPaaLevelDesc(activity.getPaaLevel() != null ? activity.getPaaLevel().getDescription() : null);
+    dto.setAcceptanceStatus(activity.getAcceptanceStatus() != null ? activity.getAcceptanceStatus().getCode() : null);
+    dto.setAcceptanceStatusDesc(activity.getAcceptanceStatus() != null ? activity.getAcceptanceStatus().getDescription() : null);
     return dto;
   }
 
