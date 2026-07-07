@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapConfigRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapConfigResponseDTO;
 import cv.igrp.RH_Service.sigdi.domain.admin.models.SiadapConfig;
@@ -31,6 +32,14 @@ public class UpsertSiadapConfigCommandHandler
 
     Integer year = command.getYear();
     SiadapConfigRequestDTO req = command.getBody();
+
+    if (req.getResultsWeight() != null && req.getCompetenciesWeight() != null) {
+      java.math.BigDecimal totalWeight = req.getResultsWeight().add(req.getCompetenciesWeight());
+      if (totalWeight.compareTo(new java.math.BigDecimal("100")) != 0) {
+        throw IgrpResponseStatusException.badRequest(
+            "A soma dos pesos de resultados e competências deve ser exatamente 100%");
+      }
+    }
 
     SiadapConfig config = configRepository.findByFiscalYear(year)
         .map(existing -> existing.update(
