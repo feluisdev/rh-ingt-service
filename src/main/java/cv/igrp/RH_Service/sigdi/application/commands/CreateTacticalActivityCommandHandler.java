@@ -124,6 +124,7 @@ public class CreateTacticalActivityCommandHandler
     TacticalActivitiesEntity actEntity = entityRepository.findById(saved.getId().getValor().getValor()).orElse(null);
     if (actEntity != null) {
       TaticalActivityHistoryEntity history = new TaticalActivityHistoryEntity();
+      history.setId(UUID.randomUUID());
       history.setInstitutionId(actEntity.getInstitutionId());
       history.setActivityId(actEntity);
       history.setAction(saved.getStatus().getCode());

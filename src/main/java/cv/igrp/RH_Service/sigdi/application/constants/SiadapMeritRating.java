@@ -1,6 +1,3 @@
-/* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
-/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME */
-
 package cv.igrp.RH_Service.sigdi.application.constants;
 
 import cv.igrp.framework.core.domain.IgrpEnum;
@@ -13,12 +10,26 @@ import org.springframework.http.HttpStatus;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 
 
+/**
+ * Menções qualitativas do SIADAP (Sistema Integrado de Avaliação do Desempenho da AP).
+ * <p>
+ * Baseado no DL 12/2020 de Cabo Verde e nas orientações do SIADAP 3 de Portugal,
+ * com as seguintes menções ordenadas por desempenho crescente:
+ * <ul>
+ *   <li>INADEQUATE: 1.00 – 1.99 (Inadequado)</li>
+ *   <li>REGULAR:    2.00 – 3.49 (Regular)</li>
+ *   <li>GOOD:       3.50 – 3.99 (Bom)</li>
+ *   <li>VERY_GOOD:  4.00 – 4.49 (Muito Bom)</li>
+ *   <li>EXCELLENT:  4.50 – 5.00 (Excelente — sujeito a quota do CCA)</li>
+ * </ul>
+ */
 public enum SiadapMeritRating implements IgrpEnum<String> {
 
-  EXCELLENT("EXCELLENT", "EXCELLENT"),
-    GOOD("GOOD", "GOOD"),
-    REGULAR("REGULAR", "REGULAR")
-  ;
+  INADEQUATE("INADEQUATE", "Inadequado"),
+  REGULAR("REGULAR", "Regular"),
+  GOOD("GOOD", "Bom"),
+  VERY_GOOD("VERY_GOOD", "Muito Bom"),
+  EXCELLENT("EXCELLENT", "Excelente");
 
   private final String code;
   private final String description;
@@ -71,4 +82,3 @@ public enum SiadapMeritRating implements IgrpEnum<String> {
   }
 
 }
-

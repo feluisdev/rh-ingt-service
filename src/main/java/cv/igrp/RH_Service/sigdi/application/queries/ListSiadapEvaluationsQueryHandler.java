@@ -4,6 +4,8 @@ import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.SiadapEvaluati
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.SiadapEvaluationEntityRepository;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapEvaluationDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperSiadapEvaluationListDTO;
+import cv.igrp.RH_Service.sigdi.application.port.FuncionarioLookupPort;
+import cv.igrp.RH_Service.sigdi.application.port.OrganicaLookupPort;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import org.slf4j.Logger;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -24,9 +27,15 @@ public class ListSiadapEvaluationsQueryHandler
   private static final Logger LOGGER = LoggerFactory.getLogger(ListSiadapEvaluationsQueryHandler.class);
 
   private final SiadapEvaluationEntityRepository repository;
+  private final FuncionarioLookupPort funcionarioLookupPort;
+  private final OrganicaLookupPort organicaLookupPort;
 
-  public ListSiadapEvaluationsQueryHandler(SiadapEvaluationEntityRepository repository) {
+  public ListSiadapEvaluationsQueryHandler(SiadapEvaluationEntityRepository repository,
+                                           FuncionarioLookupPort funcionarioLookupPort,
+                                           OrganicaLookupPort organicaLookupPort) {
     this.repository = repository;
+    this.funcionarioLookupPort = funcionarioLookupPort;
+    this.organicaLookupPort = organicaLookupPort;
   }
 
   @IgrpQueryHandler
@@ -68,6 +77,32 @@ public class ListSiadapEvaluationsQueryHandler
     dto.setQuotaValidated(e.isValidatedQuota());
     dto.setStatus(e.isValidatedQuota() ? "CLOSED" : "DRAFT");
     dto.setLastUpdatedAt(e.getLastModifiedDate() != null ? e.getLastModifiedDate().toString() : null);
+
+    dto.setOrganicUnitId(e.getOrganicUnitId());
+    dto.setEvaluatorId(e.getEvaluatorId());
+    dto.setPhase(e.getEvaluationPhase());
+    dto.setSelfEvaluationScore(e.getSelfEvaluationScore());
+    dto.setResultsWeight(e.getResultsWeight());
+    dto.setCompetenciesWeight(e.getCompetenciesWeight());
+
+    // Lookup employee name
+    try {
+      funcionarioLookupPort.findById(UUID.fromString(e.getEmployeeId()))
+          .ifPresent(emp -> dto.setEmployeeName(emp.getNomeCompleto()));
+    } catch (Exception ex) {
+      dto.setEmployeeName("Colaborador " + e.getEmployeeId());
+    }
+
+    // Lookup organic unit name
+    if (e.getOrganicUnitId() != null) {
+      try {
+        organicaLookupPort.findById(UUID.fromString(e.getOrganicUnitId()))
+            .ifPresent(org -> dto.setOrganicUnitName(org.getName()));
+      } catch (Exception ex) {
+        dto.setOrganicUnitName(null);
+      }
+    }
+
     return dto;
   }
 

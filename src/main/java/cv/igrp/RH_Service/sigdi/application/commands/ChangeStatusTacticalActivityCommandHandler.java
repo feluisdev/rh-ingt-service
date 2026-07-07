@@ -72,6 +72,7 @@ public class ChangeStatusTacticalActivityCommandHandler implements CommandHandle
       TacticalActivitiesEntity actEntity = entityRepository.findById(id.getValor().getValor()).orElse(null);
       if (actEntity != null) {
           TaticalActivityHistoryEntity history = new TaticalActivityHistoryEntity();
+          history.setId(UUID.randomUUID());
           history.setInstitutionId(actEntity.getInstitutionId());
           history.setActivityId(actEntity);
           history.setAction(desiredStatus.getCode());

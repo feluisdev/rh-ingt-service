@@ -58,25 +58,25 @@ public class KeyResultsEntity extends AuditEntity {
   @OneToMany(mappedBy = "keyResultId", fetch = FetchType.LAZY, cascade = { CascadeType.ALL }, orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.SET_NULL)
 private List<KeyResultsCheckinEntity> keyResultCheckins = new ArrayList<>();
-    @Column(name="weight")
+    @Column(name="weight", precision = 19, scale = 2)
     private BigDecimal weight;
 
-    @Column(name = "criteria_superado")
+    @Column(name = "criteria_superado", precision = 19, scale = 2)
     private BigDecimal criteriaSuperado;
 
-    @Column(name = "criteria_seguranca_min")
+    @Column(name = "criteria_seguranca_min", precision = 19, scale = 2)
     private BigDecimal criteriaSegurancaMin;
 
-    @Column(name = "criteria_seguranca_max")
+    @Column(name = "criteria_seguranca_max", precision = 19, scale = 2)
     private BigDecimal criteriaSegurancaMax;
 
-    @Column(name = "criteria_alcancado_min")
+    @Column(name = "criteria_alcancado_min", precision = 19, scale = 2)
     private BigDecimal criteriaAlcancadoMin;
 
-    @Column(name = "criteria_alcancado_max")
+    @Column(name = "criteria_alcancado_max", precision = 19, scale = 2)
     private BigDecimal criteriaAlcancadoMax;
 
-    @Column(name = "criteria_insuficiente")
+    @Column(name = "criteria_insuficiente", precision = 19, scale = 2)
     private BigDecimal criteriaInsuficiente;
 
      @ManyToOne(fetch = FetchType.LAZY)
