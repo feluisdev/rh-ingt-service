@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.sigdi.application.queries;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.dto.PaaSubmissionPeriodResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperListPaaSubmissionPeriodDTO;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.PaaSubmissionPeriod;
@@ -29,8 +30,16 @@ public class GetAllSubmissionPeriodsQueryHandler implements QueryHandler<GetAllS
         int pageNumber = parsePageNumber(query.getPageNumber());
         int pageSize = parsePageSize(query.getPageSize());
 
-        List<PaaSubmissionPeriod> data = repository.findAll(pageNumber, pageSize);
-        long total = repository.countAll();
+        List<PaaSubmissionPeriod> data;
+        long total;
+        if (query.getPurpose() != null && !query.getPurpose().isBlank()) {
+            Purpose purpose = Purpose.fromCodeOrThrow(query.getPurpose());
+            data = repository.findAllByPurpose(pageNumber, pageSize, purpose);
+            total = repository.countAllByPurpose(purpose);
+        } else {
+            data = repository.findAll(pageNumber, pageSize);
+            total = repository.countAll();
+        }
         int totalPages = (int) Math.ceil((double) total / pageSize);
 
         List<PaaSubmissionPeriodResponseDTO> list = data.stream().map(p -> {
@@ -43,6 +52,8 @@ public class GetAllSubmissionPeriodsQueryHandler implements QueryHandler<GetAllS
             dto.setStatus(p.getStatus());
             dto.setStatusDesc("OPEN".equals(p.getStatus()) ? "Aberto" : "Fechado");
             dto.setYear(p.getYear());
+            dto.setPurpose(p.getPurpose().getCode());
+            dto.setPurposeDesc(p.getPurpose().getDescription());
 
             long days = ChronoUnit.DAYS.between(LocalDate.now(), p.getEndDate());
             dto.setDaysRemaining(Math.max(0, days));

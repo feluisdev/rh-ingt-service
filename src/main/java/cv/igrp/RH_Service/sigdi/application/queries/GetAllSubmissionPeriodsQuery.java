@@ -11,4 +11,5 @@ import lombok.NoArgsConstructor;
 public class GetAllSubmissionPeriodsQuery implements Query {
     private String pageNumber;
     private String pageSize;
+    private String purpose; // PAA | SIADAP — optional; when absent, list is unfiltered by purpose
 }

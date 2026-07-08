@@ -13,4 +13,6 @@ public class GetActiveSubmissionPeriodQuery implements Query {
 
     @NotBlank(message = "The field <type> is required")
     private String type; // UNIT_LEVEL | INDIVIDUAL_LEVEL
+
+    private String purpose; // PAA | SIADAP — optional, defaults to PAA in the handler
 }
