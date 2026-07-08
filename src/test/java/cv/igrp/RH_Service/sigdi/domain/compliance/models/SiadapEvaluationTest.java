@@ -66,6 +66,15 @@ class SiadapEvaluationTest {
     }
 
     @Test
+    void propose_rejectedWhenPendingAcceptance() {
+        SiadapEvaluation evaluation = buildOpenEvaluation()
+                .contractualizeObjectives(buildValidObjectives());
+
+        assertThrows(IgrpResponseStatusException.class,
+                () -> evaluation.contractualizeObjectives(buildValidObjectives()));
+    }
+
+    @Test
     void accept_fromPending_advancesPhase() {
         SiadapEvaluation proposed = buildOpenEvaluation().contractualizeObjectives(buildValidObjectives());
 

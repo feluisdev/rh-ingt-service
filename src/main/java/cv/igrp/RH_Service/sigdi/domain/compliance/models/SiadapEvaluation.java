@@ -166,6 +166,10 @@ public class SiadapEvaluation {
         if (!EvaluationPhase.OPEN.equals(this.phase))
             throw IgrpResponseStatusException.badRequest(
                     "Objetivos só podem ser propostos/reenviados enquanto a avaliação está em contratualização (OPEN)");
+        if (AcceptanceStatus.PENDING_ACCEPTANCE.equals(this.acceptanceStatus))
+            throw IgrpResponseStatusException.badRequest(
+                    "Existe uma proposta de objetivos pendente de aceitação pelo avaliado. "
+                    + "Aguarde a resposta ou peça que solicite negociação antes de reenviar.");
         if (newObjectives == null || newObjectives.isEmpty())
             throw IgrpResponseStatusException.badRequest("Deve definir pelo menos um objetivo");
         if (newObjectives.size() < 3 || newObjectives.size() > 7)
