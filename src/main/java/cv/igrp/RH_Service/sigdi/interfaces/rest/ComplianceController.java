@@ -32,6 +32,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.SubmitSelfEvaluationRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.FinalizeEvaluationRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.IndividualObjectiveDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.CompetencyItemDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.SiadapInterimFeedbackDTO;
 import java.util.List;
 
 @IgrpController
@@ -334,6 +335,49 @@ public class ComplianceController {
   {
     final var request = new FinalizeEvaluationRequestDTO(id);
     final var command = new FinalizeEvaluationCommand(request);
+    return commandBus.send(command);
+  }
+
+  @GetMapping(value = "siadap/evaluations/{id}/interim-feedback")
+  @Operation(
+    summary = "Get SIADAP interim feedback",
+    description = "Retorna os dados da ficha de feedback intercalar de uma avaliação.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SiadapInterimFeedbackDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<SiadapInterimFeedbackDTO> getInterimFeedback(
+    @PathVariable("id") String id)
+  {
+    final var query = new GetSiadapInterimFeedbackQuery(id);
+    return queryBus.handle(query);
+  }
+
+  @PostMapping(value = "siadap/evaluations/{id}/interim-feedback")
+  @Operation(
+    summary = "Save SIADAP interim feedback",
+    description = "Salva os dados da ficha de feedback intercalar de uma avaliação.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SiadapInterimFeedbackDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<SiadapInterimFeedbackDTO> saveInterimFeedback(
+    @PathVariable("id") String id,
+    @Valid @RequestBody SiadapInterimFeedbackDTO body)
+  {
+    final var command = new SaveSiadapInterimFeedbackCommand(id, body);
     return commandBus.send(command);
   }
 }
