@@ -10,6 +10,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
+import cv.igrp.RH_Service.sigdi.application.constants.EvaluationPhase;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.dto.ContractualizeObjectivesRequestDTO;
@@ -31,6 +33,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -124,6 +127,14 @@ class ContractualizeObjectivesCommandHandlerTest {
         ResponseEntity<SiadapEvaluationDTO> response = handler.handle(command);
 
         assertEquals(200, response.getStatusCode().value());
-        verify(evaluationRepository, times(1)).save(any(SiadapEvaluation.class));
+
+        ArgumentCaptor<SiadapEvaluation> captor = ArgumentCaptor.forClass(SiadapEvaluation.class);
+        verify(evaluationRepository, times(1)).save(captor.capture());
+
+        // CONTRACT-01: proposing objectives no longer auto-advances the phase — it only
+        // marks the acceptance status as pending, leaving the phase OPEN until acceptObjectives().
+        SiadapEvaluation saved = captor.getValue();
+        assertEquals(AcceptanceStatus.PENDING_ACCEPTANCE, saved.getAcceptanceStatus());
+        assertEquals(EvaluationPhase.OPEN, saved.getPhase());
     }
 }
