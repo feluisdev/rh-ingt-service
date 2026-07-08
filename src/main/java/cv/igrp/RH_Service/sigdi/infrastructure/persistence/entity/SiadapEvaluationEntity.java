@@ -54,6 +54,13 @@ public class SiadapEvaluationEntity extends AuditEntity {
     @Column(name="evaluation_phase", length = 30)
     private String evaluationPhase;
 
+    /**
+     * Estado de aceitação da proposta de objetivos individuais:
+     * PENDING_ACCEPTANCE | ACCEPTED | NEGOTIATING | TACITLY_ACCEPTED
+     */
+    @Column(name="acceptance_status", length = 30)
+    private String acceptanceStatus;
+
     /** Nota de autoavaliação submetida pelo colaborador (1-5). */
     @Column(name="self_evaluation_score", precision = 4, scale = 2)
     private BigDecimal selfEvaluationScore;

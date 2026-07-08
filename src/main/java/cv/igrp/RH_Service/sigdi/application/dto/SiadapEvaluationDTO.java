@@ -34,6 +34,8 @@ public class SiadapEvaluationDTO  {
 
   // Rich evaluation fields
   private String phase;
+  private String acceptanceStatus;
+  private String acceptanceStatusDesc;
   private BigDecimal selfEvaluationScore;
   private BigDecimal resultsWeight;
   private BigDecimal competenciesWeight;

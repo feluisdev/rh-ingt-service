@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.mappers.compliance;
 
+import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
 import cv.igrp.RH_Service.sigdi.application.constants.CompetencyCategory;
 import cv.igrp.RH_Service.sigdi.application.constants.EvaluationPhase;
 import cv.igrp.RH_Service.sigdi.application.constants.SiadapMeritRating;
@@ -42,6 +43,10 @@ public class SiadapEvaluationMapper {
         ? EvaluationPhase.fromCodeOrThrow(entity.getEvaluationPhase())
         : EvaluationPhase.OPEN;
 
+    AcceptanceStatus acceptanceStatus = entity.getAcceptanceStatus() != null
+        ? AcceptanceStatus.fromCodeOrThrow(entity.getAcceptanceStatus())
+        : null;
+
     return SiadapEvaluation.reconstruct(
         SiadapEvaluationId.from(entity.getId()),
         entity.getEmployeeId(),
@@ -56,7 +61,8 @@ public class SiadapEvaluationMapper {
         entity.getFinalScore(),
         entity.getMeritRating() != null ? SiadapMeritRating.fromCodeOrThrow(entity.getMeritRating()) : null,
         entity.isValidatedQuota(),
-        phase
+        phase,
+        acceptanceStatus
     );
   }
 
@@ -75,6 +81,7 @@ public class SiadapEvaluationMapper {
     entity.setOrganicUnitId(domain.getOrganicUnitId());
     entity.setEvaluatorId(domain.getEvaluatorId());
     entity.setEvaluationPhase(domain.getPhase() != null ? domain.getPhase().getCode() : null);
+    entity.setAcceptanceStatus(domain.getAcceptanceStatus() != null ? domain.getAcceptanceStatus().getCode() : null);
     entity.setSelfEvaluationScore(domain.getSelfEvaluationScore());
     entity.setFinalScore(domain.getFinalScore());
     entity.setResultsWeight(domain.getResultsWeight());
@@ -106,6 +113,9 @@ public class SiadapEvaluationMapper {
     dto.setOrganicUnitId(e.getOrganicUnitId());
     dto.setEvaluatorId(e.getEvaluatorId());
     dto.setPhase(e.getEvaluationPhase());
+    dto.setAcceptanceStatus(e.getAcceptanceStatus());
+    dto.setAcceptanceStatusDesc(AcceptanceStatus.fromCode(e.getAcceptanceStatus())
+        .map(AcceptanceStatus::getDescription).orElse(null));
     dto.setSelfEvaluationScore(e.getSelfEvaluationScore());
     dto.setResultsWeight(e.getResultsWeight());
     dto.setCompetenciesWeight(e.getCompetenciesWeight());
