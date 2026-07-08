@@ -69,19 +69,33 @@ public class PaaSubmissionPeriodRepositoryImpl implements PaaSubmissionPeriodRep
     @Transactional(readOnly = true)
     @Override
     public Optional<PaaSubmissionPeriod> findActiveByTypeAndPurpose(PaaLevel type, Purpose purpose) {
-        return jpaRepository.findActiveByTypeAndPurpose(type.getCode(), purpose.getCode()).map(mapper::toDomain);
+        // Defensive: (type, purpose) is not enforced unique across overlapping date ranges
+        // (see 59-REVIEW.md CR-02) — take the most recently created match instead of assuming
+        // a single result, to avoid IncorrectResultSizeDataAccessException.
+        return jpaRepository.findAllActiveByTypeAndPurpose(type.getCode(), purpose.getCode())
+                .stream()
+                .findFirst()
+                .map(mapper::toDomain);
     }
 
     @Transactional(readOnly = true)
     @Override
     public Optional<PaaSubmissionPeriod> findActiveByTypeAndYearAndPurpose(PaaLevel type, Integer year, Purpose purpose) {
-        return jpaRepository.findActiveByTypeAndYearAndPurpose(type.getCode(), year, purpose.getCode()).map(mapper::toDomain);
+        // Defensive — see comment on findActiveByTypeAndPurpose above.
+        return jpaRepository.findAllActiveByTypeAndYearAndPurpose(type.getCode(), year, purpose.getCode())
+                .stream()
+                .findFirst()
+                .map(mapper::toDomain);
     }
 
     @Transactional(readOnly = true)
     @Override
     public Optional<PaaSubmissionPeriod> findByTypeAndYearAndStatusAndPurpose(PaaLevel type, Integer year, String status, Purpose purpose) {
-        return jpaRepository.findByTypeAndYearAndStatusAndPurpose(type.getCode(), year, status, purpose.getCode()).map(mapper::toDomain);
+        // Defensive — see comment on findActiveByTypeAndPurpose above.
+        return jpaRepository.findAllByTypeAndYearAndStatusAndPurpose(type.getCode(), year, status, purpose.getCode())
+                .stream()
+                .findFirst()
+                .map(mapper::toDomain);
     }
 
     @Transactional(readOnly = true)
