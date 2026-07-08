@@ -98,6 +98,34 @@ class NegotiateSiadapObjectivesCommandHandlerTest {
         assertEquals(EvaluationPhase.OPEN, saved.getPhase());
     }
 
+    // WR-02: the negotiation comment must reach the domain aggregate and be persisted, not
+    // silently discarded.
+    @Test
+    void negotiatesWithCommentPersistsLastNegotiationComment() {
+        SiadapEvaluation evaluation = buildPendingAcceptanceEvaluation();
+        SiadapEvaluationId evalId = evaluation.getId();
+
+        when(evaluationRepository.findById(any(SiadapEvaluationId.class)))
+                .thenReturn(Optional.of(evaluation));
+        when(evaluationRepository.save(any(SiadapEvaluation.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(mapper.toFullDto(any(SiadapEvaluation.class)))
+                .thenReturn(new SiadapEvaluationDTO());
+        when(currentEmployeeResolver.resolve())
+                .thenReturn(FuncionarioId.from(evaluation.getEmployeeId()));
+
+        NegotiateSiadapObjectivesRequestDTO body = new NegotiateSiadapObjectivesRequestDTO();
+        body.setComment("Gostaria de rever o peso do objetivo 1");
+        NegotiateSiadapObjectivesCommand command = new NegotiateSiadapObjectivesCommand(evalId.getStringValor(), body);
+
+        handler.handle(command);
+
+        ArgumentCaptor<SiadapEvaluation> captor = ArgumentCaptor.forClass(SiadapEvaluation.class);
+        verify(evaluationRepository, times(1)).save(captor.capture());
+
+        assertEquals("Gostaria de rever o peso do objetivo 1", captor.getValue().getLastNegotiationComment());
+    }
+
     @Test
     void throwsNotFoundWhenEvaluationDoesNotExist() {
         SiadapEvaluationId evalId = SiadapEvaluationId.gerarNovo();

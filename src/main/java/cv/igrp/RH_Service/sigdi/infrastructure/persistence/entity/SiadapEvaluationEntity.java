@@ -61,6 +61,14 @@ public class SiadapEvaluationEntity extends AuditEntity {
     @Column(name="acceptance_status", length = 30)
     private String acceptanceStatus;
 
+    /**
+     * WR-02: comentário/justificação do avaliado no último pedido de negociação dos objetivos
+     * propostos. {@code null} se nunca houve negociação — apenas o último comentário é guardado.
+     */
+    @Lob
+    @Column(name="last_negotiation_comment", columnDefinition = "TEXT")
+    private String lastNegotiationComment;
+
     /** Nota de autoavaliação submetida pelo colaborador (1-5). */
     @Column(name="self_evaluation_score", precision = 4, scale = 2)
     private BigDecimal selfEvaluationScore;

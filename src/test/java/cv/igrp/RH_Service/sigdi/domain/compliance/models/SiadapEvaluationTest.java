@@ -88,7 +88,7 @@ class SiadapEvaluationTest {
     void accept_fromNegotiating_advancesPhase() {
         SiadapEvaluation negotiating = buildOpenEvaluation()
                 .contractualizeObjectives(buildValidObjectives())
-                .negotiateObjectives();
+                .negotiateObjectives("Gostaria de rever o peso do objetivo 1");
 
         SiadapEvaluation accepted = negotiating.acceptObjectives();
 
@@ -107,10 +107,31 @@ class SiadapEvaluationTest {
     void negotiate_fromPending_keepsOpen() {
         SiadapEvaluation proposed = buildOpenEvaluation().contractualizeObjectives(buildValidObjectives());
 
-        SiadapEvaluation negotiating = proposed.negotiateObjectives();
+        SiadapEvaluation negotiating = proposed.negotiateObjectives("Peso do objetivo 2 parece desajustado");
 
         assertEquals(AcceptanceStatus.NEGOTIATING, negotiating.getAcceptanceStatus());
         assertEquals(EvaluationPhase.OPEN, negotiating.getPhase());
+    }
+
+    // WR-02: the avaliado's negotiation comment must be persisted on the aggregate so the
+    // avaliador can see why negotiation was requested when reopening the evaluation.
+    @Test
+    void negotiate_persistsLastNegotiationComment() {
+        SiadapEvaluation proposed = buildOpenEvaluation().contractualizeObjectives(buildValidObjectives());
+
+        SiadapEvaluation negotiating = proposed.negotiateObjectives("Peso do objetivo 2 parece desajustado");
+
+        assertEquals("Peso do objetivo 2 parece desajustado", negotiating.getLastNegotiationComment());
+    }
+
+    @Test
+    void negotiate_acceptsNullComment() {
+        SiadapEvaluation proposed = buildOpenEvaluation().contractualizeObjectives(buildValidObjectives());
+
+        SiadapEvaluation negotiating = proposed.negotiateObjectives(null);
+
+        assertEquals(AcceptanceStatus.NEGOTIATING, negotiating.getAcceptanceStatus());
+        assertEquals(null, negotiating.getLastNegotiationComment());
     }
 
     @Test
@@ -119,7 +140,7 @@ class SiadapEvaluationTest {
                 .contractualizeObjectives(buildValidObjectives())
                 .acceptObjectives();
 
-        assertThrows(IgrpResponseStatusException.class, accepted::negotiateObjectives);
+        assertThrows(IgrpResponseStatusException.class, () -> accepted.negotiateObjectives("qualquer comentário"));
     }
 
     @Test

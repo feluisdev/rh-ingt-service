@@ -36,6 +36,9 @@ public class SiadapEvaluationDTO  {
   private String phase;
   private String acceptanceStatus;
   private String acceptanceStatusDesc;
+  // WR-02: last negotiation comment/justification submitted by the avaliado, so the avaliador
+  // can see why negotiation was requested. Single last-comment field — no history (out of scope).
+  private String lastNegotiationComment;
   private BigDecimal selfEvaluationScore;
   private BigDecimal resultsWeight;
   private BigDecimal competenciesWeight;

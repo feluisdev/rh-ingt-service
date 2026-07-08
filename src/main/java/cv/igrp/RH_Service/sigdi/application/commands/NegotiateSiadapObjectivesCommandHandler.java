@@ -39,11 +39,11 @@ public class NegotiateSiadapObjectivesCommandHandler
       throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN,
           "Apenas o avaliado desta avaliação pode solicitar negociação dos objetivos propostos");
 
-    SiadapEvaluation negotiated = evaluation.negotiateObjectives();
+    // WR-02: persist the avaliado's justification so the avaliador can see why negotiation
+    // was requested when reopening the evaluation (single "last comment" field, no history).
+    String comment = command.getBody() != null ? command.getBody().getComment() : null;
+    SiadapEvaluation negotiated = evaluation.negotiateObjectives(comment);
     SiadapEvaluation saved = evaluationRepository.save(negotiated);
-
-    // The negotiation comment (command.getBody().getComment()) is accepted but NOT persisted
-    // this phase — mirrors NegotiateTacticalActivityCommandHandler (60-RESEARCH.md Open Question 1).
 
     SiadapEvaluationDTO dto = mapper.toFullDto(saved);
     dto.setPhase(saved.getPhase().getCode());
