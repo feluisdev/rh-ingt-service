@@ -122,6 +122,42 @@ public class SiadapEvaluationMapper {
     return dto;
   }
 
+  /**
+   * WR-03: assembles the full DTO — scalar fields plus {@code objectives}/{@code competencies} —
+   * from the domain aggregate directly, mirroring the manual population previously duplicated
+   * only in {@code GetEvaluationDetailQueryHandler}. Command handlers should call this instead
+   * of the incomplete {@code toDto(toEntity(domain))} round-trip so mutation responses are
+   * usable for rendering the objectives/competencies list without a follow-up GET.
+   */
+  public SiadapEvaluationDTO toFullDto(SiadapEvaluation domain) {
+    SiadapEvaluationDTO dto = toDto(toEntity(domain));
+
+    List<IndividualObjectiveDTO> objectives = domain.getObjectives().stream()
+        .map(obj -> new IndividualObjectiveDTO(
+            obj.getCode(),
+            obj.getDescription(),
+            obj.getIndicator(),
+            obj.getTargetValue(),
+            obj.getAchievedValue(),
+            obj.getScore(),
+            obj.getWeight()
+        ))
+        .collect(Collectors.toList());
+    dto.setObjectives(objectives);
+
+    List<CompetencyItemDTO> competencies = domain.getCompetencies().stream()
+        .map(comp -> new CompetencyItemDTO(
+            comp.getCompetencyCode(),
+            comp.getCompetencyName(),
+            comp.getCategory().getCode(),
+            comp.getScore()
+        ))
+        .collect(Collectors.toList());
+    dto.setCompetencies(competencies);
+
+    return dto;
+  }
+
   public List<IndividualObjectiveEntity> toObjectiveEntities(SiadapEvaluation domain) {
     if (domain == null || domain.getObjectives() == null) return new ArrayList<>();
     UUID evalId = domain.getId().getValor().getValor();

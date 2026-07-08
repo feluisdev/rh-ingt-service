@@ -61,7 +61,7 @@ public class EvaluateCompetenciesCommandHandler
     SiadapEvaluation updated = evaluation.setCompetencies(competencies);
     SiadapEvaluation saved = evaluationRepository.save(updated);
 
-    SiadapEvaluationDTO dto = mapper.toDto(mapper.toEntity(saved));
+    SiadapEvaluationDTO dto = mapper.toFullDto(saved);
     dto.setPhase(saved.getPhase().getCode());
     return ResponseEntity.ok(dto);
   }

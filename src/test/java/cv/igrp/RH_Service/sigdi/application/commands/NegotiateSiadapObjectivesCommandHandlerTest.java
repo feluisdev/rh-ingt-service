@@ -20,7 +20,6 @@ import cv.igrp.RH_Service.sigdi.domain.compliance.repository.SiadapEvaluationRep
 import cv.igrp.RH_Service.sigdi.domain.compliance.valueobject.IndividualObjective;
 import cv.igrp.RH_Service.sigdi.domain.compliance.valueobject.SiadapEvaluationId;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.compliance.SiadapEvaluationMapper;
-import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.SiadapEvaluationEntity;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -78,9 +77,7 @@ class NegotiateSiadapObjectivesCommandHandlerTest {
                 .thenReturn(Optional.of(evaluation));
         when(evaluationRepository.save(any(SiadapEvaluation.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
-        when(mapper.toEntity(any(SiadapEvaluation.class)))
-                .thenReturn(new SiadapEvaluationEntity());
-        when(mapper.toDto(any(SiadapEvaluationEntity.class)))
+        when(mapper.toFullDto(any(SiadapEvaluation.class)))
                 .thenReturn(new SiadapEvaluationDTO());
         when(currentEmployeeResolver.resolve())
                 .thenReturn(FuncionarioId.from(evaluation.getEmployeeId()));

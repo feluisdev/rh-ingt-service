@@ -35,7 +35,7 @@ public class SubmitSelfEvaluationCommandHandler
     SiadapEvaluation updated = evaluation.submitSelfEvaluation(req.getSelfEvaluationScore());
     SiadapEvaluation saved = evaluationRepository.save(updated);
 
-    SiadapEvaluationDTO dto = mapper.toDto(mapper.toEntity(saved));
+    SiadapEvaluationDTO dto = mapper.toFullDto(saved);
     dto.setPhase(saved.getPhase().getCode());
     return ResponseEntity.ok(dto);
   }

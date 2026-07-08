@@ -84,7 +84,7 @@ public class CreateSiadapEvaluationCommandHandler
 
     SiadapEvaluation saved = evaluationRepository.save(evaluation);
 
-    SiadapEvaluationDTO dto = mapper.toDto(mapper.toEntity(saved));
+    SiadapEvaluationDTO dto = mapper.toFullDto(saved);
     dto.setEmployeeName(employee.getNomeCompleto());
     dto.setPhase(saved.getPhase().getCode());
     dto.setStatus(saved.isValidatedQuota() ? "CLOSED" : "DRAFT");

@@ -45,7 +45,7 @@ public class NegotiateSiadapObjectivesCommandHandler
     // The negotiation comment (command.getBody().getComment()) is accepted but NOT persisted
     // this phase — mirrors NegotiateTacticalActivityCommandHandler (60-RESEARCH.md Open Question 1).
 
-    SiadapEvaluationDTO dto = mapper.toDto(mapper.toEntity(saved));
+    SiadapEvaluationDTO dto = mapper.toFullDto(saved);
     dto.setPhase(saved.getPhase().getCode());
     return ResponseEntity.ok(dto);
   }

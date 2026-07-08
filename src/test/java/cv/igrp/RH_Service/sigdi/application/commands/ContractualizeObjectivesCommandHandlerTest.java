@@ -23,7 +23,6 @@ import cv.igrp.RH_Service.sigdi.domain.compliance.valueobject.SiadapEvaluationId
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.PaaSubmissionPeriod;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.compliance.SiadapEvaluationMapper;
-import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.SiadapEvaluationEntity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -117,9 +116,7 @@ class ContractualizeObjectivesCommandHandlerTest {
                 .thenReturn(Optional.of(activePeriod));
         when(evaluationRepository.save(any(SiadapEvaluation.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
-        when(mapper.toEntity(any(SiadapEvaluation.class)))
-                .thenReturn(new SiadapEvaluationEntity());
-        when(mapper.toDto(any(SiadapEvaluationEntity.class)))
+        when(mapper.toFullDto(any(SiadapEvaluation.class)))
                 .thenReturn(new SiadapEvaluationDTO());
 
         ContractualizeObjectivesCommand command = buildCommand(evalId.getStringValor());

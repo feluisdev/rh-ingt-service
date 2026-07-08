@@ -59,7 +59,7 @@ public class ContractualizeObjectivesCommandHandler
     SiadapEvaluation updated = evaluation.contractualizeObjectives(objectives);
     SiadapEvaluation saved = evaluationRepository.save(updated);
 
-    SiadapEvaluationDTO dto = mapper.toDto(mapper.toEntity(saved));
+    SiadapEvaluationDTO dto = mapper.toFullDto(saved);
     dto.setPhase(saved.getPhase().getCode());
     return ResponseEntity.ok(dto);
   }
