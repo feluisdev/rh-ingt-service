@@ -33,6 +33,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.FinalizeEvaluationRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.IndividualObjectiveDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.CompetencyItemDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapInterimFeedbackDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.NegotiateSiadapObjectivesRequestDTO;
 import java.util.List;
 
 @IgrpController
@@ -245,6 +246,47 @@ public class ComplianceController {
     final var request = new ContractualizeObjectivesRequestDTO(id, objectives);
     final var command = new ContractualizeObjectivesCommand(request);
     return commandBus.send(command);
+  }
+
+  @PostMapping(value = "siadap/evaluations/{id}/objectives/accept")
+  @Operation(
+    summary = "Accept proposed objectives",
+    description = "Avaliado aceita os objetivos propostos pelo avaliador.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SiadapEvaluationDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<SiadapEvaluationDTO> acceptSiadapObjectives(
+    @PathVariable("id") String id)
+  {
+    return commandBus.send(new AcceptSiadapObjectivesCommand(id));
+  }
+
+  @PostMapping(value = "siadap/evaluations/{id}/objectives/negotiate")
+  @Operation(
+    summary = "Negotiate proposed objectives",
+    description = "Avaliado solicita negociação dos objetivos propostos.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SiadapEvaluationDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<SiadapEvaluationDTO> negotiateSiadapObjectives(
+    @PathVariable("id") String id,
+    @Valid @RequestBody NegotiateSiadapObjectivesRequestDTO body)
+  {
+    return commandBus.send(new NegotiateSiadapObjectivesCommand(id, body));
   }
 
   @PostMapping(value = "siadap/evaluations/{id}/competencies")
