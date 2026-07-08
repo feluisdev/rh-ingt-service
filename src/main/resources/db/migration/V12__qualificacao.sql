@@ -7,6 +7,24 @@
 --                 carga_horaria, data_conclusao, data_inicio, estado, nivel,
 --                 notafinal, situacao, id_funcionario
 -- =============================================================
+-- =============================================================
+
+CREATE TABLE IF NOT EXISTS t_qualificacao (
+    id UUID PRIMARY KEY,
+    funcionario_id UUID NOT NULL,
+    level VARCHAR(50),
+    course_name VARCHAR(200),
+    institution VARCHAR(200),
+    country VARCHAR(10),
+    start_date DATE,
+    end_date DATE,
+    completed BOOLEAN,
+    is_active BOOLEAN NOT NULL,
+    created_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(255) NOT NULL DEFAULT 'system',
+    last_modified_date TIMESTAMP,
+    last_modified_by VARCHAR(255)
+);
 
 -- Remover NOT NULL antes de apagar colunas legadas
 DO $$ BEGIN

@@ -1,7 +1,11 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.compliance;
 
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.SiadapEvaluationEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.IndividualObjectiveEntity;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.CompetencyItemEntity;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.SiadapEvaluationEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.IndividualObjectiveEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.CompetencyItemEntityRepository;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;
 import cv.igrp.RH_Service.sigdi.domain.compliance.repository.SiadapEvaluationRepository;
 import cv.igrp.RH_Service.sigdi.domain.compliance.valueobject.SiadapEvaluationId;
@@ -12,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -19,6 +24,8 @@ import java.util.stream.Collectors;
 public class SiadapEvaluationRepositoryImpl implements SiadapEvaluationRepository {
 
   private final SiadapEvaluationEntityRepository jpaRepository;
+  private final IndividualObjectiveEntityRepository objectiveJpaRepository;
+  private final CompetencyItemEntityRepository competencyJpaRepository;
   private final SiadapEvaluationMapper mapper;
 
   @Transactional
@@ -26,14 +33,33 @@ public class SiadapEvaluationRepositoryImpl implements SiadapEvaluationRepositor
   public SiadapEvaluation save(SiadapEvaluation evaluation) {
     SiadapEvaluationEntity entity = mapper.toEntity(evaluation);
     SiadapEvaluationEntity saved = jpaRepository.save(entity);
-    return mapper.toDomain(saved);
+
+    UUID evalId = saved.getId();
+    // Delete old objectives and insert new ones
+    objectiveJpaRepository.deleteByEvaluationId(evalId);
+    List<IndividualObjectiveEntity> objectiveEntities = mapper.toObjectiveEntities(evaluation);
+    objectiveEntities.forEach(obj -> obj.setEvaluationId(evalId)); // Ensure ID match
+    objectiveJpaRepository.saveAll(objectiveEntities);
+
+    // Delete old competencies and insert new ones
+    competencyJpaRepository.deleteByEvaluationId(evalId);
+    List<CompetencyItemEntity> competencyEntities = mapper.toCompetencyEntities(evaluation);
+    competencyEntities.forEach(comp -> comp.setEvaluationId(evalId)); // Ensure ID match
+    competencyJpaRepository.saveAll(competencyEntities);
+
+    return mapper.toDomain(saved, objectiveEntities, competencyEntities);
   }
 
   @Transactional(readOnly = true)
   @Override
   public Optional<SiadapEvaluation> findById(SiadapEvaluationId id) {
-    return jpaRepository.findById(id.getValor().getValor())
-        .map(mapper::toDomain);
+    UUID evalUuid = id.getValor().getValor();
+    return jpaRepository.findById(evalUuid)
+        .map(entity -> {
+          List<IndividualObjectiveEntity> objectives = objectiveJpaRepository.findByEvaluationId(evalUuid);
+          List<CompetencyItemEntity> competencies = competencyJpaRepository.findByEvaluationId(evalUuid);
+          return mapper.toDomain(entity, objectives, competencies);
+        });
   }
 
   @Transactional(readOnly = true)
@@ -41,7 +67,12 @@ public class SiadapEvaluationRepositoryImpl implements SiadapEvaluationRepositor
   public Optional<SiadapEvaluation> findByEmployeeAndYear(String employeeId, Integer year) {
     if (employeeId == null || employeeId.isBlank() || year == null) return Optional.empty();
     return jpaRepository.findByEmployeeIdAndYear(employeeId, year.toString())
-        .map(mapper::toDomain);
+        .map(entity -> {
+          UUID evalUuid = entity.getId();
+          List<IndividualObjectiveEntity> objectives = objectiveJpaRepository.findByEvaluationId(evalUuid);
+          List<CompetencyItemEntity> competencies = competencyJpaRepository.findByEvaluationId(evalUuid);
+          return mapper.toDomain(entity, objectives, competencies);
+        });
   }
 
   @Transactional(readOnly = true)
@@ -49,18 +80,20 @@ public class SiadapEvaluationRepositoryImpl implements SiadapEvaluationRepositor
   public List<SiadapEvaluation> findByYear(Integer year) {
     if (year == null) return List.of();
     return jpaRepository.findByYear(year.toString()).stream()
-        .map(mapper::toDomain)
+        .map(entity -> {
+          UUID evalUuid = entity.getId();
+          List<IndividualObjectiveEntity> objectives = objectiveJpaRepository.findByEvaluationId(evalUuid);
+          List<CompetencyItemEntity> competencies = competencyJpaRepository.findByEvaluationId(evalUuid);
+          return mapper.toDomain(entity, objectives, competencies);
+        })
         .toList();
   }
 
   @Transactional
   @Override
   public List<SiadapEvaluation> saveAll(List<SiadapEvaluation> evaluations) {
-    List<SiadapEvaluationEntity> entities = evaluations.stream()
-        .map(mapper::toEntity)
+    return evaluations.stream()
+        .map(this::save)
         .collect(Collectors.toList());
-    List<SiadapEvaluationEntity> saved = jpaRepository.saveAll(entities);
-    return saved.stream().map(mapper::toDomain).collect(Collectors.toList());
   }
 }
-

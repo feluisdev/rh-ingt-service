@@ -7,6 +7,28 @@
 -- DROP NOT NULL: is_current (entity tem como nullable)
 -- DROP (legados): tipo_contrato, data_inicio, data_fim, numero_contrato, is_active
 -- =============================================================
+-- =============================================================
+
+CREATE TABLE IF NOT EXISTS t_contrato (
+    id UUID PRIMARY KEY,
+    funcionario_id UUID NOT NULL,
+    contract_type_id UUID,
+    contract_number VARCHAR(100) UNIQUE,
+    start_date DATE,
+    end_date DATE,
+    termination_reason VARCHAR(50),
+    is_current BOOLEAN,
+    status VARCHAR(20),
+    renewal_count INTEGER,
+    regime_trabalho VARCHAR(30),
+    percentagem_tempo NUMERIC(5,2),
+    legal_base VARCHAR(200),
+    notes TEXT,
+    created_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(255) NOT NULL DEFAULT 'system',
+    last_modified_date TIMESTAMP,
+    last_modified_by VARCHAR(255)
+);
 
 -- Remover NOT NULL de is_current (entity não impõe)
 DO $$ BEGIN

@@ -23,6 +23,17 @@ import cv.igrp.RH_Service.sigdi.application.dto.CloseEvaluationsResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.QUARPreviewResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.QuotaValidationResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperSiadapEvaluationListDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.SiadapEvaluationDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.CreateSiadapEvaluationRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.ContractualizeObjectivesRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.EvaluateCompetenciesRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.RecordObjectiveAchievementRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.SubmitSelfEvaluationRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.FinalizeEvaluationRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.IndividualObjectiveDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.CompetencyItemDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.SiadapInterimFeedbackDTO;
+import java.util.List;
 
 @IgrpController
 @RestController
@@ -169,5 +180,204 @@ public class ComplianceController {
   {
     final var query = new GetSiadapExportQuery(year, organicUnitId, format);
     return queryBus.handle(query);
+  }
+
+  @PostMapping(value = "siadap/evaluations")
+  @Operation(
+    summary = "Create SIADAP evaluation",
+    description = "Cria uma nova avaliação no início do ciclo (fase OPEN).",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SiadapEvaluationDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<SiadapEvaluationDTO> createEvaluation(
+    @Valid @RequestBody CreateSiadapEvaluationRequestDTO request)
+  {
+    final var command = new CreateSiadapEvaluationCommand(request);
+    return commandBus.send(command);
+  }
+
+  @GetMapping(value = "siadap/evaluations/{id}")
+  @Operation(
+    summary = "Get SIADAP evaluation details",
+    description = "Retorna os detalhes completos de uma avaliação (fases, objetivos, competências).",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SiadapEvaluationDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<SiadapEvaluationDTO> getEvaluationDetail(
+    @PathVariable("id") String id)
+  {
+    final var query = new GetEvaluationDetailQuery(id);
+    return queryBus.handle(query);
+  }
+
+  @PostMapping(value = "siadap/evaluations/{id}/objectives")
+  @Operation(
+    summary = "Contractualize objectives",
+    description = "Define os objetivos individuais para a avaliação.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SiadapEvaluationDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<SiadapEvaluationDTO> contractualizeObjectives(
+    @PathVariable("id") String id,
+    @Valid @RequestBody List<IndividualObjectiveDTO> objectives)
+  {
+    final var request = new ContractualizeObjectivesRequestDTO(id, objectives);
+    final var command = new ContractualizeObjectivesCommand(request);
+    return commandBus.send(command);
+  }
+
+  @PostMapping(value = "siadap/evaluations/{id}/competencies")
+  @Operation(
+    summary = "Evaluate competencies",
+    description = "Define e avalia as competências do colaborador.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SiadapEvaluationDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<SiadapEvaluationDTO> evaluateCompetencies(
+    @PathVariable("id") String id,
+    @Valid @RequestBody List<CompetencyItemDTO> competencies)
+  {
+    final var request = new EvaluateCompetenciesRequestDTO(id, competencies);
+    final var command = new EvaluateCompetenciesCommand(request);
+    return commandBus.send(command);
+  }
+
+  @PostMapping(value = "siadap/evaluations/{id}/objectives/achievements")
+  @Operation(
+    summary = "Record objective achievement",
+    description = "Regista o valor atingido e pontuação de um objetivo específico.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SiadapEvaluationDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<SiadapEvaluationDTO> recordObjectiveAchievement(
+    @PathVariable("id") String id,
+    @Valid @RequestBody RecordObjectiveAchievementRequestDTO request)
+  {
+    request.setEvaluationId(id);
+    final var command = new RecordObjectiveAchievementCommand(request);
+    return commandBus.send(command);
+  }
+
+  @PostMapping(value = "siadap/evaluations/{id}/self-evaluation")
+  @Operation(
+    summary = "Submit self-evaluation",
+    description = "Colaborador submete a sua autoavaliação.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SiadapEvaluationDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<SiadapEvaluationDTO> submitSelfEvaluation(
+    @PathVariable("id") String id,
+    @Valid @RequestBody SubmitSelfEvaluationRequestDTO request)
+  {
+    request.setEvaluationId(id);
+    final var command = new SubmitSelfEvaluationCommand(request);
+    return commandBus.send(command);
+  }
+
+  @PostMapping(value = "siadap/evaluations/{id}/finalize")
+  @Operation(
+    summary = "Finalize evaluation",
+    description = "Calcula notas finais e avança a avaliação para harmonização.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SiadapEvaluationDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<SiadapEvaluationDTO> finalizeEvaluation(
+    @PathVariable("id") String id)
+  {
+    final var request = new FinalizeEvaluationRequestDTO(id);
+    final var command = new FinalizeEvaluationCommand(request);
+    return commandBus.send(command);
+  }
+
+  @GetMapping(value = "siadap/evaluations/{id}/interim-feedback")
+  @Operation(
+    summary = "Get SIADAP interim feedback",
+    description = "Retorna os dados da ficha de feedback intercalar de uma avaliação.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SiadapInterimFeedbackDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<SiadapInterimFeedbackDTO> getInterimFeedback(
+    @PathVariable("id") String id)
+  {
+    final var query = new GetSiadapInterimFeedbackQuery(id);
+    return queryBus.handle(query);
+  }
+
+  @PostMapping(value = "siadap/evaluations/{id}/interim-feedback")
+  @Operation(
+    summary = "Save SIADAP interim feedback",
+    description = "Salva os dados da ficha de feedback intercalar de uma avaliação.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SiadapInterimFeedbackDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<SiadapInterimFeedbackDTO> saveInterimFeedback(
+    @PathVariable("id") String id,
+    @Valid @RequestBody SiadapInterimFeedbackDTO body)
+  {
+    final var command = new SaveSiadapInterimFeedbackCommand(id, body);
+    return commandBus.send(command);
   }
 }
