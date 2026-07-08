@@ -25,6 +25,9 @@ public class PaaSubmissionPeriodEntity extends AuditEntity {
     @Column(name = "type", nullable = false)
     private String type; // UNIT_LEVEL | INDIVIDUAL_LEVEL
 
+    @Column(name = "purpose", nullable = false)
+    private String purpose; // PAA | SIADAP
+
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
