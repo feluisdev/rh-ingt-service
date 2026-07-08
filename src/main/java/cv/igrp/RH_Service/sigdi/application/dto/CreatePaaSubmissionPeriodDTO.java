@@ -25,4 +25,6 @@ public class CreatePaaSubmissionPeriodDTO {
 
     @NotNull(message = "The field <year> is required")
     private Integer year;
+
+    private String purpose; // PAA | SIADAP — optional, defaults to PAA in the handler
 }
