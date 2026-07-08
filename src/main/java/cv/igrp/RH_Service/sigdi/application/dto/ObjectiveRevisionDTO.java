@@ -12,4 +12,5 @@ public class ObjectiveRevisionDTO {
     private String revisionJustification;
     private String newObjectiveSmart;
     private String approvalStatus;
+    private String objectiveCode;
 }

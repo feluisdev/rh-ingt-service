@@ -36,4 +36,7 @@ public class SiadapInterimObjectiveRevisionEntity extends AuditEntity {
 
     @Column(name = "approval_status", length = 50)
     private String approvalStatus;
+
+    @Column(name = "objective_code", length = 50)
+    private String objectiveCode;
 }
