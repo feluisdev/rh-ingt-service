@@ -10,16 +10,10 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface PaaSubmissionPeriodEntityRepository extends JpaRepository<PaaSubmissionPeriodEntity, UUID>, JpaSpecificationExecutor<PaaSubmissionPeriodEntity> {
-
-    @Query("SELECT p FROM PaaSubmissionPeriodEntity p WHERE p.type = :type AND p.status = 'OPEN' AND CURRENT_DATE BETWEEN p.startDate AND p.endDate")
-    Optional<PaaSubmissionPeriodEntity> findActiveByType(@Param("type") String type);
-
-    Optional<PaaSubmissionPeriodEntity> findByTypeAndYearAndStatus(String type, Integer year, String status);
 
     // Defensive finders (see 59-REVIEW.md CR-02): the schema does not enforce uniqueness
     // on (type, year, purpose[, status]), so these return every match ordered newest-first;

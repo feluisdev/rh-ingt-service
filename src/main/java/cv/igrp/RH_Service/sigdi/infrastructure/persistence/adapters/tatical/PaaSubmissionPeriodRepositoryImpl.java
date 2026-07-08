@@ -40,18 +40,6 @@ public class PaaSubmissionPeriodRepositoryImpl implements PaaSubmissionPeriodRep
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<PaaSubmissionPeriod> findActiveByType(PaaLevel type) {
-        return jpaRepository.findActiveByType(type.getCode()).map(mapper::toDomain);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Optional<PaaSubmissionPeriod> findByTypeAndYearAndStatus(PaaLevel type, Integer year, String status) {
-        return jpaRepository.findByTypeAndYearAndStatus(type.getCode(), year, status).map(mapper::toDomain);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
     public List<PaaSubmissionPeriod> findAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return jpaRepository.findAll(pageable)

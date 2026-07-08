@@ -11,8 +11,6 @@ import java.util.UUID;
 public interface PaaSubmissionPeriodRepository {
     PaaSubmissionPeriod save(PaaSubmissionPeriod period);
     Optional<PaaSubmissionPeriod> findById(UUID id);
-    Optional<PaaSubmissionPeriod> findActiveByType(PaaLevel type);
-    Optional<PaaSubmissionPeriod> findByTypeAndYearAndStatus(PaaLevel type, Integer year, String status);
     List<PaaSubmissionPeriod> findAll(int page, int size);
     long countAll();
 
