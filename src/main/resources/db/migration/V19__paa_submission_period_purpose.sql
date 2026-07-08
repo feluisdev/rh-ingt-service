@@ -50,3 +50,17 @@ CREATE TABLE IF NOT EXISTS audit_schema.t_paa_submission_period_aud (
     last_modified_by    VARCHAR(255),
     PRIMARY KEY (id, rev)
 );
+
+-- Idempotent guard for the audit table, mirroring the main-table guard above. Envers
+-- auto-generates this shadow table under the same ddl-auto=update regime that created
+-- the main table (mirroring whatever columns the entity had before this phase added
+-- `purpose`), so any environment where the main-table guard above is a no-op is equally
+-- likely to already have this table without the `purpose` column.
+DO $$ BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'audit_schema' AND table_name = 't_paa_submission_period_aud' AND column_name = 'purpose'
+    ) THEN
+        ALTER TABLE audit_schema.t_paa_submission_period_aud ADD COLUMN purpose VARCHAR(20);
+    END IF;
+END $$;
