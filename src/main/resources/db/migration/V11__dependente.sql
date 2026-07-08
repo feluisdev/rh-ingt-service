@@ -6,6 +6,21 @@
 -- DROP (legados): nome, parentesco, data_nascimento, cpf, estado,
 --                 id_funcionario
 -- =============================================================
+-- =============================================================
+
+CREATE TABLE IF NOT EXISTS t_dependente (
+    id UUID PRIMARY KEY,
+    funcionario_id UUID NOT NULL,
+    full_name VARCHAR(200),
+    relationship_type VARCHAR(50),
+    birth_date DATE,
+    nif VARCHAR(20),
+    is_active BOOLEAN NOT NULL,
+    created_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(255) NOT NULL DEFAULT 'system',
+    last_modified_date TIMESTAMP,
+    last_modified_by VARCHAR(255)
+);
 
 -- Remover NOT NULL antes de apagar colunas legadas
 DO $$ BEGIN

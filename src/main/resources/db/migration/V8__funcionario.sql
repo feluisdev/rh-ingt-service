@@ -12,6 +12,34 @@
 --                 sexo, professional_situation_id
 -- =============================================================
 
+CREATE TABLE IF NOT EXISTS t_funcionario (
+    id UUID PRIMARY KEY,
+    numero_funcionario VARCHAR(10) UNIQUE NOT NULL,
+    nome_completo VARCHAR(200) NOT NULL,
+    data_nascimento DATE NOT NULL,
+    genero VARCHAR(50) NOT NULL,
+    estado_civil VARCHAR(50) NOT NULL,
+    nif VARCHAR(20) UNIQUE NOT NULL,
+    document_type_id UUID,
+    numero_documento VARCHAR(50) UNIQUE,
+    data_emissao_doc DATE,
+    data_validade_doc DATE,
+    nacionalidade VARCHAR(50) NOT NULL,
+    email VARCHAR(200) UNIQUE,
+    telefone VARCHAR(30),
+    morada VARCHAR(255),
+    ilha VARCHAR(100),
+    concelho VARCHAR(100),
+    localidade VARCHAR(100),
+    worker_state_id UUID,
+    data_admissao DATE NOT NULL,
+    is_active BOOLEAN NOT NULL,
+    created_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(255) NOT NULL DEFAULT 'system',
+    last_modified_date TIMESTAMP,
+    last_modified_by VARCHAR(255)
+);
+
 -- Colunas novas que o entity usa e que podem não existir ainda
 DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='t_funcionario' AND column_name='document_type_id') THEN

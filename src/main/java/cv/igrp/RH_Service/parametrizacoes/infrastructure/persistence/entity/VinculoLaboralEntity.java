@@ -30,11 +30,11 @@ public class VinculoLaboralEntity extends AuditEntity {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "counts_seniority", nullable = false, columnDefinition = "boolean default true")
-    private Boolean countsSeniority;
+    @Column(name = "counts_seniority", nullable = false)
+    private Boolean countsSeniority = true;
 
-    @Column(name = "eligible_for_progression", nullable = false, columnDefinition = "boolean default true")
-    private Boolean eligibleForProgression;
+    @Column(name = "eligible_for_progression", nullable = false)
+    private Boolean eligibleForProgression = true;
 
     @Column(name = "is_active")
     private Boolean isActive;
