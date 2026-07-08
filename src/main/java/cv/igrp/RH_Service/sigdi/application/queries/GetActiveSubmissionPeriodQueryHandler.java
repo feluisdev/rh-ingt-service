@@ -31,7 +31,12 @@ public class GetActiveSubmissionPeriodQueryHandler implements QueryHandler<GetAc
                 ? Purpose.PAA
                 : Purpose.fromCodeOrThrow(query.getPurpose());
 
-        PaaSubmissionPeriod activePeriod = repository.findActiveByTypeAndPurpose(type, purpose)
+        // Optional year scoping (59-REVIEW.md WR-03): when the caller supplies a year, mirror
+        // the year-scoped gate used by ContractualizeObjectivesCommandHandler; otherwise keep
+        // the pre-existing year-agnostic, date-range-only lookup for unaffected callers.
+        PaaSubmissionPeriod activePeriod = (query.getYear() == null
+                ? repository.findActiveByTypeAndPurpose(type, purpose)
+                : repository.findActiveByTypeAndYearAndPurpose(type, query.getYear(), purpose))
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Nenhum período de submissão ativo encontrado para " + type.getDescription()));
 

@@ -70,8 +70,9 @@ public class PaaSubmissionPeriodController {
   )
   public ResponseEntity<PaaSubmissionPeriodResponseDTO> getActiveSubmissionPeriod(
       @RequestParam(value = "type") String type,
-      @RequestParam(value = "purpose", required = false, defaultValue = "PAA") String purpose) {
-      final var query = new GetActiveSubmissionPeriodQuery(type, purpose);
+      @RequestParam(value = "purpose", required = false, defaultValue = "PAA") String purpose,
+      @RequestParam(value = "year", required = false) Integer year) {
+      final var query = new GetActiveSubmissionPeriodQuery(type, purpose, year);
       return queryBus.handle(query);
   }
 
