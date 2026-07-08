@@ -8,7 +8,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
 import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
 import cv.igrp.RH_Service.sigdi.application.constants.EvaluationPhase;
 import cv.igrp.RH_Service.sigdi.application.dto.NegotiateSiadapObjectivesRequestDTO;
@@ -44,6 +46,9 @@ class NegotiateSiadapObjectivesCommandHandlerTest {
     @Mock
     private SiadapEvaluationMapper mapper;
 
+    @Mock
+    private CurrentEmployeeResolver currentEmployeeResolver;
+
     @InjectMocks
     private NegotiateSiadapObjectivesCommandHandler handler;
 
@@ -77,6 +82,8 @@ class NegotiateSiadapObjectivesCommandHandlerTest {
                 .thenReturn(new SiadapEvaluationEntity());
         when(mapper.toDto(any(SiadapEvaluationEntity.class)))
                 .thenReturn(new SiadapEvaluationDTO());
+        when(currentEmployeeResolver.resolve())
+                .thenReturn(FuncionarioId.from(evaluation.getEmployeeId()));
 
         // Empty/null comment must be accepted — comment is OPTIONAL for SIADAP (Pitfall 5).
         NegotiateSiadapObjectivesRequestDTO body = new NegotiateSiadapObjectivesRequestDTO();
@@ -108,6 +115,28 @@ class NegotiateSiadapObjectivesCommandHandlerTest {
                 () -> handler.handle(command));
 
         assertEquals(404, exception.getBody().getStatus());
+
+        verify(evaluationRepository, never()).save(any());
+    }
+
+    // WR-01: only the avaliado (evaluation.employeeId) may request negotiation.
+    @Test
+    void throwsForbiddenWhenCurrentUserIsNotTheEmployee() {
+        SiadapEvaluation evaluation = buildPendingAcceptanceEvaluation();
+        SiadapEvaluationId evalId = evaluation.getId();
+
+        when(evaluationRepository.findById(any(SiadapEvaluationId.class)))
+                .thenReturn(Optional.of(evaluation));
+        when(currentEmployeeResolver.resolve())
+                .thenReturn(FuncionarioId.gerarNovo());
+
+        NegotiateSiadapObjectivesCommand command = new NegotiateSiadapObjectivesCommand(
+                evalId.getStringValor(), new NegotiateSiadapObjectivesRequestDTO());
+
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(command));
+
+        assertEquals(403, exception.getBody().getStatus());
 
         verify(evaluationRepository, never()).save(any());
     }
