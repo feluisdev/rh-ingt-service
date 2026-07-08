@@ -604,8 +604,9 @@ public class TaticalController {
       description = "Retorna o período de submissão ativo para o tipo solicitado"
   )
   public ResponseEntity<PaaSubmissionPeriodResponseDTO> getActiveSubmissionPeriod(
-      @RequestParam(value = "type") String type) {
-      final var query = new GetActiveSubmissionPeriodQuery(type);
+      @RequestParam(value = "type") String type,
+      @RequestParam(value = "purpose", required = false, defaultValue = "PAA") String purpose) {
+      final var query = new GetActiveSubmissionPeriodQuery(type, purpose);
       return queryBus.handle(query);
   }
 
@@ -616,8 +617,9 @@ public class TaticalController {
   )
   public ResponseEntity<WrapperListPaaSubmissionPeriodDTO> getAllSubmissionPeriods(
       @RequestParam(value = "pageNumber", required = false, defaultValue = "0") String pageNumber,
-      @RequestParam(value = "pageSize", required = false, defaultValue = "20") String pageSize) {
-      final var query = new GetAllSubmissionPeriodsQuery(pageNumber, pageSize);
+      @RequestParam(value = "pageSize", required = false, defaultValue = "20") String pageSize,
+      @RequestParam(value = "purpose", required = false) String purpose) {
+      final var query = new GetAllSubmissionPeriodsQuery(pageNumber, pageSize, purpose);
       return queryBus.handle(query);
   }
 
