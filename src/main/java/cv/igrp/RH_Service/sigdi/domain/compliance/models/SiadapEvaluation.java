@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.sigdi.domain.compliance.models;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
 import cv.igrp.RH_Service.sigdi.application.constants.CompetencyCategory;
 import cv.igrp.RH_Service.sigdi.application.constants.EvaluationPhase;
 import cv.igrp.RH_Service.sigdi.application.constants.SiadapMeritRating;
@@ -77,6 +78,12 @@ public class SiadapEvaluation {
     /** Fase atual do ciclo de avaliação. */
     private final EvaluationPhase phase;
 
+    /**
+     * Estado de aceitação da proposta de objetivos individuais (dupla-aceitação avaliador↔avaliado).
+     * {@code null} antes de qualquer proposta ser efetuada.
+     */
+    private final AcceptanceStatus acceptanceStatus;
+
     private SiadapEvaluation(SiadapEvaluationId id, String employeeId, Integer year,
                               String organicUnitId, String evaluatorId,
                               List<IndividualObjective> objectives,
@@ -84,7 +91,7 @@ public class SiadapEvaluation {
                               BigDecimal resultsWeight, BigDecimal competenciesWeight,
                               BigDecimal selfEvaluationScore, BigDecimal finalScore,
                               SiadapMeritRating meritRating, boolean validatedQuota,
-                              EvaluationPhase phase) {
+                              EvaluationPhase phase, AcceptanceStatus acceptanceStatus) {
         if (id == null) throw new IllegalArgumentException("id é obrigatório");
         if (employeeId == null || employeeId.isBlank()) throw new IllegalArgumentException("employeeId é obrigatório");
         if (year == null) throw new IllegalArgumentException("year é obrigatório");
@@ -105,6 +112,7 @@ public class SiadapEvaluation {
         this.meritRating = meritRating;
         this.validatedQuota = validatedQuota;
         this.phase = (phase != null) ? phase : EvaluationPhase.OPEN;
+        this.acceptanceStatus = acceptanceStatus;
     }
 
     // ============================================================
@@ -124,7 +132,7 @@ public class SiadapEvaluation {
                 new ArrayList<>(), new ArrayList<>(),
                 resultsWeight, competenciesWeight,
                 null, null, null, false,
-                EvaluationPhase.OPEN
+                EvaluationPhase.OPEN, null
         );
     }
 
@@ -136,10 +144,10 @@ public class SiadapEvaluation {
                                                BigDecimal resultsWeight, BigDecimal competenciesWeight,
                                                BigDecimal selfEvaluationScore, BigDecimal finalScore,
                                                SiadapMeritRating meritRating, boolean validatedQuota,
-                                               EvaluationPhase phase) {
+                                               EvaluationPhase phase, AcceptanceStatus acceptanceStatus) {
         return new SiadapEvaluation(id, employeeId, year, organicUnitId, evaluatorId,
                 objectives, competencies, resultsWeight, competenciesWeight,
-                selfEvaluationScore, finalScore, meritRating, validatedQuota, phase);
+                selfEvaluationScore, finalScore, meritRating, validatedQuota, phase, acceptanceStatus);
     }
 
     // ============================================================
@@ -147,10 +155,17 @@ public class SiadapEvaluation {
     // ============================================================
 
     /**
-     * Contratualiza os objetivos individuais para este ciclo.
-     * Validações: mínimo 3, máximo 7 objetivos; pesos devem somar 100%.
+     * Contratualiza (propõe/reenvia) os objetivos individuais para este ciclo.
+     * Define/substitui os objetivos e marca o estado de aceitação como PENDING_ACCEPTANCE,
+     * sem avançar a fase — a avaliação só avança para IN_PROGRESS após aceitação (ver
+     * {@link #acceptObjectives()}), consistente com o fluxo de dupla-aceitação avaliador↔avaliado.
+     * Validações: só pode ser proposto/reenviado enquanto a avaliação está OPEN; mínimo 3,
+     * máximo 7 objetivos; pesos devem somar 100%.
      */
     public SiadapEvaluation contractualizeObjectives(List<IndividualObjective> newObjectives) {
+        if (!EvaluationPhase.OPEN.equals(this.phase))
+            throw IgrpResponseStatusException.badRequest(
+                    "Objetivos só podem ser propostos/reenviados enquanto a avaliação está em contratualização (OPEN)");
         if (newObjectives == null || newObjectives.isEmpty())
             throw IgrpResponseStatusException.badRequest("Deve definir pelo menos um objetivo");
         if (newObjectives.size() < 3 || newObjectives.size() > 7)
@@ -168,7 +183,38 @@ public class SiadapEvaluation {
                 newObjectives, this.competencies,
                 this.resultsWeight, this.competenciesWeight,
                 this.selfEvaluationScore, null, null, false,
-                EvaluationPhase.IN_PROGRESS);
+                this.phase, AcceptanceStatus.PENDING_ACCEPTANCE);
+    }
+
+    /**
+     * O avaliado aceita os objetivos propostos: transita o estado de aceitação para ACCEPTED
+     * e avança a fase da avaliação de OPEN para IN_PROGRESS, atomicamente (CONTRACT-04).
+     * Válido a partir de PENDING_ACCEPTANCE ou NEGOTIATING.
+     */
+    public SiadapEvaluation acceptObjectives() {
+        if (!AcceptanceStatus.PENDING_ACCEPTANCE.equals(this.acceptanceStatus) &&
+                !AcceptanceStatus.NEGOTIATING.equals(this.acceptanceStatus))
+            throw IgrpResponseStatusException.badRequest(
+                    "Apenas objetivos pendentes de aceitação ou em negociação podem ser aceites");
+
+        return new SiadapEvaluation(this.id, this.employeeId, this.year,
+                this.organicUnitId, this.evaluatorId,
+                this.objectives, this.competencies,
+                this.resultsWeight, this.competenciesWeight,
+                this.selfEvaluationScore, this.finalScore, this.meritRating, this.validatedQuota,
+                EvaluationPhase.IN_PROGRESS, AcceptanceStatus.ACCEPTED);
+    }
+
+    /**
+     * O avaliado solicita negociação dos objetivos propostos: transita o estado de aceitação
+     * para NEGOTIATING, mantendo a fase inalterada (OPEN). Válido apenas a partir de
+     * PENDING_ACCEPTANCE.
+     */
+    public SiadapEvaluation negotiateObjectives() {
+        if (!AcceptanceStatus.PENDING_ACCEPTANCE.equals(this.acceptanceStatus))
+            throw IgrpResponseStatusException.badRequest(
+                    "Apenas objetivos pendentes de aceitação podem iniciar negociação");
+        return changeAcceptanceStatus(AcceptanceStatus.NEGOTIATING);
     }
 
     /**
@@ -194,7 +240,7 @@ public class SiadapEvaluation {
                 this.organicUnitId, this.evaluatorId,
                 updated, this.competencies,
                 this.resultsWeight, this.competenciesWeight,
-                this.selfEvaluationScore, null, null, false, this.phase);
+                this.selfEvaluationScore, null, null, false, this.phase, this.acceptanceStatus);
     }
 
     /**
@@ -212,7 +258,7 @@ public class SiadapEvaluation {
                 this.objectives, this.competencies,
                 this.resultsWeight, this.competenciesWeight,
                 selfScore, this.finalScore, this.meritRating, false,
-                EvaluationPhase.MANAGER_EVALUATION);
+                EvaluationPhase.MANAGER_EVALUATION, this.acceptanceStatus);
     }
 
     /**
@@ -242,7 +288,7 @@ public class SiadapEvaluation {
                 this.organicUnitId, this.evaluatorId,
                 this.objectives, newCompetencies,
                 this.resultsWeight, this.competenciesWeight,
-                this.selfEvaluationScore, null, null, false, this.phase);
+                this.selfEvaluationScore, null, null, false, this.phase, this.acceptanceStatus);
     }
 
     /**
@@ -264,7 +310,7 @@ public class SiadapEvaluation {
                 this.organicUnitId, this.evaluatorId,
                 this.objectives, updated,
                 this.resultsWeight, this.competenciesWeight,
-                this.selfEvaluationScore, null, null, false, this.phase);
+                this.selfEvaluationScore, null, null, false, this.phase, this.acceptanceStatus);
     }
 
     /**
@@ -294,7 +340,7 @@ public class SiadapEvaluation {
                 this.objectives, this.competencies,
                 this.resultsWeight, this.competenciesWeight,
                 this.selfEvaluationScore, final_, merit, false,
-                EvaluationPhase.HARMONIZATION);
+                EvaluationPhase.HARMONIZATION, this.acceptanceStatus);
     }
 
     /**
@@ -308,7 +354,7 @@ public class SiadapEvaluation {
                 this.objectives, this.competencies,
                 this.resultsWeight, this.competenciesWeight,
                 this.selfEvaluationScore, this.finalScore, this.meritRating, true,
-                EvaluationPhase.CLOSED);
+                EvaluationPhase.CLOSED, this.acceptanceStatus);
     }
 
     /** Atribui diretamente a menção de mérito (pelo avaliador/CCA). */
@@ -318,7 +364,7 @@ public class SiadapEvaluation {
                 this.objectives, this.competencies,
                 this.resultsWeight, this.competenciesWeight,
                 this.selfEvaluationScore, this.finalScore,
-                rating, this.validatedQuota, this.phase);
+                rating, this.validatedQuota, this.phase, this.acceptanceStatus);
     }
 
     // ============================================================
@@ -405,7 +451,20 @@ public class SiadapEvaluation {
                 this.objectives, this.competencies,
                 this.resultsWeight, this.competenciesWeight,
                 this.selfEvaluationScore, this.finalScore, this.meritRating, this.validatedQuota,
-                newPhase);
+                newPhase, this.acceptanceStatus);
+    }
+
+    /**
+     * Reconstrói a instância com um novo estado de aceitação, mantendo todos os restantes
+     * campos (incluindo a fase) inalterados. Mirrors {@code TacticalActivity.changeAcceptanceStatus}.
+     */
+    private SiadapEvaluation changeAcceptanceStatus(AcceptanceStatus newAcceptanceStatus) {
+        return new SiadapEvaluation(this.id, this.employeeId, this.year,
+                this.organicUnitId, this.evaluatorId,
+                this.objectives, this.competencies,
+                this.resultsWeight, this.competenciesWeight,
+                this.selfEvaluationScore, this.finalScore, this.meritRating, this.validatedQuota,
+                this.phase, newAcceptanceStatus);
     }
 
     public boolean isClosed() {
