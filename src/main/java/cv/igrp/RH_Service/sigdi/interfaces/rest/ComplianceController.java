@@ -34,6 +34,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.IndividualObjectiveDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.CompetencyItemDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapInterimFeedbackDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.NegotiateSiadapObjectivesRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.NegotiateObjectiveRevisionRequestDTO;
 import java.util.List;
 
 @IgrpController
@@ -421,5 +422,42 @@ public class ComplianceController {
   {
     final var command = new SaveSiadapInterimFeedbackCommand(id, body);
     return commandBus.send(command);
+  }
+
+  @PostMapping(value = "siadap/evaluations/{id}/interim-feedback/revisions/{revisionId}/propose")
+  @Operation(
+    summary = "Propose an objective revision",
+    description = "Avaliador propõe formalmente uma revisão de objetivo."
+  )
+  public ResponseEntity<SiadapInterimFeedbackDTO> proposeObjectiveRevision(
+    @PathVariable("id") String id,
+    @PathVariable("revisionId") String revisionId)
+  {
+    return commandBus.send(new ProposeObjectiveRevisionCommand(id, revisionId));
+  }
+
+  @PostMapping(value = "siadap/evaluations/{id}/interim-feedback/revisions/{revisionId}/accept")
+  @Operation(
+    summary = "Accept an objective revision",
+    description = "Avaliado aceita a revisão proposta; o objetivo revisto passa a ser o de referência (RECONC-04)."
+  )
+  public ResponseEntity<SiadapInterimFeedbackDTO> acceptObjectiveRevision(
+    @PathVariable("id") String id,
+    @PathVariable("revisionId") String revisionId)
+  {
+    return commandBus.send(new AcceptObjectiveRevisionCommand(id, revisionId));
+  }
+
+  @PostMapping(value = "siadap/evaluations/{id}/interim-feedback/revisions/{revisionId}/negotiate")
+  @Operation(
+    summary = "Negotiate an objective revision",
+    description = "Avaliado solicita negociação da revisão proposta."
+  )
+  public ResponseEntity<SiadapInterimFeedbackDTO> negotiateObjectiveRevision(
+    @PathVariable("id") String id,
+    @PathVariable("revisionId") String revisionId,
+    @Valid @RequestBody NegotiateObjectiveRevisionRequestDTO body)
+  {
+    return commandBus.send(new NegotiateObjectiveRevisionCommand(id, revisionId, body));
   }
 }
