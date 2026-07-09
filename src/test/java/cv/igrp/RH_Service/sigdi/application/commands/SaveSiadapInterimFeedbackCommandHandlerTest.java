@@ -94,8 +94,17 @@ class SaveSiadapInterimFeedbackCommandHandlerTest {
         verify(feedbackRepository, never()).save(any());
     }
 
+    /**
+     * Test matrix case 4 (3rd fix round, 2026-07-09 — Bug B): for an existing LOCKED revision
+     * (non-null {@code approvalStatus}), the ENTIRE row must be immutable via this generic
+     * endpoint — not just {@code approvalStatus}/{@code lastNegotiationComment}. Originally this
+     * test only asserted the status/comment stayed put (closing CR-01); it now also asserts every
+     * content field (currentObjectiveText/objectiveCode/newObjectiveSmart/revisionJustification)
+     * is untouched too, since the previous fix round left those passing through from the client's
+     * DTO unchanged (Bug B).
+     */
     @Test
-    void savePreservesExistingApprovalStatusIgnoringClientSmuggledValue() {
+    void savePreservesExistingApprovalStatusAndContentIgnoringClientSmuggledValues() {
         handler = handler();
         String employeeId = UUID.randomUUID().toString();
         String evaluatorId = UUID.randomUUID().toString();
@@ -115,10 +124,11 @@ class SaveSiadapInterimFeedbackCommandHandlerTest {
         when(feedbackRepository.save(any(SiadapInterimFeedback.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Client attempts to smuggle approvalStatus: "ACCEPTED" directly, bypassing acceptRevision().
+        // Client attempts to smuggle approvalStatus: "ACCEPTED" AND tampered content, bypassing
+        // acceptRevision() and rewriting the locked row's substance in the same request.
         ObjectiveRevisionDTO revisionDto = new ObjectiveRevisionDTO(
-                revisionId.toString(), "Objetivo atual (editado)", "Justificação", "Novo objetivo SMART",
-                "ACCEPTED", "OBJ-1", "Comentário smuggle");
+                revisionId.toString(), "Objetivo atual (editado)", "Justificação (editada)",
+                "Novo objetivo SMART (editado)", "ACCEPTED", "OBJ-2-TAMPERED", "Comentário smuggle");
         SiadapInterimFeedbackDTO body = new SiadapInterimFeedbackDTO(
                 evalUuid.toString(), null, null, null, null, List.of(), List.of(), List.of(revisionDto));
 
@@ -137,6 +147,111 @@ class SaveSiadapInterimFeedbackCommandHandlerTest {
                 .orElseThrow();
         assertEquals(AcceptanceStatus.PENDING_ACCEPTANCE, saved.getApprovalStatus());
         assertEquals(null, saved.getLastNegotiationComment());
+        assertEquals("Objetivo atual", saved.getCurrentObjectiveText());
+        assertEquals("Justificação", saved.getRevisionJustification());
+        assertEquals("Novo objetivo SMART", saved.getNewObjectiveSmart());
+        assertEquals("OBJ-1", saved.getObjectiveCode());
+    }
+
+    /**
+     * Test matrix case 2 (3rd fix round, 2026-07-09): an existing DRAFT row (approvalStatus still
+     * null) must remain freely editable via this endpoint — the client's edited content must be
+     * accepted and persisted as sent, since the user is legitimately still working on the draft.
+     */
+    @Test
+    void saveAcceptsEditedContentForExistingDraftRevision() {
+        handler = handler();
+        String employeeId = UUID.randomUUID().toString();
+        String evaluatorId = UUID.randomUUID().toString();
+        SiadapEvaluation evaluation = buildEvaluation(employeeId, evaluatorId);
+        UUID evalUuid = UUID.fromString(evaluation.getId().getStringValor());
+        UUID draftRevisionId = UUID.randomUUID();
+
+        ObjectiveRevision draftRevision = ObjectiveRevision.create(
+                draftRevisionId, "Objetivo atual", "Justificação original", "SMART original",
+                null, "OBJ-1", null);
+        SiadapInterimFeedback existingFeedback = SiadapInterimFeedback.create(
+                evalUuid, null, null, null, null, List.of(), List.of(), List.of(draftRevision));
+
+        when(evaluationRepository.findById(any())).thenReturn(Optional.of(evaluation));
+        when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.from(evaluatorId));
+        when(feedbackRepository.findByEvaluationId(evalUuid)).thenReturn(Optional.of(existingFeedback));
+        when(feedbackRepository.save(any(SiadapInterimFeedback.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // The user is still editing this draft row — legitimately different content, status still
+        // null (drafts are never persisted with a non-null approvalStatus).
+        ObjectiveRevisionDTO revisionDto = new ObjectiveRevisionDTO(
+                draftRevisionId.toString(), "Objetivo atual (editado)", "Justificação editada",
+                "SMART editado", null, "OBJ-1", null);
+        SiadapInterimFeedbackDTO body = new SiadapInterimFeedbackDTO(
+                evalUuid.toString(), null, null, null, null, List.of(), List.of(), List.of(revisionDto));
+
+        SaveSiadapInterimFeedbackCommand command = new SaveSiadapInterimFeedbackCommand(evalUuid.toString(), body);
+
+        ResponseEntity<SiadapInterimFeedbackDTO> response = handler.handle(command);
+
+        assertEquals(200, response.getStatusCode().value());
+
+        ArgumentCaptor<SiadapInterimFeedback> captor = ArgumentCaptor.forClass(SiadapInterimFeedback.class);
+        verify(feedbackRepository, times(1)).save(captor.capture());
+
+        ObjectiveRevision saved = captor.getValue().getObjectiveRevisions().stream()
+                .filter(r -> draftRevisionId.equals(r.getId()))
+                .findFirst()
+                .orElseThrow();
+        assertEquals("Objetivo atual (editado)", saved.getCurrentObjectiveText());
+        assertEquals("Justificação editada", saved.getRevisionJustification());
+        assertEquals("SMART editado", saved.getNewObjectiveSmart());
+        assertEquals(null, saved.getApprovalStatus());
+    }
+
+    /**
+     * Test matrix case 3 (3rd fix round, 2026-07-09 — Bug A regression fix): an existing DRAFT row
+     * (approvalStatus null) that the incoming request omits entirely must actually be deleted —
+     * this is exactly how the "✕" button deletes a draft row (by omitting it from the next save).
+     * The previous fix round's omission-retention loop had no approvalStatus check and silently
+     * resurrected it instead; this test proves deletion actually happens, not just that no error
+     * is thrown.
+     */
+    @Test
+    void saveDeletesDraftRevisionOmittedFromRequest() {
+        handler = handler();
+        String employeeId = UUID.randomUUID().toString();
+        String evaluatorId = UUID.randomUUID().toString();
+        SiadapEvaluation evaluation = buildEvaluation(employeeId, evaluatorId);
+        UUID evalUuid = UUID.fromString(evaluation.getId().getStringValor());
+        UUID draftRevisionId = UUID.randomUUID();
+
+        ObjectiveRevision draftRevision = ObjectiveRevision.create(
+                draftRevisionId, "Objetivo atual", "Justificação", "SMART original",
+                null, "OBJ-1", null);
+        SiadapInterimFeedback existingFeedback = SiadapInterimFeedback.create(
+                evalUuid, null, null, null, null, List.of(), List.of(), List.of(draftRevision));
+
+        when(evaluationRepository.findById(any())).thenReturn(Optional.of(evaluation));
+        when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.from(evaluatorId));
+        when(feedbackRepository.findByEvaluationId(evalUuid)).thenReturn(Optional.of(existingFeedback));
+        when(feedbackRepository.save(any(SiadapInterimFeedback.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // The request omits the draft row entirely — exactly how the "✕" button deletes it.
+        SiadapInterimFeedbackDTO body = new SiadapInterimFeedbackDTO(
+                evalUuid.toString(), null, null, null, null, List.of(), List.of(), List.of());
+
+        SaveSiadapInterimFeedbackCommand command = new SaveSiadapInterimFeedbackCommand(evalUuid.toString(), body);
+
+        ResponseEntity<SiadapInterimFeedbackDTO> response = handler.handle(command);
+
+        assertEquals(200, response.getStatusCode().value());
+
+        ArgumentCaptor<SiadapInterimFeedback> captor = ArgumentCaptor.forClass(SiadapInterimFeedback.class);
+        verify(feedbackRepository, times(1)).save(captor.capture());
+
+        boolean stillPresent = captor.getValue().getObjectiveRevisions().stream()
+                .anyMatch(r -> draftRevisionId.equals(r.getId()));
+        assertEquals(false, stillPresent);
+        assertEquals(0, captor.getValue().getObjectiveRevisions().size());
     }
 
     @Test

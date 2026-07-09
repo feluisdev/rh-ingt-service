@@ -100,6 +100,25 @@ public class SaveSiadapInterimFeedbackCommandHandler
      * built from the exact same source list via a single {@code .stream().map(...)} in
      * {@code SiadapInterimFeedbackMapper.toDomain(SiadapInterimFeedbackDTO)}, with no filtering, so
      * they are guaranteed to be the same size and in the same order — safe to zip by index.
+     *
+     * <p><b>3rd fix round (2026-07-09) — Bug A (regression from the Issue-3 fix):</b> the
+     * omitted-revision retention loop below used to retain EVERY existing revision not mentioned
+     * in the incoming request, with no check on {@code approvalStatus}. That silently resurrected
+     * DRAFT rows (approvalStatus {@code null}) that a user had deliberately deleted via the "✕"
+     * button, which deletes a draft row by simply omitting it from the next save. Only LOCKED rows
+     * (non-null {@code approvalStatus}) are protected from omission-deletion — that protection is
+     * the actual CR-02/Issue-3 intent; drafts must remain freely deletable by omission.
+     *
+     * <p><b>3rd fix round (2026-07-09) — Bug B (residual gap in the original CR-01 fix):</b> for an
+     * incoming revision whose id matches an existing LOCKED revision, forcing back only
+     * {@code approvalStatus}/{@code lastNegotiationComment} left {@code currentObjectiveText},
+     * {@code revisionJustification}, {@code newObjectiveSmart} and {@code objectiveCode} passing
+     * through from the client's DTO unchanged — either party could silently rewrite the CONTENT of
+     * an already-proposed/negotiating/accepted revision through this generic endpoint, even though
+     * its status could no longer be tampered with. Once a revision is LOCKED, the entire row is now
+     * immutable via this endpoint: the existing persisted revision is re-added verbatim, and every
+     * field the client sent for that id is ignored. A DRAFT row (approvalStatus still null) is
+     * unaffected by this change — its content continues to pass through as-is, exactly as before.
      */
     private SiadapInterimFeedback reconcileRevisions(List<ObjectiveRevisionDTO> incomingDtos,
                                                       SiadapInterimFeedback incoming,
@@ -135,23 +154,41 @@ public class SaveSiadapInterimFeedbackCommandHandler
             }
 
             seenIds.add(r.getId());
-            // CR-01: force the persisted approvalStatus/lastNegotiationComment, ignoring
-            // whatever the client sent for those two fields.
-            reconciled.add(ObjectiveRevision.create(
-                    r.getId(),
-                    r.getCurrentObjectiveText(),
-                    r.getRevisionJustification(),
-                    r.getNewObjectiveSmart(),
-                    existingRevision.getApprovalStatus(),
-                    r.getObjectiveCode(),
-                    existingRevision.getLastNegotiationComment()));
+
+            if (existingRevision.getApprovalStatus() == null) {
+                // Existing revision is still a DRAFT — the client is legitimately still editing
+                // it via this generic endpoint (the only path drafts are ever saved through).
+                // Content passes through as-is; approvalStatus/lastNegotiationComment are forced
+                // back to the persisted (null) values regardless of what the client sent, since
+                // state transitions only ever happen through
+                // proposeRevision/acceptRevision/negotiateRevision.
+                reconciled.add(ObjectiveRevision.create(
+                        r.getId(),
+                        r.getCurrentObjectiveText(),
+                        r.getRevisionJustification(),
+                        r.getNewObjectiveSmart(),
+                        existingRevision.getApprovalStatus(),
+                        r.getObjectiveCode(),
+                        existingRevision.getLastNegotiationComment()));
+            } else {
+                // Bug B fix: existing revision is LOCKED (PENDING_ACCEPTANCE/NEGOTIATING/
+                // ACCEPTED/TACITLY_ACCEPTED) — the ENTIRE row is immutable via this endpoint, not
+                // just its status/comment. Ignore every field the client sent for this id and
+                // re-persist the existing revision verbatim; only the dedicated
+                // propose/accept/negotiate endpoints may ever change a locked row's content or
+                // status.
+                reconciled.add(existingRevision);
+            }
         }
 
-        // Issue 3: retain any existing persisted revision the client's request omitted entirely —
-        // without this, SiadapInterimFeedbackRepositoryImpl's delete-then-saveAll pattern would
-        // silently delete it, even if it was already PROPOSED/NEGOTIATING/ACCEPTED.
+        // Issue 3 / Bug A: retain any existing LOCKED persisted revision the client's request
+        // omitted entirely — without this, SiadapInterimFeedbackRepositoryImpl's
+        // delete-then-saveAll pattern would silently delete it, even if it was already
+        // PROPOSED/NEGOTIATING/ACCEPTED. DRAFT rows (approvalStatus null) are deliberately NOT
+        // retained here — omitting a draft row is exactly how the "✕" button deletes it, and
+        // resurrecting it here would silently undo that deletion (Bug A regression).
         existingById.forEach((id, existingRevision) -> {
-            if (!seenIds.contains(id)) {
+            if (!seenIds.contains(id) && existingRevision.getApprovalStatus() != null) {
                 reconciled.add(existingRevision);
             }
         });
