@@ -215,4 +215,52 @@ class SaveSiadapInterimFeedbackCommandHandlerTest {
         assertEquals(1, saved.size());
         assertEquals("Objetivo atual", saved.get(0).getCurrentObjectiveText());
     }
+
+    /**
+     * Issue 3 coverage (re-review, 2026-07-09): a save request that omits an already-persisted
+     * revision entirely (not necessarily via the UI — a hand-crafted request) must NOT cause that
+     * revision to be silently deleted by the repository's delete+saveAll pattern. The reconciled
+     * result must still contain it.
+     */
+    @Test
+    void saveRetainsExistingAcceptedRevisionOmittedFromRequest() {
+        handler = handler();
+        String employeeId = UUID.randomUUID().toString();
+        String evaluatorId = UUID.randomUUID().toString();
+        SiadapEvaluation evaluation = buildEvaluation(employeeId, evaluatorId);
+        UUID evalUuid = UUID.fromString(evaluation.getId().getStringValor());
+        UUID acceptedRevisionId = UUID.randomUUID();
+
+        ObjectiveRevision acceptedRevision = ObjectiveRevision.create(
+                acceptedRevisionId, "Objetivo atual", "Justificação", "Novo objetivo SMART",
+                AcceptanceStatus.ACCEPTED, "OBJ-1", null);
+        SiadapInterimFeedback existingFeedback = SiadapInterimFeedback.create(
+                evalUuid, null, null, null, null, List.of(), List.of(), List.of(acceptedRevision));
+
+        when(evaluationRepository.findById(any())).thenReturn(Optional.of(evaluation));
+        when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.from(evaluatorId));
+        when(feedbackRepository.findByEvaluationId(evalUuid)).thenReturn(Optional.of(existingFeedback));
+        when(feedbackRepository.save(any(SiadapInterimFeedback.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // The request omits `acceptedRevisionId` entirely — e.g. a hand-crafted request, or a
+        // client that only knows about the rows it currently renders.
+        SiadapInterimFeedbackDTO body = new SiadapInterimFeedbackDTO(
+                evalUuid.toString(), null, null, null, null, List.of(), List.of(), List.of());
+
+        SaveSiadapInterimFeedbackCommand command = new SaveSiadapInterimFeedbackCommand(evalUuid.toString(), body);
+
+        ResponseEntity<SiadapInterimFeedbackDTO> response = handler.handle(command);
+
+        assertEquals(200, response.getStatusCode().value());
+
+        ArgumentCaptor<SiadapInterimFeedback> captor = ArgumentCaptor.forClass(SiadapInterimFeedback.class);
+        verify(feedbackRepository, times(1)).save(captor.capture());
+
+        ObjectiveRevision retained = captor.getValue().getObjectiveRevisions().stream()
+                .filter(r -> acceptedRevisionId.equals(r.getId()))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Expected the omitted ACCEPTED revision to be retained"));
+        assertEquals(AcceptanceStatus.ACCEPTED, retained.getApprovalStatus());
+    }
 }

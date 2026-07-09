@@ -20,9 +20,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -71,13 +73,17 @@ public class SaveSiadapInterimFeedbackCommandHandler
     }
 
     /**
-     * CR-01/CR-02/Issue-1-regression: the generic save endpoint must never let a client
+     * CR-01/CR-02/Issue-1-regression/Issue-3: the generic save endpoint must never let a client
      * drive {@code approvalStatus}/{@code lastNegotiationComment} transitions directly — those
      * only ever happen through {@code proposeRevision}/{@code acceptRevision}/
      * {@code negotiateRevision} — and must never let a client "adopt" a revision id that doesn't
      * belong to THIS evaluation's persisted feedback, since
      * {@code SiadapInterimFeedbackRepositoryImpl}'s delete+saveAll save pattern would merge such an
-     * id straight into (and reassign) whatever row it currently belongs to.
+     * id straight into (and reassign) whatever row it currently belongs to. It must also never let
+     * an already-persisted revision (proposed/negotiating/accepted, or otherwise) silently vanish
+     * just because the client's request happens to omit it (Issue 3: {@code
+     * SiadapInterimFeedbackRepositoryImpl.save} does a full delete-then-recreate of only what's
+     * submitted, so an omitted revision id would otherwise be deleted server-side).
      *
      * <p><b>Regression fix (re-review, 2026-07-09):</b> "genuinely new" rows MUST be detected from
      * the RAW incoming {@link ObjectiveRevisionDTO#getId()} string (null/blank) BEFORE mapping to
@@ -104,6 +110,7 @@ public class SaveSiadapInterimFeedbackCommandHandler
                         .collect(Collectors.toMap(ObjectiveRevision::getId, r -> r));
 
         List<ObjectiveRevision> incomingRevisions = incoming.getObjectiveRevisions();
+        Set<UUID> seenIds = new HashSet<>();
         List<ObjectiveRevision> reconciled = new ArrayList<>();
 
         for (int i = 0; i < incomingRevisions.size(); i++) {
@@ -127,6 +134,7 @@ public class SaveSiadapInterimFeedbackCommandHandler
                         "Revisão de objetivo não encontrada nesta avaliação: " + r.getId());
             }
 
+            seenIds.add(r.getId());
             // CR-01: force the persisted approvalStatus/lastNegotiationComment, ignoring
             // whatever the client sent for those two fields.
             reconciled.add(ObjectiveRevision.create(
@@ -138,6 +146,15 @@ public class SaveSiadapInterimFeedbackCommandHandler
                     r.getObjectiveCode(),
                     existingRevision.getLastNegotiationComment()));
         }
+
+        // Issue 3: retain any existing persisted revision the client's request omitted entirely —
+        // without this, SiadapInterimFeedbackRepositoryImpl's delete-then-saveAll pattern would
+        // silently delete it, even if it was already PROPOSED/NEGOTIATING/ACCEPTED.
+        existingById.forEach((id, existingRevision) -> {
+            if (!seenIds.contains(id)) {
+                reconciled.add(existingRevision);
+            }
+        });
 
         return SiadapInterimFeedback.create(
                 incoming.getEvaluationId(),
