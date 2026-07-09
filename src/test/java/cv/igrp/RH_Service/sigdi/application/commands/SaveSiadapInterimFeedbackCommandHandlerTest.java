@@ -170,4 +170,49 @@ class SaveSiadapInterimFeedbackCommandHandlerTest {
         assertEquals(400, exception.getBody().getStatus());
         verify(feedbackRepository, never()).save(any());
     }
+
+    /**
+     * Regression coverage (re-review, 2026-07-09): a revision with NO client-supplied {@code id} —
+     * the exact shape the frontend sends for a brand-new, never-saved draft row — must be accepted
+     * and persisted. The previous fix round classified "genuinely new" by calling
+     * {@code .getId()} on the already-mapped domain {@link ObjectiveRevision}, which is NEVER null
+     * (the VO back-fills a random id in its constructor), so every new revision was wrongly rejected
+     * as an "unknown foreign id" with a 400. This test fails against that regression and passes
+     * against the fix (which classifies new-vs-existing from the raw DTO's id BEFORE mapping).
+     */
+    @Test
+    void saveAcceptsNewRevisionWithoutClientSuppliedId() {
+        handler = handler();
+        String employeeId = UUID.randomUUID().toString();
+        String evaluatorId = UUID.randomUUID().toString();
+        SiadapEvaluation evaluation = buildEvaluation(employeeId, evaluatorId);
+        UUID evalUuid = UUID.fromString(evaluation.getId().getStringValor());
+
+        when(evaluationRepository.findById(any())).thenReturn(Optional.of(evaluation));
+        when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.from(evaluatorId));
+        when(feedbackRepository.findByEvaluationId(evalUuid)).thenReturn(Optional.empty());
+        when(feedbackRepository.save(any(SiadapInterimFeedback.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Brand-new draft row — no `id` at all, exactly as the frontend sends it for a row the
+        // user just added via "+ Adicionar Revisão" and has never saved before.
+        ObjectiveRevisionDTO newRevisionDto = new ObjectiveRevisionDTO(
+                null, "Objetivo atual", "Justificação", "Novo objetivo SMART",
+                null, "OBJ-1", null);
+        SiadapInterimFeedbackDTO body = new SiadapInterimFeedbackDTO(
+                evalUuid.toString(), null, null, null, null, List.of(), List.of(), List.of(newRevisionDto));
+
+        SaveSiadapInterimFeedbackCommand command = new SaveSiadapInterimFeedbackCommand(evalUuid.toString(), body);
+
+        ResponseEntity<SiadapInterimFeedbackDTO> response = handler.handle(command);
+
+        assertEquals(200, response.getStatusCode().value());
+
+        ArgumentCaptor<SiadapInterimFeedback> captor = ArgumentCaptor.forClass(SiadapInterimFeedback.class);
+        verify(feedbackRepository, times(1)).save(captor.capture());
+
+        List<ObjectiveRevision> saved = captor.getValue().getObjectiveRevisions();
+        assertEquals(1, saved.size());
+        assertEquals("Objetivo atual", saved.get(0).getCurrentObjectiveText());
+    }
 }
