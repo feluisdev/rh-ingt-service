@@ -39,4 +39,7 @@ public class SiadapInterimObjectiveRevisionEntity extends AuditEntity {
 
     @Column(name = "objective_code", length = 50)
     private String objectiveCode;
+
+    @Column(name = "last_negotiation_comment", columnDefinition = "TEXT")
+    private String lastNegotiationComment;
 }
