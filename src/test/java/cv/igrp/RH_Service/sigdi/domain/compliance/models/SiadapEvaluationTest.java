@@ -158,4 +158,48 @@ class SiadapEvaluationTest {
         assertEquals(AcceptanceStatus.ACCEPTED, evaluated.getAcceptanceStatus());
         assertEquals(EvaluationPhase.IN_PROGRESS, evaluated.getPhase());
     }
+
+    @Test
+    void applyObjectiveRevision_replacesOnlyDescription_preservesOtherFields() {
+        SiadapEvaluation inProgress = buildOpenEvaluation()
+                .contractualizeObjectives(buildValidObjectives())
+                .acceptObjectives();
+
+        SiadapEvaluation revised = inProgress.applyObjectiveRevision("OBJ-1", "Nova descrição revista");
+
+        IndividualObjective obj1 = revised.getObjectives().stream()
+                .filter(o -> "OBJ-1".equals(o.getCode())).findFirst().orElseThrow();
+        assertEquals("Nova descrição revista", obj1.getDescription());
+        assertEquals("Indicador 1", obj1.getIndicator());
+        assertEquals(new BigDecimal("100"), obj1.getTargetValue());
+        assertEquals(new BigDecimal("40"), obj1.getWeight());
+        assertEquals(null, obj1.getAchievedValue());
+        assertEquals(null, obj1.getScore());
+
+        IndividualObjective obj2 = revised.getObjectives().stream()
+                .filter(o -> "OBJ-2".equals(o.getCode())).findFirst().orElseThrow();
+        assertEquals("Descrição do objetivo 2", obj2.getDescription());
+
+        IndividualObjective obj3 = revised.getObjectives().stream()
+                .filter(o -> "OBJ-3".equals(o.getCode())).findFirst().orElseThrow();
+        assertEquals("Descrição do objetivo 3", obj3.getDescription());
+    }
+
+    @Test
+    void applyObjectiveRevision_rejectedWhenCodeNotFound() {
+        SiadapEvaluation inProgress = buildOpenEvaluation()
+                .contractualizeObjectives(buildValidObjectives())
+                .acceptObjectives();
+
+        assertThrows(IgrpResponseStatusException.class,
+                () -> inProgress.applyObjectiveRevision("OBJ-999", "Nova descrição revista"));
+    }
+
+    @Test
+    void applyObjectiveRevision_rejectedWhenPhaseNotEligible() {
+        SiadapEvaluation open = buildOpenEvaluation().contractualizeObjectives(buildValidObjectives());
+
+        assertThrows(IgrpResponseStatusException.class,
+                () -> open.applyObjectiveRevision("OBJ-1", "Nova descrição revista"));
+    }
 }

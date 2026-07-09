@@ -268,6 +268,33 @@ public class SiadapEvaluation {
     }
 
     /**
+     * Aplica o novo texto de uma revisão de objetivo aceite (RECONC-04) à descrição do
+     * objetivo individual correspondente, preservando indicador/meta/valor atingido/score/peso.
+     *
+     * @param objectiveCode código do objetivo cuja descrição vai ser substituída
+     * @param newDescription novo texto (SMART) do objetivo, resultante da revisão aceite
+     */
+    public SiadapEvaluation applyObjectiveRevision(String objectiveCode, String newDescription) {
+        if (!EvaluationPhase.IN_PROGRESS.equals(this.phase) && !EvaluationPhase.MANAGER_EVALUATION.equals(this.phase))
+            throw IgrpResponseStatusException.badRequest(
+                    "A revisão de objetivos só pode ser aplicada nas fases IN_PROGRESS ou MANAGER_EVALUATION");
+
+        List<IndividualObjective> updated = this.objectives.stream()
+                .map(obj -> objectiveCode.equals(obj.getCode()) ? obj.withRevisedDescription(newDescription) : obj)
+                .collect(Collectors.toList());
+
+        if (updated.stream().noneMatch(obj -> objectiveCode.equals(obj.getCode())))
+            throw IgrpResponseStatusException.badRequest("Objetivo não encontrado: " + objectiveCode);
+
+        return new SiadapEvaluation(this.id, this.employeeId, this.year,
+                this.organicUnitId, this.evaluatorId,
+                updated, this.competencies,
+                this.resultsWeight, this.competenciesWeight,
+                this.selfEvaluationScore, this.finalScore, this.meritRating, this.validatedQuota,
+                this.phase, this.acceptanceStatus, this.lastNegotiationComment);
+    }
+
+    /**
      * O colaborador submete a autoavaliação (score global de autoavaliação 1-5).
      * Transita para fase MANAGER_EVALUATION.
      */
