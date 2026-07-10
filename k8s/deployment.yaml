@@ -27,12 +27,17 @@ spec:
               cpu: "500m"
               memory: "1Gi"
           env:
+            - name: SERVICE_PORT
+              value: "8080"
             - name: SPRING_DATASOURCE_URL
               value: "jdbc:postgresql://sumpleu-cnpg-cluster-rw:5432/sipprog_rh_db"
             - name: SPRING_DATASOURCE_USERNAME
               value: "postgres"
             - name: SPRING_DATASOURCE_PASSWORD
               value: "postgres"
-            - name: SPRING_FLYWAY_CLEAN_ON_STARTUP
-              value: "true"  # Mude para "false" após a limpeza ou mantenha em segredos de CI
-          
+            - name: SPRING_PROFILES_ACTIVE
+              value: "kubernetes,development"
+            - name: SPRING_FLYWAY_REPAIR_ON_MIGRATE
+              value: "true"
+            # SPRING_FLYWAY_CLEAN_ON_STARTUP removido — apagava o banco a cada restart
+
