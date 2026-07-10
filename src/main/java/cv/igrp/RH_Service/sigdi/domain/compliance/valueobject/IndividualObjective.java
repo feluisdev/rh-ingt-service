@@ -76,6 +76,16 @@ public class IndividualObjective {
                 this.targetValue, achieved, siadapScore, this.weight);
     }
 
+    /**
+     * Substitui apenas a descrição do objetivo, preservando indicador/meta/valor atingido/score/peso.
+     *
+     * @param newDescription nova descrição do objetivo
+     */
+    public IndividualObjective withRevisedDescription(String newDescription) {
+        return new IndividualObjective(this.code, newDescription, this.indicator,
+                this.targetValue, this.achievedValue, this.score, this.weight);
+    }
+
     /** Retorna a pontuação ponderada deste objetivo (score * weight / 100). */
     public BigDecimal getWeightedScore() {
         if (score == null) return BigDecimal.ZERO;

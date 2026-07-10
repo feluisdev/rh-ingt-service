@@ -23,4 +23,6 @@ public class PaaSubmissionPeriodResponseDTO {
     private String statusDesc;
     private Integer year;
     private Long daysRemaining;
+    private String purpose;
+    private String purposeDesc;
 }

@@ -38,9 +38,6 @@ import cv.igrp.RH_Service.sigdi.application.dto.CreateOkrDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.OkrResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityDetailDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperWorkflowInboxDTO;
-import cv.igrp.RH_Service.sigdi.application.dto.CreatePaaSubmissionPeriodDTO;
-import cv.igrp.RH_Service.sigdi.application.dto.PaaSubmissionPeriodResponseDTO;
-import cv.igrp.RH_Service.sigdi.application.dto.WrapperListPaaSubmissionPeriodDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.NegotiateActivityDTO;
 
 @IgrpController
@@ -574,51 +571,6 @@ public class TaticalController {
       assignBudgetRequest.setActivityId(java.util.UUID.fromString(id));
       final var command = new AssignTacticalActivityBudgetCommand(assignBudgetRequest);
       return commandBus.send(command);
-  }
-
-  @PostMapping(value = "periods")
-  @Operation(
-      summary = "Create PAA Submission Period",
-      description = "Cria um período de submissão PAA (UNIT ou INDIVIDUAL)"
-  )
-  public ResponseEntity<PaaSubmissionPeriodResponseDTO> createPaaSubmissionPeriod(
-      @Valid @RequestBody CreatePaaSubmissionPeriodDTO createPaaSubmissionPeriodRequest) {
-      final var command = new CreatePaaSubmissionPeriodCommand(createPaaSubmissionPeriodRequest);
-      return commandBus.send(command);
-  }
-
-  @PutMapping(value = "periods/{id}/close")
-  @Operation(
-      summary = "Close PAA Submission Period",
-      description = "Fecha um período de submissão PAA"
-  )
-  public ResponseEntity<PaaSubmissionPeriodResponseDTO> closePaaSubmissionPeriod(
-      @PathVariable(value = "id") String id) {
-      final var command = new ClosePaaSubmissionPeriodCommand(java.util.UUID.fromString(id));
-      return commandBus.send(command);
-  }
-
-  @GetMapping(value = "periods/active")
-  @Operation(
-      summary = "Get Active PAA Submission Period",
-      description = "Retorna o período de submissão ativo para o tipo solicitado"
-  )
-  public ResponseEntity<PaaSubmissionPeriodResponseDTO> getActiveSubmissionPeriod(
-      @RequestParam(value = "type") String type) {
-      final var query = new GetActiveSubmissionPeriodQuery(type);
-      return queryBus.handle(query);
-  }
-
-  @GetMapping(value = "periods")
-  @Operation(
-      summary = "Get All PAA Submission Periods",
-      description = "Lista todos os períodos de submissão PAA"
-  )
-  public ResponseEntity<WrapperListPaaSubmissionPeriodDTO> getAllSubmissionPeriods(
-      @RequestParam(value = "pageNumber", required = false, defaultValue = "0") String pageNumber,
-      @RequestParam(value = "pageSize", required = false, defaultValue = "20") String pageSize) {
-      final var query = new GetAllSubmissionPeriodsQuery(pageNumber, pageSize);
-      return queryBus.handle(query);
   }
 
   @PostMapping(value = "activities/{id}/accept")

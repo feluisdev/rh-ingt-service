@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.mappers.compliance;
 
+import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
 import cv.igrp.RH_Service.sigdi.application.dto.CompetencyObservationDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.ImprovementActionDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.ObjectiveRevisionDTO;
@@ -37,7 +38,12 @@ public class SiadapInterimFeedbackMapper {
                 .collect(Collectors.toList()) : new ArrayList<>();
 
         List<ObjectiveRevision> revisions = revisionEntities != null ? revisionEntities.stream()
-                .map(e -> ObjectiveRevision.reconstruct(e.getCurrentObjectiveText(), e.getRevisionJustification(), e.getNewObjectiveSmart(), e.getApprovalStatus()))
+                .map(e -> {
+                    AcceptanceStatus status = (e.getApprovalStatus() != null && !e.getApprovalStatus().isBlank())
+                            ? AcceptanceStatus.fromCodeOrThrow(e.getApprovalStatus())
+                            : null;
+                    return ObjectiveRevision.reconstruct(e.getId(), e.getCurrentObjectiveText(), e.getRevisionJustification(), e.getNewObjectiveSmart(), status, e.getObjectiveCode(), e.getLastNegotiationComment());
+                })
                 .collect(Collectors.toList()) : new ArrayList<>();
 
         return SiadapInterimFeedback.reconstruct(
@@ -97,12 +103,14 @@ public class SiadapInterimFeedbackMapper {
         UUID evalId = domain.getEvaluationId();
         return domain.getObjectiveRevisions().stream().map(r -> {
             SiadapInterimObjectiveRevisionEntity entity = new SiadapInterimObjectiveRevisionEntity();
-            entity.setId(UUID.randomUUID());
+            entity.setId(r.getId());
             entity.setEvaluationId(evalId);
             entity.setCurrentObjectiveText(r.getCurrentObjectiveText());
             entity.setRevisionJustification(r.getRevisionJustification());
             entity.setNewObjectiveSmart(r.getNewObjectiveSmart());
-            entity.setApprovalStatus(r.getApprovalStatus());
+            entity.setApprovalStatus(r.getApprovalStatus() != null ? r.getApprovalStatus().getCode() : null);
+            entity.setObjectiveCode(r.getObjectiveCode());
+            entity.setLastNegotiationComment(r.getLastNegotiationComment());
             return entity;
         }).collect(Collectors.toList());
     }
@@ -119,7 +127,14 @@ public class SiadapInterimFeedbackMapper {
                 .collect(Collectors.toList());
 
         List<ObjectiveRevisionDTO> revisions = domain.getObjectiveRevisions().stream()
-                .map(r -> new ObjectiveRevisionDTO(r.getCurrentObjectiveText(), r.getRevisionJustification(), r.getNewObjectiveSmart(), r.getApprovalStatus()))
+                .map(r -> new ObjectiveRevisionDTO(
+                        r.getId() != null ? r.getId().toString() : null,
+                        r.getCurrentObjectiveText(),
+                        r.getRevisionJustification(),
+                        r.getNewObjectiveSmart(),
+                        r.getApprovalStatus() != null ? r.getApprovalStatus().getCode() : null,
+                        r.getObjectiveCode(),
+                        r.getLastNegotiationComment()))
                 .collect(Collectors.toList());
 
         return new SiadapInterimFeedbackDTO(
@@ -148,7 +163,13 @@ public class SiadapInterimFeedbackMapper {
                 .collect(Collectors.toList()) : new ArrayList<>();
 
         List<ObjectiveRevision> revisions = dto.getObjectiveRevisions() != null ? dto.getObjectiveRevisions().stream()
-                .map(r -> ObjectiveRevision.create(r.getCurrentObjectiveText(), r.getRevisionJustification(), r.getNewObjectiveSmart(), r.getApprovalStatus()))
+                .map(r -> {
+                    UUID id = (r.getId() != null && !r.getId().isBlank()) ? UUID.fromString(r.getId()) : null;
+                    AcceptanceStatus status = (r.getApprovalStatus() != null && !r.getApprovalStatus().isBlank())
+                            ? AcceptanceStatus.fromCodeOrThrow(r.getApprovalStatus())
+                            : null;
+                    return ObjectiveRevision.create(id, r.getCurrentObjectiveText(), r.getRevisionJustification(), r.getNewObjectiveSmart(), status, r.getObjectiveCode(), r.getLastNegotiationComment());
+                })
                 .collect(Collectors.toList()) : new ArrayList<>();
 
         return SiadapInterimFeedback.create(

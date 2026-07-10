@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.mappers.compliance;
 
+import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
 import cv.igrp.RH_Service.sigdi.application.constants.CompetencyCategory;
 import cv.igrp.RH_Service.sigdi.application.constants.EvaluationPhase;
 import cv.igrp.RH_Service.sigdi.application.constants.SiadapMeritRating;
@@ -42,6 +43,10 @@ public class SiadapEvaluationMapper {
         ? EvaluationPhase.fromCodeOrThrow(entity.getEvaluationPhase())
         : EvaluationPhase.OPEN;
 
+    AcceptanceStatus acceptanceStatus = entity.getAcceptanceStatus() != null
+        ? AcceptanceStatus.fromCodeOrThrow(entity.getAcceptanceStatus())
+        : null;
+
     return SiadapEvaluation.reconstruct(
         SiadapEvaluationId.from(entity.getId()),
         entity.getEmployeeId(),
@@ -56,7 +61,9 @@ public class SiadapEvaluationMapper {
         entity.getFinalScore(),
         entity.getMeritRating() != null ? SiadapMeritRating.fromCodeOrThrow(entity.getMeritRating()) : null,
         entity.isValidatedQuota(),
-        phase
+        phase,
+        acceptanceStatus,
+        entity.getLastNegotiationComment()
     );
   }
 
@@ -75,6 +82,8 @@ public class SiadapEvaluationMapper {
     entity.setOrganicUnitId(domain.getOrganicUnitId());
     entity.setEvaluatorId(domain.getEvaluatorId());
     entity.setEvaluationPhase(domain.getPhase() != null ? domain.getPhase().getCode() : null);
+    entity.setAcceptanceStatus(domain.getAcceptanceStatus() != null ? domain.getAcceptanceStatus().getCode() : null);
+    entity.setLastNegotiationComment(domain.getLastNegotiationComment());
     entity.setSelfEvaluationScore(domain.getSelfEvaluationScore());
     entity.setFinalScore(domain.getFinalScore());
     entity.setResultsWeight(domain.getResultsWeight());
@@ -106,9 +115,49 @@ public class SiadapEvaluationMapper {
     dto.setOrganicUnitId(e.getOrganicUnitId());
     dto.setEvaluatorId(e.getEvaluatorId());
     dto.setPhase(e.getEvaluationPhase());
+    dto.setAcceptanceStatus(e.getAcceptanceStatus());
+    dto.setAcceptanceStatusDesc(AcceptanceStatus.fromCode(e.getAcceptanceStatus())
+        .map(AcceptanceStatus::getDescription).orElse(null));
+    dto.setLastNegotiationComment(e.getLastNegotiationComment());
     dto.setSelfEvaluationScore(e.getSelfEvaluationScore());
     dto.setResultsWeight(e.getResultsWeight());
     dto.setCompetenciesWeight(e.getCompetenciesWeight());
+    return dto;
+  }
+
+  /**
+   * WR-03: assembles the full DTO — scalar fields plus {@code objectives}/{@code competencies} —
+   * from the domain aggregate directly, mirroring the manual population previously duplicated
+   * only in {@code GetEvaluationDetailQueryHandler}. Command handlers should call this instead
+   * of the incomplete {@code toDto(toEntity(domain))} round-trip so mutation responses are
+   * usable for rendering the objectives/competencies list without a follow-up GET.
+   */
+  public SiadapEvaluationDTO toFullDto(SiadapEvaluation domain) {
+    SiadapEvaluationDTO dto = toDto(toEntity(domain));
+
+    List<IndividualObjectiveDTO> objectives = domain.getObjectives().stream()
+        .map(obj -> new IndividualObjectiveDTO(
+            obj.getCode(),
+            obj.getDescription(),
+            obj.getIndicator(),
+            obj.getTargetValue(),
+            obj.getAchievedValue(),
+            obj.getScore(),
+            obj.getWeight()
+        ))
+        .collect(Collectors.toList());
+    dto.setObjectives(objectives);
+
+    List<CompetencyItemDTO> competencies = domain.getCompetencies().stream()
+        .map(comp -> new CompetencyItemDTO(
+            comp.getCompetencyCode(),
+            comp.getCompetencyName(),
+            comp.getCategory().getCode(),
+            comp.getScore()
+        ))
+        .collect(Collectors.toList());
+    dto.setCompetencies(competencies);
+
     return dto;
   }
 

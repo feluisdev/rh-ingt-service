@@ -8,8 +8,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ObjectiveRevisionDTO {
+    private String id;
     private String currentObjectiveText;
     private String revisionJustification;
     private String newObjectiveSmart;
     private String approvalStatus;
+    private String objectiveCode;
+    private String lastNegotiationComment;
 }

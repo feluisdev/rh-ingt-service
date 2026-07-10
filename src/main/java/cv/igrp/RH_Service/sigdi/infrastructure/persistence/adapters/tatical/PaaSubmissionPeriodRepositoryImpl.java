@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.tatical;
 
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
+import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.PaaSubmissionPeriod;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.tatical.PaaSubmissionPeriodMapper;
@@ -39,18 +40,6 @@ public class PaaSubmissionPeriodRepositoryImpl implements PaaSubmissionPeriodRep
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<PaaSubmissionPeriod> findActiveByType(PaaLevel type) {
-        return jpaRepository.findActiveByType(type.getCode()).map(mapper::toDomain);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Optional<PaaSubmissionPeriod> findByTypeAndYearAndStatus(PaaLevel type, Integer year, String status) {
-        return jpaRepository.findByTypeAndYearAndStatus(type.getCode(), year, status).map(mapper::toDomain);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
     public List<PaaSubmissionPeriod> findAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return jpaRepository.findAll(pageable)
@@ -63,5 +52,53 @@ public class PaaSubmissionPeriodRepositoryImpl implements PaaSubmissionPeriodRep
     @Override
     public long countAll() {
         return jpaRepository.count();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<PaaSubmissionPeriod> findActiveByTypeAndPurpose(PaaLevel type, Purpose purpose) {
+        // Defensive: (type, purpose) is not enforced unique across overlapping date ranges
+        // (see 59-REVIEW.md CR-02) — take the most recently created match instead of assuming
+        // a single result, to avoid IncorrectResultSizeDataAccessException.
+        return jpaRepository.findAllActiveByTypeAndPurpose(type.getCode(), purpose.getCode())
+                .stream()
+                .findFirst()
+                .map(mapper::toDomain);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<PaaSubmissionPeriod> findActiveByTypeAndYearAndPurpose(PaaLevel type, Integer year, Purpose purpose) {
+        // Defensive — see comment on findActiveByTypeAndPurpose above.
+        return jpaRepository.findAllActiveByTypeAndYearAndPurpose(type.getCode(), year, purpose.getCode())
+                .stream()
+                .findFirst()
+                .map(mapper::toDomain);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<PaaSubmissionPeriod> findByTypeAndYearAndStatusAndPurpose(PaaLevel type, Integer year, String status, Purpose purpose) {
+        // Defensive — see comment on findActiveByTypeAndPurpose above.
+        return jpaRepository.findAllByTypeAndYearAndStatusAndPurpose(type.getCode(), year, status, purpose.getCode())
+                .stream()
+                .findFirst()
+                .map(mapper::toDomain);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<PaaSubmissionPeriod> findAllByPurpose(int page, int size, Purpose purpose) {
+        Pageable pageable = PageRequest.of(page, size);
+        return jpaRepository.findByPurpose(purpose.getCode(), pageable)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public long countAllByPurpose(Purpose purpose) {
+        return jpaRepository.countByPurpose(purpose.getCode());
     }
 }

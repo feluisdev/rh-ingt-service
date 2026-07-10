@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.sigdi.domain.tatical.models;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
+import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import lombok.Getter;
 
 import java.time.LocalDate;
@@ -11,14 +12,16 @@ import java.util.UUID;
 public class PaaSubmissionPeriod {
 
     private final UUID id;
+    private final Purpose purpose;
     private final PaaLevel type;
     private final LocalDate startDate;
     private final LocalDate endDate;
     private final String status; // OPEN | CLOSED
     private final Integer year;
 
-    private PaaSubmissionPeriod(UUID id, PaaLevel type, LocalDate startDate,
+    private PaaSubmissionPeriod(UUID id, Purpose purpose, PaaLevel type, LocalDate startDate,
                                 LocalDate endDate, String status, Integer year) {
+        if (purpose == null) throw new IllegalArgumentException("purpose é obrigatório");
         if (type == null) throw new IllegalArgumentException("type é obrigatório");
         if (startDate == null) throw new IllegalArgumentException("startDate é obrigatório");
         if (endDate == null) throw new IllegalArgumentException("endDate é obrigatório");
@@ -27,6 +30,7 @@ public class PaaSubmissionPeriod {
         if (year == null) throw new IllegalArgumentException("year é obrigatório");
 
         this.id = id;
+        this.purpose = purpose;
         this.type = type;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -34,20 +38,26 @@ public class PaaSubmissionPeriod {
         this.year = year;
     }
 
-    public static PaaSubmissionPeriod create(PaaLevel type, LocalDate startDate,
+    public static PaaSubmissionPeriod create(Purpose purpose, PaaLevel type, LocalDate startDate,
                                               LocalDate endDate, Integer year) {
-        return new PaaSubmissionPeriod(UUID.randomUUID(), type, startDate, endDate, "OPEN", year);
+        return new PaaSubmissionPeriod(UUID.randomUUID(), purpose, type, startDate, endDate, "OPEN", year);
     }
 
-    public static PaaSubmissionPeriod reconstruct(UUID id, PaaLevel type, LocalDate startDate,
+    /** Backward-compatible overload — defaults purpose to PAA for callers not yet updated. */
+    public static PaaSubmissionPeriod create(PaaLevel type, LocalDate startDate,
+                                              LocalDate endDate, Integer year) {
+        return create(Purpose.PAA, type, startDate, endDate, year);
+    }
+
+    public static PaaSubmissionPeriod reconstruct(UUID id, Purpose purpose, PaaLevel type, LocalDate startDate,
                                                    LocalDate endDate, String status, Integer year) {
-        return new PaaSubmissionPeriod(id, type, startDate, endDate, status, year);
+        return new PaaSubmissionPeriod(id, purpose, type, startDate, endDate, status, year);
     }
 
     public PaaSubmissionPeriod close() {
         if ("CLOSED".equals(this.status))
             throw IgrpResponseStatusException.badRequest("Período já está fechado");
-        return new PaaSubmissionPeriod(this.id, this.type, this.startDate, this.endDate, "CLOSED", this.year);
+        return new PaaSubmissionPeriod(this.id, this.purpose, this.type, this.startDate, this.endDate, "CLOSED", this.year);
     }
 
     public boolean isOpen() {

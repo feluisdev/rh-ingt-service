@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.mappers.tatical;
 
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
+import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.PaaSubmissionPeriod;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.PaaSubmissionPeriodEntity;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ public class PaaSubmissionPeriodMapper {
 
         return PaaSubmissionPeriod.reconstruct(
                 entity.getId(),
+                Purpose.fromCodeOrThrow(entity.getPurpose()),
                 PaaLevel.fromCodeOrThrow(entity.getType()),
                 entity.getStartDate(),
                 entity.getEndDate(),
@@ -27,6 +29,7 @@ public class PaaSubmissionPeriodMapper {
         PaaSubmissionPeriodEntity entity = new PaaSubmissionPeriodEntity();
         entity.setId(domain.getId());
         entity.setType(domain.getType().getCode());
+        entity.setPurpose(domain.getPurpose().getCode());
         entity.setStartDate(domain.getStartDate());
         entity.setEndDate(domain.getEndDate());
         entity.setStatus(domain.getStatus());

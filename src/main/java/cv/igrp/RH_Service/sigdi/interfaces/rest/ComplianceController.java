@@ -33,6 +33,8 @@ import cv.igrp.RH_Service.sigdi.application.dto.FinalizeEvaluationRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.IndividualObjectiveDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.CompetencyItemDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapInterimFeedbackDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.NegotiateSiadapObjectivesRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.NegotiateObjectiveRevisionRequestDTO;
 import java.util.List;
 
 @IgrpController
@@ -247,6 +249,47 @@ public class ComplianceController {
     return commandBus.send(command);
   }
 
+  @PostMapping(value = "siadap/evaluations/{id}/objectives/accept")
+  @Operation(
+    summary = "Accept proposed objectives",
+    description = "Avaliado aceita os objetivos propostos pelo avaliador.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SiadapEvaluationDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<SiadapEvaluationDTO> acceptSiadapObjectives(
+    @PathVariable("id") String id)
+  {
+    return commandBus.send(new AcceptSiadapObjectivesCommand(id));
+  }
+
+  @PostMapping(value = "siadap/evaluations/{id}/objectives/negotiate")
+  @Operation(
+    summary = "Negotiate proposed objectives",
+    description = "Avaliado solicita negociação dos objetivos propostos.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SiadapEvaluationDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<SiadapEvaluationDTO> negotiateSiadapObjectives(
+    @PathVariable("id") String id,
+    @Valid @RequestBody NegotiateSiadapObjectivesRequestDTO body)
+  {
+    return commandBus.send(new NegotiateSiadapObjectivesCommand(id, body));
+  }
+
   @PostMapping(value = "siadap/evaluations/{id}/competencies")
   @Operation(
     summary = "Evaluate competencies",
@@ -379,5 +422,42 @@ public class ComplianceController {
   {
     final var command = new SaveSiadapInterimFeedbackCommand(id, body);
     return commandBus.send(command);
+  }
+
+  @PostMapping(value = "siadap/evaluations/{id}/interim-feedback/revisions/{revisionId}/propose")
+  @Operation(
+    summary = "Propose an objective revision",
+    description = "Avaliador propõe formalmente uma revisão de objetivo."
+  )
+  public ResponseEntity<SiadapInterimFeedbackDTO> proposeObjectiveRevision(
+    @PathVariable("id") String id,
+    @PathVariable("revisionId") String revisionId)
+  {
+    return commandBus.send(new ProposeObjectiveRevisionCommand(id, revisionId));
+  }
+
+  @PostMapping(value = "siadap/evaluations/{id}/interim-feedback/revisions/{revisionId}/accept")
+  @Operation(
+    summary = "Accept an objective revision",
+    description = "Avaliado aceita a revisão proposta; o objetivo revisto passa a ser o de referência (RECONC-04)."
+  )
+  public ResponseEntity<SiadapInterimFeedbackDTO> acceptObjectiveRevision(
+    @PathVariable("id") String id,
+    @PathVariable("revisionId") String revisionId)
+  {
+    return commandBus.send(new AcceptObjectiveRevisionCommand(id, revisionId));
+  }
+
+  @PostMapping(value = "siadap/evaluations/{id}/interim-feedback/revisions/{revisionId}/negotiate")
+  @Operation(
+    summary = "Negotiate an objective revision",
+    description = "Avaliado solicita negociação da revisão proposta."
+  )
+  public ResponseEntity<SiadapInterimFeedbackDTO> negotiateObjectiveRevision(
+    @PathVariable("id") String id,
+    @PathVariable("revisionId") String revisionId,
+    @Valid @RequestBody NegotiateObjectiveRevisionRequestDTO body)
+  {
+    return commandBus.send(new NegotiateObjectiveRevisionCommand(id, revisionId, body));
   }
 }
