@@ -62,4 +62,29 @@ public class UpdateStrategicGoalsCommandHandlerTest {
         assertEquals(2027, savedCaptor.getValue().getYear());
         assertEquals(200, response.getStatusCode().value());
     }
+
+    @Test
+    void handleWithNullYearPreservesExistingGoalsYear() {
+        StrategicGoal existingGoal = StrategicGoal.create(
+                UUID.randomUUID(), InstitutionalIdentityId.gerarNovo(), "Objetivo Original",
+                StrategicGoalsPerspective.FINANCIAL, BigDecimal.ONE, "Descrição original",
+                2020, new ArrayList<>());
+
+        when(goalRepository.findById(any(StrategicGoalId.class))).thenReturn(Optional.of(existingGoal));
+        when(goalRepository.save(any(StrategicGoal.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        UpdateStategicGoalDTO dto = new UpdateStategicGoalDTO();
+        dto.setTitle("Objetivo Original");
+        dto.setDescription("Descrição original");
+        dto.setWeight(BigDecimal.ONE);
+        dto.setYear(null); // omitted on the edit form -- must NOT clear the existing year
+
+        updateStrategicGoalsCommandHandler.handle(
+                new UpdateStrategicGoalsCommand(dto, UUID.randomUUID().toString()));
+
+        ArgumentCaptor<StrategicGoal> savedCaptor = ArgumentCaptor.forClass(StrategicGoal.class);
+        verify(goalRepository).save(savedCaptor.capture());
+        assertEquals(2020, savedCaptor.getValue().getYear());
+    }
 }
