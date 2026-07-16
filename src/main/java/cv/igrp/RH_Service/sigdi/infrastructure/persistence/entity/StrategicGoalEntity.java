@@ -64,6 +64,8 @@ public class StrategicGoalEntity extends AuditEntity {
     private Double positionY;
 
 
+    @Column(name="year")
+    private Integer year;
 
 
     @OneToMany(mappedBy = "parentGoalId", fetch = FetchType.LAZY)

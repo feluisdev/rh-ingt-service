@@ -37,6 +37,10 @@ public class CreateStategicGoalDTO  {
   
   private UUID parentGoalId ;
 
+  @Min(value = 2000, message = "The field <year> must be at least 2000")
+  @Max(value = 2100, message = "The field <year> cannot be more than 2100")
+  private Integer year ;
+
   private java.util.List<StrategicIndicatorDTO> indicators = new java.util.ArrayList<>();
 
 }
