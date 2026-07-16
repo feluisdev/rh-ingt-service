@@ -22,12 +22,13 @@ public class StrategicGoal {
   private final String description;
   private final Double positionX;
   private final Double positionY;
+  private final Integer year;
   private final java.util.List<StrategicIndicator> indicators;
 
   private StrategicGoal(StrategicGoalId id, UUID institutionId, InstitutionalIdentityId identityId,
                         String title, StrategicGoalsPerspective perspective, BigDecimal weight,
                         Estado status, String description, Double positionX, Double positionY,
-                        java.util.List<StrategicIndicator> indicators) {
+                        Integer year, java.util.List<StrategicIndicator> indicators) {
     if (title == null || title.trim().isEmpty())
       throw new IllegalArgumentException("title é obrigatório");
     if (identityId == null)
@@ -43,43 +44,46 @@ public class StrategicGoal {
     this.description = description;
     this.positionX = positionX;
     this.positionY = positionY;
+    this.year = year;
     this.indicators = (indicators != null) ? indicators : new java.util.ArrayList<>();
   }
 
   public static StrategicGoal create(UUID institutionId, InstitutionalIdentityId identityId,
                                      String title, StrategicGoalsPerspective perspective,
-                                     BigDecimal weight, String description,
+                                     BigDecimal weight, String description, Integer year,
                                      java.util.List<StrategicIndicator> indicators) {
     return new StrategicGoal(StrategicGoalId.gerarNovo(), institutionId, identityId, title,
-        perspective, weight, Estado.A, description, null, null, indicators);
+        perspective, weight, Estado.A, description, null, null, year, indicators);
   }
 
   public static StrategicGoal reconstruct(StrategicGoalId id, UUID institutionId,
                                           InstitutionalIdentityId identityId, String title,
                                           StrategicGoalsPerspective perspective, BigDecimal weight,
                                           Estado status, String description,
-                                          Double positionX, Double positionY,
+                                          Double positionX, Double positionY, Integer year,
                                           java.util.List<StrategicIndicator> indicators) {
     return new StrategicGoal(id, institutionId, identityId, title, perspective, weight, status,
-        description, positionX, positionY, indicators);
+        description, positionX, positionY, year, indicators);
   }
 
-  public StrategicGoal update(String newTitle, String newDescription, BigDecimal newWeight, java.util.List<StrategicIndicator> newIndicators) {
+  public StrategicGoal update(String newTitle, String newDescription, BigDecimal newWeight,
+                               Integer newYear, java.util.List<StrategicIndicator> newIndicators) {
     String title = (newTitle != null && !newTitle.isBlank()) ? newTitle : this.title;
     String description = newDescription != null ? newDescription : this.description;
     BigDecimal weight = newWeight != null ? newWeight : this.weight;
+    Integer year = newYear != null ? newYear : this.year;
     return new StrategicGoal(this.id, this.institutionId, this.identityId, title, this.perspective,
-        weight, this.status, description, this.positionX, this.positionY, newIndicators != null ? newIndicators : this.indicators);
+        weight, this.status, description, this.positionX, this.positionY, year, newIndicators != null ? newIndicators : this.indicators);
   }
 
   public StrategicGoal cancel() {
     return new StrategicGoal(this.id, this.institutionId, this.identityId, this.title,
-        this.perspective, this.weight, Estado.I, this.description, this.positionX, this.positionY, this.indicators);
+        this.perspective, this.weight, Estado.I, this.description, this.positionX, this.positionY, this.year, this.indicators);
   }
 
   public StrategicGoal updatePosition(Double x, Double y) {
     return new StrategicGoal(this.id, this.institutionId, this.identityId, this.title,
-        this.perspective, this.weight, this.status, this.description, x, y, this.indicators);
+        this.perspective, this.weight, this.status, this.description, x, y, this.year, this.indicators);
   }
 
   public boolean isActive() {

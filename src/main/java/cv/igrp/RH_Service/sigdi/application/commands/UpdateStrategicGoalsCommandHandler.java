@@ -76,7 +76,7 @@ public class UpdateStrategicGoalsCommandHandler implements CommandHandler<Update
         }).collect(java.util.stream.Collectors.toList());
     }
 
-    StrategicGoal updated = goal.update(dto.getTitle(), dto.getDescription(), dto.getWeight(), domainIndicators);
+    StrategicGoal updated = goal.update(dto.getTitle(), dto.getDescription(), dto.getWeight(), dto.getYear(), domainIndicators);
     StrategicGoal saved = goalRepository.save(updated);
 
     return ResponseEntity.ok(goalMapper.toResponse(saved));

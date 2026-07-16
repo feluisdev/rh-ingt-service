@@ -69,6 +69,7 @@ public class CreateStrategicGoalCommandHandler
         perspective,
         request.getWeight(),
         request.getDescription(),
+        request.getYear(),
         domainIndicators);
 
     StrategicGoal saved = goalRepository.save(goal);

@@ -50,6 +50,7 @@ public class StrategicGoalMapper {
         entity.getDescription(),
         entity.getPositionX(),
         entity.getPositionY(),
+        entity.getYear(),
         domainIndicators
     );
   }
@@ -66,6 +67,7 @@ public class StrategicGoalMapper {
     dto.setDescription(domain.getDescription());
     dto.setStatus(domain.getStatus().getCode());
     dto.setStatusDesc(domain.getStatus().getDescription());
+    dto.setYear(domain.getYear());
     dto.setProgress(0.0);
     dto.setLinkedActivities(0);
 
@@ -100,6 +102,7 @@ public class StrategicGoalMapper {
     dto.setWeight(domain.getWeight());
     dto.setStatus(domain.getStatus().getCode());
     dto.setStatusDes(domain.getStatus().getDescription());
+    dto.setYear(domain.getYear());
     dto.setProgress(0.0);
     dto.setLinkedActivities(0);
     return dto;
@@ -118,6 +121,7 @@ public class StrategicGoalMapper {
     entity.setDescription(domain.getDescription());
     entity.setPositionX(domain.getPositionX());
     entity.setPositionY(domain.getPositionY());
+    entity.setYear(domain.getYear());
 
     InstitutionalIdentityEntity identityRef = new InstitutionalIdentityEntity();
     identityRef.setId(domain.getIdentityId().getValor().getValor());
