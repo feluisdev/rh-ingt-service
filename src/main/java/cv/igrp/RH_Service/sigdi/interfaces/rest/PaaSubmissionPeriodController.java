@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.sigdi.interfaces.rest;
 
 import cv.igrp.framework.stereotype.IgrpController;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,6 +42,12 @@ public class PaaSubmissionPeriodController {
       this.commandBus = commandBus;
   }
 
+  // SECURITY: role check added because this endpoint had none — any authenticated user
+  // could open/close submission periods for all purposes. "RH" is our best-effort guess at
+  // the Keycloak/IAM realm role name; no other endpoint in this codebase does role-based
+  // authorization, so there was no existing convention to confirm this against. Verify the
+  // exact role/authority string against the real IAM realm config before this reaches production.
+  @PreAuthorize("hasRole('RH')")
   @PostMapping(value = "periods")
   @Operation(
       summary = "Create PAA Submission Period",
@@ -52,6 +59,8 @@ public class PaaSubmissionPeriodController {
       return commandBus.send(command);
   }
 
+  // SECURITY: see note on createPaaSubmissionPeriod above — same unverified role guess.
+  @PreAuthorize("hasRole('RH')")
   @PutMapping(value = "periods/{id}/close")
   @Operation(
       summary = "Close PAA Submission Period",
