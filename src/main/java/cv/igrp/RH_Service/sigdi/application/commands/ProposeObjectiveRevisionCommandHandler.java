@@ -49,8 +49,11 @@ public class ProposeObjectiveRevisionCommandHandler
           "Apenas o avaliador desta avaliação pode propor revisões de objetivos");
 
     // RECONC-03: fail-closed deadline enforcement — verbatim ContractualizeObjectivesCommandHandler pattern.
+    // Área 4 (Phase 72): checks the dedicated SIADAP_INTERIM period, not the contractualization
+    // SIADAP period — this handler gates interim objective-revision proposals, which belong to
+    // the Avaliação Intercalar phase, not the initial SIADAP contractualization phase.
     periodRepository.findActiveByTypeAndYearAndPurpose(
-            PaaLevel.INDIVIDUAL_LEVEL, evaluation.getYear(), Purpose.SIADAP)
+            PaaLevel.INDIVIDUAL_LEVEL, evaluation.getYear(), Purpose.SIADAP_INTERIM)
         .orElseThrow(() -> IgrpResponseStatusException.badRequest("Prazo não configurado para este ano"));
 
     UUID evalUuid = UUID.fromString(command.getEvaluationId());
