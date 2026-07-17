@@ -56,6 +56,15 @@ public class PaaSubmissionPeriodRepositoryImpl implements PaaSubmissionPeriodRep
 
     @Transactional(readOnly = true)
     @Override
+    public List<PaaSubmissionPeriod> findAllByYear(Integer year) {
+        return jpaRepository.findAllByYear(year)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public Optional<PaaSubmissionPeriod> findActiveByTypeAndPurpose(PaaLevel type, Purpose purpose) {
         // Defensive: (type, purpose) is not enforced unique across overlapping date ranges
         // (see 59-REVIEW.md CR-02) — take the most recently created match instead of assuming
