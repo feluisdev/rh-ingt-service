@@ -2,9 +2,12 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
+import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.constants.StrategicGoalsPerspective;
 import cv.igrp.RH_Service.sigdi.application.dto.StategicGoalResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.UpdateStategicGoalDTO;
@@ -12,6 +15,8 @@ import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentityId;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
+import cv.igrp.RH_Service.sigdi.domain.tatical.models.PaaSubmissionPeriod;
+import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.StrategicGoalMapper;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -34,6 +39,9 @@ public class UpdateStrategicGoalsCommandHandlerTest {
     @Mock
     private StrategicGoalMapper goalMapper;
 
+    @Mock
+    private PaaSubmissionPeriodRepository periodRepository;
+
     @InjectMocks
     private UpdateStrategicGoalsCommandHandler updateStrategicGoalsCommandHandler;
 
@@ -47,6 +55,8 @@ public class UpdateStrategicGoalsCommandHandlerTest {
         when(goalRepository.findById(any(StrategicGoalId.class))).thenReturn(Optional.of(existingGoal));
         when(goalRepository.save(any(StrategicGoal.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
+        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.UNIT_LEVEL, 2027, Purpose.PAA_BSC_OBJECTIVES))
+                .thenReturn(Optional.of(mock(PaaSubmissionPeriod.class)));
 
         UpdateStategicGoalDTO dto = new UpdateStategicGoalDTO();
         dto.setTitle("Objetivo Original");
@@ -73,6 +83,8 @@ public class UpdateStrategicGoalsCommandHandlerTest {
         when(goalRepository.findById(any(StrategicGoalId.class))).thenReturn(Optional.of(existingGoal));
         when(goalRepository.save(any(StrategicGoal.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
+        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.UNIT_LEVEL, 2020, Purpose.PAA_BSC_OBJECTIVES))
+                .thenReturn(Optional.of(mock(PaaSubmissionPeriod.class)));
 
         UpdateStategicGoalDTO dto = new UpdateStategicGoalDTO();
         dto.setTitle("Objetivo Original");

@@ -1,10 +1,14 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
+import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.dto.StategicGoalResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.StrategicIndicatorDTO;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
+import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.StrategicGoalMapper;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
@@ -24,11 +28,14 @@ public class UpdateStrategicGoalsCommandHandler implements CommandHandler<Update
 
   private final StrategicGoalRepository goalRepository;
   private final StrategicGoalMapper goalMapper;
+  private final PaaSubmissionPeriodRepository periodRepository;
 
   public UpdateStrategicGoalsCommandHandler(StrategicGoalRepository goalRepository,
-                                            StrategicGoalMapper goalMapper) {
+                                            StrategicGoalMapper goalMapper,
+                                            PaaSubmissionPeriodRepository periodRepository) {
     this.goalRepository = goalRepository;
     this.goalMapper = goalMapper;
+    this.periodRepository = periodRepository;
   }
 
   @IgrpCommandHandler
@@ -41,6 +48,19 @@ public class UpdateStrategicGoalsCommandHandler implements CommandHandler<Update
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Strategic goal not found"));
 
     var dto = command.getUpdatestategicgoal();
+
+    // BLOQ-01: fail-closed deadline enforcement using the EFFECTIVE year (supplied on the
+    // DTO, or the existing goal's year when the edit omits it -- StrategicGoal.update()
+    // preserves the existing year in that case, 72-RESEARCH.md Pitfall 2). Uses
+    // IgrpResponseStatusException (not the plain ResponseStatusException used above for the
+    // not-found case) so the RFC 7807 title survives to the BFF (BLOQ-07).
+    Integer effectiveYear = dto.getYear() != null ? dto.getYear() : goal.getYear();
+    if (effectiveYear != null) {
+      periodRepository.findActiveByTypeAndYearAndPurpose(
+              PaaLevel.UNIT_LEVEL, effectiveYear, Purpose.PAA_BSC_OBJECTIVES)
+          .orElseThrow(() -> IgrpResponseStatusException.badRequest(
+              "Prazo não configurado para a submissão de objetivos estratégicos PAA/BSC"));
+    }
 
     java.util.List<cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicIndicator> domainIndicators = goal.getIndicators();
     if (dto.getIndicators() != null) {
