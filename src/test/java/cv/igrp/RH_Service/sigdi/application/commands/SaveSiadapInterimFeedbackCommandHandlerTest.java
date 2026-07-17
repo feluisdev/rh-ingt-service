@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -12,6 +13,8 @@ import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
 import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
+import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
+import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.dto.ObjectiveRevisionDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapInterimFeedbackDTO;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;
@@ -19,6 +22,8 @@ import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapInterimFeedback;
 import cv.igrp.RH_Service.sigdi.domain.compliance.repository.SiadapEvaluationRepository;
 import cv.igrp.RH_Service.sigdi.domain.compliance.repository.SiadapInterimFeedbackRepository;
 import cv.igrp.RH_Service.sigdi.domain.compliance.valueobject.ObjectiveRevision;
+import cv.igrp.RH_Service.sigdi.domain.tatical.models.PaaSubmissionPeriod;
+import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.compliance.SiadapInterimFeedbackMapper;
 
 import java.math.BigDecimal;
@@ -58,13 +63,23 @@ class SaveSiadapInterimFeedbackCommandHandlerTest {
     @Mock
     private CurrentEmployeeResolver currentEmployeeResolver;
 
+    @Mock
+    private PaaSubmissionPeriodRepository periodRepository;
+
     private final SiadapInterimFeedbackMapper mapper = new SiadapInterimFeedbackMapper();
 
     private SaveSiadapInterimFeedbackCommandHandler handler;
 
     private SaveSiadapInterimFeedbackCommandHandler handler() {
+        // PRAZO-03: default the period gate to "open" for every test in this class — none of the
+        // 7 existing tests assert a period-closed rejection (72-CONTEXT.md "testes mínimos, só
+        // caminho feliz"). lenient() avoids STRICT_STUBS UnnecessaryStubbingException for the
+        // tests that fail earlier (actor/not-found) and never reach this check.
+        lenient().when(periodRepository.findActiveByTypeAndYearAndPurpose(
+                        PaaLevel.INDIVIDUAL_LEVEL, YEAR, Purpose.SIADAP_INTERIM))
+                .thenReturn(Optional.of(org.mockito.Mockito.mock(PaaSubmissionPeriod.class)));
         return new SaveSiadapInterimFeedbackCommandHandler(
-                feedbackRepository, evaluationRepository, mapper, currentEmployeeResolver);
+                feedbackRepository, evaluationRepository, mapper, currentEmployeeResolver, periodRepository);
     }
 
     private SiadapEvaluation buildEvaluation(String employeeId, String evaluatorId) {
