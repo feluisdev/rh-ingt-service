@@ -1,41 +1,74 @@
 package cv.igrp.RH_Service.sigdi.application.queries;
 
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.BeforeEach;
+import cv.igrp.RH_Service.shared.application.constants.Estado;
+import cv.igrp.RH_Service.sigdi.application.constants.StrategicGoalsPerspective;
+import cv.igrp.RH_Service.sigdi.application.dto.StrategyMapDataDTO;
+import cv.igrp.RH_Service.sigdi.domain.strategy.models.BscPerspectiveConfig;
+import cv.igrp.RH_Service.sigdi.domain.strategy.models.InstitutionalIdentity;
+import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
+import cv.igrp.RH_Service.sigdi.domain.strategy.repository.BscPerspectiveConfigRepository;
+import cv.igrp.RH_Service.sigdi.domain.strategy.repository.InstitutionalIdentityRepository;
+import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
+import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategyMapLinkRepository;
+import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalValues;
+import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
-import cv.igrp.RH_Service.sigdi.application.queries.*;
 
 @ExtendWith(MockitoExtension.class)
 public class GetCurrentStrategyMapQueryHandlerTest {
 
+  @Mock
+  private InstitutionalIdentityRepository identityRepository;
+
+  @Mock
+  private StrategicGoalRepository goalRepository;
+
+  @Mock
+  private StrategyMapLinkRepository linkRepository;
+
+  @Mock
+  private BscPerspectiveConfigRepository bscPerspectiveConfigRepository;
+
   @InjectMocks
   private GetCurrentStrategyMapQueryHandler getCurrentStrategyMapQueryHandler;
 
-  @BeforeEach
-  void setUp() {
-    // TODO: Initialize mock dependencies if needed
+  private InstitutionalIdentity activeIdentity() {
+    return InstitutionalIdentity.create(UUID.randomUUID(), 2026, "Missão de teste",
+        "Visão de teste", InstitutionalValues.of(List.of("Integridade")), "comentário de teste");
   }
 
   @Test
-  void testHandleGetCurrentStrategyMapQuery() {
-    // TODO: Implement unit test for handle method
-    // Example:
-    // Given
-    // GetCurrentStrategyMapQuery query = new GetCurrentStrategyMapQuery(...);
-    //
-    // When
-    // ResponseEntity<StrategyMapDataDTO> response = getCurrentStrategyMapQueryHandler.handle(query);
-    //
-    // Then
-    // assertNotNull(response);
-    // assertEquals(..., response.getBody());
+  void handleSourcesPerspectiveDescFromConfigLabelNotEnumDescription() {
+    InstitutionalIdentity identity = activeIdentity();
+
+    StrategicGoal goal = StrategicGoal.reconstruct(StrategicGoalId.gerarNovo(), UUID.randomUUID(),
+        identity.getId(), "Objetivo Estratégico Teste", StrategicGoalsPerspective.FINANCIAL,
+        BigDecimal.ONE, Estado.A, "Descrição de teste", 0.0, 0.0, 2026, Collections.emptyList());
+
+    when(identityRepository.findActive()).thenReturn(Optional.of(identity));
+    when(goalRepository.findByIdentityId(any())).thenReturn(List.of(goal));
+    when(linkRepository.findByIdentityId(any())).thenReturn(List.of());
+    when(bscPerspectiveConfigRepository.findAll())
+        .thenReturn(List.of(BscPerspectiveConfig.reconstruct(UUID.randomUUID(), "FINANCIAL", "Financeira", 1)));
+
+    ResponseEntity<StrategyMapDataDTO> response =
+        getCurrentStrategyMapQueryHandler.handle(new GetCurrentStrategyMapQuery());
+
+    assertEquals("Financeira", response.getBody().getGoals().get(0).getPerspectiveDesc());
   }
 
 }
