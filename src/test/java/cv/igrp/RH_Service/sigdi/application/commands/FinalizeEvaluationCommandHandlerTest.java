@@ -1,11 +1,16 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
 import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
 import cv.igrp.RH_Service.sigdi.application.constants.CompetencyCategory;
 import cv.igrp.RH_Service.sigdi.application.constants.EvaluationPhase;
@@ -35,10 +40,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
 /**
- * BLOQ-04: PRAZO-03 fail-closed deadline enforcement for evaluation finalization. Greenfield
- * test file (Wave 0 gap) — happy-path only, per 72-CONTEXT.md "testes mínimos (só caminho
- * feliz)": the active-SIADAP_FINAL-period case succeeds; the rejection path is not covered by
- * a dedicated test in this plan's scope.
+ * BLOQ-04: PRAZO-03 fail-closed deadline enforcement for evaluation finalization, plus WR-01
+ * actor authorization (only the avaliador desta avaliação pode finalizar).
  */
 @ExtendWith(MockitoExtension.class)
 class FinalizeEvaluationCommandHandlerTest {
@@ -53,6 +56,9 @@ class FinalizeEvaluationCommandHandlerTest {
 
     @Mock
     private PaaSubmissionPeriodRepository periodRepository;
+
+    @Mock
+    private CurrentEmployeeResolver currentEmployeeResolver;
 
     @InjectMocks
     private FinalizeEvaluationCommandHandler handler;
@@ -84,6 +90,7 @@ class FinalizeEvaluationCommandHandlerTest {
         SiadapEvaluation evaluation = buildFinalizableEvaluation();
 
         when(evaluationRepository.findById(any())).thenReturn(Optional.of(evaluation));
+        when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.from(evaluation.getEvaluatorId()));
         when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.INDIVIDUAL_LEVEL, YEAR, Purpose.SIADAP_FINAL))
                 .thenReturn(Optional.of(org.mockito.Mockito.mock(PaaSubmissionPeriod.class)));
         when(evaluationRepository.save(any(SiadapEvaluation.class)))
@@ -97,5 +104,22 @@ class FinalizeEvaluationCommandHandlerTest {
 
         assertEquals(200, response.getStatusCode().value());
         verify(evaluationRepository, times(1)).save(any(SiadapEvaluation.class));
+    }
+
+    @Test
+    void throwsForbiddenWhenCurrentUserIsNotTheEvaluator() {
+        SiadapEvaluation evaluation = buildFinalizableEvaluation();
+
+        when(evaluationRepository.findById(any())).thenReturn(Optional.of(evaluation));
+        when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.gerarNovo());
+
+        FinalizeEvaluationRequestDTO body = new FinalizeEvaluationRequestDTO(evaluation.getId().getStringValor());
+        FinalizeEvaluationCommand command = new FinalizeEvaluationCommand(body);
+
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(command));
+
+        assertEquals(403, exception.getBody().getStatus());
+        verify(evaluationRepository, never()).save(any());
     }
 }

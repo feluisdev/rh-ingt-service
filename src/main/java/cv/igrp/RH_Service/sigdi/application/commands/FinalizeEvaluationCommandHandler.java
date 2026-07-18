@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.dto.FinalizeEvaluationRequestDTO;
@@ -13,6 +14,7 @@ import cv.igrp.RH_Service.sigdi.infrastructure.mappers.compliance.SiadapEvaluati
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,7 @@ public class FinalizeEvaluationCommandHandler
   private final SiadapEvaluationRepository evaluationRepository;
   private final SiadapEvaluationMapper mapper;
   private final PaaSubmissionPeriodRepository periodRepository;
+  private final CurrentEmployeeResolver currentEmployeeResolver;
 
   @IgrpCommandHandler
   @Transactional
@@ -36,9 +39,16 @@ public class FinalizeEvaluationCommandHandler
     SiadapEvaluation evaluation = evaluationRepository.findById(evalId)
         .orElseThrow(() -> IgrpResponseStatusException.notFound("Avaliação não encontrada"));
 
+    // WR-01: only the avaliador desta avaliação pode finalizar — previously any authenticated
+    // caller who knew an evaluationId could finalize any employee's SIADAP evaluation.
+    String currentEmployeeId = currentEmployeeResolver.resolve().getStringValor();
+    if (!currentEmployeeId.equals(evaluation.getEvaluatorId()))
+      throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN,
+          "Apenas o avaliador desta avaliação pode finalizar a avaliação");
+
     // PRAZO-03: fail-closed deadline enforcement — no active SIADAP_FINAL individual period
-    // for the evaluation's fiscal year blocks finalization. No actor check exists on this
-    // handler, so the period check goes immediately after the evaluation fetch.
+    // for the evaluation's fiscal year blocks finalization. Inserted AFTER the actor check
+    // above, matching the auth-before-business-rule ordering used by sibling handlers.
     periodRepository.findActiveByTypeAndYearAndPurpose(
                     PaaLevel.INDIVIDUAL_LEVEL, evaluation.getYear(), Purpose.SIADAP_FINAL)
             .orElseThrow(() -> IgrpResponseStatusException.badRequest(
