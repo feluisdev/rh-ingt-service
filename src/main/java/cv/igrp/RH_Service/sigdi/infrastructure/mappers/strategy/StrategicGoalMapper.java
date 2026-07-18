@@ -6,7 +6,9 @@ import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.StrategicGoalE
 import cv.igrp.RH_Service.sigdi.application.constants.StrategicGoalsPerspective;
 import cv.igrp.RH_Service.sigdi.application.dto.StategicGoalResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.StategicGoalSumaryDTO;
+import cv.igrp.RH_Service.sigdi.domain.strategy.models.BscPerspectiveConfig;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
+import cv.igrp.RH_Service.sigdi.domain.strategy.repository.BscPerspectiveConfigRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentityId;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.StrategicIndicatorEntity;
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class StrategicGoalMapper {
+
+  private final BscPerspectiveConfigRepository bscPerspectiveConfigRepository;
 
   public StrategicGoal toDomain(StrategicGoalEntity entity) {
     if (entity == null) return null;
@@ -61,7 +65,10 @@ public class StrategicGoalMapper {
     dto.setId(domain.getId().getValor().getValor());
     dto.setIdentityId(domain.getIdentityId().getValor().getValor());
     dto.setPerspective(domain.getPerspective().getCode());
-    dto.setPerspectiveDesc(domain.getPerspective().getDescription());
+    dto.setPerspectiveDesc(
+        bscPerspectiveConfigRepository.findByCode(domain.getPerspective().getCode())
+            .map(BscPerspectiveConfig::getLabel)
+            .orElse(domain.getPerspective().getCode()));
     dto.setWeight(domain.getWeight());
     dto.setTitle(domain.getTitle());
     dto.setDescription(domain.getDescription());
