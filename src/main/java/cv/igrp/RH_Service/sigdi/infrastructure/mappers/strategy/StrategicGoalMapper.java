@@ -61,14 +61,28 @@ public class StrategicGoalMapper {
 
   public StategicGoalResponseDTO toResponse(StrategicGoal domain) {
     if (domain == null) return null;
+    String perspectiveCode = domain.getPerspective().getCode();
+    String perspectiveLabel = bscPerspectiveConfigRepository.findByCode(perspectiveCode)
+        .map(BscPerspectiveConfig::getLabel)
+        .orElse(perspectiveCode);
+    return toResponse(domain, java.util.Map.of(perspectiveCode, perspectiveLabel));
+  }
+
+  /**
+   * Same field mapping as {@link #toResponse(StrategicGoal)}, but sources the perspective label from
+   * a pre-built {@code code -> label} map instead of issuing its own {@code findByCode} lookup.
+   * Callers mapping a list of goals (e.g. {@code GetCurrentStrategyMapQueryHandler}) should build the
+   * map once via a single {@code findAll()} and pass it in here, avoiding one {@code findByCode} query
+   * per goal.
+   */
+  public StategicGoalResponseDTO toResponse(StrategicGoal domain, java.util.Map<String, String> labelsByCode) {
+    if (domain == null) return null;
     StategicGoalResponseDTO dto = new StategicGoalResponseDTO();
     dto.setId(domain.getId().getValor().getValor());
     dto.setIdentityId(domain.getIdentityId().getValor().getValor());
     dto.setPerspective(domain.getPerspective().getCode());
     dto.setPerspectiveDesc(
-        bscPerspectiveConfigRepository.findByCode(domain.getPerspective().getCode())
-            .map(BscPerspectiveConfig::getLabel)
-            .orElse(domain.getPerspective().getCode()));
+        labelsByCode.getOrDefault(domain.getPerspective().getCode(), domain.getPerspective().getCode()));
     dto.setWeight(domain.getWeight());
     dto.setTitle(domain.getTitle());
     dto.setDescription(domain.getDescription());

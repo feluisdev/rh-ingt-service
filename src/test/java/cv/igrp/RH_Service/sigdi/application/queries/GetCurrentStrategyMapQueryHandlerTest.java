@@ -16,14 +16,15 @@ import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalReposito
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategyMapLinkRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalValues;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
+import cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.StrategicGoalMapper;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
@@ -43,8 +44,18 @@ public class GetCurrentStrategyMapQueryHandlerTest {
   @Mock
   private BscPerspectiveConfigRepository bscPerspectiveConfigRepository;
 
-  @InjectMocks
   private GetCurrentStrategyMapQueryHandler getCurrentStrategyMapQueryHandler;
+
+  // Real mapper (not a Mockito mock), backed by the same mocked repository, so this test
+  // exercises the actual delegated StrategicGoalMapper.toResponse(goal, labelsByCode) mapping
+  // -- not a stubbed stand-in -- confirming the WR-01 delegation is wired correctly end to end
+  // (74-REVIEW.md WR-01: GetCurrentStrategyMapQueryHandler must not hand-roll its own mapping).
+  @BeforeEach
+  void setUp() {
+    StrategicGoalMapper goalMapper = new StrategicGoalMapper(bscPerspectiveConfigRepository);
+    getCurrentStrategyMapQueryHandler = new GetCurrentStrategyMapQueryHandler(
+        identityRepository, goalRepository, linkRepository, bscPerspectiveConfigRepository, goalMapper);
+  }
 
   private InstitutionalIdentity activeIdentity() {
     return InstitutionalIdentity.create(UUID.randomUUID(), 2026, "Missão de teste",
@@ -69,6 +80,9 @@ public class GetCurrentStrategyMapQueryHandlerTest {
         getCurrentStrategyMapQueryHandler.handle(new GetCurrentStrategyMapQuery());
 
     assertEquals("Financeira", response.getBody().getGoals().get(0).getPerspectiveDesc());
+    // WR-01 (74-REVIEW.md): the hand-rolled mapping this handler used to do dropped `year`
+    // entirely. Delegating to StrategicGoalMapper.toResponse(goal, labelsByCode) must carry it.
+    assertEquals(2026, response.getBody().getGoals().get(0).getYear());
   }
 
 }
