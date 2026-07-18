@@ -9,6 +9,7 @@ import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.InstitutionalIdentityRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.StrategicGoalMapper;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import org.springframework.http.ResponseEntity;
@@ -28,13 +29,16 @@ public class CreateStrategicGoalCommandHandler
   private final InstitutionalIdentityRepository identityRepository;
   private final StrategicGoalRepository goalRepository;
   private final PaaSubmissionPeriodRepository periodRepository;
+  private final StrategicGoalMapper goalMapper;
 
   public CreateStrategicGoalCommandHandler(InstitutionalIdentityRepository identityRepository,
       StrategicGoalRepository goalRepository,
-      PaaSubmissionPeriodRepository periodRepository) {
+      PaaSubmissionPeriodRepository periodRepository,
+      StrategicGoalMapper goalMapper) {
     this.identityRepository = identityRepository;
     this.goalRepository = goalRepository;
     this.periodRepository = periodRepository;
+    this.goalMapper = goalMapper;
   }
 
   @IgrpCommandHandler
@@ -91,8 +95,7 @@ public class CreateStrategicGoalCommandHandler
 
     StrategicGoal saved = goalRepository.save(goal);
 
-    cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.StrategicGoalMapper mapper = new cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.StrategicGoalMapper();
-    StategicGoalResponseDTO response = mapper.toResponse(saved);
+    StategicGoalResponseDTO response = goalMapper.toResponse(saved);
 
     return ResponseEntity.ok(response);
   }
