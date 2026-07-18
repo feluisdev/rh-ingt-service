@@ -42,10 +42,27 @@ public class BscPerspectiveConfigRepositoryImpl implements BscPerspectiveConfigR
   @Transactional
   @Override
   public List<BscPerspectiveConfig> saveAll(List<BscPerspectiveConfig> configs) {
+    // Two-phase write: display_order carries a non-deferrable DB-level UNIQUE constraint (V26).
+    // Persisting a genuine swap (two rows exchanging already-in-use order values) in a single
+    // pass can send an UPDATE that transiently duplicates a value still held by another row --
+    // Postgres enforces UNIQUE constraints immediately per statement, not at commit. Phase 1
+    // parks every row on a distinct value outside the valid 1-4 range (guaranteed collision-free,
+    // since exactly 4 rows ever exist) and flushes; phase 2 then applies the real requested
+    // order, always safe because no row holds an in-range value at that point. Callers (the
+    // command handler) still see a single logical save -- this is purely a persistence-layer
+    // concern, so the port's one-call contract is unchanged.
+    List<BscPerspectiveConfigEntity> parked = configs.stream()
+        .map(mapper::toEntity)
+        .toList();
+    for (int i = 0; i < parked.size(); i++) {
+      parked.get(i).setDisplayOrder(-(i + 1));
+    }
+    jpaRepository.saveAllAndFlush(parked);
+
     List<BscPerspectiveConfigEntity> entities = configs.stream()
         .map(mapper::toEntity)
         .toList();
-    return jpaRepository.saveAll(entities).stream()
+    return jpaRepository.saveAllAndFlush(entities).stream()
         .map(mapper::toDomain)
         .toList();
   }
