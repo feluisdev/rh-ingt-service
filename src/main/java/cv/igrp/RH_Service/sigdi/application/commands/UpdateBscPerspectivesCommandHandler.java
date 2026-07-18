@@ -6,6 +6,7 @@ import cv.igrp.RH_Service.sigdi.domain.strategy.models.BscPerspectiveConfig;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.BscPerspectiveConfigRepository;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -86,8 +87,12 @@ public class UpdateBscPerspectivesCommandHandler
             .update(item.getLabel(), item.getOrder()))
         .toList();
 
+    // Sorted by position (73-REVIEW.md WR-04) to honor the same "ordenadas por posição" contract
+    // GetBscPerspectivesQueryHandler already promises -- saveAll()'s output order otherwise
+    // mirrors the request payload's item order, not displayOrder.
     List<BscPerspectiveItemDTO> response = repository.saveAll(updated).stream()
         .map(c -> new BscPerspectiveItemDTO(c.getCode(), c.getLabel(), c.getDisplayOrder()))
+        .sorted(Comparator.comparing(BscPerspectiveItemDTO::getOrder))
         .toList();
 
     return ResponseEntity.ok(response);
