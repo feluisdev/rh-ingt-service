@@ -1,8 +1,6 @@
 package cv.igrp.RH_Service.sigdi.application.dto;
 
 import cv.igrp.framework.stereotype.IgrpDTO;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,17 +11,21 @@ import lombok.NoArgsConstructor;
  * <p>
  * Plain hand-written DTO -- no backing {@code .igrpstudio} manifest, no GENERATED header.
  * <p>
- * {@code @Valid} on {@code perspectives} is required for the controller's own
- * {@code @Valid @RequestBody BscPerspectivesUpdateRequestDTO} to cascade into each
- * {@code BscPerspectiveItemDTO} element -- without it, that item-level Bean Validation is a
- * silent no-op (73-REVIEW.md WR-01).
+ * Deliberately carries no Bean Validation annotations (73-REVIEW.md WR-01, re-review). A prior fix
+ * pass added {@code @Valid} + {@code @NotEmpty} here (to cascade into now-reverted item-level
+ * annotations on {@link BscPerspectiveItemDTO}), but {@code @NotEmpty} alone is validated directly
+ * by the controller's pre-existing {@code @Valid @RequestBody} -- with no adjacent
+ * {@code BindingResult}, a null/empty {@code perspectives} would throw
+ * {@code MethodArgumentNotValidException} during argument resolution, bypassing
+ * {@code UpdateBscPerspectivesCommandHandler}'s own curated-message guard exactly like the
+ * item-level annotations did. The handler's guard already rejects a null/wrong-size list with the
+ * same curated message, so this field is left unannotated; see {@link BscPerspectiveItemDTO} for
+ * the fuller rationale.
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @IgrpDTO
 public class BscPerspectivesUpdateRequestDTO {
-    @Valid
-    @NotEmpty(message = "perspectives is mandatory")
     private List<BscPerspectiveItemDTO> perspectives;
 }

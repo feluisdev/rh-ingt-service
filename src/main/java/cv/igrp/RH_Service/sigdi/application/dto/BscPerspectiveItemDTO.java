@@ -1,9 +1,6 @@
 package cv.igrp.RH_Service.sigdi.application.dto;
 
 import cv.igrp.framework.stereotype.IgrpDTO;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,24 +13,23 @@ import lombok.NoArgsConstructor;
  * {@code displayOrder}) to match the frontend contract locked for Phase 73; the
  * query/command handlers bridge {@code order} (DTO) &harr; {@code displayOrder} (domain).
  * <p>
- * Bean Validation annotations below (73-REVIEW.md WR-01) mirror the wording already used by the
- * generated {@code BscPerspectiveConfigEntity} for the same 3 fields; they only take effect
- * because {@code BscPerspectivesUpdateRequestDTO.perspectives} cascades with {@code @Valid}. The
- * command handler's own defensive guard remains the authoritative, curated-message gate -- these
- * annotations are the "validação dupla" backend-side belt-and-suspenders layer.
+ * Deliberately carries no Bean Validation annotations (73-REVIEW.md WR-01, re-review). A prior fix
+ * pass added {@code @NotBlank}/{@code @Size}/{@code @NotNull} here, but the controller's
+ * {@code @Valid @RequestBody} has no adjacent {@code BindingResult}, so Spring MVC throws
+ * {@code MethodArgumentNotValidException} during argument resolution -- before the controller
+ * method body (and {@code UpdateBscPerspectivesCommandHandler}'s own curated-message guard) ever
+ * runs. That made the guard's clean Portuguese 400 unreachable on the real HTTP path in favor of
+ * {@code GlobalExceptionHandler}'s generic English "Validation Errors" shape. The handler's guard
+ * is the sole, authoritative validation gate for this endpoint -- do not re-add field-level Bean
+ * Validation here without also teaching {@code GlobalExceptionHandler} to emit the same curated
+ * shape, or wiring a {@code BindingResult} into the controller.
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @IgrpDTO
 public class BscPerspectiveItemDTO {
-    @NotBlank(message = "code is mandatory")
     private String code;
-
-    @NotBlank(message = "label is mandatory")
-    @Size(max = 60, message = "label must be at most 60 characters")
     private String label;
-
-    @NotNull(message = "order is mandatory")
     private Integer order;
 }

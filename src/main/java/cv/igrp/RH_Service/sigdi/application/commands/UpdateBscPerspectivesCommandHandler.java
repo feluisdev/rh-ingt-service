@@ -47,16 +47,28 @@ public class UpdateBscPerspectivesCommandHandler
     List<BscPerspectiveItemDTO> items = command.getPerspectives();
 
     // Defensive input-shape guard: null body / wrong item count / missing code, label, or order
-    // would otherwise NPE (or reach the domain constructor's raw IllegalArgumentException) inside
-    // the checks below -- always surfaces as a clean 400 instead (T-73-09). label is included here
-    // (not just code/order) so a null/blank label never bypasses this curated message in favor of
-    // the raw "label é obrigatório" domain exception (73-REVIEW.md WR-01).
+    // (including an over-length label) would otherwise NPE, reach the domain constructor's raw
+    // IllegalArgumentException, or reach a raw DataIntegrityViolationException from the DB's
+    // VARCHAR(60) column -- always surfaces as a clean, curated 400 instead (T-73-09). label is
+    // included here (not just code/order) so a null/blank/over-length label never bypasses this
+    // message (73-REVIEW.md WR-01).
+    //
+    // This guard is the SOLE validation gate for this endpoint -- deliberately, not merely
+    // incidentally. A prior fix pass also added Bean Validation annotations
+    // (@NotBlank/@Size/@NotNull) to BscPerspectiveItemDTO/BscPerspectivesUpdateRequestDTO, but
+    // that regressed behavior: the controller's @Valid @RequestBody has no adjacent
+    // BindingResult, so Spring MVC throws MethodArgumentNotValidException during argument
+    // resolution -- before this method ever runs -- which made this guard's curated Portuguese
+    // message unreachable on the real HTTP path in favor of GlobalExceptionHandler's generic
+    // English "Validation Errors" shape (73-REVIEW.md WR-01, re-review). Those annotations were
+    // reverted; do not re-add them without also solving that interaction.
     if (items == null || items.size() != EXPECTED_CODES.size()
         || items.stream().anyMatch(item -> item.getCode() == null
             || item.getOrder() == null
-            || item.getLabel() == null || item.getLabel().isBlank())) {
+            || item.getLabel() == null || item.getLabel().isBlank()
+            || item.getLabel().length() > 60)) {
       throw IgrpResponseStatusException.badRequest(
-          "Todas as 4 perspetivas têm de indicar código, rótulo e posição válidos.");
+          "Todas as 4 perspetivas têm de indicar código, rótulo (máx. 60 caracteres) e posição válidos.");
     }
 
     // Redundant server-side check (CONTEXT.md "validação dupla", T-73-06): the 4 codes submitted
