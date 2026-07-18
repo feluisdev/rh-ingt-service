@@ -45,12 +45,17 @@ public class UpdateBscPerspectivesCommandHandler
 
     List<BscPerspectiveItemDTO> items = command.getPerspectives();
 
-    // Defensive input-shape guard: null body / wrong item count / missing code or order would
-    // otherwise NPE inside the checks below -- always surfaces as a clean 400 instead (T-73-09).
+    // Defensive input-shape guard: null body / wrong item count / missing code, label, or order
+    // would otherwise NPE (or reach the domain constructor's raw IllegalArgumentException) inside
+    // the checks below -- always surfaces as a clean 400 instead (T-73-09). label is included here
+    // (not just code/order) so a null/blank label never bypasses this curated message in favor of
+    // the raw "label é obrigatório" domain exception (73-REVIEW.md WR-01).
     if (items == null || items.size() != EXPECTED_CODES.size()
-        || items.stream().anyMatch(item -> item.getCode() == null || item.getOrder() == null)) {
+        || items.stream().anyMatch(item -> item.getCode() == null
+            || item.getOrder() == null
+            || item.getLabel() == null || item.getLabel().isBlank())) {
       throw IgrpResponseStatusException.badRequest(
-          "Todas as 4 perspetivas têm de indicar código e posição válidos.");
+          "Todas as 4 perspetivas têm de indicar código, rótulo e posição válidos.");
     }
 
     // Redundant server-side check (CONTEXT.md "validação dupla", T-73-06): the 4 codes submitted
