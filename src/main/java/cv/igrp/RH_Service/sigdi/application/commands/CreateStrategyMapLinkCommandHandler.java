@@ -5,6 +5,7 @@ import cv.igrp.RH_Service.sigdi.application.constants.StrategyMapRelationshipTyp
 import cv.igrp.RH_Service.sigdi.application.dto.StrategyLinkDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.StrategyMapLinkResponseDTO;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategyMapLink;
+import cv.igrp.RH_Service.sigdi.domain.strategy.repository.BscPerspectiveConfigRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.InstitutionalIdentityRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategyMapLinkRepository;
@@ -27,13 +28,16 @@ public class CreateStrategyMapLinkCommandHandler
   private final InstitutionalIdentityRepository identityRepository;
   private final StrategicGoalRepository goalRepository;
   private final StrategyMapLinkRepository linkRepository;
+  private final BscPerspectiveConfigRepository perspectiveConfigRepository;
 
   public CreateStrategyMapLinkCommandHandler(InstitutionalIdentityRepository identityRepository,
       StrategicGoalRepository goalRepository,
-      StrategyMapLinkRepository linkRepository) {
+      StrategyMapLinkRepository linkRepository,
+      BscPerspectiveConfigRepository perspectiveConfigRepository) {
     this.identityRepository = identityRepository;
     this.goalRepository = goalRepository;
     this.linkRepository = linkRepository;
+    this.perspectiveConfigRepository = perspectiveConfigRepository;
   }
 
   @IgrpCommandHandler
@@ -65,6 +69,17 @@ public class CreateStrategyMapLinkCommandHandler
       throw IgrpResponseStatusException.badRequest("Os goals devem pertencer à identity ativa");
     }
 
+    if (sourceGoal.getPerspective() == null || targetGoal.getPerspective() == null) {
+      throw IgrpResponseStatusException.badRequest("Perspetiva do objetivo não definida");
+    }
+
+    int sourceOrder = perspectiveOrder(sourceGoal.getPerspective().getCode());
+    int targetOrder = perspectiveOrder(targetGoal.getPerspective().getCode());
+    if (sourceOrder < targetOrder) {
+      throw IgrpResponseStatusException.badRequest(
+          "Ligação inválida: a perspetiva de origem não pode estar numa ordem inferior à da perspetiva de destino no fluxo causa-efeito do BSC");
+    }
+
     linkRepository.findBySourceAndTarget(sourceId, targetId)
         .ifPresent(existing -> {
           throw IgrpResponseStatusException.badRequest("Já existe um link com os mesmos goals");
@@ -81,5 +96,12 @@ public class CreateStrategyMapLinkCommandHandler
     response.setRelationshipType(saved.getRelationshipType().getCode());
 
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
+  }
+
+  private int perspectiveOrder(String perspectiveCode) {
+    return perspectiveConfigRepository.findByCode(perspectiveCode)
+        .orElseThrow(() -> IgrpResponseStatusException.badRequest(
+            "Perspetiva não configurada: " + perspectiveCode))
+        .getDisplayOrder();
   }
 }
