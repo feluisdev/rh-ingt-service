@@ -1,11 +1,13 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.constants.StrategicGoalsPerspective;
@@ -98,5 +100,28 @@ public class UpdateStrategicGoalsCommandHandlerTest {
         ArgumentCaptor<StrategicGoal> savedCaptor = ArgumentCaptor.forClass(StrategicGoal.class);
         verify(goalRepository).save(savedCaptor.capture());
         assertEquals(2020, savedCaptor.getValue().getYear());
+    }
+
+    @Test
+    void handleWithLegacyNullYearGoalAndOmittedYearThrowsBadRequest() {
+        StrategicGoal existingGoal = StrategicGoal.create(
+                UUID.randomUUID(), InstitutionalIdentityId.gerarNovo(), "Objetivo Original",
+                StrategicGoalsPerspective.FINANCIAL, BigDecimal.ONE, "Descrição original",
+                null, new ArrayList<>());
+
+        when(goalRepository.findById(any(StrategicGoalId.class))).thenReturn(Optional.of(existingGoal));
+
+        UpdateStategicGoalDTO dto = new UpdateStategicGoalDTO();
+        dto.setTitle("Objetivo Original");
+        dto.setDescription("Descrição original");
+        dto.setWeight(BigDecimal.ONE);
+        dto.setYear(null); // legacy goal + edit that never touches year -- effective year stays null
+
+        IgrpResponseStatusException ex = assertThrows(IgrpResponseStatusException.class,
+                () -> updateStrategicGoalsCommandHandler.handle(
+                        new UpdateStrategicGoalsCommand(dto, UUID.randomUUID().toString())));
+
+        assertEquals("O ano é obrigatório para a submissão de objetivos estratégicos PAA/BSC.",
+                ex.getBody().getTitle());
     }
 }
