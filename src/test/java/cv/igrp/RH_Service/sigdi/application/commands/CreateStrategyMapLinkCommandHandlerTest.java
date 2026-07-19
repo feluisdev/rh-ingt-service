@@ -110,6 +110,9 @@ public class CreateStrategyMapLinkCommandHandlerTest {
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
+        assertEquals(sourceGoal.getId().getStringValor(), response.getBody().getSourceGoalId().toString());
+        assertEquals(targetGoal.getId().getStringValor(), response.getBody().getTargetGoalId().toString());
+        assertEquals(StrategyMapRelationshipType.CAUSE_EFFECT.getCode(), response.getBody().getRelationshipType());
     }
 
     @Test
@@ -134,6 +137,9 @@ public class CreateStrategyMapLinkCommandHandlerTest {
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
+        assertEquals(sourceGoal.getId().getStringValor(), response.getBody().getSourceGoalId().toString());
+        assertEquals(targetGoal.getId().getStringValor(), response.getBody().getTargetGoalId().toString());
+        assertEquals(StrategyMapRelationshipType.CAUSE_EFFECT.getCode(), response.getBody().getRelationshipType());
     }
 
     @Test
@@ -178,6 +184,9 @@ public class CreateStrategyMapLinkCommandHandlerTest {
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
+        assertEquals(sourceGoal.getId().getStringValor(), response.getBody().getSourceGoalId().toString());
+        assertEquals(targetGoal.getId().getStringValor(), response.getBody().getTargetGoalId().toString());
+        assertEquals(StrategyMapRelationshipType.CAUSE_EFFECT.getCode(), response.getBody().getRelationshipType());
     }
 
     @Test
