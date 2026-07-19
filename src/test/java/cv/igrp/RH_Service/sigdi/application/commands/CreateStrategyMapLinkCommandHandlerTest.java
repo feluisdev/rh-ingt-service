@@ -32,6 +32,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -248,6 +249,36 @@ public class CreateStrategyMapLinkCommandHandlerTest {
                 sourceGoal.getId(), targetGoal.getId(), StrategyMapRelationshipType.CAUSE_EFFECT);
         when(linkRepository.findBySourceAndTarget(sourceGoal.getId(), targetGoal.getId()))
                 .thenReturn(Optional.of(existingLink));
+
+        CreateStrategyMapLinkCommand command =
+                new CreateStrategyMapLinkCommand(linkDto(sourceGoal.getId(), targetGoal.getId()));
+
+        IgrpResponseStatusException ex =
+                assertThrows(IgrpResponseStatusException.class, () -> handler.handle(command));
+
+        assertEquals("Já existe um link com os mesmos goals", ex.getBody().getTitle());
+    }
+
+    /**
+     * Simulates the concurrent-loser side of the race window: the pre-check
+     * (findBySourceAndTarget) finds nothing because the other request hasn't committed yet, but
+     * the unique constraint rejects this save at flush time (saveAndFlush surfaces it
+     * synchronously here, inside the handler's own try/catch).
+     */
+    @Test
+    void concurrentDuplicateLinkRaceIsRejected() {
+        InstitutionalIdentity identity = activeIdentity();
+        StrategicGoal sourceGoal = goalWithPerspective(identity.getId(), StrategicGoalsPerspective.LEARNING);
+        StrategicGoal targetGoal = goalWithPerspective(identity.getId(), StrategicGoalsPerspective.PROCESS);
+        stubGoals(identity, sourceGoal, targetGoal);
+        when(perspectiveConfigRepository.findByCode("LEARNING"))
+                .thenReturn(Optional.of(perspectiveConfig("LEARNING", 4)));
+        when(perspectiveConfigRepository.findByCode("PROCESS"))
+                .thenReturn(Optional.of(perspectiveConfig("PROCESS", 3)));
+        when(linkRepository.findBySourceAndTarget(sourceGoal.getId(), targetGoal.getId()))
+                .thenReturn(Optional.empty());
+        when(linkRepository.save(any(StrategyMapLink.class)))
+                .thenThrow(new DataIntegrityViolationException("uq_strategy_link_source_target"));
 
         CreateStrategyMapLinkCommand command =
                 new CreateStrategyMapLinkCommand(linkDto(sourceGoal.getId(), targetGoal.getId()));
