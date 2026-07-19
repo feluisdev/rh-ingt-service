@@ -74,5 +74,4 @@ public class StrategicGoalEntity extends AuditEntity {
    @JoinColumn(name = "identity_id")
    private InstitutionalIdentityEntity identityId;
 
-
 }
