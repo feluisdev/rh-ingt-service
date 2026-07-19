@@ -46,7 +46,9 @@ public class CreateStrategyMapLinkCommandHandler
     LOGGER.debug("CreateStrategyMapLinkCommand : {}", command);
 
     StrategyLinkDTO request = command.getStrategylink();
-    if (request.getSourceGoalId().equals(request.getTargetGoalId())) {
+    StrategicGoalId sourceId = StrategicGoalId.from(request.getSourceGoalId());
+    StrategicGoalId targetId = StrategicGoalId.from(request.getTargetGoalId());
+    if (sourceId.equals(targetId)) {
       throw IgrpResponseStatusException.badRequest("sourceGoalId deve ser diferente de targetGoalId");
     }
 
@@ -54,8 +56,6 @@ public class CreateStrategyMapLinkCommandHandler
         .orElseThrow(() -> IgrpResponseStatusException.badRequest(
             "Identidade Institucional ativa não encontrada"));
 
-    StrategicGoalId sourceId = StrategicGoalId.from(request.getSourceGoalId());
-    StrategicGoalId targetId = StrategicGoalId.from(request.getTargetGoalId());
     StrategyMapRelationshipType type =
         StrategyMapRelationshipType.fromCodeOrThrow(request.getRelationshipType());
 
