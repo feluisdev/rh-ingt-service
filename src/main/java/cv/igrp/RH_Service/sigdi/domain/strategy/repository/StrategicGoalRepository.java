@@ -16,8 +16,8 @@ public interface StrategicGoalRepository {
   List<StrategicGoal> findByIdentityId(InstitutionalIdentityId identityId);
 
   List<StrategicGoal> findAll(InstitutionalIdentityId identityId, String perspective,
-      String status, String parentGoalId, int page, int size);
+      String status, int page, int size);
 
   long countAll(InstitutionalIdentityId identityId, String perspective,
-      String status, String parentGoalId);
+      String status);
 }

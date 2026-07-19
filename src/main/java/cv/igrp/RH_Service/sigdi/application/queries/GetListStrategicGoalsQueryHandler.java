@@ -42,10 +42,9 @@ public class GetListStrategicGoalsQueryHandler implements QueryHandler<GetListSt
     int size = query.getPageSize() != null ? Integer.parseInt(query.getPageSize()) : 20;
     String perspective = (query.getPerspective() != null && !query.getPerspective().isBlank()) ? query.getPerspective() : null;
     String status = (query.getStatus() != null && !query.getStatus().isBlank()) ? query.getStatus() : null;
-    String parentGoalId = (query.getParentGoalId() != null && !query.getParentGoalId().isBlank()) ? query.getParentGoalId() : null;
 
-    var goals = goalRepository.findAll(activeIdentity.getId(), perspective, status, parentGoalId, page, size);
-    long total = goalRepository.countAll(activeIdentity.getId(), perspective, status, parentGoalId);
+    var goals = goalRepository.findAll(activeIdentity.getId(), perspective, status, page, size);
+    long total = goalRepository.countAll(activeIdentity.getId(), perspective, status);
 
     var data = goals.stream().map(goalMapper::toSummary).toList();
 

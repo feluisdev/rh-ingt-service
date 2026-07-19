@@ -17,8 +17,6 @@ public class GetListStrategicGoalsQuery implements Query {
   private String perspective;
   @NotBlank(message = "The field <status> is required")
   private String status;
-  @NotBlank(message = "The field <parentGoalId> is required")
-  private String parentGoalId;
   @NotBlank(message = "The field <pageNumber> is required")
   private String pageNumber;
   @NotBlank(message = "The field <pageSize> is required")

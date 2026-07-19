@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -52,8 +51,8 @@ public class StrategicGoalRepositoryImpl implements StrategicGoalRepository {
   @Transactional(readOnly = true)
   @Override
   public List<StrategicGoal> findAll(InstitutionalIdentityId identityId, String perspective,
-      String status, String parentGoalId, int page, int size) {
-    return jpaRepository.findAll(buildSpec(identityId, perspective, status, parentGoalId),
+      String status, int page, int size) {
+    return jpaRepository.findAll(buildSpec(identityId, perspective, status),
             PageRequest.of(page, size))
         .stream()
         .map(mapper::toDomain)
@@ -63,12 +62,12 @@ public class StrategicGoalRepositoryImpl implements StrategicGoalRepository {
   @Transactional(readOnly = true)
   @Override
   public long countAll(InstitutionalIdentityId identityId, String perspective,
-      String status, String parentGoalId) {
-    return jpaRepository.count(buildSpec(identityId, perspective, status, parentGoalId));
+      String status) {
+    return jpaRepository.count(buildSpec(identityId, perspective, status));
   }
 
   private Specification<StrategicGoalEntity> buildSpec(InstitutionalIdentityId identityId,
-      String perspective, String status, String parentGoalId) {
+      String perspective, String status) {
     return (root, query, cb) -> {
       List<Predicate> predicates = new ArrayList<>();
       predicates.add(cb.equal(root.get("identityId").get("id"), identityId.getValor().getValor()));
@@ -76,8 +75,6 @@ public class StrategicGoalRepositoryImpl implements StrategicGoalRepository {
         predicates.add(cb.equal(root.get("perspective"), perspective));
       if (status != null && !status.isBlank())
         predicates.add(cb.equal(root.get("status"), status));
-      if (parentGoalId != null && !parentGoalId.isBlank())
-        predicates.add(cb.equal(root.get("parentGoalId").get("id"), UUID.fromString(parentGoalId)));
       return cb.and(predicates.toArray(new Predicate[0]));
     };
   }

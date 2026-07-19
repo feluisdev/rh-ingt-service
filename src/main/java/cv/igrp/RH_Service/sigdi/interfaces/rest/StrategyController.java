@@ -255,12 +255,11 @@ public class StrategyController {
   public ResponseEntity<WrapperListStrategyGoalsDTO> getListStrategicGoals(
     @RequestParam(value = "perspective", required = false) String perspective,
     @RequestParam(value = "status", required = false) String status,
-    @RequestParam(value = "parentGoalId", required = false) String parentGoalId,
     @RequestParam(value = "pageNumber", required = false, defaultValue = "0") String pageNumber,
     @RequestParam(value = "pageSize", required = false, defaultValue = "20") String pageSize)
   {
 
-      final var query = new GetListStrategicGoalsQuery(perspective, status, parentGoalId, pageNumber, pageSize);
+      final var query = new GetListStrategicGoalsQuery(perspective, status, pageNumber, pageSize);
 
       return queryBus.handle(query);
 
