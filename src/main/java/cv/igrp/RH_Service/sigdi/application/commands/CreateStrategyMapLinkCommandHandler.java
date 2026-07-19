@@ -46,6 +46,10 @@ public class CreateStrategyMapLinkCommandHandler
     LOGGER.debug("CreateStrategyMapLinkCommand : {}", command);
 
     StrategyLinkDTO request = command.getStrategylink();
+    if (request == null || request.getSourceGoalId() == null || request.getTargetGoalId() == null
+        || request.getRelationshipType() == null) {
+      throw IgrpResponseStatusException.badRequest("Dados do link em falta");
+    }
     StrategicGoalId sourceId = StrategicGoalId.from(request.getSourceGoalId());
     StrategicGoalId targetId = StrategicGoalId.from(request.getTargetGoalId());
     if (sourceId.equals(targetId)) {
