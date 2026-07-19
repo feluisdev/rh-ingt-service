@@ -49,18 +49,22 @@ public class UpdateStrategicGoalsCommandHandler implements CommandHandler<Update
 
     var dto = command.getUpdatestategicgoal();
 
-    // BLOQ-01: fail-closed deadline enforcement using the EFFECTIVE year (supplied on the
-    // DTO, or the existing goal's year when the edit omits it -- StrategicGoal.update()
-    // preserves the existing year in that case, 72-RESEARCH.md Pitfall 2). Uses
-    // IgrpResponseStatusException (not the plain ResponseStatusException used above for the
-    // not-found case) so the RFC 7807 title survives to the BFF (BLOQ-07).
+    // PRAZO-01/02/03: the EFFECTIVE year (supplied on the DTO, or the existing goal's year
+    // when the edit omits it -- StrategicGoal.update() preserves the existing year in that
+    // case, 72-RESEARCH.md Pitfall 2) is now mandatory on every update. This also catches a
+    // legacy goal (year == null) edited without ever touching the year field. The deadline
+    // check that follows is therefore always evaluated. Uses IgrpResponseStatusException
+    // (not the plain ResponseStatusException used above for the not-found case) so the RFC
+    // 7807 title survives to the BFF (BLOQ-07).
     Integer effectiveYear = dto.getYear() != null ? dto.getYear() : goal.getYear();
-    if (effectiveYear != null) {
-      periodRepository.findActiveByTypeAndYearAndPurpose(
-              PaaLevel.UNIT_LEVEL, effectiveYear, Purpose.PAA_BSC_OBJECTIVES)
-          .orElseThrow(() -> IgrpResponseStatusException.badRequest(
-              "Prazo não configurado para a submissão de objetivos estratégicos PAA/BSC"));
+    if (effectiveYear == null) {
+      throw IgrpResponseStatusException.badRequest(
+          "O ano é obrigatório para a submissão de objetivos estratégicos PAA/BSC.");
     }
+    periodRepository.findActiveByTypeAndYearAndPurpose(
+            PaaLevel.UNIT_LEVEL, effectiveYear, Purpose.PAA_BSC_OBJECTIVES)
+        .orElseThrow(() -> IgrpResponseStatusException.badRequest(
+            "Prazo não configurado para a submissão de objetivos estratégicos PAA/BSC"));
 
     java.util.List<cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicIndicator> domainIndicators = goal.getIndicators();
     if (dto.getIndicators() != null) {
