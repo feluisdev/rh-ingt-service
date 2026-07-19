@@ -1,11 +1,12 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateStategicGoalDTO;
@@ -80,17 +81,7 @@ public class CreateStrategicGoalCommandHandlerTest {
     }
 
     @Test
-    void handleWithNullYearSucceedsAndReturnsNullYear() {
-        when(identityRepository.findActive()).thenReturn(Optional.of(activeIdentity()));
-        when(goalRepository.save(any(StrategicGoal.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
-        when(goalMapper.toResponse(any(StrategicGoal.class))).thenAnswer(invocation -> {
-            StrategicGoal g = invocation.getArgument(0);
-            StategicGoalResponseDTO dto = new StategicGoalResponseDTO();
-            dto.setYear(g.getYear());
-            return dto;
-        });
-
+    void handleWithNullYearThrowsBadRequest() {
         CreateStategicGoalDTO dto = new CreateStategicGoalDTO();
         dto.setTitle("Objetivo Estratégico Teste");
         dto.setPerspective("FINANCIAL");
@@ -98,9 +89,10 @@ public class CreateStrategicGoalCommandHandlerTest {
         dto.setWeight(BigDecimal.ONE);
         dto.setYear(null);
 
-        ResponseEntity<StategicGoalResponseDTO> response =
-                createStrategicGoalCommandHandler.handle(new CreateStrategicGoalCommand(dto));
+        IgrpResponseStatusException ex = assertThrows(IgrpResponseStatusException.class,
+                () -> createStrategicGoalCommandHandler.handle(new CreateStrategicGoalCommand(dto)));
 
-        assertNull(response.getBody().getYear());
+        assertEquals("O ano é obrigatório para a submissão de objetivos estratégicos PAA/BSC.",
+                ex.getBody().getTitle());
     }
 }
