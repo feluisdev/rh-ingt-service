@@ -95,4 +95,26 @@ public class CreateStrategicGoalCommandHandlerTest {
         assertEquals("O ano é obrigatório para a submissão de objetivos estratégicos PAA/BSC.",
                 ex.getBody().getTitle());
     }
+
+    @Test
+    void handleWithSuppliedYearButNoActivePeriodThrowsBadRequest() {
+        // periodRepository is checked before identityRepository.findActive() in the handler,
+        // so only the period stub is needed here -- stubbing findActive() would never be
+        // exercised and would trip MockitoExtension's strict UnnecessaryStubbingException.
+        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.UNIT_LEVEL, 2026, Purpose.PAA_BSC_OBJECTIVES))
+                .thenReturn(Optional.empty());
+
+        CreateStategicGoalDTO dto = new CreateStategicGoalDTO();
+        dto.setTitle("Objetivo Estratégico Teste");
+        dto.setPerspective("FINANCIAL");
+        dto.setDescription("Descrição de teste");
+        dto.setWeight(BigDecimal.ONE);
+        dto.setYear(2026);
+
+        IgrpResponseStatusException ex = assertThrows(IgrpResponseStatusException.class,
+                () -> createStrategicGoalCommandHandler.handle(new CreateStrategicGoalCommand(dto)));
+
+        assertEquals("Prazo não configurado para a submissão de objetivos estratégicos PAA/BSC",
+                ex.getBody().getTitle());
+    }
 }

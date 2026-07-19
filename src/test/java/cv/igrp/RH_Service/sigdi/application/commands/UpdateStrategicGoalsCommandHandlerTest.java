@@ -124,4 +124,29 @@ public class UpdateStrategicGoalsCommandHandlerTest {
         assertEquals("O ano é obrigatório para a submissão de objetivos estratégicos PAA/BSC.",
                 ex.getBody().getTitle());
     }
+
+    @Test
+    void handleWithSuppliedYearButNoActivePeriodThrowsBadRequest() {
+        StrategicGoal existingGoal = StrategicGoal.create(
+                UUID.randomUUID(), InstitutionalIdentityId.gerarNovo(), "Objetivo Original",
+                StrategicGoalsPerspective.FINANCIAL, BigDecimal.ONE, "Descrição original",
+                2020, new ArrayList<>());
+
+        when(goalRepository.findById(any(StrategicGoalId.class))).thenReturn(Optional.of(existingGoal));
+        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.UNIT_LEVEL, 2026, Purpose.PAA_BSC_OBJECTIVES))
+                .thenReturn(Optional.empty());
+
+        UpdateStategicGoalDTO dto = new UpdateStategicGoalDTO();
+        dto.setTitle("Objetivo Original");
+        dto.setDescription("Descrição original");
+        dto.setWeight(BigDecimal.ONE);
+        dto.setYear(2026);
+
+        IgrpResponseStatusException ex = assertThrows(IgrpResponseStatusException.class,
+                () -> updateStrategicGoalsCommandHandler.handle(
+                        new UpdateStrategicGoalsCommand(dto, UUID.randomUUID().toString())));
+
+        assertEquals("Prazo não configurado para a submissão de objetivos estratégicos PAA/BSC",
+                ex.getBody().getTitle());
+    }
 }
