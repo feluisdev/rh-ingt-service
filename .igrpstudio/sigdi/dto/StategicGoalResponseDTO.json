@@ -90,32 +90,6 @@
       "primaryKey": false
     },
     {
-      "name": "childGoals",
-      "objectType": "dto",
-      "type": "ChildGoals",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false,
-      "collectionType": "list",
-      "module": "sigdi"
-    },
-    {
-      "name": "parentGoalId",
-      "objectType": "java",
-      "type": "uuid",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false
-    },
-    {
       "name": "linkedActivities",
       "objectType": "java",
       "type": "integer",

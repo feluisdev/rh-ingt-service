@@ -9,7 +9,6 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import cv.igrp.RH_Service.sigdi.application.dto.ChildGoalsDTO;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,14 +43,8 @@ public class StategicGoalResponseDTO  {
   
   
   private String description ;
-  
-  @Valid
-  private List<ChildGoalsDTO> childGoals = new ArrayList<>();
-  
-  
-  private UUID parentGoalId ;
-  
-  
+
+
   private Integer linkedActivities ;
   
   
