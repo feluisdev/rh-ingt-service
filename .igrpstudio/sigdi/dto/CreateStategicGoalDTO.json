@@ -56,18 +56,6 @@
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false
-    },
-    {
-      "name": "parentGoalId",
-      "objectType": "java",
-      "type": "uuid",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false
     }
   ],
   "id": "zn6123cdef"

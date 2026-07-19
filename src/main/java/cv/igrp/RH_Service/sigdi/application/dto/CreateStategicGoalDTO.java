@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -34,8 +33,6 @@ public class CreateStategicGoalDTO  {
   
   
   private BigDecimal weight ;
-  
-  private UUID parentGoalId ;
 
   @Min(value = 2000, message = "The field <year> must be at least 2000")
   @Max(value = 2100, message = "The field <year> cannot be more than 2100")
