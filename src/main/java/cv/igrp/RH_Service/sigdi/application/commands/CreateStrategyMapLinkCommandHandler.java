@@ -14,6 +14,7 @@ import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -91,7 +92,12 @@ public class CreateStrategyMapLinkCommandHandler
 
     StrategyMapLink link = StrategyMapLink.create(
         activeIdentity.getInstitutionId(), sourceId, targetId, type);
-    StrategyMapLink saved = linkRepository.save(link);
+    StrategyMapLink saved;
+    try {
+      saved = linkRepository.save(link);
+    } catch (DataIntegrityViolationException e) {
+      throw IgrpResponseStatusException.badRequest("Já existe um link com os mesmos goals");
+    }
 
     StrategyMapLinkResponseDTO response = new StrategyMapLinkResponseDTO();
     response.setId(saved.getId().getValor().getValor());
