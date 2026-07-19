@@ -96,6 +96,8 @@ public class CreateStrategyMapLinkCommandHandler
     try {
       saved = linkRepository.save(link);
     } catch (DataIntegrityViolationException e) {
+      LOGGER.warn("Concurrent duplicate link save rejected by DB constraint (source={}, target={})",
+          sourceId, targetId, e);
       throw IgrpResponseStatusException.badRequest("Já existe um link com os mesmos goals");
     }
 
