@@ -47,16 +47,16 @@ public class CreateStrategicGoalCommandHandler
 
     CreateStategicGoalDTO request = command.getCreatestategicgoal();
 
-    // BLOQ-01: fail-closed deadline enforcement -- a configured (non-null) year outside the
-    // active PAA_BSC_OBJECTIVES period is rejected; a null year (no fiscal year set) skips
-    // the check entirely (72-RESEARCH.md Pitfall 1 -- a null-bound JPQL year param matches
-    // nothing and would otherwise wrongly block a legitimately year-less goal).
-    if (request.getYear() != null) {
-      periodRepository.findActiveByTypeAndYearAndPurpose(
-              PaaLevel.UNIT_LEVEL, request.getYear(), Purpose.PAA_BSC_OBJECTIVES)
-          .orElseThrow(() -> IgrpResponseStatusException.badRequest(
-              "Prazo não configurado para a submissão de objetivos estratégicos PAA/BSC"));
+    // PRAZO-01/03: year is now mandatory on every create; the deadline check that follows
+    // is therefore always evaluated -- no conditional path skips it anymore.
+    if (request.getYear() == null) {
+      throw IgrpResponseStatusException.badRequest(
+          "O ano é obrigatório para a submissão de objetivos estratégicos PAA/BSC.");
     }
+    periodRepository.findActiveByTypeAndYearAndPurpose(
+            PaaLevel.UNIT_LEVEL, request.getYear(), Purpose.PAA_BSC_OBJECTIVES)
+        .orElseThrow(() -> IgrpResponseStatusException.badRequest(
+            "Prazo não configurado para a submissão de objetivos estratégicos PAA/BSC"));
 
     var activeIdentity = identityRepository.findActive()
         .orElseThrow(() -> IgrpResponseStatusException.notFound(
