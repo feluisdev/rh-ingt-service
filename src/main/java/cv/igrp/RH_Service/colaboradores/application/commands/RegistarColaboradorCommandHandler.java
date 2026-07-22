@@ -37,6 +37,15 @@ public class RegistarColaboradorCommandHandler
             throw IgrpResponseStatusException.badRequest(
                     "Para registar o enquadramento é necessário incluir os dados do contrato.");
 
+        if (dto.getContrato() != null) {
+            dto.getFuncionario().setDataAdmissao(dto.getContrato().getStartDate());
+            if (dto.getEnquadramento() != null)
+                dto.getEnquadramento().setDataInicio(dto.getContrato().getStartDate());
+        } else if (dto.getFuncionario().getDataAdmissao() == null) {
+            throw IgrpResponseStatusException.badRequest(
+                    "A data de admissão é obrigatória quando não é registado contrato.");
+        }
+
         var funcionario = funcionarioService.criarFuncionario(dto.getFuncionario());
         var funcionarioId = funcionario.getId();
 

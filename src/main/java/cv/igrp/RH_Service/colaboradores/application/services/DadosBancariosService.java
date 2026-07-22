@@ -27,4 +27,24 @@ public class DadosBancariosService {
                 funcionarioId, dto.getBanco(), dto.getNumeroConta(),
                 dto.getIban(), dto.getNumeroSegurancaSocial()));
     }
+
+    @Transactional
+    public void upsertDadosBancarios(FuncionarioId funcionarioId, DadosBancariosRequestDTO dto) {
+        var existing = dadosBancariosRepository.findActiveByFuncionarioId(funcionarioId);
+
+        if (existing.isPresent()) {
+            var db = existing.get();
+            db.atualizar(
+                    dto.getBanco() != null ? dto.getBanco() : db.getBanco(),
+                    dto.getNumeroConta() != null ? dto.getNumeroConta() : db.getNumeroConta(),
+                    dto.getIban() != null ? dto.getIban() : db.getIban(),
+                    dto.getNumeroSegurancaSocial() != null ? dto.getNumeroSegurancaSocial() : db.getNumeroSegurancaSocial()
+            );
+            dadosBancariosRepository.save(db);
+        } else {
+            dadosBancariosRepository.save(DadosBancarios.criar(
+                    funcionarioId, dto.getBanco(), dto.getNumeroConta(),
+                    dto.getIban(), dto.getNumeroSegurancaSocial()));
+        }
+    }
 }

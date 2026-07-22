@@ -13,6 +13,7 @@ public class CareerResponseDTO {
     private String name;
     private String description;
     private String regime;
+    private String regimeDesc;
     private Boolean isActive;
     private String estadoDesc;
     private Long nCategorias;

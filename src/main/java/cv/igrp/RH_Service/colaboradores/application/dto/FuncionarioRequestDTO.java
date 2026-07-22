@@ -60,6 +60,5 @@ public class FuncionarioRequestDTO {
     @Size(max = 100)
     private String localidade;
 
-    @NotNull
     private LocalDate dataAdmissao;
 }

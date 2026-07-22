@@ -19,6 +19,8 @@ public class LeaveMobilitySubtypeResponseDTO {
 
     private String recordType;
 
+    private String recordTypeDesc;
+
     private boolean affectsPay;
 
     private boolean countsForSeniority;

@@ -5,8 +5,8 @@
 | **Documento** | Arquitectura de Módulos RH v4.0 |
 | **Projeto** | SIPPROG — Sistema de Informação do Pessoal e Progressões |
 | **Entidade** | INGT — Instituto Nacional de Gestão do Território |
-| **Versão** | 4.0 |
-| **Data** | Maio 2026 |
+| **Versão** | 4.2 |
+| **Data** | Junho 2026 |
 | **Status** | Em curso |
 
 ---
@@ -163,6 +163,9 @@ src/main/java/cv/igrp/RH_Service/
     │   ├── service/                -- DocumentoService (storage abstraction)
     │   └── valueobject/            -- ExternalID, Email, Nif, Nib, ...
     ├── infrastructure/
+    │   ├── persistence/
+    │   │   ├── entity/             -- IAMUserProfileEntity (perfil Keycloak sincronizado → t_iam_user_profile)
+    │   │   └── repository/         -- IAMUserProfileRepository
     │   └── spring/                 -- SpringCommandBus, SpringQueryBus
     ├── interfaces/rest/            -- controllers transversais (e.g. DocumentController)
     └── security/
@@ -186,7 +189,7 @@ src/main/java/cv/igrp/RH_Service/
 | Ausências e Licenças | `colaboradores/` (flat) | `t_leave_balance`, `t_leave_request`, `t_leave_mobility` | Workflow de aprovação pela chefia |
 | Recibos | `colaboradores/` (flat) | `t_payroll_slip` | Storage de PDF gerado pelo sistema salarial externo |
 
-Total: **9 BCs** organizados em **5 módulos top-level**, com **29 tabelas** (excluindo `change_history` e `employee_external_mapping`).
+Total: **9 BCs** organizados em **5 módulos top-level**, com **30 tabelas** (29 RH + 1 IAM em shared/; excluindo `change_history` e `employee_external_mapping`). A tabela `t_iam_user_profile` pertence ao `shared/` — liga o utilizador autenticado (Keycloak) ao dossier RH.
 
 ---
 

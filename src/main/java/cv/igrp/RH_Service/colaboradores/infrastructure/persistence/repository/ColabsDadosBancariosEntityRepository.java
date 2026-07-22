@@ -4,8 +4,10 @@ import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.DadosB
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ColabsDadosBancariosEntityRepository extends JpaRepository<DadosBancariosEntity, UUID> {
     List<DadosBancariosEntity> findByFuncionarioId(UUID funcionarioId);
+    Optional<DadosBancariosEntity> findByFuncionarioIdAndIsActiveTrue(UUID funcionarioId);
 }

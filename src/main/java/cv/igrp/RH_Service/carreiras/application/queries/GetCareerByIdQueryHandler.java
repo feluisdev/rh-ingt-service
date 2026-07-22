@@ -5,6 +5,8 @@ import cv.igrp.RH_Service.carreiras.domain.repository.CareerRepository;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CareerId;
 import cv.igrp.RH_Service.carreiras.infrastructure.mappers.CareerMapper;
 import cv.igrp.RH_Service.carreiras.domain.repository.CategoryRepository;
+import cv.igrp.RH_Service.parametrizacoes.application.port.OptionLookupPort;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.OptionCcode;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
@@ -24,6 +26,7 @@ public class GetCareerByIdQueryHandler
     private final CareerRepository careerRepository;
     private final CareerMapper mapper;
     private final CategoryRepository categoryRepository;
+    private final OptionLookupPort optionLookupPort;
 
     @IgrpQueryHandler
     public ResponseEntity<CareerResponseDTO> handle(GetCareerByIdQuery query) {
@@ -33,6 +36,10 @@ public class GetCareerByIdQueryHandler
 
         var dto = mapper.toDTO(career);
         dto.setNCategorias(categoryRepository.countByCareerId(career.getId()));
+        if (career.getRegime() != null) {
+            optionLookupPort.findByCcodeAndCkey(OptionCcode.CAREER_REGIME.getCode(), career.getRegime())
+                    .ifPresent(opt -> dto.setRegimeDesc(opt.cvalue()));
+        }
         return ResponseEntity.ok(dto);
     }
 }

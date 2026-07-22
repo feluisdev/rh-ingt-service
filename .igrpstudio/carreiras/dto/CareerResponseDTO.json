@@ -9,6 +9,7 @@
     {"name": "name", "type": "string", "required": false},
     {"name": "description", "type": "string", "required": false},
     {"name": "regime", "type": "string", "required": false},
+    {"name": "regimeDesc", "type": "string", "required": false},
     {"name": "isActive", "type": "boolean", "required": false}
   ]
 }

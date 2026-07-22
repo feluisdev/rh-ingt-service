@@ -4,8 +4,8 @@
 |---|---|
 | **Documento** | Regras de Ecrã — Registo Colaborador |
 | **Módulo** | Colaboradores |
-| **Versão** | 1.0 |
-| **Data** | Maio 2026 |
+| **Versão** | 1.2 |
+| **Data** | Junho 2026 |
 | **Status** | Em curso |
 
 ---
@@ -18,7 +18,7 @@ O registo de um colaborador é feito num **único ecrã dividido em tabs**. O ut
 POST /api/v1/rh/funcionarios/registar
 ```
 
-O backend cria atomicamente todos os registos — se qualquer parte falhar, nada é persistido. A resposta devolve os IDs de tudo o que foi criado (`funcionarioId`, `contratoId`, `enquadramentoId`, `dadosBancariosId`).
+O backend cria atomicamente todos os registos — se qualquer parte falhar, nada é persistido. A resposta devolve os IDs de tudo o que foi criado (`funcionarioId`, `numeroFuncionario`, `contratoId`, `enquadramentoId`, `dadosBancariosId`, `documentoIds`).
 
 ### Estrutura do payload
 
@@ -26,10 +26,13 @@ O backend cria atomicamente todos os registos — se qualquer parte falhar, nada
 {
   "funcionario":    { ... },   // obrigatório
   "contrato":       { ... },   // opcional
-  "enquadramento":  { ... },   // opcional
-  "dadosBancarios": { ... }    // opcional
+  "enquadramento":  { ... },   // opcional (ver regra de dependência abaixo)
+  "dadosBancarios": { ... },   // opcional
+  "dossier":        [ ... ]    // opcional — lista de documentos a anexar no acto do registo
 }
 ```
+
+> **Regra de dependência:** se `enquadramento` for enviado, `contrato` é **obrigatório** — caso contrário a API retorna HTTP 400.
 
 As tabs seguem esta estrutura directamente — cada tab corresponde a uma secção do payload.
 
@@ -174,9 +177,30 @@ Mapeia para o objecto `dadosBancarios` do payload. Tab opcional — se não pree
 
 ---
 
+## Tab 5 — Dossier de Documentos *(opcional)*
+
+Mapeia para o array `dossier` do payload. Permite fazer upload de um ou mais documentos **no acto do registo**. Tab opcional — se não preenchida, não é enviada.
+
+Cada documento no array requer os seguintes campos:
+
+| Campo | Obrigatório | Regras |
+|---|---|---|
+| Tipo de Documento (`documentTypeId`) | Sim | FK → `t_document_type`; valida extensões permitidas |
+| Chave do ficheiro (`fileKey`) | Sim | Chave MinIO do ficheiro previamente carregado |
+| Nome original (`originalFilename`) | Sim | Nome original do ficheiro |
+| Tipo de conteúdo (`contentType`) | Sim | MIME type (ex: `application/pdf`) |
+| Tamanho do ficheiro (`fileSize`) | Sim | Tamanho em bytes |
+| Descrição (`description`) | Não | Anotação livre |
+
+> O frontend deve fazer o upload para o MinIO primeiro (obtendo a `fileKey`) e só então incluir o documento neste array.
+
+---
+
 ## Após o Registo — Dossier Complementar
 
-Os sub-recursos abaixo **não fazem parte deste ecrã**. São preenchidos em ecrãs próprios após o registo, usando o `funcionarioId` devolvido na resposta.
+Os sub-recursos abaixo **não fazem parte deste ecrã de registo inicial**. São preenchidos em ecrãs próprios após o registo, usando o `funcionarioId` devolvido na resposta.
+
+> Excepção: documentos podem ser carregados directamente no registo via Tab 5 (ver acima).
 
 | Sub-recurso | Endpoint |
 |---|---|
@@ -194,7 +218,10 @@ Os sub-recursos abaixo **não fazem parte deste ecrã**. São preenchidos em ecr
 |---|---|
 | **Endpoint único** | Toda a submissão vai para `POST /api/v1/rh/funcionarios/registar` — uma única chamada |
 | **Tabs opcionais** | Se uma tab não for preenchida, o objecto correspondente não é enviado no payload |
+| **Dependência enquadramento** | `enquadramento` só pode ser enviado se `contrato` também for enviado — erro HTTP 400 caso contrário |
 | **Datas âncora** | `dataAdmissao` da Tab 1 é o limite inferior de todos os campos de data das restantes tabs |
 | **Lookups de Option** | Todos os dropdowns de catálogo usam `GET /reference/options?ccode={X}` |
 | **Flags data-driven** | Regras de visibilidade do contrato usam os flags do DTO (`isRenewable`, `requiresCareerStructure`) — nunca comparar `code` |
 | **Erros de unicidade** | NIF, email, nº documento — erro inline sem apagar formulário (HTTP 409) |
+| **Dossier no registo** | Documentos podem ser carregados na Tab 5 durante o registo; também podem ser adicionados posteriormente via `POST /funcionarios/{id}/documentos` |
+| **Resposta** | A resposta inclui `numeroFuncionario` (gerado automaticamente, formato `F000001`) e `documentoIds` (lista de IDs dos documentos criados) |

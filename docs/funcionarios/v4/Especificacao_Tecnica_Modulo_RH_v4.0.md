@@ -81,9 +81,9 @@ Na v3, o enquadramento profissional misturava progressão de carreira com tipo d
 
 | Tabela | Muda quando | Marcador de actual |
 |---|---|---|
-| `employee_contracts` | Renovação de CTFP, mudança para nomeação definitiva, comissão de serviço | `is_current = true` |
-| `employee_professional_assignments` | Promoção de categoria, progressão de escalão, mudança de cargo/função | `is_current = true` |
-| `employee_unit_assignments` | Mobilidade interna, destacamento, cedência | `end_date IS NULL` |
+| `t_contrato` | Renovação de CTFP, mudança para nomeação definitiva, comissão de serviço | `is_current = true` |
+| `t_employee_professional_assignments` | Promoção de categoria, progressão de escalão, mudança de cargo/função | `is_current = true` |
+| `t_employee_unit_assignments` | Mobilidade interna, destacamento, cedência | `is_current = true` |
 
 **Impacto na API:** novo sub-recurso `/funcionarios/{id}/contratos` (secção 2.3). O enquadramento profissional deixa de carregar o tipo de contrato.
 
@@ -93,10 +93,10 @@ Tabelas e endpoints novos, ausentes em v3:
 
 | Recurso | Tabela | Endpoint base |
 |---|---|---|
-| Dependentes | `employee_dependents` | `/funcionarios/{id}/dependentes` |
-| Habilitações Literárias | `qualifications` | `/funcionarios/{id}/qualificacoes` |
-| Formações Profissionais | `trainings` | `/funcionarios/{id}/formacoes` |
-| Processos Disciplinares | `disciplinary_processes` | `/funcionarios/{id}/processos-disciplinares` |
+| Dependentes | `t_dependente` | `/funcionarios/{id}/dependentes` |
+| Habilitações Literárias | `t_qualificacao` | `/funcionarios/{id}/qualificacoes` |
+| Formações Profissionais | `t_training` | `/funcionarios/{id}/formacoes` |
+| Processos Disciplinares | `t_disciplinary_process` | `/funcionarios/{id}/processos-disciplinares` |
 
 ### 4. Documentos polimórficos
 
@@ -833,7 +833,7 @@ Documentos (diploma, certidão) são associados após criação via `POST /funci
 |---|---|---|---|
 | `name` | string | Sim | Designação da formação. |
 | `institution` | string | Não | Entidade formadora. |
-| `trainingType` | string | Não | Tipo — ckey de `option_entity` ccode=`TRAINING_TYPE`: `PRESENCIAL`, `ELEARNING`, `SEMINARIO`, `CONGRESSO`. |
+| `trainingType` | string | Não | Tipo — ckey de `option_entity` ccode=`TRAINING_TYPE`: `CURSO`, `SEMINARIO`, `WORKSHOP`, `CONGRESSO`, `CONFERENCIA`, `ELEARNING`. |
 | `startDate` | date | Não | Data de início. |
 | `endDate` | date | Não | Data de fim. |
 | `durationHours` | integer | Não | Duração em horas. |
@@ -1214,7 +1214,7 @@ Todos os catálogos são administráveis de forma autónoma sem necessidade de n
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
 | `code` | string | Sim | Código único: `ACTIVE`, `INACTIVE`, `SUSPENDED`. |
-| `name` | string | Sim | Designação. |
+| `description` | string | Não | Designação. |
 | `isCore` | boolean | Não | `true` = não pode ser desactivado (default false). |
 
 ### PUT /worker-states/{id}
@@ -1236,8 +1236,8 @@ Bloqueado se `is_core = true`.
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
 | `code` | string | Sim | Ex: `EFETIVO`, `CONTRATADO`, `COMISSIONADO`, `ESTAGIARIO`. |
-| `name` | string | Sim | Designação. |
-| `countsSeniority` | boolean | Sim | Conta para antiguidade e progressão na carreira (PCFR). Default `true`. |
+| `description` | string | Não | Designação. |
+| `countsSeniority` | boolean | Não | Conta para antiguidade e progressão na carreira (PCFR). Default `true`. |
 | `eligibleForProgression` | boolean | Sim | Elegível para progressão de categoria/escalão (PCFR). Default `true`. |
 
 ### PUT /vinculos-laborais/{id}
@@ -1259,12 +1259,12 @@ Bloqueado se referenciado por tipos de contrato activos.
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
 | `code` | string | Sim | Ex: `NOMEACAO_DEFINITIVA`, `CFP`, `CTFP_TERMO_CERTO`, `CTFP_TERMO_INCERTO`, `COMISSAO_SERVICO`. |
-| `name` | string | Sim | Designação (máx. 150). |
-| `description` | text | Não | Descrição. |
+| `description` | string | Não | Designação. |
 | `vinculoLaboralId` | UUID | Não | Vínculo laboral correspondente (LGTFP). Classifica o vínculo implícito no tipo de contrato. |
 | `isRenewable` | boolean | Não | Indica se o contrato é renovável (LGTFP). Default `false`. |
 | `maxRenewals` | integer | Não | Número máximo de renovações permitidas por lei (`null` = sem limite). |
 | `maxDurationMonths` | integer | Não | Duração máxima legal em meses (`null` = indefinido). O sistema alerta quando o limite se aproxima. |
+| `requiresCareerStructure` | boolean | Não | Se `true`, enquadramento exige carreira/categoria/escalão. Default `false`. |
 
 ### PUT /contract-types/{id}
 
@@ -1285,8 +1285,8 @@ Bloqueado se referenciado por contratos activos.
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
 | `code` | string | Sim | Ex: `FERIAS`, `DOENCA`, `MATERNIDADE`, `PATERNIDADE`, `LUTO`, `CASAMENTO`. |
-| `name` | string | Sim | Designação. |
-| `categoryOptionKey` | string | Não | Categoria agrupadora (`option_entity` ccode=`LEAVE_CATEGORY`). |
+| `description` | string | Não | Designação. |
+| `category` | string | Não | Categoria agrupadora (`option_entity` ccode=`LEAVE_CATEGORY`): `GOZAMENTO`, `SAUDE`, `FAMILIAR`, `PESSOAL`, `LEGAL`. |
 | `deductsBalance` | boolean | Sim | Desconta saldo anual (default true). |
 | `requiresApproval` | boolean | Sim | Exige aprovação da chefia (default true). |
 | `maxDaysPerYear` | integer | Não | Limite legal de dias por ano (`null` = sem limite). |
@@ -1312,7 +1312,7 @@ Bloqueado se referenciado por contratos activos.
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
 | `code` | string | Sim | Código único. |
-| `name` | string | Sim | Designação (máx. 150). |
+| `description` | string | Não | Designação. |
 | `recordType` | string | Sim | `LICENCA`, `MOBILIDADE` ou `AMBOS`. |
 | `affectsPay` | boolean | Sim | Afecta remuneração (default false). |
 | `countsForSeniority` | boolean | Sim | Conta para antiguidade (default true). |
@@ -1334,9 +1334,9 @@ Bloqueado se referenciado por contratos activos.
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
-| `code` | string | Sim | Ex: `CNI`, `PASSAPORTE`, `CONTRATO`, `CERTIDAO`, `HABILITACAO`, `FORMACAO`, `DISCIPLINAR`, `RECIBO`, `JUSTIFICATIVO`, `OUTRO`. |
-| `name` | string | Sim | Designação. |
-| `categoryOptionKey` | string | Não | Categoria (`option_entity` ccode=`DOC_CATEGORY`): `PESSOAL`, `CONTRATUAL`, `FORMACAO`, `DISCIPLINAR`, `AVALIACAO`. |
+| `codigo` | string | Sim | Ex: `CNI`, `PASSAPORTE`, `CONTRATO`, `CERTIDAO`, `HABILITACAO`, `FORMACAO`, `DISCIPLINAR`, `RECIBO`, `JUSTIFICATIVO`, `OUTRO`. |
+| `descricao` | string | Não | Designação. |
+| `category` | string | Não | Categoria (`option_entity` ccode=`DOC_CATEGORY`): `IDENTIFICACAO`, `CONTRATO`, `FORMACAO`, `DISCIPLINAR`, `MEDICO`, `FINANCEIRO`, `OUTRO`. |
 | `allowedExtensions` | string | Não | Ex: `pdf,jpg,png`. |
 
 ### PUT /document-types/{id}
@@ -1383,16 +1383,16 @@ Os lookups sem lógica de negócio (estado civil, sexo, nacionalidade, ilha, con
 | `SEX` | Sexo | `M`, `F` |
 | `NATIONALITY` | Nacionalidade | `CV`, `PT`, `SN`, `BR` |
 | `UNIT_TYPE` | Tipo de Unidade Orgânica | `DIRECAO`, `DEPARTAMENTO`, `DIVISAO`, `SECCAO` |
-| `DOC_CATEGORY` | Categoria de Documento | `PESSOAL`, `CONTRATUAL`, `FORMACAO`, `DISCIPLINAR`, `AVALIACAO` |
-| `LEAVE_CATEGORY` | Categoria de Ausência | `FERIAS`, `DOENCA`, `FAMILIA`, `OUTRO` |
+| `DOC_CATEGORY` | Categoria de Documento | `IDENTIFICACAO`, `CONTRATO`, `FORMACAO`, `DISCIPLINAR`, `MEDICO`, `FINANCEIRO`, `OUTRO` |
+| `LEAVE_CATEGORY` | Categoria de Ausência | `GOZAMENTO`, `SAUDE`, `FAMILIAR`, `PESSOAL`, `LEGAL` |
 | `QUALIFICATION_LEVEL` | Nível de Habilitação | `BASICO`, `SECUNDARIO`, `LICENCIATURA`, `MESTRADO`, `DOUTORAMENTO` |
 | `RELATIONSHIP_TYPE` | Tipo de Parentesco | `CONJUGE`, `FILHO`, `PAI`, `MAE`, `IRMAO` |
 | `ISLAND` | Ilha de Cabo Verde | `SANTIAGO`, `SAL`, `BOA_VISTA`, `SAO_VICENTE`, `FOGO` |
 | `CONCELHO` | Concelho | `PRAIA`, `SANTA_CATARINA`, `SAO_DOMINGOS`, `MINDELO` |
-| `TRAINING_TYPE` | Tipo de Formação | `PRESENCIAL`, `ELEARNING`, `SEMINARIO`, `CONGRESSO` |
+| `TRAINING_TYPE` | Tipo de Formação | `CURSO`, `SEMINARIO`, `WORKSHOP`, `CONGRESSO`, `CONFERENCIA`, `ELEARNING` |
 | `CAREER_REGIME` | Regime de Carreira | `GERAL`, `ESPECIAL` |
 | `BANCO` | Banco (para dados bancários) | `BCA`, `BCN`, `CECV`, `BAI` |
-| `WORK_REGIME` | Regime de Trabalho (LGTFP art.123-129) | `TEMPO_INTEIRO`, `TEMPO_PARCIAL`, `EXCLUSIVIDADE` |
+| `WORK_REGIME` | Regime de Trabalho (LGTFP art.123-129) | `TEMPO_COMPLETO`, `TEMPO_PARCIAL`, `ISENCAO_HORARIO`, `DEDICACAO_EXCLUSIVA` |
 
 **Resposta (200 OK)**
 

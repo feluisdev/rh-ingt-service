@@ -22,7 +22,8 @@ public enum OptionCcode {
     CAREER_REGIME("CAREER_REGIME", "Regime de Carreira"),
     BANCO("BANCO", "Banco"),
     WORK_REGIME("WORK_REGIME", "Regime de Trabalho"),
-    WORKER_STATE_REASON("WORKER_STATE_REASON", "Motivo de Mudança de Estado");
+    WORKER_STATE_REASON("WORKER_STATE_REASON", "Motivo de Mudança de Estado"),
+    RECORD_TYPE("RECORD_TYPE", "Tipo de Registo de Licença/Mobilidade");
 
     private final String code;
     private final String description;

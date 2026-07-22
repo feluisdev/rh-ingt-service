@@ -5,6 +5,9 @@ import cv.igrp.RH_Service.carreiras.domain.filter.CareerFilter;
 import cv.igrp.RH_Service.carreiras.domain.repository.CareerRepository;
 import cv.igrp.RH_Service.carreiras.infrastructure.mappers.CareerMapper;
 import cv.igrp.RH_Service.carreiras.domain.repository.CategoryRepository;
+import cv.igrp.RH_Service.parametrizacoes.application.port.OptionDTO;
+import cv.igrp.RH_Service.parametrizacoes.application.port.OptionLookupPort;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.OptionCcode;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -25,6 +31,7 @@ public class GetCareersQueryHandler
     private final CareerRepository careerRepository;
     private final CareerMapper mapper;
     private final CategoryRepository categoryRepository;
+    private final OptionLookupPort optionLookupPort;
 
     @IgrpQueryHandler
     public ResponseEntity<WrapperListaCareerDTO> handle(GetCareersQuery query) {
@@ -36,9 +43,21 @@ public class GetCareersQueryHandler
         filter.setSize(query.getTamanho() != null ? Integer.parseInt(query.getTamanho()) : 20);
 
         var pageResult = careerRepository.findAll(filter);
+
+        Set<String> regimes = pageResult.getData().stream()
+                .map(c -> c.getRegime())
+                .filter(r -> r != null)
+                .collect(Collectors.toSet());
+        Map<String, OptionDTO> regimeDescs = optionLookupPort
+                .findAllByCcodeAndCkeys(OptionCcode.CAREER_REGIME.getCode(), regimes);
+
         var content = pageResult.getData().stream().map(career -> {
             var dto = mapper.toDTO(career);
             dto.setNCategorias(categoryRepository.countByCareerId(career.getId()));
+            if (career.getRegime() != null) {
+                OptionDTO opt = regimeDescs.get(career.getRegime());
+                if (opt != null) dto.setRegimeDesc(opt.cvalue());
+            }
             return dto;
         }).toList();
 

@@ -11,6 +11,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.validation.ConstraintViolation;
@@ -22,6 +23,21 @@ import org.postgresql.util.PSQLException;
 public class GlobalExceptionHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    private static final Map<String, String> SQL_STATE_MESSAGES = Map.of(
+        "23502", "Campo obrigatório em falta.",
+        "23503", "Referência inválida: o valor não existe na tabela relacionada.",
+        "23505", "Já existe um registo com este valor. Por favor, utilize um valor diferente.",
+        "23514", "O valor fornecido não é permitido (violação de regra de validação).",
+        "22001", "O valor fornecido é demasiado longo para o campo.",
+        "22P02", "Formato de dados inválido."
+    );
+
+    private static final Map<String, String> SQL_CLASS_MESSAGES = Map.of(
+        "23", "Violação de integridade de dados.",
+        "22", "Dados inválidos.",
+        "08", "Erro de ligação à base de dados."
+    );
 
     @ExceptionHandler(IgrpResponseStatusException.class)
     public ProblemDetail handleIgrpResponseStatusException(IgrpResponseStatusException ex) {
@@ -129,27 +145,28 @@ public class GlobalExceptionHandler {
     if (rootCause instanceof PSQLException psqlEx) {
 
       var sqlState = psqlEx.getSQLState();
+      var field = extractKeyField(psqlEx);
 
-      if ("23503".equals(sqlState)) {
+      var message = SQL_STATE_MESSAGES.getOrDefault(
+          sqlState,
+          SQL_CLASS_MESSAGES.getOrDefault(
+              sqlState.length() >= 2 ? sqlState.substring(0, 2) : sqlState,
+              "Erro interno de base de dados."
+          )
+      );
 
-        var detail = extractForeignKeyField(psqlEx);
-
-        problem.setTitle("Foreign Key Constraint Violation");
-        problem.setDetail(detail != null
-            ? "Foreign key constraint violated on field: '" + detail + "'."
-            : "A foreign key constraint was violated.");
-        return problem;
-      }
+      problem.setTitle("Erro de dados");
+      problem.setDetail(field != null ? "Campo '" + field + "': " + message : message);
+      return problem;
     }
 
-    problem.setTitle("Data Integrity Violation");
-    problem.setDetail(ex.getMostSpecificCause().getMessage());
+    problem.setTitle("Erro interno");
+    problem.setDetail("Ocorreu um erro inesperado. Por favor, contacte o suporte.");
 
     return problem;
   }
 
-  private String extractForeignKeyField(org.postgresql.util.PSQLException ex) {
-
+  private String extractKeyField(org.postgresql.util.PSQLException ex) {
     var message = ex.getServerErrorMessage() != null
         ? ex.getServerErrorMessage().getDetail()
         : ex.getMessage();
