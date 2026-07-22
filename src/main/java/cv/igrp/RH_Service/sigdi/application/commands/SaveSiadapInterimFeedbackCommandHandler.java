@@ -2,6 +2,8 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
+import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
+import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.dto.ObjectiveRevisionDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapInterimFeedbackDTO;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;
@@ -10,6 +12,7 @@ import cv.igrp.RH_Service.sigdi.domain.compliance.repository.SiadapEvaluationRep
 import cv.igrp.RH_Service.sigdi.domain.compliance.repository.SiadapInterimFeedbackRepository;
 import cv.igrp.RH_Service.sigdi.domain.compliance.valueobject.ObjectiveRevision;
 import cv.igrp.RH_Service.sigdi.domain.compliance.valueobject.SiadapEvaluationId;
+import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.compliance.SiadapInterimFeedbackMapper;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
@@ -37,6 +40,7 @@ public class SaveSiadapInterimFeedbackCommandHandler
     private final SiadapEvaluationRepository evaluationRepository;
     private final SiadapInterimFeedbackMapper mapper;
     private final CurrentEmployeeResolver currentEmployeeResolver;
+    private final PaaSubmissionPeriodRepository periodRepository;
 
     @IgrpCommandHandler
     @Transactional
@@ -56,6 +60,14 @@ public class SaveSiadapInterimFeedbackCommandHandler
         if (!currentEmployeeId.equals(evaluation.getEvaluatorId()) && !currentEmployeeId.equals(evaluation.getEmployeeId()))
             throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN,
                     "Apenas o avaliador ou o avaliado desta avaliação podem guardar o feedback intercalar");
+
+        // PRAZO-03: fail-closed deadline enforcement — no active SIADAP_INTERIM individual period
+        // for the evaluation's fiscal year blocks saving the Interim Feedback sheet. Inserted
+        // AFTER the actor check above, never replacing it.
+        periodRepository.findActiveByTypeAndYearAndPurpose(
+                        PaaLevel.INDIVIDUAL_LEVEL, evaluation.getYear(), Purpose.SIADAP_INTERIM)
+                .orElseThrow(() -> IgrpResponseStatusException.badRequest(
+                        "Prazo não configurado para a gravação do feedback intercalar SIADAP"));
 
         SiadapInterimFeedbackDTO body = command.getBody();
         body.setEvaluationId(command.getEvaluationId());

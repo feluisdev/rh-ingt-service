@@ -58,9 +58,9 @@
       "primaryKey": false
     },
     {
-      "name": "parentGoalId",
+      "name": "year",
       "objectType": "java",
-      "type": "uuid",
+      "type": "integer",
       "required": false,
       "before": false,
       "after": false,
@@ -68,6 +68,19 @@
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false
+    },
+    {
+      "name": "indicators",
+      "objectType": "dto",
+      "type": "StrategicIndicatorDTO",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "collectionType": "list"
     }
   ],
   "id": "zn6123cdef"

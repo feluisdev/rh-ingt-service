@@ -41,8 +41,10 @@ public class StategicGoalSumaryDTO  {
   
   
   private Double progress ;
-  
-  
+
+
   private Integer linkedActivities ;
+
+  private Integer year ;
 
 }

@@ -26,7 +26,10 @@ public class StrategyMapLinkRepositoryImpl implements StrategyMapLinkRepository 
   @Override
   public StrategyMapLink save(StrategyMapLink link) {
     StrategyMapLinkEntity entity = mapper.toEntity(link);
-    StrategyMapLinkEntity saved = jpaRepository.save(entity);
+    // saveAndFlush (not save): id is client-assigned (no @GeneratedValue), so a plain save()
+    // never triggers a synchronous insert -- the unique constraint check would otherwise be
+    // deferred to commit, past the caller's try/catch around this call (CreateStrategyMapLinkCommandHandler).
+    StrategyMapLinkEntity saved = jpaRepository.saveAndFlush(entity);
     return mapper.toDomain(saved);
   }
 

@@ -6,7 +6,9 @@ import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.StrategicGoalE
 import cv.igrp.RH_Service.sigdi.application.constants.StrategicGoalsPerspective;
 import cv.igrp.RH_Service.sigdi.application.dto.StategicGoalResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.StategicGoalSumaryDTO;
+import cv.igrp.RH_Service.sigdi.domain.strategy.models.BscPerspectiveConfig;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
+import cv.igrp.RH_Service.sigdi.domain.strategy.repository.BscPerspectiveConfigRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentityId;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.StrategicIndicatorEntity;
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class StrategicGoalMapper {
+
+  private final BscPerspectiveConfigRepository bscPerspectiveConfigRepository;
 
   public StrategicGoal toDomain(StrategicGoalEntity entity) {
     if (entity == null) return null;
@@ -50,22 +54,41 @@ public class StrategicGoalMapper {
         entity.getDescription(),
         entity.getPositionX(),
         entity.getPositionY(),
+        entity.getYear(),
         domainIndicators
     );
   }
 
   public StategicGoalResponseDTO toResponse(StrategicGoal domain) {
     if (domain == null) return null;
+    String perspectiveCode = domain.getPerspective().getCode();
+    String perspectiveLabel = bscPerspectiveConfigRepository.findByCode(perspectiveCode)
+        .map(BscPerspectiveConfig::getLabel)
+        .orElse(perspectiveCode);
+    return toResponse(domain, java.util.Map.of(perspectiveCode, perspectiveLabel));
+  }
+
+  /**
+   * Same field mapping as {@link #toResponse(StrategicGoal)}, but sources the perspective label from
+   * a pre-built {@code code -> label} map instead of issuing its own {@code findByCode} lookup.
+   * Callers mapping a list of goals (e.g. {@code GetCurrentStrategyMapQueryHandler}) should build the
+   * map once via a single {@code findAll()} and pass it in here, avoiding one {@code findByCode} query
+   * per goal.
+   */
+  public StategicGoalResponseDTO toResponse(StrategicGoal domain, java.util.Map<String, String> labelsByCode) {
+    if (domain == null) return null;
     StategicGoalResponseDTO dto = new StategicGoalResponseDTO();
     dto.setId(domain.getId().getValor().getValor());
     dto.setIdentityId(domain.getIdentityId().getValor().getValor());
     dto.setPerspective(domain.getPerspective().getCode());
-    dto.setPerspectiveDesc(domain.getPerspective().getDescription());
+    dto.setPerspectiveDesc(
+        labelsByCode.getOrDefault(domain.getPerspective().getCode(), domain.getPerspective().getCode()));
     dto.setWeight(domain.getWeight());
     dto.setTitle(domain.getTitle());
     dto.setDescription(domain.getDescription());
     dto.setStatus(domain.getStatus().getCode());
     dto.setStatusDesc(domain.getStatus().getDescription());
+    dto.setYear(domain.getYear());
     dto.setProgress(0.0);
     dto.setLinkedActivities(0);
 
@@ -100,6 +123,7 @@ public class StrategicGoalMapper {
     dto.setWeight(domain.getWeight());
     dto.setStatus(domain.getStatus().getCode());
     dto.setStatusDes(domain.getStatus().getDescription());
+    dto.setYear(domain.getYear());
     dto.setProgress(0.0);
     dto.setLinkedActivities(0);
     return dto;
@@ -118,6 +142,7 @@ public class StrategicGoalMapper {
     entity.setDescription(domain.getDescription());
     entity.setPositionX(domain.getPositionX());
     entity.setPositionY(domain.getPositionY());
+    entity.setYear(domain.getYear());
 
     InstitutionalIdentityEntity identityRef = new InstitutionalIdentityEntity();
     identityRef.setId(domain.getIdentityId().getValor().getValor());

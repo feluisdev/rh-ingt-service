@@ -1,11 +1,15 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
+import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.constants.StrategicGoalsPerspective;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateStategicGoalDTO;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.InstitutionalIdentityRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
+import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.StrategicGoalMapper;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import org.springframework.http.ResponseEntity;
@@ -24,11 +28,17 @@ public class CreateStrategicGoalCommandHandler
 
   private final InstitutionalIdentityRepository identityRepository;
   private final StrategicGoalRepository goalRepository;
+  private final PaaSubmissionPeriodRepository periodRepository;
+  private final StrategicGoalMapper goalMapper;
 
   public CreateStrategicGoalCommandHandler(InstitutionalIdentityRepository identityRepository,
-      StrategicGoalRepository goalRepository) {
+      StrategicGoalRepository goalRepository,
+      PaaSubmissionPeriodRepository periodRepository,
+      StrategicGoalMapper goalMapper) {
     this.identityRepository = identityRepository;
     this.goalRepository = goalRepository;
+    this.periodRepository = periodRepository;
+    this.goalMapper = goalMapper;
   }
 
   @IgrpCommandHandler
@@ -36,6 +46,17 @@ public class CreateStrategicGoalCommandHandler
     LOGGER.debug("CreateStrategicGoalCommand : {}", command);
 
     CreateStategicGoalDTO request = command.getCreatestategicgoal();
+
+    // PRAZO-01/03: year is now mandatory on every create; the deadline check that follows
+    // is therefore always evaluated -- no conditional path skips it anymore.
+    if (request.getYear() == null) {
+      throw IgrpResponseStatusException.badRequest(
+          "O ano é obrigatório para a submissão de objetivos estratégicos PAA/BSC.");
+    }
+    periodRepository.findActiveByTypeAndYearAndPurpose(
+            PaaLevel.UNIT_LEVEL, request.getYear(), Purpose.PAA_BSC_OBJECTIVES)
+        .orElseThrow(() -> IgrpResponseStatusException.badRequest(
+            "Prazo não configurado para a submissão de objetivos estratégicos PAA/BSC"));
 
     var activeIdentity = identityRepository.findActive()
         .orElseThrow(() -> IgrpResponseStatusException.notFound(
@@ -69,12 +90,12 @@ public class CreateStrategicGoalCommandHandler
         perspective,
         request.getWeight(),
         request.getDescription(),
+        request.getYear(),
         domainIndicators);
 
     StrategicGoal saved = goalRepository.save(goal);
 
-    cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.StrategicGoalMapper mapper = new cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.StrategicGoalMapper();
-    StategicGoalResponseDTO response = mapper.toResponse(saved);
+    StategicGoalResponseDTO response = goalMapper.toResponse(saved);
 
     return ResponseEntity.ok(response);
   }

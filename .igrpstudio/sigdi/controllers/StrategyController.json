@@ -222,11 +222,6 @@
         },
         {
           "type": "string",
-          "name": "parentGoalId",
-          "isRequired": false
-        },
-        {
-          "type": "string",
           "name": "pageNumber",
           "value": "0",
           "isRequired": false

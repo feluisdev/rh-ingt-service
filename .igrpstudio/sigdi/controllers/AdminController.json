@@ -392,6 +392,61 @@
           }
         }
       }
+    },
+    {
+      "actionName": "getBscPerspectives",
+      "method": "GET",
+      "path": "bsc-perspectives",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "BscPerspectiveItem",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "updateBscPerspectives",
+      "method": "PUT",
+      "path": "bsc-perspectives",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "BscPerspectivesUpdateRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "sigdi"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "BscPerspectiveItem",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

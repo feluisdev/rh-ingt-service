@@ -13,6 +13,7 @@ public interface PaaSubmissionPeriodRepository {
     Optional<PaaSubmissionPeriod> findById(UUID id);
     List<PaaSubmissionPeriod> findAll(int page, int size);
     long countAll();
+    List<PaaSubmissionPeriod> findAllByYear(Integer year);
 
     // Purpose-aware finders (Phase 59 — see 59-RESEARCH.md Pitfalls 1 and 4)
     Optional<PaaSubmissionPeriod> findActiveByTypeAndPurpose(PaaLevel type, Purpose purpose);

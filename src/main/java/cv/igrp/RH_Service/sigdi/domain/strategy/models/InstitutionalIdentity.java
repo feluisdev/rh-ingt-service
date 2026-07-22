@@ -1,6 +1,5 @@
 package cv.igrp.RH_Service.sigdi.domain.strategy.models;
 
-import cv.igrp.RH_Service.sigdi.application.constants.StrategicGoalsPerspective;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentityId;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalValues;
 import lombok.Getter;
@@ -71,13 +70,5 @@ public class InstitutionalIdentity {
   public InstitutionalIdentity deactivate() {
     return new InstitutionalIdentity(this.id, this.institutionId, this.cycleYear, this.mission,
         this.vision, this.values, this.versionComment, false, this.goals);
-  }
-
-  public StrategicGoal addGoal(String title, StrategicGoalsPerspective perspective,
-      java.math.BigDecimal weight, String description) {
-    StrategicGoal goal = StrategicGoal.create(this.institutionId, this.id, title, perspective,
-        weight, description, new ArrayList<>());
-    goals.add(goal);
-    return goal;
   }
 }

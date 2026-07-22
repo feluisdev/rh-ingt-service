@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.security.SecurityContextHelper;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
+import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.dto.BudgetInfoDTO;
 import cv.igrp.RH_Service.sigdi.application.port.EconomicClassifierPort;
 import cv.igrp.RH_Service.sigdi.application.port.FuncionarioLookupPort;
@@ -10,6 +11,7 @@ import cv.igrp.RH_Service.sigdi.application.port.OrganicaLookupPort;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
+import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.Budget;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.DateRange;
@@ -42,6 +44,7 @@ public class CreateTacticalActivityCommandHandler
   private final FuncionarioLookupPort funcionarioLookupPort;
   private final TaticalActivityHistoryEntityRepository historyRepository;
   private final TacticalActivitiesEntityRepository entityRepository;
+  private final PaaSubmissionPeriodRepository periodRepository;
 
   public CreateTacticalActivityCommandHandler(EconomicClassifierPort economicClassifierPort,
       StrategicGoalRepository goalRepository,
@@ -50,7 +53,8 @@ public class CreateTacticalActivityCommandHandler
       OrganicaLookupPort organicaLookupPort,
       FuncionarioLookupPort funcionarioLookupPort,
       TaticalActivityHistoryEntityRepository historyRepository,
-      TacticalActivitiesEntityRepository entityRepository) {
+      TacticalActivitiesEntityRepository entityRepository,
+      PaaSubmissionPeriodRepository periodRepository) {
     this.economicClassifierPort = economicClassifierPort;
     this.goalRepository = goalRepository;
     this.activityRepository = activityRepository;
@@ -59,6 +63,7 @@ public class CreateTacticalActivityCommandHandler
     this.funcionarioLookupPort = funcionarioLookupPort;
     this.historyRepository = historyRepository;
     this.entityRepository = entityRepository;
+    this.periodRepository = periodRepository;
   }
 
   @IgrpCommandHandler
@@ -103,6 +108,12 @@ public class CreateTacticalActivityCommandHandler
     PaaLevel paaLevel = (request.getPaaLevel() != null && !request.getPaaLevel().isBlank())
         ? PaaLevel.fromCodeOrThrow(request.getPaaLevel())
         : PaaLevel.UNIT_LEVEL;
+
+    // PRAZO-03: fail-closed deadline enforcement — no active PAA period for the
+    // resolved level/current year blocks activity creation (BLOQ-02).
+    periodRepository.findActiveByTypeAndYearAndPurpose(paaLevel, java.time.Year.now().getValue(), Purpose.PAA)
+        .orElseThrow(() -> IgrpResponseStatusException.badRequest(
+            "Prazo não configurado para a submissão de atividades do PAA"));
 
     TacticalActivity activity = TacticalActivity.create(
         securityContextHelper.getCurrentInstitutionId(),

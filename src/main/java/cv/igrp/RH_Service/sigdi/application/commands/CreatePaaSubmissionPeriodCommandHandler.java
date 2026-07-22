@@ -13,7 +13,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -50,6 +54,45 @@ public class CreatePaaSubmissionPeriodCommandHandler implements CommandHandler<C
                 throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
                         "Não é possível abrir período Individual sem que o período da Unidade Orgânica esteja fechado para o ano " + dto.getYear());
             }
+        }
+
+        // Rule 3: Cross-type overlap — sequence-based nearest-neighbor comparison (SOBREP-01/02/03)
+        List<PaaSubmissionPeriod> yearPeriods = repository.findAllByYear(dto.getYear());
+
+        // Reduce to the most-recent period per sequence position (handles reopening).
+        // yearPeriods already arrives ordered createdDate DESC (see the JPQL below), so
+        // putIfAbsent keeps the newest — the same "most recent wins" convention used by
+        // findActiveByTypeAndPurpose/findActiveByTypeAndYearAndPurpose/findByTypeAndYearAndStatusAndPurpose
+        // in PaaSubmissionPeriodRepositoryImpl, just keyed by position instead of taking a single result.
+        Map<Integer, PaaSubmissionPeriod> latestByPosition = new LinkedHashMap<>();
+        for (PaaSubmissionPeriod p : yearPeriods) {
+            latestByPosition.putIfAbsent(p.getPurpose().getPosition(), p);
+        }
+
+        int newPosition = purpose.getPosition();
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        PaaSubmissionPeriod nearestBefore = latestByPosition.entrySet().stream()
+                .filter(e -> e.getKey() < newPosition)
+                .max(Map.Entry.comparingByKey())
+                .map(Map.Entry::getValue)
+                .orElse(null);
+
+        PaaSubmissionPeriod nearestAfter = latestByPosition.entrySet().stream()
+                .filter(e -> e.getKey() > newPosition)
+                .min(Map.Entry.comparingByKey())
+                .map(Map.Entry::getValue)
+                .orElse(null);
+
+        if (nearestBefore != null && !dto.getStartDate().isAfter(nearestBefore.getEndDate())) {
+            throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Sobrepõe-se a " + nearestBefore.getPurpose().getDescription() + ", "
+                            + nearestBefore.getStartDate().format(fmt) + "–" + nearestBefore.getEndDate().format(fmt));
+        }
+        if (nearestAfter != null && !nearestAfter.getStartDate().isAfter(dto.getEndDate())) {
+            throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Sobrepõe-se a " + nearestAfter.getPurpose().getDescription() + ", "
+                            + nearestAfter.getStartDate().format(fmt) + "–" + nearestAfter.getEndDate().format(fmt));
         }
 
         PaaSubmissionPeriod period = PaaSubmissionPeriod.create(

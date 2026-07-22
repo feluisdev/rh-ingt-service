@@ -87,7 +87,7 @@ class ProposeObjectiveRevisionCommandHandlerTest {
 
         when(evaluationRepository.findById(any())).thenReturn(Optional.of(evaluation));
         when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.from(evaluation.getEvaluatorId()));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.INDIVIDUAL_LEVEL, YEAR, Purpose.SIADAP))
+        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.INDIVIDUAL_LEVEL, YEAR, Purpose.SIADAP_INTERIM))
                 .thenReturn(Optional.of(org.mockito.Mockito.mock(PaaSubmissionPeriod.class)));
         when(feedbackRepository.findByEvaluationId(evalUuid)).thenReturn(Optional.of(feedback));
         when(feedbackRepository.save(any(SiadapInterimFeedback.class)))
@@ -149,7 +149,7 @@ class ProposeObjectiveRevisionCommandHandlerTest {
 
         when(evaluationRepository.findById(any())).thenReturn(Optional.of(evaluation));
         when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.from(evaluation.getEvaluatorId()));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.INDIVIDUAL_LEVEL, YEAR, Purpose.SIADAP))
+        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.INDIVIDUAL_LEVEL, YEAR, Purpose.SIADAP_INTERIM))
                 .thenReturn(Optional.empty());
 
         ProposeObjectiveRevisionCommand command = new ProposeObjectiveRevisionCommand(

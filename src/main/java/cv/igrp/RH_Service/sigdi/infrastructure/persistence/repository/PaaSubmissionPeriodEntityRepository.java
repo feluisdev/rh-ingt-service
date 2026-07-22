@@ -28,6 +28,11 @@ public interface PaaSubmissionPeriodEntityRepository extends JpaRepository<PaaSu
     @Query("SELECT p FROM PaaSubmissionPeriodEntity p WHERE p.type = :type AND p.year = :year AND p.status = :status AND p.purpose = :purpose ORDER BY p.createdDate DESC")
     List<PaaSubmissionPeriodEntity> findAllByTypeAndYearAndStatusAndPurpose(@Param("type") String type, @Param("year") Integer year, @Param("status") String status, @Param("purpose") String purpose);
 
+    // Rule 3 (Phase 70 — SOBREP-01/02/03): unscoped by type/status/purpose on purpose — cross-type
+    // overlap validation must see every period for the year, including CLOSED/reopened records.
+    @Query("SELECT p FROM PaaSubmissionPeriodEntity p WHERE p.year = :year ORDER BY p.createdDate DESC")
+    List<PaaSubmissionPeriodEntity> findAllByYear(@Param("year") Integer year);
+
     Page<PaaSubmissionPeriodEntity> findByPurpose(String purpose, Pageable pageable);
 
     long countByPurpose(String purpose);

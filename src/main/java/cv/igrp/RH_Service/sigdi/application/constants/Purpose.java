@@ -11,15 +11,23 @@ import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 
 public enum Purpose implements IgrpEnum<String> {
 
-    PAA("PAA", "Plano de Atividades Anual"),
-    SIADAP("SIADAP", "Avaliação de Desempenho (SIADAP)");
+    PAA_BSC_OBJECTIVES("PAA_BSC_OBJECTIVES", "Objetivos Estratégicos PAA/BSC", 1),
+    PAA("PAA", "Plano de Atividades Anual", 2),
+    SIADAP("SIADAP", "Avaliação de Desempenho (SIADAP)", 3),
+    SIADAP_INTERIM("SIADAP_INTERIM", "Avaliação Intercalar SIADAP", 4),
+    SIADAP_FINAL("SIADAP_FINAL", "Avaliação Final SIADAP", 5);
 
     private final String code;
     private final String description;
+    // Fixed position in the annual PAA/SIADAP sequence (FASE-02) -- intentionally NOT
+    // derived from Java's implicit ordinal(), and unrelated to StrategicGoal's
+    // BSC-canvas position/coordinate concept (positionX/positionY).
+    private final int position;
 
-    Purpose(String code, String description) {
+    Purpose(String code, String description, int position) {
         this.code = code;
         this.description = description;
+        this.position = position;
     }
 
     @Override
@@ -30,6 +38,10 @@ public enum Purpose implements IgrpEnum<String> {
     @Override
     public String getDescription() {
         return description;
+    }
+
+    public int getPosition() {
+        return position;
     }
 
     private static final Map<String, Purpose> CODE_MAP = Arrays.stream(values())

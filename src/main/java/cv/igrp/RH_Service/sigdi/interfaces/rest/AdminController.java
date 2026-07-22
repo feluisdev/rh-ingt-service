@@ -20,6 +20,8 @@ import cv.igrp.framework.core.domain.CommandBus;
 import cv.igrp.RH_Service.sigdi.application.commands.*;
 import cv.igrp.RH_Service.sigdi.application.dto.AdminCostDriverResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.AdminCreateCostDriverRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.BscPerspectiveItemDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.BscPerspectivesUpdateRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.queries.GetAdminCostDriversQuery;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateDelegationRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateInstitutionRequestDTO;
@@ -327,6 +329,47 @@ public class AdminController {
     @Valid @RequestBody AdminCreateCostDriverRequestDTO body)
   {
     final var command = new AdminUpdateCostDriverCommand(id, body);
+    return commandBus.send(command);
+  }
+
+  @GetMapping(value = "bsc-perspectives")
+  @Operation(
+    summary = "Get BSC perspectives configuration",
+    description = "Lista as 4 perspetivas do BSC configuradas (rótulo e ordem), ordenadas por posição.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = BscPerspectiveItemDTO.class, type = "array")
+          )
+      )
+    }
+  )
+  public ResponseEntity<List<BscPerspectiveItemDTO>> getBscPerspectives()
+  {
+    final var query = new GetBscPerspectivesQuery();
+    return queryBus.handle(query);
+  }
+
+  @PutMapping(value = "bsc-perspectives")
+  @Operation(
+    summary = "Update BSC perspectives configuration",
+    description = "Actualiza o rótulo e a ordem das 4 perspetivas do BSC numa única operação.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = BscPerspectiveItemDTO.class, type = "array")
+          )
+      )
+    }
+  )
+  public ResponseEntity<List<BscPerspectiveItemDTO>> updateBscPerspectives(
+    @Valid @RequestBody BscPerspectivesUpdateRequestDTO body)
+  {
+    final var command = new UpdateBscPerspectivesCommand(body.getPerspectives());
     return commandBus.send(command);
   }
 }

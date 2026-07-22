@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.dto.BudgetInfoDTO;
 import cv.igrp.RH_Service.sigdi.application.port.EconomicClassifierPort;
 import cv.igrp.RH_Service.sigdi.application.port.FuncionarioLookupPort;
@@ -8,6 +9,7 @@ import cv.igrp.RH_Service.sigdi.application.port.OrganicaLookupPort;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
+import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.Budget;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.DateRange;
@@ -33,17 +35,20 @@ public class UpdateTacticalActivityCommandHandler
   private final TacticalActivityRepository activityRepository;
   private final OrganicaLookupPort organicaLookupPort;
   private final FuncionarioLookupPort funcionarioLookupPort;
+  private final PaaSubmissionPeriodRepository periodRepository;
 
   public UpdateTacticalActivityCommandHandler(EconomicClassifierPort economicClassifierPort,
       StrategicGoalRepository goalRepository,
       TacticalActivityRepository activityRepository,
       OrganicaLookupPort organicaLookupPort,
-      FuncionarioLookupPort funcionarioLookupPort) {
+      FuncionarioLookupPort funcionarioLookupPort,
+      PaaSubmissionPeriodRepository periodRepository) {
     this.economicClassifierPort = economicClassifierPort;
     this.goalRepository = goalRepository;
     this.activityRepository = activityRepository;
     this.organicaLookupPort = organicaLookupPort;
     this.funcionarioLookupPort = funcionarioLookupPort;
+    this.periodRepository = periodRepository;
   }
 
   @IgrpCommandHandler
@@ -53,6 +58,12 @@ public class UpdateTacticalActivityCommandHandler
     TacticalActivityId activityId = TacticalActivityId.from(command.getId());
     TacticalActivity activity = activityRepository.findById(activityId)
         .orElseThrow(() -> IgrpResponseStatusException.notFound("Atividade não encontrada"));
+
+    // PRAZO-03: fail-closed deadline enforcement — sourced from the loaded entity's
+    // paaLevel (never the request DTO, since update() does not accept/change it).
+    periodRepository.findActiveByTypeAndYearAndPurpose(activity.getPaaLevel(), java.time.Year.now().getValue(), Purpose.PAA)
+        .orElseThrow(() -> IgrpResponseStatusException.badRequest(
+            "Prazo não configurado para a submissão de atividades do PAA"));
 
     var request = command.getTacticalActivity();
 
