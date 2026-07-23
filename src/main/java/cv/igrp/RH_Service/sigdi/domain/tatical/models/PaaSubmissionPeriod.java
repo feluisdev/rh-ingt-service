@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.sigdi.domain.tatical.models;
 
+import cv.igrp.RH_Service.shared.config.AppTimeZone;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
@@ -69,7 +70,7 @@ public class PaaSubmissionPeriod {
     }
 
     public boolean isActiveToday() {
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(AppTimeZone.CABO_VERDE);
         return isOpen() && !today.isBefore(startDate) && !today.isAfter(endDate);
     }
 }

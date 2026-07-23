@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.sigdi.application.queries;
 
+import cv.igrp.RH_Service.shared.config.AppTimeZone;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
@@ -52,7 +53,7 @@ public class GetActiveSubmissionPeriodQueryHandler implements QueryHandler<GetAc
         response.setPurpose(activePeriod.getPurpose().getCode());
         response.setPurposeDesc(activePeriod.getPurpose().getDescription());
 
-        long days = ChronoUnit.DAYS.between(LocalDate.now(), activePeriod.getEndDate());
+        long days = ChronoUnit.DAYS.between(LocalDate.now(AppTimeZone.CABO_VERDE), activePeriod.getEndDate());
         response.setDaysRemaining(Math.max(0, days));
 
         return ResponseEntity.ok(response);

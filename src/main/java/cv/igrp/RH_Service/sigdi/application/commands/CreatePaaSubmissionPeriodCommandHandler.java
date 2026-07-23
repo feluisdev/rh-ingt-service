@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
+import cv.igrp.RH_Service.shared.config.AppTimeZone;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
@@ -117,7 +119,7 @@ public class CreatePaaSubmissionPeriodCommandHandler implements CommandHandler<C
         response.setPurpose(saved.getPurpose().getCode());
         response.setPurposeDesc(saved.getPurpose().getDescription());
 
-        long days = ChronoUnit.DAYS.between(java.time.LocalDate.now(), saved.getEndDate());
+        long days = ChronoUnit.DAYS.between(LocalDate.now(AppTimeZone.CABO_VERDE), saved.getEndDate());
         response.setDaysRemaining(Math.max(0, days));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);

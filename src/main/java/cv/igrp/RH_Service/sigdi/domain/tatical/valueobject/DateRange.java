@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.sigdi.domain.tatical.valueobject;
 
+import cv.igrp.RH_Service.shared.config.AppTimeZone;
 import lombok.Getter;
 
 import java.time.LocalDate;
@@ -33,7 +34,7 @@ public class DateRange {
   }
 
   public boolean isActive() {
-    return isActive(LocalDate.now());
+    return isActive(LocalDate.now(AppTimeZone.CABO_VERDE));
   }
 
   public long durationInDays() {
