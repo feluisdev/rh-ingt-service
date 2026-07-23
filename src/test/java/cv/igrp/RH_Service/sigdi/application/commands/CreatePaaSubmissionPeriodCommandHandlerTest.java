@@ -9,6 +9,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import cv.igrp.RH_Service.shared.config.AppTimeZone;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
@@ -287,5 +288,31 @@ class CreatePaaSubmissionPeriodCommandHandlerTest {
                 handler.handle(new CreatePaaSubmissionPeriodCommand(dto));
 
         assertEquals(201, response.getStatusCode().value());
+    }
+
+    @Test
+    void createReturnsDaysRemainingComputedFromCaboVerdeZone() {
+        // DATA-01 regression (79-RESEARCH.md Pitfall 1): daysRemaining must be computed with
+        // AppTimeZone.CABO_VERDE, not the JVM default zone. Both start/end are anchored to the
+        // same Cabo Verde "today" the handler itself uses, so the assertion stays correct on any
+        // machine -- the first daysRemaining assertion in this file (79-02-PLAN.md Task 1).
+        LocalDate today = LocalDate.now(AppTimeZone.CABO_VERDE);
+        LocalDate start = today;
+        LocalDate end = today.plusDays(15);
+        CreatePaaSubmissionPeriodDTO dto = new CreatePaaSubmissionPeriodDTO(
+                PaaLevel.UNIT_LEVEL.getCode(), start, end, 2026, Purpose.PAA.getCode());
+
+        when(repository.findByTypeAndYearAndStatusAndPurpose(
+                PaaLevel.UNIT_LEVEL, 2026, "OPEN", Purpose.PAA))
+                .thenReturn(Optional.empty());
+        when(repository.save(any(PaaSubmissionPeriod.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(repository.findAllByYear(2026)).thenReturn(List.of());
+
+        ResponseEntity<PaaSubmissionPeriodResponseDTO> response =
+                handler.handle(new CreatePaaSubmissionPeriodCommand(dto));
+
+        assertEquals(201, response.getStatusCode().value());
+        assertEquals(15L, response.getBody().getDaysRemaining());
     }
 }
