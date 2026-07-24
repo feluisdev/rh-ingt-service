@@ -16,6 +16,8 @@ public interface SiadapEvaluationRepository {
 
   List<SiadapEvaluation> findByYear(Integer year);
 
+  List<SiadapEvaluation> findByYearAndOrganicUnitId(Integer year, String organicUnitId);
+
   List<SiadapEvaluation> saveAll(List<SiadapEvaluation> evaluations);
 }
 

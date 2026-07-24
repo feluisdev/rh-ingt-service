@@ -89,6 +89,20 @@ public class SiadapEvaluationRepositoryImpl implements SiadapEvaluationRepositor
         .toList();
   }
 
+  @Transactional(readOnly = true)
+  @Override
+  public List<SiadapEvaluation> findByYearAndOrganicUnitId(Integer year, String organicUnitId) {
+    if (year == null) return List.of();
+    return jpaRepository.findByYearAndOrganicUnitId(year.toString(), organicUnitId).stream()
+        .map(entity -> {
+          UUID evalUuid = entity.getId();
+          List<IndividualObjectiveEntity> objectives = objectiveJpaRepository.findByEvaluationId(evalUuid);
+          List<CompetencyItemEntity> competencies = competencyJpaRepository.findByEvaluationId(evalUuid);
+          return mapper.toDomain(entity, objectives, competencies);
+        })
+        .toList();
+  }
+
   @Transactional
   @Override
   public List<SiadapEvaluation> saveAll(List<SiadapEvaluation> evaluations) {

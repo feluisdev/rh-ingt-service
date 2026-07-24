@@ -28,6 +28,8 @@ public interface SiadapEvaluationEntityRepository extends
 
       Optional<SiadapEvaluationEntity> findByEmployeeIdAndYear(String employeeId, String year);
 
+      List<SiadapEvaluationEntity> findByYearAndOrganicUnitId(String year, String organicUnitId);
+
       default SiadapEvaluationEntity findByIdOrThrow(UUID id) {
           return this.findById(id)
           .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND,"SiadapEvaluationEntity not found for id: " + id));
