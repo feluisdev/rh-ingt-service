@@ -1,5 +1,7 @@
 package cv.igrp.RH_Service.sigdi.application.queries;
 
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.security.SecurityContextHelper;
 import cv.igrp.RH_Service.sigdi.application.dto.BudgetSummaryResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.BudgetSummaryTotalsDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.DashboardSummaryResponseDTO;
@@ -12,14 +14,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -41,6 +49,9 @@ class GetDashboardSummaryQueryHandlerTest {
 
   @Mock
   private KeyResultsEntityRepository keyResultsEntityRepository;
+
+  @Mock
+  private SecurityContextHelper securityContextHelper;
 
   @InjectMocks
   private GetDashboardSummaryQueryHandler getDashboardSummaryQueryHandler;
@@ -166,5 +177,68 @@ class GetDashboardSummaryQueryHandlerTest {
         getDashboardSummaryQueryHandler.handle(new GetDashboardSummaryQuery());
 
     assertEquals(distinctiveAvailable, response.getBody().getAvailableBudget());
+  }
+
+  @Test
+  void okrsAtRiskIsScopedToCallersInstitutionNotAggregatedAcrossAllInstitutions() {
+    // CR-02 fix: two institutions both have an at-risk KeyResult, but the dashboard for
+    // callerInstitutionId must only count its own.
+    UUID callerInstitutionId = UUID.randomUUID();
+    UUID otherInstitutionId = UUID.randomUUID();
+
+    when(budgetSummaryHandler.handle(any(GetBudgetSummaryQuery.class)))
+        .thenReturn(ResponseEntity.ok(budgetSummaryWith(BigDecimal.ZERO, BigDecimal.ZERO)));
+    when(workflowInboxHandler.handle(any(GetWorkflowInboxQuery.class)))
+        .thenReturn(ResponseEntity.ok(inboxWith(0)));
+    when(securityContextHelper.getCurrentInstitutionId()).thenReturn(callerInstitutionId);
+
+    KeyResultsEntity callerAtRisk = keyResult(new BigDecimal("10"), new BigDecimal("100")); // ratio 0.10 -> at risk
+    callerAtRisk.setInstitutionId(callerInstitutionId);
+    KeyResultsEntity otherInstitutionAtRisk = keyResult(new BigDecimal("5"), new BigDecimal("100")); // ratio 0.05 -> at risk
+    otherInstitutionAtRisk.setInstitutionId(otherInstitutionId);
+
+    when(keyResultsEntityRepository.findAllByInstitutionId(callerInstitutionId))
+        .thenReturn(List.of(callerAtRisk));
+    // lenient: this is a regression trap, only invoked if the handler ever falls back to the
+    // unscoped finder despite a resolvable institutionId -- it would then wrongly count both
+    // institutions' at-risk KeyResults (2) instead of just the caller's (1).
+    lenient().when(keyResultsEntityRepository.findAll())
+        .thenReturn(List.of(callerAtRisk, otherInstitutionAtRisk));
+
+    ResponseEntity<DashboardSummaryResponseDTO> response =
+        getDashboardSummaryQueryHandler.handle(new GetDashboardSummaryQuery());
+
+    assertEquals(Integer.valueOf(1), response.getBody().getOkrsAtRisk(),
+        "must count only the caller's institution's at-risk Key Results, not every institution's");
+    verify(keyResultsEntityRepository).findAllByInstitutionId(callerInstitutionId);
+    verify(keyResultsEntityRepository, never()).findAll();
+  }
+
+  @Test
+  void nullBudgetSummaryBodyThrowsStructuredInternalErrorInsteadOfSilentNpe() {
+    when(budgetSummaryHandler.handle(any(GetBudgetSummaryQuery.class)))
+        .thenReturn(ResponseEntity.<BudgetSummaryResponseDTO>ok(null));
+    when(workflowInboxHandler.handle(any(GetWorkflowInboxQuery.class)))
+        .thenReturn(ResponseEntity.ok(inboxWith(0)));
+
+    IgrpResponseStatusException ex = assertThrows(IgrpResponseStatusException.class,
+        () -> getDashboardSummaryQueryHandler.handle(new GetDashboardSummaryQuery()));
+
+    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, ex.getStatusCode(),
+        "a null budget summary body must fail loudly with a structured 500, not an unhandled NPE (IN-01)");
+  }
+
+  @Test
+  void nullWorkflowInboxBodyThrowsStructuredInternalErrorInsteadOfSilentNpe() {
+    when(budgetSummaryHandler.handle(any(GetBudgetSummaryQuery.class)))
+        .thenReturn(ResponseEntity.ok(budgetSummaryWith(BigDecimal.ZERO, BigDecimal.ZERO)));
+    when(workflowInboxHandler.handle(any(GetWorkflowInboxQuery.class)))
+        .thenReturn(ResponseEntity.<WrapperWorkflowInboxDTO>ok(null));
+
+    IgrpResponseStatusException ex = assertThrows(IgrpResponseStatusException.class,
+        () -> getDashboardSummaryQueryHandler.handle(new GetDashboardSummaryQuery()));
+
+    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, ex.getStatusCode(),
+        "a null workflow inbox body must fail loudly with a structured 500, not an unhandled NPE (IN-01)");
   }
 }

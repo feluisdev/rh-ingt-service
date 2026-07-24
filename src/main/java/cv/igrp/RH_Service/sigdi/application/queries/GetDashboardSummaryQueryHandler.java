@@ -1,6 +1,9 @@
 package cv.igrp.RH_Service.sigdi.application.queries;
 
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.security.SecurityContextHelper;
 import cv.igrp.RH_Service.sigdi.application.dto.DashboardSummaryResponseDTO;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.KeyResultsEntity;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.KeyResultsEntityRepository;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
@@ -10,11 +13,29 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
+import java.util.UUID;
 
 /**
- * Composes the executive dashboard summary from 3 already-correct sibling sources, by direct
- * constructor injection of the 2 sibling query handler beans (not the QueryBus -- see
- * 80-RESEARCH.md Pattern 1 / 80-PATTERNS.md "Shared Patterns #3") plus one unscoped KeyResult scan.
+ * Composes the executive dashboard summary from 3 sources, by direct constructor injection of
+ * the 2 sibling query handler beans (not the QueryBus -- see 80-RESEARCH.md Pattern 1 /
+ * 80-PATTERNS.md "Shared Patterns #3") plus one institution-scoped KeyResult scan.
+ *
+ * <p>Institution-scoping guarantees are NOT uniform across the 3 figures composed here:
+ * <ul>
+ *   <li>{@code okrsAtRisk} IS scoped to the caller's institution via {@link SecurityContextHelper}
+ *       (JWT {@code institution_id} claim, enforced at the application layer -- Phase 80 CR-02
+ *       fix; this replaced a cross-tenant data leak where every institution's dashboard showed
+ *       an OKR-at-risk count aggregated across every institution in the system).</li>
+ *   <li>{@code executionRate}/{@code availableBudget} (from {@link GetBudgetSummaryQueryHandler})
+ *       and {@code pendingApprovals} (from {@link GetWorkflowInboxQueryHandler}) are NOT
+ *       institution-scoped today: neither sibling handler has institution-scoping capability
+ *       (the underlying {@code FinancialExecutionMirror} has no {@code institutionId} field, and
+ *       the tactical-activity repository backing the inbox count takes no institution
+ *       parameter). This is a pre-existing, wider gap in those two handlers, tracked separately
+ *       and out of scope for the CR-02 fix -- do not assume this endpoint's figures are
+ *       uniformly tenant-safe.</li>
+ * </ul>
  */
 @Component
 public class GetDashboardSummaryQueryHandler
@@ -28,13 +49,16 @@ public class GetDashboardSummaryQueryHandler
   private final GetBudgetSummaryQueryHandler budgetSummaryHandler;
   private final GetWorkflowInboxQueryHandler workflowInboxHandler;
   private final KeyResultsEntityRepository keyResultsEntityRepository;
+  private final SecurityContextHelper securityContextHelper;
 
   public GetDashboardSummaryQueryHandler(GetBudgetSummaryQueryHandler budgetSummaryHandler,
                                           GetWorkflowInboxQueryHandler workflowInboxHandler,
-                                          KeyResultsEntityRepository keyResultsEntityRepository) {
+                                          KeyResultsEntityRepository keyResultsEntityRepository,
+                                          SecurityContextHelper securityContextHelper) {
     this.budgetSummaryHandler = budgetSummaryHandler;
     this.workflowInboxHandler = workflowInboxHandler;
     this.keyResultsEntityRepository = keyResultsEntityRepository;
+    this.securityContextHelper = securityContextHelper;
   }
 
   @IgrpQueryHandler
@@ -44,11 +68,31 @@ public class GetDashboardSummaryQueryHandler
     // pageSize=1: only totalElements (the pending-approvals count) is read from this call.
     var inbox = workflowInboxHandler.handle(new GetWorkflowInboxQuery("0", "1")).getBody();
 
-    // Intentionally unscoped findAll(): no fiscal-year filter infrastructure exists yet for
-    // KeyResults (80-RESEARCH.md Open Question #3). Matches this codebase's own established
-    // aggregate-in-Java pattern (GetBudgetSummaryQueryHandler) -- KeyResult volume is small and
-    // bounded in this domain today.
-    long okrsAtRisk = keyResultsEntityRepository.findAll().stream()
+    // IN-01: fail loudly instead of silently 500ing if a sibling handler's contract ever
+    // regresses to a null/partial response. Both are documented today to always return a
+    // fully-populated body, but this composition boundary previously had no guard of its own.
+    if (budgetSummary == null || budgetSummary.getTotals() == null) {
+      throw IgrpResponseStatusException.internalServerError(
+          "Dashboard summary composition failed: budget summary handler returned an incomplete response");
+    }
+    if (inbox == null) {
+      throw IgrpResponseStatusException.internalServerError(
+          "Dashboard summary composition failed: workflow inbox handler returned an incomplete response");
+    }
+
+    // CR-02 fix: KeyResults are institution-scoped (t_key_results.institution_id). Resolve the
+    // caller's institution once via the JWT institution_id claim and filter by it so one
+    // institution's dashboard never aggregates another institution's OKRs (this was a
+    // cross-tenant data leak). getCurrentInstitutionId() only returns null in its own documented
+    // edge case (a request with no resolvable institution claim outside dev/staging); when that
+    // happens, fall back to the prior unscoped findAll() rather than inventing new
+    // default-institution logic here.
+    UUID institutionId = securityContextHelper.getCurrentInstitutionId();
+    List<KeyResultsEntity> keyResults = institutionId != null
+        ? keyResultsEntityRepository.findAllByInstitutionId(institutionId)
+        : keyResultsEntityRepository.findAll();
+
+    long okrsAtRisk = keyResults.stream()
         .filter(kr -> kr.getCurrentValue() != null
             && kr.getTargetValue() != null
             && kr.getTargetValue().compareTo(BigDecimal.ZERO) > 0)
