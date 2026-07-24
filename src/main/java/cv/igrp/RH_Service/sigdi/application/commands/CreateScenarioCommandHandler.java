@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -51,6 +52,7 @@ public class CreateScenarioCommandHandler
   }
 
   @IgrpCommandHandler
+  @Transactional
   public ResponseEntity<?> handle(CreateScenarioCommand command) {
     LOGGER.debug("CreateScenarioCommand: {}", command);
 
@@ -60,16 +62,24 @@ public class CreateScenarioCommandHandler
     SimulationScenarioType type = SimulationScenarioType.fromCodeOrThrow(req.getType());
     SimulationScenarioScope scope = resolveScope(req.getScope());
 
+    // NOTE (known-remaining gap, ERRO-03 Open Question #2): targetId is read verbatim for any
+    // non-GLOBAL scope. SimulationScenarioScope only distinguishes GLOBAL/DEPARTMENT_ID (2
+    // values), while the frontend offers 3 scopes (GLOBAL/UNIT_SPECIFIC/GOAL_SPECIFIC), and
+    // loadActivities() below only queries by organicUnitId (findAllByFiscalYearAndOrganicUnitId)
+    // -- there is no goal-scoped finder. A UNIT_SPECIFIC targetId (organic-unit UUID) resolves
+    // correctly; a GOAL_SPECIFIC targetId (strategic-goal UUID) will still be queried as if it
+    // were an organic-unit UUID, most likely returning zero activities rather than an error.
+    // Adding a goal-scoped finder is a new feature, deliberately out of scope for this bug fix.
     SimulationScenarioParameters parameters = SimulationScenarioParameters.of(
         type, req.getPercentage(), scope,
-        SimulationScenarioScope.DEPARTMENT_ID.equals(scope) ? req.getScope() : null,
+        SimulationScenarioScope.DEPARTMENT_ID.equals(scope) ? req.getTargetId() : null,
         req.getPriorityCriteria());
 
     SimulationScenario scenario = SimulationScenario.create(req.getName(), parameters);
     SimulationScenario saved = scenarioRepository.save(scenario);
 
     // Load activities for the fiscal year
-    List<TacticalActivitiesEntity> activities = loadActivities(req.getFiscalYear(), scope, req.getScope());
+    List<TacticalActivitiesEntity> activities = loadActivities(req.getFiscalYear(), scope, req.getTargetId());
 
     if (activities.size() >= ASYNC_THRESHOLD) {
       // Return async response — processing continues in background (stub)
