@@ -135,6 +135,25 @@ class GetDashboardSummaryQueryHandlerTest {
   }
 
   @Test
+  void keyResultWithNullCurrentValueIsExcludedFromRiskCountWithoutThrowing() {
+    // Deviation (Rule 2): KeyResultsEntity.currentValue has no @NotNull/NOT NULL constraint,
+    // so a KR with no recorded check-in yet is a real, reachable state -- guard it the same
+    // way as the null/zero-target case rather than let it NPE the whole dashboard endpoint.
+    when(budgetSummaryHandler.handle(any(GetBudgetSummaryQuery.class)))
+        .thenReturn(ResponseEntity.ok(budgetSummaryWith(BigDecimal.ZERO, BigDecimal.ZERO)));
+    when(workflowInboxHandler.handle(any(GetWorkflowInboxQuery.class)))
+        .thenReturn(ResponseEntity.ok(inboxWith(0)));
+    when(keyResultsEntityRepository.findAll()).thenReturn(List.of(
+        keyResult(null, new BigDecimal("100")) // valid positive target, but no current value recorded yet
+    ));
+
+    ResponseEntity<DashboardSummaryResponseDTO> response = assertDoesNotThrow(
+        () -> getDashboardSummaryQueryHandler.handle(new GetDashboardSummaryQuery()));
+
+    assertEquals(Integer.valueOf(0), response.getBody().getOkrsAtRisk());
+  }
+
+  @Test
   void availableBudgetPassesThroughVerbatimNotRecomputed() {
     BigDecimal distinctiveAvailable = new BigDecimal("500.00");
     when(budgetSummaryHandler.handle(any(GetBudgetSummaryQuery.class)))
