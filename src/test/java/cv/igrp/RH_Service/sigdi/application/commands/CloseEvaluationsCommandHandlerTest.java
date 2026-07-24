@@ -114,6 +114,21 @@ class CloseEvaluationsCommandHandlerTest {
         return list;
     }
 
+    /**
+     * Builds a freshly-created evaluation still in phase OPEN (pre-HARMONIZATION) — used to
+     * exercise the batch phase guard (Task 3). No merit rating is assigned (mirrors a real
+     * not-yet-evaluated evaluation).
+     */
+    private SiadapEvaluation buildOpenEvaluation() {
+        return SiadapEvaluation.create(
+                UUID.randomUUID().toString(),
+                YEAR,
+                null,
+                UUID.randomUUID().toString(),
+                new BigDecimal("60"),
+                new BigDecimal("40"));
+    }
+
     private SiadapConfigEntity buildConfig(BigDecimal excellentQuota, BigDecimal goodQuota, Integer minCollaboratorsForQuota) {
         SiadapConfigEntity config = new SiadapConfigEntity();
         config.setFiscalYear(YEAR);
@@ -312,5 +327,49 @@ class CloseEvaluationsCommandHandlerTest {
         assertEquals(10, closed.size());
         assertTrue(closed.stream().allMatch(e -> EvaluationPhase.CLOSED.equals(e.getPhase())));
         assertTrue(closed.stream().allMatch(SiadapEvaluation::isValidatedQuota));
+    }
+
+    // ============================================================
+    // Batch HARMONIZATION-phase guard (Task 3)
+    // ============================================================
+
+    @Test
+    void mixedPhaseSetThrowsSingleBatchErrorNamingCount() {
+        List<SiadapEvaluation> evaluations = new ArrayList<>();
+        evaluations.add(buildHarmonizationEvaluation(SiadapMeritRating.REGULAR));
+        evaluations.add(buildOpenEvaluation());
+        evaluations.add(buildOpenEvaluation());
+        when(evaluationRepository.findByYear(eq(YEAR))).thenReturn(evaluations);
+
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(commandFor(YEAR, null)));
+
+        assertEquals(422, exception.getBody().getStatus());
+        assertTrue(exception.getBody().getTitle().contains("2"));
+        assertTrue(exception.getBody().getTitle().contains("Harmonização"));
+        verify(evaluationRepository, never()).saveAll(any());
+    }
+
+    @Test
+    void phaseGuardWinsOverQuotaViolationWhenBothConditionsPresent() {
+        // Composition would ALSO violate the (default, unconfigured) Bom quota if the phase
+        // guard did not intercept first: total=10, default goodQuota=35% -> allowed=floor(35*10/100)=3,
+        // but 4 are GOOD. Proves ordering: the phase-guard message must win, not the quota message.
+        List<SiadapEvaluation> evaluations = new ArrayList<>();
+        evaluations.add(buildOpenEvaluation());
+        evaluations.addAll(nHarmonizationEvaluations(4, SiadapMeritRating.GOOD));
+        evaluations.addAll(nHarmonizationEvaluations(5, SiadapMeritRating.REGULAR));
+        when(evaluationRepository.findByYear(eq(YEAR))).thenReturn(evaluations);
+
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(commandFor(YEAR, null)));
+
+        assertEquals(422, exception.getBody().getStatus());
+        assertTrue(exception.getBody().getTitle().contains("Harmonização"),
+                "Expected the phase-guard message to win, got: " + exception.getBody().getTitle());
+        assertTrue(exception.getBody().getTitle().contains("1"));
+        assertTrue(!exception.getBody().getTitle().contains("Bom"),
+                "The quota message must not surface when the phase guard already fired");
+        verify(evaluationRepository, never()).saveAll(any());
     }
 }

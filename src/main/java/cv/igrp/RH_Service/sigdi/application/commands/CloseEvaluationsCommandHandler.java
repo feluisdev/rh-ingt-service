@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.sigdi.application.constants.EvaluationPhase;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.SiadapConfigEntity;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.SiadapConfigEntityRepository;
 import cv.igrp.RH_Service.sigdi.application.dto.CloseEvaluationsRequestDTO;
@@ -59,7 +60,21 @@ public class CloseEvaluationsCommandHandler
           "No evaluations found for year: " + year);
     }
 
-    // Validate quotas before closing (SIGDI-SIA-001)
+    // Batch HARMONIZATION-phase guard (SIGDI-SIA-004, 81-CONTEXT.md Open Question 2): hoists
+    // SiadapEvaluation.markQuotaValidated()'s single-evaluation phase invariant to a single,
+    // batch-scoped, clearly-worded error BEFORE validateQuotas()/markQuotaValidated() ever run,
+    // instead of letting that invariant bleed through as a confusing per-evaluation error.
+    long notYetHarmonization = evaluations.stream()
+        .filter(e -> !EvaluationPhase.HARMONIZATION.equals(e.getPhase()))
+        .count();
+    if (notYetHarmonization > 0) {
+      throw IgrpResponseStatusException.of(
+          HttpStatus.UNPROCESSABLE_ENTITY,
+          "SIGDI-SIA-004: " + notYetHarmonization
+              + " avaliação(ões) ainda não estão na fase de Harmonização e não podem ser fechadas.");
+    }
+
+    // Validate quotas before closing (SIGDI-SIA-001/002/003)
     validateQuotas(evaluations, year);
 
     // Mark all evaluations as quota-validated using domain behaviour
