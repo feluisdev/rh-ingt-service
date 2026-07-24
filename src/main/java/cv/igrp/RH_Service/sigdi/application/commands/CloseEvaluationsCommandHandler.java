@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,17 @@ public class CloseEvaluationsCommandHandler
     implements CommandHandler<CloseEvaluationsCommand, ResponseEntity<CloseEvaluationsResponseDTO>> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CloseEvaluationsCommandHandler.class);
+
+  /**
+   * Sentinel classifier key standing in for organicUnitId == null/blank when grouping evaluations
+   * by organic unit for per-unit quota validation (WR-01 fix, 81-BACKEND-REVIEW.md). Collectors
+   * .groupingBy's accumulator explicitly rejects a null classification key -- throws NPE "element
+   * cannot be mapped to a null key" -- so null/blank organicUnitId values are mapped to this
+   * sentinel before grouping. Mirrors GetQuotaValidationQueryHandler's UNASSIGNED_KEY pattern
+   * exactly (same sentinel value). Never collides with a real organicUnitId since it is not a
+   * valid UUID.
+   */
+  private static final String UNASSIGNED_KEY = "__UNASSIGNED__";
 
   private final SiadapEvaluationRepository evaluationRepository;
   // SiadapConfigEntityRepository used for cross-aggregate read-only config lookup
@@ -85,7 +97,11 @@ public class CloseEvaluationsCommandHandler
     evaluationRepository.saveAll(closed);
 
     CloseEvaluationsResponseDTO response = new CloseEvaluationsResponseDTO();
-    response.setOrganicUnitId(req.getOrganicUnitId());
+    // WR-02 fix: normalize against the same isBlank() check used above to decide the fetch route,
+    // so a whitespace-only organicUnitId (routed as "close all units") doesn't echo back implying a
+    // specific unit was scoped when every unit's evaluations for the year were actually closed.
+    String responseOrganicUnitId = (organicUnitId != null && !organicUnitId.isBlank()) ? organicUnitId : null;
+    response.setOrganicUnitId(responseOrganicUnitId);
     response.setOrganicUnitName(null);
     response.setYear(year);
     response.setEvaluationsClosed(closed.size());
@@ -95,16 +111,53 @@ public class CloseEvaluationsCommandHandler
   }
 
   private void validateQuotas(List<SiadapEvaluation> evaluations, Integer year) {
-    long total = evaluations.size();
-
     // Cross-aggregate config read — acceptable to use JPA directly here. Single lookup,
-    // reused for all three checks below (min-collaborators, Excelente, Bom).
+    // reused for all three checks below (min-collaborators, Excelente, Bom), across every unit.
     Optional<SiadapConfigEntity> config = configRepository.findByFiscalYear(year);
+
+    Integer minCollaborators = config.map(SiadapConfigEntity::getMinCollaboratorsForQuota).orElse(null);
+    BigDecimal excellentQuotaPct = config
+        .map(SiadapConfigEntity::getExcellentQuota)
+        .filter(q -> q != null)
+        .orElse(new BigDecimal("25"));
+    BigDecimal goodQuotaPct = config
+        .map(SiadapConfigEntity::getGoodQuota)
+        .filter(q -> q != null)
+        .orElse(new BigDecimal("35"));
+
+    // WR-01 fix (81-BACKEND-REVIEW.md): validate quotas PER ORGANIC UNIT, never as one pooled
+    // aggregate — even when the caller closed "all units" (organicUnitId == null/blank), which is
+    // the only path the current UI can reach. Previously this method computed one combined
+    // total/excellentCount/goodCount across every evaluation passed in, so a small unit at 100%
+    // Excelente could be silently masked when pooled with a larger compliant unit's evaluations.
+    // Grouping here mirrors GetQuotaValidationQueryHandler's exact null-safe UNASSIGNED_KEY
+    // sentinel pattern, since Collectors.groupingBy's accumulator rejects a null classifier key.
+    Map<String, List<SiadapEvaluation>> byUnit = evaluations.stream()
+        .collect(Collectors.groupingBy(e -> (e.getOrganicUnitId() != null && !e.getOrganicUnitId().isBlank())
+            ? e.getOrganicUnitId() : UNASSIGNED_KEY));
+
+    // Fail-fast on the first violating unit encountered, consistent with every other check in this
+    // handler (batch HARMONIZATION guard, min-collaborators, Excelente, Bom), all of which throw a
+    // single structured IgrpResponseStatusException immediately upon detecting a violation rather
+    // than aggregating multiple violations into one combined message.
+    for (List<SiadapEvaluation> unitEvaluations : byUnit.values()) {
+      validateUnitQuotas(unitEvaluations, minCollaborators, excellentQuotaPct, goodQuotaPct);
+    }
+  }
+
+  /**
+   * Per-unit quota checks extracted from {@link #validateQuotas} (WR-01 fix): minCollaboratorsForQuota
+   * gate (SIGDI-SIA-002), then Excelente (SIGDI-SIA-001), then Bom (SIGDI-SIA-003), in that order —
+   * identical logic/messages to what previously ran once over the whole batch, now run once per
+   * organic-unit group so a unit's own compliance can never be masked by another unit's evaluations.
+   */
+  private void validateUnitQuotas(List<SiadapEvaluation> unitEvaluations, Integer minCollaborators,
+      BigDecimal excellentQuotaPct, BigDecimal goodQuotaPct) {
+    long total = unitEvaluations.size();
 
     // 1. minCollaboratorsForQuota gate FIRST (SIGDI-SIA-002): a clearly-messaged BLOCK when the
     // configured minimum is not met. null/0 = gate disabled, preserving behaviour for
     // unconfigured tenants (81-CONTEXT.md decision #3).
-    Integer minCollaborators = config.map(SiadapConfigEntity::getMinCollaboratorsForQuota).orElse(null);
     if (minCollaborators != null && minCollaborators > 0 && total < minCollaborators) {
       throw IgrpResponseStatusException.of(
           HttpStatus.UNPROCESSABLE_ENTITY,
@@ -113,14 +166,9 @@ public class CloseEvaluationsCommandHandler
     }
 
     // 2. Excelente check (SIGDI-SIA-001) — unchanged.
-    long excellentCount = evaluations.stream()
+    long excellentCount = unitEvaluations.stream()
         .filter(e -> e.getMeritRating() != null && "EXCELLENT".equals(e.getMeritRating().getCode()))
         .count();
-
-    BigDecimal excellentQuotaPct = config
-        .map(SiadapConfigEntity::getExcellentQuota)
-        .filter(q -> q != null)
-        .orElse(new BigDecimal("25"));
 
     int excellentAllowed = total > 0
         ? excellentQuotaPct.multiply(new BigDecimal(total))
@@ -136,14 +184,9 @@ public class CloseEvaluationsCommandHandler
 
     // 3. Bom check (SIGDI-SIA-003) — mirrors the Excelente check above, config-driven goodQuota
     // instead of the previous hardcoded 35%. Independent of the Excelente outcome.
-    long goodCount = evaluations.stream()
+    long goodCount = unitEvaluations.stream()
         .filter(e -> e.getMeritRating() != null && "GOOD".equals(e.getMeritRating().getCode()))
         .count();
-
-    BigDecimal goodQuotaPct = config
-        .map(SiadapConfigEntity::getGoodQuota)
-        .filter(q -> q != null)
-        .orElse(new BigDecimal("35"));
 
     int goodAllowed = total > 0
         ? goodQuotaPct.multiply(new BigDecimal(total))

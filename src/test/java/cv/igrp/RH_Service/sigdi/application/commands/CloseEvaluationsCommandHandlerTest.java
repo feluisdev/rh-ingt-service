@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -72,10 +73,19 @@ class CloseEvaluationsCommandHandlerTest {
      * using the real aggregate rather than mocking it.
      */
     private SiadapEvaluation buildHarmonizationEvaluation(SiadapMeritRating meritRating) {
+        return buildHarmonizationEvaluation(meritRating, null);
+    }
+
+    /**
+     * Overload of {@link #buildHarmonizationEvaluation(SiadapMeritRating)} taking an explicit
+     * organicUnitId, added for the WR-01 regression tests below that need evaluations spread
+     * across 2+ distinct real organic units within the same "close all units" call.
+     */
+    private SiadapEvaluation buildHarmonizationEvaluation(SiadapMeritRating meritRating, String organicUnitId) {
         SiadapEvaluation created = SiadapEvaluation.create(
                 UUID.randomUUID().toString(),
                 YEAR,
-                null,
+                organicUnitId,
                 UUID.randomUUID().toString(),
                 new BigDecimal("60"),
                 new BigDecimal("40"));
@@ -107,9 +117,18 @@ class CloseEvaluationsCommandHandlerTest {
     }
 
     private List<SiadapEvaluation> nHarmonizationEvaluations(int count, SiadapMeritRating rating) {
+        return nHarmonizationEvaluations(count, rating, null);
+    }
+
+    /**
+     * Overload of {@link #nHarmonizationEvaluations(int, SiadapMeritRating)} taking an explicit
+     * organicUnitId, so WR-01 regression tests can build a whole unit's worth of evaluations
+     * sharing one real organicUnitId.
+     */
+    private List<SiadapEvaluation> nHarmonizationEvaluations(int count, SiadapMeritRating rating, String organicUnitId) {
         List<SiadapEvaluation> list = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            list.add(buildHarmonizationEvaluation(rating));
+            list.add(buildHarmonizationEvaluation(rating, organicUnitId));
         }
         return list;
     }
@@ -371,5 +390,83 @@ class CloseEvaluationsCommandHandlerTest {
         assertTrue(!exception.getBody().getTitle().contains("Bom"),
                 "The quota message must not surface when the phase guard already fired");
         verify(evaluationRepository, never()).saveAll(any());
+    }
+
+    // ============================================================
+    // WR-01 fix: per-unit quota validation on "close all units" (organicUnitId == null)
+    // 81-BACKEND-REVIEW.md WR-01 -- every fixture above hardcodes organicUnitId=null for every
+    // evaluation, so none of the tests above actually exercise cross-unit pooling vs. per-unit
+    // correctness. These do, using 2+ distinct real organicUnitId values in one close-all call.
+    // ============================================================
+
+    @Test
+    void closeAllUnitsCatchesPerUnitExcelenteViolationEvenWhenPooledTotalWouldNotViolate() {
+        // Concrete scenario from 81-BACKEND-REVIEW.md WR-01: unit A has 2 evaluations, both
+        // EXCELLENT (100%); unit B has 8 evaluations, all REGULAR.
+        // Pooled (the bug): total=10, excellentAllowed=floor(25*10/100)=2, excellentCount=2
+        // -> 2>2 is false -> would NOT violate if validated as one system-wide pool.
+        // Per-unit (the fix): unit A alone has total=2, excellentAllowed=floor(25*2/100)=0,
+        // excellentCount=2 -> 2>0 -> VIOLATES, and must be caught even though the request's
+        // organicUnitId is null (close all units).
+        String unitA = UUID.randomUUID().toString();
+        String unitB = UUID.randomUUID().toString();
+
+        List<SiadapEvaluation> evaluations = new ArrayList<>();
+        evaluations.addAll(nHarmonizationEvaluations(2, SiadapMeritRating.EXCELLENT, unitA));
+        evaluations.addAll(nHarmonizationEvaluations(8, SiadapMeritRating.REGULAR, unitB));
+        when(evaluationRepository.findByYear(eq(YEAR))).thenReturn(evaluations);
+        when(configRepository.findByFiscalYear(YEAR))
+                .thenReturn(Optional.of(buildConfig(new BigDecimal("25"), new BigDecimal("35"), null)));
+
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(commandFor(YEAR, null)));
+
+        assertEquals(422, exception.getBody().getStatus());
+        assertTrue(exception.getBody().getTitle().contains("Excelente"),
+                "Expected the per-unit Excelente violation to be caught, got: " + exception.getBody().getTitle());
+        verify(evaluationRepository, never()).saveAll(any());
+    }
+
+    @Test
+    void closeAllUnitsSucceedsWhenEveryDistinctUnitIsIndividuallyCompliant() {
+        // Companion/negative case, same shape but 2 distinct real organic units where BOTH are
+        // individually compliant: unit A has 1 EXCELLENT out of 4 (excellentAllowed=
+        // floor(25*4/100)=1, excellentCount=1 -> compliant, boundary exactly met); unit B has 6,
+        // all REGULAR (trivially compliant). Confirms the per-unit fix does not over-trigger when
+        // every distinct unit is genuinely within its own quota.
+        String unitA = UUID.randomUUID().toString();
+        String unitB = UUID.randomUUID().toString();
+
+        List<SiadapEvaluation> evaluations = new ArrayList<>();
+        evaluations.addAll(nHarmonizationEvaluations(1, SiadapMeritRating.EXCELLENT, unitA));
+        evaluations.addAll(nHarmonizationEvaluations(3, SiadapMeritRating.REGULAR, unitA));
+        evaluations.addAll(nHarmonizationEvaluations(6, SiadapMeritRating.REGULAR, unitB));
+        when(evaluationRepository.findByYear(eq(YEAR))).thenReturn(evaluations);
+        when(configRepository.findByFiscalYear(YEAR))
+                .thenReturn(Optional.of(buildConfig(new BigDecimal("25"), new BigDecimal("35"), null)));
+        when(evaluationRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ResponseEntity<CloseEvaluationsResponseDTO> response = handler.handle(commandFor(YEAR, null));
+
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals(10, response.getBody().getEvaluationsClosed());
+        verify(evaluationRepository, times(1)).saveAll(any());
+    }
+
+    // ============================================================
+    // WR-02 fix: close response normalizes a blank organicUnitId to null
+    // ============================================================
+
+    @Test
+    void closeAllUnitsNormalizesBlankOrganicUnitIdToNullInResponse() {
+        List<SiadapEvaluation> evaluations = nHarmonizationEvaluations(3, SiadapMeritRating.REGULAR);
+        when(evaluationRepository.findByYear(eq(YEAR))).thenReturn(evaluations);
+        when(evaluationRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ResponseEntity<CloseEvaluationsResponseDTO> response = handler.handle(commandFor(YEAR, "   "));
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNull(response.getBody().getOrganicUnitId(),
+                "A whitespace-only organicUnitId must not be echoed back as if a specific unit was scoped");
     }
 }
