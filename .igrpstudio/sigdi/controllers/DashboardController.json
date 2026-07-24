@@ -1,0 +1,30 @@
+{
+  "type": "controller",
+  "name": "Dashboard",
+  "module": "sigdi",
+  "description": "Executive dashboard summary",
+  "basePath": "api/v1/dashboard",
+  "actions": [
+    {
+      "actionName": "getDashboardSummary",
+      "path": "summary",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "DashboardSummaryResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "sigdi"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
