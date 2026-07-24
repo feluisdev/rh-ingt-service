@@ -11,6 +11,7 @@ import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -44,8 +46,13 @@ public class CloseEvaluationsCommandHandler
 
     CloseEvaluationsRequestDTO req = command.getBody();
     Integer year = req.getYear();
+    String organicUnitId = req.getOrganicUnitId();
 
-    List<SiadapEvaluation> evaluations = evaluationRepository.findByYear(year);
+    // Per-unit scoping (81-CONTEXT.md Open Question 1): a non-blank organicUnitId scopes the
+    // close to that unit; null/blank preserves the pre-existing all-units-for-the-year behaviour.
+    List<SiadapEvaluation> evaluations = (organicUnitId != null && !organicUnitId.isBlank())
+        ? evaluationRepository.findByYearAndOrganicUnitId(year, organicUnitId)
+        : evaluationRepository.findByYear(year);
 
     if (evaluations.isEmpty()) {
       throw IgrpResponseStatusException.notFound(
@@ -74,12 +81,28 @@ public class CloseEvaluationsCommandHandler
 
   private void validateQuotas(List<SiadapEvaluation> evaluations, Integer year) {
     long total = evaluations.size();
+
+    // Cross-aggregate config read — acceptable to use JPA directly here. Single lookup,
+    // reused for all three checks below (min-collaborators, Excelente, Bom).
+    Optional<SiadapConfigEntity> config = configRepository.findByFiscalYear(year);
+
+    // 1. minCollaboratorsForQuota gate FIRST (SIGDI-SIA-002): a clearly-messaged BLOCK when the
+    // configured minimum is not met. null/0 = gate disabled, preserving behaviour for
+    // unconfigured tenants (81-CONTEXT.md decision #3).
+    Integer minCollaborators = config.map(SiadapConfigEntity::getMinCollaboratorsForQuota).orElse(null);
+    if (minCollaborators != null && minCollaborators > 0 && total < minCollaborators) {
+      throw IgrpResponseStatusException.of(
+          HttpStatus.UNPROCESSABLE_ENTITY,
+          "SIGDI-SIA-002: Número insuficiente de avaliações para validar quotas. Mínimo: "
+              + minCollaborators + ", atual: " + total + ".");
+    }
+
+    // 2. Excelente check (SIGDI-SIA-001) — unchanged.
     long excellentCount = evaluations.stream()
         .filter(e -> e.getMeritRating() != null && "EXCELLENT".equals(e.getMeritRating().getCode()))
         .count();
 
-    // Cross-aggregate config read — acceptable to use JPA directly here
-    BigDecimal excellentQuotaPct = configRepository.findByFiscalYear(year)
+    BigDecimal excellentQuotaPct = config
         .map(SiadapConfigEntity::getExcellentQuota)
         .filter(q -> q != null)
         .orElse(new BigDecimal("25"));
@@ -91,9 +114,32 @@ public class CloseEvaluationsCommandHandler
 
     if (excellentCount > excellentAllowed) {
       throw IgrpResponseStatusException.of(
-          org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+          HttpStatus.UNPROCESSABLE_ENTITY,
           "SIGDI-SIA-001: Quota de Excelente excedida. Permitido: " + excellentAllowed
               + ", Atribuído: " + excellentCount + ". Corrija antes de fechar.");
+    }
+
+    // 3. Bom check (SIGDI-SIA-003) — mirrors the Excelente check above, config-driven goodQuota
+    // instead of the previous hardcoded 35%. Independent of the Excelente outcome.
+    long goodCount = evaluations.stream()
+        .filter(e -> e.getMeritRating() != null && "GOOD".equals(e.getMeritRating().getCode()))
+        .count();
+
+    BigDecimal goodQuotaPct = config
+        .map(SiadapConfigEntity::getGoodQuota)
+        .filter(q -> q != null)
+        .orElse(new BigDecimal("35"));
+
+    int goodAllowed = total > 0
+        ? goodQuotaPct.multiply(new BigDecimal(total))
+            .divide(new BigDecimal("100"), 0, RoundingMode.FLOOR).intValue()
+        : 0;
+
+    if (goodCount > goodAllowed) {
+      throw IgrpResponseStatusException.of(
+          HttpStatus.UNPROCESSABLE_ENTITY,
+          "SIGDI-SIA-003: Quota de Bom excedida. Permitido: " + goodAllowed
+              + ", Atribuído: " + goodCount + ". Corrija antes de fechar.");
     }
   }
 }
