@@ -93,6 +93,13 @@ public class SiadapEvaluationRepositoryImpl implements SiadapEvaluationRepositor
   @Override
   public List<SiadapEvaluation> findByYearAndOrganicUnitId(Integer year, String organicUnitId) {
     if (year == null) return List.of();
+    // IN-02: guard organicUnitId consistent with findByEmployeeAndYear's own-parameter guard
+    // above. Without this, Spring Data would silently rewrite the derived query's equality
+    // predicate to "organic_unit_id IS NULL" for a null organicUnitId -- the opposite of what a
+    // method named "filter by unit" suggests. Not live today (the only caller already filters
+    // before calling), but delegates to findByYear(year) for defensive safety, consistent with how
+    // CloseEvaluationsCommandHandler.validateQuotas() already treats blank-as-null.
+    if (organicUnitId == null || organicUnitId.isBlank()) return findByYear(year);
     return jpaRepository.findByYearAndOrganicUnitId(year.toString(), organicUnitId).stream()
         .map(entity -> {
           UUID evalUuid = entity.getId();
