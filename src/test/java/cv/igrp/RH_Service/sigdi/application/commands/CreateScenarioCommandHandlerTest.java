@@ -103,6 +103,47 @@ public class CreateScenarioCommandHandlerTest {
   }
 
   @Test
+  void departmentIdScopeWithNullTargetIdThrowsStructuredBadRequest() {
+    CreateScenarioRequestDTO req = buildRequest("UNIT_SPECIFIC", null);
+    CreateScenarioCommand command = new CreateScenarioCommand(req);
+
+    IgrpResponseStatusException ex = assertThrows(IgrpResponseStatusException.class,
+        () -> createScenarioCommandHandler.handle(command));
+
+    assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode(),
+        "a null targetId for a non-GLOBAL scope must yield a structured 400, never an unhandled NullPointerException (CR-01)");
+    // The guard fires before the scenario is ever saved -- no orphan PROCESSING row, not even
+    // one relying on @Transactional rollback to clean it up.
+    verify(scenarioRepository, never()).save(any(SimulationScenario.class));
+  }
+
+  @Test
+  void departmentIdScopeWithBlankTargetIdThrowsStructuredBadRequest() {
+    CreateScenarioRequestDTO req = buildRequest("UNIT_SPECIFIC", "   ");
+    CreateScenarioCommand command = new CreateScenarioCommand(req);
+
+    IgrpResponseStatusException ex = assertThrows(IgrpResponseStatusException.class,
+        () -> createScenarioCommandHandler.handle(command));
+
+    assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode(),
+        "a blank targetId for a non-GLOBAL scope must yield a structured 400, never an unhandled NullPointerException (CR-01)");
+    verify(scenarioRepository, never()).save(any(SimulationScenario.class));
+  }
+
+  @Test
+  void invalidScopeThrowsStructuredBadRequestInsteadOfSilentlyDefaultingToDepartmentId() {
+    CreateScenarioRequestDTO req = buildRequest("NOT_A_REAL_SCOPE", null);
+    CreateScenarioCommand command = new CreateScenarioCommand(req);
+
+    IgrpResponseStatusException ex = assertThrows(IgrpResponseStatusException.class,
+        () -> createScenarioCommandHandler.handle(command));
+
+    assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode(),
+        "an unrecognized scope must be rejected explicitly, never silently mapped to DEPARTMENT_ID (WR-01)");
+    verify(scenarioRepository, never()).save(any(SimulationScenario.class));
+  }
+
+  @Test
   void handleIsTransactionalSoAFailureDoesNotLeaveAnOrphanProcessingRow() throws NoSuchMethodException {
     // Unit tests cannot exercise real Spring transaction rollback, so assert the structural
     // guarantee instead: the annotation that makes rollback possible is present and correctly

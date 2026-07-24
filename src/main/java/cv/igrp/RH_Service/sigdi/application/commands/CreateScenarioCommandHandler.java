@@ -62,14 +62,26 @@ public class CreateScenarioCommandHandler
     SimulationScenarioType type = SimulationScenarioType.fromCodeOrThrow(req.getType());
     SimulationScenarioScope scope = resolveScope(req.getScope());
 
-    // NOTE (known-remaining gap, ERRO-03 Open Question #2): targetId is read verbatim for any
-    // non-GLOBAL scope. SimulationScenarioScope only distinguishes GLOBAL/DEPARTMENT_ID (2
-    // values), while the frontend offers 3 scopes (GLOBAL/UNIT_SPECIFIC/GOAL_SPECIFIC), and
-    // loadActivities() below only queries by organicUnitId (findAllByFiscalYearAndOrganicUnitId)
-    // -- there is no goal-scoped finder. A UNIT_SPECIFIC targetId (organic-unit UUID) resolves
-    // correctly; a GOAL_SPECIFIC targetId (strategic-goal UUID) will still be queried as if it
-    // were an organic-unit UUID, most likely returning zero activities rather than an error.
-    // Adding a goal-scoped finder is a new feature, deliberately out of scope for this bug fix.
+    // CR-01 fix: guard here -- before SimulationScenarioParameters.of() below -- rather than
+    // relying solely on loadActivities()'s own guard, because SimulationScenarioParameters's
+    // constructor ALSO validates "departmentId required when scope=DEPARTMENT_ID" and throws its
+    // own raw, uncaught IllegalArgumentException for a null/blank targetId. That internal check
+    // fires before loadActivities() is ever reached, so it must be intercepted here to surface
+    // the intended structured 400 instead of letting it propagate unhandled.
+    if (SimulationScenarioScope.DEPARTMENT_ID.equals(scope)
+        && (req.getTargetId() == null || req.getTargetId().isBlank())) {
+      throw IgrpResponseStatusException.badRequest("targetId is required when scope is not 'GLOBAL'");
+    }
+
+    // NOTE (known-remaining gap, ERRO-03 Open Question #2): SimulationScenarioScope only
+    // distinguishes GLOBAL/DEPARTMENT_ID (2 values), while the frontend offers 3 scopes
+    // (GLOBAL/UNIT_SPECIFIC/GOAL_SPECIFIC), and loadActivities() below only queries by
+    // organicUnitId (findAllByFiscalYearAndOrganicUnitId) -- there is no goal-scoped finder.
+    // A UNIT_SPECIFIC targetId (organic-unit UUID) resolves correctly. A GOAL_SPECIFIC scope is
+    // rejected by resolveScope() as an invalid scope (400 "Invalid scope: GOAL_SPECIFIC") rather
+    // than silently treated as DEPARTMENT_ID -- this fails loudly instead of returning wrong
+    // data, but does not add goal-scoped simulation support. Adding a goal-scoped finder plus a
+    // third SimulationScenarioScope value is a new feature, deliberately out of scope here.
     SimulationScenarioParameters parameters = SimulationScenarioParameters.of(
         type, req.getPercentage(), scope,
         SimulationScenarioScope.DEPARTMENT_ID.equals(scope) ? req.getTargetId() : null,
@@ -169,14 +181,22 @@ public class CreateScenarioCommandHandler
     if ("GLOBAL".equalsIgnoreCase(scope)) {
       return SimulationScenarioScope.GLOBAL;
     }
-    // treat non-GLOBAL scope values as DEPARTMENT_ID
-    return SimulationScenarioScope.DEPARTMENT_ID;
+    if ("UNIT_SPECIFIC".equalsIgnoreCase(scope) || "DEPARTMENT_ID".equalsIgnoreCase(scope)) {
+      return SimulationScenarioScope.DEPARTMENT_ID;
+    }
+    throw IgrpResponseStatusException.badRequest("Invalid scope: " + scope);
   }
 
   private List<TacticalActivitiesEntity> loadActivities(Integer fiscalYear,
                                                          SimulationScenarioScope scope,
                                                          String scopeValue) {
     if (SimulationScenarioScope.DEPARTMENT_ID.equals(scope)) {
+      if (scopeValue == null || scopeValue.isBlank()) {
+        // Defensive backstop: handle() already rejects a null/blank targetId earlier (before
+        // this method is reached), but this guard stays local to the UUID.fromString() call it
+        // directly protects, per CR-01's originally-requested fix location.
+        throw IgrpResponseStatusException.badRequest("targetId is required when scope is not 'GLOBAL'");
+      }
       try {
         UUID organicUnitId = UUID.fromString(scopeValue);
         return activitiesRepository.findAllByFiscalYearAndOrganicUnitId(fiscalYear, organicUnitId);
