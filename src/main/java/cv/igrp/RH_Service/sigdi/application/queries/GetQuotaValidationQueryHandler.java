@@ -81,12 +81,10 @@ public class GetQuotaValidationQueryHandler
     // min-collaborators gate (same 4-step map/filter/orElse chain used for excellentQuotaPct,
     // now applied to goodQuotaPct too, replacing the old hardcoded new BigDecimal("35")).
     Optional<SiadapConfigEntity> config = configRepository.findByFiscalYear(query.getYear());
-    BigDecimal excellentQuotaPct = config.map(SiadapConfigEntity::getExcellentQuota)
-        .filter(q -> q != null)
-        .orElse(new BigDecimal("25"));
-    BigDecimal goodQuotaPct = config.map(SiadapConfigEntity::getGoodQuota)
-        .filter(q -> q != null)
-        .orElse(new BigDecimal("35"));
+    // IN-01: no .filter(q -> q != null) here -- Optional.map() already collapses a null-returning
+    // mapper into Optional.empty(), so the value reaching .orElse() is never null.
+    BigDecimal excellentQuotaPct = config.map(SiadapConfigEntity::getExcellentQuota).orElse(new BigDecimal("25"));
+    BigDecimal goodQuotaPct = config.map(SiadapConfigEntity::getGoodQuota).orElse(new BigDecimal("35"));
     Integer minCollaborators = config.map(SiadapConfigEntity::getMinCollaboratorsForQuota).orElse(null);
 
     // Batch organic-unit name resolution (Pattern 3 / GetTaticalActivitiesQueryHandler analog) —
@@ -144,14 +142,12 @@ public class GetQuotaValidationQueryHandler
         .filter(e -> e.getMeritRating() != null && "GOOD".equals(e.getMeritRating()))
         .count();
 
-    int excellentAllowed = total > 0
-        ? excellentQuotaPct.multiply(new BigDecimal(total))
-            .divide(new BigDecimal("100"), 0, RoundingMode.FLOOR).intValue()
-        : 0;
-    int goodAllowed = total > 0
-        ? goodQuotaPct.multiply(new BigDecimal(total))
-            .divide(new BigDecimal("100"), 0, RoundingMode.FLOOR).intValue()
-        : 0;
+    // IN-01: no total > 0 guard -- buildUnit is only invoked once per Collectors.groupingBy entry,
+    // and a groupingBy group is never created empty, so total is always > 0 here.
+    int excellentAllowed = excellentQuotaPct.multiply(new BigDecimal(total))
+        .divide(new BigDecimal("100"), 0, RoundingMode.FLOOR).intValue();
+    int goodAllowed = goodQuotaPct.multiply(new BigDecimal(total))
+        .divide(new BigDecimal("100"), 0, RoundingMode.FLOOR).intValue();
 
     List<QuotaViolationDTO> violations = new ArrayList<>();
 

@@ -116,14 +116,10 @@ public class CloseEvaluationsCommandHandler
     Optional<SiadapConfigEntity> config = configRepository.findByFiscalYear(year);
 
     Integer minCollaborators = config.map(SiadapConfigEntity::getMinCollaboratorsForQuota).orElse(null);
-    BigDecimal excellentQuotaPct = config
-        .map(SiadapConfigEntity::getExcellentQuota)
-        .filter(q -> q != null)
-        .orElse(new BigDecimal("25"));
-    BigDecimal goodQuotaPct = config
-        .map(SiadapConfigEntity::getGoodQuota)
-        .filter(q -> q != null)
-        .orElse(new BigDecimal("35"));
+    // IN-01: no .filter(q -> q != null) here -- Optional.map() already collapses a null-returning
+    // mapper into Optional.empty(), so the value reaching .orElse() is never null.
+    BigDecimal excellentQuotaPct = config.map(SiadapConfigEntity::getExcellentQuota).orElse(new BigDecimal("25"));
+    BigDecimal goodQuotaPct = config.map(SiadapConfigEntity::getGoodQuota).orElse(new BigDecimal("35"));
 
     // WR-01 fix (81-BACKEND-REVIEW.md): validate quotas PER ORGANIC UNIT, never as one pooled
     // aggregate — even when the caller closed "all units" (organicUnitId == null/blank), which is
@@ -170,10 +166,10 @@ public class CloseEvaluationsCommandHandler
         .filter(e -> e.getMeritRating() != null && "EXCELLENT".equals(e.getMeritRating().getCode()))
         .count();
 
-    int excellentAllowed = total > 0
-        ? excellentQuotaPct.multiply(new BigDecimal(total))
-            .divide(new BigDecimal("100"), 0, RoundingMode.FLOOR).intValue()
-        : 0;
+    // IN-01: no total > 0 guard -- unitEvaluations comes from a Collectors.groupingBy value list,
+    // which is never created empty, so total is always > 0 here.
+    int excellentAllowed = excellentQuotaPct.multiply(new BigDecimal(total))
+        .divide(new BigDecimal("100"), 0, RoundingMode.FLOOR).intValue();
 
     if (excellentCount > excellentAllowed) {
       throw IgrpResponseStatusException.of(
@@ -188,10 +184,9 @@ public class CloseEvaluationsCommandHandler
         .filter(e -> e.getMeritRating() != null && "GOOD".equals(e.getMeritRating().getCode()))
         .count();
 
-    int goodAllowed = total > 0
-        ? goodQuotaPct.multiply(new BigDecimal(total))
-            .divide(new BigDecimal("100"), 0, RoundingMode.FLOOR).intValue()
-        : 0;
+    // IN-01: no total > 0 guard -- same invariant as excellentAllowed above.
+    int goodAllowed = goodQuotaPct.multiply(new BigDecimal(total))
+        .divide(new BigDecimal("100"), 0, RoundingMode.FLOOR).intValue();
 
     if (goodCount > goodAllowed) {
       throw IgrpResponseStatusException.of(
