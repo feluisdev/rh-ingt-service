@@ -234,6 +234,69 @@ class CreatePaaSubmissionPeriodCommandHandlerTest {
     }
 
     @Test
+    void detectsOverlapWithClosedUnitLevelSiblingHiddenBehindNewerIndividualLevelAtSamePosition() {
+        // WR-02 regression: PAA (position 2) has two periods live in the same year --
+        // UNIT_LEVEL closed early per Rule 2 (status CLOSED well before its date range
+        // elapses) and a newer INDIVIDUAL_LEVEL sibling created afterwards with a much
+        // narrower window. Deduping by position alone would keep only the newer
+        // INDIVIDUAL_LEVEL record and miss that the new period actually overlaps the
+        // still-live UNIT_LEVEL date range.
+        PaaSubmissionPeriod unitPeriod = PaaSubmissionPeriod.reconstruct(
+                UUID.randomUUID(), Purpose.PAA, PaaLevel.UNIT_LEVEL,
+                LocalDate.of(2026, 1, 1), LocalDate.of(2026, 8, 31), "CLOSED", 2026);
+        PaaSubmissionPeriod individualPeriod = PaaSubmissionPeriod.reconstruct(
+                UUID.randomUUID(), Purpose.PAA, PaaLevel.INDIVIDUAL_LEVEL,
+                LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 15), "CLOSED", 2026);
+
+        CreatePaaSubmissionPeriodDTO dto = new CreatePaaSubmissionPeriodDTO(
+                PaaLevel.INDIVIDUAL_LEVEL.getCode(), LocalDate.of(2026, 5, 1),
+                LocalDate.of(2026, 6, 1), 2026, Purpose.SIADAP.getCode());
+
+        when(repository.findByTypeAndYearAndStatusAndPurpose(
+                PaaLevel.INDIVIDUAL_LEVEL, 2026, "OPEN", Purpose.SIADAP))
+                .thenReturn(Optional.empty());
+        // newest-first, mirrors findAllByYear's ORDER BY createdDate DESC
+        when(repository.findAllByYear(2026)).thenReturn(List.of(individualPeriod, unitPeriod));
+
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(new CreatePaaSubmissionPeriodCommand(dto)));
+
+        String title = exception.getBody().getTitle();
+        assertEquals(422, exception.getBody().getStatus());
+        assertTrue(title.contains("Plano de Atividades Anual"));
+        assertTrue(title.contains("31/08/2026"));
+    }
+
+    @Test
+    void acceptsWhenNewPeriodOverlapsNeitherSamePositionSiblingOfDifferentType() {
+        // Sanity check for the (position, type) grouping: two PAA siblings (UNIT_LEVEL and
+        // INDIVIDUAL_LEVEL) share position 2, but neither range actually overlaps the new
+        // period -- must not be rejected just because the position now carries two candidates.
+        PaaSubmissionPeriod unitPeriod = PaaSubmissionPeriod.reconstruct(
+                UUID.randomUUID(), Purpose.PAA, PaaLevel.UNIT_LEVEL,
+                LocalDate.of(2026, 1, 1), LocalDate.of(2026, 2, 28), "CLOSED", 2026);
+        PaaSubmissionPeriod individualPeriod = PaaSubmissionPeriod.reconstruct(
+                UUID.randomUUID(), Purpose.PAA, PaaLevel.INDIVIDUAL_LEVEL,
+                LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 15), "CLOSED", 2026);
+
+        CreatePaaSubmissionPeriodDTO dto = new CreatePaaSubmissionPeriodDTO(
+                PaaLevel.INDIVIDUAL_LEVEL.getCode(), LocalDate.of(2026, 5, 1),
+                LocalDate.of(2026, 6, 1), 2026, Purpose.SIADAP.getCode());
+
+        when(repository.findByTypeAndYearAndStatusAndPurpose(
+                PaaLevel.INDIVIDUAL_LEVEL, 2026, "OPEN", Purpose.SIADAP))
+                .thenReturn(Optional.empty());
+        when(repository.findAllByYear(2026)).thenReturn(List.of(individualPeriod, unitPeriod));
+        when(repository.save(any(PaaSubmissionPeriod.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        ResponseEntity<PaaSubmissionPeriodResponseDTO> response =
+                handler.handle(new CreatePaaSubmissionPeriodCommand(dto));
+
+        assertEquals(201, response.getStatusCode().value());
+    }
+
+    @Test
     void overlapErrorMessageNamesConflictingFinalidadeAndExactDates() {
         // SOBREP-03: the conflict message must name the Finalidade and format both dates
         // dd/MM/yyyy (not the domain's ISO LocalDate.toString() form).
