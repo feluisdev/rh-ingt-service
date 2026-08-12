@@ -35,14 +35,14 @@ public class ContratoRepositoryImpl implements ContratoRepository {
     @Transactional(readOnly = true)
     @Override
     public Optional<Contrato> findCurrentByFuncionarioId(FuncionarioId funcionarioId) {
-        return entityRepository.findByFuncionarioIdAndIsCurrentTrue(funcionarioId.getValor())
+        return entityRepository.findByFuncionario_IdAndIsCurrentTrue(funcionarioId.getValor())
                 .map(mapper::toDomain);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<Contrato> findAllByFuncionarioIdOrderByStartDateDesc(FuncionarioId funcionarioId) {
-        return entityRepository.findByFuncionarioIdOrderByStartDateDesc(funcionarioId.getValor())
+        return entityRepository.findByFuncionario_IdOrderByStartDateDesc(funcionarioId.getValor())
                 .stream().map(mapper::toDomain).toList();
     }
 

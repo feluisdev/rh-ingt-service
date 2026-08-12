@@ -8,8 +8,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ColabsContratoEntityRepository extends JpaRepository<ContratoEntity, UUID> {
-    Optional<ContratoEntity> findByFuncionarioIdAndIsCurrentTrue(UUID funcionarioId);
+    Optional<ContratoEntity> findByFuncionario_IdAndIsCurrentTrue(UUID funcionarioId);
     boolean existsByContractNumber(String contractNumber);
     boolean existsByContractNumberAndIdNot(String contractNumber, UUID id);
-    List<ContratoEntity> findByFuncionarioIdOrderByStartDateDesc(UUID funcionarioId);
+    List<ContratoEntity> findByFuncionario_IdOrderByStartDateDesc(UUID funcionarioId);
 }
