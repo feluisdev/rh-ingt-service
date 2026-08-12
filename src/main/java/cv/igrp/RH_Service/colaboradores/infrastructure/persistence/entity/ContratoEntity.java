@@ -3,6 +3,7 @@
 
 package cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity;
 
+import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.ContractTypeEntity;
 import cv.igrp.RH_Service.shared.config.AuditEntity;
 import cv.igrp.framework.stereotype.IgrpEntity;
 import jakarta.persistence.*;
@@ -26,11 +27,13 @@ public class ContratoEntity extends AuditEntity {
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
 
-    @Column(name = "funcionario_id", nullable = false)
-    private UUID funcionarioId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "funcionario_id", nullable = false)
+    private FuncionarioEntity funcionario;
 
-    @Column(name = "contract_type_id")
-    private UUID contractTypeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contract_type_id")
+    private ContractTypeEntity contractType;
 
     @Column(name = "contract_number", unique = true, length = 100)
     private String contractNumber;

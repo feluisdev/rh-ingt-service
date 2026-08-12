@@ -5,16 +5,23 @@ import cv.igrp.RH_Service.colaboradores.domain.models.Contrato;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.ContratoId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.ContratoEntity;
+import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.FuncionarioEntity;
+import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.ContractTypeEntity;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Component;
 
 @Component("colabsContratoMapper")
 public class ContratoMapper {
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     public Contrato toDomain(ContratoEntity e) {
         return Contrato.reconstituir(
                 ContratoId.from(e.getId()),
-                FuncionarioId.from(e.getFuncionarioId()),
-                e.getContractTypeId(),
+                FuncionarioId.from(e.getFuncionario().getId()),
+                e.getContractType() != null ? e.getContractType().getId() : null,
                 e.getContractNumber(),
                 e.getStartDate(),
                 e.getEndDate(),
@@ -31,8 +38,16 @@ public class ContratoMapper {
     public ContratoEntity toEntity(Contrato c) {
         ContratoEntity e = new ContratoEntity();
         e.setId(c.getId().getValor());
-        e.setFuncionarioId(c.getFuncionarioId().getValor());
-        e.setContractTypeId(c.getContractTypeId());
+
+        // Associa por referência (proxy lazy) — sem carregar o agregado nem instanciar objectos detached.
+        e.setFuncionario(entityManager.getReference(
+                FuncionarioEntity.class, c.getFuncionarioId().getValor()));
+
+        if (c.getContractTypeId() != null) {
+            e.setContractType(entityManager.getReference(
+                    ContractTypeEntity.class, c.getContractTypeId()));
+        }
+
         e.setContractNumber(c.getContractNumber());
         e.setStartDate(c.getStartDate());
         e.setEndDate(c.getEndDate());
