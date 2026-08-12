@@ -3,14 +3,25 @@
   "name": "ContratoEntity",
   "module": "colaboradores",
   "tableName": "t_contrato",
+  "audit": true,
   "revision": true,
   "attributes": [
-    {"name": "id", "type": "string", "objectType": "java", "primaryKey": true},
-    {"name": "funcionarioId", "type": "string", "objectType": "java", "primaryKey": false},
-    {"name": "tipoContrato", "type": "string", "objectType": "java", "primaryKey": false},
-    {"name": "dataInicio", "type": "date", "objectType": "java", "primaryKey": false},
-    {"name": "dataFim", "type": "date", "objectType": "java", "primaryKey": false},
-    {"name": "numeroContrato", "type": "string", "objectType": "java", "primaryKey": false},
-    {"name": "isActive", "type": "boolean", "objectType": "java", "primaryKey": false}
+    {"name": "id", "type": "uuid", "nullable": false, "unique": true, "primaryKey": true, "generationType": "NONE", "objectType": "java"},
+    {"name": "funcionario", "type": "relation", "relation": {"type": "ManyToOne", "entity": "FuncionarioEntity", "fetchType": "lazy", "joinColumn": "funcionario_id", "module": "colaboradores"}},
+    {"name": "contractType", "type": "relation", "relation": {"type": "ManyToOne", "entity": "ContractTypeEntity", "fetchType": "lazy", "joinColumn": "contract_type_id", "module": "parametrizacoes"}},
+    {"name": "contract_number", "type": "string", "length": 100, "nullable": true, "unique": true, "primaryKey": false, "objectType": "java"},
+    {"name": "start_date", "type": "date", "nullable": true, "unique": false, "primaryKey": false, "objectType": "java"},
+    {"name": "end_date", "type": "date", "nullable": true, "unique": false, "primaryKey": false, "objectType": "java"},
+    {"name": "termination_reason", "type": "string", "length": 50, "nullable": true, "unique": false, "primaryKey": false, "objectType": "java"},
+    {"name": "is_current", "type": "boolean", "nullable": true, "unique": false, "primaryKey": false, "objectType": "java"},
+    {"name": "status", "type": "string", "length": 20, "nullable": true, "unique": false, "primaryKey": false, "objectType": "java"},
+    {"name": "renewal_count", "type": "integer", "nullable": true, "unique": false, "primaryKey": false, "objectType": "java"},
+    {"name": "regime_trabalho", "type": "string", "length": 30, "nullable": true, "unique": false, "primaryKey": false, "objectType": "java"},
+    {"name": "percentagem_tempo", "type": "decimal", "nullable": true, "unique": false, "primaryKey": false, "objectType": "java"},
+    {"name": "legal_base", "type": "string", "length": 200, "nullable": true, "unique": false, "primaryKey": false, "objectType": "java"},
+    {"name": "notes", "type": "text", "nullable": true, "unique": false, "primaryKey": false, "objectType": "java"}
+  ],
+  "indexes": [
+    {"name": "idx_contrato_funcionario_current", "columns": ["funcionario_id", "is_current"], "unique": false}
   ]
 }
