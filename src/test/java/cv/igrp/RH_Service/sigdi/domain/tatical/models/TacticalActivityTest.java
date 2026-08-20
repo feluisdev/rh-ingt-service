@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
+import cv.igrp.RH_Service.sigdi.application.constants.TacticalActivityStatus;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.Budget;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.DateRange;
@@ -115,5 +116,26 @@ class TacticalActivityTest {
 
         assertEquals(originalBudget, updated.getBudget());
         assertEquals("Título corrigido", updated.getTitle());
+    }
+
+    // Documents an existing behaviour that the PAA-02 guard does NOT change, and that the
+    // guard's own rationale runs into: update() always recomputes the status, so an edit the
+    // guard correctly permits still demotes an APPROVED activity back to DRAFT. The comment on
+    // that line says "as per requirements", so it reads as a deliberate rule -- content changed,
+    // re-approval needed -- and this phase does not alter it. It is asserted here so the
+    // transition is explicit rather than incidental, and so any future change to it fails
+    // loudly. Raised as 92-REVIEW.md WR-01 for the operator to rule on.
+    @Test
+    void update_demotesApprovedActivityToDraft_evenWhenOnlyTitleChanges() {
+        Budget originalBudget = Budget.of(new BigDecimal("1000"), "02.02.01");
+        TacticalActivity approved = buildApprovedActivityWithBudget(originalBudget);
+        assertEquals(TacticalActivityStatus.APPROVED, approved.getStatus());
+
+        TacticalActivity updated = approved.update(STRATEGIC_GOAL_ID, approved.getOrganicUnitId(),
+                "Apenas o título mudou", approved.getDescriptionWhat(), approved.getJustificationWhy(),
+                approved.getLocationWhere(), approved.getResponsibleWho(), approved.getMethodologyHow(),
+                DATE_RANGE, null);
+
+        assertEquals(TacticalActivityStatus.DRAFT, updated.getStatus());
     }
 }
