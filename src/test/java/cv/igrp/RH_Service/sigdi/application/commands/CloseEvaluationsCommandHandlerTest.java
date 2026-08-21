@@ -11,7 +11,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
+import cv.igrp.RH_Service.sigdi.application.config.SiadapCcaSecurityProperties;
 import cv.igrp.RH_Service.sigdi.application.constants.CompetencyCategory;
 import cv.igrp.RH_Service.sigdi.application.constants.EvaluationPhase;
 import cv.igrp.RH_Service.sigdi.application.constants.SiadapMeritRating;
@@ -30,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -44,6 +48,13 @@ import org.springframework.http.ResponseEntity;
  * valve), config-driven Bom ("Good") quota, Bom's independence from Excelente, and the
  * preserved compliant-close path. Fixtures are all built at HARMONIZATION so the Task 3
  * batch phase-guard (added afterward) is a no-op here.
+ *
+ * SIA-04: every test below also passes through the CCA authorization check, which is the
+ * first executable line of handle() (see 101-05-PLAN.md). currentEmployeeResolver.resolve()
+ * is stubbed once in setUp() since it is never overridden by any test. ccaSecurityProperties
+ * .isCca(any()) is stubbed per-test instead of in setUp(): the rejection test below needs it
+ * to return false, and overriding a setUp()-level stub inside a single test trips
+ * UnnecessaryStubbingException under STRICT_STUBS.
  */
 @ExtendWith(MockitoExtension.class)
 class CloseEvaluationsCommandHandlerTest {
@@ -56,8 +67,19 @@ class CloseEvaluationsCommandHandlerTest {
     @Mock
     private SiadapConfigEntityRepository configRepository;
 
+    @Mock
+    private CurrentEmployeeResolver currentEmployeeResolver;
+
+    @Mock
+    private SiadapCcaSecurityProperties ccaSecurityProperties;
+
     @InjectMocks
     private CloseEvaluationsCommandHandler handler;
+
+    @BeforeEach
+    void setUp() {
+        when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.gerarNovo());
+    }
 
     // ============================================================
     // Fixture builders
@@ -167,6 +189,7 @@ class CloseEvaluationsCommandHandlerTest {
 
     @Test
     void handleUsesFindByYearAndOrganicUnitIdWhenOrganicUnitIdProvided() {
+        when(ccaSecurityProperties.isCca(any())).thenReturn(true);
         List<SiadapEvaluation> evaluations = nHarmonizationEvaluations(3, SiadapMeritRating.REGULAR);
         when(evaluationRepository.findByYearAndOrganicUnitId(eq(YEAR), eq("unit-123"))).thenReturn(evaluations);
         when(evaluationRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -180,6 +203,7 @@ class CloseEvaluationsCommandHandlerTest {
 
     @Test
     void handleUsesFindByYearWhenOrganicUnitIdIsNull() {
+        when(ccaSecurityProperties.isCca(any())).thenReturn(true);
         List<SiadapEvaluation> evaluations = nHarmonizationEvaluations(3, SiadapMeritRating.REGULAR);
         when(evaluationRepository.findByYear(eq(YEAR))).thenReturn(evaluations);
         when(evaluationRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -193,6 +217,7 @@ class CloseEvaluationsCommandHandlerTest {
 
     @Test
     void handleUsesFindByYearWhenOrganicUnitIdIsBlank() {
+        when(ccaSecurityProperties.isCca(any())).thenReturn(true);
         List<SiadapEvaluation> evaluations = nHarmonizationEvaluations(3, SiadapMeritRating.REGULAR);
         when(evaluationRepository.findByYear(eq(YEAR))).thenReturn(evaluations);
         when(evaluationRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -210,6 +235,7 @@ class CloseEvaluationsCommandHandlerTest {
 
     @Test
     void minCollaboratorsGateThrowsWhenBelowConfiguredMinimum() {
+        when(ccaSecurityProperties.isCca(any())).thenReturn(true);
         List<SiadapEvaluation> evaluations = nHarmonizationEvaluations(2, SiadapMeritRating.REGULAR);
         when(evaluationRepository.findByYear(eq(YEAR))).thenReturn(evaluations);
         when(configRepository.findByFiscalYear(YEAR))
@@ -226,6 +252,7 @@ class CloseEvaluationsCommandHandlerTest {
 
     @Test
     void minCollaboratorsGateDisabledWhenConfigNull() {
+        when(ccaSecurityProperties.isCca(any())).thenReturn(true);
         List<SiadapEvaluation> evaluations = nHarmonizationEvaluations(2, SiadapMeritRating.REGULAR);
         when(evaluationRepository.findByYear(eq(YEAR))).thenReturn(evaluations);
         when(configRepository.findByFiscalYear(YEAR))
@@ -240,6 +267,7 @@ class CloseEvaluationsCommandHandlerTest {
 
     @Test
     void minCollaboratorsGateDisabledWhenConfigZero() {
+        when(ccaSecurityProperties.isCca(any())).thenReturn(true);
         List<SiadapEvaluation> evaluations = nHarmonizationEvaluations(2, SiadapMeritRating.REGULAR);
         when(evaluationRepository.findByYear(eq(YEAR))).thenReturn(evaluations);
         when(configRepository.findByFiscalYear(YEAR))
@@ -258,6 +286,7 @@ class CloseEvaluationsCommandHandlerTest {
 
     @Test
     void goodQuotaExceededThrowsWithConfigDrivenPercentage() {
+        when(ccaSecurityProperties.isCca(any())).thenReturn(true);
         List<SiadapEvaluation> evaluations = new ArrayList<>();
         evaluations.addAll(nHarmonizationEvaluations(4, SiadapMeritRating.GOOD));
         evaluations.addAll(nHarmonizationEvaluations(6, SiadapMeritRating.REGULAR));
@@ -278,6 +307,7 @@ class CloseEvaluationsCommandHandlerTest {
 
     @Test
     void goodQuotaWithinConfiguredPercentageDoesNotThrow() {
+        when(ccaSecurityProperties.isCca(any())).thenReturn(true);
         List<SiadapEvaluation> evaluations = new ArrayList<>();
         evaluations.addAll(nHarmonizationEvaluations(4, SiadapMeritRating.GOOD));
         evaluations.addAll(nHarmonizationEvaluations(6, SiadapMeritRating.REGULAR));
@@ -299,6 +329,7 @@ class CloseEvaluationsCommandHandlerTest {
 
     @Test
     void bomThrowsEvenWhenExcelenteIsCompliant() {
+        when(ccaSecurityProperties.isCca(any())).thenReturn(true);
         List<SiadapEvaluation> evaluations = new ArrayList<>();
         evaluations.addAll(nHarmonizationEvaluations(2, SiadapMeritRating.EXCELLENT));
         evaluations.addAll(nHarmonizationEvaluations(4, SiadapMeritRating.GOOD));
@@ -323,6 +354,7 @@ class CloseEvaluationsCommandHandlerTest {
 
     @Test
     void compliantCloseSavesAllAndReturns200() {
+        when(ccaSecurityProperties.isCca(any())).thenReturn(true);
         List<SiadapEvaluation> evaluations = new ArrayList<>();
         evaluations.addAll(nHarmonizationEvaluations(1, SiadapMeritRating.EXCELLENT));
         evaluations.addAll(nHarmonizationEvaluations(2, SiadapMeritRating.GOOD));
@@ -354,6 +386,7 @@ class CloseEvaluationsCommandHandlerTest {
 
     @Test
     void mixedPhaseSetThrowsSingleBatchErrorNamingCount() {
+        when(ccaSecurityProperties.isCca(any())).thenReturn(true);
         List<SiadapEvaluation> evaluations = new ArrayList<>();
         evaluations.add(buildHarmonizationEvaluation(SiadapMeritRating.REGULAR));
         evaluations.add(buildOpenEvaluation());
@@ -374,6 +407,7 @@ class CloseEvaluationsCommandHandlerTest {
         // Composition would ALSO violate the (default, unconfigured) Bom quota if the phase
         // guard did not intercept first: total=10, default goodQuota=35% -> allowed=floor(35*10/100)=3,
         // but 4 are GOOD. Proves ordering: the phase-guard message must win, not the quota message.
+        when(ccaSecurityProperties.isCca(any())).thenReturn(true);
         List<SiadapEvaluation> evaluations = new ArrayList<>();
         evaluations.add(buildOpenEvaluation());
         evaluations.addAll(nHarmonizationEvaluations(4, SiadapMeritRating.GOOD));
@@ -408,6 +442,7 @@ class CloseEvaluationsCommandHandlerTest {
         // Per-unit (the fix): unit A alone has total=2, excellentAllowed=floor(25*2/100)=0,
         // excellentCount=2 -> 2>0 -> VIOLATES, and must be caught even though the request's
         // organicUnitId is null (close all units).
+        when(ccaSecurityProperties.isCca(any())).thenReturn(true);
         String unitA = UUID.randomUUID().toString();
         String unitB = UUID.randomUUID().toString();
 
@@ -434,6 +469,7 @@ class CloseEvaluationsCommandHandlerTest {
         // floor(25*4/100)=1, excellentCount=1 -> compliant, boundary exactly met); unit B has 6,
         // all REGULAR (trivially compliant). Confirms the per-unit fix does not over-trigger when
         // every distinct unit is genuinely within its own quota.
+        when(ccaSecurityProperties.isCca(any())).thenReturn(true);
         String unitA = UUID.randomUUID().toString();
         String unitB = UUID.randomUUID().toString();
 
@@ -459,6 +495,7 @@ class CloseEvaluationsCommandHandlerTest {
 
     @Test
     void closeAllUnitsNormalizesBlankOrganicUnitIdToNullInResponse() {
+        when(ccaSecurityProperties.isCca(any())).thenReturn(true);
         List<SiadapEvaluation> evaluations = nHarmonizationEvaluations(3, SiadapMeritRating.REGULAR);
         when(evaluationRepository.findByYear(eq(YEAR))).thenReturn(evaluations);
         when(evaluationRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
