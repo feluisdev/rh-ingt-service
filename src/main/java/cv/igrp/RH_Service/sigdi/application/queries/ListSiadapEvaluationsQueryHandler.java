@@ -1,7 +1,9 @@
 package cv.igrp.RH_Service.sigdi.application.queries;
 
+import cv.igrp.RH_Service.sigdi.application.constants.EvaluationPhase;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.SiadapEvaluationEntity;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.SiadapEvaluationEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.specifications.SiadapEvaluationSpecifications;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapEvaluationDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperSiadapEvaluationListDTO;
 import cv.igrp.RH_Service.sigdi.application.port.FuncionarioLookupPort;
@@ -12,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,8 +49,14 @@ public class ListSiadapEvaluationsQueryHandler
     int page = parseIntOrDefault(query.getPageNumber(), 0);
     int size = parseIntOrDefault(query.getPageSize(), 20);
 
-    String year = query.getYear().toString();
-    Page<SiadapEvaluationEntity> pageResult = repository.findByYear(year, PageRequest.of(page, size));
+    String statusParam = query.getStatus();
+    EvaluationPhase phase = (statusParam == null || statusParam.isBlank())
+        ? null
+        : EvaluationPhase.fromCodeOrThrow(statusParam);
+
+    Specification<SiadapEvaluationEntity> spec =
+        SiadapEvaluationSpecifications.byFilters(query.getYear(), query.getOrganicUnitId(), phase);
+    Page<SiadapEvaluationEntity> pageResult = repository.findAll(spec, PageRequest.of(page, size));
 
     List<SiadapEvaluationDTO> data = pageResult.getContent().stream()
         .map(this::toDto)
