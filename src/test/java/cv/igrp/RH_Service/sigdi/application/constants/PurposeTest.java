@@ -3,8 +3,14 @@ package cv.igrp.RH_Service.sigdi.application.constants;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PurposeTest {
 
@@ -47,11 +53,46 @@ class PurposeTest {
         assertEquals(2, Purpose.PAA.getPosition());
         assertEquals(3, Purpose.SIADAP.getPosition());
         assertEquals(4, Purpose.SIADAP_INTERIM.getPosition());
-        assertEquals(5, Purpose.SIADAP_FINAL.getPosition());
+        assertEquals(5, Purpose.SIADAP_SELF_EVAL.getPosition());
+        assertEquals(6, Purpose.SIADAP_FINAL.getPosition());
     }
 
     @Test
     void fromCodeOrThrowRejectsUnknownCode() {
         assertThrows(IgrpResponseStatusException.class, () -> Purpose.fromCodeOrThrow("bogus"));
+    }
+
+    @Test
+    void fromCodeOrThrowResolvesSiadapSelfEval() {
+        assertEquals(Purpose.SIADAP_SELF_EVAL, Purpose.fromCodeOrThrow("SIADAP_SELF_EVAL"));
+    }
+
+    @Test
+    void siadapSelfEvalCodeAndDescriptionAreUnchanged() {
+        assertEquals("SIADAP_SELF_EVAL", Purpose.SIADAP_SELF_EVAL.getCode());
+        assertEquals("Autoavaliação SIADAP", Purpose.SIADAP_SELF_EVAL.getDescription());
+    }
+
+    @Test
+    void everyPurposeCodeFitsThePersistedColumn() {
+        // The `purpose` column is VARCHAR(20) with no CHECK constraint
+        // (V19__paa_submission_period_purpose.sql:12), so this limit must hold for
+        // every constant or the first write with a longer code fails at runtime
+        // instead of at build time.
+        for (Purpose purpose : Purpose.values()) {
+            assertTrue(purpose.getCode().length() <= 20,
+                    () -> purpose.getCode() + " exceeds the persisted column's 20-character limit");
+        }
+    }
+
+    @Test
+    void positionsFormAContiguousSequenceWithoutDuplicates() {
+        Set<Integer> expected = IntStream.rangeClosed(1, Purpose.values().length)
+                .boxed()
+                .collect(Collectors.toSet());
+        Set<Integer> actual = Arrays.stream(Purpose.values())
+                .map(Purpose::getPosition)
+                .collect(Collectors.toSet());
+        assertEquals(expected, actual);
     }
 }
