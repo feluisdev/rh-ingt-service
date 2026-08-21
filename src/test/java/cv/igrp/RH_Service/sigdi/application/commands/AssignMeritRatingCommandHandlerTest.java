@@ -196,4 +196,27 @@ class AssignMeritRatingCommandHandlerTest {
         assertEquals(400, exception.getBody().getStatus());
         verify(evaluationRepository, never()).save(any());
     }
+
+    /**
+     * SIA-04: only a CCA member may correct a merit rating.
+     * Fixture deliberately uses HARMONIZATION, a phase the phase rule accepts for this
+     * action -- if a 403 shows up here, it can only come from the CCA check, never from
+     * the phase rule, proving the CCA check runs first.
+     */
+    @Test
+    void throwsForbiddenWhenCurrentUserIsNotACcaMember() {
+        SiadapEvaluation evaluation = buildEvaluation(EvaluationPhase.HARMONIZATION, SiadapMeritRating.GOOD);
+
+        when(evaluationRepository.findById(any())).thenReturn(Optional.of(evaluation));
+        when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.gerarNovo());
+        when(ccaSecurityProperties.isCca(any())).thenReturn(false);
+
+        AssignMeritRatingCommand command = commandFor(evaluation, SiadapMeritRating.EXCELLENT.getCode());
+
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(command));
+
+        assertEquals(403, exception.getBody().getStatus());
+        verify(evaluationRepository, never()).save(any());
+    }
 }
