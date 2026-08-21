@@ -1,16 +1,20 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.compliance;
 
+import cv.igrp.RH_Service.sigdi.application.constants.EvaluationPhase;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.SiadapEvaluationEntity;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.IndividualObjectiveEntity;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.CompetencyItemEntity;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.SiadapEvaluationEntityRepository;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.IndividualObjectiveEntityRepository;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.CompetencyItemEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.specifications.SiadapEvaluationSpecifications;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;
 import cv.igrp.RH_Service.sigdi.domain.compliance.repository.SiadapEvaluationRepository;
 import cv.igrp.RH_Service.sigdi.domain.compliance.valueobject.SiadapEvaluationId;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.compliance.SiadapEvaluationMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -116,5 +120,36 @@ public class SiadapEvaluationRepositoryImpl implements SiadapEvaluationRepositor
     return evaluations.stream()
         .map(this::save)
         .collect(Collectors.toList());
+  }
+
+  // D-02: ao contrário de findByYear(Integer), que devolve lista vazia para ano nulo, aqui um
+  // eixo nulo (incluindo year) significa "não filtrar por este eixo" -- os três eixos são
+  // opcionais por desenho (SIA-01 critério 4). O que limita o resultado não é o ano ser
+  // obrigatório, é a paginação ser obrigatória na assinatura. A Fase 102 depende exatamente do
+  // caso year=null, phase=<fase> para encontrar candidatos sem um pedido HTTP -- não
+  // "harmonizar" esta guarda com findByYear numa leitura futura.
+  @Transactional(readOnly = true)
+  @Override
+  public List<SiadapEvaluation> findAll(Integer year, String organicUnitId, EvaluationPhase phase,
+      int page, int size) {
+    Specification<SiadapEvaluationEntity> spec =
+        SiadapEvaluationSpecifications.byFilters(year, organicUnitId, phase);
+    return jpaRepository.findAll(spec, PageRequest.of(page, size))
+        .stream()
+        .map(entity -> {
+          UUID evalUuid = entity.getId();
+          List<IndividualObjectiveEntity> objectives = objectiveJpaRepository.findByEvaluationId(evalUuid);
+          List<CompetencyItemEntity> competencies = competencyJpaRepository.findByEvaluationId(evalUuid);
+          return mapper.toDomain(entity, objectives, competencies);
+        })
+        .toList();
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public long countAll(Integer year, String organicUnitId, EvaluationPhase phase) {
+    Specification<SiadapEvaluationEntity> spec =
+        SiadapEvaluationSpecifications.byFilters(year, organicUnitId, phase);
+    return jpaRepository.count(spec);
   }
 }
