@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
 import cv.igrp.RH_Service.sigdi.application.dto.RecordObjectiveAchievementRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapEvaluationDTO;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;
@@ -10,6 +11,7 @@ import cv.igrp.RH_Service.sigdi.infrastructure.mappers.compliance.SiadapEvaluati
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,7 @@ public class RecordObjectiveAchievementCommandHandler
 
   private final SiadapEvaluationRepository evaluationRepository;
   private final SiadapEvaluationMapper mapper;
+  private final CurrentEmployeeResolver currentEmployeeResolver;
 
   @IgrpCommandHandler
   @Transactional
@@ -31,6 +34,12 @@ public class RecordObjectiveAchievementCommandHandler
 
     SiadapEvaluation evaluation = evaluationRepository.findById(evalId)
         .orElseThrow(() -> IgrpResponseStatusException.notFound("Avaliação não encontrada"));
+
+    // WR-01: only the avaliador desta avaliação pode registar a execução dos objetivos.
+    String currentEmployeeId = currentEmployeeResolver.resolve().getStringValor();
+    if (!currentEmployeeId.equals(evaluation.getEvaluatorId()))
+      throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN,
+          "Apenas o avaliador desta avaliação pode registar a execução dos objetivos");
 
     SiadapEvaluation updated = evaluation.recordObjectiveAchievement(
         req.getObjectiveCode(),

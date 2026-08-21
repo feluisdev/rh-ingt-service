@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
 import cv.igrp.RH_Service.sigdi.application.constants.CompetencyCategory;
 import cv.igrp.RH_Service.sigdi.application.dto.EvaluateCompetenciesRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapEvaluationDTO;
@@ -12,6 +13,7 @@ import cv.igrp.RH_Service.sigdi.infrastructure.mappers.compliance.SiadapEvaluati
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,7 @@ public class EvaluateCompetenciesCommandHandler
 
   private final SiadapEvaluationRepository evaluationRepository;
   private final SiadapEvaluationMapper mapper;
+  private final CurrentEmployeeResolver currentEmployeeResolver;
 
   @IgrpCommandHandler
   @Transactional
@@ -36,6 +39,12 @@ public class EvaluateCompetenciesCommandHandler
 
     SiadapEvaluation evaluation = evaluationRepository.findById(evalId)
         .orElseThrow(() -> IgrpResponseStatusException.notFound("Avaliação não encontrada"));
+
+    // WR-01: only the avaliador desta avaliação pode avaliar as competências.
+    String currentEmployeeId = currentEmployeeResolver.resolve().getStringValor();
+    if (!currentEmployeeId.equals(evaluation.getEvaluatorId()))
+      throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN,
+          "Apenas o avaliador desta avaliação pode avaliar as competências");
 
     List<CompetencyItem> competencies = req.getCompetencies().stream()
         .map(dto -> {
