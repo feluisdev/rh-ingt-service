@@ -64,3 +64,76 @@ desconhecido. O ponto de partida para a evolução, caso venha a ser necessária
 a assinatura para `isCca(funcionarioId, organicUnitId)` — a interface pública de
 `SiadapCcaSecurityProperties` foi desenhada para admitir essa evolução sem quebrar os
 chamadores atuais.
+
+## Os 14 comandos e a sua posição
+
+O `ComplianceController` expõe 21 operações HTTP em 19 caminhos distintos — 14 comandos e
+7 consultas, nenhuma das 21 com `@PreAuthorize`. A tabela seguinte cobre os 14 comandos;
+as 7 consultas ficam fora do âmbito de `SIA-04` (ver secção seguinte).
+
+| Handler | Disposição | Base da comparação | Endpoint |
+|---|---|---|---|
+| `AcceptObjectiveRevisionCommandHandler` | ENFORCED | `evaluation.employeeId` | `POST siadap/evaluations/{id}/interim-feedback/revisions/{revisionId}/accept` |
+| `AcceptSiadapObjectivesCommandHandler` | ENFORCED | `evaluation.employeeId` | `POST siadap/evaluations/{id}/objectives/accept` |
+| `AssignMeritRatingCommandHandler` | ENFORCED | lista de CCA (`SiadapCcaSecurityProperties`) | `POST siadap/evaluations/{id}/merit-rating` |
+| `CloseEvaluationsCommandHandler` | ENFORCED | lista de CCA (`SiadapCcaSecurityProperties`) | `POST siadap/evaluations/close` |
+| `ContractualizeObjectivesCommandHandler` | ENFORCED | `evaluation.evaluatorId` | `POST siadap/evaluations/{id}/objectives` |
+| `CreateSiadapEvaluationCommandHandler` | **NOT-REQUIRED** | não há agregado prévio contra o qual comparar | `POST siadap/evaluations` |
+| `EvaluateCompetenciesCommandHandler` | ENFORCED | `evaluation.evaluatorId` | `POST siadap/evaluations/{id}/competencies` |
+| `FinalizeEvaluationCommandHandler` | ENFORCED | `evaluation.evaluatorId` | `POST siadap/evaluations/{id}/finalize` |
+| `NegotiateObjectiveRevisionCommandHandler` | ENFORCED | `evaluation.employeeId` | `POST siadap/evaluations/{id}/interim-feedback/revisions/{revisionId}/negotiate` |
+| `NegotiateSiadapObjectivesCommandHandler` | ENFORCED | `evaluation.employeeId` | `POST siadap/evaluations/{id}/objectives/negotiate` |
+| `ProposeObjectiveRevisionCommandHandler` | ENFORCED | `evaluation.evaluatorId` | `POST siadap/evaluations/{id}/interim-feedback/revisions/{revisionId}/propose` |
+| `RecordObjectiveAchievementCommandHandler` | ENFORCED | `evaluation.evaluatorId` | `POST siadap/evaluations/{id}/objectives/achievements` |
+| `SaveSiadapInterimFeedbackCommandHandler` | ENFORCED | `evaluatorId` **ou** `employeeId` — formulário partilhado | `POST siadap/evaluations/{id}/interim-feedback` |
+| `SubmitSelfEvaluationCommandHandler` | ENFORCED | `evaluation.employeeId` | `POST siadap/evaluations/{id}/self-evaluation` |
+
+As razões acima coincidem com os marcadores `ACTOR-CHECK` escritos no próprio código de
+cada handler — se um dia divergirem, é este documento que se corrige, não o código.
+
+## O que fica coberto e o que continua descoberto depois desta fase
+
+**Coberto:** os 14 comandos SIADAP alcançáveis pelo `ComplianceController` têm posição
+declarada — 13 verificam ator, 1 declara por escrito porque não deve verificar. A
+completude desta lista deixou de depender de revisão manual: `SiadapCommandActorCheckCoverageTest`
+falha se algum dos 14 ficar sem marcador, ou se um marcador mentir sobre o que o código faz.
+
+**Descoberto, e é preciso dizê-lo sem eufemismo:**
+
+- O backend continua **sem camada RBAC** (`T-010`, fora de âmbito por decisão do operador).
+- O `ComplianceController` continua com **21 operações HTTP em 19 caminhos distintos —
+  14 comandos e 7 consultas, nenhuma com `@PreAuthorize`**.
+- A pertença ao CCA é **global**: um membro configurado valida quotas e encerra ciclos de
+  **qualquer** unidade orgânica, incluindo aquelas a que não pertence.
+- As **7 consultas** do mesmo controlador estão fora do âmbito de `SIA-04`, que fala em
+  comandos — quem conhecer um `evaluationId` continua a poder **ler** a avaliação alheia.
+
+Nenhuma destas quatro lacunas é regressão desta fase: três são herdadas do estado anterior
+do código-base, e a quarta (pertença global do CCA) é consequência aceite da decisão de
+âmbito já registada na secção anterior.
+
+## Como isto se mantém verdadeiro
+
+`SiadapCommandActorCheckCoverageTest` (JUnit 5 puro, sem Spring, sem base de dados) deriva
+o conjunto de comandos do texto de `ComplianceController.java` — cada `new XxxCommand(`
+encontrado — e verifica, para cada um, que o ficheiro `XxxCommandHandler.java` correspondente
+existe e declara exatamente um marcador `ACTOR-CHECK`. Cruza ainda a disposição declarada
+com o código: um handler `ENFORCED` tem de chamar `currentEmployeeResolver.resolve()` fora
+de comentário; um handler `NOT-REQUIRED` não pode. Uma operação nova no `ComplianceController`
+que despache um comando novo faz a suite falhar até que o handler correspondente declare a
+sua posição — nomeando o ficheiro em falta, não apenas "algo falhou".
+
+Formato do marcador, para quem tiver de escrever o próximo — uma linha, ASCII, imediatamente
+acima da declaração da classe:
+```java
+// ACTOR-CHECK: ENFORCED -- evaluation.employeeId; only the avaliado may submit the self-evaluation
+```
+
+**Os dois pontos cegos do teste, ditos sem linguagem de garantia incondicional:** o teste
+deriva a lista de comandos por `new XxxCommand(` no texto do controlador — um comando
+construído por *builder* ou por *factory* em vez de `new` **não é visto**, e a asserção de
+tamanho 14 é precisamente a rede que apanha essa primeira falha (um comando invisível à
+expressão regular faz a contagem descer abaixo de 14). O segundo ponto cego: um handler
+alcançável por uma via que não este controlador também não é visto. O que este teste
+garante é a **completude da declaração dentro da superfície que deriva** — nunca mais do
+que isso.
