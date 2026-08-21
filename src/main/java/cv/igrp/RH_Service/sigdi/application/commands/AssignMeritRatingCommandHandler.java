@@ -1,6 +1,8 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
+import cv.igrp.RH_Service.sigdi.application.config.SiadapCcaSecurityProperties;
 import cv.igrp.RH_Service.sigdi.application.constants.EvaluationPhase;
 import cv.igrp.RH_Service.sigdi.application.constants.SiadapMeritRating;
 import cv.igrp.RH_Service.sigdi.application.dto.AssignMeritRatingRequestDTO;
@@ -12,6 +14,7 @@ import cv.igrp.RH_Service.sigdi.infrastructure.mappers.compliance.SiadapEvaluati
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +35,8 @@ public class AssignMeritRatingCommandHandler
 
   private final SiadapEvaluationRepository evaluationRepository;
   private final SiadapEvaluationMapper mapper;
+  private final CurrentEmployeeResolver currentEmployeeResolver;
+  private final SiadapCcaSecurityProperties ccaSecurityProperties;
 
   /** Codes accepted in the request body, listed back to the caller on an invalid value. */
   private static final String ALLOWED_RATING_CODES = Arrays.stream(SiadapMeritRating.values())
@@ -55,6 +60,14 @@ public class AssignMeritRatingCommandHandler
 
     SiadapEvaluation evaluation = evaluationRepository.findById(evalId)
         .orElseThrow(() -> IgrpResponseStatusException.notFound("Avaliação não encontrada"));
+
+    // SIA-04: only a CCA (Conselho Coordenador da Avaliação) member may correct a merit
+    // rating. Authorization is checked before any business rule below, matching the
+    // auth-before-business-rule ordering used by sibling handlers.
+    String currentEmployeeId = currentEmployeeResolver.resolve().getStringValor();
+    if (!ccaSecurityProperties.isCca(currentEmployeeId))
+      throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN,
+          "Apenas um membro do Conselho Coordenador da Avaliação (CCA) pode executar esta ação");
 
     // ------------------------------------------------------------------------------------
     // Business rule — which phases may have their merit rating written (ACH-A-04).
