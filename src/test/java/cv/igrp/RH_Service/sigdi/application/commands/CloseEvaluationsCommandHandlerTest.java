@@ -506,4 +506,27 @@ class CloseEvaluationsCommandHandlerTest {
         assertNull(response.getBody().getOrganicUnitId(),
                 "A whitespace-only organicUnitId must not be echoed back as if a specific unit was scoped");
     }
+
+    // ============================================================
+    // SIA-04: CCA membership required before any repository read
+    // ============================================================
+
+    @Test
+    void throwsForbiddenWhenCurrentUserIsNotACcaMember() {
+        // Deliberately does NOT stub evaluationRepository/configRepository: the scenario this
+        // covers mirrors compliantCloseSavesAllAndReturns200 -- a batch that would pass every
+        // quota and phase rule and close with 200 -- so the 403 below cannot be a business-rule
+        // rejection wearing a CCA-shaped mask. Stubbing either repository here would itself
+        // throw UnnecessaryStubbingException under STRICT_STUBS, since a correctly-ordered CCA
+        // check must reject before either repository is ever consulted.
+        when(ccaSecurityProperties.isCca(any())).thenReturn(false);
+
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(commandFor(YEAR, null)));
+
+        assertEquals(403, exception.getBody().getStatus());
+        verify(evaluationRepository, never()).findByYear(any());
+        verify(evaluationRepository, never()).findByYearAndOrganicUnitId(any(), any());
+        verify(evaluationRepository, never()).saveAll(any());
+    }
 }
