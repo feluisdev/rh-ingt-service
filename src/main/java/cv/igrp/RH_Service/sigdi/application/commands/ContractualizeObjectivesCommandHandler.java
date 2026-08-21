@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// ACTOR-CHECK: ENFORCED -- evaluation.evaluatorId; only the avaliador may contractualize objectives
 @Component
 @RequiredArgsConstructor
 public class ContractualizeObjectivesCommandHandler

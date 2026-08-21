@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+// ACTOR-CHECK: ENFORCED -- evaluation.employeeId; only the avaliado may submit the self-evaluation
 @Component
 @RequiredArgsConstructor
 public class SubmitSelfEvaluationCommandHandler

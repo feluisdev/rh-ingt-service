@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
+// ACTOR-CHECK: NOT-REQUIRED -- administrative creation command dispatched before the aggregate exists; there is no employeeId or evaluatorId on file yet to compare the caller against, and no RBAC layer (T-010) exists to restrict it further
 @Component
 @RequiredArgsConstructor
 public class CreateSiadapEvaluationCommandHandler

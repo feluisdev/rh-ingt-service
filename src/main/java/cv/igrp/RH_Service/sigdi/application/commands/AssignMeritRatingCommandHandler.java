@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
  * no caller at all and the only way to fix a wrong mention on a finalized evaluation was a direct
  * UPDATE against the database.
  */
+// ACTOR-CHECK: ENFORCED -- CCA membership list (SiadapCcaSecurityProperties); only a CCA member may correct a merit rating
 @Component
 @RequiredArgsConstructor
 public class AssignMeritRatingCommandHandler

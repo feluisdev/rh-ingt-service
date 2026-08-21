@@ -32,6 +32,7 @@ import java.util.UUID;
  * depois grava ambos os repositórios — uma falha a meio nunca deixa um agregado mutado e o
  * outro por mutar.
  */
+// ACTOR-CHECK: ENFORCED -- evaluation.employeeId; only the avaliado may accept an objective revision
 @Component
 @RequiredArgsConstructor
 public class AcceptObjectiveRevisionCommandHandler

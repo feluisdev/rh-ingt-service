@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+// ACTOR-CHECK: ENFORCED -- evaluation.evaluatorId; only the avaliador may record an objective achievement
 @Component
 @RequiredArgsConstructor
 public class RecordObjectiveAchievementCommandHandler

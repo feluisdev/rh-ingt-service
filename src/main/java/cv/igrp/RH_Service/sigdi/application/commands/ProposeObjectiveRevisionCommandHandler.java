@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+// ACTOR-CHECK: ENFORCED -- evaluation.evaluatorId; only the avaliador may propose an objective revision
 @Component
 @RequiredArgsConstructor
 public class ProposeObjectiveRevisionCommandHandler

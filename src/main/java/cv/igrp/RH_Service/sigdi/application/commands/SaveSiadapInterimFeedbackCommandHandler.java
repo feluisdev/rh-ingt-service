@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+// ACTOR-CHECK: ENFORCED -- evaluatorId OR employeeId; shared form, either side of the evaluation may save the interim feedback
 @Component
 @RequiredArgsConstructor
 public class SaveSiadapInterimFeedbackCommandHandler

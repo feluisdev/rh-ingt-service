@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+// ACTOR-CHECK: ENFORCED -- CCA membership list (SiadapCcaSecurityProperties); only a CCA member may close evaluations in batch
 @Component
 public class CloseEvaluationsCommandHandler
     implements CommandHandler<CloseEvaluationsCommand, ResponseEntity<CloseEvaluationsResponseDTO>> {
