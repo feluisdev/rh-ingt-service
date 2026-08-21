@@ -9,7 +9,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
 import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
 import cv.igrp.RH_Service.sigdi.application.constants.EvaluationPhase;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
@@ -52,6 +54,9 @@ class ContractualizeObjectivesCommandHandlerTest {
     @Mock
     private PaaSubmissionPeriodRepository periodRepository;
 
+    @Mock
+    private CurrentEmployeeResolver currentEmployeeResolver;
+
     @InjectMocks
     private ContractualizeObjectivesCommandHandler handler;
 
@@ -85,6 +90,8 @@ class ContractualizeObjectivesCommandHandlerTest {
 
         when(evaluationRepository.findById(any(SiadapEvaluationId.class)))
                 .thenReturn(Optional.of(evaluation));
+        when(currentEmployeeResolver.resolve())
+                .thenReturn(FuncionarioId.from(evaluation.getEvaluatorId()));
         when(periodRepository.findActiveByTypeAndYearAndPurpose(
                 PaaLevel.INDIVIDUAL_LEVEL, YEAR, Purpose.SIADAP))
                 .thenReturn(Optional.empty());
@@ -111,6 +118,8 @@ class ContractualizeObjectivesCommandHandlerTest {
 
         when(evaluationRepository.findById(any(SiadapEvaluationId.class)))
                 .thenReturn(Optional.of(evaluation));
+        when(currentEmployeeResolver.resolve())
+                .thenReturn(FuncionarioId.from(evaluation.getEvaluatorId()));
         when(periodRepository.findActiveByTypeAndYearAndPurpose(
                 PaaLevel.INDIVIDUAL_LEVEL, YEAR, Purpose.SIADAP))
                 .thenReturn(Optional.of(activePeriod));
