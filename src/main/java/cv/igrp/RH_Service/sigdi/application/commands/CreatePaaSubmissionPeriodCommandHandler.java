@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
+import cv.igrp.RH_Service.shared.config.AppTimeZone;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
@@ -13,12 +14,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class CreatePaaSubmissionPeriodCommandHandler implements CommandHandler<CreatePaaSubmissionPeriodCommand, ResponseEntity<PaaSubmissionPeriodResponseDTO>> {
@@ -59,29 +63,42 @@ public class CreatePaaSubmissionPeriodCommandHandler implements CommandHandler<C
         // Rule 3: Cross-type overlap — sequence-based nearest-neighbor comparison (SOBREP-01/02/03)
         List<PaaSubmissionPeriod> yearPeriods = repository.findAllByYear(dto.getYear());
 
-        // Reduce to the most-recent period per sequence position (handles reopening).
+        // Reduce to the most-recent period per (sequence position, level) pair, handling
+        // reopening. A single purpose position can have two periods live in the same year,
+        // distinguished only by type (UNIT_LEVEL vs INDIVIDUAL_LEVEL — see Rule 2); deduping
+        // by position alone would silently drop whichever sibling wasn't created last, hiding
+        // a real overlap (WR-02) since Rule 2 only requires the Unit period's status to be
+        // CLOSED, not that its date range has actually elapsed.
         // yearPeriods already arrives ordered createdDate DESC (see the JPQL below), so
-        // putIfAbsent keeps the newest — the same "most recent wins" convention used by
-        // findActiveByTypeAndPurpose/findActiveByTypeAndYearAndPurpose/findByTypeAndYearAndStatusAndPurpose
-        // in PaaSubmissionPeriodRepositoryImpl, just keyed by position instead of taking a single result.
-        Map<Integer, PaaSubmissionPeriod> latestByPosition = new LinkedHashMap<>();
+        // putIfAbsent keeps the newest per pair — the same "most recent wins" convention used
+        // by findActiveByTypeAndPurpose/findActiveByTypeAndYearAndPurpose/findByTypeAndYearAndStatusAndPurpose
+        // in PaaSubmissionPeriodRepositoryImpl.
+        Map<String, PaaSubmissionPeriod> latestByPositionAndType = new LinkedHashMap<>();
         for (PaaSubmissionPeriod p : yearPeriods) {
-            latestByPosition.putIfAbsent(p.getPurpose().getPosition(), p);
+            String key = p.getPurpose().getPosition() + ":" + p.getType().getCode();
+            latestByPositionAndType.putIfAbsent(key, p);
         }
+        Map<Integer, List<PaaSubmissionPeriod>> candidatesByPosition = latestByPositionAndType.values().stream()
+                .collect(Collectors.groupingBy(p -> p.getPurpose().getPosition()));
 
         int newPosition = purpose.getPosition();
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-        PaaSubmissionPeriod nearestBefore = latestByPosition.entrySet().stream()
-                .filter(e -> e.getKey() < newPosition)
-                .max(Map.Entry.comparingByKey())
-                .map(Map.Entry::getValue)
+        // A position can now carry two candidates (Unit + Individual); compare against the
+        // most restrictive one — the latest end date approaching from the left, the earliest
+        // start date approaching from the right — rather than an arbitrary single survivor.
+        PaaSubmissionPeriod nearestBefore = candidatesByPosition.keySet().stream()
+                .filter(pos -> pos < newPosition)
+                .max(Integer::compareTo)
+                .flatMap(pos -> candidatesByPosition.get(pos).stream()
+                        .max(Comparator.comparing(PaaSubmissionPeriod::getEndDate)))
                 .orElse(null);
 
-        PaaSubmissionPeriod nearestAfter = latestByPosition.entrySet().stream()
-                .filter(e -> e.getKey() > newPosition)
-                .min(Map.Entry.comparingByKey())
-                .map(Map.Entry::getValue)
+        PaaSubmissionPeriod nearestAfter = candidatesByPosition.keySet().stream()
+                .filter(pos -> pos > newPosition)
+                .min(Integer::compareTo)
+                .flatMap(pos -> candidatesByPosition.get(pos).stream()
+                        .min(Comparator.comparing(PaaSubmissionPeriod::getStartDate)))
                 .orElse(null);
 
         if (nearestBefore != null && !dto.getStartDate().isAfter(nearestBefore.getEndDate())) {
@@ -117,8 +134,15 @@ public class CreatePaaSubmissionPeriodCommandHandler implements CommandHandler<C
         response.setPurpose(saved.getPurpose().getCode());
         response.setPurposeDesc(saved.getPurpose().getDescription());
 
-        long days = ChronoUnit.DAYS.between(java.time.LocalDate.now(), saved.getEndDate());
-        response.setDaysRemaining(Math.max(0, days));
+        long days = ChronoUnit.DAYS.between(LocalDate.now(AppTimeZone.CABO_VERDE), saved.getEndDate());
+        // NAV-03 (ACH-M-03): this used to be Math.max(0, days), which reported an expired
+        // period as having exactly zero days left -- indistinguishable from one ending today.
+        // The dashboard read that 0 and rendered "Hoje" in red for a deadline that had passed
+        // three weeks earlier, and the frontend had no way to tell the two apart because the
+        // information had already been destroyed here. A negative value is the honest answer
+        // and is what deriveDeadlineNotifications' own `daysRemaining < 0` branch was written
+        // to consume -- that branch had never once been reached.
+        response.setDaysRemaining(days);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

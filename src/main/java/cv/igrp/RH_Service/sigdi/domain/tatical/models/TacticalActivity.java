@@ -16,6 +16,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Getter
@@ -258,16 +259,36 @@ public class TacticalActivity {
         this.dateRange, this.budget, this.status, this.version, updatedList, this.paaLevel, this.acceptanceStatus);
   }
 
-  public TacticalActivity update(StrategicGoalId strategicGoalId, UUID organicUnitId, String title, 
-      String descriptionWhat, String justificationWhy, String locationWhere, UUID responsibleWho, 
+  public TacticalActivity update(StrategicGoalId strategicGoalId, UUID organicUnitId, String title,
+      String descriptionWhat, String justificationWhy, String locationWhere, UUID responsibleWho,
       String methodologyHow, DateRange dateRange, Budget budget) {
-    
+
+    // SECURITY: guard resists a direct call to the API, not just a restriction hidden in the
+    // UI (T-005/PAA-02). Literal interpretation of the requirement: only blocks an actual
+    // budget CHANGE on an APPROVED activity, not every edit -- omitting the budget fields
+    // (budget == null) means "leave the budget alone", not "erase it", otherwise correcting an
+    // unrelated field (e.g. title) on an approved activity would be rejected too. Comparison
+    // delegates to Budget.equals() because of BigDecimal scale semantics (10.0 vs 10.00 must
+    // compare equal).
+    if (TacticalActivityStatus.APPROVED.equals(this.status) && budget != null
+        && !Objects.equals(this.budget, budget)) {
+      throw IgrpResponseStatusException.badRequest(
+          "Alteração de orçamento não permitida em atividade Aprovada. Utilize um Change Request.");
+    }
+
+    // Omitting the budget on an APPROVED activity means "don't touch it" -- keep the current
+    // budget instead of nulling it out, so the guard's literal interpretation above actually
+    // holds for the persisted state, not only for the exception check.
+    Budget effectiveBudget = (budget == null && TacticalActivityStatus.APPROVED.equals(this.status))
+        ? this.budget
+        : budget;
+
     // Always reverts to DRAFT after update as per requirements
-    TacticalActivityStatus nextStatus = (budget != null) ? TacticalActivityStatus.DRAFT : TacticalActivityStatus.PENDING_BUDGET;
+    TacticalActivityStatus nextStatus = (effectiveBudget != null) ? TacticalActivityStatus.DRAFT : TacticalActivityStatus.PENDING_BUDGET;
 
     return new TacticalActivity(this.id, this.institutionId, strategicGoalId,
         organicUnitId, title, descriptionWhat, justificationWhy, locationWhere,
-        responsibleWho, methodologyHow, dateRange, budget,
+        responsibleWho, methodologyHow, dateRange, effectiveBudget,
         nextStatus, this.version, this.keyResults, this.paaLevel, this.acceptanceStatus);
   }
 }

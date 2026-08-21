@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.sigdi.application.queries;
 
+import cv.igrp.RH_Service.shared.config.AppTimeZone;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.dto.PaaSubmissionPeriodResponseDTO;
@@ -55,8 +56,15 @@ public class GetAllSubmissionPeriodsQueryHandler implements QueryHandler<GetAllS
             dto.setPurpose(p.getPurpose().getCode());
             dto.setPurposeDesc(p.getPurpose().getDescription());
 
-            long days = ChronoUnit.DAYS.between(LocalDate.now(), p.getEndDate());
-            dto.setDaysRemaining(Math.max(0, days));
+            long days = ChronoUnit.DAYS.between(LocalDate.now(AppTimeZone.CABO_VERDE), p.getEndDate());
+            // NAV-03 (ACH-M-03): this used to be Math.max(0, days), which reported an expired
+            // period as having exactly zero days left -- indistinguishable from one ending today.
+            // The dashboard read that 0 and rendered "Hoje" in red for a deadline that had passed
+            // three weeks earlier, and the frontend had no way to tell the two apart because the
+            // information had already been destroyed here. A negative value is the honest answer
+            // and is what deriveDeadlineNotifications' own `daysRemaining < 0` branch was written
+            // to consume -- that branch had never once been reached.
+            dto.setDaysRemaining(days);
             return dto;
         }).toList();
 

@@ -11,6 +11,7 @@
     { "name": "scope",            "objectType": "java", "type": "string",  "required": true,  "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
     { "name": "fiscalYear",       "objectType": "java", "type": "integer", "required": true,  "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
     { "name": "priorityCriteria", "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
-    { "name": "excludeObligatory","objectType": "java", "type": "boolean", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false }
+    { "name": "excludeObligatory","objectType": "java", "type": "boolean", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "targetId",         "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false }
   ]
 }

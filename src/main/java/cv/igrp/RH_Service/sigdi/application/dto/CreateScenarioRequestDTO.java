@@ -41,4 +41,7 @@ public class CreateScenarioRequestDTO  {
 
   private Boolean excludeObligatory ;
 
+
+  private String targetId ;
+
 }

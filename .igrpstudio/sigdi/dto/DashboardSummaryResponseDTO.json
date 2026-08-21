@@ -1,0 +1,12 @@
+{
+  "type": "dto",
+  "module": "sigdi",
+  "name": "DashboardSummaryResponse",
+  "template": "classic",
+  "attributes": [
+    { "name": "executionRate", "type": "decimal", "objectType": "java", "required": false },
+    { "name": "availableBudget", "type": "decimal", "objectType": "java", "required": false },
+    { "name": "okrsAtRisk", "type": "integer", "objectType": "java", "required": false },
+    { "name": "pendingApprovals", "type": "long", "objectType": "java", "required": false }
+  ]
+}

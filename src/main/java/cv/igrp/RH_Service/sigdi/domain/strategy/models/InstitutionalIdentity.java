@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentit
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalValues;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,10 +22,11 @@ public class InstitutionalIdentity {
   private final String versionComment;
   private final boolean isActive;
   private final List<StrategicGoal> goals;
+  private final LocalDateTime createdAt;
 
   private InstitutionalIdentity(InstitutionalIdentityId id, UUID institutionId, Integer cycleYear,
       String mission, String vision, InstitutionalValues values, String versionComment,
-      boolean isActive, List<StrategicGoal> goals) {
+      boolean isActive, List<StrategicGoal> goals, LocalDateTime createdAt) {
     if (cycleYear == null)
       throw new IllegalArgumentException("cycleYear é obrigatório");
     if (mission == null || mission.trim().isEmpty())
@@ -43,19 +45,20 @@ public class InstitutionalIdentity {
     this.versionComment = versionComment;
     this.isActive = isActive;
     this.goals = (goals != null) ? new ArrayList<>(goals) : new ArrayList<>();
+    this.createdAt = createdAt;
   }
 
   public static InstitutionalIdentity create(UUID institutionId, Integer cycleYear, String mission,
       String vision, InstitutionalValues values, String versionComment) {
     return new InstitutionalIdentity(InstitutionalIdentityId.gerarNovo(), institutionId, cycleYear,
-        mission, vision, values, versionComment, true, new ArrayList<>());
+        mission, vision, values, versionComment, true, new ArrayList<>(), null);
   }
 
   public static InstitutionalIdentity reconstruct(InstitutionalIdentityId id, UUID institutionId,
       Integer cycleYear, String mission, String vision, InstitutionalValues values,
-      String versionComment, boolean isActive, List<StrategicGoal> goals) {
+      String versionComment, boolean isActive, List<StrategicGoal> goals, LocalDateTime createdAt) {
     return new InstitutionalIdentity(id, institutionId, cycleYear, mission, vision, values,
-        versionComment, isActive, goals);
+        versionComment, isActive, goals, createdAt);
   }
 
   public List<StrategicGoal> getGoals() {
@@ -64,11 +67,11 @@ public class InstitutionalIdentity {
 
   public InstitutionalIdentity activate() {
     return new InstitutionalIdentity(this.id, this.institutionId, this.cycleYear, this.mission,
-        this.vision, this.values, this.versionComment, true, this.goals);
+        this.vision, this.values, this.versionComment, true, this.goals, this.createdAt);
   }
 
   public InstitutionalIdentity deactivate() {
     return new InstitutionalIdentity(this.id, this.institutionId, this.cycleYear, this.mission,
-        this.vision, this.values, this.versionComment, false, this.goals);
+        this.vision, this.values, this.versionComment, false, this.goals, this.createdAt);
   }
 }

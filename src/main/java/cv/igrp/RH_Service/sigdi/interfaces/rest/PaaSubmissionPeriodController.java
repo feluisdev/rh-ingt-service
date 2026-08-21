@@ -43,11 +43,12 @@ public class PaaSubmissionPeriodController {
   }
 
   // SECURITY: role check added because this endpoint had none — any authenticated user
-  // could open/close submission periods for all purposes. "RH" is our best-effort guess at
-  // the Keycloak/IAM realm role name; no other endpoint in this codebase does role-based
-  // authorization, so there was no existing convention to confirm this against. Verify the
-  // exact role/authority string against the real IAM realm config before this reaches production.
-  @PreAuthorize("hasRole('RH')")
+  // could open/close submission periods for all purposes. The role name comes from
+  // PaaSecurityProperties (sigdi.paa.submission-period-role, default "RH") instead of a
+  // literal here; no other endpoint in this codebase does role-based authorization, so
+  // there was no existing convention to confirm this against. Verify the exact role/
+  // authority string against the real IAM realm config before this reaches production.
+  @PreAuthorize("hasRole(@paaSecurityProperties.submissionPeriodRole)")
   @PostMapping(value = "periods")
   @Operation(
       summary = "Create PAA Submission Period",
@@ -59,8 +60,9 @@ public class PaaSubmissionPeriodController {
       return commandBus.send(command);
   }
 
-  // SECURITY: see note on createPaaSubmissionPeriod above — same unverified role guess.
-  @PreAuthorize("hasRole('RH')")
+  // SECURITY: see note on createPaaSubmissionPeriod above — same unverified role guess,
+  // now sourced from PaaSecurityProperties instead of a literal.
+  @PreAuthorize("hasRole(@paaSecurityProperties.submissionPeriodRole)")
   @PutMapping(value = "periods/{id}/close")
   @Operation(
       summary = "Close PAA Submission Period",

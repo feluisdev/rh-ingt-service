@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.tatical;
 
+import cv.igrp.RH_Service.shared.config.AppTimeZone;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.PaaSubmissionPeriod;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -69,7 +71,8 @@ public class PaaSubmissionPeriodRepositoryImpl implements PaaSubmissionPeriodRep
         // Defensive: (type, purpose) is not enforced unique across overlapping date ranges
         // (see 59-REVIEW.md CR-02) — take the most recently created match instead of assuming
         // a single result, to avoid IncorrectResultSizeDataAccessException.
-        return jpaRepository.findAllActiveByTypeAndPurpose(type.getCode(), purpose.getCode())
+        LocalDate today = LocalDate.now(AppTimeZone.CABO_VERDE);
+        return jpaRepository.findAllActiveByTypeAndPurpose(type.getCode(), purpose.getCode(), today)
                 .stream()
                 .findFirst()
                 .map(mapper::toDomain);
@@ -79,7 +82,8 @@ public class PaaSubmissionPeriodRepositoryImpl implements PaaSubmissionPeriodRep
     @Override
     public Optional<PaaSubmissionPeriod> findActiveByTypeAndYearAndPurpose(PaaLevel type, Integer year, Purpose purpose) {
         // Defensive — see comment on findActiveByTypeAndPurpose above.
-        return jpaRepository.findAllActiveByTypeAndYearAndPurpose(type.getCode(), year, purpose.getCode())
+        LocalDate today = LocalDate.now(AppTimeZone.CABO_VERDE);
+        return jpaRepository.findAllActiveByTypeAndYearAndPurpose(type.getCode(), year, purpose.getCode(), today)
                 .stream()
                 .findFirst()
                 .map(mapper::toDomain);
