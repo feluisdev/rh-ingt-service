@@ -143,4 +143,28 @@ class ContractualizeObjectivesCommandHandlerTest {
         assertEquals(AcceptanceStatus.PENDING_ACCEPTANCE, saved.getAcceptanceStatus());
         assertEquals(EvaluationPhase.OPEN, saved.getPhase());
     }
+
+    // WR-01: only the avaliador desta avaliação pode contratualizar os objetivos.
+    @Test
+    void throwsForbiddenWhenCurrentUserIsNotTheEvaluator() {
+        SiadapEvaluationId evalId = SiadapEvaluationId.gerarNovo();
+        SiadapEvaluation evaluation = buildEvaluation(evalId);
+
+        when(evaluationRepository.findById(any(SiadapEvaluationId.class)))
+                .thenReturn(Optional.of(evaluation));
+        when(currentEmployeeResolver.resolve())
+                .thenReturn(FuncionarioId.gerarNovo());
+
+        ContractualizeObjectivesCommand command = buildCommand(evalId.getStringValor());
+
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(command));
+
+        assertEquals(403, exception.getBody().getStatus());
+
+        verify(evaluationRepository, never()).save(any());
+        // T-101-03: a ordem ator-antes-de-prazo tem de ser assertada por comportamento —
+        // um chamador não autorizado nunca deve chegar a consultar o prazo configurado.
+        verify(periodRepository, never()).findActiveByTypeAndYearAndPurpose(any(), any(), any());
+    }
 }
