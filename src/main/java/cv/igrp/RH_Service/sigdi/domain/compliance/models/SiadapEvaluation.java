@@ -327,6 +327,33 @@ public class SiadapEvaluation {
     }
 
     /**
+     * SIA-03: avança a autoavaliação de {@code SELF_EVALUATION} para {@code MANAGER_EVALUATION}
+     * sem nota, quando a janela de submissão fechou e o avaliado não submeteu (aceitação tácita).
+     * <p>
+     * Ao contrário de {@code TacticalActivity.applyTacitAcceptance()} do PAA, este método
+     * transita a fase: no PAA a aceitação tácita muda o estado de uma proposta já existente
+     * (avaliador propôs, avaliado não respondeu); aqui é a ausência de ação do avaliado, dentro
+     * de uma janela temporal, que substitui a submissão em si — não há proposta a aceitar, há
+     * uma fase a avançar. {@code selfEvaluationScore} mantém-se {@code null} e
+     * {@code selfEvaluationTacitlyAccepted} passa a {@code true}, para que o caminho tácito
+     * continue distinguível do caminho normal ({@link #submitSelfEvaluation}) em todas as fases
+     * seguintes do ciclo.
+     */
+    public SiadapEvaluation applyTacitSelfEvaluationAcceptance() {
+        if (!EvaluationPhase.SELF_EVALUATION.equals(this.phase))
+            throw IgrpResponseStatusException.badRequest(
+                    "Aceitação tácita da autoavaliação só é possível na fase SELF_EVALUATION");
+
+        return new SiadapEvaluation(this.id, this.employeeId, this.year,
+                this.organicUnitId, this.evaluatorId,
+                this.objectives, this.competencies,
+                this.resultsWeight, this.competenciesWeight,
+                this.selfEvaluationScore, this.finalScore, this.meritRating, false,
+                EvaluationPhase.MANAGER_EVALUATION, this.acceptanceStatus, this.lastNegotiationComment,
+                true);
+    }
+
+    /**
      * Avança para a fase de autoavaliação (iniciada pelo avaliador/RH).
      */
     public SiadapEvaluation openSelfEvaluationPhase() {
