@@ -90,6 +90,7 @@ public class ListSiadapEvaluationsQueryHandler
     dto.setOrganicUnitId(e.getOrganicUnitId());
     dto.setEvaluatorId(e.getEvaluatorId());
     dto.setPhase(e.getEvaluationPhase());
+    dto.setSelfEvaluationTacitlyAccepted(e.isSelfEvaluationTacitlyAccepted());
     dto.setSelfEvaluationScore(e.getSelfEvaluationScore());
     dto.setResultsWeight(e.getResultsWeight());
     dto.setCompetenciesWeight(e.getCompetenciesWeight());

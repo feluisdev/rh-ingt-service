@@ -82,7 +82,7 @@ class FinalizeEvaluationCommandHandlerTest {
                 List.of(competency),
                 new BigDecimal("60"), new BigDecimal("40"),
                 null, null, null, false,
-                EvaluationPhase.MANAGER_EVALUATION, AcceptanceStatus.ACCEPTED, null);
+                EvaluationPhase.MANAGER_EVALUATION, AcceptanceStatus.ACCEPTED, null, false);
     }
 
     @Test

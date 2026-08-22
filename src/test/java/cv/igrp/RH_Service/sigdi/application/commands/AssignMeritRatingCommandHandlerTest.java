@@ -91,7 +91,7 @@ class AssignMeritRatingCommandHandlerTest {
                 new BigDecimal("60"), new BigDecimal("40"),
                 null, new BigDecimal("3.00"), currentRating,
                 EvaluationPhase.CLOSED.equals(phase),
-                phase, AcceptanceStatus.ACCEPTED, null);
+                phase, AcceptanceStatus.ACCEPTED, null, false);
     }
 
     private AssignMeritRatingCommand commandFor(SiadapEvaluation evaluation, String rating) {

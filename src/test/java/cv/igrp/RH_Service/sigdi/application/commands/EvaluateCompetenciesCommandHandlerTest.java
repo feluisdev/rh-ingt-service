@@ -75,7 +75,7 @@ class EvaluateCompetenciesCommandHandlerTest {
                 List.of(),
                 new BigDecimal("60"), new BigDecimal("40"),
                 null, null, null, false,
-                EvaluationPhase.MANAGER_EVALUATION, AcceptanceStatus.ACCEPTED, null);
+                EvaluationPhase.MANAGER_EVALUATION, AcceptanceStatus.ACCEPTED, null, false);
     }
 
     private EvaluateCompetenciesCommand buildCommand(String evaluationId) {

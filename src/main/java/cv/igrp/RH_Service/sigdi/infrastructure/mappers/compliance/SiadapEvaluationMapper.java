@@ -63,7 +63,8 @@ public class SiadapEvaluationMapper {
         entity.isValidatedQuota(),
         phase,
         acceptanceStatus,
-        entity.getLastNegotiationComment()
+        entity.getLastNegotiationComment(),
+        entity.isSelfEvaluationTacitlyAccepted()
     );
   }
 
@@ -84,6 +85,7 @@ public class SiadapEvaluationMapper {
     entity.setEvaluationPhase(domain.getPhase() != null ? domain.getPhase().getCode() : null);
     entity.setAcceptanceStatus(domain.getAcceptanceStatus() != null ? domain.getAcceptanceStatus().getCode() : null);
     entity.setLastNegotiationComment(domain.getLastNegotiationComment());
+    entity.setSelfEvaluationTacitlyAccepted(domain.isSelfEvaluationTacitlyAccepted());
     entity.setSelfEvaluationScore(domain.getSelfEvaluationScore());
     entity.setFinalScore(domain.getFinalScore());
     entity.setResultsWeight(domain.getResultsWeight());
@@ -119,6 +121,7 @@ public class SiadapEvaluationMapper {
     dto.setAcceptanceStatusDesc(AcceptanceStatus.fromCode(e.getAcceptanceStatus())
         .map(AcceptanceStatus::getDescription).orElse(null));
     dto.setLastNegotiationComment(e.getLastNegotiationComment());
+    dto.setSelfEvaluationTacitlyAccepted(e.isSelfEvaluationTacitlyAccepted());
     dto.setSelfEvaluationScore(e.getSelfEvaluationScore());
     dto.setResultsWeight(e.getResultsWeight());
     dto.setCompetenciesWeight(e.getCompetenciesWeight());
