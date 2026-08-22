@@ -39,6 +39,8 @@ public class SiadapEvaluationDTO  {
   // WR-02: last negotiation comment/justification submitted by the avaliado, so the avaliador
   // can see why negotiation was requested. Single last-comment field — no history (out of scope).
   private String lastNegotiationComment;
+  // SIA-03: distingue "autoavaliou-se" de "foi aceite tacitamente" -- consumido pela Fase 104.
+  private Boolean selfEvaluationTacitlyAccepted;
   private BigDecimal selfEvaluationScore;
   private BigDecimal resultsWeight;
   private BigDecimal competenciesWeight;
