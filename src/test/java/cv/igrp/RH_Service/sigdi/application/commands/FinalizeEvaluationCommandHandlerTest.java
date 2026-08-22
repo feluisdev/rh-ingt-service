@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -104,6 +105,26 @@ class FinalizeEvaluationCommandHandlerTest {
 
         assertEquals(200, response.getStatusCode().value());
         verify(evaluationRepository, times(1)).save(any(SiadapEvaluation.class));
+    }
+
+    @Test
+    void throwsBadRequestWhenNoActiveFinalPeriodExists() {
+        SiadapEvaluation evaluation = buildFinalizableEvaluation();
+
+        when(evaluationRepository.findById(any())).thenReturn(Optional.of(evaluation));
+        when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.from(evaluation.getEvaluatorId()));
+        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.INDIVIDUAL_LEVEL, YEAR, Purpose.SIADAP_FINAL))
+                .thenReturn(Optional.empty());
+
+        FinalizeEvaluationRequestDTO body = new FinalizeEvaluationRequestDTO(evaluation.getId().getStringValor());
+        FinalizeEvaluationCommand command = new FinalizeEvaluationCommand(body);
+
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(command));
+
+        assertEquals(400, exception.getBody().getStatus());
+        assertTrue(exception.getBody().getTitle().contains("Prazo não configurado"));
+        verify(evaluationRepository, never()).save(any());
     }
 
     @Test
