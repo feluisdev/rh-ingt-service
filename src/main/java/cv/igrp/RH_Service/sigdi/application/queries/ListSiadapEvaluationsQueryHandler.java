@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.sigdi.application.queries;
 
+import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
 import cv.igrp.RH_Service.sigdi.application.constants.EvaluationPhase;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.SiadapEvaluationEntity;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.SiadapEvaluationEntityRepository;
@@ -94,6 +95,12 @@ public class ListSiadapEvaluationsQueryHandler
     dto.setSelfEvaluationScore(e.getSelfEvaluationScore());
     dto.setResultsWeight(e.getResultsWeight());
     dto.setCompetenciesWeight(e.getCompetenciesWeight());
+    // Critério 6, Fase 104: feeds deriveObjectiveNotifications on the frontend; removing any of
+    // these three fields is caught by ListSiadapEvaluationsQueryHandlerTest.
+    dto.setAcceptanceStatus(e.getAcceptanceStatus());
+    dto.setAcceptanceStatusDesc(AcceptanceStatus.fromCode(e.getAcceptanceStatus())
+        .map(AcceptanceStatus::getDescription).orElse(null));
+    dto.setLastNegotiationComment(e.getLastNegotiationComment());
 
     // Lookup employee name
     try {
