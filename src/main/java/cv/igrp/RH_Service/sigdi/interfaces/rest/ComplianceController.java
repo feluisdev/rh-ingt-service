@@ -9,6 +9,11 @@
  * SiadapEvaluation.assignMeritRating(). Regenerating this file via IGRP Studio would drop the
  * endpoint and leave merit-rating corrections back where they were: direct SQL against the
  * database.
+ *
+ * MANUALLY EDITED - Phase 104 (SIA-05, decision D-01): added
+ * GET siadap/me/cca-status, the only read point for CCA (Conselho Coordenador da Avaliacao)
+ * membership. Regenerating this file via IGRP Studio would drop the endpoint and leave the
+ * frontend with no way to decide who the CCA screen should be shown to.
  */
 
 package cv.igrp.RH_Service.sigdi.interfaces.rest;
@@ -32,6 +37,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.CloseEvaluationsRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.CloseEvaluationsResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.QUARPreviewResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.QuotaValidationResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.SiadapCcaStatusDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperSiadapEvaluationListDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapEvaluationDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateSiadapEvaluationRequestDTO;
@@ -151,6 +157,26 @@ public class ComplianceController {
     @RequestParam(value = "year") Integer year)
   {
     final var query = new GetQuotaValidationQuery(year);
+    return queryBus.handle(query);
+  }
+
+  @GetMapping(value = "siadap/me/cca-status")
+  @Operation(
+    summary = "Get current user's CCA membership status",
+    description = "Indica se o utilizador atual pertence ao Conselho Coordenador da Avaliação (CCA).",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SiadapCcaStatusDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<SiadapCcaStatusDTO> ccaStatus()
+  {
+    final var query = new GetSiadapCcaStatusQuery();
     return queryBus.handle(query);
   }
 
