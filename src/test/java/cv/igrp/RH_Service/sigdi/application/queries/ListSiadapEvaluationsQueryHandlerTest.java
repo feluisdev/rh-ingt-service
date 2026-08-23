@@ -248,4 +248,65 @@ class ListSiadapEvaluationsQueryHandlerTest {
     assertEquals(2, response.getBody().getTotalPages());
     verify(repository, never()).findByYear(anyString(), any(Pageable.class));
   }
+
+  // Critério 6 da Fase 104 -- sem estes três campos na listagem, deriveObjectiveNotifications no
+  // frontend nunca anuncia uma proposta de objetivos por responder ao avaliado, porque decide por
+  // acceptanceStatus, e esse campo nunca chegava pelo toDto privado desta query (só o
+  // SiadapEvaluationMapper do detalhe o escrevia). Guarda de regressão do critério 6.
+  @Test
+  void listingDtoCarriesAcceptanceStatusDescriptionAndNegotiationComment() {
+    UUID employeeId = UUID.randomUUID();
+
+    SiadapEvaluationEntity entity = new SiadapEvaluationEntity();
+    entity.setId(UUID.randomUUID());
+    entity.setEmployeeId(employeeId.toString());
+    entity.setYear("2026");
+    entity.setEvaluationPhase("HARMONIZATION");
+    entity.setValidatedQuota(false);
+    entity.setAcceptanceStatus("NEGOTIATING");
+    entity.setLastNegotiationComment("Peço menos peso nos resultados");
+
+    when(repository.findAll(any(Specification.class), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(List.of(entity), PageRequest.of(0, 20), 1));
+    when(funcionarioLookupPort.findById(employeeId)).thenReturn(Optional.empty());
+
+    ListSiadapEvaluationsQuery q = new ListSiadapEvaluationsQuery(2026, null, null, "0", "20");
+
+    ResponseEntity<WrapperSiadapEvaluationListDTO> response = handler.handle(q);
+
+    SiadapEvaluationDTO dto = response.getBody().getData().get(0);
+    assertEquals("NEGOTIATING", dto.getAcceptanceStatus());
+    assertEquals("Em Negociação", dto.getAcceptanceStatusDesc());
+    assertEquals("Peço menos peso nos resultados", dto.getLastNegotiationComment());
+  }
+
+  // Critério 6, caminho nulo -- estado da maioria das linhas em base: sem negociação nunca
+  // iniciada, os três campos devem ficar a null, e fromCode (não fromCodeOrThrow) garante que a
+  // listagem inteira não rebenta por um código de aceitação ausente.
+  @Test
+  void listingDtoLeavesAcceptanceFieldsNullWhenEntityHasNone() {
+    UUID employeeId = UUID.randomUUID();
+
+    SiadapEvaluationEntity entity = new SiadapEvaluationEntity();
+    entity.setId(UUID.randomUUID());
+    entity.setEmployeeId(employeeId.toString());
+    entity.setYear("2026");
+    entity.setEvaluationPhase("HARMONIZATION");
+    entity.setValidatedQuota(false);
+    entity.setAcceptanceStatus(null);
+    entity.setLastNegotiationComment(null);
+
+    when(repository.findAll(any(Specification.class), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(List.of(entity), PageRequest.of(0, 20), 1));
+    when(funcionarioLookupPort.findById(employeeId)).thenReturn(Optional.empty());
+
+    ListSiadapEvaluationsQuery q = new ListSiadapEvaluationsQuery(2026, null, null, "0", "20");
+
+    ResponseEntity<WrapperSiadapEvaluationListDTO> response = handler.handle(q);
+
+    SiadapEvaluationDTO dto = response.getBody().getData().get(0);
+    assertEquals(null, dto.getAcceptanceStatus());
+    assertEquals(null, dto.getAcceptanceStatusDesc());
+    assertEquals(null, dto.getLastNegotiationComment());
+  }
 }
