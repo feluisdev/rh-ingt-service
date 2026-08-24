@@ -84,7 +84,7 @@ public class GlobalExceptionHandler {
     var errors = ex.getBindingResult().getFieldErrors()
         .stream()
         .collect(Collectors.toMap(
-            FieldError::getField, fe -> fe.getDefaultMessage() != null ? fe.getDefaultMessage() : "Invalid value")
+            FieldError::getField, fe -> fe.getDefaultMessage() != null ? fe.getDefaultMessage() : "Valor inválido")
         );
 
     var problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
@@ -123,7 +123,7 @@ public class GlobalExceptionHandler {
           .map(Object::toString)
           .toArray(String[]::new);
 
-      problem.setTitle("Invalid value for enum type: " + targetType.getSimpleName());
+      problem.setTitle("Valor inválido para o tipo: " + targetType.getSimpleName());
       problem.setProperty("CurrentValue", ife.getValue());
       problem.setProperty("AllowedValues", allowedValues);
       return problem;
