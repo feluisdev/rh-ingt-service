@@ -70,7 +70,7 @@ public enum CompetencyCategory implements IgrpEnum<String> {
     public static CompetencyCategory fromCodeOrThrow(String code) {
         return fromCode(code).orElseThrow(() ->
                 IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST,
-                        "Invalid CompetencyCategory for this code: " + code));
+                        "Código inválido para CompetencyCategory: " + code));
     }
 
     public static Map<String, String> codeDescriptionMap() {

@@ -59,7 +59,7 @@ public enum Purpose implements IgrpEnum<String> {
     public static Purpose fromCodeOrThrow(String code) {
         return fromCode(code).orElseThrow(() ->
                 IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST,
-                        "Invalid Purpose for this code: " + code));
+                        "Código inválido para Purpose: " + code));
     }
 
     public static Map<String, String> codeDescriptionMap() {

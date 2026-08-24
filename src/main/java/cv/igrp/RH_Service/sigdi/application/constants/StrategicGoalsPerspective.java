@@ -61,7 +61,7 @@ public enum StrategicGoalsPerspective implements IgrpEnum<String> {
   * @throws IllegalArgumentException if no enum value exists for the given code
   */
   public static StrategicGoalsPerspective fromCodeOrThrow(String code) {
-    return fromCode(code).orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST, "Invalid StrategicGoalsPerspective for this code: " + code));
+    return fromCode(code).orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST, "Código inválido para StrategicGoalsPerspective: " + code));
   }
 
   /**
