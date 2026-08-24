@@ -2,6 +2,7 @@
   "type": "enum",
   "module": "sigdi",
   "name": "NotificationChannel",
+  "readOnly": true,
   "values": [
     {
       "name": "EMAIL",

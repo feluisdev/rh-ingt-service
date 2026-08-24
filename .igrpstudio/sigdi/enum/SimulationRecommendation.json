@@ -2,6 +2,7 @@
     "type": "enum",
     "module": "sigdi",
     "name": "SimulationRecommendation",
+    "readOnly": true,
     "values": [
         {
             "name": "CANCEL",

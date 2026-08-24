@@ -2,6 +2,7 @@
   "type": "enum",
   "module": "shared",
   "name": "GrauParentesco",
+  "readOnly": true,
   "values": [
     {
       "name": "ASC",

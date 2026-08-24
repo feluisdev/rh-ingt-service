@@ -2,6 +2,7 @@
   "type": "enum",
   "module": "sigdi",
   "name": "ChangeRequestStatus",
+  "readOnly": true,
   "values": [
     {
       "name": "PENDING",

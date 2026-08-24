@@ -2,6 +2,7 @@
     "type": "enum",
     "module": "sigdi",
     "name": "SimulationScenarioScope",
+    "readOnly": true,
     "values": [
         {
             "name": "GLOBAL",

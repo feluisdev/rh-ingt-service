@@ -2,6 +2,7 @@
   "type": "enum",
   "module": "sigdi",
   "name": "SimulationScenarioType",
+  "readOnly": true,
   "values": [
     {
       "name": "BUDGET_CUT",

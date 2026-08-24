@@ -2,6 +2,7 @@
   "type": "enum",
   "module": "shared",
   "name": "Estado",
+  "readOnly": true,
   "values": [
     {
       "name": "A",
