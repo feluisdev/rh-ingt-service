@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.sigdi.application.constants.ChangeRequestField;
 import cv.igrp.RH_Service.sigdi.application.dto.ChangeRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.ChangeRequestResponseDTO;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.ChangeRequest;
@@ -48,6 +49,11 @@ public class CreateChangeRequestCommandHandler
     }
 
     ChangeRequestDTO dto = command.getChangerequest();
+
+    // Rejected here, at creation, and not only at approval: a request whose field cannot be
+    // applied is a request that will never be approvable, and the person who wrote the
+    // justification should learn that now rather than after someone approves it.
+    ChangeRequestField.fromCodeOrThrow(dto.getFieldName());
 
     ChangeRequest changeRequest = ChangeRequest.create(
         activity.getInstitutionId(),

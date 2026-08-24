@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.sigdi.domain.tatical.models;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
+import cv.igrp.RH_Service.sigdi.application.constants.ChangeRequestField;
 import cv.igrp.RH_Service.sigdi.application.constants.KeyResultMetricUnit;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.TacticalActivityStatus;
@@ -13,6 +14,8 @@ import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -142,6 +145,14 @@ public class TacticalActivity {
     return changeStatus(TacticalActivityStatus.CANCELLED);
   }
 
+  /**
+   * Bulk variant that replaces budget and date range together. It has no caller: a Change
+   * Request carries a single field, so approving one goes through
+   * {@link #applyApprovedChange(ChangeRequestField, String)}, which shares this method's state
+   * transition (PENDING_TACTICAL) but changes only the field the request names. Wiring this one
+   * to the approval path instead would silently overwrite the fields the request did not
+   * mention.
+   */
   public TacticalActivity requestChange(Budget newBudget, DateRange newDateRange,
       String changeJustification) {
     if (!TacticalActivityStatus.APPROVED.equals(this.status))
@@ -156,6 +167,107 @@ public class TacticalActivity {
         this.responsibleWho, this.methodologyHow, newDateRange,
         newBudget, TacticalActivityStatus.PENDING_TACTICAL,
         this.version + 1, this.keyResults, this.paaLevel, this.acceptanceStatus);
+  }
+
+  /**
+   * Applies one approved Change Request to this activity: changes the single field the request
+   * names, leaves every other field as it is, and sends the activity back through tactical
+   * approval.
+   *
+   * <p>PENDING_TACTICAL, not DRAFT and not APPROVED, is the operator's decision of 2026-08-24:
+   * approving the request authorises the change, it does not waive re-approval of the changed
+   * activity. It is also what the PAA-02 guard's own error message promises -- "Utilize um
+   * Change Request" only means something if that route actually changes the budget, which until
+   * now it did not.
+   *
+   * <p>The method is pure: every reason to refuse is raised here, before the caller writes
+   * anything, so there is no state in which the request reads APPROVED and the activity is
+   * unchanged.
+   *
+   * @param field the field to change, already resolved against the closed list
+   * @param proposedValue the raw string the request carries -- a Change Request stores values as
+   *     plain text, so the conversion to the domain type happens here and its failure is a 400
+   */
+  public TacticalActivity applyApprovedChange(ChangeRequestField field, String proposedValue) {
+    if (field == null)
+      throw new IllegalArgumentException("field é obrigatório");
+    if (!TacticalActivityStatus.APPROVED.equals(this.status))
+      throw IgrpResponseStatusException.badRequest(
+          "Só é possível aplicar um pedido de alteração a uma atividade Aprovada. Estado atual: "
+              + this.status.getCode());
+    if (proposedValue == null || proposedValue.isBlank())
+      throw IgrpResponseStatusException.badRequest(
+          "O pedido de alteração não indica um valor proposto para \"" + field.getDescription() + "\".");
+
+    String value = proposedValue.trim();
+    String newTitle = this.title;
+    DateRange newDateRange = this.dateRange;
+    Budget newBudget = this.budget;
+
+    switch (field) {
+      case TITLE -> newTitle = value;
+      case BUDGET -> newBudget = parseProposedBudget(value);
+      case START_DATE -> newDateRange =
+          buildRange(parseProposedDate(value, field), this.dateRange.getEndDate());
+      case END_DATE -> newDateRange =
+          buildRange(this.dateRange.getStartDate(), parseProposedDate(value, field));
+    }
+
+    return new TacticalActivity(this.id, this.institutionId, this.strategicGoalId,
+        this.organicUnitId, newTitle,
+        this.descriptionWhat, this.justificationWhy, this.locationWhere,
+        this.responsibleWho, this.methodologyHow, newDateRange,
+        newBudget, TacticalActivityStatus.PENDING_TACTICAL,
+        this.version + 1, this.keyResults, this.paaLevel, this.acceptanceStatus);
+  }
+
+  /**
+   * The Change Request modal sends only the amount -- there is no economic classifier field in
+   * it -- so the activity's current classifier is carried over. Replacing it is not something a
+   * Change Request can express today.
+   */
+  private Budget parseProposedBudget(String value) {
+    if (this.budget == null)
+      throw IgrpResponseStatusException.badRequest(
+          "A atividade não tem orçamento atribuído, pelo que não é possível determinar o "
+              + "classificador económico do valor proposto.");
+
+    BigDecimal amount;
+    try {
+      amount = new BigDecimal(value);
+    } catch (NumberFormatException e) {
+      throw IgrpResponseStatusException.badRequest(
+          "O valor proposto para o orçamento não é um número: \"" + value + "\".");
+    }
+
+    try {
+      return Budget.of(amount, this.budget.getClassifier());
+    } catch (IllegalArgumentException e) {
+      // Budget.of() signals its own rules (montante maior que zero) with IllegalArgumentException,
+      // which would surface as a 500. The value came from a user, so it is a 400.
+      throw IgrpResponseStatusException.badRequest(
+          "Orçamento proposto inválido: " + e.getMessage());
+    }
+  }
+
+  private static LocalDate parseProposedDate(String value, ChangeRequestField field) {
+    try {
+      return LocalDate.parse(value);
+    } catch (DateTimeParseException e) {
+      throw IgrpResponseStatusException.badRequest(
+          "O valor proposto para \"" + field.getDescription()
+              + "\" não é uma data no formato AAAA-MM-DD: \"" + value + "\".");
+    }
+  }
+
+  private static DateRange buildRange(LocalDate startDate, LocalDate endDate) {
+    try {
+      return DateRange.of(startDate, endDate);
+    } catch (IllegalArgumentException e) {
+      // Changing one end of the range can invert it against the other end, which stays as it is.
+      throw IgrpResponseStatusException.badRequest(
+          "A alteração produz um intervalo de datas inválido: " + e.getMessage());
+    }
   }
 
   public TacticalActivity assignBudget(Budget budget) {
