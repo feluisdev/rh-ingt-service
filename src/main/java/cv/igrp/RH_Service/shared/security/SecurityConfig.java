@@ -10,7 +10,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -32,16 +31,12 @@ import org.springframework.web.cors.CorsConfiguration;
  */
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
 public class SecurityConfig {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConfig.class);
 
   @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private String jwtIssuer;
-
-    @Value("${app.security.enabled:true}")
-    private boolean securityEnabled;
 
   private final Environment environment;
 
@@ -83,7 +78,7 @@ public class SecurityConfig {
     // Always configure the JWT resource server so BearerTokenAuthenticationFilter is in the
     // chain and SecurityContext is populated with JwtAuthenticationToken when a valid Bearer
     // token is present — required for IAMUserProfileSyncFilter to work regardless of whether
-    // app.security.enabled is true or false.
+    // the security switch (see SecurityMode) is on or off.
     /*http.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
     );*/
@@ -184,10 +179,9 @@ public class SecurityConfig {
     return new TokenExchangeOAuth2AuthorizedClientProvider();
   }
 
-  // SECURITY_ENABLED=false is only honoured in the development profile.
-  // In staging/production the flag is ignored and auth is always enforced.
+  // See SecurityMode for the rule this delegates to — it is the single source of truth,
+  // consulted by both this filter chain and MethodSecurityConfig.
   private boolean isSecurityDisabled() {
-    boolean isDevelopment = environment.matchesProfiles("development");
-    return !securityEnabled && isDevelopment;
+    return SecurityMode.isSecurityDisabled(environment);
   }
 }
