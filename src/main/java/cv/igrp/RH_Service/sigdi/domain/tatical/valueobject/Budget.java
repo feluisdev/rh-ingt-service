@@ -41,9 +41,12 @@ public class Budget {
         classifier.equals(that.classifier);
   }
 
+  // equals uses compareTo (scale-insensitive, deliberate -- see TacticalActivity.java:385-389),
+  // so the hash must be computed on a scale-canonical form or 1000 and 1000.00 land in different
+  // buckets while comparing equal. FUT-08 / DEB-01, Fase 106.
   @Override
   public int hashCode() {
-    return 31 * estimatedAmount.hashCode() + classifier.hashCode();
+    return 31 * estimatedAmount.stripTrailingZeros().hashCode() + classifier.hashCode();
   }
 
   @Override

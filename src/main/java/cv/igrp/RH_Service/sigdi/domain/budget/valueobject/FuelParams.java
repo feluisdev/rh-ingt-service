@@ -74,8 +74,12 @@ public class FuelParams extends CostDriverParams {
         consumptionRate.compareTo(that.consumptionRate) == 0;
   }
 
+  // equals uses compareTo on both amounts (scale-insensitive), so the hash must be computed on a
+  // scale-canonical form or 150 and 150.00 land in different buckets while comparing equal. Same
+  // contract violation as Budget.java, same fix. FUT-08 / DEB-01, Fase 106.
   @Override
   public int hashCode() {
-    return 31 * pricePerLiter.hashCode() + consumptionRate.hashCode();
+    return 31 * pricePerLiter.stripTrailingZeros().hashCode()
+        + consumptionRate.stripTrailingZeros().hashCode();
   }
 }

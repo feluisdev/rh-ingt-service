@@ -81,8 +81,14 @@ public class PerDiemParams extends CostDriverParams{
         dailyRate.compareTo(that.dailyRate) == 0;
   }
 
+  // This was NOT a contract violation: dailyRate was omitted from the hash entirely, so equal
+  // objects already had equal hashes. It is included here for hash quality -- two per diems for
+  // the same island and level but different daily rates were collapsing into one bucket. The
+  // amount is canonicalised because equals compares it with compareTo, which ignores scale.
+  // Fase 106, mesma varredura de Budget.java e FuelParams.java.
   @Override
   public int hashCode() {
-    return 31 * island.hashCode() + level.hashCode();
+    return 31 * (31 * island.hashCode() + level.hashCode())
+        + dailyRate.stripTrailingZeros().hashCode();
   }
 }
