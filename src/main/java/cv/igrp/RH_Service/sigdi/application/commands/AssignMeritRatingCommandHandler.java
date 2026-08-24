@@ -52,8 +52,10 @@ public class AssignMeritRatingCommandHandler
     SiadapEvaluationId evalId = SiadapEvaluationId.from(command.getEvaluationId());
 
     // Value validation before the lookup: an unparseable mention is a client error regardless of
-    // whether the evaluation exists. Deliberately not SiadapMeritRating.fromCodeOrThrow(), whose
-    // message is in English and does not enumerate the accepted codes.
+    // whether the evaluation exists. Deliberately not SiadapMeritRating.fromCodeOrThrow(): its
+    // message does not enumerate the accepted codes, and this screen needs them. The comment used
+    // to say that message was in English too -- Phase 106 translated it, so only the enumeration
+    // argument survives, and it survives on its own.
     String rawRating = req != null ? req.getMeritRating() : null;
     SiadapMeritRating rating = SiadapMeritRating.fromCode(rawRating)
         .orElseThrow(() -> IgrpResponseStatusException.badRequest(
