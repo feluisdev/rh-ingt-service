@@ -14,7 +14,7 @@ public class UpdateGoalPositionCommand implements Command {
 
   private GoalPositionRequestDTO updategoalposition;
 
-  @NotBlank(message = "The field <goalId> is required")
+  @NotBlank(message = "O campo <goalId> é obrigatório")
   private String goalId;
 
 }

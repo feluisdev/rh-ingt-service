@@ -20,18 +20,18 @@ import java.util.List;
 @IgrpDTO
 public class CreateOkrDTO  {
 
-  @NotBlank(message = "The field <strategicGoalId> is required")
+  @NotBlank(message = "O campo <strategicGoalId> é obrigatório")
 
   private String strategicGoalId ;
-  @NotBlank(message = "The field <title> is required")
+  @NotBlank(message = "O campo <title> é obrigatório")
 
   private String title ;
-  @NotBlank(message = "The field <cycle> is required")
+  @NotBlank(message = "O campo <cycle> é obrigatório")
 
   private String cycle ;
 
 
-  @NotEmpty(message = "The field <keyResults> must not be empty")
+  @NotEmpty(message = "O campo <keyResults> não pode estar vazio")
   private List<OkrKeyResultRequestDTO> keyResults = new ArrayList<>();
 
 }

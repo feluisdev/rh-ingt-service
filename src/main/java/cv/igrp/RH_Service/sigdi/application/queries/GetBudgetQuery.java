@@ -13,7 +13,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class GetBudgetQuery implements Query {
 
-  @NotBlank(message = "The field <economicClassifier> is required")
+  @NotBlank(message = "O campo <economicClassifier> é obrigatório")
   private String economicClassifier;
 
 }

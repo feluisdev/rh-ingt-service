@@ -20,10 +20,10 @@ import java.util.List;
 @IgrpDTO
 public class CreateIdentityRequestDTO  {
 
-  @NotBlank(message = "The field <mission> is required")
+  @NotBlank(message = "O campo <mission> é obrigatório")
   
   private String mission ;
-  @NotBlank(message = "The field <vision> is required")
+  @NotBlank(message = "O campo <vision> é obrigatório")
   
   private String vision ;
   

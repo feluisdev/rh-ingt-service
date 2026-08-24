@@ -13,7 +13,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class GetKeyResultQuery implements Query {
 
-  @NotBlank(message = "The field <id> is required")
+  @NotBlank(message = "O campo <id> é obrigatório")
   private String id;
 
 }

@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class GetScenarioQuery implements Query {
 
-  @NotBlank(message = "The field <scenarioId> is required")
+  @NotBlank(message = "O campo <scenarioId> é obrigatório")
   private String scenarioId;
 }

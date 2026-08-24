@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class DeleteStrategyMapLinkCommand implements Command {
 
-  @NotBlank(message = "The field <id> is required")
+  @NotBlank(message = "O campo <id> é obrigatório")
   private String id;
 
 }

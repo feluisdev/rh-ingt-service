@@ -13,7 +13,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class CreateOkrCommand implements Command {
 
-  @NotNull(message = "The field <data> is required")
+  @NotNull(message = "O campo <data> é obrigatório")
   @Valid
   private CreateOkrDTO data;
 

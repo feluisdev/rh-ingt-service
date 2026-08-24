@@ -24,10 +24,10 @@ public class CostDriverRequestDTO  {
   
   
   private String driverType ;
-  @NotNull(message = "The field <parameters> is required")
+  @NotNull(message = "O campo <parameters> é obrigatório")
   
   private Map<String, ?> parameters = new HashMap<>();
-  @NotNull(message = "The field <valid_from> is required")
+  @NotNull(message = "O campo <valid_from> é obrigatório")
   
   private LocalDate valid_from ;
   

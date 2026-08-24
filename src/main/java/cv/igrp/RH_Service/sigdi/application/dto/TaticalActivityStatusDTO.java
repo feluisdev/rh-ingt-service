@@ -19,7 +19,7 @@ import lombok.AllArgsConstructor;
 @IgrpDTO
 public class TaticalActivityStatusDTO  {
 
-  @NotBlank(message = "The field <status> is required")
+  @NotBlank(message = "O campo <status> é obrigatório")
   
   private String status ;
 

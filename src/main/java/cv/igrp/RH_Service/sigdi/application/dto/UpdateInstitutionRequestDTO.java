@@ -12,10 +12,10 @@ import lombok.NoArgsConstructor;
 @IgrpDTO
 public class UpdateInstitutionRequestDTO {
 
-  @NotBlank(message = "The field <name> is required")
+  @NotBlank(message = "O campo <name> é obrigatório")
   private String name;
 
-  @NotBlank(message = "The field <type> is required")
+  @NotBlank(message = "O campo <type> é obrigatório")
   private String type;
 
   private String contactEmail;

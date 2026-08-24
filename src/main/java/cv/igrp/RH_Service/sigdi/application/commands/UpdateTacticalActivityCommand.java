@@ -14,7 +14,7 @@ public class UpdateTacticalActivityCommand implements Command {
 
   private CreateTacticalActivityDTO tacticalActivity;
   
-  @NotBlank(message = "The field <id> is required")
+  @NotBlank(message = "O campo <id> é obrigatório")
   private String id;
 
 }

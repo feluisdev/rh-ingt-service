@@ -20,10 +20,10 @@ import java.util.UUID;
 @IgrpDTO
 public class KeyResultRequestDTO  {
 
-  @NotBlank(message = "The field <title> is required")
+  @NotBlank(message = "O campo <title> é obrigatório")
   
   private String title ;
-  @NotNull(message = "The field <targetValue> is required")
+  @NotNull(message = "O campo <targetValue> é obrigatório")
   
   private BigDecimal targetValue ;
   
@@ -32,7 +32,7 @@ public class KeyResultRequestDTO  {
   
   
   private String metricUnit ;
-  @NotNull(message = "The field <activityId> is required")
+  @NotNull(message = "O campo <activityId> é obrigatório")
   
   private UUID activityId ;
 

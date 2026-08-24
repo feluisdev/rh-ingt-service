@@ -21,38 +21,38 @@ import java.util.UUID;
 @IgrpDTO
 public class CreateTacticalActivityDTO  {
 
-  @NotNull(message = "The field <strategicGoalId> is required")
+  @NotNull(message = "O campo <strategicGoalId> é obrigatório")
   
   private UUID strategicGoalId ;
-  @NotNull(message = "The field <organicUnitId> is required")
+  @NotNull(message = "O campo <organicUnitId> é obrigatório")
   
   private UUID organicUnitId ;
-  @NotBlank(message = "The field <title> is required")
-	@Size(min = 5, message = "The field length <title> must be at least 5 characters")
-	@Size(max = 200, message = "The field length <title> cannot be more than 200 characters")
+  @NotBlank(message = "O campo <title> é obrigatório")
+	@Size(min = 5, message = "O campo <title> deve ter pelo menos 5 caracteres")
+	@Size(max = 200, message = "O campo <title> não pode ter mais de 200 caracteres")
   
   private String title ;
-  @Size(min = 1, message = "The field length <descriptionWhat> must be at least 1 characters")
-	@Size(max = 2000, message = "The field length <descriptionWhat> cannot be more than 2000 characters")
+  @Size(min = 1, message = "O campo <descriptionWhat> deve ter pelo menos 1 caractere")
+	@Size(max = 2000, message = "O campo <descriptionWhat> não pode ter mais de 2000 caracteres")
   
   private String descriptionWhat ;
-  @Size(min = 1, message = "The field length <justificationWhy> must be at least 1 characters")
-	@Size(max = 2000, message = "The field length <justificationWhy> cannot be more than 2000 characters")
+  @Size(min = 1, message = "O campo <justificationWhy> deve ter pelo menos 1 caractere")
+	@Size(max = 2000, message = "O campo <justificationWhy> não pode ter mais de 2000 caracteres")
   
   private String justificationWhy ;
-  @Size(min = 1, message = "The field length <locationWhere> must be at least 1 characters")
-	@Size(max = 2000, message = "The field length <locationWhere> cannot be more than 2000 characters")
+  @Size(min = 1, message = "O campo <locationWhere> deve ter pelo menos 1 caractere")
+	@Size(max = 2000, message = "O campo <locationWhere> não pode ter mais de 2000 caracteres")
   
   private String locationWhere ;
   private UUID responsibleWho ;
-  @Size(min = 1, message = "The field length <methodologyHow> must be at least 1 characters")
-	@Size(max = 2000, message = "The field length <methodologyHow> cannot be more than 2000 characters")
+  @Size(min = 1, message = "O campo <methodologyHow> deve ter pelo menos 1 caractere")
+	@Size(max = 2000, message = "O campo <methodologyHow> não pode ter mais de 2000 caracteres")
   
   private String methodologyHow ;
-  @NotNull(message = "The field <startDate> is required")
+  @NotNull(message = "O campo <startDate> é obrigatório")
   
   private LocalDate startDate ;
-  @NotNull(message = "The field <endDate> is required")
+  @NotNull(message = "O campo <endDate> é obrigatório")
   
   private LocalDate endDate ;
   private BigDecimal budgetEstimated ;

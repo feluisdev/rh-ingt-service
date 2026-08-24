@@ -14,7 +14,7 @@ public class UpdateKeyResultCommand implements Command {
 
   
   private KeyResultRequestDTO keyresultrequest;
-  @NotBlank(message = "The field <id> is required")
+  @NotBlank(message = "O campo <id> é obrigatório")
   private String id;
 
 }

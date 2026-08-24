@@ -18,7 +18,7 @@ import lombok.AllArgsConstructor;
 @IgrpDTO
 public class CloseEvaluationsRequestDTO  {
 
-  @NotNull(message = "The field <year> is required")
+  @NotNull(message = "O campo <year> é obrigatório")
 
   private Integer year ;
 
