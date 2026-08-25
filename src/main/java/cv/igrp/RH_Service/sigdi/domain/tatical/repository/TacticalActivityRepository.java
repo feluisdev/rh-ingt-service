@@ -21,4 +21,10 @@ public interface TacticalActivityRepository {
   List<TacticalActivity> findByStatuses(List<String> statuses, int page, int size);
 
   long countByStatuses(List<String> statuses);
+
+  /**
+   * Read projection of pending activities for the workflow inbox, ordered oldest-first
+   * by {@code createdDate} (D-S, {@code 110-01-PLAN.md}).
+   */
+  List<PendingActivityRow> findPendingRows(List<String> statuses, int page, int size);
 }
