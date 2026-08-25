@@ -5,27 +5,22 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import cv.igrp.RH_Service.sigdi.application.constants.EvaluationPhase;
-import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
-import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
+import cv.igrp.RH_Service.sigdi.application.service.SelfEvaluationWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;
 import cv.igrp.RH_Service.sigdi.domain.compliance.repository.SiadapEvaluationRepository;
 import cv.igrp.RH_Service.sigdi.domain.compliance.valueobject.IndividualObjective;
-import cv.igrp.RH_Service.sigdi.domain.tatical.models.PaaSubmissionPeriod;
-import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -60,7 +55,7 @@ class SelfEvaluationOpeningSchedulerTest {
     private SiadapEvaluationRepository evaluationRepository;
 
     @Mock
-    private PaaSubmissionPeriodRepository periodRepository;
+    private SelfEvaluationWindowPolicy windowPolicy;
 
     @InjectMocks
     private SelfEvaluationOpeningScheduler scheduler;
@@ -109,13 +104,10 @@ class SelfEvaluationOpeningSchedulerTest {
     @Test
     void opensSelfEvaluationPhaseWhenWindowIsActiveForTheEvaluationYear() {
         SiadapEvaluation evaluation = buildInProgressEvaluation(YEAR);
-        // The scheduler never reads a field of the returned period -- only its presence decides.
-        PaaSubmissionPeriod activePeriod = mock(PaaSubmissionPeriod.class);
 
         when(evaluationRepository.findAll(any(), any(), eq(EvaluationPhase.IN_PROGRESS), anyInt(), anyInt()))
                 .thenReturn(List.of(evaluation));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.INDIVIDUAL_LEVEL, YEAR, Purpose.SIADAP_SELF_EVAL))
-                .thenReturn(Optional.of(activePeriod));
+        when(windowPolicy.isOpenFor(YEAR)).thenReturn(true);
         when(evaluationRepository.save(any(SiadapEvaluation.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -132,8 +124,7 @@ class SelfEvaluationOpeningSchedulerTest {
 
         when(evaluationRepository.findAll(any(), any(), eq(EvaluationPhase.IN_PROGRESS), anyInt(), anyInt()))
                 .thenReturn(List.of(evaluation));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(any(), eq(YEAR), any()))
-                .thenReturn(Optional.empty());
+        when(windowPolicy.isOpenFor(YEAR)).thenReturn(false);
 
         scheduler.processSelfEvaluationOpenings();
 
@@ -142,12 +133,19 @@ class SelfEvaluationOpeningSchedulerTest {
 
     /**
      * Deliberately identical, in arrangement and in result, to
-     * {@code doesNotOpenWhenWindowWasClosedManuallyByRh}. {@code findActiveByTypeAndYearAndPurpose}
-     * is backed by {@code PaaSubmissionPeriod.isActiveToday()}, which folds "closed manually" and
-     * "end date already passed" into the very same {@code Optional.empty()} signal. This
-     * scheduler cannot -- and does not need to -- distinguish the two causes. The redundancy
-     * between this test and the previous one IS the proof that the two paths coincide (success
-     * criterion 5).
+     * {@code doesNotOpenWhenWindowWasClosedManuallyByRh}. Before this task, the redundancy proved
+     * that {@code findActiveByTypeAndYearAndPurpose} -- backed by
+     * {@code PaaSubmissionPeriod.isActiveToday()} -- folds "closed manually" and "end date already
+     * passed" into the very same {@code Optional.empty()} signal, one level below this scheduler.
+     * <b>Conversion note (Task 2 of the window-policy extraction, 111-01):</b> that unification now
+     * happens one layer further down, inside {@link SelfEvaluationWindowPolicy}, which this
+     * scheduler only ever sees as a single {@code boolean}. From this scheduler's vantage point the
+     * two tests are now literally identical -- both stub {@code windowPolicy.isOpenFor(YEAR)} to
+     * {@code false} and assert the same non-save. Kept rather than deleted, per plan instruction:
+     * this is exactly the "case that may lose sense after conversion" the plan asked to flag, not
+     * hide. The real distinction between "closed manually" and "expired naturally" is proven once,
+     * at the source, by {@code SelfEvaluationWindowPolicyTest} and the two symmetric cases in
+     * {@code PaaSubmissionPeriodRepositoryImpl}'s own tests -- not here anymore.
      */
     @Test
     void doesNotOpenWhenWindowExpiredNaturally() {
@@ -155,8 +153,7 @@ class SelfEvaluationOpeningSchedulerTest {
 
         when(evaluationRepository.findAll(any(), any(), eq(EvaluationPhase.IN_PROGRESS), anyInt(), anyInt()))
                 .thenReturn(List.of(evaluation));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(any(), eq(YEAR), any()))
-                .thenReturn(Optional.empty());
+        when(windowPolicy.isOpenFor(YEAR)).thenReturn(false);
 
         scheduler.processSelfEvaluationOpenings();
 
@@ -179,24 +176,28 @@ class SelfEvaluationOpeningSchedulerTest {
         assertEquals(EvaluationPhase.IN_PROGRESS, phaseCaptor.getValue());
     }
 
+    /**
+     * <b>Conversion note (Task 2, 111-01):</b> before the extraction, this test asserted the full
+     * triplet {@code (PaaLevel.INDIVIDUAL_LEVEL, year, Purpose.SIADAP_SELF_EVAL)} received by
+     * {@code periodRepository}. That assertion moved to {@code SelfEvaluationWindowPolicyTest}
+     * (Task 1), which is now the only place the triplet is checked -- this scheduler no longer
+     * knows the triplet exists, it only knows a year goes in and a boolean comes out. What this
+     * test still owns, and keeps asserting, is that the year it passes to
+     * {@link SelfEvaluationWindowPolicy#isOpenFor(Integer)} is the evaluation's own year.
+     */
     @Test
-    void asksForTheIndividualLevelSelfEvaluationWindowOfTheEvaluationYear() {
+    void asksTheWindowPolicyForTheEvaluationYear() {
         SiadapEvaluation evaluation = buildInProgressEvaluation(YEAR);
 
         when(evaluationRepository.findAll(any(), any(), eq(EvaluationPhase.IN_PROGRESS), anyInt(), anyInt()))
                 .thenReturn(List.of(evaluation));
 
-        ArgumentCaptor<PaaLevel> levelCaptor = ArgumentCaptor.forClass(PaaLevel.class);
         ArgumentCaptor<Integer> yearCaptor = ArgumentCaptor.forClass(Integer.class);
-        ArgumentCaptor<Purpose> purposeCaptor = ArgumentCaptor.forClass(Purpose.class);
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(levelCaptor.capture(), yearCaptor.capture(), purposeCaptor.capture()))
-                .thenReturn(Optional.empty());
+        when(windowPolicy.isOpenFor(yearCaptor.capture())).thenReturn(false);
 
         scheduler.processSelfEvaluationOpenings();
 
-        assertEquals(PaaLevel.INDIVIDUAL_LEVEL, levelCaptor.getValue());
         assertEquals(YEAR, yearCaptor.getValue());
-        assertEquals(Purpose.SIADAP_SELF_EVAL, purposeCaptor.getValue());
     }
 
     @Test
@@ -207,12 +208,11 @@ class SelfEvaluationOpeningSchedulerTest {
 
         when(evaluationRepository.findAll(any(), any(), eq(EvaluationPhase.IN_PROGRESS), anyInt(), anyInt()))
                 .thenReturn(List.of(first, second, third));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(any(), eq(YEAR), any()))
-                .thenReturn(Optional.empty());
+        when(windowPolicy.isOpenFor(YEAR)).thenReturn(false);
 
         scheduler.processSelfEvaluationOpenings();
 
-        verify(periodRepository, times(1)).findActiveByTypeAndYearAndPurpose(any(), eq(YEAR), any());
+        verify(windowPolicy, times(1)).isOpenFor(YEAR);
     }
 
     @Test
@@ -223,8 +223,7 @@ class SelfEvaluationOpeningSchedulerTest {
 
         when(evaluationRepository.findAll(any(), any(), eq(EvaluationPhase.IN_PROGRESS), anyInt(), anyInt()))
                 .thenReturn(List.of(failing, succeeding));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(any(), eq(YEAR), any()))
-                .thenReturn(Optional.of(mock(PaaSubmissionPeriod.class)));
+        when(windowPolicy.isOpenFor(YEAR)).thenReturn(true);
         when(evaluationRepository.save(any(SiadapEvaluation.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -247,8 +246,7 @@ class SelfEvaluationOpeningSchedulerTest {
                 .thenReturn(firstPage);
         when(evaluationRepository.findAll(any(), any(), eq(EvaluationPhase.IN_PROGRESS), eq(1), anyInt()))
                 .thenReturn(secondPage);
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(any(), eq(YEAR), any()))
-                .thenReturn(Optional.of(mock(PaaSubmissionPeriod.class)));
+        when(windowPolicy.isOpenFor(YEAR)).thenReturn(true);
         when(evaluationRepository.save(any(SiadapEvaluation.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -274,6 +272,6 @@ class SelfEvaluationOpeningSchedulerTest {
         Class<?>[] parameterTypes = constructors[0].getParameterTypes();
         assertEquals(2, parameterTypes.length);
         assertEquals(SiadapEvaluationRepository.class, parameterTypes[0]);
-        assertEquals(PaaSubmissionPeriodRepository.class, parameterTypes[1]);
+        assertEquals(SelfEvaluationWindowPolicy.class, parameterTypes[1]);
     }
 }
