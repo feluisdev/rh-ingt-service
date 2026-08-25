@@ -213,7 +213,7 @@ class ListSiadapEvaluationsQueryHandlerTest {
     when(funcionarioLookupPort.findById(employeeId))
         .thenReturn(Optional.of(new FuncionarioDTO(employeeId.toString(), "Maria Silva")));
     when(organicaLookupPort.findById(organicUnitId))
-        .thenReturn(Optional.of(new OrganicaDTO(organicUnitId.toString(), "Direção Geral", "DG")));
+        .thenReturn(Optional.of(new OrganicaDTO(organicUnitId.toString(), "Direção Geral", "DG", null)));
 
     ListSiadapEvaluationsQuery q = new ListSiadapEvaluationsQuery(2026, null, null, "0", "20");
 
