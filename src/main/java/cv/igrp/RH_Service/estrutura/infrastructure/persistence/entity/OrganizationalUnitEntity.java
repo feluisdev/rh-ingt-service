@@ -43,6 +43,9 @@ public class OrganizationalUnitEntity extends AuditEntity {
     @Column(name = "parent_unit_id")
     private UUID parentUnitId;
 
+    @Column(name = "responsible_employee_id")
+    private UUID responsibleEmployeeId;
+
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 }
