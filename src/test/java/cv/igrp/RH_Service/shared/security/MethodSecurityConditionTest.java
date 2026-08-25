@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 /**
- * Covers the six profile x {@code app.security.enabled} combinations that decide whether
+ * Covers the profile x {@code app.security.enabled} combinations that decide whether
  * {@link MethodSecurityConfig} — and with it the project's single method-security-enabling
  * declaration — gets registered.
  *
@@ -93,6 +93,20 @@ class MethodSecurityConditionTest {
   void noActiveProfile_securityEnabledFalse_methodSecurityConfigIsPresent() {
     runner
         .withPropertyValues("app.security.enabled=false")
+        .run(context -> {
+          assertThat(context).hasNotFailed();
+          assertThat(context).hasSingleBean(MethodSecurityConfig.class);
+        });
+  }
+
+  @Test
+  void developmentProfile_securityEnabledMalformed_methodSecurityConfigIsPresent() {
+    // "flase" is a plausible typo for "false" in a hand-edited .env. Boolean conversion fails
+    // for it, and SecurityMode.isSecurityDisabled must swallow that failure and resolve to
+    // "security enabled" instead of letting the exception propagate out of Condition#matches
+    // and fail application startup.
+    runner
+        .withPropertyValues("spring.profiles.active=development", "app.security.enabled=flase")
         .run(context -> {
           assertThat(context).hasNotFailed();
           assertThat(context).hasSingleBean(MethodSecurityConfig.class);

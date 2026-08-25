@@ -1,5 +1,8 @@
 package cv.igrp.RH_Service.shared.security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.convert.ConversionException;
 import org.springframework.core.env.Environment;
 
 /**
@@ -17,6 +20,8 @@ import org.springframework.core.env.Environment;
  */
 final class SecurityMode {
 
+  private static final Logger log = LoggerFactory.getLogger(SecurityMode.class);
+
   static final String SECURITY_ENABLED_PROPERTY = "app.security.enabled";
   static final String DEVELOPMENT_PROFILE = "development";
 
@@ -32,7 +37,17 @@ final class SecurityMode {
    *     profile is {@code development}
    */
   static boolean isSecurityDisabled(Environment environment) {
-    boolean securityEnabled = environment.getProperty(SECURITY_ENABLED_PROPERTY, Boolean.class, true);
+    boolean securityEnabled;
+    try {
+      securityEnabled = environment.getProperty(SECURITY_ENABLED_PROPERTY, Boolean.class, true);
+    } catch (ConversionException ex) {
+      String rawValue = environment.getProperty(SECURITY_ENABLED_PROPERTY);
+      log.warn(
+          "Malformed value for '{}': '{}'. Falling back to security enabled (the safe default) "
+              + "instead of failing application startup.",
+          SECURITY_ENABLED_PROPERTY, rawValue, ex);
+      securityEnabled = true;
+    }
     return !securityEnabled && environment.matchesProfiles(DEVELOPMENT_PROFILE);
   }
 }
