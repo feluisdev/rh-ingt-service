@@ -12,4 +12,6 @@ public interface OrganicaLookupPort {
     Optional<OrganicaDTO> findById(UUID id);
 
     Map<UUID, OrganicaDTO> findAllByIds(Collection<UUID> ids);
+
+    Optional<UUID> findResponsibleEmployeeId(UUID unitId);
 }

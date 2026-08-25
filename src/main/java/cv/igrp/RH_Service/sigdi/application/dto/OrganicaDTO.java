@@ -24,4 +24,6 @@ public class OrganicaDTO  {
 
   private String acronym ;
 
+  private String responsibleEmployeeId ;
+
 }

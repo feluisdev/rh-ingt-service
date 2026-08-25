@@ -34,11 +34,21 @@ public class OrganicaLookupAdapter implements OrganicaLookupPort {
                         this::toDto));
     }
 
+    @Override
+    public Optional<UUID> findResponsibleEmployeeId(UUID unitId) {
+        return repository.findById(OrganizationalUnitId.from(unitId))
+                .map(OrganizationalUnit::getResponsibleEmployeeId)
+                .flatMap(Optional::ofNullable);
+    }
+
     private OrganicaDTO toDto(OrganizationalUnit unit) {
         OrganicaDTO dto = new OrganicaDTO();
         dto.setId(unit.getId().getValor().toString());
         dto.setName(unit.getName());
         dto.setAcronym(unit.getAcronym());
+        dto.setResponsibleEmployeeId(unit.getResponsibleEmployeeId() != null
+                ? unit.getResponsibleEmployeeId().toString()
+                : null);
         return dto;
     }
 }

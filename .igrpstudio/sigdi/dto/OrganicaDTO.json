@@ -7,6 +7,7 @@
   "attributes": [
     { "name": "id",      "objectType": "java", "type": "string", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": true },
     { "name": "name",    "objectType": "java", "type": "string", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
-    { "name": "acronym", "objectType": "java", "type": "string", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false }
+    { "name": "acronym", "objectType": "java", "type": "string", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "responsibleEmployeeId", "objectType": "java", "type": "string", "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false }
   ]
 }
