@@ -5,6 +5,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.CreateSiadapEvaluationRequestDTO
 import cv.igrp.RH_Service.sigdi.application.dto.FuncionarioDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapEvaluationDTO;
 import cv.igrp.RH_Service.sigdi.application.port.FuncionarioLookupPort;
+import cv.igrp.RH_Service.sigdi.application.port.OrganicaLookupPort;
 import cv.igrp.RH_Service.sigdi.domain.admin.models.SiadapConfig;
 import cv.igrp.RH_Service.sigdi.domain.admin.repository.SiadapConfigRepository;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;
@@ -34,6 +35,7 @@ public class CreateSiadapEvaluationCommandHandler
   private final SiadapEvaluationRepository evaluationRepository;
   private final SiadapConfigRepository configRepository;
   private final FuncionarioLookupPort funcionarioLookupPort;
+  private final OrganicaLookupPort organicaLookupPort;
   private final SiadapEvaluationMapper mapper;
 
   @IgrpCommandHandler
@@ -72,13 +74,24 @@ public class CreateSiadapEvaluationCommandHandler
     // Try to resolve organic unit (department) from request, otherwise default to null or lookup if available.
     String organicUnitId = req.getOrganicUnitId();
 
-    String evaluatorId = req.getEvaluatorId();
+    String derivedEvaluatorId = deriveEvaluatorId(employeeId);
+
+    // T-109-13 (Repudiation): a divergent evaluatorId sent by the client is ignored, never
+    // trusted, but it is not swallowed in silence either -- a client still sending this field
+    // is an operational fact someone will want to see (D-12). Read once, into a local, so the
+    // request value is never re-read on a second path toward the aggregate.
+    String requestEvaluatorId = req.getEvaluatorId();
+    if (requestEvaluatorId != null && !requestEvaluatorId.isBlank()
+        && !requestEvaluatorId.equals(derivedEvaluatorId)) {
+      LOGGER.warn("CreateSiadapEvaluationCommand: request evaluatorId '{}' diverges from derived evaluatorId '{}' -- request value ignored",
+          requestEvaluatorId, derivedEvaluatorId);
+    }
 
     SiadapEvaluation evaluation = SiadapEvaluation.create(
         employeeId,
         year,
         organicUnitId,
-        evaluatorId,
+        derivedEvaluatorId,
         resultsWeight,
         competenciesWeight
     );
@@ -91,5 +104,30 @@ public class CreateSiadapEvaluationCommandHandler
     dto.setStatus(saved.isValidatedQuota() ? "CLOSED" : "DRAFT");
 
     return ResponseEntity.ok(dto);
+  }
+
+  // The evaluator is derived, never chosen: this is the only point where evaluatorId is
+  // decided before entering the aggregate, and the five downstream commands marked
+  // ACTOR-CHECK: ENFORCED (ContractualizeObjectives, EvaluateCompetencies, FinalizeEvaluation,
+  // ProposeObjectiveRevision, RecordObjectiveAchievement) rely on the value written here.
+  // Derivation reads an explicit pointer -- the unit's responsibleEmployeeId -- and never
+  // infers from a function: the three seed employees share one unit and two of them hold
+  // DIR_SERVICO, so deriving from the function would name two people (Phase 109, criterion 3).
+  // A null result never blocks creation (D-05, operator decision 2026-08-24, revocable); the
+  // request's evaluatorId is ignored, not rejected (D-12).
+  private String deriveEvaluatorId(String employeeId) {
+    Optional<UUID> unitId = funcionarioLookupPort.findCurrentOrganizationalUnitId(UUID.fromString(employeeId));
+    if (unitId.isEmpty()) {
+      LOGGER.debug("Evaluator derivation: employee {} has no current enquadramento -- evaluatorId stays null", employeeId);
+      return null;
+    }
+
+    Optional<UUID> responsibleEmployeeId = organicaLookupPort.findResponsibleEmployeeId(unitId.get());
+    if (responsibleEmployeeId.isEmpty()) {
+      LOGGER.debug("Evaluator derivation: unit {} has no responsible employee -- evaluatorId stays null", unitId.get());
+      return null;
+    }
+
+    return responsibleEmployeeId.get().toString();
   }
 }
