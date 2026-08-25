@@ -6,27 +6,22 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import cv.igrp.RH_Service.sigdi.application.constants.EvaluationPhase;
-import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
-import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
+import cv.igrp.RH_Service.sigdi.application.service.SelfEvaluationWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;
 import cv.igrp.RH_Service.sigdi.domain.compliance.repository.SiadapEvaluationRepository;
 import cv.igrp.RH_Service.sigdi.domain.compliance.valueobject.IndividualObjective;
-import cv.igrp.RH_Service.sigdi.domain.tatical.models.PaaSubmissionPeriod;
-import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -54,7 +49,7 @@ class SelfEvaluationTacitAcceptanceSchedulerTest {
     private SiadapEvaluationRepository evaluationRepository;
 
     @Mock
-    private PaaSubmissionPeriodRepository periodRepository;
+    private SelfEvaluationWindowPolicy windowPolicy;
 
     @InjectMocks
     private SelfEvaluationTacitAcceptanceScheduler scheduler;
@@ -112,8 +107,7 @@ class SelfEvaluationTacitAcceptanceSchedulerTest {
 
         when(evaluationRepository.findAll(any(), any(), eq(EvaluationPhase.SELF_EVALUATION), anyInt(), anyInt()))
                 .thenReturn(List.of(evaluation));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.INDIVIDUAL_LEVEL, YEAR, Purpose.SIADAP_SELF_EVAL))
-                .thenReturn(Optional.empty());
+        when(windowPolicy.isOpenFor(YEAR)).thenReturn(false);
         when(evaluationRepository.save(any(SiadapEvaluation.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -129,12 +123,10 @@ class SelfEvaluationTacitAcceptanceSchedulerTest {
     @Test
     void doesNotApplyTacitAcceptanceWhenWindowIsStillActive() {
         SiadapEvaluation evaluation = buildSelfEvaluationEvaluation(YEAR);
-        PaaSubmissionPeriod activePeriod = mock(PaaSubmissionPeriod.class);
 
         when(evaluationRepository.findAll(any(), any(), eq(EvaluationPhase.SELF_EVALUATION), anyInt(), anyInt()))
                 .thenReturn(List.of(evaluation));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(any(), eq(YEAR), any()))
-                .thenReturn(Optional.of(activePeriod));
+        when(windowPolicy.isOpenFor(YEAR)).thenReturn(true);
 
         scheduler.processTacitSelfEvaluationAcceptances();
 
@@ -152,12 +144,10 @@ class SelfEvaluationTacitAcceptanceSchedulerTest {
     @Test
     void doesNotApplyTacitAcceptanceWhenWindowWasNeverConfiguredForAnotherActiveYear() {
         SiadapEvaluation evaluation = buildSelfEvaluationEvaluation(OTHER_YEAR);
-        PaaSubmissionPeriod activePeriod = mock(PaaSubmissionPeriod.class);
 
         when(evaluationRepository.findAll(any(), any(), eq(EvaluationPhase.SELF_EVALUATION), anyInt(), anyInt()))
                 .thenReturn(List.of(evaluation));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(any(), eq(OTHER_YEAR), any()))
-                .thenReturn(Optional.of(activePeriod));
+        when(windowPolicy.isOpenFor(OTHER_YEAR)).thenReturn(true);
 
         scheduler.processTacitSelfEvaluationAcceptances();
 
@@ -180,24 +170,27 @@ class SelfEvaluationTacitAcceptanceSchedulerTest {
         assertEquals(EvaluationPhase.SELF_EVALUATION, phaseCaptor.getValue());
     }
 
+    /**
+     * <b>Conversion note (Task 3, 111-01):</b> before the extraction, this test asserted the full
+     * triplet {@code (PaaLevel.INDIVIDUAL_LEVEL, year, Purpose.SIADAP_SELF_EVAL)} received by
+     * {@code periodRepository}. That assertion moved to {@code SelfEvaluationWindowPolicyTest}
+     * (Task 1), the single place the triplet is checked now. What this test still owns is that the
+     * year passed to {@link SelfEvaluationWindowPolicy#isOpenFor(Integer)} is the evaluation's own
+     * year.
+     */
     @Test
-    void asksForTheIndividualLevelSelfEvaluationWindowOfTheEvaluationYear() {
+    void asksTheWindowPolicyForTheEvaluationYear() {
         SiadapEvaluation evaluation = buildSelfEvaluationEvaluation(YEAR);
 
         when(evaluationRepository.findAll(any(), any(), eq(EvaluationPhase.SELF_EVALUATION), anyInt(), anyInt()))
                 .thenReturn(List.of(evaluation));
 
-        ArgumentCaptor<PaaLevel> levelCaptor = ArgumentCaptor.forClass(PaaLevel.class);
         ArgumentCaptor<Integer> yearCaptor = ArgumentCaptor.forClass(Integer.class);
-        ArgumentCaptor<Purpose> purposeCaptor = ArgumentCaptor.forClass(Purpose.class);
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(levelCaptor.capture(), yearCaptor.capture(), purposeCaptor.capture()))
-                .thenReturn(Optional.of(mock(PaaSubmissionPeriod.class)));
+        when(windowPolicy.isOpenFor(yearCaptor.capture())).thenReturn(true);
 
         scheduler.processTacitSelfEvaluationAcceptances();
 
-        assertEquals(PaaLevel.INDIVIDUAL_LEVEL, levelCaptor.getValue());
         assertEquals(YEAR, yearCaptor.getValue());
-        assertEquals(Purpose.SIADAP_SELF_EVAL, purposeCaptor.getValue());
     }
 
     @Test
@@ -208,12 +201,11 @@ class SelfEvaluationTacitAcceptanceSchedulerTest {
 
         when(evaluationRepository.findAll(any(), any(), eq(EvaluationPhase.SELF_EVALUATION), anyInt(), anyInt()))
                 .thenReturn(List.of(first, second, third));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(any(), eq(YEAR), any()))
-                .thenReturn(Optional.of(mock(PaaSubmissionPeriod.class)));
+        when(windowPolicy.isOpenFor(YEAR)).thenReturn(true);
 
         scheduler.processTacitSelfEvaluationAcceptances();
 
-        verify(periodRepository, times(1)).findActiveByTypeAndYearAndPurpose(any(), eq(YEAR), any());
+        verify(windowPolicy, times(1)).isOpenFor(YEAR);
     }
 
     @Test
@@ -225,8 +217,7 @@ class SelfEvaluationTacitAcceptanceSchedulerTest {
 
         when(evaluationRepository.findAll(any(), any(), eq(EvaluationPhase.SELF_EVALUATION), anyInt(), anyInt()))
                 .thenReturn(List.of(succeedingFirst, failing, succeedingThird));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(any(), eq(YEAR), any()))
-                .thenReturn(Optional.empty());
+        when(windowPolicy.isOpenFor(YEAR)).thenReturn(false);
         when(evaluationRepository.save(any(SiadapEvaluation.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -251,8 +242,7 @@ class SelfEvaluationTacitAcceptanceSchedulerTest {
                 .thenReturn(firstPage);
         when(evaluationRepository.findAll(any(), any(), eq(EvaluationPhase.SELF_EVALUATION), eq(1), anyInt()))
                 .thenReturn(secondPage);
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(any(), eq(YEAR), any()))
-                .thenReturn(Optional.empty());
+        when(windowPolicy.isOpenFor(YEAR)).thenReturn(false);
         when(evaluationRepository.save(any(SiadapEvaluation.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -278,6 +268,6 @@ class SelfEvaluationTacitAcceptanceSchedulerTest {
         Class<?>[] parameterTypes = constructors[0].getParameterTypes();
         assertEquals(2, parameterTypes.length);
         assertEquals(SiadapEvaluationRepository.class, parameterTypes[0]);
-        assertEquals(PaaSubmissionPeriodRepository.class, parameterTypes[1]);
+        assertEquals(SelfEvaluationWindowPolicy.class, parameterTypes[1]);
     }
 }
