@@ -88,6 +88,21 @@ public class GetEvaluationDetailQueryHandler
       }
     }
 
+    // Lookup evaluator name -- LIG-03. evaluatorId can be null (Phase 109, decision D-05): a unit
+    // without a responsible employee, or an evaluee without a current enquadramento, does not
+    // block evaluation creation. No textual fallback here on purpose: composing one from the raw
+    // id would leak an internal identifier into a screen column and an exported PDF, in a system
+    // with no RBAC layer; leaving the name null lets the two existing frontend readers fall back
+    // to the dash they already render.
+    if (evaluation.getEvaluatorId() != null) {
+      try {
+        funcionarioLookupPort.findById(UUID.fromString(evaluation.getEvaluatorId()))
+            .ifPresent(evaluator -> dto.setEvaluatorName(evaluator.getNomeCompleto()));
+      } catch (Exception e) {
+        // Invalid id or lookup failure: evaluatorName stays unset (null), never a raw identifier.
+      }
+    }
+
     dto.setPhase(evaluation.getPhase().getCode());
     dto.setStatus(evaluation.isValidatedQuota() ? "CLOSED" : "DRAFT");
 
