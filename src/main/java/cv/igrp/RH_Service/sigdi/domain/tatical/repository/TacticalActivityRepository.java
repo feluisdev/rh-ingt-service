@@ -18,8 +18,6 @@ public interface TacticalActivityRepository {
 
   PageResult<TacticalActivity> findAll(TaticalActivityFilter filter);
 
-  List<TacticalActivity> findByStatuses(List<String> statuses, int page, int size);
-
   long countByStatuses(List<String> statuses);
 
   /**

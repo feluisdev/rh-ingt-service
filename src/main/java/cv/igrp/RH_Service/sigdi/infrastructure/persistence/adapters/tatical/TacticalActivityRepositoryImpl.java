@@ -56,17 +56,6 @@ public class TacticalActivityRepositoryImpl implements TacticalActivityRepositor
 
   @Transactional(readOnly = true)
   @Override
-  public List<TacticalActivity> findByStatuses(List<String> statuses, int page, int size) {
-    Specification<TacticalActivitiesEntity> spec = (root, query, cb) ->
-        root.get("status").in(statuses);
-    return jpaRepository.findAll(spec, PageRequest.of(page, size))
-        .stream()
-        .map(mapper::toDomain)
-        .toList();
-  }
-
-  @Transactional(readOnly = true)
-  @Override
   public long countByStatuses(List<String> statuses) {
     Specification<TacticalActivitiesEntity> spec = (root, query, cb) ->
         root.get("status").in(statuses);
