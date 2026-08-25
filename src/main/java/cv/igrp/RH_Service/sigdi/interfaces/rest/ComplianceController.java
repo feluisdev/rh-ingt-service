@@ -14,6 +14,13 @@
  * GET siadap/me/cca-status, the only read point for CCA (Conselho Coordenador da Avaliacao)
  * membership. Regenerating this file via IGRP Studio would drop the endpoint and leave the
  * frontend with no way to decide who the CCA screen should be shown to.
+ *
+ * MANUALLY EDITED - Phase 111 (LIG-02): added
+ * POST siadap/evaluations/{id}/self-evaluation/open, the second caller of
+ * SiadapEvaluation.openSelfEvaluationPhase() -- until then the daily
+ * SelfEvaluationOpeningScheduler was its only one. Regenerating this file via IGRP Studio
+ * would drop the endpoint and put the IN_PROGRESS -> SELF_EVALUATION transition back behind
+ * a cron job, which is what made SIA-06 unsatisfiable by design in v24.0.
  */
 
 package cv.igrp.RH_Service.sigdi.interfaces.rest;
@@ -416,6 +423,29 @@ public class ComplianceController {
     final var request = new FinalizeEvaluationRequestDTO(id);
     final var command = new FinalizeEvaluationCommand(request);
     return commandBus.send(command);
+  }
+
+  @PostMapping(value = "siadap/evaluations/{id}/self-evaluation/open")
+  @Operation(
+    summary = "Open self-evaluation phase manually",
+    description = "Avança manualmente a avaliação de Em Curso para Autoavaliação, sem esperar "
+        + "pelo agendador diário. Exige uma janela de submissão de Autoavaliação SIADAP ativa "
+        + "para o ano da avaliação e que o utilizador esteja na lista de funcionários "
+        + "autorizados a abrir. A transição é irreversível pela aplicação.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SiadapEvaluationDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<SiadapEvaluationDTO> openSelfEvaluationPhase(
+    @PathVariable("id") String id)
+  {
+    return commandBus.send(new OpenSelfEvaluationPhaseCommand(id));
   }
 
   @PostMapping(value = "siadap/evaluations/{id}/merit-rating")

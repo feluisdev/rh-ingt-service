@@ -29,6 +29,8 @@ import org.junit.jupiter.api.Test;
  * {@code ComplianceController}, and a handler reachable through some path other than this one
  * controller. What it guarantees is completeness of the declaration within the surface it
  * derives -- nothing beyond that.
+ *
+ * Phase 111 raised this from 14 to 15.
  */
 class SiadapCommandActorCheckCoverageTest {
 
@@ -105,8 +107,8 @@ class SiadapCommandActorCheckCoverageTest {
   @Test
   void theDerivedCommandSetHasTheExpectedSize() {
     TreeSet<String> commandNames = deriveCommandNames();
-    assertEquals(14, commandNames.size(),
-        "Expected exactly 14 distinct `new XxxCommand(` usages in ComplianceController.java "
+    assertEquals(15, commandNames.size(),
+        "Expected exactly 15 distinct `new XxxCommand(` usages in ComplianceController.java "
             + "-- a regex that stopped matching would silently shrink this set. Found: "
             + commandNames);
   }
