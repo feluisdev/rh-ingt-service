@@ -37,6 +37,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
@@ -308,5 +309,106 @@ class ListSiadapEvaluationsQueryHandlerTest {
     assertEquals(null, dto.getAcceptanceStatus());
     assertEquals(null, dto.getAcceptanceStatusDesc());
     assertEquals(null, dto.getLastNegotiationComment());
+  }
+
+  // LIG-03, caminho feliz -- prova que employeeId e evaluatorId, ambos presentes e distintos, são
+  // resolvidos para os nomes certos, e não trocados entre si: o risco real desta alteração é
+  // inverter os dois identificadores no lookup, e um teste que só olhasse para um dos dois não o
+  // apanharia.
+  @Test
+  void handleResolvesEvaluatorNameAlongsideEmployeeNameWithoutSwappingThem() {
+    UUID employeeId = UUID.randomUUID();
+    UUID evaluatorId = UUID.randomUUID();
+
+    SiadapEvaluationEntity entity = new SiadapEvaluationEntity();
+    entity.setId(UUID.randomUUID());
+    entity.setEmployeeId(employeeId.toString());
+    entity.setEvaluatorId(evaluatorId.toString());
+    entity.setYear("2026");
+    entity.setEvaluationPhase("HARMONIZATION");
+    entity.setValidatedQuota(false);
+
+    when(repository.findAll(any(Specification.class), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(List.of(entity), PageRequest.of(0, 20), 1));
+    when(funcionarioLookupPort.findById(employeeId))
+        .thenReturn(Optional.of(new FuncionarioDTO(employeeId.toString(), "Maria Silva")));
+    when(funcionarioLookupPort.findById(evaluatorId))
+        .thenReturn(Optional.of(new FuncionarioDTO(evaluatorId.toString(), "João Santos")));
+
+    ListSiadapEvaluationsQuery q = new ListSiadapEvaluationsQuery(2026, null, null, "0", "20");
+
+    ResponseEntity<WrapperSiadapEvaluationListDTO> response = handler.handle(q);
+
+    SiadapEvaluationDTO dto = response.getBody().getData().get(0);
+    assertEquals("Maria Silva", dto.getEmployeeName());
+    assertEquals("João Santos", dto.getEvaluatorName());
+  }
+
+  // LIG-03, caminho nulo (D-05 da Fase 109) -- evaluatorId nulo não pode chegar a
+  // UUID.fromString nem ao porto de lookup. Reforçado pela prova negativa desta task: uma
+  // asserção só sobre a contagem de chamadas a funcionarioLookupPort.findById NÃO mata a mutação
+  // que remove a guarda (deixando o try/catch), porque UUID.fromString(null) lança
+  // NullPointerException ANTES de findById ser sequer invocado -- o catch já a apanha, e o número
+  // de chamadas a findById fica idêntico com ou sem guarda. A asserção decisiva tem de verificar
+  // diretamente que UUID.fromString nunca chega a ser invocado com o evaluatorId nulo, via mock
+  // estático que delega para a implementação real (a resolução de employeeId continua genuína).
+  @Test
+  void handleLeavesEvaluatorNameNullAndNeverParsesEvaluatorIdWhenItIsNull() {
+    UUID employeeId = UUID.randomUUID();
+
+    SiadapEvaluationEntity entity = new SiadapEvaluationEntity();
+    entity.setId(UUID.randomUUID());
+    entity.setEmployeeId(employeeId.toString());
+    entity.setEvaluatorId(null);
+    entity.setYear("2026");
+    entity.setEvaluationPhase("HARMONIZATION");
+    entity.setValidatedQuota(false);
+
+    when(repository.findAll(any(Specification.class), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(List.of(entity), PageRequest.of(0, 20), 1));
+    when(funcionarioLookupPort.findById(employeeId))
+        .thenReturn(Optional.of(new FuncionarioDTO(employeeId.toString(), "Maria Silva")));
+
+    ListSiadapEvaluationsQuery q = new ListSiadapEvaluationsQuery(2026, null, null, "0", "20");
+
+    try (MockedStatic<UUID> uuidStatic = Mockito.mockStatic(UUID.class, Mockito.CALLS_REAL_METHODS)) {
+      ResponseEntity<WrapperSiadapEvaluationListDTO> response = handler.handle(q);
+
+      SiadapEvaluationDTO dto = response.getBody().getData().get(0);
+      assertEquals(null, dto.getEvaluatorName());
+      verify(funcionarioLookupPort, times(1)).findById(any(UUID.class));
+      verify(funcionarioLookupPort, times(1)).findById(employeeId);
+      verify(funcionarioLookupPort, never()).findById(null);
+      // Decisivo: só a chamada de employeeId (1), nenhuma para o evaluatorId nulo.
+      uuidStatic.verify(() -> UUID.fromString(any()), times(1));
+    }
+  }
+
+  // LIG-03, identificador inválido -- evaluatorId com dado sujo (não-UUID) não pode derrubar a
+  // listagem inteira; a linha continua presente na resposta, só com evaluatorName nulo.
+  @Test
+  void handleReturns200WithNullEvaluatorNameWhenEvaluatorIdIsNotAValidUuid() {
+    UUID employeeId = UUID.randomUUID();
+
+    SiadapEvaluationEntity entity = new SiadapEvaluationEntity();
+    entity.setId(UUID.randomUUID());
+    entity.setEmployeeId(employeeId.toString());
+    entity.setEvaluatorId("nao-e-um-uuid");
+    entity.setYear("2026");
+    entity.setEvaluationPhase("HARMONIZATION");
+    entity.setValidatedQuota(false);
+
+    when(repository.findAll(any(Specification.class), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(List.of(entity), PageRequest.of(0, 20), 1));
+    when(funcionarioLookupPort.findById(employeeId))
+        .thenReturn(Optional.of(new FuncionarioDTO(employeeId.toString(), "Maria Silva")));
+
+    ListSiadapEvaluationsQuery q = new ListSiadapEvaluationsQuery(2026, null, null, "0", "20");
+
+    ResponseEntity<WrapperSiadapEvaluationListDTO> response = handler.handle(q);
+
+    assertEquals(200, response.getStatusCode().value());
+    assertEquals(1, response.getBody().getData().size());
+    assertEquals(null, response.getBody().getData().get(0).getEvaluatorName());
   }
 }
