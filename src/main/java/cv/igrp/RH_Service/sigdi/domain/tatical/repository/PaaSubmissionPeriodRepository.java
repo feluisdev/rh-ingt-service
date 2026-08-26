@@ -21,4 +21,8 @@ public interface PaaSubmissionPeriodRepository {
     Optional<PaaSubmissionPeriod> findByTypeAndYearAndStatusAndPurpose(PaaLevel type, Integer year, String status, Purpose purpose);
     List<PaaSubmissionPeriod> findAllByPurpose(int page, int size, Purpose purpose);
     long countAllByPurpose(Purpose purpose);
+
+    // Fase 116 (AUT-06): finder sem filtro de estado -- a fonte de elegibilidade responde
+    // também sobre um período já fechado.
+    Optional<PaaSubmissionPeriod> findByTypeAndYearAndPurpose(PaaLevel type, Integer year, Purpose purpose);
 }

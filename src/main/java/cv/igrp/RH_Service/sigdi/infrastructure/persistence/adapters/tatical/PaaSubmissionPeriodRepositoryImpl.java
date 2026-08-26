@@ -114,4 +114,15 @@ public class PaaSubmissionPeriodRepositoryImpl implements PaaSubmissionPeriodRep
     public long countAllByPurpose(Purpose purpose) {
         return jpaRepository.countByPurpose(purpose.getCode());
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<PaaSubmissionPeriod> findByTypeAndYearAndPurpose(PaaLevel type, Integer year, Purpose purpose) {
+        // Defensive — see comment on findActiveByTypeAndPurpose above. Sem filtro de
+        // estado nem de data: ver comentário no PaaSubmissionPeriodEntityRepository.
+        return jpaRepository.findAllByTypeAndYearAndPurpose(type.getCode(), year, purpose.getCode())
+                .stream()
+                .findFirst()
+                .map(mapper::toDomain);
+    }
 }
