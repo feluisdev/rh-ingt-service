@@ -1,1 +1,37 @@
-[]
+[
+  {
+    "name": "siadap.mencaoMerito.atribuir",
+    "description": "Atribuir ou corrigir a menção de mérito de uma avaliação SIADAP",
+    "status": "ACTIVE"
+  },
+  {
+    "name": "siadap.avaliacoes.fecharEmLote",
+    "description": "Fechar avaliações SIADAP em lote",
+    "status": "ACTIVE"
+  },
+  {
+    "name": "siadap.cca.consultarEstado",
+    "description": "Consultar o estado do Conselho Coordenador da Avaliação",
+    "status": "ACTIVE"
+  },
+  {
+    "name": "siadap.autoavaliacao.abrir",
+    "description": "Abrir manualmente a fase de autoavaliação de uma avaliação SIADAP",
+    "status": "ACTIVE"
+  },
+  {
+    "name": "paa.periodoSubmissao.criar",
+    "description": "Criar um período de submissão",
+    "status": "ACTIVE"
+  },
+  {
+    "name": "paa.periodoSubmissao.fechar",
+    "description": "Fechar um período de submissão",
+    "status": "ACTIVE"
+  },
+  {
+    "name": "paa.periodoSubmissao.gerarFormularios",
+    "description": "Gerar os formulários de um período de submissão para os responsáveis",
+    "status": "ACTIVE"
+  }
+]
