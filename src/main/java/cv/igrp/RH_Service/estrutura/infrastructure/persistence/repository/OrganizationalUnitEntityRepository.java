@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.Organizati
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,4 +15,5 @@ public interface OrganizationalUnitEntityRepository
     boolean existsByCodeAndIdNot(String code, UUID id);
     boolean existsByParentUnitIdAndIsActiveTrue(UUID parentUnitId);
     Optional<OrganizationalUnitEntity> findByCode(String code);
+    List<OrganizationalUnitEntity> findByIsActiveTrue();
 }
