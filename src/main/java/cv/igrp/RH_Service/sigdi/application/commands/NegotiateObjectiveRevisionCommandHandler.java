@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+// ACTOR-CHECK: ENFORCED -- evaluation.employeeId; only the avaliado may request negotiation of an objective revision
 @Component
 @RequiredArgsConstructor
 public class NegotiateObjectiveRevisionCommandHandler

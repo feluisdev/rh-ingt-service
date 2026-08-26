@@ -56,7 +56,7 @@ public enum DocumentoFolder implements IgrpEnum<String> {
   * @throws IllegalArgumentException if no enum value exists for the given code
   */
   public static DocumentoFolder fromCodeOrThrow(String code) {
-    return fromCode(code).orElseThrow(() -> new IllegalArgumentException("Invalid DocumentoFolder for this code: " + code));
+    return fromCode(code).orElseThrow(() -> new IllegalArgumentException("Código inválido para DocumentoFolder: " + code));
   }
 
   /**

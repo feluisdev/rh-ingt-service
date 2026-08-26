@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
@@ -22,4 +23,8 @@ public class WorkflowInboxItemDTO {
   private String currentStatus;
   private BigDecimal budgetEstimated;
   private String economicClassifier;
+  private String type;
+  private String requestedBy;
+  private LocalDate requestedDate;
+  private Integer pendingSinceDays;
 }

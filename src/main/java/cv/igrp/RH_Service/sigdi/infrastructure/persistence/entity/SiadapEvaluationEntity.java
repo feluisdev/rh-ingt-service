@@ -103,4 +103,12 @@ public class SiadapEvaluationEntity extends AuditEntity {
     @Column(name="validated_quota")
     private boolean validatedQuota;
 
+    /**
+     * SIA-03: distingue "autoavaliou-se" (submitSelfEvaluation) de "foi aceite tacitamente"
+     * (applyTacitSelfEvaluationAcceptance) -- sem este campo os dois caminhos produzem o
+     * mesmo registo a partir de MANAGER_EVALUATION.
+     */
+    @Column(name="self_evaluation_tacitly_accepted")
+    private boolean selfEvaluationTacitlyAccepted;
+
 }

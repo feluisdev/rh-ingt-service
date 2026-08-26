@@ -42,7 +42,7 @@ public enum PaaLevel implements IgrpEnum<String> {
     public static PaaLevel fromCodeOrThrow(String code) {
         return fromCode(code).orElseThrow(() ->
                 IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST,
-                        "Invalid PaaLevel for this code: " + code));
+                        "Código inválido para PaaLevel: " + code));
     }
 
     public static Map<String, String> codeDescriptionMap() {

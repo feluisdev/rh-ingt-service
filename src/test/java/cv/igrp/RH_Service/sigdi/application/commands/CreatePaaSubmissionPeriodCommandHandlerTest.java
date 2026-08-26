@@ -378,4 +378,59 @@ class CreatePaaSubmissionPeriodCommandHandlerTest {
         assertEquals(201, response.getStatusCode().value());
         assertEquals(15L, response.getBody().getDaysRemaining());
     }
+
+    @Test
+    void acceptsSelfEvaluationWindowSandwichedBetweenInterimAndFinal() {
+        // SIA-02 criterion 3: the sixth Purpose value (SIADAP_SELF_EVAL, position 5) must slot
+        // between SIADAP_INTERIM (position 4) and the renumbered SIADAP_FINAL (position 6)
+        // without triggering the overlap rule when there is a gap on both sides.
+        PaaSubmissionPeriod siadapInterim = PaaSubmissionPeriod.reconstruct(
+                UUID.randomUUID(), Purpose.SIADAP_INTERIM, PaaLevel.INDIVIDUAL_LEVEL,
+                LocalDate.of(2026, 1, 1), LocalDate.of(2026, 6, 30), "CLOSED", 2026);
+        PaaSubmissionPeriod siadapFinal = PaaSubmissionPeriod.reconstruct(
+                UUID.randomUUID(), Purpose.SIADAP_FINAL, PaaLevel.INDIVIDUAL_LEVEL,
+                LocalDate.of(2026, 11, 1), LocalDate.of(2026, 12, 15), "CLOSED", 2026);
+
+        CreatePaaSubmissionPeriodDTO dto = new CreatePaaSubmissionPeriodDTO(
+                PaaLevel.INDIVIDUAL_LEVEL.getCode(), LocalDate.of(2026, 7, 1),
+                LocalDate.of(2026, 10, 31), 2026, Purpose.SIADAP_SELF_EVAL.getCode());
+
+        when(repository.findByTypeAndYearAndStatusAndPurpose(
+                PaaLevel.INDIVIDUAL_LEVEL, 2026, "OPEN", Purpose.SIADAP_SELF_EVAL))
+                .thenReturn(Optional.empty());
+        when(repository.findAllByYear(2026)).thenReturn(List.of(siadapInterim, siadapFinal));
+        when(repository.save(any(PaaSubmissionPeriod.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        ResponseEntity<PaaSubmissionPeriodResponseDTO> response =
+                handler.handle(new CreatePaaSubmissionPeriodCommand(dto));
+
+        assertEquals(201, response.getStatusCode().value());
+    }
+
+    @Test
+    void rejectsSelfEvaluationWindowThatOverlapsTheFinalEvaluationPhase() {
+        // The nearest-following neighbor is now SIADAP_FINAL at the renumbered position 6 --
+        // proves the Rule 3 comparison still catches the overlap after the renumbering.
+        PaaSubmissionPeriod siadapFinal = PaaSubmissionPeriod.reconstruct(
+                UUID.randomUUID(), Purpose.SIADAP_FINAL, PaaLevel.INDIVIDUAL_LEVEL,
+                LocalDate.of(2026, 11, 1), LocalDate.of(2026, 12, 15), "CLOSED", 2026);
+
+        CreatePaaSubmissionPeriodDTO dto = new CreatePaaSubmissionPeriodDTO(
+                PaaLevel.INDIVIDUAL_LEVEL.getCode(), LocalDate.of(2026, 7, 1),
+                LocalDate.of(2026, 11, 15), 2026, Purpose.SIADAP_SELF_EVAL.getCode());
+
+        when(repository.findByTypeAndYearAndStatusAndPurpose(
+                PaaLevel.INDIVIDUAL_LEVEL, 2026, "OPEN", Purpose.SIADAP_SELF_EVAL))
+                .thenReturn(Optional.empty());
+        when(repository.findAllByYear(2026)).thenReturn(List.of(siadapFinal));
+
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(new CreatePaaSubmissionPeriodCommand(dto)));
+
+        String title = exception.getBody().getTitle();
+        assertEquals(422, exception.getBody().getStatus());
+        assertTrue(title.contains("Avaliação Final SIADAP"));
+        assertTrue(title.contains("01/11/2026"));
+    }
 }

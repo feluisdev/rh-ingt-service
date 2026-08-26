@@ -16,13 +16,13 @@ import lombok.NoArgsConstructor;
 @IgrpDTO
 public class StrategyLinkDTO {
 
-  @NotBlank(message = "The field <sourceGoalId> is required")
+  @NotBlank(message = "O campo <sourceGoalId> é obrigatório")
   private String sourceGoalId;
 
-  @NotBlank(message = "The field <targetGoalId> is required")
+  @NotBlank(message = "O campo <targetGoalId> é obrigatório")
   private String targetGoalId;
 
-  @NotBlank(message = "The field <relationshipType> is required")
+  @NotBlank(message = "O campo <relationshipType> é obrigatório")
   private String relationshipType;
 }
 

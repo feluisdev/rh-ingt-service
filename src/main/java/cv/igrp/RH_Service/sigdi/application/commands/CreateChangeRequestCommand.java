@@ -14,6 +14,6 @@ public class CreateChangeRequestCommand implements Command {
 
   private ChangeRequestDTO changerequest;
 
-  @NotBlank(message = "The field <activityId> is required")
+  @NotBlank(message = "O campo <activityId> é obrigatório")
   private String activityId;
 }

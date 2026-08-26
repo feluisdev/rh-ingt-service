@@ -2,6 +2,7 @@
   "type": "enum",
   "module": "sigdi",
   "name": "TacticalActivityStatus",
+  "readOnly": true,
   "values": [
     {
       "name": "DRAFT",

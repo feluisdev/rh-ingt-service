@@ -11,6 +11,6 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class GetSyncJobStatusQuery implements Query {
 
-  @NotBlank(message = "The field <jobId> is required")
+  @NotBlank(message = "O campo <jobId> é obrigatório")
   private String jobId;
 }

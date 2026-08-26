@@ -41,7 +41,7 @@ public class RegistraProcessoKrCommandHandler
 
       keyResultRepository.save(updated);
 
-      return ResponseEntity.ok("Check-in registrado com sucesso");
+      return ResponseEntity.ok("Check-in registado com sucesso");
    }
 
 }

@@ -43,7 +43,7 @@ public class DocumentController {
           ),
           @ApiResponse(
               responseCode = "400",
-              description = "Arquivo inválido ou vazio",
+              description = "Ficheiro inválido ou vazio",
               content = @Content
           )
       }
@@ -70,7 +70,7 @@ public class DocumentController {
           ),
           @ApiResponse(
               responseCode = "400",
-              description = "Arquivo inválido ou vazio",
+              description = "Ficheiro inválido ou vazio",
               content = @Content
           )
       }
@@ -92,7 +92,7 @@ public class DocumentController {
           )
       }
   )
-  public ResponseEntity<FileUrlDTO> getPresignedLink(@Parameter(description = "ID do arquivo para gerar o link", required = true) @RequestParam(value = "fileId") String fileId) {
+  public ResponseEntity<FileUrlDTO> getPresignedLink(@Parameter(description = "ID do ficheiro para gerar o link", required = true) @RequestParam(value = "fileId") String fileId) {
     return documentoService.getPresignedLink(fileId);
   }
 

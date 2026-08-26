@@ -2,6 +2,7 @@
   "type": "enum",
   "module": "sigdi",
   "name": "SimulationScenarioStatus",
+  "readOnly": true,
   "values": [
     {
       "name": "PROCESSING",

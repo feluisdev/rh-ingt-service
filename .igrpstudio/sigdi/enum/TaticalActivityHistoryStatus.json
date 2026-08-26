@@ -2,6 +2,7 @@
   "type": "enum",
   "module": "sigdi",
   "name": "TaticalActivityHistoryStatus",
+  "readOnly": true,
   "values": [
     {
       "name": "SUBMITTED",

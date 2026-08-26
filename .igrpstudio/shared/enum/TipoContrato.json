@@ -2,6 +2,7 @@
   "type": "enum",
   "module": "shared",
   "name": "TipoContrato",
+  "readOnly": true,
   "values": [
     {
       "name": "TEMPO_INDETERMINADO",

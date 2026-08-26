@@ -9,7 +9,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
+import cv.igrp.RH_Service.sigdi.application.config.SiadapCcaSecurityProperties;
 import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
 import cv.igrp.RH_Service.sigdi.application.constants.CompetencyCategory;
 import cv.igrp.RH_Service.sigdi.application.constants.EvaluationPhase;
@@ -53,6 +56,12 @@ class AssignMeritRatingCommandHandlerTest {
     @Mock
     private SiadapEvaluationMapper mapper;
 
+    @Mock
+    private CurrentEmployeeResolver currentEmployeeResolver;
+
+    @Mock
+    private SiadapCcaSecurityProperties ccaSecurityProperties;
+
     @InjectMocks
     private AssignMeritRatingCommandHandler handler;
 
@@ -82,7 +91,7 @@ class AssignMeritRatingCommandHandlerTest {
                 new BigDecimal("60"), new BigDecimal("40"),
                 null, new BigDecimal("3.00"), currentRating,
                 EvaluationPhase.CLOSED.equals(phase),
-                phase, AcceptanceStatus.ACCEPTED, null);
+                phase, AcceptanceStatus.ACCEPTED, null, false);
     }
 
     private AssignMeritRatingCommand commandFor(SiadapEvaluation evaluation, String rating) {
@@ -98,6 +107,8 @@ class AssignMeritRatingCommandHandlerTest {
         when(evaluationRepository.save(any(SiadapEvaluation.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
         when(mapper.toFullDto(any(SiadapEvaluation.class))).thenReturn(new SiadapEvaluationDTO());
+        when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.gerarNovo());
+        when(ccaSecurityProperties.isCca(any())).thenReturn(true);
 
         ResponseEntity<SiadapEvaluationDTO> response =
                 handler.handle(commandFor(evaluation, SiadapMeritRating.VERY_GOOD.getCode()));
@@ -121,6 +132,8 @@ class AssignMeritRatingCommandHandlerTest {
         when(evaluationRepository.save(any(SiadapEvaluation.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
         when(mapper.toFullDto(any(SiadapEvaluation.class))).thenReturn(new SiadapEvaluationDTO());
+        when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.gerarNovo());
+        when(ccaSecurityProperties.isCca(any())).thenReturn(true);
 
         ResponseEntity<SiadapEvaluationDTO> response =
                 handler.handle(commandFor(evaluation, SiadapMeritRating.EXCELLENT.getCode()));
@@ -172,6 +185,8 @@ class AssignMeritRatingCommandHandlerTest {
         SiadapEvaluation evaluation = buildEvaluation(EvaluationPhase.MANAGER_EVALUATION, null);
 
         when(evaluationRepository.findById(any())).thenReturn(Optional.of(evaluation));
+        when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.gerarNovo());
+        when(ccaSecurityProperties.isCca(any())).thenReturn(true);
 
         AssignMeritRatingCommand command = commandFor(evaluation, SiadapMeritRating.EXCELLENT.getCode());
 
@@ -179,6 +194,29 @@ class AssignMeritRatingCommandHandlerTest {
                 () -> handler.handle(command));
 
         assertEquals(400, exception.getBody().getStatus());
+        verify(evaluationRepository, never()).save(any());
+    }
+
+    /**
+     * SIA-04: only a CCA member may correct a merit rating.
+     * Fixture deliberately uses HARMONIZATION, a phase the phase rule accepts for this
+     * action -- if a 403 shows up here, it can only come from the CCA check, never from
+     * the phase rule, proving the CCA check runs first.
+     */
+    @Test
+    void throwsForbiddenWhenCurrentUserIsNotACcaMember() {
+        SiadapEvaluation evaluation = buildEvaluation(EvaluationPhase.HARMONIZATION, SiadapMeritRating.GOOD);
+
+        when(evaluationRepository.findById(any())).thenReturn(Optional.of(evaluation));
+        when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.gerarNovo());
+        when(ccaSecurityProperties.isCca(any())).thenReturn(false);
+
+        AssignMeritRatingCommand command = commandFor(evaluation, SiadapMeritRating.EXCELLENT.getCode());
+
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(command));
+
+        assertEquals(403, exception.getBody().getStatus());
         verify(evaluationRepository, never()).save(any());
     }
 }

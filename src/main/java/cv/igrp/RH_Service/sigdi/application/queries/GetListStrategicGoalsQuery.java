@@ -13,13 +13,13 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class GetListStrategicGoalsQuery implements Query {
 
-  @NotBlank(message = "The field <perspective> is required")
+  @NotBlank(message = "O campo <perspective> é obrigatório")
   private String perspective;
-  @NotBlank(message = "The field <status> is required")
+  @NotBlank(message = "O campo <status> é obrigatório")
   private String status;
-  @NotBlank(message = "The field <pageNumber> is required")
+  @NotBlank(message = "O campo <pageNumber> é obrigatório")
   private String pageNumber;
-  @NotBlank(message = "The field <pageSize> is required")
+  @NotBlank(message = "O campo <pageSize> é obrigatório")
   private String pageSize;
 
 }

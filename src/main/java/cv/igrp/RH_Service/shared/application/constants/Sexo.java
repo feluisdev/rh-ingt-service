@@ -54,7 +54,7 @@ public enum Sexo implements IgrpEnum<String> {
   * @throws IllegalArgumentException if no enum value exists for the given code
   */
   public static Sexo fromCodeOrThrow(String code) {
-    return fromCode(code).orElseThrow(() -> new IllegalArgumentException("Invalid Sexo for this code: " + code));
+    return fromCode(code).orElseThrow(() -> new IllegalArgumentException("Código inválido para Sexo: " + code));
   }
 
   /**

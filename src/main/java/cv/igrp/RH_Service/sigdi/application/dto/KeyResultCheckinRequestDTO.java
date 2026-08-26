@@ -28,10 +28,10 @@ import java.math.BigDecimal;
 @IgrpDTO
 public class KeyResultCheckinRequestDTO  {
 
-  @NotNull(message = "The field <valueAdded> is required")
+  @NotNull(message = "O campo <valueAdded> é obrigatório")
 
   private BigDecimal valueAdded ;
-  @NotBlank(message = "The field <comment> is required")
+  @NotBlank(message = "O campo <comment> é obrigatório")
 
   private String comment ;
 

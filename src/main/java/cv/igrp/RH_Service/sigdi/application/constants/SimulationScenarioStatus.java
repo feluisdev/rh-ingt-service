@@ -62,7 +62,7 @@ public enum SimulationScenarioStatus implements IgrpEnum<String> {
    */
   public static SimulationScenarioStatus fromCodeOrThrow(String code) {
     return fromCode(code).orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST,
-        "Invalid SimulationScenarioStatus for this code: " + code));
+        "Código inválido para SimulationScenarioStatus: " + code));
   }
 
   /**

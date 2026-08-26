@@ -14,7 +14,7 @@ public class ChangeStatusTacticalActivityCommand implements Command {
 
   
   private TaticalActivityStatusDTO taticalactivitystatus;
-  @NotBlank(message = "The field <id> is required")
+  @NotBlank(message = "O campo <id> é obrigatório")
   private String id;
 
 }

@@ -2,6 +2,7 @@
   "type": "enum",
   "module": "sigdi",
   "name": "SigofSyncLogStatus",
+  "readOnly": true,
   "values": [
     {
       "name": "RUNNING",

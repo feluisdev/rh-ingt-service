@@ -13,15 +13,15 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class GetTaticalActivitiesQuery implements Query {
 
-  @NotBlank(message = "The field <pageNumber> is required")
+  @NotBlank(message = "O campo <pageNumber> é obrigatório")
   private String pageNumber;
-  @NotBlank(message = "The field <pageSize> is required")
+  @NotBlank(message = "O campo <pageSize> é obrigatório")
   private String pageSize;
-  @NotBlank(message = "The field <status> is required")
+  @NotBlank(message = "O campo <status> é obrigatório")
   private String status;
-  @NotBlank(message = "The field <unidade> is required")
+  @NotBlank(message = "O campo <unidade> é obrigatório")
   private String unidade;
-  @NotBlank(message = "The field <data> is required")
+  @NotBlank(message = "O campo <data> é obrigatório")
   private String data;
 
   private String paaLevel;

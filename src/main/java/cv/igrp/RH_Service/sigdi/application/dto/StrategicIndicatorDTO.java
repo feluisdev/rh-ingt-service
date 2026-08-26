@@ -16,7 +16,7 @@ public class StrategicIndicatorDTO {
 
     private UUID id;
 
-    @NotBlank(message = "The field <title> is required")
+    @NotBlank(message = "O campo <title> é obrigatório")
     private String title;
 
     private String formula;

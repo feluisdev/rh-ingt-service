@@ -5,12 +5,14 @@ import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.TacticalActivi
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.TacticalActivitiesEntityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.filter.TaticalActivityFilter;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
+import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PendingActivityRow;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.TacticalActivityId;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.tatical.TacticalActivityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,11 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class TacticalActivityRepositoryImpl implements TacticalActivityRepository {
+
+  // Explicit order (D-S, 110-01-PLAN.md): without it, PageRequest.of alone leaves page k and
+  // k+1 free to repeat or skip a row, which the Plan 02 combined pagination would amplify
+  // across two sources.
+  private static final Sort OLDEST_FIRST = Sort.by(Sort.Direction.ASC, "createdDate");
 
   private final TacticalActivitiesEntityRepository jpaRepository;
   private final TacticalActivityMapper mapper;
@@ -49,21 +56,32 @@ public class TacticalActivityRepositoryImpl implements TacticalActivityRepositor
 
   @Transactional(readOnly = true)
   @Override
-  public List<TacticalActivity> findByStatuses(List<String> statuses, int page, int size) {
-    Specification<TacticalActivitiesEntity> spec = (root, query, cb) ->
-        root.get("status").in(statuses);
-    return jpaRepository.findAll(spec, PageRequest.of(page, size))
-        .stream()
-        .map(mapper::toDomain)
-        .toList();
-  }
-
-  @Transactional(readOnly = true)
-  @Override
   public long countByStatuses(List<String> statuses) {
     Specification<TacticalActivitiesEntity> spec = (root, query, cb) ->
         root.get("status").in(statuses);
     return jpaRepository.count(spec);
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public List<PendingActivityRow> findPendingRows(List<String> statuses, int page, int size) {
+    Specification<TacticalActivitiesEntity> spec = (root, query, cb) ->
+        root.get("status").in(statuses);
+    return jpaRepository.findAll(spec, PageRequest.of(page, size, OLDEST_FIRST))
+        .stream()
+        .map(this::toRow)
+        .toList();
+  }
+
+  private PendingActivityRow toRow(TacticalActivitiesEntity entity) {
+    return new PendingActivityRow(
+        entity.getId(),
+        entity.getTitle(),
+        entity.getStatus(),
+        entity.getBudgetEstimated(),
+        entity.getEconomicClassifier(),
+        entity.getCreatedBy(),
+        entity.getCreatedDate());
   }
 
   @Transactional(readOnly = true)

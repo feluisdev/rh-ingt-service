@@ -19,25 +19,25 @@ import java.math.BigDecimal;
 @IgrpDTO
 public class SiadapConfigRequestDTO  {
 
-  @NotNull(message = "The field <goodScore> is required")
+  @NotNull(message = "O campo <goodScore> é obrigatório")
 
   private BigDecimal goodScore ;
-  @NotNull(message = "The field <excellentScore> is required")
+  @NotNull(message = "O campo <excellentScore> é obrigatório")
 
   private BigDecimal excellentScore ;
-  @NotNull(message = "The field <excellentQuota> is required")
+  @NotNull(message = "O campo <excellentQuota> é obrigatório")
 
   private BigDecimal excellentQuota ;
-  @NotNull(message = "The field <goodQuota> is required")
+  @NotNull(message = "O campo <goodQuota> é obrigatório")
 
   private BigDecimal goodQuota ;
-  @NotNull(message = "The field <minimumCollaboratorsForQuota> is required")
+  @NotNull(message = "O campo <minimumCollaboratorsForQuota> é obrigatório")
 
   private Integer minimumCollaboratorsForQuota ;
-  @NotNull(message = "The field <resultsWeight> is required")
+  @NotNull(message = "O campo <resultsWeight> é obrigatório")
 
   private BigDecimal resultsWeight ;
-  @NotNull(message = "The field <competenciesWeight> is required")
+  @NotNull(message = "O campo <competenciesWeight> é obrigatório")
 
   private BigDecimal competenciesWeight ;
 

@@ -15,7 +15,7 @@ import lombok.AllArgsConstructor;
 @IgrpDTO
 public class WorkflowCommentDTO {
 
-  @Size(min = 10, message = "The field length <comment> must be at least 10 characters")
-  @Size(max = 500, message = "The field length <comment> cannot be more than 500 characters")
+  @Size(min = 10, message = "O campo <comment> deve ter pelo menos 10 caracteres")
+  @Size(max = 500, message = "O campo <comment> não pode ter mais de 500 caracteres")
   private String comment;
 }

@@ -76,7 +76,7 @@ public enum EvaluationPhase implements IgrpEnum<String> {
     public static EvaluationPhase fromCodeOrThrow(String code) {
         return fromCode(code).orElseThrow(() ->
                 IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST,
-                        "Invalid EvaluationPhase for this code: " + code));
+                        "Código inválido para EvaluationPhase: " + code));
     }
 
     public static Map<String, String> codeDescriptionMap() {

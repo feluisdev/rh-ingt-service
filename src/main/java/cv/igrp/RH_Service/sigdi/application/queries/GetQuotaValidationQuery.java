@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class GetQuotaValidationQuery implements Query {
 
-  @NotNull(message = "The field <year> is required")
+  @NotNull(message = "O campo <year> é obrigatório")
   private Integer year;
 }

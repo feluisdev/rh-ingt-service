@@ -2,26 +2,41 @@
     "type": "enum",
     "module": "sigdi",
     "name": "SiadapMeritRating",
+    "readOnly": true,
     "values": [
         {
-            "name": "EXCELLENT",
+            "name": "INADEQUATE",
             "attributes": [
-                "EXCELLENT",
-                "EXCELLENT"
-            ]
-        },
-        {
-            "name": "GOOD",
-            "attributes": [
-                "GOOD",
-                "GOOD"
+                "INADEQUATE",
+                "Inadequado"
             ]
         },
         {
             "name": "REGULAR",
             "attributes": [
                 "REGULAR",
-                "REGULAR"
+                "Regular"
+            ]
+        },
+        {
+            "name": "GOOD",
+            "attributes": [
+                "GOOD",
+                "Bom"
+            ]
+        },
+        {
+            "name": "VERY_GOOD",
+            "attributes": [
+                "VERY_GOOD",
+                "Muito Bom"
+            ]
+        },
+        {
+            "name": "EXCELLENT",
+            "attributes": [
+                "EXCELLENT",
+                "Excelente"
             ]
         }
     ],

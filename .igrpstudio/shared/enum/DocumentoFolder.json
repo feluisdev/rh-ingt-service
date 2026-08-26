@@ -2,6 +2,7 @@
   "type": "enum",
   "module": "shared",
   "name": "DocumentoFolder",
+  "readOnly": true,
   "values": [
     {
       "name": "Funcionario",

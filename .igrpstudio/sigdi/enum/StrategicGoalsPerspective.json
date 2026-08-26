@@ -2,6 +2,7 @@
   "type": "enum",
   "module": "sigdi",
   "name": "StrategicGoalsPerspective",
+  "readOnly": true,
   "values": [
     {
       "name": "FINANCIAL",

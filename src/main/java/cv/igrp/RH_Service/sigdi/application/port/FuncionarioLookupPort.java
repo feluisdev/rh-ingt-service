@@ -12,4 +12,6 @@ public interface FuncionarioLookupPort {
     Optional<FuncionarioDTO> findById(UUID id);
 
     Map<UUID, FuncionarioDTO> findAllByIds(Collection<UUID> ids);
+
+    Optional<UUID> findCurrentOrganizationalUnitId(UUID employeeId);
 }

@@ -14,16 +14,16 @@ import java.time.LocalDate;
 @IgrpDTO
 public class CreatePaaSubmissionPeriodDTO {
 
-    @NotNull(message = "The field <type> is required")
+    @NotNull(message = "O campo <type> é obrigatório")
     private String type; // UNIT_LEVEL | INDIVIDUAL_LEVEL
 
-    @NotNull(message = "The field <startDate> is required")
+    @NotNull(message = "O campo <startDate> é obrigatório")
     private LocalDate startDate;
 
-    @NotNull(message = "The field <endDate> is required")
+    @NotNull(message = "O campo <endDate> é obrigatório")
     private LocalDate endDate;
 
-    @NotNull(message = "The field <year> is required")
+    @NotNull(message = "O campo <year> é obrigatório")
     private Integer year;
 
     private String purpose; // PAA | SIADAP — optional, defaults to PAA in the handler

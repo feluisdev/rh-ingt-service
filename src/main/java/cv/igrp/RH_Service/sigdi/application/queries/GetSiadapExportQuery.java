@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class GetSiadapExportQuery implements Query {
 
-  @NotNull(message = "The field <year> is required")
+  @NotNull(message = "O campo <year> é obrigatório")
   private Integer year;
 
   private String organicUnitId;

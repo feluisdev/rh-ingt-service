@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @IgrpDTO
 public class NegotiateActivityDTO {
 
-    @NotBlank(message = "The field <comment> is required")
+    @NotBlank(message = "O campo <comment> é obrigatório")
     private String comment;
 }

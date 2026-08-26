@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.estrutura.application.queries;
 
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.repository.ColabsColocacaoEntityRepository;
 import cv.igrp.RH_Service.estrutura.application.dto.OrganizationalUnitResponseDTO;
+import cv.igrp.RH_Service.estrutura.application.port.FuncionarioLookupPort;
 import cv.igrp.RH_Service.estrutura.domain.repository.OrganizationalUnitRepository;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.OrganizationalUnitId;
 import cv.igrp.RH_Service.estrutura.infrastructure.mappers.OrganizationalUnitMapper;
@@ -23,6 +24,7 @@ public class GetOrganizationalUnitByIdQueryHandler
     private final OrganizationalUnitMapper mapper;
     private final ColabsColocacaoEntityRepository colocacaoRepository;
     private final OptionLookupPort optionLookupPort;
+    private final FuncionarioLookupPort funcionarioLookupPort;
 
     @IgrpQueryHandler
     public ResponseEntity<OrganizationalUnitResponseDTO> handle(GetOrganizationalUnitByIdQuery query) {
@@ -41,6 +43,11 @@ public class GetOrganizationalUnitByIdQueryHandler
         if (unit.getParentUnitId() != null) {
             unitRepository.findById(unit.getParentUnitId())
                     .ifPresent(parent -> dto.setParentUnitName(parent.getName()));
+        }
+
+        if (unit.getResponsibleEmployeeId() != null) {
+            funcionarioLookupPort.findById(unit.getResponsibleEmployeeId())
+                    .ifPresent(f -> dto.setResponsibleEmployeeName(f.getNomeCompleto()));
         }
 
         return ResponseEntity.ok(dto);

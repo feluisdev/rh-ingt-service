@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.lookup;
 
 import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
+import cv.igrp.RH_Service.colaboradores.domain.repository.EnquadramentoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.sigdi.application.dto.FuncionarioDTO;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 public class FuncionarioLookupAdapter implements FuncionarioLookupPort {
 
     private final FuncionarioRepository repository;
+    private final EnquadramentoRepository enquadramentoRepository;
 
     @Override
     public Optional<FuncionarioDTO> findById(UUID id) {
@@ -32,6 +34,12 @@ public class FuncionarioLookupAdapter implements FuncionarioLookupPort {
                 .collect(Collectors.toMap(
                         f -> f.getId().getValor(),
                         this::toDto));
+    }
+
+    @Override
+    public Optional<UUID> findCurrentOrganizationalUnitId(UUID employeeId) {
+        return enquadramentoRepository.findCurrentByFuncionarioId(FuncionarioId.from(employeeId))
+                .map(e -> e.getUnidadeOrganicaId());
     }
 
     private FuncionarioDTO toDto(Funcionario funcionario) {
