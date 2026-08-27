@@ -2,7 +2,6 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
-import cv.igrp.RH_Service.sigdi.application.config.SiadapSelfEvaluationOpenerSecurityProperties;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapEvaluationDTO;
 import cv.igrp.RH_Service.sigdi.application.service.SelfEvaluationWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;
@@ -14,7 +13,6 @@ import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,8 +30,16 @@ import org.springframework.transaction.annotation.Transactional;
  * year has no active window receives the window's 400 message, not the phase's 400 message --
  * the phase check never runs. This is not a bug; it is the same ordering the 13 sibling handlers
  * already use, kept here for consistency.
+ *
+ * <p>Authorization is no longer checked here (Phase 115/AUT-04): see the {@code ACTOR-CHECK}
+ * comment below for where the guard lives now. {@link CurrentEmployeeResolver} stays as a
+ * constructor dependency regardless -- unlike the sibling handlers migrated earlier in this
+ * phase, it still has a second job here, feeding the repudiation-mitigation log line below.
+ * This is the one place in the migration where the resolver answers both questions at once:
+ * it no longer says who *may* act (the token does, via the controller's permission check),
+ * but it still says who *did* act.
  */
-// ACTOR-CHECK: ENFORCED -- SiadapSelfEvaluationOpenerSecurityProperties configured list; only a configured opener may open the self-evaluation phase by hand
+// ACTOR-CHECK: ENFORCED -- siadap.autoavaliacao.abrir permission, guarded by @PreAuthorize on ComplianceController#openSelfEvaluationPhase
 @Component
 @RequiredArgsConstructor
 public class OpenSelfEvaluationPhaseCommandHandler
@@ -45,7 +51,6 @@ public class OpenSelfEvaluationPhaseCommandHandler
   private final SiadapEvaluationRepository evaluationRepository;
   private final SiadapEvaluationMapper mapper;
   private final CurrentEmployeeResolver currentEmployeeResolver;
-  private final SiadapSelfEvaluationOpenerSecurityProperties openerProperties;
   private final SelfEvaluationWindowPolicy windowPolicy;
 
   @IgrpCommandHandler
@@ -57,15 +62,13 @@ public class OpenSelfEvaluationPhaseCommandHandler
     SiadapEvaluation evaluation = evaluationRepository.findById(evalId)
         .orElseThrow(() -> IgrpResponseStatusException.notFound("Avaliação não encontrada"));
 
-    // T-111-01: actor check first. The 403 message deliberately does not name the
-    // configuration property or environment variable -- that would disclose configuration
-    // detail to the client. The operator who needs to know it reads the WARN this same
-    // refusal logs in SiadapSelfEvaluationOpenerSecurityProperties, exactly like
-    // SiadapCcaSecurityProperties already does.
+    // T-111-01 -> Phase 115/AUT-04: the actor check that used to run here now runs at the
+    // controller boundary (@PreAuthorize on ComplianceController#openSelfEvaluationPhase,
+    // permission siadap.autoavaliacao.abrir -- see the ACTOR-CHECK comment on this class).
+    // currentEmployeeResolver.resolve() stays: it no longer feeds an authorization decision,
+    // it feeds the repudiation-mitigation log line below, which needs to know who acted
+    // regardless of how that actor was authorized.
     String currentEmployeeId = currentEmployeeResolver.resolve().getStringValor();
-    if (!openerProperties.isSelfEvaluationOpener(currentEmployeeId))
-      throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN,
-          "Apenas os funcionários autorizados podem abrir a autoavaliação à mão. Contacte o RH.");
 
     // D-02: window check second, delegated entirely to SelfEvaluationWindowPolicy -- this
     // handler never re-queries the submission-period repository directly (the 111-01 grep
