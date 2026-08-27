@@ -199,4 +199,127 @@ class PaaSubmissionPeriodRepositoryImplTest {
         assertEquals(firstDomain, result.get(0));
         assertEquals(secondDomain, result.get(1));
     }
+
+    /**
+     * Cobertura de {@code findOpenActiveOn} (Fase 119, plano 04): a leitura que o agendador de
+     * abertura usa para saber quais os períodos {@code OPEN} a decorrer hoje. Ao contrário de
+     * {@code findOpenExpired}, cuja fronteira superior é estrita, aqui as duas fronteiras --
+     * {@code startDate} e {@code endDate} -- são inclusivas.
+     */
+    @Test
+    void findOpenActiveOnReturnsAPeriodThatStartedYesterdayAndEndsTomorrow() {
+        PaaSubmissionPeriodEntity entity = new PaaSubmissionPeriodEntity();
+        entity.setId(UUID.randomUUID());
+        entity.setStatus("OPEN");
+
+        LocalDate today = LocalDate.of(2026, 8, 27);
+        PaaSubmissionPeriod domainPeriod = PaaSubmissionPeriod.reconstruct(
+                entity.getId(), Purpose.SIADAP, PaaLevel.INDIVIDUAL_LEVEL,
+                today.minusDays(1), today.plusDays(1), "OPEN", 2026);
+
+        when(jpaRepository.findOpenActiveOn(eq(today), any())).thenReturn(List.of(entity));
+        when(mapper.toDomain(entity)).thenReturn(domainPeriod);
+
+        List<PaaSubmissionPeriod> result = repository.findOpenActiveOn(today, 50);
+
+        assertEquals(1, result.size());
+        assertEquals(domainPeriod, result.get(0));
+    }
+
+    @Test
+    void findOpenActiveOnReturnsAPeriodThatStartsToday() {
+        // Fronteira inferior inclusiva.
+        PaaSubmissionPeriodEntity entity = new PaaSubmissionPeriodEntity();
+        entity.setId(UUID.randomUUID());
+        entity.setStatus("OPEN");
+
+        LocalDate today = LocalDate.of(2026, 8, 27);
+        PaaSubmissionPeriod domainPeriod = PaaSubmissionPeriod.reconstruct(
+                entity.getId(), Purpose.SIADAP, PaaLevel.INDIVIDUAL_LEVEL,
+                today, today.plusDays(30), "OPEN", 2026);
+
+        when(jpaRepository.findOpenActiveOn(eq(today), any())).thenReturn(List.of(entity));
+        when(mapper.toDomain(entity)).thenReturn(domainPeriod);
+
+        List<PaaSubmissionPeriod> result = repository.findOpenActiveOn(today, 50);
+
+        assertEquals(1, result.size());
+        assertEquals(domainPeriod, result.get(0));
+    }
+
+    @Test
+    void findOpenActiveOnReturnsAPeriodThatEndsToday() {
+        // Fronteira superior inclusiva -- ao contrário de findOpenExpired.
+        PaaSubmissionPeriodEntity entity = new PaaSubmissionPeriodEntity();
+        entity.setId(UUID.randomUUID());
+        entity.setStatus("OPEN");
+
+        LocalDate today = LocalDate.of(2026, 8, 27);
+        PaaSubmissionPeriod domainPeriod = PaaSubmissionPeriod.reconstruct(
+                entity.getId(), Purpose.SIADAP, PaaLevel.INDIVIDUAL_LEVEL,
+                today.minusDays(30), today, "OPEN", 2026);
+
+        when(jpaRepository.findOpenActiveOn(eq(today), any())).thenReturn(List.of(entity));
+        when(mapper.toDomain(entity)).thenReturn(domainPeriod);
+
+        List<PaaSubmissionPeriod> result = repository.findOpenActiveOn(today, 50);
+
+        assertEquals(1, result.size());
+        assertEquals(domainPeriod, result.get(0));
+    }
+
+    @Test
+    void findOpenActiveOnReturnsEmptyWhenThePeriodOnlyStartsTomorrow() {
+        LocalDate today = LocalDate.of(2026, 8, 27);
+        when(jpaRepository.findOpenActiveOn(eq(today), any())).thenReturn(List.of());
+
+        List<PaaSubmissionPeriod> result = repository.findOpenActiveOn(today, 50);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void findOpenActiveOnReturnsEmptyWhenThePeriodEndedYesterday() {
+        LocalDate today = LocalDate.of(2026, 8, 27);
+        when(jpaRepository.findOpenActiveOn(eq(today), any())).thenReturn(List.of());
+
+        List<PaaSubmissionPeriod> result = repository.findOpenActiveOn(today, 50);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void findOpenActiveOnReturnsEmptyForAClosedPeriodEvenIfActive() {
+        LocalDate today = LocalDate.of(2026, 8, 27);
+        // A consulta já filtra por status = 'OPEN'; do lado do adaptador não há mais nada a
+        // verificar -- o teste prova apenas que uma lista vazia devolvida pelo JPA não rebenta.
+        when(jpaRepository.findOpenActiveOn(eq(today), any())).thenReturn(List.of());
+
+        List<PaaSubmissionPeriod> result = repository.findOpenActiveOn(today, 50);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void findOpenActiveOnAlwaysAsksForTheFirstPage() {
+        when(jpaRepository.findOpenActiveOn(any(), any())).thenReturn(List.of());
+
+        repository.findOpenActiveOn(LocalDate.of(2026, 8, 27), 50);
+
+        ArgumentCaptor<org.springframework.data.domain.Pageable> pageableCaptor =
+                ArgumentCaptor.forClass(org.springframework.data.domain.Pageable.class);
+        verify(jpaRepository).findOpenActiveOn(any(), pageableCaptor.capture());
+
+        assertEquals(0, pageableCaptor.getValue().getPageNumber());
+        assertEquals(50, pageableCaptor.getValue().getPageSize());
+    }
+
+    @Test
+    void findOpenActiveOnReturnsEmptyListWhenZeroRows() {
+        when(jpaRepository.findOpenActiveOn(any(), any())).thenReturn(List.of());
+
+        List<PaaSubmissionPeriod> result = repository.findOpenActiveOn(LocalDate.of(2026, 8, 27), 50);
+
+        assertTrue(result.isEmpty());
+    }
 }

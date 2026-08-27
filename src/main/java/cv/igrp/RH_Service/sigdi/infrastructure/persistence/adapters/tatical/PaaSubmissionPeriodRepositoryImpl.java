@@ -140,4 +140,18 @@ public class PaaSubmissionPeriodRepositoryImpl implements PaaSubmissionPeriodRep
                 .map(mapper::toDomain)
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<PaaSubmissionPeriod> findOpenActiveOn(LocalDate today, int limit) {
+        // Sempre página zero, pela mesma razão de findOpenExpired acima: o agendador de
+        // abertura muda o que a consulta devolve (grava lote para o período, que passa a
+        // bloquear a próxima leitura via a guarda de idempotência), por isso um offset
+        // crescente saltaria períodos ainda por processar.
+        Pageable pageable = PageRequest.of(0, limit);
+        return jpaRepository.findOpenActiveOn(today, pageable)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
 }

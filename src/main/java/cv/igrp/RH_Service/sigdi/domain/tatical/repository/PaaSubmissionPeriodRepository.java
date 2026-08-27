@@ -32,4 +32,15 @@ public interface PaaSubmissionPeriodRepository {
     // lista. O varrimento em lotes é responsabilidade de quem chama; esta porta devolve sempre
     // no máximo `limit` resultados, sem noção de página além da primeira.
     List<PaaSubmissionPeriod> findOpenExpired(LocalDate today, int limit);
+
+    /**
+     * Fase 119 (PRZ-01): leitura para o agendador de abertura
+     * ({@code PaaSubmissionPeriodOpeningScheduler}) -- quais os períodos {@code OPEN} a decorrer
+     * hoje. Ver o comentário sobre as duas fronteiras inclusivas em
+     * {@code PaaSubmissionPeriodEntityRepository.findOpenActiveOn}. Como em
+     * {@link #findOpenExpired(LocalDate, int)}, o varrimento em lotes é responsabilidade de quem
+     * chama; esta porta devolve sempre no máximo {@code limit} resultados, sem noção de página
+     * além da primeira.
+     */
+    List<PaaSubmissionPeriod> findOpenActiveOn(LocalDate today, int limit);
 }

@@ -53,4 +53,17 @@ public interface PaaSubmissionPeriodEntityRepository extends JpaRepository<PaaSu
     // períodos mais antigos primeiro e ter uma ordem estável entre passagens do varrimento.
     @Query("SELECT p FROM PaaSubmissionPeriodEntity p WHERE p.status = 'OPEN' AND p.endDate < :today ORDER BY p.endDate ASC, p.id ASC")
     List<PaaSubmissionPeriodEntity> findOpenWithEndDateBefore(@Param("today") LocalDate today, Pageable pageable);
+
+    // Fase 119 (PRZ-01): leitura para o agendador de abertura -- quais os períodos OPEN a
+    // decorrer hoje. Ao contrário de findOpenWithEndDateBefore acima, cuja fronteira superior é
+    // estrita, aqui as DUAS fronteiras são inclusivas: um período que começa hoje conta como a
+    // decorrer (fronteira inferior inclusiva), e um período que acaba hoje ainda conta como a
+    // decorrer (fronteira superior inclusiva) -- ainda não passou pelo fecho automático da Fase
+    // 117, que só corre às 00:30, antes deste agendador (00:45). O BETWEEN reproduz o mesmo
+    // predicado já usado por findAllActiveByTypeAndPurpose acima, para que "está a decorrer"
+    // tenha uma única definição em todo o módulo. Ordem determinista entre passagens do
+    // varrimento -- por startDate ascendente e depois por id ascendente -- porque o varrimento
+    // repete sempre a primeira página (ver PaaSubmissionPeriodOpeningScheduler).
+    @Query("SELECT p FROM PaaSubmissionPeriodEntity p WHERE p.status = 'OPEN' AND :today BETWEEN p.startDate AND p.endDate ORDER BY p.startDate ASC, p.id ASC")
+    List<PaaSubmissionPeriodEntity> findOpenActiveOn(@Param("today") LocalDate today, Pageable pageable);
 }
