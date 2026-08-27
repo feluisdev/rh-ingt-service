@@ -17,12 +17,18 @@ import cv.igrp.framework.stereotype.IgrpPermission;
  * seven permissions for the access-management side. Nothing enforces the correspondence today --
  * adding a permission in one place and not the other fails silently.
  * <p>
- * <b>These replace the employee-id allow-lists.</b> Until now the only authorization in this
- * service was two comma-separated lists of employee ids read from the environment
+ * <b>These replaced the employee-id allow-lists.</b> Until Phase 115 the only authorization in
+ * this service was two comma-separated lists of employee ids read from the environment
  * ({@code SIADAP_CCA_EMPLOYEE_IDS}, {@code SIADAP_SELF_EVALUATION_OPENER_EMPLOYEE_IDS}) plus a
- * role literal defaulting to {@code "RH"} that was never confirmed against the IAM realm. The
- * call sites that still read them are listed against each constant below and are NOT yet
- * migrated -- declaring a permission does not enforce it.
+ * role literal defaulting to {@code "RH"} that was never confirmed against the IAM realm. Both
+ * lists and the role literal, and the configuration classes that read them, are gone --
+ * deleted, not doubled (see {@code 115-07-SUMMARY.md} / {@code 115-08-PLAN.md} for the record).
+ * Six of the seven permissions below are migrated: their javadoc names the real call site,
+ * either a {@code @PreAuthorize} on a controller method or, for
+ * {@code SIADAP_CCA_CONSULTARESTADO}, a direct {@code IgrpAuthorizationService.checkPermission}
+ * read inside its query handler. The seventh, {@code PAA_PERIODOSUBMISSAO_GERARFORMULARIOS},
+ * still has no call site at all -- it was declared ahead of the Phase 119 form generator and
+ * enforces nothing yet.
  */
 public class AppPermissions {
 
