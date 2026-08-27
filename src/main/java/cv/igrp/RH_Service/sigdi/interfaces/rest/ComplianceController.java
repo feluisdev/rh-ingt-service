@@ -180,7 +180,10 @@ public class ComplianceController {
   @GetMapping(value = "siadap/me/cca-status")
   @Operation(
     summary = "Get current user's CCA membership status",
-    description = "Indica se o utilizador atual pertence ao Conselho Coordenador da Avaliação (CCA).",
+    description = "Indica se o utilizador atual pertence ao Conselho Coordenador da Avaliação (CCA). "
+        + "A resposta reflete a permissão siadap.cca.consultarEstado do utilizador atual; este ponto "
+        + "não tem guarda @PreAuthorize por decisão registada na Fase 115 (ver 115-07-SUMMARY.md) -- "
+        + "é uma leitura de estado próprio, aberta a qualquer autenticado, não uma decisão de acesso.",
     responses = {
       @ApiResponse(
           responseCode = "200",
