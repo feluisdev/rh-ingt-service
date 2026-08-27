@@ -1,8 +1,6 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
-import cv.igrp.RH_Service.sigdi.application.config.SiadapCcaSecurityProperties;
 import cv.igrp.RH_Service.sigdi.application.constants.EvaluationPhase;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.SiadapConfigEntity;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.SiadapConfigEntityRepository;
@@ -27,7 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-// ACTOR-CHECK: ENFORCED -- CCA membership list (SiadapCcaSecurityProperties); only a CCA member may close evaluations in batch
+// ACTOR-CHECK: ENFORCED -- siadap.avaliacoes.fecharEmLote permission, guarded by @PreAuthorize on ComplianceController#closeEvaluations
 @Component
 public class CloseEvaluationsCommandHandler
     implements CommandHandler<CloseEvaluationsCommand, ResponseEntity<CloseEvaluationsResponseDTO>> {
@@ -48,31 +46,17 @@ public class CloseEvaluationsCommandHandler
   private final SiadapEvaluationRepository evaluationRepository;
   // SiadapConfigEntityRepository used for cross-aggregate read-only config lookup
   private final SiadapConfigEntityRepository configRepository;
-  private final CurrentEmployeeResolver currentEmployeeResolver;
-  private final SiadapCcaSecurityProperties ccaSecurityProperties;
 
   public CloseEvaluationsCommandHandler(SiadapEvaluationRepository evaluationRepository,
-                                         SiadapConfigEntityRepository configRepository,
-                                         CurrentEmployeeResolver currentEmployeeResolver,
-                                         SiadapCcaSecurityProperties ccaSecurityProperties) {
+                                         SiadapConfigEntityRepository configRepository) {
     this.evaluationRepository = evaluationRepository;
     this.configRepository = configRepository;
-    this.currentEmployeeResolver = currentEmployeeResolver;
-    this.ccaSecurityProperties = ccaSecurityProperties;
   }
 
   @IgrpCommandHandler
   @Transactional
   public ResponseEntity<CloseEvaluationsResponseDTO> handle(CloseEvaluationsCommand command) {
     LOGGER.debug("CloseEvaluationsCommand: {}", command);
-
-    // SIA-04: batch command over N evaluations of N evaluators, so there is no single
-    // aggregate to compare a caller against -- authorization depends only on caller identity
-    // and must run before any repository read below.
-    String currentEmployeeId = currentEmployeeResolver.resolve().getStringValor();
-    if (!ccaSecurityProperties.isCca(currentEmployeeId))
-      throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN,
-          "Apenas um membro do Conselho Coordenador da Avaliação (CCA) pode executar esta ação");
 
     CloseEvaluationsRequestDTO req = command.getBody();
     Integer year = req.getYear();
