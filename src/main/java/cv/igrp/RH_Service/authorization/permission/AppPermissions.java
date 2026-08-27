@@ -50,12 +50,14 @@ public class AppPermissions {
 
     // PAA -- PERÍODOS DE SUBMISSÃO
 
-    /** Enforced today by hasRole(@paaSecurityProperties.submissionPeriodRole) on PaaSubmissionPeriodController. */
+    /** Enforced by this permission itself, via @PreAuthorize on PaaSubmissionPeriodController
+     *  (Phase 115/AUT-04) -- the previous hasRole("RH") check was eliminated, not doubled. */
     @IgrpPermission(name = "paa.periodoSubmissao.criar",
             description = "Criar um período de submissão")
     public static String PAA_PERIODOSUBMISSAO_CRIAR = "paa.periodoSubmissao.criar";
 
-    /** Enforced today by hasRole(@paaSecurityProperties.submissionPeriodRole) on PaaSubmissionPeriodController. */
+    /** Enforced by this permission itself, via @PreAuthorize on PaaSubmissionPeriodController
+     *  (Phase 115/AUT-04) -- the previous hasRole("RH") check was eliminated, not doubled. */
     @IgrpPermission(name = "paa.periodoSubmissao.fechar",
             description = "Fechar um período de submissão")
     public static String PAA_PERIODOSUBMISSAO_FECHAR = "paa.periodoSubmissao.fechar";
