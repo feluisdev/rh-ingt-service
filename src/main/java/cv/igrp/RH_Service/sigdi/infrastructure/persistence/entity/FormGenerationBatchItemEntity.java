@@ -1,0 +1,68 @@
+package cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity;
+
+// Mantida à mão, não gerada pelo iGRP Studio, sem manifesto correspondente em
+// .igrpstudio/sigdi/entity/. Ver 119-01-PLAN.md.
+//
+// Deliberadamente sem a anotacao de auditoria do Envers e sem herdar da base de auditoria
+// (D-02, 119-01-PLAN.md) -- mesma razao da entidade irma FormGenerationBatchEntity: o lote
+// e ele proprio o registo de auditoria.
+
+import cv.igrp.framework.stereotype.IgrpEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.time.LocalDateTime;
+import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@IgrpEntity
+@Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "t_form_generation_batch_item")
+public class FormGenerationBatchItemEntity {
+
+    @Id
+    @Column(name = "id", nullable = false)
+    private UUID id;
+
+    @Column(name = "batch_id", nullable = false)
+    private UUID batchId;
+
+    // Anulavel de proposito: uma linha de unidade organica saltada nao tem colaborador.
+    @Column(name = "employee_id")
+    private UUID employeeId;
+
+    @Column(name = "employee_name")
+    private String employeeName;
+
+    @Column(name = "unit_id")
+    private UUID unitId;
+
+    @Column(name = "unit_name")
+    private String unitName;
+
+    @Column(name = "outcome", nullable = false)
+    private String outcome;
+
+    @Column(name = "generated_form_id")
+    private UUID generatedFormId;
+
+    @Column(name = "evaluator_id")
+    private UUID evaluatorId;
+
+    @Column(name = "skip_reason")
+    private String skipReason;
+
+    @Column(name = "error_message")
+    private String errorMessage;
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+}
