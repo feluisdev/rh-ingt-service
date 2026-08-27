@@ -125,4 +125,19 @@ public class PaaSubmissionPeriodRepositoryImpl implements PaaSubmissionPeriodRep
                 .findFirst()
                 .map(mapper::toDomain);
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<PaaSubmissionPeriod> findOpenExpired(LocalDate today, int limit) {
+        // Sempre página zero, nunca um índice de página crescente: quem consome esta leitura
+        // muda o status das linhas que acabou de ler (fecha-as), portanto as linhas
+        // processadas saem do conjunto de resultados a cada passagem seguinte. Um offset
+        // crescente saltaria linhas ainda por processar. O varrimento em lotes (Fase 117,
+        // plano 02) faz-se repetindo a primeira página até esta deixar de devolver algo.
+        Pageable pageable = PageRequest.of(0, limit);
+        return jpaRepository.findOpenWithEndDateBefore(today, pageable)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
 }

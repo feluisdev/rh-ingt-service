@@ -45,4 +45,12 @@ public interface PaaSubmissionPeriodEntityRepository extends JpaRepository<PaaSu
     Page<PaaSubmissionPeriodEntity> findByPurpose(String purpose, Pageable pageable);
 
     long countByPurpose(String purpose);
+
+    // Fase 117 (PRZ-02): leitura para o fecho automático do período expirado. Fronteira
+    // estrita -- endDate < :today -- um período que acaba hoje não entra. Ordenado por
+    // endDate ascendente e depois por id ascendente: ordem determinista, ao contrário dos
+    // vizinhos acima que ordenam por createdDate DESC, porque aqui interessa esgotar os
+    // períodos mais antigos primeiro e ter uma ordem estável entre passagens do varrimento.
+    @Query("SELECT p FROM PaaSubmissionPeriodEntity p WHERE p.status = 'OPEN' AND p.endDate < :today ORDER BY p.endDate ASC, p.id ASC")
+    List<PaaSubmissionPeriodEntity> findOpenWithEndDateBefore(@Param("today") LocalDate today, Pageable pageable);
 }

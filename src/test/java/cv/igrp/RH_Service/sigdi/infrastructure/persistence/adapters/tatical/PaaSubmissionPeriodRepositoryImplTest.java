@@ -142,4 +142,61 @@ class PaaSubmissionPeriodRepositoryImplTest {
         assertTrue(result.isPresent());
         assertTrue(result.get().isClosed());
     }
+
+    @Test
+    void findOpenExpiredAlwaysAsksForTheFirstPage() {
+        // A leitura processa as linhas devolvidas e o consumidor fecha-as em seguida --
+        // um offset crescente saltaria linhas ainda por processar. Ver comentário no
+        // adaptador. Por isso pede-se sempre a página zero, qualquer que seja o limite.
+        when(jpaRepository.findOpenWithEndDateBefore(any(), any())).thenReturn(List.of());
+
+        repository.findOpenExpired(LocalDate.of(2026, 8, 26), 100);
+
+        ArgumentCaptor<org.springframework.data.domain.Pageable> pageableCaptor =
+                ArgumentCaptor.forClass(org.springframework.data.domain.Pageable.class);
+        verify(jpaRepository).findOpenWithEndDateBefore(any(), pageableCaptor.capture());
+
+        assertEquals(0, pageableCaptor.getValue().getPageNumber());
+        assertEquals(100, pageableCaptor.getValue().getPageSize());
+    }
+
+    @Test
+    void findOpenExpiredPassesTheGivenDateThrough() {
+        when(jpaRepository.findOpenWithEndDateBefore(any(), any())).thenReturn(List.of());
+
+        LocalDate today = LocalDate.of(2026, 8, 26);
+        repository.findOpenExpired(today, 100);
+
+        ArgumentCaptor<LocalDate> dateCaptor = ArgumentCaptor.forClass(LocalDate.class);
+        verify(jpaRepository).findOpenWithEndDateBefore(dateCaptor.capture(), any());
+
+        assertEquals(today, dateCaptor.getValue());
+    }
+
+    @Test
+    void findOpenExpiredMapsEveryRow() {
+        PaaSubmissionPeriodEntity first = new PaaSubmissionPeriodEntity();
+        first.setId(UUID.randomUUID());
+        first.setStatus("OPEN");
+        PaaSubmissionPeriodEntity second = new PaaSubmissionPeriodEntity();
+        second.setId(UUID.randomUUID());
+        second.setStatus("OPEN");
+
+        PaaSubmissionPeriod firstDomain = PaaSubmissionPeriod.reconstruct(
+                first.getId(), Purpose.PAA, PaaLevel.UNIT_LEVEL,
+                LocalDate.of(2026, 1, 1), LocalDate.of(2026, 6, 30), "OPEN", 2026);
+        PaaSubmissionPeriod secondDomain = PaaSubmissionPeriod.reconstruct(
+                second.getId(), Purpose.PAA, PaaLevel.INDIVIDUAL_LEVEL,
+                LocalDate.of(2026, 1, 1), LocalDate.of(2026, 7, 31), "OPEN", 2026);
+
+        when(jpaRepository.findOpenWithEndDateBefore(any(), any())).thenReturn(List.of(first, second));
+        when(mapper.toDomain(first)).thenReturn(firstDomain);
+        when(mapper.toDomain(second)).thenReturn(secondDomain);
+
+        List<PaaSubmissionPeriod> result = repository.findOpenExpired(LocalDate.of(2026, 8, 26), 100);
+
+        assertEquals(2, result.size());
+        assertEquals(firstDomain, result.get(0));
+        assertEquals(secondDomain, result.get(1));
+    }
 }
