@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.tatical;
 
 import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
+import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.TacticalActivitiesEntity;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.TacticalActivitiesEntityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.filter.TaticalActivityFilter;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -106,5 +108,19 @@ public class TacticalActivityRepositoryImpl implements TacticalActivityRepositor
 
     return new PageResult<>(data, page.getNumber(), page.getSize(), page.getTotalElements(),
         page.getTotalPages(), page.isFirst(), page.isLast());
+  }
+
+  // Fase 119 (PRZ-05): guarda de nulos primeiro -- year nulo ou paaLevel nulo devolvem lista
+  // vazia sem tocar no JPA, para que um chamador que não tenha os dois valores prontos não
+  // provoque uma query sem sentido.
+  @Transactional(readOnly = true)
+  @Override
+  public List<UUID> findOrganicUnitIdsWithActivitiesInYear(Integer year, PaaLevel paaLevel) {
+    if (year == null || paaLevel == null) {
+      return List.of();
+    }
+    // paaLevel.getCode() e nunca toString() -- a coluna t_tactical_activities.paa_level guarda
+    // o código do enum, não a sua representação Java.
+    return jpaRepository.findDistinctOrganicUnitIdsByFiscalYearAndPaaLevel(year, paaLevel.getCode());
   }
 }
