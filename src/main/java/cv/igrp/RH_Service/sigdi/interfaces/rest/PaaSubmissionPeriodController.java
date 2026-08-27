@@ -15,6 +15,7 @@ import cv.igrp.RH_Service.sigdi.application.commands.*;
 import cv.igrp.RH_Service.sigdi.application.dto.CreatePaaSubmissionPeriodDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.PaaSubmissionPeriodResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperListPaaSubmissionPeriodDTO;
+import cv.igrp.RH_Service.shared.security.DenialMessage;
 
 /**
  * Hand-maintained controller for PAA/SIADAP submission-period management endpoints.
@@ -42,17 +43,18 @@ public class PaaSubmissionPeriodController {
       this.commandBus = commandBus;
   }
 
-  // SECURITY: role check added because this endpoint had none — any authenticated user
-  // could open/close submission periods for all purposes. The role name comes from
-  // PaaSecurityProperties (sigdi.paa.submission-period-role, default "RH") instead of a
-  // literal here; no other endpoint in this codebase does role-based authorization, so
-  // there was no existing convention to confirm this against. Verify the exact role/
-  // authority string against the real IAM realm config before this reaches production.
-  @PreAuthorize("hasRole(@paaSecurityProperties.submissionPeriodRole)")
+  // ACTOR-CHECK: ENFORCED -- paa.periodoSubmissao.criar permission (IgrpAuthorizationService);
+  // the endpoint was previously guarded by hasRole("RH"), a role never confirmed against the
+  // real IAM realm (see REQUIREMENTS.md AUT-04 / ACH-A-01). That chain was eliminated rather
+  // than validated: the role check is gone, replaced by a named IGRP permission checked
+  // against the caller's token.
+  @PreAuthorize("@igrpAuthorization.checkPermission(T(Permission).PAA_PERIODOSUBMISSAO_CRIAR)")
+  @DenialMessage("Não tem permissão para criar períodos de submissão.")
   @PostMapping(value = "periods")
   @Operation(
       summary = "Create PAA Submission Period",
-      description = "Cria um período de submissão PAA (UNIT ou INDIVIDUAL)"
+      description = "Cria um período de submissão PAA (UNIT ou INDIVIDUAL). "
+          + "Exige a permissão paa.periodoSubmissao.criar."
   )
   public ResponseEntity<PaaSubmissionPeriodResponseDTO> createPaaSubmissionPeriod(
       @Valid @RequestBody CreatePaaSubmissionPeriodDTO createPaaSubmissionPeriodRequest) {
@@ -60,13 +62,16 @@ public class PaaSubmissionPeriodController {
       return commandBus.send(command);
   }
 
-  // SECURITY: see note on createPaaSubmissionPeriod above — same unverified role guess,
-  // now sourced from PaaSecurityProperties instead of a literal.
-  @PreAuthorize("hasRole(@paaSecurityProperties.submissionPeriodRole)")
+  // ACTOR-CHECK: ENFORCED -- paa.periodoSubmissao.fechar permission (IgrpAuthorizationService);
+  // see note on createPaaSubmissionPeriod above -- same unverified "RH" role, eliminated the
+  // same way, now checked against its own named permission.
+  @PreAuthorize("@igrpAuthorization.checkPermission(T(Permission).PAA_PERIODOSUBMISSAO_FECHAR)")
+  @DenialMessage("Não tem permissão para fechar períodos de submissão.")
   @PutMapping(value = "periods/{id}/close")
   @Operation(
       summary = "Close PAA Submission Period",
-      description = "Fecha um período de submissão PAA"
+      description = "Fecha um período de submissão PAA. "
+          + "Exige a permissão paa.periodoSubmissao.fechar."
   )
   public ResponseEntity<PaaSubmissionPeriodResponseDTO> closePaaSubmissionPeriod(
       @PathVariable(value = "id") String id) {
