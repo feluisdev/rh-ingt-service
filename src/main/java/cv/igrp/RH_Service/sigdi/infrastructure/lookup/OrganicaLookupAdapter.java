@@ -43,6 +43,17 @@ public class OrganicaLookupAdapter implements OrganicaLookupPort {
     }
 
     @Override
+    public Optional<UUID> findParentUnitId(UUID unitId) {
+        if (unitId == null) {
+            return Optional.empty();
+        }
+        return repository.findById(OrganizationalUnitId.from(unitId))
+                .map(OrganizationalUnit::getParentUnitId)
+                .flatMap(Optional::ofNullable)
+                .map(OrganizationalUnitId::getValor);
+    }
+
+    @Override
     public List<OrganicaDTO> findAllActiveUnits() {
         return repository.findAllActive().stream()
                 .map(this::toDto)
