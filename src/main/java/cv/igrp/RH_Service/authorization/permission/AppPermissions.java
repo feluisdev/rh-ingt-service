@@ -43,7 +43,9 @@ public class AppPermissions {
             description = "Consultar o estado do Conselho Coordenador da Avaliação")
     public static String SIADAP_CCA_CONSULTARESTADO = "siadap.cca.consultarEstado";
 
-    /** Enforced today by SiadapSelfEvaluationOpenerSecurityProperties in OpenSelfEvaluationPhaseCommandHandler. */
+    /** Enforced by this permission itself, via @PreAuthorize on
+     *  ComplianceController#openSelfEvaluationPhase (Phase 115/AUT-04) -- the previous
+     *  SiadapSelfEvaluationOpenerSecurityProperties allow-list was eliminated, not doubled. */
     @IgrpPermission(name = "siadap.autoavaliacao.abrir",
             description = "Abrir manualmente a fase de autoavaliação de uma avaliação SIADAP")
     public static String SIADAP_AUTOAVALIACAO_ABRIR = "siadap.autoavaliacao.abrir";
