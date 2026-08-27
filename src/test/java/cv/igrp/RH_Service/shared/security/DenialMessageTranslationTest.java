@@ -67,7 +67,9 @@ class DenialMessageTranslationTest {
   @Test
   @WithMockUser(authorities = "outra.coisa")
   void deniedCallerOnActionWithDeclaredMessage_getsThe403WithTheDeclaredMessage() throws Exception {
-    mockMvc.perform(get("/probe/with-message"))
+    // Accept explícito: sem ele, o MockMvc standalone negoceia com o primeiro conversor da
+    // lista por omissão (XML), que nunca é o que um cliente HTTP real desta API pede.
+    mockMvc.perform(get("/probe/with-message").accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isForbidden())
         .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
         .andExpect(jsonPath("$.title").value(MENSAGEM_DECLARADA));
@@ -76,7 +78,7 @@ class DenialMessageTranslationTest {
   @Test
   @WithMockUser(authorities = "outra.coisa")
   void deniedCallerOnActionWithoutDeclaredMessage_getsAGenericNonEmptyPortugueseMessage() throws Exception {
-    mockMvc.perform(get("/probe/without-message"))
+    mockMvc.perform(get("/probe/without-message").accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isForbidden())
         .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
         .andExpect(jsonPath("$.title").isNotEmpty())
@@ -86,7 +88,7 @@ class DenialMessageTranslationTest {
   @Test
   @WithMockUser(authorities = "siadap.mencaoMerito.atribuir")
   void callerWithMatchingPermission_getsA2xxWithNoErrorBody() throws Exception {
-    mockMvc.perform(get("/probe/with-message"))
+    mockMvc.perform(get("/probe/with-message").accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().string(""));
   }
