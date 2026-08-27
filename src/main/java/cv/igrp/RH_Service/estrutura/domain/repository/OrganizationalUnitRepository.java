@@ -19,4 +19,15 @@ public interface OrganizationalUnitRepository {
     boolean existsByCodeAndIdNot(String code, OrganizationalUnitId id);
     boolean existsActiveChildrenOf(OrganizationalUnitId parentId);
     List<OrganizationalUnit> findAllByIds(Collection<UUID> ids);
+
+    /**
+     * Todas as unidades orgânicas activas, sem paginação.
+     *
+     * <p>Não reutiliza {@link #findAll(OrganizationalUnitFilter)}: esse método é paginado
+     * com {@code size = 20} por omissão, e a fonte de elegíveis (Fase 116, AUT-06) tem de
+     * varrer todas as unidades para determinar quem responde por cada uma. Passar-lhe um
+     * {@code size} artificialmente grande esconderia um limite arbitrário dentro de um
+     * número mágico; um método sem paginação diz a verdade sobre o que faz.
+     */
+    List<OrganizationalUnit> findAllActive();
 }

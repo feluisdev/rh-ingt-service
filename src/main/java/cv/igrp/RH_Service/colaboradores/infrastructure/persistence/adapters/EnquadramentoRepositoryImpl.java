@@ -10,8 +10,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -42,6 +44,15 @@ public class EnquadramentoRepositoryImpl implements EnquadramentoRepository {
     @Override
     public List<EnquadramentoProfissional> findAllByFuncionarioIdOrderByDataInicioDesc(FuncionarioId funcionarioId) {
         return entityRepository.findByFuncionarioIdOrderByDataInicioDesc(funcionarioId.getValor())
+                .stream().map(mapper::toDomain).toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<EnquadramentoProfissional> findAllByUnidadeOrganicaIdCoveringYear(UUID unidadeOrganicaId, int year) {
+        LocalDate startOfYear = LocalDate.of(year, 1, 1);
+        LocalDate endOfYear = LocalDate.of(year, 12, 31);
+        return entityRepository.findAllByUnidadeOrganicaIdCoveringRange(unidadeOrganicaId, startOfYear, endOfYear)
                 .stream().map(mapper::toDomain).toList();
     }
 }

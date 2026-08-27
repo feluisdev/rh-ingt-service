@@ -39,9 +39,10 @@ public class CreatePaaSubmissionPeriodCommandHandler implements CommandHandler<C
     public ResponseEntity<PaaSubmissionPeriodResponseDTO> handle(CreatePaaSubmissionPeriodCommand command) {
         var dto = command.getPeriod();
         PaaLevel type = PaaLevel.fromCodeOrThrow(dto.getType());
-        Purpose purpose = (dto.getPurpose() == null || dto.getPurpose().isBlank())
-                ? Purpose.PAA
-                : Purpose.fromCodeOrThrow(dto.getPurpose());
+        if (dto.getPurpose() == null || dto.getPurpose().isBlank()) {
+            throw IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST, "O campo <purpose> é obrigatório");
+        }
+        Purpose purpose = Purpose.fromCodeOrThrow(dto.getPurpose());
 
         // Rule 1: No active period of the same type, year and purpose
         Optional<PaaSubmissionPeriod> activePeriod = repository.findByTypeAndYearAndStatusAndPurpose(type, dto.getYear(), "OPEN", purpose);

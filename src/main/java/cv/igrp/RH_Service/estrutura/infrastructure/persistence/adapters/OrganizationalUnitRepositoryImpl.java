@@ -110,4 +110,12 @@ public class OrganizationalUnitRepositoryImpl implements OrganizationalUnitRepos
                 .map(mapper::toDomain)
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<OrganizationalUnit> findAllActive() {
+        return entityRepository.findByIsActiveTrue().stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
 }

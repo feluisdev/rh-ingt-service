@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.sigdi.application.port;
 import cv.igrp.RH_Service.sigdi.application.dto.OrganicaDTO;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -14,4 +15,9 @@ public interface OrganicaLookupPort {
     Map<UUID, OrganicaDTO> findAllByIds(Collection<UUID> ids);
 
     Optional<UUID> findResponsibleEmployeeId(UUID unitId);
+
+    /**
+     * Todas as unidades orgânicas activas, sem paginação.
+     */
+    List<OrganicaDTO> findAllActiveUnits();
 }

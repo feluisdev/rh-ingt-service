@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.sigdi.application.dto;
 
 import cv.igrp.framework.stereotype.IgrpDTO;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,5 +27,6 @@ public class CreatePaaSubmissionPeriodDTO {
     @NotNull(message = "O campo <year> é obrigatório")
     private Integer year;
 
-    private String purpose; // PAA | SIADAP — optional, defaults to PAA in the handler
+    @NotBlank(message = "O campo <purpose> é obrigatório")
+    private String purpose; // PAA_BSC_OBJECTIVES | PAA | SIADAP | SIADAP_INTERIM | SIADAP_SELF_EVAL | SIADAP_FINAL
 }

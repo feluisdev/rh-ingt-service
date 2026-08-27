@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -39,6 +40,13 @@ public class OrganicaLookupAdapter implements OrganicaLookupPort {
         return repository.findById(OrganizationalUnitId.from(unitId))
                 .map(OrganizationalUnit::getResponsibleEmployeeId)
                 .flatMap(Optional::ofNullable);
+    }
+
+    @Override
+    public List<OrganicaDTO> findAllActiveUnits() {
+        return repository.findAllActive().stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 
     private OrganicaDTO toDto(OrganizationalUnit unit) {
