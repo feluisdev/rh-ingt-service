@@ -28,17 +28,26 @@ public class AppPermissions {
 
     // SIADAP
 
-    /** Enforced today by SiadapCcaSecurityProperties in AssignMeritRatingCommandHandler. */
+    /** Enforced by this permission itself, via @PreAuthorize on
+     *  ComplianceController#assignMeritRating (Phase 115/AUT-04) -- the previous
+     *  configured-employee-ids allow-list class was eliminated, not doubled. */
     @IgrpPermission(name = "siadap.mencaoMerito.atribuir",
             description = "Atribuir ou corrigir a menção de mérito de uma avaliação SIADAP")
     public static String SIADAP_MENCAOMERITO_ATRIBUIR = "siadap.mencaoMerito.atribuir";
 
-    /** Enforced today by SiadapCcaSecurityProperties in CloseEvaluationsCommandHandler. */
+    /** Enforced by this permission itself, via @PreAuthorize on
+     *  ComplianceController#closeEvaluations (Phase 115/AUT-04) -- the previous
+     *  configured-employee-ids allow-list class was eliminated, not doubled. */
     @IgrpPermission(name = "siadap.avaliacoes.fecharEmLote",
             description = "Fechar avaliações SIADAP em lote")
     public static String SIADAP_AVALIACOES_FECHAREMLOTE = "siadap.avaliacoes.fecharEmLote";
 
-    /** Enforced today by SiadapCcaSecurityProperties in GetSiadapCcaStatusQueryHandler. */
+    /** Enforced by this permission itself, read directly via IgrpAuthorizationService inside
+     *  GetSiadapCcaStatusQueryHandler (Phase 115/AUT-04) -- the previous configured-employee-ids
+     *  allow-list class was eliminated, not doubled. Deliberately NOT enforced via
+     *  @PreAuthorize on the controller: see the handler's javadoc, point (d), for why this is
+     *  the one permission of seven read inside a handler instead of guarding a controller
+     *  method. */
     @IgrpPermission(name = "siadap.cca.consultarEstado",
             description = "Consultar o estado do Conselho Coordenador da Avaliação")
     public static String SIADAP_CCA_CONSULTARESTADO = "siadap.cca.consultarEstado";

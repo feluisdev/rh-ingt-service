@@ -27,9 +27,10 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 /**
  * Contraparte em execução de {@link PaaSubmissionPeriodControllerSecurityTest}, que só
- * inspeciona a anotação por reflexão. A autorização deste controller deixou de depender de
- * {@code PaaSecurityProperties} (bean com o papel {@code "RH"} nunca confirmado contra o realm
- * IAM) e passou a duas permissões IGRP nomeadas -- {@code paa.periodoSubmissao.criar} e
+ * inspeciona a anotação por reflexão. A autorização deste controller deixou de depender de um
+ * bean de configuração com o papel {@code "RH"} nunca confirmado contra o realm IAM (a classe
+ * foi eliminada na onda 3 desta fase) e passou a duas permissões IGRP nomeadas --
+ * {@code paa.periodoSubmissao.criar} e
  * {@code paa.periodoSubmissao.fechar}. Este teste arranca um contexto mínimo com segurança de
  * método ligada ({@link AuthorizationWiringConfig}, importado tal como o plano 115-01 provou), e
  * invoca os métodos do {@link PaaSubmissionPeriodController} <b>proxied</b> diretamente -- nunca

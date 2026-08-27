@@ -18,11 +18,11 @@ import org.springframework.stereotype.Component;
  *
  * <p>(b) The decision itself now lives in the authenticated caller's authorities, read directly
  * from {@link IgrpAuthorizationService#checkPermission(Permission)} for
- * {@code siadap.cca.consultarEstado} -- not in {@code SiadapCcaSecurityProperties}, eliminated
- * by Phase 115/AUT-04. {@code CurrentEmployeeResolver} is gone from this handler for the same
- * reason: nothing here needs to know <em>who</em> the caller is anymore, only <em>what they can
- * do</em>. This handler does not replicate, invert, or cache any part of that decision -- it
- * asks and returns the answer.
+ * {@code siadap.cca.consultarEstado} -- not in a configured employee-id allow-list, the class
+ * for which was eliminated by Phase 115/AUT-04. {@code CurrentEmployeeResolver} is gone from
+ * this handler for the same reason: nothing here needs to know <em>who</em> the caller is
+ * anymore, only <em>what they can do</em>. This handler does not replicate, invert, or cache any
+ * part of that decision -- it asks and returns the answer.
  *
  * <p>(c) The visibility this endpoint grants the frontend is NOT a security boundary. Who is a
  * CCA member continues to be verified server-side by {@code @PreAuthorize} on
