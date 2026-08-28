@@ -15,7 +15,12 @@ import java.math.BigDecimal;
 @IgrpDTO
 public class RecordObjectiveAchievementRequestDTO {
 
-    @NotBlank(message = "evaluationId is mandatory")
+    // Fase 113 (SIA-06), 2026-08-26, decisao do operador. O @NotBlank daqui era
+    // inalcancavel: o @Valid do ComplianceController corre ANTES do
+    // request.setEvaluationId(id), pelo que qualquer cliente que nao mandasse o campo
+    // no corpo levava 400 -- e a interface nunca o mandou. O id vem do caminho do URL e
+    // e essa a fonte de verdade; este campo e transporte interno, preenchido pelo
+    // controlador em todas as vias de construcao (verificado: nao ha outra).
     private String evaluationId;
 
     @NotBlank(message = "objectiveCode is mandatory")

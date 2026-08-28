@@ -9,7 +9,9 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,6 +33,22 @@ import org.junit.jupiter.api.Test;
  * derives -- nothing beyond that.
  *
  * Phase 111 raised this from 14 to 15.
+ *
+ * <p><b>What ENFORCED means changed in Phase 115 (2026-08-26, plan 115-08).</b> Before this
+ * phase, every {@code ACTOR-CHECK: ENFORCED} handler checked the caller itself, by calling
+ * {@code currentEmployeeResolver.resolve()} and comparing the result against the aggregate. Plans 115-05 and
+ * 115-06 moved the check for two of these handlers ({@code AssignMeritRatingCommandHandler},
+ * {@code CloseEvaluationsCommandHandler}) to a permission guard on the corresponding
+ * {@code ComplianceController} method instead -- there is nothing left in those handlers to
+ * resolve the caller against, because the guard now runs before the handler is invoked at all.
+ * Their {@code ACTOR-CHECK: ENFORCED} comments were rewritten to name the permission and the
+ * guarded controller method, which is the correct form now, not a mistake. This test's
+ * {@link #enforcedHandlersActuallyEnforceTheirDisposition()} therefore accepts two legitimate
+ * forms of ENFORCED: the original in-handler resolution (still required for the handlers that
+ * compare against an aggregate they hold), and a controller-level permission guard named in the
+ * reason text and verified against the real {@code @PreAuthorize} annotation in
+ * {@code ComplianceController.java}. A handler that declares ENFORCED and has neither still
+ * fails the suite -- the two-forms recognition does not weaken what this test measures.
  */
 class SiadapCommandActorCheckCoverageTest {
 
@@ -48,6 +66,32 @@ class SiadapCommandActorCheckCoverageTest {
       Pattern.compile("//\\s*ACTOR-CHECK:\\s*(ENFORCED|NOT-REQUIRED)\\s*--\\s*(\\S.*)");
 
   private static final String RESOLVE_CALL = "currentEmployeeResolver.resolve()";
+
+  /**
+   * Matches an ACTOR-CHECK reason that claims the second legitimate ENFORCED form: a permission
+   * guard living on the controller instead of a resolve-and-compare inside the handler. Only
+   * matches the exact phrasing the Phase 115 handlers use -- a reason that mentions a permission
+   * or a controller method some other way still falls through to the resolve-call check below,
+   * which is the conservative direction (a handler cannot silently claim the new form).
+   */
+  private static final Pattern CONTROLLER_PERMISSION_REFERENCE_PATTERN =
+      Pattern.compile("guarded by @PreAuthorize on ComplianceController#(\\w+)");
+
+  /**
+   * Matches a {@code @PreAuthorize} annotation that calls {@code checkPermission}, followed --
+   * with anything except another {@code @PreAuthorize} in between -- by the {@code public}
+   * method it guards. Used to verify that an ACTOR-CHECK reason naming
+   * {@code ComplianceController#someMethod} as permission-guarded is telling the truth, not
+   * just asserting it in a comment nobody checks.
+   */
+  private static final Pattern PRE_AUTHORIZE_PERMISSION_METHOD_PATTERN = Pattern.compile(
+      // [^"]*, not [^)]* -- the SpEL argument nests parens itself
+      // (T(Permission).SOME_CONSTANT), so a class that excludes ")" instead of the closing
+      // quote stops at the first nested ")" and never matches at all.
+      "@PreAuthorize\\(\"@igrpAuthorization\\.checkPermission\\([^\"]*\\)\"\\)"
+          + "(?:(?!@PreAuthorize\\().)*?"
+          + "public\\s+\\S+(?:<[^>]*>)?\\s+(\\w+)\\s*\\(",
+      Pattern.DOTALL);
 
   private static String readFile(Path path) {
     if (!Files.isRegularFile(path)) {
@@ -95,6 +139,23 @@ class SiadapCommandActorCheckCoverageTest {
         .collect(Collectors.toList());
   }
 
+  /**
+   * The {@code ComplianceController} method names that carry a
+   * {@code @PreAuthorize(...checkPermission...)} guard, derived from the controller source
+   * itself -- not from any handler's say-so. This is what
+   * {@link #enforcedHandlersActuallyEnforceTheirDisposition()} checks an ACTOR-CHECK reason's
+   * claim against.
+   */
+  private static Set<String> derivePermissionGuardedControllerMethods() {
+    String controllerText = readFile(CONTROLLER_PATH);
+    Set<String> methods = new HashSet<>();
+    Matcher matcher = PRE_AUTHORIZE_PERMISSION_METHOD_PATTERN.matcher(controllerText);
+    while (matcher.find()) {
+      methods.add(matcher.group(1));
+    }
+    return methods;
+  }
+
   private static Matcher requireMarker(Path handlerPath) {
     Matcher matcher = ACTOR_CHECK_PATTERN.matcher(readFile(handlerPath));
     if (!matcher.find()) {
@@ -128,19 +189,51 @@ class SiadapCommandActorCheckCoverageTest {
     }
   }
 
+  /**
+   * Two legitimate forms of ENFORCED, since Phase 115 (2026-08-26, plan 115-08 -- see the class
+   * javadoc above for why the semantics changed):
+   *
+   * <ol>
+   *   <li>The handler resolves the current employee itself and compares it against the
+   *       aggregate ({@link #RESOLVE_CALL} called outside a comment). This is the original
+   *       form, still required for every handler whose reason does not claim the second form.
+   *   <li>The reason names a {@code ComplianceController} method as guarded by
+   *       {@code @PreAuthorize}, and that method genuinely carries a
+   *       {@code @PreAuthorize(...checkPermission...)} annotation in the controller source. The
+   *       claim is checked against the controller file, not taken on trust -- a handler cannot
+   *       declare this form for a method that has no such guard.
+   * </ol>
+   *
+   * A handler that declares ENFORCED and satisfies neither still fails this test: recognising a
+   * second legitimate form does not relax the requirement that every ENFORCED handler back its
+   * claim with real code.
+   */
   @Test
-  void enforcedHandlersActuallyResolveTheCurrentEmployee() {
+  void enforcedHandlersActuallyEnforceTheirDisposition() {
+    Set<String> permissionGuardedMethods = derivePermissionGuardedControllerMethods();
     for (String commandName : deriveCommandNames()) {
       Path handlerPath = handlerPathFor(commandName);
       Matcher marker = requireMarker(handlerPath);
       if (!"ENFORCED".equals(marker.group(1))) {
         continue;
       }
+      String reason = marker.group(2);
+      Matcher controllerRef = CONTROLLER_PERMISSION_REFERENCE_PATTERN.matcher(reason);
+      if (controllerRef.find()) {
+        String method = controllerRef.group(1);
+        assertTrue(permissionGuardedMethods.contains(method), handlerPath.getFileName()
+            + " ACTOR-CHECK reason claims ComplianceController#" + method
+            + " is guarded by @PreAuthorize(...checkPermission...), but that method carries no "
+            + "such annotation in " + CONTROLLER_PATH
+            + " -- the declaration says one thing, the code does another");
+        continue;
+      }
       boolean callsResolve = nonCommentLines(handlerPath).stream()
           .anyMatch(line -> line.contains(RESOLVE_CALL));
       assertTrue(callsResolve, handlerPath.getFileName()
-          + " declares ACTOR-CHECK: ENFORCED but never calls " + RESOLVE_CALL
-          + " outside a comment -- the declaration says one thing, the code does another");
+          + " declares ACTOR-CHECK: ENFORCED but neither calls " + RESOLVE_CALL
+          + " outside a comment nor names a ComplianceController permission guard in its "
+          + "reason -- the declaration says one thing, the code does another");
     }
   }
 

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PaaSubmissionPeriodTest {
@@ -45,12 +46,12 @@ class PaaSubmissionPeriodTest {
     }
 
     @Test
-    void backwardCompatibleCreateOverloadDefaultsPurposeToPaa() {
+    void createRejectsNullPurpose() {
         LocalDate today = LocalDate.now();
 
-        PaaSubmissionPeriod period = PaaSubmissionPeriod.create(
-                PaaLevel.UNIT_LEVEL, today, today.plusDays(10), 2026);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                PaaSubmissionPeriod.create(null, PaaLevel.UNIT_LEVEL, today, today.plusDays(10), 2026));
 
-        assertEquals(Purpose.PAA, period.getPurpose());
+        assertEquals("purpose é obrigatório", exception.getMessage());
     }
 }

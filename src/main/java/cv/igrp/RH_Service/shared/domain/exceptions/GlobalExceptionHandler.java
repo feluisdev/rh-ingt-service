@@ -1,15 +1,19 @@
 package cv.igrp.RH_Service.shared.domain.exceptions;
 
+import cv.igrp.RH_Service.shared.security.DenialMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.method.HandlerMethod;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -38,6 +42,61 @@ public class GlobalExceptionHandler {
         "22", "Dados inválidos.",
         "08", "Erro de ligação à base de dados."
     );
+
+    private static final String GENERIC_DENIAL_MESSAGE = "Não tem permissão para executar esta ação.";
+
+    /**
+     * Traduz a recusa de {@code @PreAuthorize} para o mesmo {@code ProblemDetail} 403 que o resto
+     * do serviço já devolve, com a mensagem em português declarada por {@link DenialMessage} ao
+     * lado da guarda -- ou uma mensagem genérica quando essa anotação não existe (omissão
+     * degradada com segurança, não erro).
+     *
+     * <p><b>{@code AuthorizationDeniedException} estende {@link AccessDeniedException}</b> --
+     * é o que o método-security lança de facto (ver {@code PreAuthorizeAuthorizationManager}) --
+     * pelo que este único tratador apanha as duas.
+     *
+     * <p><b>{@link HandlerMethod} como parâmetro do {@code @ExceptionHandler}</b> é o caminho que
+     * funcionou, medido nesta versão do Spring MVC (6.2): o {@code DispatcherServlet} passa o
+     * handler mapeado ao resolver a exceção, e o argument resolver por omissão de
+     * {@code ExceptionHandlerExceptionResolver} preenche-o sem configuração extra. O recurso
+     * alternativo do plano ({@code HttpServletRequest} + atributo
+     * {@code HandlerMapping.BEST_MATCHING_HANDLER_ATTRIBUTE}) não foi necessário.
+     *
+     * <p><b>Consequência aceite, não escondida (T-115-06):</b> ao apanhar
+     * {@code AccessDeniedException} aqui, dentro do despacho MVC, o
+     * {@code ExceptionTranslationFilter} da cadeia de filtros do Spring Security deixa de a ver.
+     * Um chamador <b>anónimo</b> a um método guardado passa a receber {@code 403} em vez do
+     * {@code 401} que essa cadeia lhe daria normalmente. É coerente com a decisão de fail-closed
+     * com {@code 403} do {@code 115-CONTEXT.md}, mas é uma mudança de comportamento real.
+     *
+     * <p><b>Âmbito deste tratador:</b> só apanha recusas levantadas <em>dentro</em> do despacho
+     * MVC (o caso do método-security, incluindo o proxy AOP de um controller). Recusas levantadas
+     * na cadeia de filtros do Spring Security (antes de o pedido chegar ao MVC) continuam a ser
+     * tratadas pelo próprio Spring Security, não por aqui.
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ProblemDetail handleAccessDeniedException(AccessDeniedException ex, HandlerMethod handlerMethod) {
+
+      var denialMessage = handlerMethod != null
+          ? handlerMethod.getMethodAnnotation(DenialMessage.class)
+          : null;
+
+      var title = denialMessage != null ? denialMessage.value() : GENERIC_DENIAL_MESSAGE;
+
+      var authentication = SecurityContextHolder.getContext().getAuthentication();
+      var principalName = authentication != null ? authentication.getName() : "desconhecido";
+      var methodDescription = handlerMethod != null
+          ? handlerMethod.getMethod().getDeclaringClass().getSimpleName() + "." + handlerMethod.getMethod().getName()
+          : "desconhecido";
+
+      // Recusa é funcionamento normal, não erro do servidor: warn, nunca error -- e nunca a
+      // mensagem em português como se fosse detalhe de diagnóstico no log.
+      LOGGER.warn("Acesso negado a {} para o principal '{}'", methodDescription, principalName);
+
+      var problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+      problemDetail.setTitle(title);
+      return problemDetail;
+    }
 
     @ExceptionHandler(IgrpResponseStatusException.class)
     public ProblemDetail handleIgrpResponseStatusException(IgrpResponseStatusException ex) {

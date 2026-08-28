@@ -115,6 +115,18 @@ public class CreateSiadapEvaluationCommandHandler
   // DIR_SERVICO, so deriving from the function would name two people (Phase 109, criterion 3).
   // A null result never blocks creation (D-05, operator decision 2026-08-24, revocable); the
   // request's evaluatorId is ignored, not rejected (D-12).
+  //
+  // There is a second evaluator derivation in the codebase,
+  // cv.igrp.RH_Service.sigdi.application.service.EvaluatorResolver (Fase 119), used by the
+  // automatic form generator on period opening. The difference is deliberate: this method
+  // derives the evaluator from the employee's current organizational unit
+  // (funcionarioLookupPort.findCurrentOrganizationalUnitId -- "where they are today"), while
+  // EvaluatorResolver derives it from the unit the employee was assigned to during the
+  // submission period's year -- "where they were that year" -- with a single climb to the
+  // parent unit and a named skip for whoever leads the top unit. The T-109-13 decision above,
+  // to ignore any evaluatorId sent by the client, is exactly what prevents the automatic
+  // generator from reusing this manual command path: it cannot pass its derived evaluatorId
+  // through here and have it honoured.
   private String deriveEvaluatorId(String employeeId) {
     Optional<UUID> unitId = funcionarioLookupPort.findCurrentOrganizationalUnitId(UUID.fromString(employeeId));
     if (unitId.isEmpty()) {

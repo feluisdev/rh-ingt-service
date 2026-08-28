@@ -2,16 +2,20 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
-import cv.igrp.RH_Service.sigdi.application.config.SiadapSelfEvaluationOpenerSecurityProperties;
 import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
 import cv.igrp.RH_Service.sigdi.application.constants.EvaluationPhase;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapEvaluationDTO;
@@ -32,12 +36,23 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 
 /**
- * Mould: {@link FinalizeEvaluationCommandHandlerTest}. Six cases prove actor-before-window
- * ordering, the domain's own IN_PROGRESS guard is not duplicated here, and that a refused
- * request never reaches {@code save}.
+ * Mould: {@link FinalizeEvaluationCommandHandlerTest}. Proves that business rule ordering
+ * (window before the domain's own IN_PROGRESS guard) still holds, and that a refused request
+ * never reaches {@code save}.
+ *
+ * <p>Phase 115/AUT-04: authorization is no longer this handler's concern -- the two cases that
+ * asserted a 403 for a caller outside the configured opener list were removed. Equivalent
+ * coverage lives in {@code ComplianceControllerMethodSecurityTest#openSelfEvaluationPhase_deniesWithoutPermission}
+ * and {@code #openSelfEvaluationPhase_allowsMatchingPermission}, which prove the
+ * {@code @PreAuthorize} guard on {@code ComplianceController#openSelfEvaluationPhase}. What
+ * this class still owns, and is the reason {@link CurrentEmployeeResolver} remains a mock here,
+ * is the repudiation-mitigation log line: {@link #logsAuthorOnSuccessfulOpen_currentEmployeeIdIsInTheLogLine()}
+ * exists precisely so a future cleanup that mistakes the resolver for a leftover of this
+ * migration fails loudly instead of silently dropping the audit trail.
  */
 @ExtendWith(MockitoExtension.class)
 class OpenSelfEvaluationPhaseCommandHandlerTest {
@@ -52,9 +67,6 @@ class OpenSelfEvaluationPhaseCommandHandlerTest {
 
   @Mock
   private CurrentEmployeeResolver currentEmployeeResolver;
-
-  @Mock
-  private SiadapSelfEvaluationOpenerSecurityProperties openerProperties;
 
   @Mock
   private SelfEvaluationWindowPolicy windowPolicy;
@@ -76,14 +88,29 @@ class OpenSelfEvaluationPhaseCommandHandlerTest {
         phase, AcceptanceStatus.ACCEPTED, null, false);
   }
 
+  private static ListAppender<ILoggingEvent> attachAppender() {
+    Logger logger =
+        (Logger) LoggerFactory.getLogger(OpenSelfEvaluationPhaseCommandHandler.class);
+    ListAppender<ILoggingEvent> appender = new ListAppender<>();
+    appender.start();
+    logger.addAppender(appender);
+    return appender;
+  }
+
+  private static void detachAppender(ListAppender<ILoggingEvent> appender) {
+    Logger logger =
+        (Logger) LoggerFactory.getLogger(OpenSelfEvaluationPhaseCommandHandler.class);
+    logger.detachAppender(appender);
+    appender.stop();
+  }
+
   @Test
-  void happyPath_actorAllowed_windowOpen_evaluationInProgress_transitionsToSelfEvaluation() {
+  void happyPath_windowOpen_evaluationInProgress_transitionsToSelfEvaluation() {
     SiadapEvaluation evaluation = buildEvaluation(EvaluationPhase.IN_PROGRESS);
     String openerId = UUID.randomUUID().toString();
 
     when(evaluationRepository.findById(any())).thenReturn(Optional.of(evaluation));
     when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.from(openerId));
-    when(openerProperties.isSelfEvaluationOpener(openerId)).thenReturn(true);
     when(evaluationRepository.save(any(SiadapEvaluation.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
     when(mapper.toFullDto(any(SiadapEvaluation.class))).thenReturn(new SiadapEvaluationDTO());
@@ -100,22 +127,34 @@ class OpenSelfEvaluationPhaseCommandHandlerTest {
   }
 
   @Test
-  void actorRefused_throwsForbidden_andNeverSaves() {
+  void logsAuthorOnSuccessfulOpen_currentEmployeeIdIsInTheLogLine() {
     SiadapEvaluation evaluation = buildEvaluation(EvaluationPhase.IN_PROGRESS);
-    String rejectedId = UUID.randomUUID().toString();
+    String openerId = UUID.randomUUID().toString();
 
     when(evaluationRepository.findById(any())).thenReturn(Optional.of(evaluation));
-    when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.from(rejectedId));
-    when(openerProperties.isSelfEvaluationOpener(rejectedId)).thenReturn(false);
+    when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.from(openerId));
+    when(evaluationRepository.save(any(SiadapEvaluation.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
+    when(mapper.toFullDto(any(SiadapEvaluation.class))).thenReturn(new SiadapEvaluationDTO());
 
     OpenSelfEvaluationPhaseCommand command =
         new OpenSelfEvaluationPhaseCommand(evaluation.getId().getStringValor());
 
-    IgrpResponseStatusException exception =
-        assertThrows(IgrpResponseStatusException.class, () -> handler.handle(command));
+    ListAppender<ILoggingEvent> appender = attachAppender();
+    try {
+      handler.handle(command);
 
-    assertEquals(403, exception.getBody().getStatus());
-    verify(evaluationRepository, never()).save(any());
+      boolean loggedAuthor =
+          appender.list.stream()
+              .anyMatch(
+                  event ->
+                      event.getLevel() == Level.INFO
+                          && event.getFormattedMessage().contains(openerId));
+      assertTrue(loggedAuthor);
+      verify(currentEmployeeResolver, times(1)).resolve();
+    } finally {
+      detachAppender(appender);
+    }
   }
 
   @Test
@@ -125,7 +164,6 @@ class OpenSelfEvaluationPhaseCommandHandlerTest {
 
     when(evaluationRepository.findById(any())).thenReturn(Optional.of(evaluation));
     when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.from(openerId));
-    when(openerProperties.isSelfEvaluationOpener(openerId)).thenReturn(true);
     org.mockito.Mockito.doThrow(IgrpResponseStatusException.badRequest(
             "Não existe uma janela de autoavaliação SIADAP ativa para o ano " + YEAR))
         .when(windowPolicy).requireOpenFor(YEAR);
@@ -144,7 +182,6 @@ class OpenSelfEvaluationPhaseCommandHandlerTest {
 
     when(evaluationRepository.findById(any())).thenReturn(Optional.of(evaluation));
     when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.from(openerId));
-    when(openerProperties.isSelfEvaluationOpener(openerId)).thenReturn(true);
 
     OpenSelfEvaluationPhaseCommand command =
         new OpenSelfEvaluationPhaseCommand(evaluation.getId().getStringValor());
@@ -170,24 +207,5 @@ class OpenSelfEvaluationPhaseCommandHandlerTest {
 
     assertEquals(404, exception.getBody().getStatus());
     verify(currentEmployeeResolver, never()).resolve();
-  }
-
-  @Test
-  void actorRefused_withWindowAlsoClosed_errorIsForbiddenNotBadRequest_andWindowNeverChecked() {
-    SiadapEvaluation evaluation = buildEvaluation(EvaluationPhase.IN_PROGRESS);
-    String rejectedId = UUID.randomUUID().toString();
-
-    when(evaluationRepository.findById(any())).thenReturn(Optional.of(evaluation));
-    when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.from(rejectedId));
-    when(openerProperties.isSelfEvaluationOpener(rejectedId)).thenReturn(false);
-
-    OpenSelfEvaluationPhaseCommand command =
-        new OpenSelfEvaluationPhaseCommand(evaluation.getId().getStringValor());
-
-    IgrpResponseStatusException exception =
-        assertThrows(IgrpResponseStatusException.class, () -> handler.handle(command));
-
-    assertEquals(403, exception.getBody().getStatus());
-    verify(windowPolicy, never()).requireOpenFor(any());
   }
 }

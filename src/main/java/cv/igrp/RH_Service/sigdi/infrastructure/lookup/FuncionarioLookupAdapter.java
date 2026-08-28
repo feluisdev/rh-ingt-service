@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,6 +42,23 @@ public class FuncionarioLookupAdapter implements FuncionarioLookupPort {
     public Optional<UUID> findCurrentOrganizationalUnitId(UUID employeeId) {
         return enquadramentoRepository.findCurrentByFuncionarioId(FuncionarioId.from(employeeId))
                 .map(e -> e.getUnidadeOrganicaId());
+    }
+
+    @Override
+    public List<UUID> findEmployeeIdsAssignedToUnitInYear(UUID unitId, int year) {
+        if (unitId == null) return List.of();
+        // Decisão: este método vive na FuncionarioLookupPort e não numa porta nova --
+        // o adaptador já tem o EnquadramentoRepository injectado e já é o ponto
+        // autorizado de travessia sigdi -> colaboradores; abrir uma porta nova
+        // duplicaria a autorização de alcance sem acrescentar isolamento nenhum.
+        // A desduplicação usa LinkedHashSet (não HashSet nem Collectors.toSet()) para
+        // preservar a ordem de primeira ocorrência: a lista de elegíveis não pode mudar
+        // de ordem entre execuções, senão a Fase 119 grava instantâneos que parecem
+        // diferentes sem nada ter mudado.
+        return List.copyOf(
+                enquadramentoRepository.findAllByUnidadeOrganicaIdCoveringYear(unitId, year).stream()
+                        .map(e -> e.getFuncionarioId().getValor())
+                        .collect(Collectors.toCollection(LinkedHashSet::new)));
     }
 
     private FuncionarioDTO toDto(Funcionario funcionario) {

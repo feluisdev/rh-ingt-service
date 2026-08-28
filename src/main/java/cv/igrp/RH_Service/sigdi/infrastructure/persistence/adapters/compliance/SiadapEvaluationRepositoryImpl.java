@@ -15,6 +15,7 @@ import cv.igrp.RH_Service.sigdi.infrastructure.mappers.compliance.SiadapEvaluati
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -151,5 +152,62 @@ public class SiadapEvaluationRepositoryImpl implements SiadapEvaluationRepositor
     Specification<SiadapEvaluationEntity> spec =
         SiadapEvaluationSpecifications.byFilters(year, organicUnitId, phase);
     return jpaRepository.count(spec);
+  }
+
+  /**
+   * Fase 120, plano 02 ({@code PRZ-04}). Apaga a avaliação ao nível da entidade, depois de
+   * apagar primeiro as suas filhas de objetivos e de competências.
+   *
+   * <p><b>1. Porque {@code delete(entity)} e nunca um JPQL de remoção.</b>
+   * {@code SiadapEvaluationEntity} é {@code @Audited}; o Envers só escreve a revisão de remoção
+   * ({@code revtype = 2}) se a remoção passar pelo ciclo de vida da entidade (o
+   * {@code EntityManager} a processar um {@code remove()} de facto). Uma consulta anotada como
+   * escrita directa, ou um apagar em bloco de várias linhas de uma vez, saltam esse ciclo de vida
+   * em silêncio -- a linha desaparece da tabela, mas a auditoria nunca fica a saber que isso
+   * aconteceu, e não há erro nenhum a avisar disso.
+   *
+   * <p><b>2. O que fica na auditoria depois de apagar.</b>
+   * {@code audit_schema.t_siadap_evaluations_aud} tem {@code PRIMARY KEY (id, rev)}, todas as
+   * colunas de negócio anuláveis, e nenhuma {@code FOREIGN KEY} para a tabela viva ({@code V20},
+   * linhas 48-70) -- por isso apagar escreve uma revisão nova com todos os campos a nulo, e as
+   * revisões anteriores sobrevivem a apontar para uma linha que já não existe. É o resultado
+   * esperado, não um defeito: é o mesmo precedente que levou a {@code V32} a recusar um
+   * {@code CHECK} na tabela-sombra do Envers, precisamente porque uma linha histórica tem de
+   * sobreviver à remoção da linha que referencia.
+   *
+   * <p><b>3. Porque não se tocam as quatro tabelas <i>interim</i>.</b>
+   * ({@code SiadapInterimFeedbackEntity}, {@code SiadapInterimObjectiveRevisionEntity},
+   * {@code SiadapInterimImprovementActionEntity}, {@code SiadapInterimCompetencyObservationEntity})
+   * só podem receber linhas a partir de {@code IN_PROGRESS} -- ver
+   * {@code SiadapEvaluation.recordObjectiveAchievement} e {@code applyObjectiveRevision}. A
+   * fronteira do apagável (Fase 120, plano 02) só permite apagar avaliações em {@code OPEN} e sem
+   * objetivos nem competências, portanto nunca podem ter linhas nessas quatro tabelas. Nenhuma
+   * delas tem {@code FOREIGN KEY} para {@code t_siadap_evaluations}, logo a remoção também não
+   * falharia por causa delas -- só ficariam órfãs se algum dia essa fronteira mudasse, o que este
+   * método não faz por conta própria.
+   */
+  @Transactional
+  @Override
+  public boolean deleteById(SiadapEvaluationId id) {
+    UUID evalUuid = id.getValor().getValor();
+    Optional<SiadapEvaluationEntity> found = jpaRepository.findById(evalUuid);
+    if (found.isEmpty()) {
+      return false;
+    }
+
+    SiadapEvaluationEntity entity = found.get();
+    // Mesma ordem que o save() já usa: filhas primeiro, entidade-pai depois.
+    objectiveJpaRepository.deleteByEvaluationId(evalUuid);
+    competencyJpaRepository.deleteByEvaluationId(evalUuid);
+
+    // Estreitamento deliberado ao tipo CrudRepository: a partir do Spring Data JPA 3.5,
+    // JpaSpecificationExecutor#delete(Specification<T>) e CrudRepository#delete(T) tornam
+    // jpaRepository.delete(entity) ambíguo em tempo de compilação, porque
+    // SiadapEvaluationEntityRepository estende os dois. O estreitamento resolve a ambiguidade sem
+    // mudar qual delete() corre -- continua a ser a remoção ao nível da entidade, nunca a
+    // remoção em bloco por especificação.
+    CrudRepository<SiadapEvaluationEntity, UUID> crud = jpaRepository;
+    crud.delete(entity);
+    return true;
   }
 }
