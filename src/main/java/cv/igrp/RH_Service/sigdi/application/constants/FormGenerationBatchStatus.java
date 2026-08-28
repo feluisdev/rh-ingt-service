@@ -23,7 +23,12 @@ public enum FormGenerationBatchStatus implements IgrpEnum<String> {
     PARTIAL("PARTIAL", "Geração concluída com falhas em parte do lote"),
     FAILED("FAILED", "A geração falhou por inteiro"),
     NOTHING_TO_GENERATE("NOTHING_TO_GENERATE", "Esta finalidade não cria formulários; o lote regista apenas quem tem de agir"),
-    DRY_RUN("DRY_RUN", "Simulação: regista o que seria criado, sem criar nada");
+    DRY_RUN("DRY_RUN", "Simulação: regista o que seria criado, sem criar nada"),
+    // Fase 120, plano 01: os dois estados de reversão, derivados por
+    // FormGenerationBatch#markReverted a partir dos contadores de reversão. Não há CHECK
+    // sobre esta coluna (D-05 do 119-01 já previu este crescimento de vocabulário).
+    REVERTED("REVERTED", "Geração desfeita"),
+    PARTIALLY_REVERTED("PARTIALLY_REVERTED", "Geração desfeita em parte — algumas avaliações já tinham avançado");
 
     private final String code;
     private final String description;
