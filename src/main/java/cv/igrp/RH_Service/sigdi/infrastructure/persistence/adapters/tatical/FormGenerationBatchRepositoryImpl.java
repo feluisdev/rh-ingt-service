@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.tatical;
 
+import cv.igrp.RH_Service.sigdi.application.constants.FormGenerationRevertSkipReason;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.FormGenerationBatch;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.FormGenerationBatchRepository;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.tatical.FormGenerationBatchMapper;
@@ -7,10 +8,13 @@ import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.FormGeneration
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.FormGenerationBatchItemEntity;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.FormGenerationBatchEntityRepository;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.FormGenerationBatchItemEntityRepository;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,5 +84,51 @@ public class FormGenerationBatchRepositoryImpl implements FormGenerationBatchRep
         // ON DELETE CASCADE (V34) apaga as linhas filhas na base de dados; nao e preciso
         // apagar os itens aqui explicitamente.
         jpaRepository.deleteById(id);
+    }
+
+    /**
+     * Fase 120, plano 01 (PRZ-04). Nunca chama {@code saveAll} nem reconstrói a entidade do
+     * lote a partir do mapper -- só actualiza a linha já existente, carregada por
+     * {@code findById}. É isto que impede a duplicação de itens que {@link #save} produziria se
+     * fosse reutilizado aqui (ver Javadoc da porta).
+     */
+    @Transactional
+    @Override
+    public FormGenerationBatch markReverted(UUID batchId, Collection<UUID> revertedFormIds,
+                                             Map<UUID, FormGenerationRevertSkipReason> blockedFormIds,
+                                             LocalDateTime revertedAt, String revertedBy) {
+        // Um update por motivo distinto -- nao um por item. O agrupamento e feito aqui, nao na
+        // query JPQL, que so sabe aplicar um unico codigo de motivo de cada vez.
+        if (blockedFormIds != null && !blockedFormIds.isEmpty()) {
+            Map<FormGenerationRevertSkipReason, List<UUID>> blockedByReason = blockedFormIds.entrySet().stream()
+                    .collect(Collectors.groupingBy(Map.Entry::getValue,
+                            Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
+            blockedByReason.forEach((reason, formIds) ->
+                    itemJpaRepository.markItemsRevertBlocked(batchId, formIds, reason.getCode()));
+        }
+        if (revertedFormIds != null && !revertedFormIds.isEmpty()) {
+            itemJpaRepository.markItemsReverted(batchId, revertedFormIds, revertedAt);
+        }
+
+        FormGenerationBatchEntity entity = jpaRepository.findById(batchId)
+                .orElseThrow(() -> new IllegalStateException("Lote não encontrado para reversão: " + batchId));
+
+        // A regra REVERTED/PARTIALLY_REVERTED vive no domínio (Task 2) e só lá -- não a
+        // replicamos aqui. Reconstitui o agregado a partir da entidade já carregada, pede-lhe
+        // que se marque como desfeito, e só depois copia o resultado para a entidade.
+        FormGenerationBatch domainBatch = mapper.toDomain(entity, itemJpaRepository.findByBatchId(batchId));
+        int revertedCount = (revertedFormIds != null) ? revertedFormIds.size() : 0;
+        int revertBlockedCount = (blockedFormIds != null) ? blockedFormIds.size() : 0;
+        domainBatch.markReverted(revertedCount, revertBlockedCount, revertedAt, revertedBy);
+
+        entity.setRevertedAt(domainBatch.getRevertedAt());
+        entity.setRevertedBy(domainBatch.getRevertedBy());
+        entity.setRevertedCount(domainBatch.getRevertedCount());
+        entity.setRevertBlockedCount(domainBatch.getRevertBlockedCount());
+        entity.setStatus(domainBatch.getStatus().getCode());
+        jpaRepository.save(entity);
+
+        List<FormGenerationBatchItemEntity> reloadedItems = itemJpaRepository.findByBatchId(batchId);
+        return mapper.toDomain(entity, reloadedItems);
     }
 }
