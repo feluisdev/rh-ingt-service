@@ -9,6 +9,11 @@ package cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity;
 // na mesma migracao. As colunas de autoria (generatedBy/generatedAt) sao escritas explicitamente
 // pelo codigo da aplicacao -- se acrescentares essa anotacao por simetria com os vizinhos,
 // estas a criar uma sombra sem sentido.
+//
+// 119-08: length= explicito em purpose/type/generationMode/status. Medido contra base real que
+// a V34 foi aplicada com sucesso e mesmo assim o Hibernate (ddl-auto=update em development)
+// reescreveu estas quatro colunas para varchar(255) por baixo dela -- sem a anotacao, o
+// ddl-auto=update desfaria a V35 no arranque seguinte, repetindo o mesmo defeito.
 
 import cv.igrp.framework.stereotype.IgrpEntity;
 import jakarta.persistence.Column;
@@ -38,19 +43,19 @@ public class FormGenerationBatchEntity {
     @Column(name = "period_id", nullable = false)
     private UUID periodId;
 
-    @Column(name = "purpose", nullable = false)
+    @Column(name = "purpose", length = 20, nullable = false)
     private String purpose;
 
-    @Column(name = "type", nullable = false)
+    @Column(name = "type", length = 30, nullable = false)
     private String type;
 
     @Column(name = "year", nullable = false)
     private Integer year;
 
-    @Column(name = "generation_mode", nullable = false)
+    @Column(name = "generation_mode", length = 20, nullable = false)
     private String generationMode;
 
-    @Column(name = "status", nullable = false)
+    @Column(name = "status", length = 30, nullable = false)
     private String status;
 
     @Column(name = "created_count", nullable = false)

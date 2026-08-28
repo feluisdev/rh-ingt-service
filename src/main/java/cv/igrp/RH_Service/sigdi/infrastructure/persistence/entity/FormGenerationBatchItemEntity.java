@@ -6,6 +6,13 @@ package cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity;
 // Deliberadamente sem a anotacao de auditoria do Envers e sem herdar da base de auditoria
 // (D-02, 119-01-PLAN.md) -- mesma razao da entidade irma FormGenerationBatchEntity: o lote
 // e ele proprio o registo de auditoria.
+//
+// 119-08: length= explicito em outcome/skipReason, e columnDefinition TEXT em errorMessage.
+// Medido contra base real que a V34 foi aplicada com sucesso e mesmo assim o Hibernate
+// (ddl-auto=update em development) reescreveu estas tres colunas para varchar(255) por baixo
+// dela -- error_message em varchar(255) e o defeito medido no 119-07 que faz o lote inteiro
+// falhar ao gravar quando uma mensagem de excepcao excede esse limite. Sem estas anotacoes, o
+// ddl-auto=update desfaria a V35 no arranque seguinte, repetindo o mesmo defeito.
 
 import cv.igrp.framework.stereotype.IgrpEntity;
 import jakarta.persistence.Column;
@@ -48,7 +55,7 @@ public class FormGenerationBatchItemEntity {
     @Column(name = "unit_name")
     private String unitName;
 
-    @Column(name = "outcome", nullable = false)
+    @Column(name = "outcome", length = 30, nullable = false)
     private String outcome;
 
     @Column(name = "generated_form_id")
@@ -57,10 +64,10 @@ public class FormGenerationBatchItemEntity {
     @Column(name = "evaluator_id")
     private UUID evaluatorId;
 
-    @Column(name = "skip_reason")
+    @Column(name = "skip_reason", length = 50)
     private String skipReason;
 
-    @Column(name = "error_message")
+    @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
     @Column(name = "created_at", nullable = false)
