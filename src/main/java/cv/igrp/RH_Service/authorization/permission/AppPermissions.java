@@ -14,8 +14,13 @@ import cv.igrp.framework.stereotype.IgrpPermission;
  * constants below are therefore the source of truth; the enum and the sync are both derived.
  * <p>
  * <b>Keep in step with {@code .igrpstudio/permissions.json}.</b> That manifest declares the same
- * seven permissions for the access-management side. Nothing enforces the correspondence today --
- * adding a permission in one place and not the other fails silently.
+ * eight permissions for the access-management side. {@code AppPermissionsManifestTest} (Phase
+ * 120, plan 03) verifies the correspondence in both directions -- adding a permission in one
+ * place and not the other now fails that test instead of failing silently. That test cannot read
+ * {@link IgrpPermission} directly by reflection: the annotation has
+ * {@code @Retention(RetentionPolicy.SOURCE)} and is stripped from the compiled {@code .class} --
+ * it compares the manifest against {@code PermissionsRegistry.Permission} instead, the enum this
+ * same annotation processor generates from these constants.
  * <p>
  * <b>These replaced the employee-id allow-lists.</b> Until Phase 115 the only authorization in
  * this service was two comma-separated lists of employee ids read from the environment
@@ -23,12 +28,13 @@ import cv.igrp.framework.stereotype.IgrpPermission;
  * role literal defaulting to {@code "RH"} that was never confirmed against the IAM realm. Both
  * lists and the role literal, and the configuration classes that read them, are gone --
  * deleted, not doubled (see {@code 115-07-SUMMARY.md} / {@code 115-08-PLAN.md} for the record).
- * Six of the seven permissions below are migrated: their javadoc names the real call site,
+ * Seven of the eight permissions below are migrated: their javadoc names the real call site,
  * either a {@code @PreAuthorize} on a controller method or, for
  * {@code SIADAP_CCA_CONSULTARESTADO}, a direct {@code IgrpAuthorizationService.checkPermission}
- * read inside its query handler. The seventh, {@code PAA_PERIODOSUBMISSAO_GERARFORMULARIOS},
- * still has no call site at all -- it was declared ahead of the Phase 119 form generator and
- * enforces nothing yet.
+ * read inside its query handler. {@code PAA_PERIODOSUBMISSAO_GERARFORMULARIOS}, declared ahead
+ * of the Phase 119 form generator with no call site yet, now has two -- both read endpoints of
+ * {@code PaaSubmissionPeriodController} added in Phase 119 plan 05
+ * ({@code getPeriodGenerationSummaries}, {@code getPeriodGeneration}).
  */
 public class AppPermissions {
 
@@ -79,9 +85,27 @@ public class AppPermissions {
             description = "Fechar um período de submissão")
     public static String PAA_PERIODOSUBMISSAO_FECHAR = "paa.periodoSubmissao.fechar";
 
-    /** No call site yet -- declared ahead of the period-opening form generator. */
+    /** Enforced by this permission itself, via @PreAuthorize on
+     *  PaaSubmissionPeriodController#getPeriodGenerationSummaries and
+     *  #getPeriodGeneration (Phase 119, plan 05) -- declared ahead of the Phase 119 form
+     *  generator with no call site, now has two: reading who can mandate generation is weaker
+     *  than mandating it, so the two read endpoints reuse this permission (D-25, 119-05-PLAN.md)
+     *  instead of a permission of their own. */
     @IgrpPermission(name = "paa.periodoSubmissao.gerarFormularios",
             description = "Gerar os formulários de um período de submissão para os responsáveis")
     public static String PAA_PERIODOSUBMISSAO_GERARFORMULARIOS = "paa.periodoSubmissao.gerarFormularios";
+
+    /** Enforced by this permission itself, via @PreAuthorize on
+     *  PaaSubmissionPeriodController#revertPeriodGeneration (Phase 120, plan 03). Declared as
+     *  its own permission, not a reuse of PAA_PERIODOSUBMISSAO_GERARFORMULARIOS -- unlike the
+     *  two read endpoints above, this one deletes data. Reading the generation report is
+     *  strictly weaker than mandating generation (D-25 above); deleting what was generated is
+     *  strictly stronger and irreversible. Reusing gerarFormularios would silently widen, to
+     *  everyone who can currently only view the report, the power to destroy evaluations --
+     *  nobody would have decided that. See 120-03-PLAN.md, "A decisão de permissão, tomada e
+     *  justificada". */
+    @IgrpPermission(name = "paa.periodoSubmissao.desfazerGeracao",
+            description = "Desfazer um lote de geração de formulários de um período de submissão")
+    public static String PAA_PERIODOSUBMISSAO_DESFAZERGERACAO = "paa.periodoSubmissao.desfazerGeracao";
 
 }

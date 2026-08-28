@@ -33,5 +33,10 @@
     "name": "paa.periodoSubmissao.gerarFormularios",
     "description": "Gerar os formulários de um período de submissão para os responsáveis",
     "status": "ACTIVE"
+  },
+  {
+    "name": "paa.periodoSubmissao.desfazerGeracao",
+    "description": "Desfazer um lote de geração de formulários de um período de submissão",
+    "status": "ACTIVE"
   }
 ]
