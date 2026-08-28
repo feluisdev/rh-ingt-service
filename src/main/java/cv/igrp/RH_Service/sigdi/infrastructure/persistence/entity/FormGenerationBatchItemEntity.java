@@ -72,4 +72,16 @@ public class FormGenerationBatchItemEntity {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    // Fase 120, plano 01 (PRZ-04, V36) -- duas colunas de reversao, anulaveis. Escritas so pelo
+    // update em bloco de FormGenerationBatchRepositoryImpl.markReverted, nunca pelo insert do
+    // item (toItemEntity continua a deixa-las a null). revert_skip_reason leva length=50
+    // EXPLICITO, na mesma anotacao: e a licao medida da V35 -- sem length=, o ddl-auto=update
+    // do perfil development reescreveria a coluna para varchar(255) no arranque seguinte,
+    // desfazendo a V36 sem o Flyway dar por nada.
+    @Column(name = "reverted_at")
+    private LocalDateTime revertedAt;
+
+    @Column(name = "revert_skip_reason", length = 50)
+    private String revertSkipReason;
 }

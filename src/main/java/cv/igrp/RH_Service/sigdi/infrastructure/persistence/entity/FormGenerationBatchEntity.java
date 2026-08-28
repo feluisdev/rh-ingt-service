@@ -78,4 +78,23 @@ public class FormGenerationBatchEntity {
 
     @Column(name = "generated_by", nullable = false)
     private String generatedBy;
+
+    // Fase 120, plano 01 (PRZ-04, V36) -- as quatro colunas de reversao, todas anulaveis: um
+    // lote so as preenche quando markReverted corre. reverted_by leva length=255 EXPLICITO --
+    // e a mesma licao medida da V35: sem esta anotacao, o ddl-auto=update do perfil development
+    // reescreve a coluna para varchar(255) implicito por baixo da migracao, sem que o Flyway
+    // veja diferenca nenhuma (so valida o checksum do ficheiro, nunca o tipo da coluna viva).
+    // Aqui o comprimento coincide com o que o Hibernate ja pediria sem anotacao, mas fica
+    // explicito por principio -- o mesmo que a entidade irma ja faz para as suas colunas VARCHAR.
+    @Column(name = "reverted_at")
+    private LocalDateTime revertedAt;
+
+    @Column(name = "reverted_by", length = 255)
+    private String revertedBy;
+
+    @Column(name = "reverted_count")
+    private Integer revertedCount;
+
+    @Column(name = "revert_blocked_count")
+    private Integer revertBlockedCount;
 }

@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.sigdi.infrastructure.mappers.tatical;
 
 import cv.igrp.RH_Service.sigdi.application.constants.FormGenerationBatchStatus;
 import cv.igrp.RH_Service.sigdi.application.constants.FormGenerationOutcome;
+import cv.igrp.RH_Service.sigdi.application.constants.FormGenerationRevertSkipReason;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.FormGenerationBatch;
@@ -64,7 +65,11 @@ public class FormGenerationBatchMapper {
                 entity.getGeneratedAt(),
                 entity.getFinishedAt(),
                 entity.getGeneratedBy(),
-                items
+                items,
+                entity.getRevertedAt(),
+                entity.getRevertedBy(),
+                entity.getRevertedCount() != null ? entity.getRevertedCount() : 0,
+                entity.getRevertBlockedCount() != null ? entity.getRevertBlockedCount() : 0
         );
     }
 
@@ -92,7 +97,14 @@ public class FormGenerationBatchMapper {
     public FormGenerationBatchItem toItemDomain(FormGenerationBatchItemEntity entity) {
         if (entity == null) return null;
 
-        return FormGenerationBatchItem.of(
+        // revert_skip_reason so existe depois de um markReverted que bloqueou este item -- nulo
+        // e o caso normal, e fromCodeOrThrow so corre quando ha mesmo um codigo a validar,
+        // exactamente como ja acontece com outcome.
+        FormGenerationRevertSkipReason revertSkipReason = (entity.getRevertSkipReason() != null)
+                ? FormGenerationRevertSkipReason.fromCodeOrThrow(entity.getRevertSkipReason())
+                : null;
+
+        return FormGenerationBatchItem.reconstruct(
                 entity.getEmployeeId(),
                 entity.getEmployeeName(),
                 entity.getUnitId(),
@@ -102,7 +114,9 @@ public class FormGenerationBatchMapper {
                 entity.getEvaluatorId(),
                 entity.getSkipReason(),
                 entity.getErrorMessage(),
-                entity.getCreatedAt()
+                entity.getCreatedAt(),
+                entity.getRevertedAt(),
+                revertSkipReason
         );
     }
 
