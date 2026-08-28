@@ -18,14 +18,33 @@ public interface FormGenerationBatchRepository {
 
     FormGenerationBatch save(FormGenerationBatch batch);
 
+    /**
+     * <strong>Traz os itens do lote.</strong> É o único método de leitura que os carrega; quem
+     * precisar da lista de itens -- e não apenas das contagens -- tem de passar por aqui.
+     */
     Optional<FormGenerationBatch> findById(UUID id);
 
     /**
      * Devolve os lotes do período por {@code generatedAt} descendente -- o lote mais recente
      * primeiro. Contrato de ordem: o plano 05 depende dele para escolher o lote a mostrar.
+     *
+     * <p><strong>NÃO traz os itens</strong> -- cada lote vem com a lista vazia, de propósito. Um
+     * período acumula dezenas de lotes (só as simulações de um deles passam de vinte) e apenas um
+     * chega a ser mostrado; carregar os itens de todos seria N+1 para exibir um. Depois de
+     * escolher o lote, recarregue-o por {@link #findById(UUID)}.
+     *
+     * <p>Isto está escrito porque a sua ausência custou um defeito: o detalhe de geração devolveu
+     * durante três planos as contagens certas e as quatro listas de itens vazias, e nenhum teste o
+     * apanhou porque todos simulavam este método a devolver lotes já com itens -- mais generosos
+     * do que o adaptador que representavam. Medido contra o serviço real a 2026-08-28, corrigido
+     * no plano 07 da Fase 120.
      */
     List<FormGenerationBatch> findByPeriodId(UUID periodId);
 
+    /**
+     * <strong>NÃO traz os itens</strong>, pela mesma razão de {@link #findByPeriodId(UUID)} e com
+     * mais força: serve a leitura em bloco da coluna do ecrã (D-30), que só precisa de contagens.
+     */
     List<FormGenerationBatch> findByPeriodIds(Collection<UUID> periodIds);
 
     /**

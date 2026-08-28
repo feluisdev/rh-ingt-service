@@ -111,7 +111,14 @@ public class GetPeriodGenerationQueryHandler
             return ResponseEntity.ok(dto);
         }
 
-        FormGenerationBatch batch = selected.get();
+        // Fase 120, plano 07: o lote escolhido tem de ser recarregado por findById para trazer os
+        // seus itens. O findByPeriodId devolve-os SEM itens de proposito -- um periodo acumula
+        // dezenas de lotes (so as simulacoes de um deles passam de vinte) e apenas um e mostrado,
+        // pelo que carregar itens de todos seria N+1 para exibir um. Sem este segundo pedido as
+        // quatro listas abaixo saem sempre vazias, com as contagens certas: era o defeito medido
+        // contra o servico real a 2026-08-28, que deixava o PRZ-05 por entregar.
+        FormGenerationBatch batch = batchRepository.findById(selected.get().getId())
+                .orElseGet(selected::get);
         dto.setBatchId(batch.getId().toString());
         dto.setStatus(batch.getStatus() != null ? batch.getStatus().getCode() : null);
         dto.setGenerationMode(batch.getGenerationMode());

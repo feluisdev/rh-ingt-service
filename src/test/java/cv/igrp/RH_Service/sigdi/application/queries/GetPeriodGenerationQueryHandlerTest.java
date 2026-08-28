@@ -91,6 +91,58 @@ class GetPeriodGenerationQueryHandlerTest {
         assertEquals(2026, body.getYear());
     }
 
+    /**
+     * Fase 120, plano 07 -- reproducao do defeito medido a 2026-08-28 contra o servico real: a
+     * resposta trazia as contagens certas e as quatro listas de itens sempre vazias, e por isso o
+     * modal do ecra so mostrava cabecalho.
+     *
+     * <p><strong>Porque nenhum dos outros testes deste ficheiro o apanhou:</strong> todos simulam
+     * {@code findByPeriodId} a devolver um lote que <em>ja traz</em> os seus itens. O adaptador
+     * real nunca faz isso -- {@code FormGenerationBatchRepositoryImpl#findByPeriodId} mapeia todos
+     * os lotes com {@code List.of()}, de proposito, porque um periodo tem dezenas de lotes e so um
+     * e mostrado. O duplo de teste era mais generoso do que o adaptador que representava.
+     *
+     * <p>Este teste simula os dois metodos como o adaptador realmente se comporta: sem itens no
+     * {@code findByPeriodId}, com itens no {@code findById}.
+     */
+    @Test
+    void handleLoadsItemsForTheSelectedBatchEvenWhenFindByPeriodIdOmitsThem() {
+        UUID periodId = UUID.randomUUID();
+        UUID batchId = UUID.randomUUID();
+        PaaSubmissionPeriod period = period(periodId, Purpose.SIADAP, PaaLevel.INDIVIDUAL_LEVEL, 2026);
+        when(periodRepository.findById(periodId)).thenReturn(Optional.of(period));
+
+        FormGenerationBatchItem criado = FormGenerationBatchItem.of(UUID.randomUUID(), "Ana Silva",
+                UUID.randomUUID(), "Unidade X", FormGenerationOutcome.CREATED, UUID.randomUUID(),
+                UUID.randomUUID(), null, null, LocalDateTime.now());
+        FormGenerationBatchItem saltado = FormGenerationBatchItem.of(UUID.randomUUID(), "Bruno Lima",
+                UUID.randomUUID(), "Unidade Y", FormGenerationOutcome.SKIPPED, null, null,
+                EligibilitySkipReason.UNIT_WITHOUT_ASSIGNED_EMPLOYEES.getCode(), null, LocalDateTime.now());
+        FormGenerationBatchItem pendente = FormGenerationBatchItem.of(UUID.randomUUID(), "Carla Dias",
+                UUID.randomUUID(), "Unidade Z", FormGenerationOutcome.PENDING, null, null, null, null,
+                LocalDateTime.now());
+
+        FormGenerationBatch semItens = FormGenerationBatch.reconstruct(batchId, periodId, Purpose.SIADAP,
+                PaaLevel.INDIVIDUAL_LEVEL, 2026, FormGenerationBatch.CREATES_FORMS, false,
+                FormGenerationBatchStatus.COMPLETED, 1, 0, 1, 1, LocalDateTime.now(), LocalDateTime.now(),
+                "scheduler:period-opening", List.of());
+        FormGenerationBatch comItens = FormGenerationBatch.reconstruct(batchId, periodId, Purpose.SIADAP,
+                PaaLevel.INDIVIDUAL_LEVEL, 2026, FormGenerationBatch.CREATES_FORMS, false,
+                FormGenerationBatchStatus.COMPLETED, 1, 0, 1, 1, LocalDateTime.now(), LocalDateTime.now(),
+                "scheduler:period-opening", List.of(criado, saltado, pendente));
+
+        when(batchRepository.findByPeriodId(periodId)).thenReturn(List.of(semItens));
+        when(batchRepository.findById(batchId)).thenReturn(Optional.of(comItens));
+
+        ResponseEntity<FormGenerationDetailDTO> response = handler.handle(new GetPeriodGenerationQuery(periodId));
+
+        FormGenerationDetailDTO body = response.getBody();
+        assertEquals(1, body.getCreated().size(), "o item criado tem de chegar a lista, nao so a contagem");
+        assertEquals(1, body.getSkipped().size(), "o item saltado tem de chegar a lista");
+        assertEquals(1, body.getPending().size(), "quem ainda tem de agir tem de chegar a lista -- e o PRZ-05");
+        assertEquals("Carla Dias", body.getPending().get(0).getEmployeeName());
+    }
+
     @Test
     void handleReturnsCreatedItemsWithGeneratedFormAndEvaluatorForCompletedSiadapBatch() {
         UUID periodId = UUID.randomUUID();
