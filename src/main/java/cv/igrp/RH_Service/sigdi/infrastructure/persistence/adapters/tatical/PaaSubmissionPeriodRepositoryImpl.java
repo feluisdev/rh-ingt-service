@@ -114,4 +114,44 @@ public class PaaSubmissionPeriodRepositoryImpl implements PaaSubmissionPeriodRep
     public long countAllByPurpose(Purpose purpose) {
         return jpaRepository.countByPurpose(purpose.getCode());
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<PaaSubmissionPeriod> findByTypeAndYearAndPurpose(PaaLevel type, Integer year, Purpose purpose) {
+        // Defensive — see comment on findActiveByTypeAndPurpose above. Sem filtro de
+        // estado nem de data: ver comentário no PaaSubmissionPeriodEntityRepository.
+        return jpaRepository.findAllByTypeAndYearAndPurpose(type.getCode(), year, purpose.getCode())
+                .stream()
+                .findFirst()
+                .map(mapper::toDomain);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<PaaSubmissionPeriod> findOpenExpired(LocalDate today, int limit) {
+        // Sempre página zero, nunca um índice de página crescente: quem consome esta leitura
+        // muda o status das linhas que acabou de ler (fecha-as), portanto as linhas
+        // processadas saem do conjunto de resultados a cada passagem seguinte. Um offset
+        // crescente saltaria linhas ainda por processar. O varrimento em lotes (Fase 117,
+        // plano 02) faz-se repetindo a primeira página até esta deixar de devolver algo.
+        Pageable pageable = PageRequest.of(0, limit);
+        return jpaRepository.findOpenWithEndDateBefore(today, pageable)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<PaaSubmissionPeriod> findOpenActiveOn(LocalDate today, int limit) {
+        // Sempre página zero, pela mesma razão de findOpenExpired acima: o agendador de
+        // abertura muda o que a consulta devolve (grava lote para o período, que passa a
+        // bloquear a próxima leitura via a guarda de idempotência), por isso um offset
+        // crescente saltaria períodos ainda por processar.
+        Pageable pageable = PageRequest.of(0, limit);
+        return jpaRepository.findOpenActiveOn(today, pageable)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
 }

@@ -34,5 +34,25 @@ public interface SiadapEvaluationRepository {
    * paginação.
    */
   long countAll(Integer year, String organicUnitId, EvaluationPhase phase);
+
+  /**
+   * Apaga a avaliação identificada por {@code id}, se existir. Fase 120, plano 02 ({@code
+   * PRZ-04}).
+   *
+   * <p><b>Porque isto entra pelo repositório e não pelo agregado {@link SiadapEvaluation}.</b>
+   * (a) Apagar <strong>não é uma transição de domínio</strong> -- {@link SiadapEvaluation} tem
+   * dezanove métodos públicos e nenhum apaga, porque uma transição de domínio leva o objeto de um
+   * estado válido a outro, e a remoção não faz isso: anula um facto que não devia ter existido.
+   * (b) Por isso a operação entra pelo repositório, e não por um método novo no agregado. (c) O
+   * único chamador legítimo é a reversão de um lote de geração de formulários ({@code PRZ-04},
+   * Fase 120) -- e só invoca isto sobre avaliações que esse mesmo lote criou e que continuam
+   * exatamente como nasceram; ver {@code FormGenerationBatchRevertService} para a fronteira
+   * completa do que é apagável.
+   *
+   * @return {@code true} se a avaliação existia e foi apagada; {@code false} se não existia. A
+   *     ausência não lança exceção -- a idempotência de quem chama duas vezes é do chamador, não
+   *     uma exceção a apanhar aqui.
+   */
+  boolean deleteById(SiadapEvaluationId id);
 }
 

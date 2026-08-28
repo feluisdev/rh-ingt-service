@@ -23,6 +23,8 @@
     <properties>
         <java.version>23</java.version>
         <igrp.version>0.1.0-beta.1</igrp.version>
+        <igrp-framework-auth.version>0.2.0-beta.8</igrp-framework-auth.version>
+        <igrp-stereotype.version>0.2.0-beta.1</igrp-stereotype.version>
         <lombok.version>1.18.38</lombok.version>
         <spring-cloud.version>2025.0.0</spring-cloud.version>
         <springdoc.version>2.8.8</springdoc.version>
@@ -148,7 +150,13 @@
         <dependency>
             <groupId>cv.igrp.framework</groupId>
             <artifactId>stereotype</artifactId>
-            <version>${igrp.version}</version>
+            <version>${igrp-stereotype.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cv.igrp.framework.auth</groupId>
+            <artifactId>core-spring-boot</artifactId>
+            <version>${igrp-framework-auth.version}</version>
         </dependency>
 
         <dependency>
@@ -240,6 +248,11 @@
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                             <version>${lombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>cv.igrp.framework.auth</groupId>
+                            <artifactId>core</artifactId>
+                            <version>${igrp-framework-auth.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>

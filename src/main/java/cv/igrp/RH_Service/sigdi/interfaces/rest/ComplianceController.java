@@ -21,12 +21,21 @@
  * SelfEvaluationOpeningScheduler was its only one. Regenerating this file via IGRP Studio
  * would drop the endpoint and put the IN_PROGRESS -> SELF_EVALUATION transition back behind
  * a cron job, which is what made SIA-06 unsatisfiable by design in v24.0.
+ *
+ * MANUALLY EDITED - Phase 115 (AUT-04): added @PreAuthorize + @DenialMessage guards to
+ * closeEvaluations, openSelfEvaluationPhase and assignMeritRating -- the three write actions
+ * this controller dispatches that previously had no permission check at the HTTP boundary
+ * (the old allow-list/role checks stayed inside their command handlers, migrated away in a
+ * later phase of this same milestone). Regenerating this file via IGRP Studio would drop
+ * these three guards and hand the actions back to any authenticated user, with no error to
+ * signal the regression.
  */
 
 package cv.igrp.RH_Service.sigdi.interfaces.rest;
 
 import cv.igrp.framework.stereotype.IgrpController;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -59,6 +68,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.CompetencyItemDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapInterimFeedbackDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.NegotiateSiadapObjectivesRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.NegotiateObjectiveRevisionRequestDTO;
+import cv.igrp.RH_Service.shared.security.DenialMessage;
 import java.util.List;
 
 @IgrpController
@@ -170,7 +180,10 @@ public class ComplianceController {
   @GetMapping(value = "siadap/me/cca-status")
   @Operation(
     summary = "Get current user's CCA membership status",
-    description = "Indica se o utilizador atual pertence ao Conselho Coordenador da Avaliação (CCA).",
+    description = "Indica se o utilizador atual pertence ao Conselho Coordenador da Avaliação (CCA). "
+        + "A resposta reflete a permissão siadap.cca.consultarEstado do utilizador atual; este ponto "
+        + "não tem guarda @PreAuthorize por decisão registada na Fase 115 (ver 115-07-SUMMARY.md) -- "
+        + "é uma leitura de estado próprio, aberta a qualquer autenticado, não uma decisão de acesso.",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -187,10 +200,13 @@ public class ComplianceController {
     return queryBus.handle(query);
   }
 
+  @PreAuthorize("@igrpAuthorization.checkPermission(T(Permission).SIADAP_AVALIACOES_FECHAREMLOTE)")
+  @DenialMessage("Apenas um membro do Conselho Coordenador da Avaliação (CCA) pode executar esta ação")
   @PostMapping(value = "siadap/evaluations/close")
   @Operation(
     summary = "Close evaluations",
-    description = "Fecha as avaliações de uma unidade orgânica. Valida quotas antes de executar.",
+    description = "Fecha as avaliações de uma unidade orgânica. Valida quotas antes de executar. "
+        + "Exige a permissão siadap.avaliacoes.fecharEmLote.",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -425,13 +441,15 @@ public class ComplianceController {
     return commandBus.send(command);
   }
 
+  @PreAuthorize("@igrpAuthorization.checkPermission(T(Permission).SIADAP_AUTOAVALIACAO_ABRIR)")
+  @DenialMessage("Apenas os funcionários autorizados podem abrir a autoavaliação à mão. Contacte o RH.")
   @PostMapping(value = "siadap/evaluations/{id}/self-evaluation/open")
   @Operation(
     summary = "Open self-evaluation phase manually",
     description = "Avança manualmente a avaliação de Em Curso para Autoavaliação, sem esperar "
         + "pelo agendador diário. Exige uma janela de submissão de Autoavaliação SIADAP ativa "
-        + "para o ano da avaliação e que o utilizador esteja na lista de funcionários "
-        + "autorizados a abrir. A transição é irreversível pela aplicação.",
+        + "para o ano da avaliação e a permissão siadap.autoavaliacao.abrir. A transição é "
+        + "irreversível pela aplicação.",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -448,12 +466,15 @@ public class ComplianceController {
     return commandBus.send(new OpenSelfEvaluationPhaseCommand(id));
   }
 
+  @PreAuthorize("@igrpAuthorization.checkPermission(T(Permission).SIADAP_MENCAOMERITO_ATRIBUIR)")
+  @DenialMessage("Apenas um membro do Conselho Coordenador da Avaliação (CCA) pode executar esta ação")
   @PostMapping(value = "siadap/evaluations/{id}/merit-rating")
   @Operation(
     summary = "Assign merit rating",
     description = "Atribui ou corrige a menção de mérito de uma avaliação já finalizada "
         + "(fases Harmonização ou Encerrado). Valores aceites no campo meritRating: "
-        + "INADEQUATE, REGULAR, GOOD, VERY_GOOD, EXCELLENT.",
+        + "INADEQUATE, REGULAR, GOOD, VERY_GOOD, EXCELLENT. Exige a permissão "
+        + "siadap.mencaoMerito.atribuir.",
     responses = {
       @ApiResponse(
           responseCode = "200",

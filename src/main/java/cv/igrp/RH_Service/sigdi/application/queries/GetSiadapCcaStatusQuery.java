@@ -6,8 +6,9 @@ import lombok.NoArgsConstructor;
 
 /**
  * Query for {@code GET api/v1/compliance/siadap/me/cca-status} (SIA-05, decision D-01,
- * Phase 104). Carries no fields: the caller identity comes from {@code CurrentEmployeeResolver}
- * inside the handler, never from a request parameter -- see
+ * Phase 104). Carries no fields: since Phase 115/AUT-04 the response comes from the
+ * authenticated caller's own authorities, read inside the handler via
+ * {@code IgrpAuthorizationService}, never from a request parameter -- see
  * {@link GetSiadapCcaStatusQueryHandler}.
  *
  * <p>Deliberately no all-args-constructor annotation here: this class has no fields, so

@@ -83,23 +83,50 @@ class CreatePaaSubmissionPeriodCommandHandlerTest {
     }
 
     @Test
-    void createPaaUnitLevelPeriodWithNoPurposeInDtoDefaultsToPaa() {
+    void rejectsCreateWhenPurposeIsAbsentFromDto() {
+        // PRZ-03: o caminho de produção que atribuía Purpose.PAA em silêncio deixou de
+        // existir -- este teste substitui createPaaUnitLevelPeriodWithNoPurposeInDtoDefaultsToPaa,
+        // que afirmava exactamente o comportamento que esta fase elimina.
         LocalDate start = LocalDate.now();
         LocalDate end = start.plusDays(10);
         CreatePaaSubmissionPeriodDTO dto = new CreatePaaSubmissionPeriodDTO(
                 PaaLevel.UNIT_LEVEL.getCode(), start, end, 2026, null);
 
-        when(repository.findByTypeAndYearAndStatusAndPurpose(
-                PaaLevel.UNIT_LEVEL, 2026, "OPEN", Purpose.PAA))
-                .thenReturn(Optional.empty());
-        when(repository.save(any(PaaSubmissionPeriod.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
-        when(repository.findAllByYear(2026)).thenReturn(List.of());
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(new CreatePaaSubmissionPeriodCommand(dto)));
 
-        ResponseEntity<PaaSubmissionPeriodResponseDTO> response =
-                handler.handle(new CreatePaaSubmissionPeriodCommand(dto));
+        assertEquals(400, exception.getBody().getStatus());
+        verify(repository, never()).save(any());
+    }
 
-        assertEquals(Purpose.PAA.getCode(), response.getBody().getPurpose());
+    @Test
+    void rejectsCreateWhenPurposeIsBlankInDto() {
+        LocalDate start = LocalDate.now();
+        LocalDate end = start.plusDays(10);
+        CreatePaaSubmissionPeriodDTO dto = new CreatePaaSubmissionPeriodDTO(
+                PaaLevel.UNIT_LEVEL.getCode(), start, end, 2026, "   ");
+
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(new CreatePaaSubmissionPeriodCommand(dto)));
+
+        assertEquals(400, exception.getBody().getStatus());
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void rejectsCreateWhenPurposeCodeIsUnknown() {
+        // Guarda de não-regressão: Purpose.fromCodeOrThrow já recusa um código desconhecido
+        // com 400 hoje; este teste prova que a nova guarda de ausência/branco não o substitui.
+        LocalDate start = LocalDate.now();
+        LocalDate end = start.plusDays(10);
+        CreatePaaSubmissionPeriodDTO dto = new CreatePaaSubmissionPeriodDTO(
+                PaaLevel.UNIT_LEVEL.getCode(), start, end, 2026, "NAO_EXISTE");
+
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(new CreatePaaSubmissionPeriodCommand(dto)));
+
+        assertEquals(400, exception.getBody().getStatus());
+        verify(repository, never()).save(any());
     }
 
     @Test

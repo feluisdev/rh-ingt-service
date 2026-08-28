@@ -44,12 +44,6 @@ public class PaaSubmissionPeriod {
         return new PaaSubmissionPeriod(UUID.randomUUID(), purpose, type, startDate, endDate, "OPEN", year);
     }
 
-    /** Backward-compatible overload — defaults purpose to PAA for callers not yet updated. */
-    public static PaaSubmissionPeriod create(PaaLevel type, LocalDate startDate,
-                                              LocalDate endDate, Integer year) {
-        return create(Purpose.PAA, type, startDate, endDate, year);
-    }
-
     public static PaaSubmissionPeriod reconstruct(UUID id, Purpose purpose, PaaLevel type, LocalDate startDate,
                                                    LocalDate endDate, String status, Integer year) {
         return new PaaSubmissionPeriod(id, purpose, type, startDate, endDate, status, year);
