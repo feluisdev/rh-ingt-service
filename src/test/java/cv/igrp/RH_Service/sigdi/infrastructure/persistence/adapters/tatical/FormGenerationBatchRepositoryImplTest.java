@@ -227,4 +227,54 @@ class FormGenerationBatchRepositoryImplTest {
         verify(itemJpaRepository).saveAll(itemsCaptor.capture());
         assertEquals("CREATED", itemsCaptor.getValue().get(0).getOutcome());
     }
+
+    /**
+     * Fase 119, plano 08 (PRZ-07). Alinhar o esquema (Tasks 1-2) nao chega: uma mensagem de
+     * excepcao muito longa continua a poder exceder o que a coluna aceite noutro ambiente, e o
+     * modo de falha e o pior possivel -- perde-se o lote inteiro, em silencio (medido no
+     * 119-07). Este teste prova o que importa: nao so que a mensagem fica curta, mas que a
+     * gravacao do lote nao e impedida por uma mensagem desproporcionada, e que o item chega ao
+     * repositorio JPA com a mensagem truncada e marcada -- nao apenas cortada em silencio.
+     */
+    @Test
+    void saveOfAFailedItemWithAnOversizedErrorMessageStillReachesTheJpaRepositoryWithTheMessageTruncatedAndMarked() {
+        String oversizedMessage = "x".repeat(10_000);
+
+        FormGenerationBatch batch = FormGenerationBatch.start(PERIOD_ID, Purpose.SIADAP, PaaLevel.INDIVIDUAL_LEVEL,
+                2026, FormGenerationBatch.CREATES_FORMS, false, "scheduler:period-opening", NOW);
+        batch.addItem(FormGenerationBatchItem.of(UUID.randomUUID(), "Fulano Tal", null, null,
+                FormGenerationOutcome.FAILED, null, null, null, oversizedMessage, NOW));
+        batch.finish(NOW.plusMinutes(5));
+
+        FormGenerationBatchEntity savedBatchEntity = new FormGenerationBatchEntity();
+        savedBatchEntity.setId(batch.getId());
+        savedBatchEntity.setPeriodId(PERIOD_ID);
+        savedBatchEntity.setPurpose(Purpose.SIADAP.getCode());
+        savedBatchEntity.setType(PaaLevel.INDIVIDUAL_LEVEL.getCode());
+        savedBatchEntity.setYear(2026);
+        savedBatchEntity.setGenerationMode(FormGenerationBatch.CREATES_FORMS);
+        savedBatchEntity.setStatus("PARTIAL");
+        savedBatchEntity.setGeneratedAt(NOW);
+        savedBatchEntity.setFinishedAt(NOW.plusMinutes(5));
+        savedBatchEntity.setGeneratedBy("scheduler:period-opening");
+
+        when(jpaRepository.save(any())).thenReturn(savedBatchEntity);
+        when(itemJpaRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // A propria chamada nao pode lancar -- e o modo de falha medido no 119-07: o
+        // DataIntegrityViolationException do Postgres a rebentar o INSERT do item, e com ele o
+        // lote inteiro (itens bem sucedidos incluidos).
+        FormGenerationBatch result = repository.save(batch);
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<List<FormGenerationBatchItemEntity>> itemsCaptor = ArgumentCaptor.forClass(List.class);
+        verify(itemJpaRepository).saveAll(itemsCaptor.capture());
+
+        String savedMessage = itemsCaptor.getValue().get(0).getErrorMessage();
+        assertTrue(savedMessage.length() < oversizedMessage.length(),
+                "a mensagem gravada tem de ficar mais curta do que a original");
+        assertTrue(savedMessage.endsWith("[...truncado]"),
+                "a truncagem tem de ficar marcada no proprio texto, para quem le nao pensar que a mensagem acabou ali");
+        assertEquals(1, result.getItems().size());
+    }
 }
