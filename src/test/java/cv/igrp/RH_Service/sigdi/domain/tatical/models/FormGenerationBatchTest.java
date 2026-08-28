@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import cv.igrp.RH_Service.sigdi.application.constants.FormGenerationBatchStatus;
 import cv.igrp.RH_Service.sigdi.application.constants.FormGenerationOutcome;
+import cv.igrp.RH_Service.sigdi.application.constants.FormGenerationRevertSkipReason;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import java.time.LocalDateTime;
@@ -293,5 +294,129 @@ class FormGenerationBatchTest {
     private FormGenerationBatchItem failedItem() {
         return FormGenerationBatchItem.of(UUID.randomUUID(), "Fulano Tal", null, null,
                 FormGenerationOutcome.FAILED, null, null, null, "Falha ao criar avaliacao", NOW);
+    }
+
+    // --- markReverted (Fase 120, plano 01, PRZ-04) ---
+
+    private FormGenerationBatch closedCompletedBatch() {
+        FormGenerationBatch batch = startDefault();
+        batch.addItem(item(FormGenerationOutcome.CREATED));
+        batch.finish(NOW.plusMinutes(5));
+        return batch;
+    }
+
+    @Test
+    void markRevertedOnClosedBatchSetsRevertedStatusWhenNothingBlocked() {
+        FormGenerationBatch batch = closedCompletedBatch();
+
+        batch.markReverted(2, 0, NOW.plusHours(1), "user@x");
+
+        assertEquals(FormGenerationBatchStatus.REVERTED, batch.getStatus());
+        assertEquals(NOW.plusHours(1), batch.getRevertedAt());
+        assertEquals("user@x", batch.getRevertedBy());
+        assertEquals(2, batch.getRevertedCount());
+        assertEquals(0, batch.getRevertBlockedCount());
+    }
+
+    @Test
+    void markRevertedSetsPartiallyRevertedWhenAtLeastOneBlocked() {
+        FormGenerationBatch batch = closedCompletedBatch();
+
+        batch.markReverted(1, 1, NOW.plusHours(1), "user@x");
+
+        assertEquals(FormGenerationBatchStatus.PARTIALLY_REVERTED, batch.getStatus());
+    }
+
+    @Test
+    void markRevertedSetsPartiallyRevertedWhenNothingWasReverted() {
+        FormGenerationBatch batch = closedCompletedBatch();
+
+        batch.markReverted(0, 3, NOW.plusHours(1), "user@x");
+
+        assertEquals(FormGenerationBatchStatus.PARTIALLY_REVERTED, batch.getStatus());
+    }
+
+    @Test
+    void markRevertedOnUnfinishedBatchThrows() {
+        FormGenerationBatch batch = startDefault();
+
+        assertThrows(IllegalStateException.class, () ->
+                batch.markReverted(1, 0, NOW.plusHours(1), "user@x"));
+    }
+
+    @Test
+    void markRevertedTwiceThrows() {
+        FormGenerationBatch batch = closedCompletedBatch();
+        batch.markReverted(2, 0, NOW.plusHours(1), "user@x");
+
+        assertThrows(IllegalStateException.class, () ->
+                batch.markReverted(1, 0, NOW.plusHours(2), "user@x"));
+    }
+
+    @Test
+    void markRevertedOnDryRunBatchThrows() {
+        FormGenerationBatch batch = FormGenerationBatch.start(PERIOD_ID, Purpose.SIADAP, PaaLevel.INDIVIDUAL_LEVEL, 2026,
+                FormGenerationBatch.CREATES_FORMS, true, "scheduler:period-opening", NOW);
+        batch.addItem(item(FormGenerationOutcome.WOULD_CREATE));
+        batch.finish(NOW.plusMinutes(5));
+
+        assertThrows(IllegalStateException.class, () ->
+                batch.markReverted(1, 0, NOW.plusHours(1), "user@x"));
+    }
+
+    @Test
+    void markRevertedRejectsNullRevertedBy() {
+        FormGenerationBatch batch = closedCompletedBatch();
+
+        assertThrows(IllegalArgumentException.class, () ->
+                batch.markReverted(1, 0, NOW.plusHours(1), null));
+    }
+
+    @Test
+    void markRevertedRejectsBlankRevertedBy() {
+        FormGenerationBatch batch = closedCompletedBatch();
+
+        assertThrows(IllegalArgumentException.class, () ->
+                batch.markReverted(1, 0, NOW.plusHours(1), "   "));
+    }
+
+    @Test
+    void reconstructReturnsRevertFieldsAsGivenWithoutRecalculating() {
+        UUID id = UUID.randomUUID();
+        FormGenerationBatchItem item = failedItem();
+
+        FormGenerationBatch batch = FormGenerationBatch.reconstruct(id, PERIOD_ID, Purpose.SIADAP,
+                PaaLevel.INDIVIDUAL_LEVEL, 2026, FormGenerationBatch.CREATES_FORMS, false,
+                FormGenerationBatchStatus.REVERTED, 3, 0, 0, 0, NOW, NOW.plusMinutes(5),
+                "scheduler:period-opening", List.of(item),
+                NOW.plusHours(1), "user@x", 2, 1);
+
+        assertEquals(NOW.plusHours(1), batch.getRevertedAt());
+        assertEquals("user@x", batch.getRevertedBy());
+        assertEquals(2, batch.getRevertedCount());
+        assertEquals(1, batch.getRevertBlockedCount());
+        assertEquals(FormGenerationBatchStatus.REVERTED, batch.getStatus());
+    }
+
+    // --- FormGenerationBatchItem revert fields ---
+
+    @Test
+    void itemReconstructReturnsRevertedAtAndRevertSkipReason() {
+        UUID generatedFormId = UUID.randomUUID();
+
+        FormGenerationBatchItem item = FormGenerationBatchItem.reconstruct(UUID.randomUUID(), "Fulano Tal",
+                null, null, FormGenerationOutcome.CREATED, generatedFormId, UUID.randomUUID(),
+                null, null, NOW, NOW.plusHours(1), FormGenerationRevertSkipReason.PHASE_ADVANCED);
+
+        assertEquals(NOW.plusHours(1), item.getRevertedAt());
+        assertEquals(FormGenerationRevertSkipReason.PHASE_ADVANCED, item.getRevertSkipReason());
+    }
+
+    @Test
+    void itemOfProducesNullRevertFields() {
+        FormGenerationBatchItem item = item(FormGenerationOutcome.CREATED);
+
+        assertNull(item.getRevertedAt());
+        assertNull(item.getRevertSkipReason());
     }
 }
