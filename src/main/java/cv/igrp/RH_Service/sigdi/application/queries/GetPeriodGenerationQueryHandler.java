@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.sigdi.application.queries;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.EligibilitySkipReason;
 import cv.igrp.RH_Service.sigdi.application.constants.EvaluatorSkipReason;
+import cv.igrp.RH_Service.sigdi.application.constants.FormGenerationRevertSkipReason;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.dto.FormGenerationDetailDTO;
@@ -121,6 +122,11 @@ public class GetPeriodGenerationQueryHandler
         dto.setGeneratedAt(batch.getGeneratedAt());
         dto.setGeneratedBy(batch.getGeneratedBy());
         dto.setDryRun(batch.isDryRun());
+        // Fase 120, plano 03 (PRZ-04): nulo/zero enquanto o lote não foi desfeito.
+        dto.setRevertedAt(batch.getRevertedAt());
+        dto.setRevertedBy(batch.getRevertedBy());
+        dto.setRevertedCount(batch.getRevertedCount());
+        dto.setRevertBlockedCount(batch.getRevertBlockedCount());
 
         // O finder tático só é chamado para PAA (D-26) -- nunca para SIADAP (o outcome já
         // responde) nem para PAA_BSC_OBJECTIVES (não apurável).
@@ -128,6 +134,10 @@ public class GetPeriodGenerationQueryHandler
                 ? new HashSet<>(tacticalActivityRepository.findOrganicUnitIdsWithActivitiesInYear(year, type))
                 : Set.of();
 
+        // Não se mexe na repartição por lista: um item CREATED já desfeito continua em
+        // "created", agora só com a marca de desfeito (revertedAt/revertSkipReason). Tirá-lo de
+        // lá apagaria do relatório a informação de que alguma vez foi criado -- o oposto da
+        // decisão 2 do operador (2026-08-28, 120-CONTEXT.md).
         for (FormGenerationBatchItem item : batch.getItems()) {
             FormGenerationItemDTO itemDTO = toItemDTO(item, purpose, submittedUnits);
             switch (item.getOutcome()) {
@@ -199,6 +209,16 @@ public class GetPeriodGenerationQueryHandler
                 .orElse(skipReason);
     }
 
+    /**
+     * Fase 120, plano 03 (PRZ-04). Código de {@link FormGenerationRevertSkipReason}, no mesmo
+     * molde de {@link #resolveSkipReasonDescription}: {@code fromCode}, nunca
+     * {@code fromCodeOrThrow} -- um código que o ecrã não reconhece não pode transformar uma
+     * leitura num erro.
+     */
+    private static String resolveRevertSkipReasonDescription(FormGenerationRevertSkipReason revertSkipReason) {
+        return revertSkipReason != null ? revertSkipReason.getDescription() : null;
+    }
+
     private static FormGenerationItemDTO toItemDTO(FormGenerationBatchItem item, Purpose purpose,
                                                      Set<UUID> submittedUnits) {
         FormGenerationItemDTO dto = new FormGenerationItemDTO();
@@ -214,6 +234,9 @@ public class GetPeriodGenerationQueryHandler
         dto.setSkipReasonDescription(resolveSkipReasonDescription(item.getSkipReason()));
         dto.setErrorMessage(item.getErrorMessage());
         dto.setSubmitted(resolveSubmitted(purpose, item, submittedUnits));
+        dto.setRevertedAt(item.getRevertedAt());
+        dto.setRevertSkipReason(item.getRevertSkipReason() != null ? item.getRevertSkipReason().getCode() : null);
+        dto.setRevertSkipReasonDescription(resolveRevertSkipReasonDescription(item.getRevertSkipReason()));
         return dto;
     }
 }

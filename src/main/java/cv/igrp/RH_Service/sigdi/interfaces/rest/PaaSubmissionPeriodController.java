@@ -14,6 +14,7 @@ import cv.igrp.framework.core.domain.CommandBus;
 import cv.igrp.RH_Service.sigdi.application.commands.*;
 import cv.igrp.RH_Service.sigdi.application.dto.CreatePaaSubmissionPeriodDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.FormGenerationDetailDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.FormGenerationRevertResultDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.FormGenerationSummaryDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.PaaSubmissionPeriodResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperListPaaSubmissionPeriodDTO;
@@ -150,5 +151,29 @@ public class PaaSubmissionPeriodController {
       @PathVariable(value = "id") String id) {
       final var query = new GetPeriodGenerationQuery(UUID.fromString(id));
       return queryBus.handle(query);
+  }
+
+  // ACTOR-CHECK: ENFORCED -- paa.periodoSubmissao.desfazerGeracao permission
+  // (IgrpAuthorizationService). Permissão própria, Fase 120 plano 03 -- não uma reutilização de
+  // paa.periodoSubmissao.gerarFormularios como os dois pontos de leitura acima. Ler o relatório
+  // de geração é estritamente mais fraco do que mandar gerar (razão da reutilização deles, D-25
+  // do 119-05-PLAN.md); apagar as avaliações que um lote criou é estritamente mais forte e
+  // irreversível. Reutilizar gerarFormularios alargaria em silêncio, a quem hoje só pode
+  // consultar o relatório, o poder de destruir avaliações -- ninguém teria decidido isso. Ver
+  // "A decisão de permissão, tomada e justificada" em 120-03-PLAN.md.
+  @PreAuthorize("@igrpAuthorization.checkPermission(T(Permission).PAA_PERIODOSUBMISSAO_DESFAZERGERACAO)")
+  @DenialMessage("Não tem permissão para desfazer a geração de formulários.")
+  @DeleteMapping(value = "periods/{periodId}/generation/{batchId}")
+  @Operation(
+      summary = "Revert PAA Submission Period Form Generation Batch",
+      description = "Apaga as avaliações que este lote criou e que ainda não avançaram no ciclo "
+          + "de contratualização; as que já avançaram são mantidas e devolvidas com o motivo. "
+          + "Exige a permissão paa.periodoSubmissao.desfazerGeracao."
+  )
+  public ResponseEntity<FormGenerationRevertResultDTO> revertPeriodGeneration(
+      @PathVariable(value = "periodId") String periodId,
+      @PathVariable(value = "batchId") String batchId) {
+      final var command = new RevertFormGenerationBatchCommand(UUID.fromString(periodId), UUID.fromString(batchId));
+      return commandBus.send(command);
   }
 }

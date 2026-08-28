@@ -38,4 +38,15 @@ public class FormGenerationSummaryDTO {
 
     // true quando o lote mostrado é uma simulação (D-28) -- não há outro lote a mostrar.
     private boolean dryRun;
+
+    // Fase 120, plano 03 (PRZ-04): nulo enquanto o lote não foi desfeito -- distinto de "não
+    // apurável", que não existe aqui. FormGenerationDetailDTO é uma classe irmã, não uma
+    // subclasse (ver o cabeçalho dela), por isso os mesmos quatro campos são replicados lá.
+    private LocalDateTime revertedAt;
+
+    private String revertedBy;
+
+    private int revertedCount;
+
+    private int revertBlockedCount;
 }

@@ -55,6 +55,17 @@ public class FormGenerationDetailDTO {
 
     private String batchId;
 
+    // Fase 120, plano 03 (PRZ-04): nulo enquanto o lote não foi desfeito. Replicados aqui e em
+    // FormGenerationSummaryDTO -- classes irmãs, não uma subclasse da outra, mesmo padrão dos
+    // dez campos já partilhados entre as duas.
+    private LocalDateTime revertedAt;
+
+    private String revertedBy;
+
+    private int revertedCount;
+
+    private int revertBlockedCount;
+
     private List<FormGenerationItemDTO> created = new ArrayList<>();
 
     private List<FormGenerationItemDTO> failed = new ArrayList<>();

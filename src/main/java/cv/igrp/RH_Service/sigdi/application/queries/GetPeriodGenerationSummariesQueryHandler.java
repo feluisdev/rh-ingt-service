@@ -113,6 +113,11 @@ public class GetPeriodGenerationSummariesQueryHandler
         dto.setGeneratedAt(batch.getGeneratedAt());
         dto.setGeneratedBy(batch.getGeneratedBy());
         dto.setDryRun(batch.isDryRun());
+        // Fase 120, plano 03 (PRZ-04): nulo/zero enquanto o lote não foi desfeito.
+        dto.setRevertedAt(batch.getRevertedAt());
+        dto.setRevertedBy(batch.getRevertedBy());
+        dto.setRevertedCount(batch.getRevertedCount());
+        dto.setRevertBlockedCount(batch.getRevertBlockedCount());
         return dto;
     }
 }

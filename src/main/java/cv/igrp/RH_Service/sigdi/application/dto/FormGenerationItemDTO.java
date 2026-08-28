@@ -4,6 +4,7 @@
 package cv.igrp.RH_Service.sigdi.application.dto;
 
 import cv.igrp.framework.stereotype.IgrpDTO;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -43,4 +44,15 @@ public class FormGenerationItemDTO {
     // Anulável de propósito: nulo significa "não apurável" (finalidade PAA_BSC_OBJECTIVES, D-26
     // de 119-05-PLAN.md -- StrategicGoalEntity não tem coluna de unidade orgânica).
     private Boolean submitted;
+
+    // Fase 120, plano 03 (PRZ-04): nulo enquanto este item específico não foi desfeito. Um item
+    // CREATED já desfeito continua na lista "created" do FormGenerationDetailDTO -- não se tira
+    // de lá, só se marca aqui (ver o comentário no GetPeriodGenerationQueryHandler).
+    private LocalDateTime revertedAt;
+
+    // Código de FormGenerationRevertSkipReason, como String -- mesmo precedente de #outcome
+    // acima. Nulo quando o item nunca foi bloqueado numa reversão.
+    private String revertSkipReason;
+
+    private String revertSkipReasonDescription;
 }
