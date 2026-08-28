@@ -15,6 +15,23 @@ import org.springframework.stereotype.Component;
 @Component
 public class FormGenerationBatchMapper {
 
+    // Fase 119, plano 08 (PRZ-07). Alinhar o esquema (V35) nao chega: uma mensagem de excepcao
+    // continua a poder exceder o que a coluna aceite noutro ambiente que ainda nao tenha essa
+    // migracao, ou simplesmente crescer sem limite (causas encadeadas concatenadas). O modo de
+    // falha e o pior possivel -- o INSERT do item falha em commit e arrasta consigo o lote
+    // inteiro, incluindo itens que correram bem (medido no 119-07). Truncagem defensiva aqui,
+    // na fronteira entre o dominio e a entidade JPA, garante que a gravacao nunca depende do
+    // comprimento de uma mensagem que o codigo nao controla.
+    private static final int MAX_ERROR_MESSAGE_LENGTH = 2000;
+    private static final String TRUNCATION_MARKER = "[...truncado]";
+
+    private String truncateErrorMessage(String errorMessage) {
+        if (errorMessage == null || errorMessage.length() <= MAX_ERROR_MESSAGE_LENGTH) return errorMessage;
+
+        int keep = MAX_ERROR_MESSAGE_LENGTH - TRUNCATION_MARKER.length();
+        return errorMessage.substring(0, keep) + TRUNCATION_MARKER;
+    }
+
     public FormGenerationBatch toDomain(FormGenerationBatchEntity entity, List<FormGenerationBatchItemEntity> itemEntities) {
         if (entity == null) return null;
 
@@ -103,7 +120,7 @@ public class FormGenerationBatchMapper {
         entity.setGeneratedFormId(item.getGeneratedFormId());
         entity.setEvaluatorId(item.getEvaluatorId());
         entity.setSkipReason(item.getSkipReason());
-        entity.setErrorMessage(item.getErrorMessage());
+        entity.setErrorMessage(truncateErrorMessage(item.getErrorMessage()));
         entity.setCreatedAt(item.getCreatedAt());
         return entity;
     }
