@@ -40,7 +40,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.test.util.ReflectionTestUtils;
 
 /**
- * Doze testes Mockito puro, sem Spring e sem base de dados, moldados em
+ * Quinze testes Mockito puro, sem Spring e sem base de dados, moldados em
  * {@code PaaSubmissionPeriodExpirySchedulerTest} (Fase 117). Os interruptores
  * {@code enabled} e {@code dryRun}, lidos por {@code @Value} no agendador real, injectam-se aqui
  * por reflexão sobre os campos ({@link ReflectionTestUtils#setField}), porque este teste não
@@ -134,6 +134,43 @@ class PaaSubmissionPeriodOpeningSchedulerTest {
         when(periodRepository.findOpenActiveOn(eq(today), eq(BATCH_SIZE))).thenReturn(List.of(period));
         when(formGenerationBatchRepository.findByPeriodId(period.getId()))
                 .thenReturn(List.of(buildBatch(period.getId(), FormGenerationBatchStatus.FAILED)));
+
+        scheduler.generateFormsForOpenPeriods();
+
+        verify(periodFormGenerationService, never()).generateFor(any(), anyBoolean());
+    }
+
+    /**
+     * Fase 120, plano 06 -- reproducao em teste do defeito medido no plano 05 contra base real:
+     * um minuto depois de uma reversao o agendador recriou a avaliacao apagada. Desfazer e um
+     * acto deliberado; regenerar anula-lo-ia sem ninguem pedir.
+     */
+    @Test
+    void aPeriodWithARevertedBatchIsNotGeneratedAgain() {
+        LocalDate today = LocalDate.now(AppTimeZone.CABO_VERDE);
+        PaaSubmissionPeriod period = buildActivePeriod(today);
+
+        when(periodRepository.findOpenActiveOn(eq(today), eq(BATCH_SIZE))).thenReturn(List.of(period));
+        when(formGenerationBatchRepository.findByPeriodId(period.getId()))
+                .thenReturn(List.of(buildBatch(period.getId(), FormGenerationBatchStatus.REVERTED)));
+
+        scheduler.generateFormsForOpenPeriods();
+
+        verify(periodFormGenerationService, never()).generateFor(any(), anyBoolean());
+    }
+
+    /**
+     * O mesmo para a reversao parcial: as avaliacoes que ja tinham avancado de fase ficaram, mas
+     * as apagadas nao podem voltar. Um lote parcialmente desfeito tambem nao se retoma.
+     */
+    @Test
+    void aPeriodWithAPartiallyRevertedBatchIsNotGeneratedAgain() {
+        LocalDate today = LocalDate.now(AppTimeZone.CABO_VERDE);
+        PaaSubmissionPeriod period = buildActivePeriod(today);
+
+        when(periodRepository.findOpenActiveOn(eq(today), eq(BATCH_SIZE))).thenReturn(List.of(period));
+        when(formGenerationBatchRepository.findByPeriodId(period.getId()))
+                .thenReturn(List.of(buildBatch(period.getId(), FormGenerationBatchStatus.PARTIALLY_REVERTED)));
 
         scheduler.generateFormsForOpenPeriods();
 
@@ -262,6 +299,35 @@ class PaaSubmissionPeriodOpeningSchedulerTest {
         Scheduled scheduled = method.getAnnotation(Scheduled.class);
 
         assertEquals("${sigdi.paa.form-generation.cron:0 45 0 * * ?}", scheduled.cron());
+    }
+
+    /**
+     * Legenda da garantia, não a garantia. Quem impede que um estado novo do enum fique por
+     * classificar é o compilador: {@code blocksRegeneration} é um {@code switch} de expressão sem
+     * ramo {@code default}, e uma constante por tratar quebra a compilação. Este teste existe
+     * para que isso fique dito a quem ler, e para apanhar o caso de alguém reintroduzir um
+     * {@code default} -- aí o compilador cala-se e só a contagem denuncia.
+     *
+     * <p>Foi a ausência desta obrigação que produziu o defeito medido no plano 05: o plano 01
+     * acrescentou dois estados ao enum e a classificação, então um {@code Set.of}, não os
+     * conhecia.
+     */
+    @Test
+    void everyBatchStatusIsExplicitlyClassifiedForRegeneration() {
+        int classified = 0;
+        for (FormGenerationBatchStatus status : FormGenerationBatchStatus.values()) {
+            final FormGenerationBatchStatus current = status;
+            assertDoesNotThrow(() -> PaaSubmissionPeriodOpeningScheduler.blocksRegeneration(current),
+                    "Estado sem classificacao de regeneracao: " + current);
+            classified++;
+        }
+
+        assertEquals(FormGenerationBatchStatus.values().length, classified,
+                "Todos os estados do enum tem de passar pela classificacao");
+        assertTrue(PaaSubmissionPeriodOpeningScheduler.blocksRegeneration(FormGenerationBatchStatus.REVERTED),
+                "Um lote desfeito nao pode voltar a ser gerado");
+        assertTrue(PaaSubmissionPeriodOpeningScheduler.blocksRegeneration(FormGenerationBatchStatus.PARTIALLY_REVERTED),
+                "Um lote parcialmente desfeito nao pode voltar a ser gerado");
     }
 
     // Helpers de legibilidade -- evitam repetir any(Boolean.class) / anyBoolean() com o mesmo

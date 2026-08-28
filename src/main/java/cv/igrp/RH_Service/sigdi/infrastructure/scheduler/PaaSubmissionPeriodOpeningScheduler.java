@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Agendador diário que despoleta a geração automática de formulários (Fase 119, {@code PRZ-01})
@@ -67,15 +66,40 @@ public class PaaSubmissionPeriodOpeningScheduler {
     public static final String AUDITOR_NAME = "scheduler:period-opening";
 
     /**
-     * Lotes terminais -- bloqueiam a guarda de idempotência por período (D-21). {@code PARTIAL}
-     * não bloqueia, de propósito: é o caso que se quer retomar, e os itens já criados resolvem-se
-     * como {@code ALREADY_EXISTED} no gerador (plano 03). {@code DRY_RUN} também não bloqueia: uma
-     * simulação não pode impedir a geração a sério.
+     * Decide se um lote já existente bloqueia nova geração para o mesmo período -- a guarda de
+     * idempotência (D-21).
+     *
+     * <p>Não bloqueiam, de propósito: {@code PARTIAL}, que é justamente o caso que se quer
+     * retomar (os itens já criados resolvem-se como {@code ALREADY_EXISTED} no gerador, plano 03
+     * da Fase 119), e {@code DRY_RUN}, porque uma simulação não pode impedir a geração a sério.
+     *
+     * <p>Bloqueiam {@code REVERTED} e {@code PARTIALLY_REVERTED}: desfazer é o acto deliberado de
+     * dizer que aquelas avaliações não deviam ter existido, e regenerá-las no dia seguinte
+     * anularia a reversão sem ninguém pedir e sem aparecer a ninguém. Quem quiser gerar depois de
+     * desfazer gera à mão -- a capacidade de criar avaliações já existe. Geração a pedido é o
+     * {@code PRZ-08}, diferido para v2.
+     *
+     * <p><strong>Porque isto é um {@code switch} de expressão sem {@code default}, e tem de
+     * continuar a ser:</strong> até à Fase 120 esta classificação era um {@code Set.of} com as
+     * cinco constantes que o enum tinha quando o plano 04 da Fase 119 o escreveu. O plano 01
+     * desta fase acrescentou {@code REVERTED} e {@code PARTIALLY_REVERTED} ao enum e nada obrigou
+     * a classificá-los aqui -- um {@code Set} aceita em silêncio qualquer subconjunto. O
+     * resultado foi medido contra base real no plano 05: um minuto depois de uma reversão o
+     * agendador recriou a avaliação apagada. Um {@code switch} de expressão sobre um enum sem
+     * ramo {@code default} <em>não compila</em> enquanto houver uma constante por tratar, e é
+     * essa a única razão de esta forma ter sido escolhida. Acrescentar um {@code default} devolve
+     * o defeito.
+     *
+     * <p>Acesso de pacote, e não privado, para que
+     * {@code PaaSubmissionPeriodOpeningSchedulerTest} -- no mesmo pacote -- possa percorrer
+     * {@code values()} e documentar a exaustividade sem reflexão.
      */
-    private static final Set<FormGenerationBatchStatus> TERMINAL_STATUSES = Set.of(
-            FormGenerationBatchStatus.COMPLETED,
-            FormGenerationBatchStatus.NOTHING_TO_GENERATE,
-            FormGenerationBatchStatus.FAILED);
+    static boolean blocksRegeneration(FormGenerationBatchStatus status) {
+        return switch (status) {
+            case COMPLETED, NOTHING_TO_GENERATE, FAILED, REVERTED, PARTIALLY_REVERTED -> true;
+            case PARTIAL, DRY_RUN -> false;
+        };
+    }
 
     private final PaaSubmissionPeriodRepository periodRepository;
     private final FormGenerationBatchRepository formGenerationBatchRepository;
@@ -165,6 +189,6 @@ public class PaaSubmissionPeriodOpeningScheduler {
     private boolean hasTerminalBatch(PaaSubmissionPeriod period) {
         return formGenerationBatchRepository.findByPeriodId(period.getId())
                 .stream()
-                .anyMatch(existingBatch -> TERMINAL_STATUSES.contains(existingBatch.getStatus()));
+                .anyMatch(existingBatch -> blocksRegeneration(existingBatch.getStatus()));
     }
 }
