@@ -56,6 +56,35 @@ Refactor dos "movimentos do colaborador": adoptar **Position Management (Mapa de
 - JPQL: `year(field)` (não `FUNCTION('YEAR',...)`).
 - Testes: perfil `development` (sem auth), porta 8091.
 
+## Fase 2 — Relatório para o frontend (PENDENTE — escrever depois)
+
+Adiado a pedido do utilizador. Material já compilado para escrever rápido (contrato REAL, testado):
+
+**Registo** `POST /api/v1/rh/funcionarios/registar` — body `{ funcionario, contrato?, afectacao{positionId,gradeId,functionId?,origem?,assignmentType?,dataInicio?,notes?}, dadosBancarios?, dossier? }`; resposta tem `afectacaoId` (NÃO `enquadramentoId`). Já não se envia unidade/cargo/carreira/categoria — derivam do Lugar.
+
+**Mapa de Pessoal (Lugares)** `estrutura/positions`:
+- `GET /positions?unidadeId={id}` → `WrapperListaPositionDTO{content[PositionResponseDTO],totalElements,dotacao,ocupados,vagas}`
+- `GET /positions/{id}`; `POST /positions` (`PositionRequestDTO{numeroLugar,jobId,unidadeOrganicaId,careerId?,categoryId?,parentPositionId?,managesUnitId?,legalBase?}`); `PUT /positions/{id}`; `PATCH /positions/{id}/freeze`; `DELETE /positions/{id}`.
+- `PositionResponseDTO`: id,numeroLugar,jobId,**jobNome**,unidadeOrganicaId,**unidadeNome**,careerId,**careerNome**,categoryId,**categoryNome**,parentPositionId,managesUnitId,estado,legalBase,isActive,foraDeGrelha,ocupado.
+
+**Afectação** `colaboradores/assignments`:
+- `POST /assignments` (`AfectacaoRequestDTO{funcionarioId,positionId,gradeId,functionId?,origem,assignmentType?,dataInicio,notes?}`)
+- `GET /funcionario/{id}/unidade-atual` → {funcionarioId,**funcionarioNome**,positionId,numeroLugar,unidadeOrganicaId,**unidadeNome**,jobId,**jobNome**}
+- `GET /funcionario/{id}/chefe` → {funcionarioId,funcionarioNome,chefePositionId?,chefeFuncionarioId?,**chefeNome?**,estado}
+- `GET /unidade/{id}/responsavel` → {unidadeId,**unidadeNome**,positionId?,numeroLugar?,responsavelFuncionarioId?,**responsavelNome?**,estado}
+- `GET /unidade/{id}/vagas` → {unidadeId,dotacao,ocupados,vagas}
+- `GET /unidade/{id}/vagas/lista` → `WrapperListaPositionDTO` (Lugares VAGOS com nomes — **picker de admissão**)
+
+**Mobilidade**: `LicencaMobilidadeRequestDTO` ganha `destinationPositionId` (obrigatório p/ MOBILIDADE ao aprovar/ativar, senão 422). `PUT .../licencas-mobilidade/{id}/approve`.
+**Estado**: `PATCH .../worker-state` — RETIRED/INACTIVE encerram a afectação (Lugar volta a vago). Sem alteração de request.
+
+**Enums**: origem=ADMISSAO|PROGRESSAO|PROMOCAO|MOBILIDADE|TRANSFERENCIA; assignmentType=PRINCIPAL|ACUMULACAO|SUBSTITUICAO; estado(Lugar)=ATIVO|CONGELADO|EXTINTO. PROVIDO/VAGO é DERIVADO (campo `ocupado`).
+**Deprecados**: `/funcionarios/{id}/enquadramentos`, `/funcionarios/{id}/colocacoes` → substituídos por Afectação.
+**Ecrãs FE novos**: gestão Mapa de Pessoal (criar Lugares, chefias managesUnitId/parentPositionId, ver vagas); picker de Lugar vago na admissão (unidade/cargo/carreira só-leitura, derivados).
+**Notas**: enviar `Accept: application/json`. Erros 422: Lugar ocupado / não disponível / grelha (escalão obrigatório/proibido) / mobilidade sem Lugar destino.
+
+Entregar como doc `docs/funcionarios/v4/` + (opcional) artifact HTML. Formato de revisão HTML do que foi feito também pendente.
+
 ## Inventário do LEGADO (breaking change — varrimento 2026-09-01)
 
 **A) Consumidores ACTIVOS do modelo antigo — ✅ REPONTADOS para o novo modelo (2026-09-01):**
