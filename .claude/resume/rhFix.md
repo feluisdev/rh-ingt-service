@@ -58,16 +58,14 @@ Refactor dos "movimentos do colaborador": adoptar **Position Management (Mapa de
 
 ## Inventário do LEGADO (breaking change — varrimento 2026-09-01)
 
-**A) Consumidores ACTIVOS ainda no modelo antigo — RISCO: dão dados vazios/errados para colaboradores registados pelo NOVO fluxo (que já não escreve enquadramento/colocação):**
+**A) Consumidores ACTIVOS do modelo antigo — ✅ REPONTADOS para o novo modelo (2026-09-01):**
 
-1. `estrutura/GetOrganizationalUnitByIdQueryHandler` + `GetOrganizationalUnitsQueryHandler` — `nColaboradores` = `ColabsColocacaoEntityRepository.countByUnitIdAndIsCurrentTrueAndIsActiveTrue()`. **Headcount ERRADO** para unidades com colaboradores novos (não têm colocação). → repontar para contar via afectação corrente / `position.unidade`.
-2. `colaboradores/GetColaboradorDetailsQueryHandler` + `ColaboradorDetailsResponseDTO` — devolve bloco `enquadramento` (`enquadramentoRepository.findCurrentByFuncionarioId`) = **null para novos**. → repontar para afectação+Lugar.
-3. `colaboradores/GetMeProfileQueryHandler` — perfil `/me` lê enquadramento. Idem (2).
-4. `colaboradores/CloseContratoCommandHandler` — no fim de contrato encerra o enquadramento (no-op p/ novos). → deve encerrar a afectação corrente (`AssignmentService.encerrarAfectacaoCorrente`).
-5. **Ciclo de licença/mobilidade ainda em colocação:**
-   - `AtivarLicencaMobilidadeCommandHandler` (`PATCH .../ativar`, dito "alias de /approve") **AINDA usa colocação** e cria `Colocacao(unit=null)` — **INCONSISTENTE com `/approve`** (que já usa o novo modelo). Bug: os dois "aliases" divergem.
-   - `EncerrarLicencaMobilidadeCommandHandler` (`PUT .../close`) — restaura colocação anterior (mobilidade temporária). Pós-fase-1 via `origin_assignment_id` (ver abaixo).
-   - `CancelarLicencaMobilidadeCommandHandler` (`PUT .../cancel`) — restaura colocação anterior.
+1. ✅ `estrutura/GetOrganizationalUnitByIdQueryHandler` + `GetOrganizationalUnitsQueryHandler` — `nColaboradores` passa a contar Lugares da unidade com afectação corrente (`PositionRepository.findByUnidade` + `AssignmentRepository.isPositionOccupied`). **Testado A1** (headcount +1 após afectar). Removida dependência de `ColabsColocacaoEntityRepository`.
+2. ✅ `colaboradores/GetColaboradorDetailsQueryHandler` — bloco `enquadramento` construído da afectação corrente + Lugar (mesma forma de resposta, por compat). **Testado A2** (cargoName/unitName/gradeName preenchidos p/ colaborador novo).
+3. ✅ `colaboradores/GetMeProfileQueryHandler` — `/me` unit/job/career/category do Lugar, grade da afectação. Compilado (precisa auth-context p/ teste live).
+4. ✅ `colaboradores/CloseContratoCommandHandler` — encerra a afectação corrente (`AssignmentService.encerrarAfectacaoCorrente`) em vez do enquadramento. Compilado.
+5. ✅ `AtivarLicencaMobilidadeCommandHandler` (`/ativar`) — deixa de escrever `Colocacao(unit=null)`; usa `AssignmentService.afectarMobilidade` no mesmo caminho do `/approve`. **Testado A5** (200, sem erro de colocação). Nota: `/ativar` é reactivação — só dispara com `isActive=false`; caminho principal de mobilidade é `/approve` (9/9).
+   - ⚠️ AINDA legado (pós-fase-1): `EncerrarLicencaMobilidadeCommandHandler` (`/close`, restaura colocação — mobilidade temporária via `origin_assignment_id`) e `CancelarLicencaMobilidadeCommandHandler` (`/cancel`, restaura colocação).
 
 **B) CRUD standalone DEPRECADO (rede de segurança; DROP planeado, não usado pelo registo):**
 - `Enquadramento*`: `EnquadramentoController` (`/funcionarios/{id}/enquadramentos`), `Create/GetById/GetAtual/GetHistorico`, `EnquadramentoService`, `EnquadramentoProfissional`, `EnquadramentoRepository(+Impl)`, `EnquadramentoEntity(+Repository)`, `EnquadramentoMapper`, `EnquadramentoFilter`, `EnquadramentoId`, DTOs (`Request/Response/WrapperLista`).
