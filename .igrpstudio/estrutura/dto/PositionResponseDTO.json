@@ -1,0 +1,21 @@
+{
+  "type": "dto",
+  "name": "PositionResponseDTO",
+  "module": "estrutura",
+  "template": "classic",
+  "attributes": [
+    {"name": "id", "type": "string", "required": false},
+    {"name": "numeroLugar", "type": "string", "required": false},
+    {"name": "jobId", "type": "string", "required": false},
+    {"name": "unidadeOrganicaId", "type": "string", "required": false},
+    {"name": "careerId", "type": "string", "required": false},
+    {"name": "categoryId", "type": "string", "required": false},
+    {"name": "parentPositionId", "type": "string", "required": false},
+    {"name": "managesUnitId", "type": "string", "required": false},
+    {"name": "estado", "type": "string", "required": false},
+    {"name": "legalBase", "type": "string", "required": false},
+    {"name": "isActive", "type": "boolean", "required": false},
+    {"name": "foraDeGrelha", "type": "boolean", "required": false},
+    {"name": "ocupado", "type": "boolean", "required": false}
+  ]
+}

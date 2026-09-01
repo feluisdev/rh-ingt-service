@@ -1,0 +1,61 @@
+package cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity;
+
+import cv.igrp.RH_Service.shared.config.AuditEntity;
+import cv.igrp.framework.stereotype.IgrpEntity;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.envers.Audited;
+
+import java.time.LocalDate;
+import java.util.UUID;
+
+@Audited
+@Getter
+@Setter
+@IgrpEntity
+@Entity(name = "ColabsAssignmentEntity")
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "t_assignment")
+public class AssignmentEntity extends AuditEntity {
+
+    @Id
+    @Column(name = "id", unique = true, nullable = false)
+    private UUID id;
+
+    @Column(name = "funcionario_id", nullable = false)
+    private UUID funcionarioId;
+
+    @Column(name = "position_id", nullable = false)
+    private UUID positionId;
+
+    @Column(name = "grade_id")
+    private UUID gradeId;
+
+    @Column(name = "function_id")
+    private UUID functionId;
+
+    @Column(name = "assignment_type", nullable = false, length = 20)
+    private String assignmentType;
+
+    @Column(name = "origem", nullable = false, length = 20)
+    private String origem;
+
+    @Column(name = "origin_assignment_id")
+    private UUID originAssignmentId;
+
+    @Column(name = "data_inicio", nullable = false)
+    private LocalDate dataInicio;
+
+    @Column(name = "data_fim")
+    private LocalDate dataFim;
+
+    @Column(name = "is_current", nullable = false)
+    private Boolean isCurrent;
+
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
+
+    @Column(name = "notes")
+    private String notes;
+}

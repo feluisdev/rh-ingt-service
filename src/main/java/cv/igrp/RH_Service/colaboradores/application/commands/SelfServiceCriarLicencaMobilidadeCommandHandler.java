@@ -52,7 +52,7 @@ public class SelfServiceCriarLicencaMobilidadeCommandHandler
         var licenca = LicencaMobilidade.criar(funcionarioId, subtipoId,
                 dto.getDataInicio(), dto.getDataFim(),
                 dto.getEntidadeDestino(), dto.getDespachoNumero(), dto.getObservacoes(),
-                dto.getJustification(), null, null);
+                dto.getJustification(), null, null, null);
         var saved = licencaRepository.save(licenca);
 
         return ResponseEntity.status(201).body(Map.of(

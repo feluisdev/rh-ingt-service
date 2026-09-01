@@ -26,6 +26,7 @@ public class LicencaMobilidadeMapper {
                 e.getEntidadeDestino(), e.getDespachoNumero(),
                 e.getObservacoes(), e.getIsActive(),
                 e.getStatus(), e.getDestinationUnitId(),
+                e.getDestinationPositionId(),
                 e.getJustification(), e.getDocumentId(),
                 e.getRejectionReason());
     }
@@ -43,6 +44,7 @@ public class LicencaMobilidadeMapper {
         e.setIsActive(l.getIsActive());
         e.setStatus(l.getStatus() != null ? l.getStatus() : "PENDING");
         e.setDestinationUnitId(l.getDestinationUnitId());
+        e.setDestinationPositionId(l.getDestinationPositionId());
         e.setJustification(l.getJustification());
         e.setDocumentId(l.getDocumentId());
         e.setRejectionReason(l.getRejectionReason());
@@ -77,6 +79,7 @@ public class LicencaMobilidadeMapper {
         r.setEstadoDesc(Boolean.TRUE.equals(l.getIsActive()) ? "Ativo" : "Inativo");
         r.setStatus(l.getStatus());
         r.setDestinationUnitId(l.getDestinationUnitId() != null ? l.getDestinationUnitId().toString() : null);
+        r.setDestinationPositionId(l.getDestinationPositionId() != null ? l.getDestinationPositionId().toString() : null);
         r.setJustification(l.getJustification());
         r.setRejectionReason(l.getRejectionReason());
         subtipoRepository.findById(l.getSubtipoId())

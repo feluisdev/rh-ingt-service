@@ -1,0 +1,13 @@
+{
+  "type": "dto",
+  "name": "WrapperListaPositionDTO",
+  "module": "estrutura",
+  "template": "classic",
+  "attributes": [
+    {"name": "content", "type": "string", "required": false},
+    {"name": "totalElements", "type": "integer", "required": false},
+    {"name": "dotacao", "type": "integer", "required": false},
+    {"name": "ocupados", "type": "integer", "required": false},
+    {"name": "vagas", "type": "integer", "required": false}
+  ]
+}

@@ -53,6 +53,9 @@ public class LicencaMobilidadeEntity extends AuditEntity {
     @Column(name = "destination_unit_id")
     private UUID destinationUnitId;
 
+    @Column(name = "destination_position_id")
+    private UUID destinationPositionId;
+
     @Column(name = "justification", columnDefinition = "TEXT")
     private String justification;
 

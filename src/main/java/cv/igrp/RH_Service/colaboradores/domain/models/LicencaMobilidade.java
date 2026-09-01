@@ -22,6 +22,8 @@ public class LicencaMobilidade {
     private Boolean isActive;
     private String status;
     private UUID destinationUnitId;
+    /** Lugar (Position) de destino da mobilidade — usado ao aprovar para abrir a afectação. */
+    private UUID destinationPositionId;
     private String justification;
     private UUID documentId;
     private String rejectionReason;
@@ -33,7 +35,8 @@ public class LicencaMobilidade {
                                           LocalDate dataInicio, LocalDate dataFim,
                                           String entidadeDestino, String despachoNumero,
                                           String observacoes, String justification,
-                                          UUID destinationUnitId, UUID documentId) {
+                                          UUID destinationUnitId, UUID destinationPositionId,
+                                          UUID documentId) {
         LicencaMobilidade l = new LicencaMobilidade();
         l.id = LicencaMobilidadeId.gerarNovo();
         l.funcionarioId = funcionarioId;
@@ -45,6 +48,7 @@ public class LicencaMobilidade {
         l.observacoes = observacoes;
         l.justification = justification;
         l.destinationUnitId = destinationUnitId;
+        l.destinationPositionId = destinationPositionId;
         l.documentId = documentId;
         l.isActive = true;
         l.status = "PENDING";
@@ -58,6 +62,7 @@ public class LicencaMobilidade {
                                                   String entidadeDestino, String despachoNumero,
                                                   String observacoes, Boolean isActive,
                                                   String status, UUID destinationUnitId,
+                                                  UUID destinationPositionId,
                                                   String justification, UUID documentId,
                                                   String rejectionReason) {
         LicencaMobilidade l = new LicencaMobilidade();
@@ -72,6 +77,7 @@ public class LicencaMobilidade {
         l.isActive = isActive;
         l.status = status != null ? status : "PENDING";
         l.destinationUnitId = destinationUnitId;
+        l.destinationPositionId = destinationPositionId;
         l.justification = justification;
         l.documentId = documentId;
         l.rejectionReason = rejectionReason;
