@@ -109,6 +109,9 @@ Entregar como doc `docs/funcionarios/v4/` + (opcional) artifact HTML. Formato de
 
 ## Pendente (pós-fase-1, não bloqueia merge)
 
+- **Validação PCFR — escalão ∈ categoria do Lugar (EM FALTA):** `AssignmentService.afectar()` valida apenas presença do `gradeId` (obrigatório em Lugar de carreira; proibido fora de grelha), mas **não** valida que `grade.categoryId == position.categoryId`. O ADR-002 (§2.1 constraints / §3 admissão passo 4) prevê que o escalão escolhido tem de pertencer à categoria do Lugar. Hoje a API aceitaria um escalão de outra categoria. Frontend deve, entretanto, filtrar o picker de escalões pela categoria do Lugar (`grade.categoryId == position.categoryId`). Fix futuro: em `afectar()`, carregar o grade e rejeitar 422 se a categoria não bater. (Nota: `t_grade.category_id` → `t_category.career_id`.)
+
+
 - **Mobilidade temporária / `/close`**: o endpoint `PUT .../licencas-mobilidade/{id}/close` ("mobilidades restauram colocação anterior") continua no caminho **legado `colocacao`** (`EncerrarLicencaMobilidade…`/`ColocacaoRepository`). No novo modelo isto deve reabrir a afectação de origem via `origin_assignment_id` (o campo já existe em `t_assignment`). O ADR-002 (D6 / §3 Mobilidade / §9) marca o automatismo de regresso ao lugar de origem como **pós-fase-1**. Repointar quando se fizer o motor de regresso: `AssignmentService` fecha a afectação de MOBILIDADE e reabre a `origin_assignment_id`.
 
 ## Blockers & risks
