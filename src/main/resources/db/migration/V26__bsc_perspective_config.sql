@@ -36,8 +36,15 @@ CREATE TABLE IF NOT EXISTS t_bsc_perspective_config (
 
 -- Idempotent seed: only inserts rows for codes that don't already exist, so re-running this
 -- migration against a ddl-auto-created (but empty) table neither errors nor duplicates rows.
-INSERT INTO t_bsc_perspective_config (id, code, label, display_order, created_by)
-SELECT gen_random_uuid(), v.code, v.label, v.display_order, 'system'
+--
+-- created_date is supplied explicitly instead of relying on the column DEFAULT declared above.
+-- The DEFAULT only exists when this migration created the table. When ddl-auto=update got
+-- there first, Hibernate emits the NOT NULL but no DEFAULT, so omitting the column here fails
+-- with a not-null violation -- which is exactly what happens on a from-scratch database, where
+-- V24 forces the app to boot with Flyway disabled (t_key_results is created by Hibernate, not
+-- by any migration) and Hibernate therefore creates this table before Flyway ever sees it.
+INSERT INTO t_bsc_perspective_config (id, code, label, display_order, created_date, created_by)
+SELECT gen_random_uuid(), v.code, v.label, v.display_order, CURRENT_TIMESTAMP, 'system'
 FROM (VALUES
     ('FINANCIAL', 'Financeira',                  1),
     ('CUSTOMER',  'Cliente / Mercado',            2),
