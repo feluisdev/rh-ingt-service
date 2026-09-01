@@ -200,7 +200,12 @@ GRANT ALL ON SCHEMA public TO public;
 
     # Objetos grandes pertencem a BASE DE DADOS e nao ao esquema, pelo que o
     # DROP SCHEMA CASCADE acima nao lhes toca. Sem isto, cada reset deixa orfaos os
-    # objetos grandes do anterior -- medido a 2026-09-01, com 183 acumulados. Sao as
+    # objetos grandes do anterior -- medido a 2026-09-01: 183 num instante, e 186 quando
+    # o wipe correu. Os dois numeros estao certos em momentos diferentes, e a diferenca
+    # e a propria demonstracao do problema: entre as duas medicoes foi criada uma
+    # identidade pela API, que gera exatamente 3 objetos (mission, vision, values_json).
+    # Sem lo_unlink, cada identidade criada e depois apagada deixa os seus tres para
+    # tras. Sao as
     # colunas @Lob das entidades do SIGDI (mission, vision, values_json, description
     # e companhia), que o Hibernate guarda em pg_largeobject com o OID na coluna.
     Write-Host '-> a limpar objetos grandes orfaos...'
