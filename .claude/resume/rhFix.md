@@ -56,6 +56,30 @@ Refactor dos "movimentos do colaborador": adoptar **Position Management (Mapa de
 - JPQL: `year(field)` (não `FUNCTION('YEAR',...)`).
 - Testes: perfil `development` (sem auth), porta 8091.
 
+## Inventário do LEGADO (breaking change — varrimento 2026-09-01)
+
+**A) Consumidores ACTIVOS ainda no modelo antigo — RISCO: dão dados vazios/errados para colaboradores registados pelo NOVO fluxo (que já não escreve enquadramento/colocação):**
+
+1. `estrutura/GetOrganizationalUnitByIdQueryHandler` + `GetOrganizationalUnitsQueryHandler` — `nColaboradores` = `ColabsColocacaoEntityRepository.countByUnitIdAndIsCurrentTrueAndIsActiveTrue()`. **Headcount ERRADO** para unidades com colaboradores novos (não têm colocação). → repontar para contar via afectação corrente / `position.unidade`.
+2. `colaboradores/GetColaboradorDetailsQueryHandler` + `ColaboradorDetailsResponseDTO` — devolve bloco `enquadramento` (`enquadramentoRepository.findCurrentByFuncionarioId`) = **null para novos**. → repontar para afectação+Lugar.
+3. `colaboradores/GetMeProfileQueryHandler` — perfil `/me` lê enquadramento. Idem (2).
+4. `colaboradores/CloseContratoCommandHandler` — no fim de contrato encerra o enquadramento (no-op p/ novos). → deve encerrar a afectação corrente (`AssignmentService.encerrarAfectacaoCorrente`).
+5. **Ciclo de licença/mobilidade ainda em colocação:**
+   - `AtivarLicencaMobilidadeCommandHandler` (`PATCH .../ativar`, dito "alias de /approve") **AINDA usa colocação** e cria `Colocacao(unit=null)` — **INCONSISTENTE com `/approve`** (que já usa o novo modelo). Bug: os dois "aliases" divergem.
+   - `EncerrarLicencaMobilidadeCommandHandler` (`PUT .../close`) — restaura colocação anterior (mobilidade temporária). Pós-fase-1 via `origin_assignment_id` (ver abaixo).
+   - `CancelarLicencaMobilidadeCommandHandler` (`PUT .../cancel`) — restaura colocação anterior.
+
+**B) CRUD standalone DEPRECADO (rede de segurança; DROP planeado, não usado pelo registo):**
+- `Enquadramento*`: `EnquadramentoController` (`/funcionarios/{id}/enquadramentos`), `Create/GetById/GetAtual/GetHistorico`, `EnquadramentoService`, `EnquadramentoProfissional`, `EnquadramentoRepository(+Impl)`, `EnquadramentoEntity(+Repository)`, `EnquadramentoMapper`, `EnquadramentoFilter`, `EnquadramentoId`, DTOs (`Request/Response/WrapperLista`).
+- `Colocacao*`: `ColocacaoController` (`/funcionarios/{id}/colocacoes`), `Registar/Atualizar/Encerrar/Desativar`, `Colocacao`, `TipoAfectacao`, `ColocacaoRepository(+Impl)`, `ColocacaoEntity`, `ColabsColocacaoEntityRepository`, `ColocacaoMapper`, `ColocacaoFilter`, `ColocacaoId`, `Get*` queries, DTOs.
+- Manifests `.igrpstudio/colaboradores/`: `models/{Enquadramento,Colocacao}Entity.json`, `controllers/{Enquadramento,Colocacao}Controller.json`, DTOs correspondentes.
+- Migração `V10__enquadramento.sql` (schema antigo — fica no histórico Flyway).
+
+**C) Tabelas/funções BD antigas (NÃO largadas nesta fase — DROP em migração futura, ADR §M6):**
+- `t_employee_professional_assignments`, `t_employee_unit_assignments`, `fn_apply_mobility`, `fn_validate_professional_assignment`.
+
+> Ordem sugerida de limpeza: primeiro repontar **A** (consumidores activos — é o que quebra dados), depois retirar **B** (CRUD standalone), por fim **C** (DROP schema). Manter dump antes de C.
+
 ## Pendente (pós-fase-1, não bloqueia merge)
 
 - **Mobilidade temporária / `/close`**: o endpoint `PUT .../licencas-mobilidade/{id}/close` ("mobilidades restauram colocação anterior") continua no caminho **legado `colocacao`** (`EncerrarLicencaMobilidade…`/`ColocacaoRepository`). No novo modelo isto deve reabrir a afectação de origem via `origin_assignment_id` (o campo já existe em `t_assignment`). O ADR-002 (D6 / §3 Mobilidade / §9) marca o automatismo de regresso ao lugar de origem como **pós-fase-1**. Repointar quando se fizer o motor de regresso: `AssignmentService` fecha a afectação de MOBILIDADE e reabre a `origin_assignment_id`.
