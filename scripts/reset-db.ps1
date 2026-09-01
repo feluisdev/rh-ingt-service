@@ -198,6 +198,14 @@ GRANT ALL ON SCHEMA public TO $pgUser;
 GRANT ALL ON SCHEMA public TO public;
 "@
 
+    # Objetos grandes pertencem a BASE DE DADOS e nao ao esquema, pelo que o
+    # DROP SCHEMA CASCADE acima nao lhes toca. Sem isto, cada reset deixa orfaos os
+    # objetos grandes do anterior -- medido a 2026-09-01, com 183 acumulados. Sao as
+    # colunas @Lob das entidades do SIGDI (mission, vision, values_json, description
+    # e companhia), que o Hibernate guarda em pg_largeobject com o OID na coluna.
+    Write-Host '-> a limpar objetos grandes orfaos...'
+    Invoke-Psql -Database $pgDb -Sql "SELECT lo_unlink(oid) FROM pg_largeobject_metadata;"
+
     Write-Host 'Base de dados vazia.' -ForegroundColor Green
     if (-not $Migrate) {
         Write-Host 'Passo seguinte:  .\scripts\reset-db.ps1 -Migrate -Seed'
@@ -249,4 +257,74 @@ if ($Seed) {
     Push-Location $seedDir
     try { Invoke-Psql -Database $pgDb -File 'master_seed.sql' } finally { Pop-Location }
     Write-Host 'Seeds aplicados.' -ForegroundColor Green
+
+    # ---- identidade institucional, pela API e nao por SQL --------------------
+    # Ver o cabecalho de seed_identidade.sql para a razao inteira. Em duas linhas:
+    # mission/vision/values_json sao @Lob, logo o Hibernate guarda-os em objeto
+    # grande e poe o OID na coluna. Um INSERT em SQL cru mete la o texto, e todas as
+    # leituras da identidade passam a falhar com "Bad value for type long", o que
+    # bloqueia o percurso BSC inteiro. So a API produz a representacao certa.
+    $identityCount = & $psql -h $pgHost -p $pgPort -U $pgUser -d $pgDb -Atc `
+        "SELECT count(*) FROM t_institutional_identity WHERE is_active;"
+
+    if ([int]$identityCount -gt 0) {
+        Write-Host "-> identidade institucional ativa ja existe ($identityCount), nada a fazer"
+    }
+    else {
+        # No fluxo completo o servico esta parado nesta altura -- o -Migrate mata-o
+        # depois do terceiro arranque. Arranca-se aqui so para a chamada a API e
+        # volta a parar-se, para o script terminar no mesmo estado em que comecou.
+        $bootedForSeed = $false
+        if (-not (Get-NetTCPConnection -LocalPort $svcPort -State Listen -ErrorAction SilentlyContinue)) {
+            if (-not $java -or -not $jar) {
+                throw @"
+Falta a identidade institucional e nao consigo arrancar o servico para a criar.
+Arranca-o a mao e corre outra vez:  .\scripts\reset-db.ps1 -Seed
+"@
+            }
+            Write-Host '-> a arrancar o servico so para criar a identidade...'
+            $seedProc = Start-Process -FilePath $java `
+                -ArgumentList '-jar', $jar -WorkingDirectory $repoRoot `
+                -RedirectStandardOutput (Join-Path $repoRoot '.logs\reset-boot-seed.log') `
+                -RedirectStandardError  (Join-Path $repoRoot '.logs\reset-boot-seed.log.err') `
+                -PassThru -NoNewWindow
+            $bootedForSeed = $true
+
+            $elapsed = 0
+            while ($elapsed -lt 180) {
+                Start-Sleep -Seconds 3; $elapsed += 3
+                if (Get-NetTCPConnection -LocalPort $svcPort -State Listen -ErrorAction SilentlyContinue) { break }
+            }
+            if (-not (Get-NetTCPConnection -LocalPort $svcPort -State Listen -ErrorAction SilentlyContinue)) {
+                if (-not $seedProc.HasExited) { Stop-Process -Id $seedProc.Id -Force -ErrorAction SilentlyContinue }
+                throw 'O servico nao chegou a escutar na porta. Ve .logs\reset-boot-seed.log'
+            }
+        }
+
+        # O corpo vai por FICHEIRO e nao por argumento: os acentos portugueses
+        # partem-se na linha de comandos e o servico responde
+        # "JSON parse error: Invalid UTF-8 middle byte".
+        $body = @'
+{"cycleYear":2026,"mission":"Assegurar a gestão rigorosa das finanças públicas e promover o desenvolvimento empresarial.","vision":"Ser uma administração financeira de referência, transparente e orientada para resultados.","values":["Rigor","Transparência","Responsabilidade","Orientação para resultados"],"versionComment":"Seed inicial para testes funcionais"}
+'@
+        $tmp = Join-Path ([System.IO.Path]::GetTempPath()) 'sipprog-identity.json'
+        [System.IO.File]::WriteAllText($tmp, $body, (New-Object System.Text.UTF8Encoding $false))
+
+        Write-Host '-> a criar a identidade institucional pela API...'
+        $code = & curl.exe -s -o "$tmp.out" -w '%{http_code}' -m 60 `
+            -X POST "http://localhost:$svcPort/api/v1/strategy/identities" `
+            -H 'Content-Type: application/json; charset=utf-8' `
+            --data-binary "@$tmp"
+
+        $out = if (Test-Path "$tmp.out") { Get-Content "$tmp.out" -Raw } else { '' }
+        Remove-Item $tmp, "$tmp.out" -ErrorAction SilentlyContinue
+
+        if ($bootedForSeed -and -not $seedProc.HasExited) {
+            Stop-Process -Id $seedProc.Id -Force -ErrorAction SilentlyContinue
+            Start-Sleep -Seconds 2
+        }
+
+        if ($code -ne '201') { throw "A criacao da identidade devolveu $code em vez de 201. Resposta: $out" }
+        Write-Host 'Identidade institucional criada.' -ForegroundColor Green
+    }
 }
