@@ -200,14 +200,16 @@ GRANT ALL ON SCHEMA public TO public;
 
     # Objetos grandes pertencem a BASE DE DADOS e nao ao esquema, pelo que o
     # DROP SCHEMA CASCADE acima nao lhes toca. Sem isto, cada reset deixa orfaos os
-    # objetos grandes do anterior -- medido a 2026-09-01: 183 num instante, e 186 quando
-    # o wipe correu. Os dois numeros estao certos em momentos diferentes, e a diferenca
-    # e a propria demonstracao do problema: entre as duas medicoes foi criada uma
-    # identidade pela API, que gera exatamente 3 objetos (mission, vision, values_json).
-    # Sem lo_unlink, cada identidade criada e depois apagada deixa os seus tres para
-    # tras. Sao as
-    # colunas @Lob das entidades do SIGDI (mission, vision, values_json, description
-    # e companhia), que o Hibernate guarda em pg_largeobject com o OID na coluna.
+    # objetos grandes do anterior. Sao as colunas @Lob das entidades do SIGDI (mission,
+    # vision, values_json, description e companhia), que o Hibernate guarda em
+    # pg_largeobject com o OID na coluna.
+    #
+    # Duas contagens de orfaos foram registadas a 2026-09-01, em sitios diferentes: 183
+    # (comentario) e 186 (mensagem de 5e819bfb). NAO ESTA MEDIDO de onde vem a diferenca
+    # -- a hipotese obvia e que entre as duas leituras tenha sido criada uma identidade
+    # pela API, que gera 3 objetos, mas ninguem a verificou e nao e por ser plausivel que
+    # passa a facto. O que esta medido e o que interessa a este script: os orfaos
+    # acumulam-se e o DROP SCHEMA CASCADE nao os apaga, seja qual for o numero.
     Write-Host '-> a limpar objetos grandes orfaos...'
     Invoke-Psql -Database $pgDb -Sql "SELECT lo_unlink(oid) FROM pg_largeobject_metadata;"
 

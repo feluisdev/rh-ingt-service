@@ -36,11 +36,26 @@ import java.util.stream.Stream;
  * <em>todos</em> os ficheiros {@code .sql} do repositório — migrations Flyway incluídas, porque
  * uma migration que semeie uma coluna {@code @Lob} corrompe exatamente da mesma maneira.
  *
- * <p><strong>Limites conhecidos.</strong> É análise de texto, não um parser de SQL. Não segue
- * {@code INSERT ... SELECT} com lista de colunas implícita na origem, não resolve tabelas criadas
- * dinamicamente nem SQL montado em Java, e trata as tabelas de auditoria do Envers
- * ({@code *_aud}) como a tabela base. Deteta a forma pela qual o defeito real entrou; não prova a
- * ausência de todas as formas possíveis.
+ * <p><strong>Limites conhecidos, cada um medido e não presumido.</strong> É análise de texto, não
+ * um parser de SQL. Todos os limites abaixo estão fixados em
+ * {@code LobColumnSqlGuardTest.knownLimitsAreMeasuredNotPresumed}, que corre o varredor sobre a
+ * forma exata e assere o resultado — se um deles deixar de ser um limite, o teste falha e esta
+ * lista tem de ser reescrita.
+ * <ol>
+ *   <li><strong>Não apanha:</strong> atribuição multi-coluna, {@code UPDATE t SET (a, b) = (...)};</li>
+ *   <li><strong>Não apanha:</strong> SQL fora de ficheiros {@code .sql} — montado em Java,
+ *       {@code createNativeQuery}, {@code psql} à mão, restauros de dump;</li>
+ *   <li><strong>Não apanha:</strong> tabelas cujo nome só existe em tempo de execução (SQL
+ *       dinâmico, {@code EXECUTE format(...)});</li>
+ *   <li><strong>Sobre-reporta:</strong> uma coluna {@code @Lob} usada apenas no {@code WHERE} de um
+ *       {@code UPDATE} é contada como escrita. Erra para o lado seguro, de propósito: a região de
+ *       atribuições vai até ao {@code ;} para não perder um {@code SET} depois de uma subconsulta
+ *       com {@code WHERE};</li>
+ *   <li><strong>Por desenho, não é um limite:</strong> as tabelas de auditoria do Envers
+ *       ({@code *_aud}) são normalizadas para a tabela base — espelham as mesmas colunas e sofrem a
+ *       mesma corrupção, e escrever nelas por SQL é igualmente proibido.</li>
+ * </ol>
+ * Deteta a forma pela qual o defeito real entrou; não prova a ausência de todas as formas possíveis.
  */
 final class LobColumnSqlGuard {
 
@@ -57,15 +72,53 @@ final class LobColumnSqlGuard {
     private static final Pattern FIELD_DECLARATION =
             Pattern.compile("^\\s*(?:private|protected|public)\\s+[\\w<>,.\\[\\]\\s]+?(\\w+)\\s*[;=]");
 
+    /**
+     * Palavras que podem seguir o nome da tabela num {@code INSERT} e que <em>não</em> são um alias.
+     * Sem esta exclusão, {@code INSERT INTO t VALUES ('a','b')} leria {@code VALUES} como alias e
+     * {@code ('a','b')} como lista de colunas — um falso negativo na forma mais comum de todas.
+     */
+    private static final String NOT_AN_INSERT_ALIAS =
+            "(?!values\\b|select\\b|default\\b|overriding\\b|with\\b|table\\b|on\\b)";
+
     private static final Pattern INSERT_STATEMENT =
-            Pattern.compile("insert\\s+into\\s+([\\w.\"]+)\\s*(?:\\(([^)]*)\\))?",
+            Pattern.compile("insert\\s+into\\s+([\\w.\"]+)"
+                            + "(?:\\s+(?:as\\s+)?" + NOT_AN_INSERT_ALIAS + "\\w+)?"
+                            + "\\s*(?:\\(([^)]*)\\))?",
                     Pattern.CASE_INSENSITIVE);
 
+    /**
+     * {@code UPDATE [ONLY] tabela [[AS] alias] SET}. O alias é opcional e o {@code (?!set\b)} evita
+     * que a própria palavra {@code SET} seja lida como alias.
+     */
     private static final Pattern UPDATE_STATEMENT =
-            Pattern.compile("update\\s+(?:only\\s+)?([\\w.\"]+)\\s+set\\b", Pattern.CASE_INSENSITIVE);
+            Pattern.compile("update\\s+(?:only\\s+)?([\\w.\"]+)"
+                            + "(?:\\s+(?:as\\s+)?(?!set\\b)\\w+)?"
+                            + "\\s+set\\b",
+                    Pattern.CASE_INSENSITIVE);
 
+    /**
+     * {@code INSERT INTO t} e {@code MERGE INTO t}, para alcançar o {@code UPDATE SET} embutido que
+     * não tem nome de tabela ao lado: {@code ON CONFLICT ... DO UPDATE SET} e
+     * {@code WHEN MATCHED THEN UPDATE SET}.
+     */
+    private static final Pattern INTO_STATEMENT =
+            Pattern.compile("(?:insert|merge)\\s+into\\s+([\\w.\"]+)", Pattern.CASE_INSENSITIVE);
+
+    private static final Pattern EMBEDDED_UPDATE_SET =
+            Pattern.compile("\\bupdate\\s+set\\b", Pattern.CASE_INSENSITIVE);
+
+    /** O ramo {@code WHEN NOT MATCHED THEN INSERT (colunas)} de um {@code MERGE}. */
+    private static final Pattern MERGE_INSERT_COLUMNS =
+            Pattern.compile("\\binsert\\s*\\(([^)]*)\\)", Pattern.CASE_INSENSITIVE);
+
+    /**
+     * {@code COPY tabela [(colunas)] FROM}. O {@code FROM} é exigido de propósito: {@code COPY ... TO}
+     * é uma leitura e não corrompe nada. A lista de colunas é opcional — sem ela o {@code COPY}
+     * escreve a linha toda, tal como um {@code INSERT} sem lista.
+     */
     private static final Pattern COPY_STATEMENT =
-            Pattern.compile("copy\\s+([\\w.\"]+)\\s*\\(([^)]*)\\)", Pattern.CASE_INSENSITIVE);
+            Pattern.compile("copy\\s+([\\w.\"]+)\\s*(?:\\(([^)]*)\\))?\\s*from\\b",
+                    Pattern.CASE_INSENSITIVE);
 
     private LobColumnSqlGuard() {
     }
@@ -134,7 +187,7 @@ final class LobColumnSqlGuard {
         return violations;
     }
 
-    private static List<Violation> findViolations(Map<String, Set<String>> lobColumns, Path file, String sql) {
+    static List<Violation> findViolations(Map<String, Set<String>> lobColumns, Path file, String sql) {
         List<Violation> violations = new ArrayList<>();
 
         Matcher insert = INSERT_STATEMENT.matcher(sql);
@@ -168,8 +221,7 @@ final class LobColumnSqlGuard {
             }
             String assignments = sql.substring(update.end(), endOfStatement(sql, update.end()));
             for (String lob : lobs) {
-                if (Pattern.compile("\\b" + Pattern.quote(lob) + "\\s*=", Pattern.CASE_INSENSITIVE)
-                        .matcher(assignments).find()) {
+                if (assignsTo(assignments, lob)) {
                     violations.add(new Violation(file, lineOf(sql, update.start()), table, lob, "UPDATE ... SET"));
                 }
             }
@@ -182,14 +234,74 @@ final class LobColumnSqlGuard {
             if (lobs == null) {
                 continue;
             }
+            int line = lineOf(sql, copy.start());
+            if (copy.group(2) == null) {
+                // Sem lista de colunas, o COPY carrega a linha toda -- logo, escreve os @Lob todos.
+                for (String lob : lobs) {
+                    violations.add(new Violation(file, line, table, lob, "COPY (sem lista de colunas)"));
+                }
+                continue;
+            }
             for (String column : splitColumns(copy.group(2))) {
                 if (lobs.contains(column)) {
-                    violations.add(new Violation(file, lineOf(sql, copy.start()), table, column, "COPY"));
+                    violations.add(new Violation(file, line, table, column, "COPY"));
                 }
             }
         }
 
+        violations.addAll(findEmbeddedUpdates(lobColumns, file, sql));
         return violations;
+    }
+
+    /**
+     * O {@code UPDATE SET} que não traz nome de tabela ao lado, e que por isso escapa ao
+     * {@link #UPDATE_STATEMENT}: o {@code ON CONFLICT (...) DO UPDATE SET} de um {@code INSERT} e o
+     * {@code WHEN MATCHED THEN UPDATE SET} de um {@code MERGE}. A tabela vem do {@code INTO} que
+     * abre a instrução; a região de atribuições vai daí até ao fim da instrução.
+     *
+     * <p>O {@code ON CONFLICT} não é hipotético neste repositório: aparece 34 vezes em cinco seeds.
+     * Hoje são todas {@code DO NOTHING}; trocar uma por {@code DO UPDATE SET mission = ...} é uma
+     * palavra de distância.
+     */
+    private static List<Violation> findEmbeddedUpdates(
+            Map<String, Set<String>> lobColumns, Path file, String sql) {
+        List<Violation> violations = new ArrayList<>();
+        Matcher into = INTO_STATEMENT.matcher(sql);
+        while (into.find()) {
+            String table = normalizeTable(into.group(1));
+            Set<String> lobs = lobColumns.get(table);
+            if (lobs == null) {
+                continue;
+            }
+            String body = sql.substring(into.end(), endOfStatement(sql, into.end()));
+            int line = lineOf(sql, into.start());
+
+            Matcher embeddedUpdate = EMBEDDED_UPDATE_SET.matcher(body);
+            if (embeddedUpdate.find()) {
+                String assignments = body.substring(embeddedUpdate.end());
+                for (String lob : lobs) {
+                    if (assignsTo(assignments, lob)) {
+                        violations.add(new Violation(file, line, table, lob, "ON CONFLICT/MERGE ... UPDATE SET"));
+                    }
+                }
+            }
+
+            Matcher mergeInsert = MERGE_INSERT_COLUMNS.matcher(body);
+            while (mergeInsert.find()) {
+                for (String column : splitColumns(mergeInsert.group(1))) {
+                    if (lobs.contains(column)) {
+                        violations.add(new Violation(file, line, table, column, "MERGE ... THEN INSERT"));
+                    }
+                }
+            }
+        }
+        return violations;
+    }
+
+    /** Verdadeiro se {@code region} contém uma atribuição {@code coluna = ...}. */
+    private static boolean assignsTo(String region, String column) {
+        return Pattern.compile("\\b" + Pattern.quote(column) + "\\s*=", Pattern.CASE_INSENSITIVE)
+                .matcher(region).find();
     }
 
     private static String findTableName(List<String> lines) {
@@ -253,12 +365,30 @@ final class LobColumnSqlGuard {
 
     /**
      * Substitui por espaços o conteúdo de comentários ({@code --} e {@code /* *}{@code /}) e de
-     * literais de texto, preservando os fins de linha. Sem isto, um comentário que <em>descreva</em>
-     * o INSERT proibido — como o que hoje explica a armadilha no {@code seed_identidade.sql} —
-     * seria contado como violação, e a guarda que grita sobre a sua própria documentação acaba
-     * desligada.
+     * literais de texto, preservando os fins de linha.
+     *
+     * <p><strong>O que está medido, e o que não está.</strong> Sobre os ficheiros {@code .sql} do
+     * repositório <em>tal como estão hoje</em>, desligar este filtro não muda coisa nenhuma: zero
+     * violações com ele e zero sem ele. O caso verde
+     * ({@code LobColumnSqlGuardTest.noSqlFileInTheRepositoryWritesToALobColumn}) volta a medir essa
+     * diferença em cada build e imprime-a. Em particular, o comentário que documenta a armadilha em
+     * {@code seed_identidade.sql} <em>não</em> dispara a guarda, com filtro ou sem ele: está escrito
+     * em prosa («um INSERT em SQL cru mete o texto…») e nunca escreve
+     * {@code INSERT INTO t_institutional_identity}.
+     *
+     * <p><strong>Porque fica na mesma.</strong> O filtro é necessário para a classe de ficheiro de
+     * que este repositório já tem dois exemplares — SQL cujo comentário documenta a armadilha — e da
+     * qual o {@code seed_identidade.sql} escapa por uma escolha de redação, não por desenho. Basta
+     * que o próximo autor cole a instrução em vez de a parafrasear. Esse caso <em>está</em> medido,
+     * e não presumido: a fixture {@code lobguard/comment-documents-the-trap.sql} produz três
+     * violações sem o filtro e nenhuma com ele, asserido nos dois sentidos por
+     * {@code LobColumnSqlGuardTest.blankOutNoiseSpares...}. Sem o filtro, a guarda reprovaria a sua
+     * própria documentação — e uma guarda assim acaba desligada.
+     *
+     * <p>Visível ao teste de propósito: é a única forma de a necessidade do filtro ser medida em vez
+     * de afirmada.
      */
-    private static String blankOutNoise(String sql) {
+    static String blankOutNoise(String sql) {
         char[] out = sql.toCharArray();
         boolean inLineComment = false;
         boolean inBlockComment = false;
@@ -344,7 +474,7 @@ final class LobColumnSqlGuard {
         return List.of(readContent(path).split("\n", -1));
     }
 
-    private static String readContent(Path path) {
+    static String readContent(Path path) {
         try {
             return new String(Files.readAllBytes(path), StandardCharsets.UTF_8).replace("\r\n", "\n");
         } catch (IOException e) {

@@ -1,0 +1,29 @@
+-- FIXTURE DE REGRESSAO -- NAO E UM SEED. NUNCA EXECUTAR ESTE FICHEIRO.
+--
+-- Existe para uma unica coisa: medir se o blankOutNoise e necessario, em vez de o
+-- presumir. E o comentario que o seed_identidade.sql quase escreveu.
+--
+-- O seed_identidade.sql documenta a armadilha do @Lob em PROSA -- "um INSERT em SQL
+-- cru mete o texto diretamente na coluna" -- e por isso nao dispara a guarda, com
+-- filtro ou sem ele. Medido: desligado o blankOutNoise, os 43 .sql do repositorio dao
+-- zero violacoes. Escapa por uma escolha de redacao, nao por desenho.
+--
+-- Este ficheiro faz o que o proximo autor fara mais cedo ou mais tarde: em vez de
+-- parafrasear, COLA a instrucao proibida no comentario que a proibe. Sem o
+-- blankOutNoise, a guarda reprovaria esta documentacao -- tres violacoes, uma por
+-- coluna @Lob da identidade -- e uma guarda que grita sobre a sua propria
+-- documentacao acaba desligada.
+--
+-- O LobColumnSqlGuardTest assere os dois sentidos sobre este ficheiro:
+--   com blankOutNoise    -> 0 violacoes
+--   sem blankOutNoise    -> 3 violacoes (mission, vision, values_json)
+--
+-- ============================================================================
+-- NUNCA SEMEAR A IDENTIDADE ASSIM. Foi o que 4884af69 fez e 5e819bfb reverteu:
+--
+--     INSERT INTO t_institutional_identity (id, cycle_year, mission, vision, values_json)
+--     VALUES (gen_random_uuid(), 2026, 'Assegurar...', 'Ser...', '["Rigor"]');
+--
+-- Cria-se pela API, que e o unico caminho que produz a representacao certa.
+-- ============================================================================
+SELECT 1;

@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,13 +26,19 @@ import org.junit.jupiter.api.Test;
  * incidente está fechado mas a armadilha não: há {@value #KNOWN_TABLE_COUNT} tabelas com colunas
  * {@code @Lob}, entre elas {@code t_strategic_goals}.
  *
- * <p>Os três testes desta classe têm papéis distintos e nenhum deles é dispensável:
+ * <p>Os seis testes desta classe têm papéis distintos e nenhum deles é dispensável:
  * <ol>
  *   <li>o inventário prova que o detetor <em>vê</em> as colunas — sem isto, um detetor com o
  *       inventário vazio passa a verde sobre qualquer ficheiro;</li>
  *   <li>o caso vermelho prova que o detetor <em>reprova</em> o defeito real, corrido contra a cópia
  *       literal do {@code INSERT} de 4884af69;</li>
- *   <li>o caso verde prova que o estado atual do repositório está limpo.</li>
+ *   <li>o caso verde prova que o estado atual do repositório está limpo;</li>
+ *   <li>a prova do {@code blankOutNoise} mede, nos dois sentidos, o caso em que o filtro de
+ *       comentários é a diferença entre apanhar e não apanhar;</li>
+ *   <li>a tabela de formas de DML fixa <em>o que</em> a guarda apanha e <em>o que não</em> apanha —
+ *       cada limite conhecido é medido aqui, não presumido num comentário;</li>
+ *   <li>o limite «só vê ficheiros {@code .sql}» é medido pela ausência, que é a única forma de o
+ *       medir.</li>
  * </ol>
  */
 class LobColumnSqlGuardTest {
@@ -39,8 +47,11 @@ class LobColumnSqlGuardTest {
 
     private static final Path REPOSITORY_ROOT = Path.of(".");
     private static final Path JAVA_SOURCE_ROOT = Path.of("src", "main", "java");
+    private static final Path LOBGUARD_FIXTURES = Path.of("src", "test", "resources", "lobguard");
     private static final Path REGRESSION_FIXTURE =
-            Path.of("src", "test", "resources", "lobguard", "regression-4884af69-institutional-identity.sql");
+            LOBGUARD_FIXTURES.resolve("regression-4884af69-institutional-identity.sql");
+    private static final Path DOCUMENTING_COMMENT_FIXTURE =
+            LOBGUARD_FIXTURES.resolve("comment-documents-the-trap.sql");
 
     /**
      * Inventário esperado, derivado do código a 2026-09-01 por
@@ -113,6 +124,7 @@ class LobColumnSqlGuardTest {
     @Test
     @DisplayName("Nenhum ficheiro .sql do repositório escreve numa coluna @Lob")
     void noSqlFileInTheRepositoryWritesToALobColumn() {
+        Map<String, Set<String>> lobColumns = LobColumnSqlGuard.scanLobColumns(JAVA_SOURCE_ROOT);
         List<Path> sqlFiles = LobColumnSqlGuard.listSqlFiles(REPOSITORY_ROOT);
 
         System.out.println("[guarda @Lob] caso verde, " + sqlFiles.size() + " ficheiros .sql varridos:");
@@ -125,9 +137,23 @@ class LobColumnSqlGuardTest {
                 "As migrations Flyway não foram varridas: " + sqlFiles);
         assertFalse(containsFileNamed(sqlFiles, REGRESSION_FIXTURE.getFileName().toString()),
                 "A fixture de regressão tem de ficar fora do varrimento do repositório.");
+        assertFalse(containsFileNamed(sqlFiles, DOCUMENTING_COMMENT_FIXTURE.getFileName().toString()),
+                "A fixture do comentário tem de ficar fora do varrimento do repositório.");
 
         List<LobColumnSqlGuard.Violation> violations =
-                LobColumnSqlGuard.findViolations(LobColumnSqlGuard.scanLobColumns(JAVA_SOURCE_ROOT), sqlFiles);
+                LobColumnSqlGuard.findViolations(lobColumns, sqlFiles);
+
+        // Medição, não presunção: quanto é que o filtro de comentários e literais está a poupar
+        // HOJE, sobre este repositório. Impressa em cada build para que a afirmação da entrega
+        // ("hoje o filtro não muda nada aqui") volte a ser medida sempre que alguém lê o log.
+        List<LobColumnSqlGuard.Violation> withoutFilter = new ArrayList<>();
+        for (Path sqlFile : sqlFiles) {
+            withoutFilter.addAll(LobColumnSqlGuard.findViolations(
+                    lobColumns, sqlFile, LobColumnSqlGuard.readContent(sqlFile)));
+        }
+        System.out.println("[guarda @Lob] blankOutNoise sobre o repositório: "
+                + violations.size() + " violações com o filtro, " + withoutFilter.size()
+                + " sem o filtro (diferença = " + (withoutFilter.size() - violations.size()) + ")");
 
         assertEquals(List.of(), violations,
                 """
@@ -138,6 +164,179 @@ class LobColumnSqlGuardTest {
                 Cria estas linhas pela API (é o único caminho que escreve a representação certa) ou \
                 deixa de anotar a coluna com @Lob.
                 Violações:""");
+    }
+
+    /**
+     * O filtro de comentários e literais, medido nos dois sentidos sobre um ficheiro que existe para
+     * isso.
+     *
+     * <p>Isto substitui uma afirmação que estava errada e que a auditoria de 2026-09-01 apanhou: a
+     * entrega e o commit 2c86678f diziam que, sem o filtro, «o comentário que documenta a armadilha
+     * no {@code seed_identidade.sql} seria ele próprio uma violação». Não seria — esse comentário
+     * está escrito em prosa e nunca escreve a instrução. O caso verde imprime, em cada build, a
+     * diferença real sobre o repositório, que hoje é zero.
+     *
+     * <p>O que é verdade, e é isto que este teste mede: o filtro é necessário para o comentário que
+     * <em>cola</em> a instrução em vez de a parafrasear — que é o que a fixture faz, e é o que o
+     * próximo autor fará quando quiser documentar a proibição no sítio onde ela morde.
+     */
+    @Test
+    @DisplayName("Sem o blankOutNoise a guarda reprovaria a sua própria documentação — medido nos dois sentidos")
+    void blankOutNoiseSparesCommentsThatQuoteTheForbiddenStatement() {
+        assertTrue(Files.isRegularFile(DOCUMENTING_COMMENT_FIXTURE),
+                "Falta a fixture " + DOCUMENTING_COMMENT_FIXTURE + " -- sem ela, a necessidade do "
+                        + "blankOutNoise volta a ser uma presunção.");
+
+        Map<String, Set<String>> lobColumns = LobColumnSqlGuard.scanLobColumns(JAVA_SOURCE_ROOT);
+        String raw = LobColumnSqlGuard.readContent(DOCUMENTING_COMMENT_FIXTURE);
+
+        List<LobColumnSqlGuard.Violation> withFilter = LobColumnSqlGuard.findViolations(
+                lobColumns, DOCUMENTING_COMMENT_FIXTURE, LobColumnSqlGuard.blankOutNoise(raw));
+        List<LobColumnSqlGuard.Violation> withoutFilter =
+                LobColumnSqlGuard.findViolations(lobColumns, DOCUMENTING_COMMENT_FIXTURE, raw);
+
+        System.out.println("[guarda @Lob] blankOutNoise sobre " + DOCUMENTING_COMMENT_FIXTURE + ": "
+                + withFilter.size() + " com o filtro, " + withoutFilter.size() + " sem o filtro");
+        withoutFilter.forEach(violation -> System.out.println("  [sem filtro] " + violation));
+
+        assertEquals(List.of(), withFilter,
+                "Com o filtro, um comentário que cita a instrução proibida não pode ser violação.");
+        assertEquals(Set.of("mission", "vision", "values_json"),
+                withoutFilter.stream().map(LobColumnSqlGuard.Violation::column).collect(Collectors.toSet()),
+                "Sem o filtro, este comentário TEM de produzir violações -- é isso que justifica o "
+                        + "blankOutNoise. Se deixou de produzir, o filtro perdeu a razão de existir e "
+                        + "deve ser removido, não redocumentado.");
+    }
+
+    /**
+     * A tabela de formas de DML: o que a guarda apanha e o que <em>não</em> apanha.
+     *
+     * <p>Existe pela razão pela qual a entrega anterior foi devolvida. A lista de «limites
+     * conhecidos» era prosa: dizia que a guarda não seguia {@code INSERT ... SELECT} (segue), não
+     * dizia que o {@code UPDATE} com alias escapava (escapava), e nunca tinha sido corrida contra
+     * nenhuma destas formas. Aqui cada linha da lista é uma medição, e um limite que deixe de ser um
+     * limite faz o teste falhar em vez de envelhecer em silêncio num comentário.
+     */
+    @Test
+    @DisplayName("Cada forma de DML coberta, e cada limite conhecido, está medido e não presumido")
+    void knownLimitsAreMeasuredNotPresumed() {
+        Map<String, Set<String>> lobColumns = LobColumnSqlGuard.scanLobColumns(JAVA_SOURCE_ROOT);
+
+        Map<String, String> apanha = new LinkedHashMap<>();
+        apanha.put("INSERT com lista de colunas",
+                "INSERT INTO t_strategic_goals (id, description) VALUES ('a', 'b');");
+        apanha.put("INSERT sem lista de colunas",
+                "INSERT INTO t_strategic_goals VALUES ('a', 'b');");
+        apanha.put("INSERT sem espaco antes do parentesis",
+                "INSERT INTO t_strategic_goals(id,description) VALUES ('a','b');");
+        apanha.put("INSERT com alias AS",
+                "INSERT INTO t_strategic_goals AS g (id, description) VALUES ('a','b');");
+        apanha.put("INSERT ... SELECT com lista de colunas",
+                "INSERT INTO t_strategic_goals (id, description) SELECT a, b FROM z;");
+        apanha.put("INSERT ... SELECT sem lista de colunas",
+                "INSERT INTO t_strategic_goals SELECT * FROM z;");
+        apanha.put("INSERT ... ON CONFLICT DO UPDATE SET",
+                "INSERT INTO t_strategic_goals (id) VALUES ('a') ON CONFLICT (id) DO UPDATE SET description = 'x';");
+        apanha.put("esquema qualificado",
+                "INSERT INTO public.t_strategic_goals (description) VALUES ('x');");
+        apanha.put("tabela _aud do Envers",
+                "INSERT INTO t_strategic_goals_aud (description) VALUES ('x');");
+        apanha.put("identificadores entre aspas",
+                "INSERT INTO \"t_strategic_goals\" (\"description\") VALUES ('x');");
+        apanha.put("coluna em maiusculas",
+                "INSERT INTO t_strategic_goals (ID, DESCRIPTION) VALUES ('a','b');");
+        apanha.put("instrucao multilinha",
+                "INSERT INTO t_strategic_goals\n  (id,\n   description)\nVALUES ('a','b');");
+        apanha.put("corpo $$ ... $$ de funcao",
+                "CREATE FUNCTION f() RETURNS void AS $$\nBEGIN\n  INSERT INTO t_strategic_goals (description)"
+                        + " VALUES ('x');\nEND;\n$$ LANGUAGE plpgsql;");
+        apanha.put("UPDATE simples",
+                "UPDATE t_strategic_goals SET description = 'x';");
+        apanha.put("UPDATE ONLY",
+                "UPDATE ONLY t_strategic_goals SET description = 'x';");
+        apanha.put("UPDATE com alias",
+                "UPDATE t_strategic_goals g SET description = 'x';");
+        apanha.put("UPDATE com alias AS",
+                "UPDATE t_strategic_goals AS g SET description = 'x';");
+        apanha.put("UPDATE ONLY com alias",
+                "UPDATE ONLY t_strategic_goals g SET description = 'x';");
+        apanha.put("UPDATE com alias e coluna qualificada",
+                "UPDATE t_strategic_goals g SET g.description = 'x';");
+        apanha.put("MERGE ... WHEN MATCHED THEN UPDATE SET",
+                "MERGE INTO t_strategic_goals t USING s ON t.id = s.id"
+                        + " WHEN MATCHED THEN UPDATE SET description = s.d;");
+        apanha.put("MERGE ... WHEN NOT MATCHED THEN INSERT",
+                "MERGE INTO t_strategic_goals t USING s ON t.id = s.id"
+                        + " WHEN NOT MATCHED THEN INSERT (id, description) VALUES (s.id, s.d);");
+        apanha.put("COPY com lista de colunas",
+                "COPY t_strategic_goals (id, description) FROM stdin;");
+        apanha.put("COPY sem lista de colunas",
+                "COPY t_strategic_goals FROM stdin;");
+
+        Map<String, String> naoApanha = new LinkedHashMap<>();
+        // Limites conhecidos: cada um destes E um falso negativo, e esta aqui para o ser em voz alta.
+        naoApanha.put("LIMITE: atribuicao multi-coluna no UPDATE",
+                "UPDATE t_strategic_goals SET (description, name) = ('x', 'y');");
+        naoApanha.put("LIMITE: tabela resolvida so em tempo de execucao",
+                "EXECUTE format('INSERT INTO %I (description) VALUES ($1)', tabela);");
+        // Formas que NAO sao escrita e que a guarda tem de ignorar -- o outro lado do mesmo teste.
+        naoApanha.put("leitura: SELECT de uma coluna @Lob",
+                "SELECT description FROM t_strategic_goals;");
+        naoApanha.put("leitura: DELETE com coluna @Lob no WHERE",
+                "DELETE FROM t_strategic_goals WHERE description = 'x';");
+        naoApanha.put("leitura: COPY ... TO",
+                "COPY t_strategic_goals (id, description) TO stdout;");
+        naoApanha.put("DDL: ALTER TABLE sobre a coluna",
+                "ALTER TABLE t_strategic_goals ALTER COLUMN description TYPE text;");
+        naoApanha.put("tabela sem colunas @Lob",
+                "INSERT INTO t_institutions (id, name) VALUES ('a', 'b');");
+        naoApanha.put("coluna sem @Lob na tabela certa",
+                "INSERT INTO t_strategic_goals (id, name) VALUES ('a', 'b');");
+
+        List<String> falhas = new ArrayList<>();
+        System.out.println("[guarda @Lob] tabela de formas de DML:");
+        apanha.forEach((label, sql) -> {
+            int n = LobColumnSqlGuard.findViolations(
+                    lobColumns, Path.of("inline.sql"), LobColumnSqlGuard.blankOutNoise(sql)).size();
+            System.out.printf("  apanha   n=%d  %s%n", n, label);
+            if (n == 0) {
+                falhas.add("DEIXOU DE APANHAR: " + label + "  ->  " + sql);
+            }
+        });
+        naoApanha.forEach((label, sql) -> {
+            int n = LobColumnSqlGuard.findViolations(
+                    lobColumns, Path.of("inline.sql"), LobColumnSqlGuard.blankOutNoise(sql)).size();
+            System.out.printf("  ignora   n=%d  %s%n", n, label);
+            if (n != 0) {
+                falhas.add("PASSOU A APANHAR: " + label + "  ->  " + sql);
+            }
+        });
+
+        assertEquals(List.of(), falhas,
+                """
+                A tabela de formas de DML deixou de bater certo com o comportamento medido.
+                "DEIXOU DE APANHAR" e uma regressao de cobertura: repara o padrao.
+                "PASSOU A APANHAR" pode ser boa noticia -- um limite conhecido deixou de o ser, ou um \
+                falso positivo novo. Decide qual, atualiza esta tabela E a lista de limites do \
+                Javadoc de LobColumnSqlGuard, que tem de continuar a dizer a verdade.
+                Divergencias:""");
+    }
+
+    /**
+     * A guarda só vê ficheiros {@code .sql}. É o limite mais consequente da lista e o único que se
+     * mede pela ausência: SQL montado em Java, {@code createNativeQuery}, {@code psql} à mão e
+     * restauros de dump passam-lhe todos ao lado.
+     */
+    @Test
+    @DisplayName("LIMITE medido: a guarda não vê SQL fora de ficheiros .sql")
+    void guardDoesNotSeeSqlOutsideSqlFiles() {
+        List<Path> scanned = LobColumnSqlGuard.listSqlFiles(REPOSITORY_ROOT);
+
+        assertTrue(scanned.stream().allMatch(path -> path.toString().toLowerCase().endsWith(".sql")),
+                "O varrimento passou a incluir ficheiros que não são .sql: " + scanned);
+        assertFalse(scanned.stream().anyMatch(path -> path.toString().endsWith(".java")),
+                "SQL em código Java continua fora do alcance da guarda -- se isto mudou, atualiza a "
+                        + "lista de limites do Javadoc de LobColumnSqlGuard.");
     }
 
     private static boolean containsFileNamed(List<Path> files, String fileName) {
