@@ -1,4 +1,6 @@
-> Updated: 2026-09-02 (sessão /resume) — **Legado A+B+C CONCLUÍDO e testado (45/45)**. A: mobilidade repontada. B: CRUD standalone eliminado. C: `V31` larga 8 tabelas órfãs. Ver secções A/B/C do Inventário do LEGADO.
+> Updated: 2026-09-02 (sessão /resume #2) — **MERGE FEITO em `dev`** (--no-ff). Guard PCFR (escalão∈categoria) implementado + testado live (201/422) + mensagem de erro com nomes das categorias. Novo guia `apresentacao_aplicacao.html` (linguagem acessível, todo o âmbito não-sigdi). Docs v5 verificadas sem lacunas. **Falta só: push do `dev`** (não autorizado). Ver "Next step".
+>
+> Updated anterior: **Legado A+B+C CONCLUÍDO e testado (45/45)**. A: mobilidade repontada. B: CRUD standalone eliminado. C: `V31` larga 8 tabelas órfãs. Ver secções A/B/C do Inventário do LEGADO.
 
 ## Goal
 
@@ -6,7 +8,7 @@ Refactor dos "movimentos do colaborador": adoptar **Position Management (Mapa de
 
 ## Current state
 
-- **Branch:** `feat/position-management` (criada a partir de `dev @ 9bdaac0`). TODO a executar nela.
+- **Branch ATUAL: `dev`** (merge de `feat/position-management` feito). `dev` está À FRENTE de `origin/dev` — **push por fazer** (não autorizado). `feat/position-management` continua a existir (1 commit atrás de `dev`; os polimentos pós-merge — mensagem PCFR + guia apresentação — só estão em `dev`).
 - **Plano APROVADO** (utilizador leu e deu luz verde). Fonte de verdade da execução:
   - `docs/funcionarios/v4/Plano_Implementacao_Position.md` (legível) + `.html` (visual, artifact 7cf9bc9c).
   - `docs/funcionarios/v4/ADR_Position_Management_Mapa_Pessoal.md` (ADR-002 — schema/decisões).
@@ -200,7 +202,14 @@ Start-Process mvn -ArgumentList "-DskipTests","spring-boot:run" -RedirectStandar
 
 - **Bloco C CONCLUÍDO** (2026-09-02): `V31__drop_legacy_orphan_tables.sql` larga 8 tabelas órfãs (6 public + 2 `_aud`); dump em `scripts/cleanup/`. Testado (app arranca, Flyway V31 success, sem recriação, regressão 13/13). **Por commitar** (V31 + dump + handoff).
 
+**CONCLUÍDO na sessão /resume #2 (2026-09-02):**
+- **Guard PCFR** (escalão∈categoria) em `AssignmentService.afectar()`: injeta `GradeRepository`+`CategoryRepository` (ports de `carreiras/`); 422 se `grade.categoryId != position.categoryId`. Cobre registo/afectação/mobilidade. **Testado live 2/2** (201 / 422). Commits `eb00908` (guard) + `48201c0` (mensagem com nomes das categorias).
+- **Merge `feat/position-management → dev`** feito (`--no-ff`, 147 ficheiros). `settings*`/`data/` fora.
+- **Relatório FE** consolidado: `docs/funcionarios/v5/breaking_change_frontend.md`+`.html` é o relatório oficial; completado shape da resposta de registo (commit `32de329`).
+- **Novo guia `docs/funcionarios/v5/apresentacao_aplicacao.html`** (commit `08691a1`): apresentação em linguagem acessível para colegas/stakeholders, cobre TODO o âmbito não-sigdi (config apoio → conceitos → Mapa Pessoal → PCFR → ciclo de vida → movimentos → ausências → self-service → histórico/auditoria). 6 diagramas Mermaid.
+- **Verificação de lacunas nas docs v5:** cruzadas com os 33 controllers não-sigdi — `modelo_negocio`/`modelo_relacional`/`api_guide` cobrem tudo; `breaking_change` é parcial por design. Sem lacunas.
+
 **A seguir:**
-1. **Commit do Bloco C** (V31 + dump + handoff).
-2. **Fase 2:** **relatório para o frontend** (contrato novo: registar com `positionId`, endpoints Position/Assignment, deprecação enquadramento/colocação) + **HTML de revisão**. Depois, com luz verde, **merge `feat/position-management → dev`**.
+1. **Push do `dev`** para o remoto — PENDENTE (não autorizado). Remotos: `origin` e `origin_git_lab` (ambos têm `dev`). Perguntar qual/quais.
+2. **HTML de revisão do refactor** (documento-resumo do trabalho feito) — ainda pendente, opcional.
 Cada passo → atualizar este handoff + checkboxes no plano `.md`.
