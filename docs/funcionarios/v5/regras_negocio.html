@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RH-Service — Catálogo de Regras de Negócio (v5)</title>
+<style>
+  :root{
+    --bg:#f7f8fa; --card:#fff; --ink:#1c2430; --muted:#5b6b7c; --line:#e2e7ee;
+    --brand:#1f6feb; --brand-soft:#e8f0fe; --ok:#1a7f4b; --ok-soft:#e6f4ec;
+    --warn:#b25e09; --warn-soft:#fcefe0; --accent:#6b3fc4; --accent-soft:#efe9fb;
+    --err:#b3261e; --err-soft:#fbe6e4;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
+  header.hero{background:linear-gradient(135deg,#12325e,#1f6feb);color:#fff;padding:48px 0 40px;margin-bottom:8px}
+  header.hero .wrap{padding-top:0}
+  .kicker{text-transform:uppercase;letter-spacing:.12em;font-size:12px;opacity:.85;font-weight:600}
+  h1{font-size:32px;margin:.2em 0 .3em;line-height:1.15}
+  header.hero p{font-size:17px;opacity:.94;max-width:70ch;margin:.4em 0 0}
+  .meta{margin-top:18px;font-size:13px;opacity:.9}
+  .meta b{font-weight:600}
+  h2{font-size:23px;margin:44px 0 6px;padding-top:10px;border-top:2px solid var(--line)}
+  h2 .n{color:var(--brand);font-variant-numeric:tabular-nums;margin-right:.4em}
+  h3{font-size:17px;margin:26px 0 6px}
+  p{margin:10px 0}
+  .lead{font-size:16px;color:var(--muted)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:16px 0;
+    box-shadow:0 1px 2px rgba(20,40,80,.04)}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13.5px}
+  th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:#eef2f7;font-weight:600}
+  tr:nth-child(even) td{background:#fafbfd}
+  code{background:#eef1f5;border-radius:5px;padding:1px 6px;font:12.5px/1.5 "SF Mono",ui-monospace,Consolas,monospace}
+  td.id{font:12px/1.4 "SF Mono",ui-monospace,Consolas,monospace;white-space:nowrap;color:var(--accent);font-weight:600}
+  .http{display:inline-block;font:11.5px/1.4 "SF Mono",ui-monospace,Consolas,monospace;font-weight:700;
+    padding:1px 7px;border-radius:6px;white-space:nowrap}
+  .h400{background:var(--warn-soft);color:var(--warn)}
+  .h404{background:#eef1f5;color:var(--muted)}
+  .h409{background:var(--err-soft);color:var(--err)}
+  .h422{background:var(--accent-soft);color:var(--accent)}
+  .h403{background:var(--err-soft);color:var(--err)}
+  .callout{border-radius:10px;padding:14px 16px;margin:16px 0;font-size:14px}
+  .callout.key{background:var(--brand-soft);border:1px solid #cfe0fd}
+  .callout.rule{background:var(--ok-soft);border:1px solid #c5e7d3}
+  .callout.warn{background:var(--warn-soft);border:1px solid #f2dcbe}
+  .callout b{font-weight:600}
+  ul.clean{margin:8px 0;padding-left:20px} ul.clean li{margin:5px 0}
+  .toc{columns:2;font-size:14px} .toc a{color:var(--brand);text-decoration:none} .toc a:hover{text-decoration:underline}
+  @media(max-width:820px){.toc{columns:1}}
+  .src{font:11.5px/1.4 "SF Mono",ui-monospace,Consolas,monospace;color:var(--muted)}
+  footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+  .legend{font-size:12.5px;color:var(--muted);margin:6px 0 0}
+  .legend .http{margin-right:2px}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">RH-Service · SIGDI / SIPPROG</div>
+    <h1>Catálogo de Regras de Negócio</h1>
+    <p>As regras que o microserviço de Recursos Humanos aplica — validações, invariantes e transições de estado — extraídas do código e organizadas por domínio. Cada regra tem um identificador, o resultado quando violada e a sua origem no código.</p>
+    <div class="meta">Documentação <b>v5</b> · fonte de verdade · âmbito: núcleo RH — <b>exclui</b> o módulo <code>sigdi</code> · companheiro de <code>modelo_negocio.html</code></div>
+  </div>
+</header>
+<div class="wrap">
+
+  <div class="card">
+    <b>Índice</b>
+    <div class="toc" style="margin-top:8px">
+      <a href="#como">0. Como ler este catálogo</a><br>
+      <a href="#col">1. Colaboradores — funcionário e registo</a><br>
+      <a href="#contrato">2. Contrato</a><br>
+      <a href="#afetacao">3. Afectação (pessoa ↔ Lugar)</a><br>
+      <a href="#estado">4. Ciclo de vida e mudança de estado</a><br>
+      <a href="#ausencias">5. Ausências (pedidos e saldos)</a><br>
+      <a href="#mobilidade">6. Licenças e mobilidade</a><br>
+      <a href="#docs">7. Documentos, dados bancários e dossier</a><br>
+      <a href="#me">8. Self-service (/me)</a><br>
+      <a href="#estrutura">9. Estrutura — unidade, cargo, função, Lugar</a><br>
+      <a href="#carreiras">10. Carreiras — PCFR</a><br>
+      <a href="#param">11. Parametrizações (catálogos)</a><br>
+      <a href="#invariantes">12. Invariantes transversais</a>
+    </div>
+  </div>
+
+  <h2 id="como"><span class="n">0.</span>Como ler este catálogo</h2>
+  <p class="lead">Cada regra tem um <b>ID estável</b> (ex.: <code>BR-COL-03</code>) para se poder referenciar em specs, testes e conversas. A coluna <b>Resultado</b> indica o código HTTP devolvido quando a regra é violada; a coluna <b>Origem</b> aponta o ficheiro onde a regra vive hoje.</p>
+  <div class="callout key"><b>Convenção de códigos HTTP:</b>
+    <p class="legend">
+      <span class="http h400">400</span> pedido malformado / campo obrigatório em falta &nbsp;·&nbsp;
+      <span class="http h404">404</span> recurso não encontrado &nbsp;·&nbsp;
+      <span class="http h409">409</span> conflito de estado (idempotência, duplicado, transição inválida) &nbsp;·&nbsp;
+      <span class="http h422">422</span> regra de negócio violada (entidade válida, operação não permitida) &nbsp;·&nbsp;
+      <span class="http h403">403</span> acesso negado
+    </p>
+  </div>
+  <div class="callout warn"><b>Nota de manutenção:</b> este catálogo é gerado a partir do código-fonte. Quando uma regra muda no código, actualize a linha correspondente aqui. Regras marcadas <b>(implícita)</b> não lançam erro próprio mas resultam de comportamento do modelo (ex.: valor por omissão, versionamento).</div>
+
+  <!-- ============ COLABORADORES ============ -->
+  <h2 id="col"><span class="n">1.</span>Colaboradores — funcionário e registo</h2>
+  <p>O funcionário é a pessoa. Não guarda unidade/cargo/carreira — esses derivam da Afectação corrente. O endpoint de registo é composto: cria funcionário e, opcionalmente, contrato + afectação + dados bancários + dossier de documentos, tudo numa transacção.</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-COL-01</td><td>O <b>NIF</b> é único entre funcionários.</td><td><span class="http h409">409</span></td><td class="src">FuncionarioService</td></tr>
+    <tr><td class="id">BR-COL-02</td><td>O <b>número de documento</b> de identificação é único entre funcionários.</td><td><span class="http h409">409</span></td><td class="src">FuncionarioService</td></tr>
+    <tr><td class="id">BR-COL-03</td><td>A <b>data de admissão</b> é obrigatória. No registo, se houver contrato ela é fixada pela <code>startDate</code> do contrato; se não houver contrato, tem de ser fornecida explicitamente.</td><td><span class="http h400">400</span></td><td class="src">FuncionarioService · RegistarColaboradorCommandHandler</td></tr>
+    <tr><td class="id">BR-COL-04</td><td>No registo, o funcionário nasce no estado <b>ACTIVE</b>, que tem de estar configurado no catálogo de estados do trabalhador.</td><td><span class="http h400">400</span></td><td class="src">FuncionarioService</td></tr>
+    <tr><td class="id">BR-COL-05</td><td>O <b>número de funcionário</b> é atribuído automaticamente pelo sistema (não vem do cliente). <b>(implícita)</b></td><td>—</td><td class="src">FuncionarioService</td></tr>
+    <tr><td class="id">BR-COL-06</td><td>No registo, se o bloco <code>afectacao</code> estiver presente, o <b>Lugar (positionId)</b> é obrigatório (as restantes regras da afectação — secção 3 — aplicam-se).</td><td><span class="http h400">400</span></td><td class="src">RegistarColaboradorCommandHandler</td></tr>
+    <tr><td class="id">BR-COL-07</td><td>O registo é <b>transaccional</b>: se qualquer passo (contrato, afectação, dados bancários, documento) falhar, nada é persistido. <b>(implícita)</b></td><td>—</td><td class="src">RegistarColaboradorCommandHandler <code>@Transactional</code></td></tr>
+  </table>
+
+  <!-- ============ CONTRATO ============ -->
+  <h2 id="contrato"><span class="n">2.</span>Contrato</h2>
+  <p>O vínculo jurídico-laboral. Um funcionário tem no máximo um contrato <b>corrente</b>. Estados: <code>ATIVO</code> · <code>SUSPENSO</code> · <code>CESSADO</code>.</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-CON-01</td><td>O <b>tipo de contrato (contractTypeId)</b> é obrigatório e tem de existir no catálogo.</td><td><span class="http h400">400</span> / <span class="http h404">404</span></td><td class="src">ContratoService</td></tr>
+    <tr><td class="id">BR-CON-02</td><td>O funcionário do contrato tem de existir.</td><td><span class="http h404">404</span></td><td class="src">ContratoService</td></tr>
+    <tr><td class="id">BR-CON-03</td><td>O <b>número de contrato</b> é único.</td><td><span class="http h409">409</span></td><td class="src">ContratoService</td></tr>
+    <tr><td class="id">BR-CON-04</td><td>O <b>regime de trabalho</b> tem de ser um valor válido: <code>TEMPO_COMPLETO</code>, <code>TEMPO_PARCIAL</code>, <code>ISENCAO_HORARIO</code>, <code>DEDICACAO_EXCLUSIVA</code>.</td><td><span class="http h400">400</span></td><td class="src">ContratoService · RegimeTrabalho</td></tr>
+    <tr><td class="id">BR-CON-05</td><td>A <b>percentagem de tempo</b> é obrigatória quando o regime é <code>TEMPO_PARCIAL</code>, e <b>proibida</b> em qualquer outro regime.</td><td><span class="http h400">400</span></td><td class="src">ContratoService</td></tr>
+    <tr><td class="id">BR-CON-06</td><td>Um contrato criado nasce <code>ATIVO</code> e <code>isCurrent=true</code>; há no máximo um corrente por funcionário. <b>(implícita)</b></td><td>—</td><td class="src">Contrato.criar</td></tr>
+    <tr><td class="id">BR-CON-07</td><td><b>Encerrar (cessar)</b>: um contrato já <code>CESSADO</code> não pode ser cessado de novo.</td><td><span class="http h409">409</span></td><td class="src">Contrato.encerrar</td></tr>
+    <tr><td class="id">BR-CON-08</td><td><b>Suspender</b>: só é possível suspender um contrato <code>ATIVO</code>.</td><td><span class="http h409">409</span></td><td class="src">Contrato.suspender</td></tr>
+    <tr><td class="id">BR-CON-09</td><td><b>Reactivar</b>: só é possível reactivar um contrato <code>SUSPENSO</code>.</td><td><span class="http h409">409</span></td><td class="src">Contrato.reativar</td></tr>
+  </table>
+
+  <!-- ============ AFETAÇÃO ============ -->
+  <h2 id="afetacao"><span class="n">3.</span>Afectação (pessoa ↔ Lugar)</h2>
+  <p>A Afectação liga o funcionário a um Lugar durante um período. É <b>versionada no tempo (SCD Tipo 2)</b>: não se edita nem se apaga — encerra-se a corrente e abre-se uma nova. É o coração das regras do modelo v5.</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-AF-01</td><td>A afectação exige um <b>Lugar (positionId)</b>, que tem de existir.</td><td><span class="http h400">400</span> / <span class="http h404">404</span></td><td class="src">AfectarColaboradorCommandHandler · AssignmentService</td></tr>
+    <tr><td class="id">BR-AF-02</td><td>O Lugar tem de estar <b>disponível para ser ocupado</b> (não <code>CONGELADO</code> nem <code>EXTINTO</code>).</td><td><span class="http h422">422</span></td><td class="src">AssignmentService · Position.podeSerOcupado</td></tr>
+    <tr><td class="id">BR-AF-03</td><td><b>Uma cadeira, um ocupante:</b> um Lugar já ocupado (com afectação corrente) não pode receber outra. Garantido também por índice único parcial na BD.</td><td><span class="http h422">422</span></td><td class="src">AssignmentService · V30 (índice único)</td></tr>
+    <tr><td class="id">BR-AF-04</td><td>Um Lugar <b>fora de grelha</b> (sem carreira/categoria) <b>não pode</b> ter escalão na afectação.</td><td><span class="http h422">422</span></td><td class="src">AssignmentService</td></tr>
+    <tr><td class="id">BR-AF-05</td><td>Um Lugar <b>de carreira</b> <b>exige</b> escalão (gradeId).</td><td><span class="http h422">422</span></td><td class="src">AssignmentService</td></tr>
+    <tr><td class="id">BR-AF-06</td><td><b>Coerência PCFR:</b> o escalão escolhido tem de pertencer à <b>categoria do Lugar</b>. (Regra activa — substitui o antigo "só se valida presença".)</td><td><span class="http h422">422</span></td><td class="src">AssignmentService</td></tr>
+    <tr><td class="id">BR-AF-07</td><td><b>SCD Tipo 2:</b> ao abrir uma afectação <code>PRINCIPAL</code>, a afectação principal corrente é encerrada automaticamente (dataFim = início − 1 dia) antes de abrir a nova.</td><td>—</td><td class="src">AssignmentService</td></tr>
+    <tr><td class="id">BR-AF-08</td><td><b>Origem</b> (motivo) por omissão é <code>ADMISSAO</code>; <b>assignmentType</b> por omissão é <code>PRINCIPAL</code>. Valores: origem ∈ {ADMISSAO, PROGRESSAO, PROMOCAO, MOBILIDADE, TRANSFERENCIA}; tipo ∈ {PRINCIPAL, ACUMULACAO, SUBSTITUICAO}.</td><td>—</td><td class="src">Assignment · handlers</td></tr>
+    <tr><td class="id">BR-AF-09</td><td><b>Mobilidade</b>: a afectação de destino <b>herda o escalão</b> da corrente e guarda o Lugar de origem (<code>originAssignmentId</code>) para permitir o regresso.</td><td>—</td><td class="src">AssignmentService.afectarMobilidade</td></tr>
+    <tr><td class="id">BR-AF-10</td><td><b>Regresso de mobilidade</b>: fecha a afectação corrente e reabre a de origem <b>apenas se o Lugar de origem ainda estiver vago</b>; se a mobilidade foi permanente (sem origem) ou o Lugar já foi reafectado, só fecha a corrente. Idempotente.</td><td>—</td><td class="src">AssignmentService.regressarDeMobilidade</td></tr>
+    <tr><td class="id">BR-AF-11</td><td><b>Cessação/reforma</b>: encerra a afectação corrente; o Lugar volta a <b>vago</b> (derivado). Idempotente.</td><td>—</td><td class="src">AssignmentService.encerrarAfectacaoCorrente</td></tr>
+  </table>
+  <div class="callout rule"><b>Provido / Vago é derivado.</b> Nunca se guarda "ocupado" no Lugar — calcula-se a partir das afectações correntes. A afectação não tem CRUD: só escrita orientada a evento (afectar) + leituras; nunca <code>PUT</code>/<code>DELETE</code>.</div>
+
+  <!-- ============ ESTADO ============ -->
+  <h2 id="estado"><span class="n">4.</span>Ciclo de vida e mudança de estado</h2>
+  <p>Mudar o estado do trabalhador (worker-state) propaga efeitos ao contrato e à afectação.</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-EST-01</td><td>O funcionário e o novo estado têm de existir.</td><td><span class="http h404">404</span></td><td class="src">MudarEstadoColaboradorCommandHandler</td></tr>
+    <tr><td class="id">BR-EST-02</td><td>Um estado <b>inactivo</b> (no catálogo) não pode ser atribuído a um colaborador.</td><td><span class="http h409">409</span></td><td class="src">MudarEstadoColaboradorCommandHandler</td></tr>
+    <tr><td class="id">BR-EST-03</td><td>Não se pode mudar para o estado em que o colaborador <b>já se encontra</b>.</td><td><span class="http h409">409</span></td><td class="src">MudarEstadoColaboradorCommandHandler</td></tr>
+    <tr><td class="id">BR-EST-04</td><td>Estados <code>INACTIVE</code> e <code>RETIRED</code> marcam o colaborador como inactivo e <b>encerram a afectação corrente</b> (o Lugar fica vago).</td><td>—</td><td class="src">MudarEstadoColaboradorCommandHandler → AssignmentService</td></tr>
+    <tr><td class="id">BR-EST-05</td><td><b>Efeitos no contrato corrente:</b> <code>SUSPENDED</code> → suspende (se ATIVO); <code>RETIRED</code>/<code>INACTIVE</code> → cessa (se não cessado); <code>ACTIVE</code> → reactiva (se suspenso).</td><td>—</td><td class="src">MudarEstadoColaboradorCommandHandler</td></tr>
+    <tr><td class="id">BR-EST-06</td><td>Toda a mudança de estado regista uma entrada no <b>histórico de estados</b> (estado anterior, novo, motivo, data de efectividade, observação).</td><td>—</td><td class="src">HistoricoEstadoColaborador</td></tr>
+  </table>
+
+  <!-- ============ AUSÊNCIAS ============ -->
+  <h2 id="ausencias"><span class="n">5.</span>Ausências (pedidos e saldos)</h2>
+  <p>Fluxo de pedido de ausência com aprovação. Estados: <code>PENDENTE</code> · <code>APROVADO</code> · <code>REJEITADO</code> · <code>CANCELADO</code>.</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-AUS-01</td><td>Um pedido criado nasce <code>PENDENTE</code>. <b>(implícita)</b></td><td>—</td><td class="src">PedidoAusencia.criar</td></tr>
+    <tr><td class="id">BR-AUS-02</td><td><b>Aprovar</b> só é possível se o pedido estiver <code>PENDENTE</code>.</td><td><span class="http h409">409</span></td><td class="src">PedidoAusencia.aprovar</td></tr>
+    <tr><td class="id">BR-AUS-03</td><td><b>Rejeitar</b> só é possível se o pedido estiver <code>PENDENTE</code>.</td><td><span class="http h409">409</span></td><td class="src">PedidoAusencia.rejeitar</td></tr>
+    <tr><td class="id">BR-AUS-04</td><td><b>Cancelar</b>: um pedido já <code>REJEITADO</code> ou <code>CANCELADO</code> não pode ser cancelado.</td><td><span class="http h409">409</span></td><td class="src">PedidoAusencia.cancelar</td></tr>
+    <tr><td class="id">BR-AUS-05</td><td>Ao aprovar, se o <b>tipo de ausência deduz saldo</b> (<code>deducts_balance</code>), tem de existir <b>saldo</b> para o funcionário/tipo/ano do pedido.</td><td><span class="http h422">422</span></td><td class="src">AprovarPedidoAusenciaCommandHandler</td></tr>
+    <tr><td class="id">BR-AUS-06</td><td>Ao aprovar com dedução de saldo, o <b>saldo disponível tem de ser suficiente</b> para o número de dias do pedido.</td><td><span class="http h422">422</span></td><td class="src">AprovarPedidoAusenciaCommandHandler</td></tr>
+  </table>
+
+  <!-- ============ MOBILIDADE ============ -->
+  <h2 id="mobilidade"><span class="n">6.</span>Licenças e mobilidade</h2>
+  <p>Licenças especiais e mobilidades partilham um catálogo de subtipos (<code>record_type</code> ∈ LICENCA · MOBILIDADE · AMBOS). Fluxo com aprovação. Estados: <code>PENDING</code> · <code>ACTIVE</code> · <code>REJECTED</code> · <code>CLOSED</code> · <code>CANCELLED</code>.</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-MOB-01</td><td>Um registo criado nasce <code>PENDING</code>. <b>(implícita)</b></td><td>—</td><td class="src">LicencaMobilidade.criar</td></tr>
+    <tr><td class="id">BR-MOB-02</td><td><b>Aprovar</b> só é possível para registos <code>PENDING</code>.</td><td><span class="http h409">409</span></td><td class="src">AprovarLicencaMobilidadeCommandHandler</td></tr>
+    <tr><td class="id">BR-MOB-03</td><td>Se o subtipo for do tipo <b>MOBILIDADE</b>, ao aprovar/activar é obrigatório um <b>Lugar de destino (destinationPositionId)</b> — é ele que abre a afectação no destino.</td><td><span class="http h422">422</span></td><td class="src">AprovarLicencaMobilidadeCommandHandler · AtivarLicencaMobilidadeCommandHandler</td></tr>
+    <tr><td class="id">BR-MOB-04</td><td>Aprovar/activar uma <b>MOBILIDADE</b> gera a afectação no destino via <code>afectarMobilidade</code> (herda escalão, guarda origem — ver BR-AF-09).</td><td>—</td><td class="src">AssignmentService.afectarMobilidade</td></tr>
+    <tr><td class="id">BR-MOB-05</td><td><b>Encerrar</b> ou <b>cancelar</b> uma mobilidade activa dispara o <b>regresso ao Lugar de origem</b> (ver BR-AF-10).</td><td>—</td><td class="src">EncerrarLicencaMobilidadeCommandHandler · CancelarLicencaMobilidadeCommandHandler</td></tr>
+    <tr><td class="id">BR-MOB-06</td><td><b>Rejeitar</b> exige/regista um motivo (<code>rejectionReason</code>) e coloca o registo em <code>REJECTED</code>.</td><td>—</td><td class="src">LicencaMobilidade.rejeitar</td></tr>
+  </table>
+
+  <!-- ============ DOCS ============ -->
+  <h2 id="docs"><span class="n">7.</span>Documentos, dados bancários e dossier</h2>
+  <p>Além dos documentos gerais e dados bancários, o dossier do colaborador inclui <b>formações</b>, <b>processos disciplinares</b> e <b>recibos de vencimento</b>. Estes três partilham duas regras transversais — ver a nota no fim da secção.</p>
+
+  <h3>Documentos e dados bancários</h3>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-DOC-01</td><td>Ao registar um documento, o <b>tipo de documento</b> tem de existir.</td><td><span class="http h404">404</span></td><td class="src">ColaboradorDocumentoService · RegistarDocumento*</td></tr>
+    <tr><td class="id">BR-DOC-02</td><td>Não se pode registar um documento de um <b>tipo inactivo</b>.</td><td><span class="http h400">400</span></td><td class="src">ColaboradorDocumentoService · RegistarDocumento*</td></tr>
+    <tr><td class="id">BR-DOC-03</td><td>A <b>extensão do ficheiro</b> tem de estar entre as permitidas pelo tipo (<code>allowed_extensions</code>).</td><td><span class="http h400">400</span></td><td class="src">ColaboradorDocumentoService · RegistarDocumento*</td></tr>
+    <tr><td class="id">BR-DOC-04</td><td>Um documento <b>inactivo</b> não é servido nas leituras nem no download (tratado como inexistente).</td><td><span class="http h404">404</span></td><td class="src">GetDocumento*QueryHandler</td></tr>
+    <tr><td class="id">BR-DBK-01</td><td>Ao registar dados bancários, o <b>funcionário</b> tem de existir.</td><td><span class="http h404">404</span></td><td class="src">DadosBancariosService</td></tr>
+  </table>
+
+  <h3>Formações</h3>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-FRM-01</td><td>Não se pode <b>criar nem actualizar</b> uma formação para um <b>funcionário inactivo</b>.</td><td><span class="http h400">400</span></td><td class="src">Criar/AtualizarFormacaoCommandHandler</td></tr>
+    <tr><td class="id">BR-FRM-02</td><td>A formação tem de <b>pertencer ao funcionário</b> indicado (validação de posse); caso contrário, tratada como inexistente.</td><td><span class="http h404">404</span></td><td class="src">Formacao handlers</td></tr>
+    <tr><td class="id">BR-FRM-03</td><td>A <b>remoção</b> de formação é física (<code>delete</code>), sujeita à validação de posse.</td><td><span class="http h404">404</span></td><td class="src">RemoverFormacaoCommandHandler</td></tr>
+    <tr><td class="id">BR-FRM-04</td><td>Anexar documento a uma formação valida tipo de documento, tipo activo e extensão (ver BR-DOC-01/02/03).</td><td><span class="http h404">404</span> / <span class="http h400">400</span></td><td class="src">RegistarDocumentoFormacaoCommandHandler</td></tr>
+  </table>
+
+  <h3>Processos disciplinares</h3>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-DIS-01</td><td>Não se pode <b>registar nem actualizar</b> um processo disciplinar para um <b>funcionário inactivo</b>.</td><td><span class="http h400">400</span></td><td class="src">Criar/AtualizarProcessoDisciplinarCommandHandler</td></tr>
+    <tr><td class="id">BR-DIS-02</td><td>O processo tem de <b>pertencer ao funcionário</b> indicado (validação de posse na leitura e escrita).</td><td><span class="http h404">404</span></td><td class="src">ProcessoDisciplinar handlers</td></tr>
+  </table>
+
+  <h3>Recibos de vencimento</h3>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-REC-01</td><td>Não se pode <b>emitir recibo</b> para um <b>funcionário inactivo</b>.</td><td><span class="http h400">400</span></td><td class="src">CriarReciboVencimentoCommandHandler</td></tr>
+    <tr><td class="id">BR-REC-02</td><td>Só pode existir <b>um recibo por período</b> (mês/ano) por funcionário.</td><td><span class="http h409">409</span></td><td class="src">CriarReciboVencimentoCommandHandler</td></tr>
+    <tr><td class="id">BR-REC-03</td><td>O <b>salário líquido não pode ser superior ao salário bruto</b>.</td><td><span class="http h400">400</span></td><td class="src">CriarReciboVencimentoCommandHandler</td></tr>
+    <tr><td class="id">BR-REC-04</td><td>O recibo tem de <b>pertencer ao funcionário</b> indicado (validação de posse ao anexar documento).</td><td><span class="http h404">404</span></td><td class="src">RegistarDocumentoReciboCommandHandler</td></tr>
+  </table>
+
+  <div class="callout rule"><b>Duas regras transversais do dossier:</b> (1) a escrita (criar/actualizar/emitir) exige <b>funcionário activo</b>; e (2) todo o sub-recurso valida a <b>posse</b> — um registo de outro funcionário é tratado como inexistente (<span class="http h404">404</span>), evitando fugas de dados entre colaboradores.</div>
+
+  <!-- ============ ME ============ -->
+  <h2 id="me"><span class="n">8.</span>Self-service (/me)</h2>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-ME-01</td><td>Os endpoints <code>/me</code> exigem que o funcionário exista.</td><td><span class="http h404">404</span></td><td class="src">GetMe*QueryHandler</td></tr>
+    <tr><td class="id">BR-ME-02</td><td>Um <b>colaborador inactivo</b> não pode aceder aos seus dados de self-service (saldos, mobilidades, documentos, downloads).</td><td><span class="http h403">403</span></td><td class="src">GetMeLeaveBalances · GetMeLeaveMobilities · GetMeDocuments · GetMeDocumentDownloadUrl</td></tr>
+  </table>
+
+  <!-- ============ ESTRUTURA ============ -->
+  <h2 id="estrutura"><span class="n">9.</span>Estrutura — unidade, cargo, função, Lugar</h2>
+  <h3>Unidade orgânica</h3>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-UO-01</td><td>O <b>code</b> da unidade é único (na criação e na actualização).</td><td><span class="http h409">409</span></td><td class="src">Create/UpdateOrganizationalUnitCommandHandler</td></tr>
+    <tr><td class="id">BR-UO-02</td><td>Uma unidade <b>não pode ser mãe de si própria</b>.</td><td><span class="http h400">400</span></td><td class="src">UpdateOrganizationalUnitCommandHandler</td></tr>
+    <tr><td class="id">BR-UO-03</td><td>A <b>unidade-mãe</b> indicada tem de existir.</td><td><span class="http h404">404</span></td><td class="src">Create/UpdateOrganizationalUnitCommandHandler</td></tr>
+    <tr><td class="id">BR-UO-04</td><td>Não se pode criar uma sub-unidade sob uma <b>mãe inactiva</b>, nem definir uma mãe inactiva.</td><td><span class="http h409">409</span></td><td class="src">Create/UpdateOrganizationalUnitCommandHandler</td></tr>
+    <tr><td class="id">BR-UO-05</td><td><b>Reactivar</b> uma unidade é bloqueado se a sua mãe estiver inactiva.</td><td><span class="http h409">409</span></td><td class="src">AtivarOrganizationalUnitCommandHandler</td></tr>
+    <tr><td class="id">BR-UO-06</td><td><b>Desactivar</b> uma unidade é bloqueado se ela tiver <b>sub-unidades activas</b>.</td><td><span class="http h409">409</span></td><td class="src">DesativarOrganizationalUnitCommandHandler</td></tr>
+    <tr><td class="id">BR-UO-07</td><td>Activar/desactivar é <b>idempotente por conflito</b>: já activa / já inactiva devolve erro.</td><td><span class="http h409">409</span></td><td class="src">OrganizationalUnit</td></tr>
+  </table>
+  <h3>Cargo (Job) e Função (OrgFunction)</h3>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-JOB-01</td><td>O <b>code</b> do cargo é único.</td><td><span class="http h409">409</span></td><td class="src">Create/UpdateJobCommandHandler</td></tr>
+    <tr><td class="id">BR-JOB-02</td><td>Activar/desactivar cargo é idempotente por conflito.</td><td><span class="http h409">409</span></td><td class="src">Job</td></tr>
+    <tr><td class="id">BR-FUN-01</td><td>O <b>code</b> da função é único.</td><td><span class="http h409">409</span></td><td class="src">Create/UpdateFunctionCommandHandler</td></tr>
+    <tr><td class="id">BR-FUN-02</td><td>Uma função tem de <b>pertencer ao cargo</b> indicado (coerência cargo↔função).</td><td><span class="http h422">422</span></td><td class="src">OrgFunction</td></tr>
+    <tr><td class="id">BR-FUN-03</td><td>Activar/desactivar função é idempotente por conflito.</td><td><span class="http h409">409</span></td><td class="src">OrgFunction</td></tr>
+  </table>
+  <h3>Lugar (Position)</h3>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-POS-01</td><td>Ao criar um Lugar, são obrigatórios: <b>número do lugar</b>, <b>cargo (jobId)</b> e <b>unidade orgânica</b>.</td><td><span class="http h400">400</span></td><td class="src">CreatePositionCommandHandler</td></tr>
+    <tr><td class="id">BR-POS-02</td><td>O <b>número do lugar</b> é único.</td><td><span class="http h409">409</span></td><td class="src">CreatePositionCommandHandler</td></tr>
+    <tr><td class="id">BR-POS-03</td><td>Estados do Lugar: <code>ATIVO</code> · <code>CONGELADO</code> · <code>EXTINTO</code>. Só um Lugar <b>ATIVO</b> e vago pode ser ocupado (ver BR-AF-02).</td><td>—</td><td class="src">Position</td></tr>
+    <tr><td class="id">BR-POS-04</td><td>Um Lugar <b>EXTINTO não pode ser congelado</b>.</td><td><span class="http h409">409</span></td><td class="src">Position.congelar</td></tr>
+    <tr><td class="id">BR-POS-05</td><td>Um Lugar <b>EXTINTO não pode voltar a ATIVO</b> (extinção é terminal).</td><td><span class="http h409">409</span></td><td class="src">Position.reativar</td></tr>
+  </table>
+
+  <!-- ============ CARREIRAS ============ -->
+  <h2 id="carreiras"><span class="n">10.</span>Carreiras — PCFR</h2>
+  <p>A grelha PCFR (DL 4/2024): carreira → categoria → escalão. Regras de integridade e de imutabilidade da grelha.</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-CAR-01</td><td>O <b>code</b> da carreira é único.</td><td><span class="http h409">409</span></td><td class="src">UpdateCareerCommandHandler</td></tr>
+    <tr><td class="id">BR-CAR-02</td><td>Não se pode <b>desactivar uma carreira</b> que tenha <b>categorias activas</b>.</td><td><span class="http h409">409</span></td><td class="src">DesativarCareerCommandHandler</td></tr>
+    <tr><td class="id">BR-CAT-01</td><td>Na categoria, os campos <b>careerId</b> e <b>code</b> são <b>imutáveis</b> (não podem ser alterados numa actualização).</td><td><span class="http h400">400</span></td><td class="src">UpdateCategoryCommandHandler</td></tr>
+    <tr><td class="id">BR-CAT-02</td><td>Não se pode <b>desactivar uma categoria</b> que tenha <b>escalões activos</b>.</td><td><span class="http h409">409</span></td><td class="src">DesativarCategoryCommandHandler</td></tr>
+    <tr><td class="id">BR-GRD-01</td><td>O <b>gradeNumber</b> (número do escalão) deve ser ≥ 1.</td><td><span class="http h400">400</span></td><td class="src">Grade.criar</td></tr>
+    <tr><td class="id">BR-GRD-02</td><td>No escalão, os campos <b>categoryId</b> e <b>gradeNumber</b> são <b>imutáveis</b>.</td><td><span class="http h400">400</span></td><td class="src">UpdateGradeCommandHandler</td></tr>
+    <tr><td class="id">BR-GRD-03</td><td>Não se pode <b>desactivar um escalão</b> referenciado em <b>afectações/enquadramentos activos</b>.</td><td><span class="http h409">409</span></td><td class="src">DesativarGradeCommandHandler</td></tr>
+    <tr><td class="id">BR-GRD-04</td><td>Activar/desactivar carreira/categoria/escalão é idempotente por conflito (já activo / já inactivo).</td><td><span class="http h409">409</span></td><td class="src">Career · Category · Grade</td></tr>
+  </table>
+
+  <!-- ============ PARAMETRIZAÇÕES ============ -->
+  <h2 id="param"><span class="n">11.</span>Parametrizações (catálogos)</h2>
+  <p>Catálogos de referência. A regra transversal é a <b>idempotência por conflito</b> ao activar/desactivar (já activo / já inactivo → <span class="http h409">409</span>) e a <b>unicidade de code/chave</b>. As específicas:</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-WST-01</td><td><b>Estado do trabalhador núcleo</b> (<code>is_core=true</code>, ex.: ACTIVE, INACTIVE) <b>não pode ser desactivado</b>.</td><td><span class="http h409">409</span></td><td class="src">WorkerState.desativar</td></tr>
+    <tr><td class="id">BR-WST-02</td><td>O <b>code</b> do estado do trabalhador é único.</td><td><span class="http h409">409</span></td><td class="src">CreateWorkerStateCommandHandler</td></tr>
+    <tr><td class="id">BR-PH-01</td><td><b>Feriado nacional</b>: só pode existir um feriado <b>nacional activo por data</b> (índice único parcial na BD + validação).</td><td><span class="http h409">409</span></td><td class="src">CreatePublicHolidayCommandHandler</td></tr>
+    <tr><td class="id">BR-OPT-01</td><td><b>Etiqueta (Option)</b> é única pela combinação <code>(ccode, ckey)</code>.</td><td><span class="http h409">409</span></td><td class="src">CreateOptionCommandHandler</td></tr>
+    <tr><td class="id">BR-LT-01</td><td><b>Tipo de licença/ausência</b>: <code>maxDaysPerYear</code> não pode ser negativo.</td><td><span class="http h400">400</span></td><td class="src">LeaveType.criar</td></tr>
+    <tr><td class="id">BR-LMS-01</td><td><b>Subtipo de licença/mobilidade</b>: <code>recordType</code> tem de ser um de {<code>LICENCA</code>, <code>MOBILIDADE</code>, <code>AMBOS</code>}.</td><td><span class="http h400">400</span></td><td class="src">LeaveMobilitySubtype.criar</td></tr>
+    <tr><td class="id">BR-VL-01</td><td><b>Vínculo laboral</b>: o <b>code</b> é único.</td><td><span class="http h409">409</span></td><td class="src">CreateVinculoLaboralCommandHandler</td></tr>
+    <tr><td class="id">BR-PAR-99</td><td>Todos os catálogos (Option, WorkerState, ContractType, DocumentType, LeaveType, LeaveMobilitySubtype, VinculoLaboral, PublicHoliday) aplicam idempotência por conflito em activar/desactivar.</td><td><span class="http h409">409</span></td><td class="src">domain/models/*</td></tr>
+  </table>
+
+  <!-- ============ INVARIANTES ============ -->
+  <h2 id="invariantes"><span class="n">12.</span>Invariantes transversais</h2>
+  <ul class="clean">
+    <li><b>Identidade tipada:</b> cada agregado usa o seu <code>XId</code> (que embrulha <code>ExternalID</code>); um id nulo é rejeitado na fronteira do domínio (<code>IllegalArgumentException</code>). O <code>ExternalID</code> nunca atravessa portas/handlers.</li>
+    <li><b>Soft-delete por omissão:</b> catálogos e sub-recursos são desactivados (<code>isActive=false</code>), não apagados; leituras filtram inactivos. Excepção conhecida: <code>Option</code> tem <code>delete</code> físico.</li>
+    <li><b>Historização (SCD Tipo 2):</b> afectações e estados guardam o histórico completo — fecha-se a versão corrente (<code>is_current=false</code>, <code>data_fim</code>) antes de abrir a nova; nunca se altera o passado.</li>
+    <li><b>Auditoria (Envers):</b> entidades auditadas registam quem/quando criou e alterou, via <code>ApplicationAuditorAware</code>.</li>
+    <li><b>Derivados nunca guardados:</b> "provido/vago" do Lugar e a unidade/cargo/carreira da pessoa derivam sempre das afectações correntes.</li>
+    <li><b>Segurança por perfil:</b> em <code>development</code>/<code>staging</code> a segurança está desligada; em <code>production</code> aplica-se OAuth2 + JWT (Keycloak). Nunca validar fluxos de auth em dev.</li>
+  </ul>
+
+  <footer>
+    RH-Service · Documentação v5 · Catálogo de Regras de Negócio · pt-PT<br>
+    Gerado por auditoria do código-fonte (âmbito não-<code>sigdi</code>). Documentos irmãos: <code>modelo_negocio.html</code>, <code>modelo_relacional.html</code>, <code>api_guide.md</code>/<code>.html</code>, <code>breaking_change_frontend.md</code>/<code>.html</code>.
+  </footer>
+</div>
+</body>
+</html>

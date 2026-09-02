@@ -204,8 +204,8 @@ flowchart LR
   class CA,CT,GR c; class POS o; class AF col;
     </pre>
   </div>
-  <div class="callout warn"><b>Fora de grelha:</b> um Lugar sem carreira/categoria (ex.: tarefeiro) <b>não pode</b> ter escalão na afectação. Inversamente, um Lugar de carreira <b>exige</b> escalão. Violações devolvem <code>422</code>.
-  <br><span class="pill" style="margin-top:8px;display:inline-block">Pendente: validar que o escalão pertence à categoria do Lugar (hoje só se valida presença).</span></div>
+  <div class="callout warn"><b>Fora de grelha:</b> um Lugar sem carreira/categoria (ex.: tarefeiro) <b>não pode</b> ter escalão na afectação. Inversamente, um Lugar de carreira <b>exige</b> escalão. Além disso, o escalão escolhido tem de <b>pertencer à categoria do Lugar</b> (coerência PCFR). Violações devolvem <code>422</code>.
+  <br><span class="pill" style="margin-top:8px;display:inline-block">Regras detalhadas: ver <code>regras_negocio.html</code> — BR-AF-04, BR-AF-05, BR-AF-06.</span></div>
 
   <h2 id="ciclo"><span class="n">6.</span>Ciclo de vida do colaborador</h2>
   <div class="diagram">
