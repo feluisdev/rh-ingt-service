@@ -27,10 +27,12 @@ Endpoints de lista aceitam `pagina` (0-based) e `tamanho` (default 20) e devolve
   "pageNumber": 0,
   "pageSize": 20,
   "totalPages": 3,
-  "first": true,
-  "last": false
+  "first": true,   // ver nota
+  "last": false    // ver nota
 }
 ```
+
+> **Variações do wrapper:** a maioria dos wrappers inclui `first`/`last`; o de **funcionários** omite-os (só `pageNumber`/`pageSize`/`totalPages`); o de **Lugares** (`WrapperListaPositionDTO`) substitui-os por `dotacao`/`ocupados`/`vagas`; o de **auditoria** traz apenas `content`/`totalElements`.
 
 ### Padrões de recurso
 | Padrão | Descrição |
@@ -41,7 +43,7 @@ Endpoints de lista aceitam `pagina` (0-based) e `tamanho` (default 20) e devolve
 | `PUT /{recurso}/{id}` | Atualizar. |
 | `DELETE /{recurso}/{id}` | Soft delete (marca `is_active=false`). |
 | `PATCH .../activate` \| `PUT .../activate` | Reactivar. |
-| `GET .../combobox` | Lista reduzida `{id,label}` para selects. |
+| `GET .../combobox` | Lista reduzida `{key,label}` para selects (`key` = id do registo). |
 | `GET .../audit/{catalog}/{entityId}` | Histórico de revisões (Envers). |
 
 ### Códigos de estado
@@ -163,7 +165,7 @@ Cria funcionário + (opcional) contrato + **afectação a um Lugar vago** numa s
     "notes": "string | null"
   },
   "dadosBancarios": { /* opcional */ },
-  "dossier":        { /* opcional */ }
+  "dossier":        [ /* opcional: lista de documentos a anexar */ ]
 }
 ```
 
@@ -284,9 +286,9 @@ Cada módulo expõe um controller de auditoria (Envers):
 | Módulo | Base | Catálogos aceites |
 |---|---|---|
 | Colaboradores | `/api/v1/rh/colaboradores/audit` | `funcionarios`, **`assignments`**, `contratos`, `dependentes`, `qualificacoes` |
-| Estrutura | `/api/v1/rh/estrutura/audit` | (entidades de estrutura) |
-| Carreiras | `/api/v1/rh/carreiras/audit` | (entidades de carreiras) |
-| Catálogos | `/api/v1/rh/catalogs/audit` | (parametrizações) |
+| Estrutura | `/api/v1/rh/estrutura/audit` | `organizational-units`, `jobs`, `functions` |
+| Carreiras | `/api/v1/rh/carreiras/audit` | `careers`, `categories`, `grades` |
+| Catálogos | `/api/v1/rh/catalogs/audit` | `reference-options`, `worker-states`, `vinculos-laborais`, `contract-types`, `document-types`, `leave-types`, `leave-mobility-subtypes`, `public-holidays` |
 
 > Nota: o catálogo antigo `enquadramentos` foi substituído por **`assignments`** (devolve `400` se usado).
 

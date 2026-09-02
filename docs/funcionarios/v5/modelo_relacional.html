@@ -84,7 +84,7 @@
       <tr><td><b>Relações</b></td><td>Coluna <code>&lt;alvo&gt;_id UUID</code> (ex.: <code>funcionario_id</code>). <b>Sem FK física declarada</b> na maioria — a integridade é garantida na aplicação. Exceção: <code>t_contrato</code> usa <code>@ManyToOne</code> real (FK física para <code>t_funcionario</code> e <code>t_contract_type</code>).</td></tr>
       <tr><td><b>Soft delete</b></td><td><code>is_active BOOLEAN</code> — registos "apagados" ficam <code>false</code>, não são removidos.</td></tr>
       <tr><td><b>Historização (SCD2)</b></td><td><code>is_current</code>, <code>data_inicio</code>, <code>data_fim</code> — em <code>t_assignment</code> e <code>t_contrato</code>. Uma versão corrente por chave de negócio.</td></tr>
-      <tr><td><b>Auditoria</b></td><td>Entidades <code>@Audited</code> (Envers) geram tabela <code>_aud</code> em <code>audit_schema</code> + <code>created_by/at</code>, <code>updated_by/at</code>.</td></tr>
+      <tr><td><b>Auditoria</b></td><td>Entidades <code>@Audited</code> (Envers) geram tabela <code>_aud</code> em <code>audit_schema</code>; colunas de trilho <code>created_date</code>/<code>created_by</code>, <code>last_modified_date</code>/<code>last_modified_by</code>.</td></tr>
       <tr><td><b>Estado derivado</b></td><td>"Provido/Vago" de um Lugar <b>não</b> é coluna — calcula-se das afectações correntes.</td></tr>
     </table>
     <div class="legend">

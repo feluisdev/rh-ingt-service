@@ -94,6 +94,7 @@
   "totalPages": 3, "first": true, "last": false
 }</pre>
   <p>Listas aceitam <code>pagina</code> (0-based) e <code>tamanho</code> (default 20).</p>
+  <div class="callout warn"><b>Variações:</b> a maioria dos wrappers tem <code>first</code>/<code>last</code>; o de <b>funcionários</b> omite-os; o de <b>Lugares</b> substitui-os por <code>dotacao</code>/<code>ocupados</code>/<code>vagas</code>; o de <b>auditoria</b> traz só <code>content</code>/<code>totalElements</code>.</div>
   <h3>Padrões de recurso</h3>
   <table>
     <tr><th>Operação</th><th>Forma</th></tr>
@@ -103,7 +104,7 @@
     <tr><td><span class="m put">PUT</span> atualizar</td><td><code>/{recurso}/{id}</code></td></tr>
     <tr><td><span class="m del">DEL</span> soft delete</td><td><code>/{recurso}/{id}</code> (marca <code>is_active=false</code>)</td></tr>
     <tr><td><span class="m patch">PATCH</span> reactivar</td><td><code>.../activate</code></td></tr>
-    <tr><td><span class="m get">GET</span> combobox</td><td><code>.../combobox</code> → <code>{id,label}</code></td></tr>
+    <tr><td><span class="m get">GET</span> combobox</td><td><code>.../combobox</code> → <code>{key,label}</code></td></tr>
   </table>
   <h3>Códigos de estado</h3>
   <table>
@@ -186,7 +187,7 @@ flowchart LR
     "origem": "ADMISSAO", "dataInicio": "YYYY-MM-DD"
   },
   "dadosBancarios": { … },        // opcional
-  "dossier": { … }                // opcional
+  "dossier": [ … ]                // opcional: lista de documentos
 }
 // resposta inclui: afectacaoId   (NÃO enquadramentoId)</pre>
   <div class="callout warn"><span class="badge">breaking change</span> O registo já <b>não</b> aceita unidade/cargo/carreira/categoria — derivam do <code>positionId</code>. Ver <code>breaking_change_frontend.html</code>.</div>

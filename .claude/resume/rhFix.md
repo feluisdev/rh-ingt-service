@@ -70,7 +70,8 @@ Base já mapeada do código (não-sigdi): **30 entities** em 5 módulos (carreir
 - [x] `api_guide.md` + `.html` — base/auth/headers, convenções (paginação `pagina`/`tamanho`, wrapper, padrões CRUD/combobox/audit, códigos 422/404/400), todos os grupos: positions, assignments, registar, funcionário+sub-recursos, licenças/mobilidade, carreiras, catálogos, /me, auditoria (catálogo `assignments`), enums, deprecados. HTML com mapa de endpoints + sequência de admissão.
 - [x] `breaking_change_frontend.md` + `.html` — TL;DR, registo (antes/depois), picker de Lugar vago, gestão Mapa de Pessoal, novas queries, afectação direta, mobilidade (`destinationPositionId`), worker-state, endpoints removidos, enums, checklist FE. HTML com before/after + sequência de mobilidade.
 
-**✅ DOCUMENTAÇÃO v5 CONCLUÍDA** (5 ficheiros em `docs/funcionarios/v5/`). v5 aponta que supersede v4 (v4 intacta, sem banner). **Ainda não commitado** — decidir commit dos docs.
+**✅ DOCUMENTAÇÃO v5 CONCLUÍDA E VERIFICADA** (5 ficheiros em `docs/funcionarios/v5/`). v5 aponta que supersede v4 (v4 intacta, sem banner). Commit inicial `3713afc`.
+- **Passagem de verificação vs código (2026-09-02):** confirmados V30 (índices `ux_assignment_position_current`/`ux_assignment_funcionario_current_principal`, estado default ATIVO), `RegistarColaboradorRequestDTO` (funcionario/contrato/afectacao/dadosBancarios/dossier), `AfectacaoRequestDTO`, `PositionResponseDTO`, catálogos de audit por módulo. **Corrigidas 4 imprecisões:** colunas audit `created_date`/`last_modified_date` (não `_at`); `dossier` é **lista**; `combobox` devolve `{key,label}` (não `{id}`); wrappers variam (funcionário sem `first/last`, position com `dotacao/ocupados/vagas`). Commit das correções a seguir.
 
 ## Fase 2 — Relatório para o frontend (PENDENTE — escrever depois)
 
