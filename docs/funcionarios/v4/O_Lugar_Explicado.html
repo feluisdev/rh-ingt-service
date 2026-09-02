@@ -1,0 +1,524 @@
+<title>O Lugar, explicado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,400&family=Public+Sans:wght@0,400;0,500;0,600;0,700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#F1F4F2; --surface:#FBFCFB; --surface-2:#FFFFFF; --plate:#F5F8F6;
+    --ink:#16211E; --ink-soft:#33433E; --muted:#5C6C67; --faint:#8A9793;
+    --line:#DCE4E1; --line-strong:#C5D0CC;
+    --accent:#0F6E63; --accent-deep:#0A4A43; --accent-wash:#E4EEEB;
+    --rust:#B0501B; --rust-wash:#F6E7DD;
+    --gold:#9A7A16; --gold-wash:#F4EAD0;
+    --good:#3F7A4B; --good-wash:#E2EFE3;
+    --chair:#0F6E63;
+    --shadow:0 1px 2px rgba(20,40,35,.05), 0 10px 30px -20px rgba(20,40,35,.30);
+  }
+  :root:not([data-theme="light"]){ @media (prefers-color-scheme: dark){
+    --bg:#0E1513; --surface:#151E1B; --surface-2:#1A2521; --plate:#111A17;
+    --ink:#EAF0ED; --ink-soft:#C6D2CD; --muted:#93A29C; --faint:#6C7C77;
+    --line:#28352F; --line-strong:#35443E;
+    --accent:#4FBFAF; --accent-deep:#7FD6C8; --accent-wash:#16302B;
+    --rust:#E4926A; --rust-wash:#33231A;
+    --gold:#D8B84E; --gold-wash:#2E2914;
+    --good:#7BB988; --good-wash:#18271B;
+    --chair:#4FBFAF;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 34px -20px rgba(0,0,0,.65);
+  }}
+  :root[data-theme="dark"]{
+    --bg:#0E1513; --surface:#151E1B; --surface-2:#1A2521; --plate:#111A17;
+    --ink:#EAF0ED; --ink-soft:#C6D2CD; --muted:#93A29C; --faint:#6C7C77;
+    --line:#28352F; --line-strong:#35443E;
+    --accent:#4FBFAF; --accent-deep:#7FD6C8; --accent-wash:#16302B;
+    --rust:#E4926A; --rust-wash:#33231A;
+    --gold:#D8B84E; --gold-wash:#2E2914;
+    --good:#7BB988; --good-wash:#18271B;
+    --chair:#4FBFAF;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 34px -20px rgba(0,0,0,.65);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:"Public Sans",system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  .wrap{max-width:940px;margin:0 auto;padding:0 clamp(18px,4vw,40px)}
+  h1,h2,h3{font-family:"Fraunces",Georgia,serif;font-weight:600;line-height:1.14;text-wrap:balance;color:var(--ink)}
+  h1{font-size:clamp(2.1rem,5.5vw,3.4rem);letter-spacing:-.02em;margin:.6rem 0 .8rem}
+  h2{font-size:clamp(1.45rem,3.2vw,2.05rem);letter-spacing:-.01em;margin:0 0 .5rem}
+  h3{font-size:1.15rem;margin:0 0 .3rem}
+  p{margin:0 0 1rem;color:var(--ink-soft)}
+  .lead{font-size:1.15rem;color:var(--ink-soft);line-height:1.55}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:500}
+  .mono{font-family:"IBM Plex Mono",monospace}
+  code{font-family:"IBM Plex Mono",monospace;background:var(--accent-wash);color:var(--accent-deep);padding:.08em .38em;border-radius:4px;font-size:.82em}
+  strong{color:var(--ink);font-weight:600}
+  section{padding:clamp(2.2rem,5vw,3.6rem) 0}
+  section+section{border-top:1px solid var(--line)}
+  .center{text-align:center}
+
+  header.hero{border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .hero-inner{padding:clamp(3rem,8vw,5.5rem) 0 clamp(2rem,4vw,3rem)}
+  .hero .lead{max-width:58ch}
+
+  /* ---- Four pieces ---- */
+  .pieces{display:grid;grid-template-columns:repeat(4,1fr);gap:.9rem;margin:1.6rem 0}
+  .piece{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1.1rem;text-align:center;box-shadow:var(--shadow)}
+  .piece .ico{height:56px;display:flex;align-items:center;justify-content:center;margin-bottom:.5rem}
+  .piece h3{font-size:1rem;margin-bottom:.25rem}
+  .piece .en{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);display:block;margin-bottom:.5rem}
+  .piece p{font-size:.82rem;margin:0;color:var(--muted)}
+  .piece.hl{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),var(--shadow)}
+  @media(max-width:760px){.pieces{grid-template-columns:1fr 1fr}}
+
+  /* ---- Org-of-chairs centerpiece ---- */
+  .org{background:var(--plate);border:1px solid var(--line-strong);border-radius:18px;padding:clamp(1.2rem,3vw,2rem);box-shadow:var(--shadow);margin:1.6rem 0;overflow-x:auto}
+  .boss{max-width:320px;margin:0 auto 0}
+  .connector{height:26px;width:2px;background:var(--line-strong);margin:0 auto}
+  .units{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;min-width:520px}
+  .unit{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1rem}
+  .unit-head{display:flex;align-items:baseline;justify-content:space-between;gap:.5rem;margin-bottom:.8rem;padding-bottom:.6rem;border-bottom:1px dashed var(--line)}
+  .unit-head .nm{font-family:"Fraunces",serif;font-weight:600;font-size:1.02rem}
+  .unit-head .tag{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+  .chairs{display:flex;flex-direction:column;gap:.6rem}
+
+  /* a Lugar = chair card */
+  .lugar{display:flex;align-items:center;gap:.7rem;border:1.5px solid var(--line-strong);border-radius:11px;padding:.6rem .75rem;background:var(--surface-2);position:relative}
+  .lugar .chairbox{flex:0 0 auto;width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:var(--accent-wash)}
+  .lugar .meta{min-width:0;flex:1}
+  .lugar .num{font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--accent);letter-spacing:.04em}
+  .lugar .role{font-weight:600;font-size:.9rem;line-height:1.2;color:var(--ink)}
+  .lugar .who{font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap:.35rem;margin-top:.1rem}
+  .lugar .who .dot{width:7px;height:7px;border-radius:50%;background:var(--good)}
+  .lugar.vago{border-style:dashed;border-color:var(--gold);background:repeating-linear-gradient(45deg,transparent,transparent 7px,var(--gold-wash) 7px,var(--gold-wash) 9px)}
+  .lugar.vago .chairbox{background:var(--gold-wash)}
+  .lugar.vago .who{color:var(--gold)}
+  .lugar.vago .who .dot{background:var(--gold)}
+  .lugar.boss-card{border-color:var(--accent);background:var(--accent-wash)}
+  .lugar.moving{border-color:var(--rust);box-shadow:0 0 0 3px var(--rust-wash)}
+  .avatar{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:.62rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace}
+  :root[data-theme="dark"] .avatar,:root:not([data-theme="light"]) .avatar{color:#08211D}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .avatar{color:#08211D}}
+
+  .counter{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.7rem;font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--muted)}
+  .counter b{color:var(--ink)}
+  .counter .vg{color:var(--gold)}
+
+  figcaption{font-size:.86rem;color:var(--muted);text-align:center;font-style:italic;margin-top:.8rem}
+  figcaption b{font-style:normal;color:var(--ink)}
+
+  .callout{border-left:3px solid var(--accent);background:var(--accent-wash);padding:1rem 1.2rem;border-radius:0 10px 10px 0;margin:1.4rem 0}
+  .callout .t{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600;display:block;margin-bottom:.35rem}
+  .callout p{margin:0;color:var(--ink-soft)}
+  .callout.rust{border-color:var(--rust);background:var(--rust-wash)}
+  .callout.rust .t{color:var(--rust)}
+
+  /* before / after */
+  .ba{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;margin:1.4rem 0}
+  .ba .col{border:1px solid var(--line);border-radius:14px;padding:1.2rem;background:var(--surface);box-shadow:var(--shadow)}
+  .ba .col.before{border-color:color-mix(in srgb,var(--rust) 40%,var(--line))}
+  .ba .col.after{border-color:color-mix(in srgb,var(--good) 45%,var(--line))}
+  .ba h3{display:flex;align-items:center;gap:.5rem;font-size:1.02rem}
+  .ba .badge{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;padding:.2rem .5rem;border-radius:999px;font-weight:600}
+  .ba .before .badge{background:var(--rust-wash);color:var(--rust)}
+  .ba .after .badge{background:var(--good-wash);color:var(--good)}
+  .diagbox{font-family:"IBM Plex Mono",monospace;font-size:.74rem;line-height:1.7;background:var(--plate);border:1px solid var(--line);border-radius:9px;padding:.8rem;margin-top:.7rem;overflow-x:auto;color:var(--ink-soft)}
+  .diagbox .u{color:var(--rust);font-weight:600}
+  .diagbox .ok{color:var(--good);font-weight:600}
+  .diagbox .ac{color:var(--accent-deep)}
+  :root[data-theme="dark"] .diagbox .ac,:root:not([data-theme="light"]) .diagbox .ac{color:var(--accent)}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .diagbox .ac{color:var(--accent)}}
+  @media(max-width:720px){.ba{grid-template-columns:1fr}.units{grid-template-columns:1fr}}
+
+  /* mobility flow */
+  .flow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;margin:1.4rem 0}
+  .flow .arrow{text-align:center;color:var(--rust);font-family:"IBM Plex Mono",monospace;font-size:.72rem}
+  .flow .arrow .big{font-size:1.6rem;display:block;line-height:1}
+  @media(max-width:640px){.flow{grid-template-columns:1fr}.flow .arrow .big{transform:rotate(90deg)}}
+
+  .wins{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;margin:1.4rem 0}
+  .win{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:1.1rem;box-shadow:var(--shadow)}
+  .win .ico{color:var(--accent);margin-bottom:.5rem}
+  .win h3{font-size:.98rem}
+  .win p{font-size:.85rem;margin:0;color:var(--muted)}
+  @media(max-width:720px){.wins{grid-template-columns:1fr}}
+
+  footer{padding:2.6rem 0 3.5rem;border-top:1px solid var(--line);color:var(--faint);font-size:.82rem}
+
+  /* ---- whole model ---- */
+  .model{background:var(--plate);border:1px solid var(--line-strong);border-radius:18px;padding:clamp(1.1rem,3vw,1.8rem);box-shadow:var(--shadow);margin:1.6rem 0}
+  .layer{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:1rem}
+  .layer-tag{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-bottom:.7rem}
+  .layer-tag.hot{color:var(--accent)}
+  .layer-tag b{color:var(--accent-deep)}
+  :root[data-theme="dark"] .layer-tag b,:root:not([data-theme="light"]) .layer-tag b{color:var(--accent)}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .layer-tag b{color:var(--accent)}}
+  .pill-row{display:flex;flex-wrap:wrap;gap:.5rem}
+  .pill{border:1px solid var(--line-strong);border-radius:9px;padding:.5rem .7rem;font-size:.82rem;font-weight:600;background:var(--surface-2);color:var(--ink)}
+  .pill em{font-weight:400;color:var(--muted);font-style:normal;font-size:.76rem}
+  .pill.new{border-color:var(--accent);background:var(--accent-wash);color:var(--accent-deep)}
+  :root[data-theme="dark"] .pill.new,:root:not([data-theme="light"]) .pill.new{color:var(--accent-deep)}
+  .pill.soft{font-weight:500;color:var(--muted)}
+  .who-card{display:flex;align-items:center;gap:.8rem}
+  .who-card .role{font-family:"Fraunces",serif;font-weight:600}
+  .hist-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+  .hist-card{border:1px solid var(--line-strong);border-radius:11px;padding:.9rem;background:var(--surface-2)}
+  .hist-card.hot-card{border-color:var(--accent);background:var(--accent-wash)}
+  .hist-card .hc-h{font-family:"Fraunces",serif;font-weight:600;font-size:.98rem;margin-bottom:.3rem}
+  .hist-card p{font-size:.82rem;margin:0;color:var(--muted)}
+  @media(max-width:640px){.hist-row{grid-template-columns:1fr}}
+
+  /* ---- versioning steps ---- */
+  .steps{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin:1rem 0}
+  .step{display:flex;gap:.7rem;border:1px solid var(--line);border-radius:12px;padding:1rem;background:var(--surface);box-shadow:var(--shadow)}
+  .step .sn{flex:0 0 auto;font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:var(--accent);padding:.28rem .5rem;border-radius:7px;height:fit-content;font-weight:600}
+  :root[data-theme="dark"] .step .sn,:root:not([data-theme="light"]) .step .sn{color:#08211D}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .step .sn{color:#08211D}}
+  .s-body strong{display:block;margin-bottom:.4rem}
+  .code2{font-family:"IBM Plex Mono",monospace;font-size:.76rem;line-height:1.7;background:var(--plate);border:1px solid var(--line);border-radius:8px;padding:.55rem .7rem;color:var(--ink-soft)}
+  .code2 .k1{color:var(--accent-deep)}
+  :root[data-theme="dark"] .code2 .k1,:root:not([data-theme="light"]) .code2 .k1{color:var(--accent)}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .code2 .k1{color:var(--accent)}}
+  .code2 .cm{color:var(--faint)}
+  .code2 .fa{color:var(--rust);font-weight:600}
+  .code2 .tr{color:var(--good);font-weight:600}
+  .code2 .nu{color:var(--gold);font-weight:600}
+  @media(max-width:640px){.steps{grid-template-columns:1fr}}
+
+  /* ---- timeline ---- */
+  .timeline{background:var(--plate);border:1px solid var(--line-strong);border-radius:16px;padding:clamp(1rem,3vw,1.6rem);box-shadow:var(--shadow);margin:1.2rem 0;overflow-x:auto}
+  .tl-axis,.tl-lane{display:grid;grid-template-columns:120px 1fr;align-items:center;gap:.8rem;min-width:560px}
+  .tl-lane{margin-top:.6rem}
+  .lane-label{font-family:"Fraunces",serif;font-weight:600;font-size:.92rem;color:var(--ink)}
+  .years{display:grid;grid-template-columns:repeat(5,1fr);font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);border-bottom:1px solid var(--line-strong);padding-bottom:.3rem}
+  .years span{text-align:left;border-left:1px dashed var(--line);padding-left:.4rem}
+  .track{display:grid;grid-template-columns:repeat(5,1fr);gap:0;position:relative}
+  .bar{grid-row:1;border-radius:8px;padding:.5rem .6rem;font-size:.76rem;font-weight:600;color:#fff;margin:.15rem 3px;display:flex;flex-direction:column;justify-content:center;min-height:44px;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+  .bar .dates{font-family:"IBM Plex Mono",monospace;font-size:.62rem;font-weight:400;opacity:.85;margin-top:.15rem}
+  .b-c1{background:#8494A0}.b-c2{background:var(--accent)}
+  .b-a1{background:#B98A3E}.b-a2{background:#C2571F}.b-a3{background:var(--rust)}
+  .bar.current{outline:2px solid var(--ink);outline-offset:2px}
+  :root[data-theme="dark"] .bar.current,:root:not([data-theme="light"]) .bar.current{outline-color:var(--ink)}
+  .bar:not(.current){opacity:.72}
+  .tl-legend{display:flex;gap:1.4rem;flex-wrap:wrap;margin-top:1rem;padding-left:0;font-size:.76rem;color:var(--muted)}
+  .tl-legend span{display:flex;align-items:center;gap:.4rem}
+  .tl-legend i{width:16px;height:10px;border-radius:3px;display:inline-block}
+  .tl-legend .lg-cur{background:var(--accent);outline:2px solid var(--ink);outline-offset:1px}
+  .tl-legend .lg-old{background:#8494A0;opacity:.72}
+</style>
+
+<header class="hero">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs></defs></svg>
+  <div class="wrap hero-inner">
+    <span class="eyebrow">Conceito · Módulo colaboradores</span>
+    <h1>O «Lugar», desenhado</h1>
+    <p class="lead">Um <strong>Lugar</strong> (Position) é uma <strong>cadeira na organização</strong> — existe mesmo quando ninguém lá está sentado. É a peça que nos falta, e é a mesma coisa que a lei cabo-verdiana chama <em>mapa de quadro de pessoal</em>.</p>
+  </div>
+</header>
+
+<main>
+
+<!-- ===== As quatro peças ===== -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow">Primeiro, o vocabulário</span>
+    <h2>Quatro peças, quatro coisas diferentes</h2>
+    <p>A confusão desaparece quando se separam estas quatro ideias. Repara que <strong>três são fixas</strong> (a profissão, a cadeira, o degrau) e só <strong>uma é a pessoa em movimento</strong> (o Assignment).</p>
+    <div class="pieces">
+      <div class="piece">
+        <div class="ico" aria-hidden="true">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect x="7" y="12" width="26" height="19" rx="3" stroke="var(--muted)" stroke-width="2"/><path d="M14 12V9a6 6 0 0 1 12 0v3" stroke="var(--muted)" stroke-width="2"/></svg>
+        </div>
+        <span class="en">Job</span>
+        <h3>Cargo</h3>
+        <p>A profissão genérica: «Técnico Superior». Um tipo, não uma cadeira.</p>
+      </div>
+      <div class="piece hl">
+        <div class="ico" aria-hidden="true">
+          <!-- chair -->
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><path d="M12 8v12m16-12v12M11 20h18M13 20l-1 12m16-12 1 12M12 26h16" stroke="var(--chair)" stroke-width="2.2" stroke-linecap="round"/></svg>
+        </div>
+        <span class="en">Position</span>
+        <h3>Lugar</h3>
+        <p>Uma cadeira concreta numa unidade concreta, com nº e chefia. <strong>A peça nova.</strong></p>
+      </div>
+      <div class="piece">
+        <div class="ico" aria-hidden="true">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="14" r="6" stroke="var(--muted)" stroke-width="2"/><path d="M9 32c0-6 5-10 11-10s11 4 11 10" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <span class="en">Assignment</span>
+        <h3>Afectação</h3>
+        <p>A pessoa <em>sentada</em> na cadeira, num período. Versionada no tempo.</p>
+      </div>
+      <div class="piece">
+        <div class="ico" aria-hidden="true">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><path d="M9 30h6v-8H9v8Zm8 0h6V16h-6v14Zm8 0h6V10h-6v20Z" stroke="var(--muted)" stroke-width="2" stroke-linejoin="round"/></svg>
+        </div>
+        <span class="en">Grade</span>
+        <h3>Escalão</h3>
+        <p>O degrau salarial em que a pessoa está enquanto ocupa a cadeira.</p>
+      </div>
+    </div>
+    <div class="callout">
+      <span class="t">A chave de tudo</span>
+      <p>A <strong>unidade</strong>, o <strong>cargo</strong> e a <strong>chefia</strong> pertencem à <em>cadeira</em> — não à pessoa. Uma cadeira «Técnico Superior na DSI que reporta ao Director» é a mesma quer lá esteja o João, a Maria, ou ninguém.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Centerpiece: org of chairs ===== -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow">A imagem que resolve tudo</span>
+    <h2>A organização é uma sala de cadeiras</h2>
+    <p>Cada <strong>unidade orgânica</strong> é uma sala. Dentro dela há <strong>Lugares</strong> (cadeiras) — uns ocupados, outros vagos. As cadeiras existem no <em>mapa de pessoal</em> independentemente de quem lá está.</p>
+
+    <figure class="org">
+      <div class="boss">
+        <div class="lugar boss-card">
+          <div class="chairbox" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 40 40" fill="none"><path d="M12 8v12m16-12v12M11 20h18M13 20l-1 12m16-12 1 12M12 26h16" stroke="var(--accent-deep)" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+          <div class="meta">
+            <span class="num">LUGAR DG-001</span>
+            <div class="role">Director-Geral</div>
+            <div class="who"><span class="avatar">AM</span> Ana Mendes</div>
+          </div>
+        </div>
+      </div>
+      <div class="connector" aria-hidden="true"></div>
+
+      <div class="units">
+        <div class="unit">
+          <div class="unit-head"><span class="nm">Direcção de Sistemas</span><span class="tag">Unidade · DSI</span></div>
+          <div class="chairs">
+            <div class="lugar">
+              <div class="chairbox" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 40 40" fill="none"><path d="M12 8v12m16-12v12M11 20h18M13 20l-1 12m16-12 1 12M12 26h16" stroke="var(--chair)" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+              <div class="meta"><span class="num">LUGAR TS-DSI-014</span><div class="role">Técnico Superior</div><div class="who"><span class="dot"></span>Ocupado · João Silva</div></div>
+            </div>
+            <div class="lugar vago">
+              <div class="chairbox" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 40 40" fill="none"><path d="M12 8v12m16-12v12M11 20h18M13 20l-1 12m16-12 1 12M12 26h16" stroke="var(--gold)" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+              <div class="meta"><span class="num">LUGAR TS-DSI-015</span><div class="role">Técnico Superior</div><div class="who"><span class="dot"></span>Vago · na dotação, por prover</div></div>
+            </div>
+          </div>
+          <div class="counter"><span>Dotação <b>2</b></span><span>Ocupados <b>1</b></span><span class="vg">Vagas <b>1</b></span></div>
+        </div>
+
+        <div class="unit">
+          <div class="unit-head"><span class="nm">Direcção de RH</span><span class="tag">Unidade · DRH</span></div>
+          <div class="chairs">
+            <div class="lugar">
+              <div class="chairbox" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 40 40" fill="none"><path d="M12 8v12m16-12v12M11 20h18M13 20l-1 12m16-12 1 12M12 26h16" stroke="var(--chair)" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+              <div class="meta"><span class="num">LUGAR CH-DRH-002</span><div class="role">Chefe de Divisão</div><div class="who"><span class="dot"></span>Ocupado · Marta Lopes</div></div>
+            </div>
+            <div class="lugar">
+              <div class="chairbox" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 40 40" fill="none"><path d="M12 8v12m16-12v12M11 20h18M13 20l-1 12m16-12 1 12M12 26h16" stroke="var(--chair)" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+              <div class="meta"><span class="num">LUGAR AT-DRH-007</span><div class="role">Assistente Técnico</div><div class="who"><span class="dot"></span>Ocupado · Rui Tavares</div></div>
+            </div>
+          </div>
+          <div class="counter"><span>Dotação <b>2</b></span><span>Ocupados <b>2</b></span><span class="vg">Vagas <b>0</b></span></div>
+        </div>
+      </div>
+      <figcaption><b>O mapa de pessoal.</b> As cadeiras (Lugares) existem por si. Ler o mapa dá logo: quem reporta a quem, e quantas vagas há por unidade — sem consultar as pessoas.</figcaption>
+    </figure>
+
+    <div class="callout">
+      <span class="t">O que uma cadeira guarda</span>
+      <p><code>numero_lugar</code> · <code>cargo</code> (Técnico Superior) · <code>unidade</code> (DSI) · <code>chefia → Lugar do Director</code> · <code>dotação/ocupados</code> · <code>estado (provido / vago / congelado)</code>. Tudo isto <strong>uma só vez</strong>, no Lugar.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Before / After ===== -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow">Porque é que muda</span>
+    <h2>Hoje a pessoa carrega tudo. Depois, a cadeira é que guarda.</h2>
+    <p>Hoje a unidade e o cargo são <strong>reescritos em duas tabelas por cada pessoa</strong> — e é aí que discordam. Com o Lugar, escrevem-se uma vez; a pessoa só aponta para a cadeira.</p>
+    <div class="ba">
+      <div class="col before">
+        <h3><span class="badge">Hoje</span> Duas tabelas que se pisam</h3>
+        <p style="font-size:.88rem;margin:.4rem 0 0;color:var(--muted)">Enquadramento e Colocação guardam <span class="mono">unidade</span> e <span class="mono">cargo</span> cada um. Se um muda e o outro não → divergem.</p>
+        <div class="diagbox">João<br>
+        &nbsp;├─ Enquadramento: cargo=TS · <span class="u">unidade=DSI</span> · escalão=2<br>
+        &nbsp;└─ Colocação:&nbsp;&nbsp;&nbsp;&nbsp;cargo=TS · <span class="u">unidade=DSI</span><br>
+        <span style="color:var(--rust)">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↑ unidade repetida — pode ficar dessincronizada</span></div>
+      </div>
+      <div class="col after">
+        <h3><span class="badge">Depois</span> A cadeira guarda, a pessoa senta-se</h3>
+        <p style="font-size:.88rem;margin:.4rem 0 0;color:var(--muted)">O Lugar guarda unidade+cargo+chefia. O Assignment aponta lá e <span class="mono">herda</span> tudo.</p>
+        <div class="diagbox"><span class="ac">Lugar TS-DSI-014</span>: cargo=TS · <span class="ok">unidade=DSI</span> · chefia→DG<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▲<br>
+        João<br>
+        &nbsp;└─ Assignment → <span class="ac">Lugar TS-DSI-014</span> · escalão=2<br>
+        <span style="color:var(--good)">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↑ unidade numa só fonte — impossível divergir</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Mobility ===== -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow">A mobilidade, agora trivial</span>
+    <h2>Mobilidade = trocar de cadeira</h2>
+    <p>Quando o João vai em mobilidade da DSI para a DRH, ele apenas <strong>muda de cadeira</strong>. Fecha-se a afectação à cadeira antiga, abre-se à nova. Como a unidade vive na cadeira, ela «muda» sozinha — <strong>não há segunda cópia para esquecer</strong>.</p>
+    <div class="flow">
+      <div class="lugar" style="background:var(--surface)">
+        <div class="chairbox" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 40 40" fill="none"><path d="M12 8v12m16-12v12M11 20h18M13 20l-1 12m16-12 1 12M12 26h16" stroke="var(--chair)" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+        <div class="meta"><span class="num">LUGAR TS-DSI-014 · DSI</span><div class="role">Técnico Superior</div><div class="who"><span class="dot" style="background:var(--faint)"></span>Afectação fechada · <span class="mono">is_current=false</span></div></div>
+      </div>
+      <div class="arrow"><span class="big">→</span>João<br>troca de cadeira</div>
+      <div class="lugar moving">
+        <div class="chairbox" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 40 40" fill="none"><path d="M12 8v12m16-12v12M11 20h18M13 20l-1 12m16-12 1 12M12 26h16" stroke="var(--rust)" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+        <div class="meta"><span class="num">LUGAR TS-DRH-021 · DRH</span><div class="role">Técnico Superior</div><div class="who"><span class="dot"></span>Nova afectação · <span class="mono">is_current=true</span></div></div>
+      </div>
+    </div>
+    <div class="callout rust">
+      <span class="t">O bug que desaparece</span>
+      <p>Hoje a mobilidade só mexe na colocação e esquece o enquadramento → este continua a dizer «DSI». Com o Lugar, <strong>não existe enquadramento com uma cópia da unidade</strong> — logo, não há nada para ficar desactualizado. O <em>drift</em> torna-se estruturalmente impossível.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Wins ===== -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow">O que ganhas de borla</span>
+    <h2>Três coisas que hoje não temos</h2>
+    <div class="wins">
+      <div class="win">
+        <div class="ico" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 40 40" fill="none"><rect x="7" y="9" width="26" height="6" rx="2" stroke="currentColor" stroke-width="2.2"/><rect x="7" y="19" width="18" height="6" rx="2" stroke="currentColor" stroke-width="2.2"/><rect x="7" y="29" width="22" height="6" rx="2" stroke="currentColor" stroke-width="2.2"/></svg></div>
+        <h3>Vagas e dotação</h3>
+        <p>Como as cadeiras existem sem pessoas, o sistema conta <span class="mono">dotação − ocupados = vagas</span>. Sabes quantos lugares há por prover.</p>
+      </div>
+      <div class="win">
+        <div class="ico" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="10" r="4" stroke="currentColor" stroke-width="2.2"/><circle cx="11" cy="30" r="4" stroke="currentColor" stroke-width="2.2"/><circle cx="29" cy="30" r="4" stroke="currentColor" stroke-width="2.2"/><path d="M20 14v6m0 0-9 6m9-6 9 6" stroke="currentColor" stroke-width="2.2"/></svg></div>
+        <h3>Hierarquia de chefia</h3>
+        <p>Cada cadeira aponta para a cadeira-pai (<span class="mono">parent_position_id</span>). «Quem é a chefia do João?» responde-se sem ambiguidade.</p>
+      </div>
+      <div class="win">
+        <div class="ico" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 40 40" fill="none"><path d="M10 6h20v28l-10-5-10 5V6Z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></div>
+        <h3>Mapa de pessoal legal</h3>
+        <p>É exactamente o instrumento que a lei cabo-verdiana exige (mapa de quadro de pessoal). O modelo passa a falar a língua da lei.</p>
+      </div>
+    </div>
+    <div class="callout">
+      <span class="t">Em uma frase</span>
+      <p>O <strong>Lugar</strong> é a cadeira; a <strong>Afectação</strong> é a pessoa sentada nela. Separar as duas dá-nos o mapa de pessoal, a chefia e o fim do <em>drift</em> — de uma só vez.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== O modelo inteiro ===== -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow">O quadro completo</span>
+    <h2>Onde o Lugar encaixa no modelo inteiro</h2>
+    <p>O refactor toca só num bloco. Aqui está o modelo todo, arrumado por <strong>como cada coisa muda no tempo</strong> — que é o que decide se precisa (ou não) de versionamento.</p>
+
+    <div class="model">
+      <div class="layer cfg">
+        <div class="layer-tag">Configuração · muda raramente, gerida por administradores</div>
+        <div class="pill-row">
+          <span class="pill">Parametrizações <em>(estados, tipos de contrato, tipos de ausência…)</em></span>
+          <span class="pill">Estrutura <em>(unidades, cargos, funções)</em></span>
+          <span class="pill">Carreiras PCFR <em>(carreira › categoria › escalão)</em></span>
+          <span class="pill new">★ Mapa de Pessoal <em>(os Lugares)</em></span>
+        </div>
+      </div>
+      <div class="connector" aria-hidden="true"></div>
+      <div class="layer who-layer">
+        <div class="layer-tag">Identidade · uma linha por pessoa, editada e auditada (Envers)</div>
+        <div class="who-card">
+          <span class="avatar" style="width:30px;height:30px;font-size:.72rem">JS</span>
+          <div><div class="role" style="font-size:1rem">FUNCIONÁRIO — «quem é»</div><div class="who" style="color:var(--muted);font-size:.8rem">NIF, nome, morada, estado laboral actual · <span class="mono">não guarda onde está nem o escalão</span></div></div>
+        </div>
+      </div>
+      <div class="connector" aria-hidden="true"></div>
+      <div class="layer">
+        <div class="layer-tag hot">Históricos datados · <b>é AQUI que o versionamento acontece</b> (SCD Type 2)</div>
+        <div class="hist-row">
+          <div class="hist-card">
+            <div class="hc-h">Histórico de Contrato</div>
+            <p>Muda em: renovação, novo tipo de vínculo. <span class="mono">t_contrato</span></p>
+          </div>
+          <div class="hist-card hot-card">
+            <div class="hc-h">Histórico de Afectação ★</div>
+            <p>Funde enquadramento + colocação. Aponta para um <strong>Lugar</strong> + escalão. Muda em: admissão, progressão, promoção, mobilidade. <span class="mono">t_assignment</span></p>
+          </div>
+        </div>
+      </div>
+      <div class="connector" aria-hidden="true"></div>
+      <div class="layer">
+        <div class="layer-tag">Dossiê &amp; operação · listas e registos, não linhas de vida</div>
+        <div class="pill-row">
+          <span class="pill soft">Dependentes</span>
+          <span class="pill soft">Qualificações · Formação</span>
+          <span class="pill soft">Documentos</span>
+          <span class="pill soft">Ausências · Licenças</span>
+          <span class="pill soft">Recibos</span>
+        </div>
+      </div>
+    </div>
+    <figcaption><b>Três regimes de mudança.</b> Configuração (editar), Identidade (editar + auditar), Históricos (versionar). Só os <em>históricos datados</em> — Contrato e Afectação — usam o versionamento. Tudo o resto não precisa.</figcaption>
+  </div>
+</section>
+
+<!-- ===== Versionamento ===== -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow">A tua pergunta · como muda no tempo</span>
+    <h2>Como o versionamento acontece</h2>
+    <p>Um histórico datado <strong>nunca apaga o passado</strong>. Cada mudança fecha a linha vigente e abre uma nova. É o padrão <strong>SCD Type 2</strong> — universal na indústria (Oracle, Workday, SAP), e que o SIPPROG <em>já</em> faz. O refactor mantém-no exactamente igual; só muda <em>o que</em> cada linha aponta (agora, um Lugar).</p>
+
+    <h3 style="margin:1.8rem 0 .3rem">A mecânica, em dois passos</h3>
+    <p>Quando algo muda (ex.: o João progride de escalão a 01-03-2024):</p>
+    <div class="steps">
+      <div class="step">
+        <span class="sn">Passo 1</span>
+        <div class="s-body"><strong>Fecha a linha actual.</strong><div class="code2"><span class="k1">end_date</span> = nova_data − 1 dia&nbsp; <span class="cm">(29-02-2024)</span><br><span class="k1">is_current</span> = <span class="fa">false</span></div></div>
+      </div>
+      <div class="step">
+        <span class="sn">Passo 2</span>
+        <div class="s-body"><strong>Abre uma linha nova.</strong><div class="code2"><span class="k1">start_date</span> = nova_data&nbsp; <span class="cm">(01-03-2024)</span><br><span class="k1">end_date</span> = <span class="nu">null</span> &nbsp;·&nbsp; <span class="k1">is_current</span> = <span class="tr">true</span></div></div>
+      </div>
+    </div>
+    <div class="callout"><span class="t">A regra de ouro</span><p>Em cada histórico há <strong>exactamente uma linha</strong> com <code>is_current = true</code> (a que tem <code>end_date = null</code>). As datas encostam sem buracos nem sobreposições — perguntar «onde estava o João em Junho/2023?» tem sempre uma resposta única.</p></div>
+
+    <h3 style="margin:2.2rem 0 .3rem">Visto numa linha do tempo</h3>
+    <p>A vida do João em dois históricos <strong>independentes</strong>. Repara que mudam em datas diferentes — uma renovação de contrato não mexe na afectação, uma progressão não mexe no contrato.</p>
+
+    <div class="timeline">
+      <div class="tl-axis">
+        <span class="lane-label"></span>
+        <div class="years"><span>2022</span><span>2023</span><span>2024</span><span>2025</span><span>2026</span></div>
+      </div>
+
+      <div class="tl-lane">
+        <span class="lane-label">Contrato</span>
+        <div class="track">
+          <div class="bar b-c1" style="grid-column:1/3">CTFP a termo <span class="dates">2022 – fev/24</span></div>
+          <div class="bar b-c2 current" style="grid-column:3/6">Nomeação Definitiva <span class="dates">mar/24 – actual ▶</span></div>
+        </div>
+      </div>
+
+      <div class="tl-lane">
+        <span class="lane-label">Afectação ★</span>
+        <div class="track">
+          <div class="bar b-a1" style="grid-column:1/3">Lugar DSI-014 · escalão 2 <span class="dates">admissão</span></div>
+          <div class="bar b-a2" style="grid-column:3/5">DSI-014 · escalão 3 <span class="dates">progressão</span></div>
+          <div class="bar b-a3 current" style="grid-column:5/6">DRH-021 <span class="dates">mobilidade ▶</span></div>
+        </div>
+      </div>
+      <div class="tl-legend"><span><i class="lg-cur"></i> linha actual (<span class="mono">is_current=true</span>)</span><span><i class="lg-old"></i> linha fechada (histórico preservado)</span></div>
+    </div>
+    <figcaption><b>Duas linhas de vida paralelas.</b> Cada barra é uma linha na base de dados. Nada se sobrepõe a nada; o passado fica todo lá. O Lugar aparece dentro das barras da Afectação — versionamento igual ao de hoje, só que a apontar para uma cadeira.</figcaption>
+
+    <div class="callout"><span class="t">O que o refactor muda no versionamento</span><p><strong>Nada na mecânica.</strong> Passa de <em>duas</em> linhas de vida sobrepostas (enquadramento + colocação) para <em>uma</em> (afectação). Menos linhas para manter em sincronia, mesmo padrão temporal.</p></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>SIPPROG / INGT · módulo <span class="mono">colaboradores/</span> · explicador do conceito <em>Position (Lugar)</em> — apoio à decisão de refactor. Grounded em Oracle/Workday/SAP + Decreto-Lei 4/2024 (PCFR) e mapa de quadro de pessoal (CV).</p>
+  </div>
+</footer>

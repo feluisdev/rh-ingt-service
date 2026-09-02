@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
+import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
 import cv.igrp.RH_Service.colaboradores.domain.repository.ContratoRepository;
-import cv.igrp.RH_Service.colaboradores.domain.repository.EnquadramentoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.ContratoId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
@@ -20,7 +20,7 @@ public class CloseContratoCommandHandler
         implements CommandHandler<CloseContratoCommand, ResponseEntity<Map<String, ?>>> {
 
     private final ContratoRepository contratoRepository;
-    private final EnquadramentoRepository enquadramentoRepository;
+    private final AssignmentService assignmentService;
 
     @IgrpCommandHandler
     @Transactional
@@ -37,12 +37,9 @@ public class CloseContratoCommandHandler
         contrato.encerrar(command.getEndDate(), command.getTerminationReason());
         contratoRepository.save(contrato);
 
-        // Encerrar enquadramento activo na mesma data de cessação
+        // Encerrar a afectação corrente na mesma data de cessação (modelo Position)
         var funcionarioId = FuncionarioId.from(contrato.getFuncionarioId().getValor());
-        enquadramentoRepository.findCurrentByFuncionarioId(funcionarioId).ifPresent(enquadramento -> {
-            enquadramento.encerrar(command.getEndDate());
-            enquadramentoRepository.save(enquadramento);
-        });
+        assignmentService.encerrarAfectacaoCorrente(funcionarioId, command.getEndDate());
 
         return ResponseEntity.ok(Map.of("message", "Contrato encerrado com sucesso."));
     }

@@ -1,0 +1,20 @@
+{
+  "type": "model",
+  "name": "PositionEntity",
+  "module": "estrutura",
+  "tableName": "t_position",
+  "revision": true,
+  "attributes": [
+    {"name": "id", "type": "string", "objectType": "java", "primaryKey": true},
+    {"name": "numeroLugar", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "jobId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "unidadeOrganicaId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "careerId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "categoryId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "parentPositionId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "managesUnitId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "estado", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "legalBase", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "isActive", "type": "boolean", "objectType": "java", "primaryKey": false}
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "type": "model",
+  "name": "AssignmentEntity",
+  "module": "colaboradores",
+  "tableName": "t_assignment",
+  "revision": true,
+  "attributes": [
+    {"name": "id", "type": "string", "objectType": "java", "primaryKey": true},
+    {"name": "funcionarioId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "positionId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "gradeId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "functionId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "assignmentType", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "origem", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "originAssignmentId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "dataInicio", "type": "date", "objectType": "java", "primaryKey": false},
+    {"name": "dataFim", "type": "date", "objectType": "java", "primaryKey": false},
+    {"name": "isCurrent", "type": "boolean", "objectType": "java", "primaryKey": false},
+    {"name": "isActive", "type": "boolean", "objectType": "java", "primaryKey": false},
+    {"name": "notes", "type": "string", "objectType": "java", "primaryKey": false}
+  ]
+}

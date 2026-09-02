@@ -7,14 +7,17 @@ import cv.igrp.RH_Service.carreiras.domain.valueobject.CareerId;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CategoryId;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.GradeId;
 import cv.igrp.RH_Service.colaboradores.application.dto.MeProfileResponseDTO;
-import cv.igrp.RH_Service.colaboradores.domain.repository.EnquadramentoRepository;
+import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.WorkerStateRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.WorkerStateId;
+import cv.igrp.RH_Service.estrutura.domain.models.Position;
 import cv.igrp.RH_Service.estrutura.domain.repository.JobRepository;
 import cv.igrp.RH_Service.estrutura.domain.repository.OrganizationalUnitRepository;
+import cv.igrp.RH_Service.estrutura.domain.repository.PositionRepository;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.JobId;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.OrganizationalUnitId;
+import cv.igrp.RH_Service.estrutura.domain.valueobject.PositionId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
 import cv.igrp.framework.core.domain.QueryHandler;
@@ -32,7 +35,8 @@ public class GetMeProfileQueryHandler
     private final CurrentEmployeeResolver currentEmployeeResolver;
     private final FuncionarioRepository funcionarioRepository;
     private final WorkerStateRepository workerStateRepository;
-    private final EnquadramentoRepository enquadramentoRepository;
+    private final AssignmentRepository assignmentRepository;
+    private final PositionRepository positionRepository;
     private final OrganizationalUnitRepository unitRepository;
     private final JobRepository jobRepository;
     private final CareerRepository careerRepository;
@@ -62,25 +66,31 @@ public class GetMeProfileQueryHandler
         }
         response.setAdmissionDate(funcionario.getDataAdmissao());
 
-        enquadramentoRepository.findCurrentByFuncionarioId(funcionarioId).ifPresent(enq -> {
-            if (enq.getUnidadeOrganicaId() != null) {
-                unitRepository.findById(OrganizationalUnitId.from(enq.getUnidadeOrganicaId())).ifPresent(u ->
-                        response.setCurrentUnit(new MeProfileResponseDTO.UnitRef(u.getId().getStringValor(), u.getName())));
+        // Enquadramento derivado do NOVO modelo: afectação corrente + Lugar (Position).
+        assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId).ifPresent(a -> {
+            Position pos = a.getPositionId() != null
+                    ? positionRepository.findById(PositionId.from(a.getPositionId())).orElse(null)
+                    : null;
+            if (pos != null) {
+                if (pos.getUnidadeOrganicaId() != null) {
+                    unitRepository.findById(OrganizationalUnitId.from(pos.getUnidadeOrganicaId())).ifPresent(u ->
+                            response.setCurrentUnit(new MeProfileResponseDTO.UnitRef(u.getId().getStringValor(), u.getName())));
+                }
+                if (pos.getJobId() != null) {
+                    jobRepository.findById(JobId.from(pos.getJobId())).ifPresent(j ->
+                            response.setCurrentJob(new MeProfileResponseDTO.JobRef(j.getId().getStringValor(), j.getName())));
+                }
+                if (pos.getCareerId() != null) {
+                    careerRepository.findById(CareerId.from(pos.getCareerId())).ifPresent(c ->
+                            response.setCareer(new MeProfileResponseDTO.CareerRef(c.getId().getStringValor(), c.getName())));
+                }
+                if (pos.getCategoryId() != null) {
+                    categoryRepository.findById(CategoryId.from(pos.getCategoryId())).ifPresent(c ->
+                            response.setCategory(new MeProfileResponseDTO.CategoryRef(c.getId().getStringValor(), c.getName())));
+                }
             }
-            if (enq.getCargoId() != null) {
-                jobRepository.findById(JobId.from(enq.getCargoId())).ifPresent(j ->
-                        response.setCurrentJob(new MeProfileResponseDTO.JobRef(j.getId().getStringValor(), j.getName())));
-            }
-            if (enq.getCareerId() != null) {
-                careerRepository.findById(CareerId.from(enq.getCareerId())).ifPresent(c ->
-                        response.setCareer(new MeProfileResponseDTO.CareerRef(c.getId().getStringValor(), c.getName())));
-            }
-            if (enq.getCategoryId() != null) {
-                categoryRepository.findById(CategoryId.from(enq.getCategoryId())).ifPresent(c ->
-                        response.setCategory(new MeProfileResponseDTO.CategoryRef(c.getId().getStringValor(), c.getName())));
-            }
-            if (enq.getGradeId() != null) {
-                gradeRepository.findById(GradeId.from(enq.getGradeId())).ifPresent(g ->
+            if (a.getGradeId() != null) {
+                gradeRepository.findById(GradeId.from(a.getGradeId())).ifPresent(g ->
                         response.setGrade(new MeProfileResponseDTO.GradeRef(g.getId().getStringValor(), g.getGradeNumber())));
             }
         });

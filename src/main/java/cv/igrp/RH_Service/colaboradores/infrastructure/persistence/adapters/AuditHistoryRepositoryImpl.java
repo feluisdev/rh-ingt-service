@@ -2,9 +2,9 @@ package cv.igrp.RH_Service.colaboradores.infrastructure.persistence.adapters;
 
 import cv.igrp.RH_Service.colaboradores.domain.models.AuditRevision;
 import cv.igrp.RH_Service.colaboradores.domain.repository.AuditHistoryRepository;
+import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.AssignmentEntity;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.ContratoEntity;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.DependenteEntity;
-import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.EnquadramentoEntity;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.FuncionarioEntity;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.QualificacaoEntity;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
@@ -30,7 +30,7 @@ public class AuditHistoryRepositoryImpl implements AuditHistoryRepository {
 
     private static final Map<String, Class<?>> CATALOG_MAP = Map.of(
         "funcionarios",   FuncionarioEntity.class,
-        "enquadramentos", EnquadramentoEntity.class,
+        "assignments",    AssignmentEntity.class,
         "contratos",      ContratoEntity.class,
         "dependentes",    DependenteEntity.class,
         "qualificacoes",  QualificacaoEntity.class

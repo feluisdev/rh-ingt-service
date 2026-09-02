@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
-import cv.igrp.RH_Service.colaboradores.domain.repository.ColocacaoRepository;
+import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
 import cv.igrp.RH_Service.colaboradores.domain.repository.LicencaMobilidadeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.SubtipoLicencaMobilidadeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.LicencaMobilidadeId;
@@ -23,7 +23,7 @@ public class CancelarLicencaMobilidadeCommandHandler
         implements CommandHandler<CancelarLicencaMobilidadeCommand, ResponseEntity<Map<String, ?>>> {
 
     private final LicencaMobilidadeRepository licencaRepository;
-    private final ColocacaoRepository colocacaoRepository;
+    private final AssignmentService assignmentService;
     private final SubtipoLicencaMobilidadeRepository subtipoRepository;
 
     @IgrpCommandHandler
@@ -46,12 +46,8 @@ public class CancelarLicencaMobilidadeCommandHandler
                     .orElse(null);
             boolean isMobilidade = subtipo != null && "MOBILIDADE".equals(subtipo.getRecordType());
             if (isMobilidade) {
-                colocacaoRepository.fecharColocacaoAtual(licenca.getFuncionarioId(), LocalDate.now());
-                colocacaoRepository.findMostRecentNonMobilidadeByFuncionarioId(licenca.getFuncionarioId())
-                        .ifPresent(anterior -> {
-                            anterior.reabrir();
-                            colocacaoRepository.save(anterior);
-                        });
+                // Reverte a afectação de MOBILIDADE, reabrindo o Lugar de origem.
+                assignmentService.regressarDeMobilidade(licenca.getFuncionarioId(), LocalDate.now());
             }
         }
 

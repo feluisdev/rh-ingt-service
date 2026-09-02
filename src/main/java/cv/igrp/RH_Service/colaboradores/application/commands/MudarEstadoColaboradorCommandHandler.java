@@ -4,8 +4,8 @@ import cv.igrp.RH_Service.colaboradores.domain.models.HistoricoEstadoColaborador
 import cv.igrp.RH_Service.colaboradores.domain.repository.ContratoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.HistoricoEstadoColaboradorRepository;
+import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
-import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.repository.ColabsColocacaoEntityRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.WorkerStateRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.WorkerStateId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
@@ -27,7 +27,7 @@ public class MudarEstadoColaboradorCommandHandler
     private final FuncionarioRepository funcionarioRepository;
     private final WorkerStateRepository workerStateRepository;
     private final ContratoRepository contratoRepository;
-    private final ColabsColocacaoEntityRepository colocacaoRepository;
+    private final AssignmentService assignmentService;
     private final HistoricoEstadoColaboradorRepository historicoRepository;
 
     @IgrpCommandHandler
@@ -63,7 +63,7 @@ public class MudarEstadoColaboradorCommandHandler
 
         aplicarEfeitosContrato(funcionarioId, novoCode, dataEfectividade, req.getMotivoCkey());
         if (!isActiveFlag) {
-            colocacaoRepository.fecharColocacaoAtual(funcionarioId.getValor(), dataEfectividade);
+            assignmentService.encerrarAfectacaoCorrente(funcionarioId, dataEfectividade);
         }
 
         var historico = HistoricoEstadoColaborador.criar(

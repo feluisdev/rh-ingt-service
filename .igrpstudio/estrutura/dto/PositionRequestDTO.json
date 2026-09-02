@@ -1,0 +1,16 @@
+{
+  "type": "dto",
+  "name": "PositionRequestDTO",
+  "module": "estrutura",
+  "template": "classic",
+  "attributes": [
+    {"name": "numeroLugar", "type": "string", "required": true},
+    {"name": "jobId", "type": "string", "required": true},
+    {"name": "unidadeOrganicaId", "type": "string", "required": true},
+    {"name": "careerId", "type": "string", "required": false},
+    {"name": "categoryId", "type": "string", "required": false},
+    {"name": "parentPositionId", "type": "string", "required": false},
+    {"name": "managesUnitId", "type": "string", "required": false},
+    {"name": "legalBase", "type": "string", "required": false}
+  ]
+}
