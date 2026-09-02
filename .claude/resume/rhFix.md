@@ -135,7 +135,7 @@ Entregar como doc `docs/funcionarios/v4/` + (opcional) artifact HTML. Formato de
 
 ## Pendente (pós-fase-1, não bloqueia merge)
 
-- **Validação PCFR — escalão ∈ categoria do Lugar (EM FALTA):** `AssignmentService.afectar()` valida apenas presença do `gradeId` (obrigatório em Lugar de carreira; proibido fora de grelha), mas **não** valida que `grade.categoryId == position.categoryId`. O ADR-002 (§2.1 constraints / §3 admissão passo 4) prevê que o escalão escolhido tem de pertencer à categoria do Lugar. Hoje a API aceitaria um escalão de outra categoria. Frontend deve, entretanto, filtrar o picker de escalões pela categoria do Lugar (`grade.categoryId == position.categoryId`). Fix futuro: em `afectar()`, carregar o grade e rejeitar 422 se a categoria não bater. (Nota: `t_grade.category_id` → `t_category.career_id`.)
+- ~~**Validação PCFR — escalão ∈ categoria do Lugar**~~ ✅ RESOLVIDO (2026-09-02): guard em `AssignmentService.afectar()` — quando `gradeId != null`, carrega o `Grade` (via `GradeRepository`, port de `carreiras/`) e devolve 422 se `grade.getCategoryId().getValor() != position.getCategoryId()`. Cobre registo/afectação directa/mobilidade. **Testado live 2/2** (escalão da categoria → 201; de outra categoria → 422 "O escalão não pertence à categoria do Lugar"). Commit `eb00908`.
 
 
 - ~~**Mobilidade temporária / `/close`**~~ ✅ RESOLVIDO (2026-09-02, Bloco A): `/close` e `/cancel` reponteados para `AssignmentService.regressarDeMobilidade()` (reabre `origin_assignment_id`). Ver secção A ponto 6.
