@@ -1,4 +1,4 @@
-> Updated: 2026-09-02 (sessão /resume) — **Bloco A + Bloco B do legado CONCLUÍDOS e testados live (32/32)**. Ver secções A (ponto 6) e B do Inventário do LEGADO.
+> Updated: 2026-09-02 (sessão /resume) — **Legado A+B+C CONCLUÍDO e testado (45/45)**. A: mobilidade repontada. B: CRUD standalone eliminado. C: `V31` larga 8 tabelas órfãs. Ver secções A/B/C do Inventário do LEGADO.
 
 ## Goal
 
@@ -105,10 +105,16 @@ Entregar como doc `docs/funcionarios/v4/` + (opcional) artifact HTML. Formato de
 - **RETIDO (compat, NÃO apagar):** `EnquadramentoResponseDTO.java` (+ manifest) — ainda é o **shape de resposta** do bloco `enquadramento` em `ColaboradorDetailsResponseDTO`/`GetColaboradorDetailsQueryHandler` (repoint A2, por compat FE). Restaurado após eliminação acidental.
 - **RETIDO (histórico):** `V10__enquadramento.sql` (Flyway — apagá-la parte a validação) e `docs/funcionarios/v4/ADR_Modelo_Movimentos_Enquadramento_Colocacao.md` (ADR antigo).
 
-**C) Tabelas/funções BD antigas (NÃO largadas nesta fase — DROP em migração futura, ADR §M6):**
-- `t_employee_professional_assignments`, `t_employee_unit_assignments` (presentes na BD). **DRIFT:** `fn_apply_mobility`/`fn_validate_professional_assignment` NÃO existem na BD dev (já não estão lá).
+**C) Tabelas legadas órfãs — ✅ LARGADAS (2026-09-02, migração `V31__drop_legacy_orphan_tables.sql`):**
+- Varrimento completo (69 tabelas public vs 58 `@Table` de entities). Órfãs = sem entity, sem FK viva, não criadas por Flyway (todas materializadas por `ddl-auto`). Diretiva do utilizador: "se nenhuma entity aponta, não precisamos delas".
+- **Largadas (6 public + 2 `_aud`):** `t_contrato_entity`(0, FK→t_cargo), `t_cargo`(1, ex-`t_job` legado), `t_documento`(0, ex-`t_document`), `t_professional_situation`(7, catálogo dormente s/ entity), `t_employee_professional_assignments`(0)+`_aud`, `t_employee_unit_assignments`(0)+`_aud`.
+- **Dump de segurança:** `scripts/cleanup/backup_legacy_before_drop_2026-09-02.sql` (data-only, 87 linhas).
+- Migração `DROP TABLE IF EXISTS … CASCADE` — idempotente (aplicada 2x = ok; no-op em BD nova). **Testada:** app arranca, Flyway regista V31 (success), `ddl-auto` NÃO recria, regressão 13/13. public 69→63.
+- Mantidas (não órfãs): `flyway_schema_history`, 4× `t_siadap_interim_*_aud` (Envers de entities vivas), todas as `_aud` ativas.
+- **DRIFT resolvido:** `fn_apply_mobility`/`fn_validate_professional_assignment` já não existiam na BD.
+- Nota: `scripts/cleanup/clean_movimentos.sql` ainda tem branches `to_regclass` p/ `t_employee_*` (agora no-op inofensivo).
 
-> Ordem de limpeza: **A** ✅ (consumidores activos) → **B** ✅ (CRUD standalone eliminado) → **C** ⏳ (DROP schema, pós-merge; manter dump antes).
+> Ordem de limpeza: **A** ✅ → **B** ✅ → **C** ✅ (schema órfão largado). Legado 100% removido — código e schema.
 
 ## Pendente (pós-fase-1, não bloqueia merge)
 
@@ -175,7 +181,9 @@ Start-Process mvn -ArgumentList "-DskipTests","spring-boot:run" -RedirectStandar
 - Nota tooling: PowerShell 5.1 → `Invoke-WebRequest -UseBasicParsing` + `Accept: application/json`. Scripts de teste no scratchpad (`test_blocoA.ps1`, `test_blocoB_filter.ps1`, `test_regressao.ps1`).
 - **COMMITADO** (branch `feat/position-management`): `8306216` refactor(colaboradores): regresso de mobilidade via afectacao (Bloco A) + `ea3b3d0` refactor(colaboradores): eliminar CRUD standalone enquadramento/colocacao (Bloco B). `settings.json`/`data/` deixados fora. Ainda por fazer push (não autorizado).
 
+- **Bloco C CONCLUÍDO** (2026-09-02): `V31__drop_legacy_orphan_tables.sql` larga 8 tabelas órfãs (6 public + 2 `_aud`); dump em `scripts/cleanup/`. Testado (app arranca, Flyway V31 success, sem recriação, regressão 13/13). **Por commitar** (V31 + dump + handoff).
+
 **A seguir:**
-1. **Bloco C** (opcional, pós-merge): migração de DROP das tabelas antigas `t_employee_professional_assignments`/`t_employee_unit_assignments` (manter dump antes). Não bloqueia.
+1. **Commit do Bloco C** (V31 + dump + handoff).
 2. **Fase 2:** **relatório para o frontend** (contrato novo: registar com `positionId`, endpoints Position/Assignment, deprecação enquadramento/colocação) + **HTML de revisão**. Depois, com luz verde, **merge `feat/position-management → dev`**.
 Cada passo → atualizar este handoff + checkboxes no plano `.md`.
