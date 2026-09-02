@@ -33,7 +33,19 @@
 }
 ```
 
-**Resposta:** agora tem `afectacaoId`. **Já não existe `enquadramentoId`.**
+**Resposta** — `RegistarColaboradorResponseDTO`:
+```jsonc
+{
+  "funcionarioId": "uuid",
+  "numeroFuncionario": "…",
+  "contratoId": "uuid|null",
+  "afectacaoId": "uuid",        // ← antes era enquadramentoId
+  "dadosBancariosId": "uuid|null",
+  "documentoIds": ["uuid", …],  // do dossier
+  "message": "…"
+}
+```
+**Já não existe `enquadramentoId`.**
 
 | Campo removido do request | Substituído por |
 |---|---|
