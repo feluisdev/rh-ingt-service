@@ -173,7 +173,7 @@ Start-Process mvn -ArgumentList "-DskipTests","spring-boot:run" -RedirectStandar
 - **Bloco B** (CRUD standalone deprecado): 58 ficheiros eliminados; 2 consumidores externos de `EnquadramentoEntity` repontados (filtro de funcionários por unidade/carreira; catálogo audit `enquadramentos`→`assignments`); `EnquadramentoResponseDTO` retido por compat. **Live 7/7.** Compile verde.
 - **Total 32/32 no build final.** App a correr na porta 8099 (log `target/appB2.log`). BD limpa.
 - Nota tooling: PowerShell 5.1 → `Invoke-WebRequest -UseBasicParsing` + `Accept: application/json`. Scripts de teste no scratchpad (`test_blocoA.ps1`, `test_blocoB_filter.ps1`, `test_regressao.ps1`).
-- **NÃO commitado ainda** — 68 ficheiros no working tree (58 D + repoints + handoff). Commit quando o utilizador autorizar.
+- **COMMITADO** (branch `feat/position-management`): `8306216` refactor(colaboradores): regresso de mobilidade via afectacao (Bloco A) + `ea3b3d0` refactor(colaboradores): eliminar CRUD standalone enquadramento/colocacao (Bloco B). `settings.json`/`data/` deixados fora. Ainda por fazer push (não autorizado).
 
 **A seguir:**
 1. **Bloco C** (opcional, pós-merge): migração de DROP das tabelas antigas `t_employee_professional_assignments`/`t_employee_unit_assignments` (manter dump antes). Não bloqueia.
