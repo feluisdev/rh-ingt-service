@@ -1,4 +1,4 @@
-> Updated: 2026-09-01 (sessão /resume) — 1B.5 concluído; Testes 2/3 + 1B.5 PASS.
+> Updated: 2026-09-02 (sessão /resume) — **Bloco A + Bloco B do legado CONCLUÍDOS e testados live (32/32)**. Ver secções A (ponto 6) e B do Inventário do LEGADO.
 
 ## Goal
 
@@ -94,25 +94,28 @@ Entregar como doc `docs/funcionarios/v4/` + (opcional) artifact HTML. Formato de
 3. ✅ `colaboradores/GetMeProfileQueryHandler` — `/me` unit/job/career/category do Lugar, grade da afectação. Compilado (precisa auth-context p/ teste live).
 4. ✅ `colaboradores/CloseContratoCommandHandler` — encerra a afectação corrente (`AssignmentService.encerrarAfectacaoCorrente`) em vez do enquadramento. Compilado.
 5. ✅ `AtivarLicencaMobilidadeCommandHandler` (`/ativar`) — deixa de escrever `Colocacao(unit=null)`; usa `AssignmentService.afectarMobilidade` no mesmo caminho do `/approve`. **Testado A5** (200, sem erro de colocação). Nota: `/ativar` é reactivação — só dispara com `isActive=false`; caminho principal de mobilidade é `/approve` (9/9).
-   - ⚠️ AINDA legado (pós-fase-1): `EncerrarLicencaMobilidadeCommandHandler` (`/close`, restaura colocação — mobilidade temporária via `origin_assignment_id`) e `CancelarLicencaMobilidadeCommandHandler` (`/cancel`, restaura colocação).
+6. ✅ `EncerrarLicencaMobilidadeCommandHandler` (`/close`) e `CancelarLicencaMobilidadeCommandHandler` (`/cancel`) — **REPONTADOS (2026-09-02, Bloco A)** para `AssignmentService.regressarDeMobilidade()` (fecha a afectação de MOBILIDADE corrente + reabre o Lugar de origem via `origin_assignment_id`, se ainda vago; herda escalão/função). `afectarMobilidade` passou a registar `origin_assignment_id` (a afectação corrente antes do fecho) para permitir o regresso. Removida toda a dependência de `ColocacaoRepository`. Build verde. **TESTADO LIVE (2026-09-02): Bloco A 12/12** (afectar→approve→U2 drift-free→/close→REGRESSO a U1/L1 via origin_assignment_id→L2 volta a vago) + **regressão 13/13** (GETs jobs/unidades/functions/careers/positions/funcionarios 200; ocupado 422; fora-de-grelha 422/201; `/cancel` também regressa à origem).
+   - Nota: motor de regresso é intencionalmente simples (só reabre se origem ainda vaga); mobilidade permanente (sem origin) apenas fecha a corrente.
 
-**B) CRUD standalone DEPRECADO (rede de segurança; DROP planeado, não usado pelo registo):**
-- `Enquadramento*`: `EnquadramentoController` (`/funcionarios/{id}/enquadramentos`), `Create/GetById/GetAtual/GetHistorico`, `EnquadramentoService`, `EnquadramentoProfissional`, `EnquadramentoRepository(+Impl)`, `EnquadramentoEntity(+Repository)`, `EnquadramentoMapper`, `EnquadramentoFilter`, `EnquadramentoId`, DTOs (`Request/Response/WrapperLista`).
-- `Colocacao*`: `ColocacaoController` (`/funcionarios/{id}/colocacoes`), `Registar/Atualizar/Encerrar/Desativar`, `Colocacao`, `TipoAfectacao`, `ColocacaoRepository(+Impl)`, `ColocacaoEntity`, `ColabsColocacaoEntityRepository`, `ColocacaoMapper`, `ColocacaoFilter`, `ColocacaoId`, `Get*` queries, DTOs.
-- Manifests `.igrpstudio/colaboradores/`: `models/{Enquadramento,Colocacao}Entity.json`, `controllers/{Enquadramento,Colocacao}Controller.json`, DTOs correspondentes.
-- Migração `V10__enquadramento.sql` (schema antigo — fica no histórico Flyway).
+**B) CRUD standalone DEPRECADO — ✅ ELIMINADO (2026-09-02, Bloco B):**
+- **58 ficheiros apagados via `git rm`** (47 `.java` Enquadramento*/Colocacao*/`TipoAfectacao` + 11 manifests `.igrpstudio/colaboradores/`). Inclui `GetColocacoesByFuncionarioQuery(+Handler)` (não foi apanhado pelo 1.º glob `*Colocacao*` — casa `Colocacoes`; apagados à parte). Compile verde.
+- **2 consumidores externos de `EnquadramentoEntity` repontados ANTES de apagar:**
+  1. `FuncionarioRepositoryImpl.toSpec` — filtro de lista por `unidadeOrganicaId`/`careerId` deriva agora do Lugar via Afectação corrente (subquery aninhada `AssignmentEntity` where `isCurrent` + `positionId IN (PositionEntity where unidade/career=…)`). **Testado** (filtro U1 inclui / U2 exclui / career inclui). NB: filtro de lista aplica `isActive=true` no funcionário — F1 `4ed92d96` está inativo, usar F2 `8136de50` (ACTIVE) para testar.
+  2. `AuditHistoryRepositoryImpl` — catálogo `enquadramentos`→`assignments` (mapeia `AssignmentEntity`). **Testado** (`GET .../colaboradores/audit/assignments/{assignmentId}`=200; catálogo antigo `enquadramentos`=400). Descrição Swagger no `ColaboradoresAuditHistoryController` também atualizada.
+- **RETIDO (compat, NÃO apagar):** `EnquadramentoResponseDTO.java` (+ manifest) — ainda é o **shape de resposta** do bloco `enquadramento` em `ColaboradorDetailsResponseDTO`/`GetColaboradorDetailsQueryHandler` (repoint A2, por compat FE). Restaurado após eliminação acidental.
+- **RETIDO (histórico):** `V10__enquadramento.sql` (Flyway — apagá-la parte a validação) e `docs/funcionarios/v4/ADR_Modelo_Movimentos_Enquadramento_Colocacao.md` (ADR antigo).
 
 **C) Tabelas/funções BD antigas (NÃO largadas nesta fase — DROP em migração futura, ADR §M6):**
-- `t_employee_professional_assignments`, `t_employee_unit_assignments`, `fn_apply_mobility`, `fn_validate_professional_assignment`.
+- `t_employee_professional_assignments`, `t_employee_unit_assignments` (presentes na BD). **DRIFT:** `fn_apply_mobility`/`fn_validate_professional_assignment` NÃO existem na BD dev (já não estão lá).
 
-> Ordem sugerida de limpeza: primeiro repontar **A** (consumidores activos — é o que quebra dados), depois retirar **B** (CRUD standalone), por fim **C** (DROP schema). Manter dump antes de C.
+> Ordem de limpeza: **A** ✅ (consumidores activos) → **B** ✅ (CRUD standalone eliminado) → **C** ⏳ (DROP schema, pós-merge; manter dump antes).
 
 ## Pendente (pós-fase-1, não bloqueia merge)
 
 - **Validação PCFR — escalão ∈ categoria do Lugar (EM FALTA):** `AssignmentService.afectar()` valida apenas presença do `gradeId` (obrigatório em Lugar de carreira; proibido fora de grelha), mas **não** valida que `grade.categoryId == position.categoryId`. O ADR-002 (§2.1 constraints / §3 admissão passo 4) prevê que o escalão escolhido tem de pertencer à categoria do Lugar. Hoje a API aceitaria um escalão de outra categoria. Frontend deve, entretanto, filtrar o picker de escalões pela categoria do Lugar (`grade.categoryId == position.categoryId`). Fix futuro: em `afectar()`, carregar o grade e rejeitar 422 se a categoria não bater. (Nota: `t_grade.category_id` → `t_category.career_id`.)
 
 
-- **Mobilidade temporária / `/close`**: o endpoint `PUT .../licencas-mobilidade/{id}/close` ("mobilidades restauram colocação anterior") continua no caminho **legado `colocacao`** (`EncerrarLicencaMobilidade…`/`ColocacaoRepository`). No novo modelo isto deve reabrir a afectação de origem via `origin_assignment_id` (o campo já existe em `t_assignment`). O ADR-002 (D6 / §3 Mobilidade / §9) marca o automatismo de regresso ao lugar de origem como **pós-fase-1**. Repointar quando se fizer o motor de regresso: `AssignmentService` fecha a afectação de MOBILIDADE e reabre a `origin_assignment_id`.
+- ~~**Mobilidade temporária / `/close`**~~ ✅ RESOLVIDO (2026-09-02, Bloco A): `/close` e `/cancel` reponteados para `AssignmentService.regressarDeMobilidade()` (reabre `origin_assignment_id`). Ver secção A ponto 6.
 
 ## Blockers & risks
 
@@ -165,8 +168,14 @@ Start-Process mvn -ArgumentList "-DskipTests","spring-boot:run" -RedirectStandar
 
 ## Next step
 
-**CONCLUÍDO nesta sessão:** app reiniciada na porta 8099 com classes novas (JDK 23); **1B.5** implementado + testado; **Teste 2** (registo com afectacao) 6/6; **Teste 3** (não-regressão) 6/6; path careers confirmado = `api/v1/rh/careers`. Nota de tooling: em PowerShell 5.1 usar `Invoke-WebRequest -UseBasicParsing` + header `Accept: application/json` (senão devolve XML / NullReferenceException). Scripts de teste no scratchpad da sessão.
+**CONCLUÍDO nesta sessão (2026-09-02):**
+- **Bloco A** (consumidores activos do legado): `/close`+`/cancel` de mobilidade reponteados para `AssignmentService.regressarDeMobilidade()` (regresso ao Lugar de origem via `origin_assignment_id`; `afectarMobilidade` grava origem). **Live 12/12 + regressão 13/13.**
+- **Bloco B** (CRUD standalone deprecado): 58 ficheiros eliminados; 2 consumidores externos de `EnquadramentoEntity` repontados (filtro de funcionários por unidade/carreira; catálogo audit `enquadramentos`→`assignments`); `EnquadramentoResponseDTO` retido por compat. **Live 7/7.** Compile verde.
+- **Total 32/32 no build final.** App a correr na porta 8099 (log `target/appB2.log`). BD limpa.
+- Nota tooling: PowerShell 5.1 → `Invoke-WebRequest -UseBasicParsing` + `Accept: application/json`. Scripts de teste no scratchpad (`test_blocoA.ps1`, `test_blocoB_filter.ps1`, `test_regressao.ps1`).
+- **NÃO commitado ainda** — 68 ficheiros no working tree (58 D + repoints + handoff). Commit quando o utilizador autorizar.
 
-1. **1B.4** (opcional/transicional) repoint `AprovarLicencaMobilidadeCommandHandler` para usar `AssignmentService.afectar(origem=MOBILIDADE)` — o novo modelo já cobre mobilidade; handler antigo ainda escreve colocação deprecada.
-2. **Fase 2:** escrever **relatório para o frontend** (contrato novo: registar com `positionId`, endpoints Position/Assignment, deprecação enquadramento/colocação) + **HTML de revisão** do que foi feito (o utilizador quer ler no fim). Depois, com luz verde, **merge `feat/position-management → dev`**.
+**A seguir:**
+1. **Bloco C** (opcional, pós-merge): migração de DROP das tabelas antigas `t_employee_professional_assignments`/`t_employee_unit_assignments` (manter dump antes). Não bloqueia.
+2. **Fase 2:** **relatório para o frontend** (contrato novo: registar com `positionId`, endpoints Position/Assignment, deprecação enquadramento/colocação) + **HTML de revisão**. Depois, com luz verde, **merge `feat/position-management → dev`**.
 Cada passo → atualizar este handoff + checkboxes no plano `.md`.
