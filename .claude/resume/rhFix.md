@@ -56,6 +56,22 @@ Refactor dos "movimentos do colaborador": adoptar **Position Management (Mapa de
 - JPQL: `year(field)` (não `FUNCTION('YEAR',...)`).
 - Testes: perfil `development` (sem auth), porta 8091.
 
+## Documentação v5 (EM CURSO — 2026-09-02)
+
+Nova pasta `docs/funcionarios/v5/` (supersede v4, que fica como arquivo). Âmbito: **tudo menos sigdi**. HTML mistura diagramas (Mermaid via CDN) + texto; pt-PT. **Sem HTML de revisão** (dispensado). Atualizar handoff a cada doc.
+
+Entregáveis: `modelo_negocio.html` · `modelo_relacional.html` · `api_guide.md` + `.html` · `breaking_change_frontend.md` + `.html`.
+
+Base já mapeada do código (não-sigdi): **30 entities** em 5 módulos (carreiras, colaboradores, estrutura, parametrizacoes, shared). Só `ContratoEntity` usa `@ManyToOne`/`@JoinColumn` (funcionario_id→FuncionarioEntity, contract_type_id→ContractTypeEntity); todas as outras usam colunas UUID (`*_id`) sem objeto — relações inferidas por nome. Catálogos `LeaveType`/`DocumentType` usam `category` como **String** (não FK Option, apesar do CLAUDE.md). Endpoints: todos os controllers non-sigdi já listados (bases `api/v1/rh/...`).
+
+**Progresso:**
+- [x] `modelo_negocio.html` — domínios/BC, conceitos, Position Management, PCFR, ciclo de vida, movimentos (com regresso de mobilidade), ausências, glossário. Diagramas Mermaid (flowchart/state/sequence).
+- [x] `modelo_relacional.html` — convenções (UUID sem FK física exceto t_contrato; soft-delete; SCD2; Envers), vista central Lugar/Afectação/Funcionário, ER por bloco (estrutura+carreiras, colaborador, ausências, docs, catálogos), referência das 30 tabelas com FKs. Nota real: t_leave_type/t_tipo_documento usam `category` String. Doc polimórfico `t_document.reference_id`.
+- [x] `api_guide.md` + `.html` — base/auth/headers, convenções (paginação `pagina`/`tamanho`, wrapper, padrões CRUD/combobox/audit, códigos 422/404/400), todos os grupos: positions, assignments, registar, funcionário+sub-recursos, licenças/mobilidade, carreiras, catálogos, /me, auditoria (catálogo `assignments`), enums, deprecados. HTML com mapa de endpoints + sequência de admissão.
+- [x] `breaking_change_frontend.md` + `.html` — TL;DR, registo (antes/depois), picker de Lugar vago, gestão Mapa de Pessoal, novas queries, afectação direta, mobilidade (`destinationPositionId`), worker-state, endpoints removidos, enums, checklist FE. HTML com before/after + sequência de mobilidade.
+
+**✅ DOCUMENTAÇÃO v5 CONCLUÍDA** (5 ficheiros em `docs/funcionarios/v5/`). v5 aponta que supersede v4 (v4 intacta, sem banner). **Ainda não commitado** — decidir commit dos docs.
+
 ## Fase 2 — Relatório para o frontend (PENDENTE — escrever depois)
 
 Adiado a pedido do utilizador. Material já compilado para escrever rápido (contrato REAL, testado):

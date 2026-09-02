@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RH-Service — Modelo Relacional (v5)</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+  :root{
+    --bg:#f7f8fa; --card:#fff; --ink:#1c2430; --muted:#5b6b7c; --line:#e2e7ee;
+    --brand:#1f6feb; --brand-soft:#e8f0fe; --ok:#1a7f4b; --ok-soft:#e6f4ec;
+    --warn:#b25e09; --warn-soft:#fcefe0; --accent:#6b3fc4; --accent-soft:#efe9fb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
+  header.hero{background:linear-gradient(135deg,#3a1d6e,#6b3fc4);color:#fff;padding:48px 0 40px;margin-bottom:8px}
+  header.hero .wrap{padding-top:0}
+  .kicker{text-transform:uppercase;letter-spacing:.12em;font-size:12px;opacity:.85;font-weight:600}
+  h1{font-size:32px;margin:.2em 0 .3em;line-height:1.15}
+  header.hero p{font-size:17px;opacity:.94;max-width:70ch;margin:.4em 0 0}
+  .meta{margin-top:18px;font-size:13px;opacity:.9}
+  .meta b{font-weight:600}
+  h2{font-size:23px;margin:44px 0 6px;padding-top:10px;border-top:2px solid var(--line)}
+  h2 .n{color:var(--accent);font-variant-numeric:tabular-nums;margin-right:.4em}
+  h3{font-size:18px;margin:26px 0 8px}
+  p{margin:10px 0} .lead{font-size:16px;color:var(--muted)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:16px 0;box-shadow:0 1px 2px rgba(20,40,80,.04)}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:13.5px}
+  th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:#efeaf9;font-weight:600}
+  tr:nth-child(even) td{background:#fafbfd}
+  code{background:#eef1f5;border-radius:5px;padding:1px 6px;font:12.5px/1.5 "SF Mono",ui-monospace,Consolas,monospace}
+  .callout{border-radius:10px;padding:14px 16px;margin:16px 0;font-size:14px}
+  .callout.key{background:var(--brand-soft);border:1px solid #cfe0fd}
+  .callout.rule{background:var(--ok-soft);border:1px solid #c5e7d3}
+  .callout.warn{background:var(--warn-soft);border:1px solid #f2dcbe}
+  .diagram{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin:18px 0;overflow-x:auto}
+  .diagram .cap{font-size:13px;color:var(--muted);margin:0 0 10px;font-weight:600}
+  .mermaid{display:flex;justify-content:center;min-width:600px}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;margin:10px 0}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .sw{width:14px;height:14px;border-radius:3px;display:inline-block;border:1px solid rgba(0,0,0,.15)}
+  .mod{display:inline-block;font-size:11px;font-weight:600;padding:1px 8px;border-radius:999px}
+  .m-est{background:var(--accent-soft);color:var(--accent)} .m-col{background:var(--brand-soft);color:var(--brand)}
+  .m-car{background:var(--ok-soft);color:var(--ok)} .m-par{background:var(--warn-soft);color:var(--warn)}
+  .m-sh{background:#eef2f7;color:var(--muted)}
+  .toc{columns:2;font-size:14px} .toc a{color:var(--accent);text-decoration:none} .toc a:hover{text-decoration:underline}
+  @media(max-width:820px){.toc{columns:1}}
+  footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">RH-Service · SIGDI / SIPPROG</div>
+    <h1>Modelo Relacional</h1>
+    <p>As tabelas do núcleo RH e como se relacionam. Nota importante: no código as ligações são quase sempre <b>colunas UUID</b> (<code>*_id</code>), não associações de objeto — mas as relações existem e são aqui explicitadas.</p>
+    <div class="meta">Documentação <b>v5</b> · 30 entidades / tabelas (exclui <code>sigdi</code>) · PostgreSQL 17 · auditoria Envers (<code>_aud</code> em <code>audit_schema</code>)</div>
+  </div>
+</header>
+<div class="wrap">
+
+  <div class="card">
+    <b>Índice</b>
+    <div class="toc" style="margin-top:8px">
+      <a href="#convencoes">1. Convenções do modelo</a><br>
+      <a href="#hub">2. Vista central: Lugar · Afectação · Funcionário</a><br>
+      <a href="#estrutura">3. Estrutura + Carreiras (Mapa de Pessoal)</a><br>
+      <a href="#colaborador">4. Colaborador e dados pessoais</a><br>
+      <a href="#ausencias">5. Ausências, licenças e mobilidade</a><br>
+      <a href="#docs">6. Documentos, recibos e disciplinar</a><br>
+      <a href="#catalogos">7. Catálogos (parametrizações)</a><br>
+      <a href="#ref">8. Referência completa de tabelas</a>
+    </div>
+  </div>
+
+  <h2 id="convencoes"><span class="n">1.</span>Convenções do modelo</h2>
+  <div class="card">
+    <table>
+      <tr><th>Convenção</th><th>Descrição</th></tr>
+      <tr><td><b>Chave primária</b></td><td><code>id UUID</code> em todas as tabelas.</td></tr>
+      <tr><td><b>Relações</b></td><td>Coluna <code>&lt;alvo&gt;_id UUID</code> (ex.: <code>funcionario_id</code>). <b>Sem FK física declarada</b> na maioria — a integridade é garantida na aplicação. Exceção: <code>t_contrato</code> usa <code>@ManyToOne</code> real (FK física para <code>t_funcionario</code> e <code>t_contract_type</code>).</td></tr>
+      <tr><td><b>Soft delete</b></td><td><code>is_active BOOLEAN</code> — registos "apagados" ficam <code>false</code>, não são removidos.</td></tr>
+      <tr><td><b>Historização (SCD2)</b></td><td><code>is_current</code>, <code>data_inicio</code>, <code>data_fim</code> — em <code>t_assignment</code> e <code>t_contrato</code>. Uma versão corrente por chave de negócio.</td></tr>
+      <tr><td><b>Auditoria</b></td><td>Entidades <code>@Audited</code> (Envers) geram tabela <code>_aud</code> em <code>audit_schema</code> + <code>created_by/at</code>, <code>updated_by/at</code>.</td></tr>
+      <tr><td><b>Estado derivado</b></td><td>"Provido/Vago" de um Lugar <b>não</b> é coluna — calcula-se das afectações correntes.</td></tr>
+    </table>
+    <div class="legend">
+      <span><span class="sw" style="background:#efe9fb"></span> estrutura</span>
+      <span><span class="sw" style="background:#e8f0fe"></span> colaboradores</span>
+      <span><span class="sw" style="background:#e6f4ec"></span> carreiras</span>
+      <span><span class="sw" style="background:#fcefe0"></span> parametrizações</span>
+      <span><span class="sw" style="background:#eef2f7"></span> shared</span>
+    </div>
+  </div>
+
+  <h2 id="hub"><span class="n">2.</span>Vista central: Lugar · Afectação · Funcionário</h2>
+  <p>O triângulo que define o modelo v5. A <b>Afectação</b> é a tabela-ponte que liga a pessoa ao Lugar no tempo, e onde vive o escalão.</p>
+  <div class="diagram">
+    <p class="cap">Núcleo — t_funcionario ↔ t_assignment ↔ t_position</p>
+    <pre class="mermaid">
+erDiagram
+  t_funcionario ||--o{ t_assignment : "é afectado"
+  t_position    ||--o{ t_assignment : "é ocupado por"
+  t_assignment  }o--o| t_grade      : "escalão (grade_id)"
+  t_assignment  }o--o| t_funcao     : "função (function_id)"
+  t_assignment  }o--o| t_assignment : "origem (origin_assignment_id)"
+  t_position    }o--|| t_job        : "cargo (job_id)"
+  t_position    }o--|| t_unidade_organica : "unidade"
+  t_position    }o--o| t_career     : "carreira"
+  t_position    }o--o| t_category   : "categoria"
+  t_funcionario }o--o| t_worker_state : "estado"
+  t_funcionario {
+    uuid id PK
+    uuid worker_state_id FK
+    uuid document_type_id FK
+  }
+  t_position {
+    uuid id PK
+    uuid job_id FK
+    uuid unidade_organica_id FK
+    uuid career_id FK
+    uuid category_id FK
+    uuid parent_position_id FK
+    uuid manages_unit_id FK
+    string estado
+  }
+  t_assignment {
+    uuid id PK
+    uuid funcionario_id FK
+    uuid position_id FK
+    uuid grade_id FK
+    uuid function_id FK
+    uuid origin_assignment_id FK
+    string origem
+    bool is_current
+  }
+    </pre>
+  </div>
+  <div class="callout key"><b>Índice único parcial:</b> <code>(position_id) WHERE is_current</code> garante um ocupante por Lugar; <code>(funcionario_id) WHERE is_current AND assignment_type='PRINCIPAL'</code> garante uma afectação principal por pessoa.</div>
+
+  <h2 id="estrutura"><span class="n">3.</span>Estrutura + Carreiras (Mapa de Pessoal)</h2>
+  <div class="diagram">
+    <p class="cap">Esqueleto organizacional e grelha PCFR</p>
+    <pre class="mermaid">
+erDiagram
+  t_unidade_organica ||--o{ t_unidade_organica : "parent_unit_id (hierarquia)"
+  t_job              ||--o{ t_funcao   : "job_id"
+  t_job              ||--o{ t_position : "job_id"
+  t_unidade_organica ||--o{ t_position : "unidade_organica_id"
+  t_unidade_organica ||--o| t_position : "manages_unit_id (dirige)"
+  t_position         ||--o{ t_position : "parent_position_id (reporte)"
+  t_career           ||--o{ t_category : "career_id"
+  t_category         ||--o{ t_grade    : "category_id"
+  t_career           ||--o{ t_position : "career_id"
+  t_category         ||--o{ t_position : "category_id"
+    </pre>
+  </div>
+  <table>
+    <tr><th>Tabela</th><th>Módulo</th><th>Papel</th></tr>
+    <tr><td><code>t_unidade_organica</code></td><td><span class="mod m-est">estrutura</span></td><td>Unidade orgânica; auto-relação <code>parent_unit_id</code> (árvore).</td></tr>
+    <tr><td><code>t_job</code></td><td><span class="mod m-est">estrutura</span></td><td>Cargo genérico (substituiu o legado <code>t_cargo</code>).</td></tr>
+    <tr><td><code>t_funcao</code></td><td><span class="mod m-est">estrutura</span></td><td>Função associada a um cargo (<code>job_id</code>).</td></tr>
+    <tr><td><code>t_position</code></td><td><span class="mod m-est">estrutura</span></td><td><b>Lugar</b> — a cadeira do Mapa de Pessoal.</td></tr>
+    <tr><td><code>t_career</code></td><td><span class="mod m-car">carreiras</span></td><td>Carreira PCFR.</td></tr>
+    <tr><td><code>t_category</code></td><td><span class="mod m-car">carreiras</span></td><td>Categoria dentro da carreira (<code>career_id</code>).</td></tr>
+    <tr><td><code>t_grade</code></td><td><span class="mod m-car">carreiras</span></td><td>Escalão dentro da categoria (<code>category_id</code>).</td></tr>
+  </table>
+
+  <h2 id="colaborador"><span class="n">4.</span>Colaborador e dados pessoais</h2>
+  <div class="diagram">
+    <p class="cap">Funcionário como agregado — tudo pendura de t_funcionario</p>
+    <pre class="mermaid">
+erDiagram
+  t_funcionario ||--o{ t_contrato        : "funcionario_id (FK física)"
+  t_funcionario ||--o{ t_dados_bancarios : "funcionario_id"
+  t_funcionario ||--o{ t_dependente      : "funcionario_id"
+  t_funcionario ||--o{ t_qualificacao    : "funcionario_id"
+  t_funcionario ||--o{ t_training        : "funcionario_id"
+  t_funcionario ||--o{ t_historico_estado_colaborador : "funcionario_id"
+  t_funcionario ||--o| t_iam_user_profile : "funcionario_id"
+  t_contrato    }o--o| t_contract_type   : "contract_type_id (FK física)"
+  t_historico_estado_colaborador }o--|| t_worker_state : "estado_anterior/novo_id"
+    </pre>
+  </div>
+  <table>
+    <tr><th>Tabela</th><th>Módulo</th><th>Papel · FKs</th></tr>
+    <tr><td><code>t_funcionario</code></td><td><span class="mod m-col">colaboradores</span></td><td>A pessoa. <code>worker_state_id</code>→estado, <code>document_type_id</code>→tipo de doc. de identificação.</td></tr>
+    <tr><td><code>t_contrato</code></td><td><span class="mod m-col">colaboradores</span></td><td>Vínculo jurídico. <b>FK física</b> <code>funcionario_id</code>, <code>contract_type_id</code>. SCD2 (<code>is_current</code>).</td></tr>
+    <tr><td><code>t_dados_bancarios</code></td><td><span class="mod m-col">colaboradores</span></td><td>IBAN/conta do funcionário.</td></tr>
+    <tr><td><code>t_dependente</code></td><td><span class="mod m-col">colaboradores</span></td><td>Dependentes (agregado familiar).</td></tr>
+    <tr><td><code>t_qualificacao</code></td><td><span class="mod m-col">colaboradores</span></td><td>Habilitações académicas/profissionais.</td></tr>
+    <tr><td><code>t_training</code></td><td><span class="mod m-col">colaboradores</span></td><td>Formações (<code>FormacaoEntity</code>).</td></tr>
+    <tr><td><code>t_historico_estado_colaborador</code></td><td><span class="mod m-col">colaboradores</span></td><td>Trilho de mudanças de estado. <code>estado_anterior_id</code>, <code>estado_novo_id</code>→<code>t_worker_state</code>.</td></tr>
+    <tr><td><code>t_iam_user_profile</code></td><td><span class="mod m-sh">shared</span></td><td>Ligação do funcionário ao utilizador IAM (self-service).</td></tr>
+  </table>
+
+  <h2 id="ausencias"><span class="n">5.</span>Ausências, licenças e mobilidade</h2>
+  <div class="diagram">
+    <p class="cap">Pedidos, saldos e mobilidade</p>
+    <pre class="mermaid">
+erDiagram
+  t_funcionario ||--o{ t_leave_request  : "funcionario_id"
+  t_funcionario ||--o{ t_leave_balance  : "funcionario_id"
+  t_funcionario ||--o{ t_leave_mobility : "funcionario_id"
+  t_leave_request  }o--|| t_leave_type  : "tipo_ausencia_id"
+  t_leave_balance  }o--|| t_leave_type  : "tipo_ausencia_id"
+  t_leave_mobility }o--|| t_leave_mobility_subtype : "subtipo_id"
+  t_leave_mobility }o--o| t_unidade_organica : "destination_unit_id"
+  t_leave_mobility }o--o| t_position    : "destination_position_id"
+  t_leave_mobility }o--o| t_document    : "document_id"
+    </pre>
+  </div>
+  <table>
+    <tr><th>Tabela</th><th>Módulo</th><th>Papel · FKs</th></tr>
+    <tr><td><code>t_leave_request</code></td><td><span class="mod m-col">colaboradores</span></td><td>Pedido de ausência. <code>tipo_ausencia_id</code>→<code>t_leave_type</code>. Fluxo aprovar/rejeitar/cancelar.</td></tr>
+    <tr><td><code>t_leave_balance</code></td><td><span class="mod m-col">colaboradores</span></td><td>Saldo por funcionário e tipo de ausência.</td></tr>
+    <tr><td><code>t_leave_mobility</code></td><td><span class="mod m-col">colaboradores</span></td><td>Licença/mobilidade. <code>subtipo_id</code>, <code>destination_unit_id</code>, <code>destination_position_id</code> (Lugar de destino), <code>document_id</code>.</td></tr>
+  </table>
+  <div class="callout rule">MOBILIDADE aprovada cria uma afectação no <code>destination_position_id</code> (via <code>AssignmentService</code>). O encerramento/cancelamento reabre o Lugar de origem (<code>origin_assignment_id</code> em <code>t_assignment</code>).</div>
+
+  <h2 id="docs"><span class="n">6.</span>Documentos, recibos e disciplinar</h2>
+  <div class="diagram">
+    <p class="cap">Documentos polimórficos e recibos</p>
+    <pre class="mermaid">
+erDiagram
+  t_document }o--|| t_tipo_documento : "document_type_id"
+  t_document }o--o| any_owner : "reference_id (polimórfico)"
+  t_funcionario ||--o{ t_payroll_slip : "funcionario_id"
+  t_payroll_slip }o--o| t_document : "document_id"
+  t_funcionario ||--o{ t_disciplinary_process : "funcionario_id"
+    </pre>
+  </div>
+  <table>
+    <tr><th>Tabela</th><th>Módulo</th><th>Papel · FKs</th></tr>
+    <tr><td><code>t_document</code></td><td><span class="mod m-col">colaboradores</span></td><td>Ficheiro (MinIO). <code>document_type_id</code>→tipo; <code>reference_id</code> <b>polimórfico</b> — aponta ao registo dono (contrato, formação, qualificação, recibo, processo, licença…).</td></tr>
+    <tr><td><code>t_payroll_slip</code></td><td><span class="mod m-col">colaboradores</span></td><td>Recibo de vencimento. <code>funcionario_id</code>, <code>document_id</code>.</td></tr>
+    <tr><td><code>t_disciplinary_process</code></td><td><span class="mod m-col">colaboradores</span></td><td>Processo disciplinar do funcionário.</td></tr>
+  </table>
+  <div class="callout warn"><b>Documentos polimórficos:</b> <code>t_document.reference_id</code> não tem FK física porque aponta a tabelas diferentes conforme o contexto. A coerência é gerida pela aplicação (cada controller de "documentos" filtra pelo seu tipo de dono).</div>
+
+  <h2 id="catalogos"><span class="n">7.</span>Catálogos (parametrizações)</h2>
+  <table>
+    <tr><th>Tabela</th><th>Papel</th><th>Notas</th></tr>
+    <tr><td><code>t_worker_state</code></td><td>Estados do trabalhador (ACTIVE, INACTIVE, RETIRED…).</td><td><code>is_core=true</code> bloqueia desativação.</td></tr>
+    <tr><td><code>t_contract_type</code></td><td>Tipos de contrato (DL 4/2024).</td><td><code>vinculo_laboral_id</code>→<code>t_vinculo_laboral</code>.</td></tr>
+    <tr><td><code>t_vinculo_laboral</code></td><td>Vínculo laboral (categoria macro do contrato).</td><td>—</td></tr>
+    <tr><td><code>t_leave_type</code></td><td>Tipos de ausência.</td><td><code>deducts_balance</code>, <code>requires_approval</code>, <code>max_days_per_year</code>, <code>category</code> (String).</td></tr>
+    <tr><td><code>t_leave_mobility_subtype</code></td><td>Subtipos de licença/mobilidade.</td><td><code>record_type</code> ∈ LICENCA · MOBILIDADE · AMBOS; <code>affects_pay</code>, <code>counts_for_seniority</code>, <code>can_self_submit</code>.</td></tr>
+    <tr><td><code>t_tipo_documento</code></td><td>Tipos de documento.</td><td><code>allowed_extensions</code>, <code>category</code> (String).</td></tr>
+    <tr><td><code>t_public_holiday</code></td><td>Feriados nacionais/municipais.</td><td>Índice único parcial <code>(holiday_date) WHERE is_national AND is_active</code>.</td></tr>
+    <tr><td><code>t_option_entity</code></td><td>Catálogo genérico de rótulos (<code>ccode/ckey/cvalue/locale</code>).</td><td><code>@Cacheable</code> na leitura (Caffeine, TTL 60 s).</td></tr>
+  </table>
+  <div class="callout warn"><b>Nota de estado real:</b> <code>t_leave_type</code> e <code>t_tipo_documento</code> guardam a categoria como <b>String</b> (<code>category</code>), e não como FK para <code>t_option_entity</code>. (O CLAUDE.md descreve um <code>categoryOptionId</code> que o código atual não implementa.)</div>
+
+  <h2 id="ref"><span class="n">8.</span>Referência completa de tabelas (não-sigdi)</h2>
+  <table>
+    <tr><th>#</th><th>Tabela</th><th>Módulo</th><th>Entidade JPA</th><th>FKs (colunas <code>*_id</code>)</th></tr>
+    <tr><td>1</td><td><code>t_funcionario</code></td><td><span class="mod m-col">col</span></td><td>FuncionarioEntity</td><td>worker_state_id, document_type_id</td></tr>
+    <tr><td>2</td><td><code>t_assignment</code></td><td><span class="mod m-col">col</span></td><td>AssignmentEntity</td><td>funcionario_id, position_id, grade_id, function_id, origin_assignment_id</td></tr>
+    <tr><td>3</td><td><code>t_contrato</code></td><td><span class="mod m-col">col</span></td><td>ContratoEntity</td><td>funcionario_id*, contract_type_id* (FK física)</td></tr>
+    <tr><td>4</td><td><code>t_dados_bancarios</code></td><td><span class="mod m-col">col</span></td><td>DadosBancariosEntity</td><td>funcionario_id</td></tr>
+    <tr><td>5</td><td><code>t_dependente</code></td><td><span class="mod m-col">col</span></td><td>DependenteEntity</td><td>funcionario_id</td></tr>
+    <tr><td>6</td><td><code>t_qualificacao</code></td><td><span class="mod m-col">col</span></td><td>QualificacaoEntity</td><td>funcionario_id</td></tr>
+    <tr><td>7</td><td><code>t_training</code></td><td><span class="mod m-col">col</span></td><td>FormacaoEntity</td><td>funcionario_id</td></tr>
+    <tr><td>8</td><td><code>t_historico_estado_colaborador</code></td><td><span class="mod m-col">col</span></td><td>HistoricoEstadoColaboradorEntity</td><td>funcionario_id, estado_anterior_id, estado_novo_id</td></tr>
+    <tr><td>9</td><td><code>t_leave_request</code></td><td><span class="mod m-col">col</span></td><td>PedidoAusenciaEntity</td><td>funcionario_id, tipo_ausencia_id</td></tr>
+    <tr><td>10</td><td><code>t_leave_balance</code></td><td><span class="mod m-col">col</span></td><td>SaldoAusenciaEntity</td><td>funcionario_id, tipo_ausencia_id</td></tr>
+    <tr><td>11</td><td><code>t_leave_mobility</code></td><td><span class="mod m-col">col</span></td><td>LicencaMobilidadeEntity</td><td>funcionario_id, subtipo_id, destination_unit_id, destination_position_id, document_id</td></tr>
+    <tr><td>12</td><td><code>t_disciplinary_process</code></td><td><span class="mod m-col">col</span></td><td>ProcessoDisciplinarEntity</td><td>funcionario_id</td></tr>
+    <tr><td>13</td><td><code>t_payroll_slip</code></td><td><span class="mod m-col">col</span></td><td>ReciboVencimentoEntity</td><td>funcionario_id, document_id</td></tr>
+    <tr><td>14</td><td><code>t_document</code></td><td><span class="mod m-col">col</span></td><td>DocumentoEntity</td><td>document_type_id, reference_id (polimórfico)</td></tr>
+    <tr><td>15</td><td><code>t_position</code></td><td><span class="mod m-est">est</span></td><td>PositionEntity</td><td>job_id, unidade_organica_id, career_id, category_id, parent_position_id, manages_unit_id</td></tr>
+    <tr><td>16</td><td><code>t_unidade_organica</code></td><td><span class="mod m-est">est</span></td><td>OrganizationalUnitEntity</td><td>parent_unit_id</td></tr>
+    <tr><td>17</td><td><code>t_job</code></td><td><span class="mod m-est">est</span></td><td>JobEntity</td><td>—</td></tr>
+    <tr><td>18</td><td><code>t_funcao</code></td><td><span class="mod m-est">est</span></td><td>FunctionEntity</td><td>job_id</td></tr>
+    <tr><td>19</td><td><code>t_career</code></td><td><span class="mod m-car">car</span></td><td>CareerEntity</td><td>—</td></tr>
+    <tr><td>20</td><td><code>t_category</code></td><td><span class="mod m-car">car</span></td><td>CategoryEntity</td><td>career_id</td></tr>
+    <tr><td>21</td><td><code>t_grade</code></td><td><span class="mod m-car">car</span></td><td>GradeEntity</td><td>category_id</td></tr>
+    <tr><td>22</td><td><code>t_worker_state</code></td><td><span class="mod m-par">par</span></td><td>WorkerStateEntity</td><td>—</td></tr>
+    <tr><td>23</td><td><code>t_contract_type</code></td><td><span class="mod m-par">par</span></td><td>ContractTypeEntity</td><td>vinculo_laboral_id</td></tr>
+    <tr><td>24</td><td><code>t_vinculo_laboral</code></td><td><span class="mod m-par">par</span></td><td>VinculoLaboralEntity</td><td>—</td></tr>
+    <tr><td>25</td><td><code>t_leave_type</code></td><td><span class="mod m-par">par</span></td><td>LeaveTypeEntity</td><td>— (category: String)</td></tr>
+    <tr><td>26</td><td><code>t_leave_mobility_subtype</code></td><td><span class="mod m-par">par</span></td><td>LeaveMobilitySubtypeEntity</td><td>—</td></tr>
+    <tr><td>27</td><td><code>t_tipo_documento</code></td><td><span class="mod m-par">par</span></td><td>DocumentTypeEntity</td><td>— (category: String)</td></tr>
+    <tr><td>28</td><td><code>t_public_holiday</code></td><td><span class="mod m-par">par</span></td><td>PublicHolidayEntity</td><td>—</td></tr>
+    <tr><td>29</td><td><code>t_option_entity</code></td><td><span class="mod m-par">par</span></td><td>OptionEntity</td><td>—</td></tr>
+    <tr><td>30</td><td><code>t_iam_user_profile</code></td><td><span class="mod m-sh">sh</span></td><td>IAMUserProfileEntity</td><td>funcionario_id</td></tr>
+  </table>
+  <p class="lead" style="font-size:13.5px">* FK física real (<code>@JoinColumn</code>). Restantes são colunas UUID sem FK declarada.</p>
+
+  <footer>
+    RH-Service · Documentação v5 · Modelo Relacional · pt-PT<br>
+    Tabelas legadas removidas na migração <code>V31</code>: <code>t_cargo</code>, <code>t_documento</code>, <code>t_contrato_entity</code>, <code>t_professional_situation</code>, <code>t_employee_professional_assignments</code>, <code>t_employee_unit_assignments</code>.
+  </footer>
+</div>
+<script>mermaid.initialize({startOnLoad:true, theme:'neutral'});</script>
+</body>
+</html>

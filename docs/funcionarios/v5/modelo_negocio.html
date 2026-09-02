@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RH-Service — Modelo de Negócio (v5)</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+  :root{
+    --bg:#f7f8fa; --card:#fff; --ink:#1c2430; --muted:#5b6b7c; --line:#e2e7ee;
+    --brand:#1f6feb; --brand-soft:#e8f0fe; --ok:#1a7f4b; --ok-soft:#e6f4ec;
+    --warn:#b25e09; --warn-soft:#fcefe0; --accent:#6b3fc4; --accent-soft:#efe9fb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
+  header.hero{background:linear-gradient(135deg,#12325e,#1f6feb);color:#fff;padding:48px 0 40px;margin-bottom:8px}
+  header.hero .wrap{padding-top:0}
+  .kicker{text-transform:uppercase;letter-spacing:.12em;font-size:12px;opacity:.85;font-weight:600}
+  h1{font-size:32px;margin:.2em 0 .3em;line-height:1.15}
+  header.hero p{font-size:17px;opacity:.94;max-width:70ch;margin:.4em 0 0}
+  .meta{margin-top:18px;font-size:13px;opacity:.9}
+  .meta b{font-weight:600}
+  h2{font-size:23px;margin:44px 0 6px;padding-top:10px;border-top:2px solid var(--line)}
+  h2 .n{color:var(--brand);font-variant-numeric:tabular-nums;margin-right:.4em}
+  h3{font-size:18px;margin:26px 0 8px}
+  p{margin:10px 0}
+  .lead{font-size:16px;color:var(--muted)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:16px 0;
+    box-shadow:0 1px 2px rgba(20,40,80,.04)}
+  .grid{display:grid;gap:14px}
+  .grid.c2{grid-template-columns:repeat(2,1fr)}
+  .grid.c3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:820px){.grid.c2,.grid.c3{grid-template-columns:1fr}}
+  .bc{border-left:4px solid var(--brand);background:var(--card);border-radius:8px;padding:14px 16px}
+  .bc h4{margin:0 0 4px;font-size:15px}
+  .bc p{margin:0;font-size:13.5px;color:var(--muted)}
+  .bc.estrutura{border-color:var(--accent)} .bc.carreiras{border-color:var(--ok)}
+  .bc.param{border-color:var(--warn)} .bc.self{border-color:#0a8}
+  .tag{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:999px;
+    background:var(--brand-soft);color:var(--brand);margin:2px 4px 2px 0}
+  .tag.g{background:var(--ok-soft);color:var(--ok)} .tag.p{background:var(--accent-soft);color:var(--accent)}
+  .tag.w{background:var(--warn-soft);color:var(--warn)}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14px}
+  th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
+  th{background:#eef2f7;font-weight:600}
+  tr:nth-child(even) td{background:#fafbfd}
+  code{background:#eef1f5;border-radius:5px;padding:1px 6px;font:13px/1.5 "SF Mono",ui-monospace,Consolas,monospace}
+  .callout{border-radius:10px;padding:14px 16px;margin:16px 0;font-size:14px}
+  .callout.key{background:var(--brand-soft);border:1px solid #cfe0fd}
+  .callout.rule{background:var(--ok-soft);border:1px solid #c5e7d3}
+  .callout.warn{background:var(--warn-soft);border:1px solid #f2dcbe}
+  .callout b{font-weight:600}
+  .diagram{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin:18px 0;overflow-x:auto}
+  .diagram .cap{font-size:13px;color:var(--muted);margin:0 0 10px;font-weight:600}
+  .mermaid{display:flex;justify-content:center}
+  ul.clean{margin:8px 0;padding-left:20px} ul.clean li{margin:5px 0}
+  .toc{columns:2;font-size:14px} .toc a{color:var(--brand);text-decoration:none} .toc a:hover{text-decoration:underline}
+  @media(max-width:820px){.toc{columns:1}}
+  footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+  .pill{font-size:12px;background:#eef2f7;border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">RH-Service · SIGDI / SIPPROG</div>
+    <h1>Modelo de Negócio</h1>
+    <p>Como o microserviço de Recursos Humanos representa pessoas, lugares e movimentos na Administração Pública de Cabo Verde — a lógica de negócio por detrás das entidades e dos endpoints.</p>
+    <div class="meta">Documentação <b>v5</b> · fonte de verdade · supersede a pasta <code>v4</code> (mantida como arquivo) · âmbito: núcleo RH (exclui módulo <code>sigdi</code>)</div>
+  </div>
+</header>
+<div class="wrap">
+
+  <div class="card">
+    <b>Índice</b>
+    <div class="toc" style="margin-top:8px">
+      <a href="#o-que">1. O que é a aplicação</a><br>
+      <a href="#bc">2. Domínios de negócio (bounded contexts)</a><br>
+      <a href="#conceitos">3. Conceitos centrais</a><br>
+      <a href="#position">4. Mapa de Pessoal (Position Management)</a><br>
+      <a href="#pcfr">5. Carreira, categoria e escalão (PCFR)</a><br>
+      <a href="#ciclo">6. Ciclo de vida do colaborador</a><br>
+      <a href="#movimentos">7. Movimentos: admissão, progressão, mobilidade, cessação</a><br>
+      <a href="#ausencias">8. Ausências, licenças e mobilidade</a><br>
+      <a href="#glossario">9. Glossário</a>
+    </div>
+  </div>
+
+  <h2 id="o-que"><span class="n">1.</span>O que é a aplicação</h2>
+  <p class="lead">O <b>RH-Service</b> é o microserviço de gestão de Recursos Humanos da plataforma SIGDI/SIPPROG, para a Administração Pública cabo-verdiana. Gere o ciclo de vida completo do trabalhador público: quem é, onde está colocado, com que vínculo e carreira, e todos os movimentos ao longo do tempo.</p>
+  <div class="grid c3">
+    <div class="card"><b>Pessoas</b><p class="lead" style="font-size:14px">Funcionários, dependentes, qualificações, formações, dados bancários, documentos e recibos.</p></div>
+    <div class="card"><b>Estrutura</b><p class="lead" style="font-size:14px">Unidades orgânicas, cargos, funções e o <b>Mapa de Pessoal</b> (Lugares) que a organização pode prover.</p></div>
+    <div class="card"><b>Movimentos</b><p class="lead" style="font-size:14px">Admissão, afectação a um Lugar, mobilidade, ausências, licenças, mudanças de estado e cessação.</p></div>
+  </div>
+  <div class="callout key"><b>Princípio v5:</b> a organização define <b>Lugares</b> (cadeiras no quadro de pessoal); as pessoas são <b>afectadas</b> a esses Lugares ao longo do tempo. A unidade, o cargo e a carreira de uma pessoa <b>derivam do Lugar</b> que ocupa — não são guardados na pessoa.</div>
+
+  <h2 id="bc"><span class="n">2.</span>Domínios de negócio (bounded contexts)</h2>
+  <p>O código organiza-se em módulos que correspondem a áreas de negócio distintas. Este documento cobre todos exceto o <code>sigdi</code> (avaliação SIADAP / objetivos estratégicos), que é um domínio próprio.</p>
+  <div class="grid c2">
+    <div class="bc"><h4>colaboradores</h4><p>A pessoa e tudo o que lhe pertence: funcionário, contrato, dependentes, qualificações, formações, dados bancários, documentos, recibos, processos disciplinares, ausências/licenças, e a <b>Afectação</b> (ligação pessoa↔Lugar).</p></div>
+    <div class="bc estrutura"><h4>estrutura</h4><p>O esqueleto organizacional: unidades orgânicas, cargos (<i>job</i>), funções e o <b>Lugar</b> (<i>position</i>) — a unidade central do Mapa de Pessoal.</p></div>
+    <div class="bc carreiras"><h4>carreiras</h4><p>A grelha PCFR: carreira → categoria → escalão (<i>grade</i>). Define a progressão vertical e salarial no regime da função pública.</p></div>
+    <div class="bc param"><h4>parametrizacoes</h4><p>Catálogos de referência: estados do trabalhador, tipos de contrato, tipos de documento, tipos de ausência, subtipos de mobilidade, feriados, vínculos laborais e opções genéricas.</p></div>
+    <div class="bc self"><h4>self-service (/me)</h4><p>Acesso do próprio trabalhador aos seus dados: perfil, pedidos e saldos de ausência, mobilidades, recibos e documentos.</p></div>
+    <div class="bc"><h4>shared</h4><p>Transversais: segurança, auditoria (Envers), paginação, exceções, perfil IAM do utilizador.</p></div>
+  </div>
+
+  <div class="diagram">
+    <p class="cap">Mapa de domínios e como se ligam</p>
+    <pre class="mermaid">
+flowchart TB
+  subgraph EST["estrutura"]
+    UO["Unidade Orgânica"]; JOB["Cargo (job)"]; FUN["Função"]; POS["Lugar (position)"]
+  end
+  subgraph CAR["carreiras (PCFR)"]
+    CA["Carreira"]; CT["Categoria"]; GR["Escalão (grade)"]
+  end
+  subgraph COL["colaboradores"]
+    F["Funcionário"]; AF["Afectação (assignment)"]; CON["Contrato"]; AUS["Ausências / Licenças / Mobilidade"]
+  end
+  subgraph PAR["parametrizacoes"]
+    WS["Estado do trabalhador"]; TC["Tipo de contrato"]; TA["Tipo de ausência"]
+  end
+  CA-->CT-->GR
+  JOB-->POS; UO-->POS; CA-->POS; CT-->POS
+  F-->AF-->POS
+  AF-->GR
+  F-->CON-->TC
+  F-->AUS-->TA
+  F-->WS
+  classDef est fill:#efe9fb,stroke:#6b3fc4;
+  classDef car fill:#e6f4ec,stroke:#1a7f4b;
+  classDef col fill:#e8f0fe,stroke:#1f6feb;
+  classDef par fill:#fcefe0,stroke:#b25e09;
+  class UO,JOB,FUN,POS est; class CA,CT,GR car; class F,AF,CON,AUS col; class WS,TC,TA par;
+    </pre>
+  </div>
+
+  <h2 id="conceitos"><span class="n">3.</span>Conceitos centrais</h2>
+  <table>
+    <tr><th>Conceito</th><th>O que representa</th><th>Regra-chave</th></tr>
+    <tr><td><b>Funcionário</b></td><td>A pessoa (identidade, NIF, estado do trabalhador).</td><td>Não guarda unidade/cargo/carreira — derivam da Afectação corrente.</td></tr>
+    <tr><td><b>Lugar</b> <span class="tag p">estrutura</span></td><td>Uma "cadeira" no quadro de pessoal de uma unidade, com cargo e (opcionalmente) carreira/categoria.</td><td><b>1 Lugar = 1 ocupante corrente.</b> Estado ∈ ATIVO · CONGELADO · EXTINTO.</td></tr>
+    <tr><td><b>Afectação</b> <span class="tag">colaboradores</span></td><td>Liga um funcionário a um Lugar durante um período (histórico versionado — SCD Tipo 2).</td><td>Guarda o que é <i>da pessoa</i>: escalão, função, origem do movimento, datas.</td></tr>
+    <tr><td><b>Contrato</b></td><td>O vínculo jurídico-laboral (tipo, datas, regime, base legal).</td><td>Um contrato corrente por funcionário; pode encerrar/suspender/reactivar.</td></tr>
+    <tr><td><b>Carreira / Categoria / Escalão</b> <span class="tag g">carreiras</span></td><td>A grelha PCFR: carreira → categoria → escalão salarial.</td><td>O escalão vive na <b>Afectação</b> (é por-pessoa), não no Lugar.</td></tr>
+    <tr><td><b>Provido / Vago</b></td><td>Se um Lugar tem ou não ocupante corrente.</td><td><b>Derivado</b> — nunca guardado; calculado a partir das Afectações correntes.</td></tr>
+  </table>
+
+  <h2 id="position"><span class="n">4.</span>Mapa de Pessoal (Position Management)</h2>
+  <p>O coração do modelo v5. Em vez de guardar o "enquadramento" e a "colocação" na pessoa, a organização mantém um <b>Mapa de Pessoal</b>: um conjunto de <b>Lugares</b>. Cada Lugar é uma cadeira única, rica em contexto (unidade + cargo + carreira/categoria), que pode estar provida por uma pessoa ou vaga.</p>
+  <div class="grid c2">
+    <div class="card"><h3 style="margin-top:0">O Lugar é rico</h3><ul class="clean">
+      <li>Pertence a uma <b>unidade orgânica</b> e a um <b>cargo</b>.</li>
+      <li>Pode ter <b>carreira + categoria</b> (Lugar de grelha PCFR) ou não (Lugar <b>fora de grelha</b>, ex.: tarefeiro).</li>
+      <li>Chefia: <code>parent_position_id</code> (reporte) e <code>manages_unit_id</code> (o Lugar que dirige uma unidade).</li>
+    </ul></div>
+    <div class="card"><h3 style="margin-top:0">A Afectação é da pessoa</h3><ul class="clean">
+      <li>O <b>escalão</b> (grade) é escolhido por pessoa, na afectação.</li>
+      <li>Regista a <b>origem</b> do movimento (admissão, progressão, promoção, mobilidade, transferência).</li>
+      <li>É <b>versionada no tempo</b>: fechar a corrente antes de abrir a nova (histórico completo).</li>
+    </ul></div>
+  </div>
+  <div class="callout rule"><b>Uma cadeira, um ocupante.</b> A base de dados garante, por índice único parcial, que cada Lugar tem no máximo uma afectação corrente. Tentar afectar a um Lugar já ocupado devolve <code>422</code>.</div>
+
+  <div class="diagram">
+    <p class="cap">Um Lugar ao longo do tempo — afectações sucessivas (SCD Tipo 2)</p>
+    <pre class="mermaid">
+flowchart LR
+  L(("Lugar A-01<br/>Técnico · DRH")):::pos
+  A1["Afectação #1<br/>Ana · escalão 2<br/>2024→2025 (fechada)"]:::old
+  A2["Afectação #2<br/>Bruno · escalão 1<br/>2025→corrente"]:::cur
+  A1-.histórico.->L
+  A2--corrente-->L
+  classDef pos fill:#efe9fb,stroke:#6b3fc4,color:#2a1a4a;
+  classDef old fill:#f1f3f6,stroke:#9aa7b5,color:#5b6b7c;
+  classDef cur fill:#e8f0fe,stroke:#1f6feb;
+    </pre>
+  </div>
+
+  <h3>Chefia e dotação</h3>
+  <table>
+    <tr><th>Pergunta de negócio</th><th>Como se responde no modelo</th></tr>
+    <tr><td>Quem dirige a unidade X?</td><td>O Lugar com <code>manages_unit_id = X</code>, e a sua afectação corrente.</td></tr>
+    <tr><td>A quem reporta este Lugar?</td><td><code>parent_position_id</code> → Lugar chefe → afectação corrente.</td></tr>
+    <tr><td>Quantos Lugares/vagas tem a unidade?</td><td>Dotação = nº de Lugares; ocupados = com afectação corrente; vagas = dotação − ocupados.</td></tr>
+  </table>
+
+  <h2 id="pcfr"><span class="n">5.</span>Carreira, categoria e escalão (PCFR)</h2>
+  <p>O regime da função pública (PCFR, DL 4/2024) estrutura a progressão em três níveis. A grelha é catálogo (módulo <code>carreiras</code>); a posição concreta da pessoa na grelha é o <b>escalão</b>, guardado na Afectação.</p>
+  <div class="diagram">
+    <p class="cap">Grelha PCFR e onde cada nível é aplicado</p>
+    <pre class="mermaid">
+flowchart LR
+  CA["Carreira<br/><small>t_career</small>"]-->CT["Categoria<br/><small>t_category</small>"]-->GR["Escalão<br/><small>t_grade</small>"]
+  CA-.define contexto do.->POS["Lugar<br/><small>career_id, category_id</small>"]
+  GR-.escolhido na.->AF["Afectação<br/><small>grade_id</small>"]
+  classDef c fill:#e6f4ec,stroke:#1a7f4b;
+  classDef o fill:#efe9fb,stroke:#6b3fc4;
+  classDef col fill:#e8f0fe,stroke:#1f6feb;
+  class CA,CT,GR c; class POS o; class AF col;
+    </pre>
+  </div>
+  <div class="callout warn"><b>Fora de grelha:</b> um Lugar sem carreira/categoria (ex.: tarefeiro) <b>não pode</b> ter escalão na afectação. Inversamente, um Lugar de carreira <b>exige</b> escalão. Violações devolvem <code>422</code>.
+  <br><span class="pill" style="margin-top:8px;display:inline-block">Pendente: validar que o escalão pertence à categoria do Lugar (hoje só se valida presença).</span></div>
+
+  <h2 id="ciclo"><span class="n">6.</span>Ciclo de vida do colaborador</h2>
+  <div class="diagram">
+    <p class="cap">Do registo à cessação — estados e transições principais</p>
+    <pre class="mermaid">
+stateDiagram-v2
+  [*] --> Registado: registar (funcionário + contrato + afectação a Lugar vago)
+  Registado --> Ativo: worker-state ACTIVE
+  Ativo --> Ativo: progressão / promoção / mobilidade (nova afectação)
+  Ativo --> Ausente: pedido de ausência / licença aprovada
+  Ausente --> Ativo: regresso
+  Ativo --> Inativo: worker-state INACTIVE (fecha afectação → Lugar vago)
+  Ativo --> Reformado: worker-state RETIRED (fecha afectação → Lugar vago)
+  Inativo --> [*]
+  Reformado --> [*]
+    </pre>
+  </div>
+  <p>Ao mudar o estado para <b>INACTIVE</b> ou <b>RETIRED</b>, a afectação corrente é encerrada automaticamente e o Lugar volta a estar <b>vago</b>, ficando disponível no Mapa de Pessoal.</p>
+
+  <h2 id="movimentos"><span class="n">7.</span>Movimentos: admissão, progressão, mobilidade, cessação</h2>
+  <table>
+    <tr><th>Movimento</th><th>O que acontece</th><th>Origem registada</th></tr>
+    <tr><td><b>Admissão</b></td><td>Regista o funcionário e afecta-o a um Lugar <b>vago</b> (a unidade/cargo/carreira derivam do Lugar; escolhe-se só o escalão).</td><td><code>ADMISSAO</code></td></tr>
+    <tr><td><b>Progressão</b></td><td>Nova afectação, <b>mesmo Lugar</b>, muda o escalão.</td><td><code>PROGRESSAO</code></td></tr>
+    <tr><td><b>Promoção</b></td><td>Nova afectação num <b>novo Lugar</b> (categoria/carreira superior).</td><td><code>PROMOCAO</code></td></tr>
+    <tr><td><b>Mobilidade</b></td><td>Fecha a afectação corrente e abre nova no Lugar de destino (herda o escalão). Guarda o Lugar de origem para permitir o <b>regresso</b>.</td><td><code>MOBILIDADE</code></td></tr>
+    <tr><td><b>Transferência</b></td><td>Mudança definitiva de Lugar/unidade.</td><td><code>TRANSFERENCIA</code></td></tr>
+    <tr><td><b>Cessação / Reforma</b></td><td>Encerra a afectação corrente; o Lugar volta a vago.</td><td>—</td></tr>
+  </table>
+
+  <div class="diagram">
+    <p class="cap">Mobilidade temporária com regresso ao Lugar de origem</p>
+    <pre class="mermaid">
+sequenceDiagram
+  participant U as Utilizador (RH)
+  participant S as AssignmentService
+  participant DB as Afectações
+  U->>S: aprovar mobilidade (destino = Lugar B)
+  S->>DB: fecha afectação corrente (Lugar A) e guarda origem
+  S->>DB: abre afectação MOBILIDADE (Lugar B, escalão herdado)
+  Note over DB: pessoa agora na unidade de B · Lugar A fica vago
+  U->>S: encerrar / cancelar mobilidade
+  S->>DB: fecha afectação (Lugar B)
+  S->>DB: reabre o Lugar de origem A (se ainda vago)
+  Note over DB: regresso concluído · pessoa de volta ao Lugar A
+    </pre>
+  </div>
+
+  <h2 id="ausencias"><span class="n">8.</span>Ausências, licenças e mobilidade</h2>
+  <p>O trabalhador tem <b>saldos</b> por tipo de ausência e submete <b>pedidos</b> que seguem um fluxo de aprovação. As mobilidades e licenças especiais partilham um catálogo de <b>subtipos</b> (com <code>record_type</code> ∈ LICENCA · MOBILIDADE · AMBOS) que controla se afetam vencimento, contam para antiguidade e se podem ser auto-submetidas.</p>
+  <div class="grid c3">
+    <div class="card"><b>Pedido de ausência</b><p class="lead" style="font-size:13.5px">submeter → aprovar / rejeitar / cancelar. Deduz saldo conforme o tipo.</p></div>
+    <div class="card"><b>Licença / mobilidade</b><p class="lead" style="font-size:13.5px">criar → aprovar → (encerrar / cancelar). MOBILIDADE aprovada gera afectação no destino.</p></div>
+    <div class="card"><b>Saldos</b><p class="lead" style="font-size:13.5px">por funcionário e tipo; base para validar os pedidos.</p></div>
+  </div>
+
+  <h2 id="glossario"><span class="n">9.</span>Glossário</h2>
+  <table>
+    <tr><th>Termo</th><th>Significado</th><th>No código</th></tr>
+    <tr><td>Lugar</td><td>Cadeira do quadro de pessoal.</td><td><code>t_position</code> / <code>Position</code></td></tr>
+    <tr><td>Afectação</td><td>Ligação pessoa↔Lugar no tempo (funde enquadramento + colocação).</td><td><code>t_assignment</code> / <code>Assignment</code></td></tr>
+    <tr><td>Escalão</td><td>Posição salarial na grelha PCFR.</td><td><code>t_grade</code> / <code>grade_id</code></td></tr>
+    <tr><td>Provido / Vago</td><td>Lugar com / sem ocupante corrente (derivado).</td><td>campo <code>ocupado</code> nas respostas</td></tr>
+    <tr><td>SCD Tipo 2</td><td>Historização: fecha-se a versão corrente antes de abrir a nova.</td><td><code>is_current</code>, <code>data_fim</code></td></tr>
+    <tr><td>Fora de grelha</td><td>Lugar sem carreira/categoria (sem escalão).</td><td><code>career_id = null</code></td></tr>
+  </table>
+
+  <footer>
+    RH-Service · Documentação v5 · Modelo de Negócio · pt-PT<br>
+    Fonte de verdade do refactor Position Management. Documentos irmãos: <code>modelo_relacional.html</code>, <code>api_guide.md</code>/<code>.html</code>, <code>breaking_change_frontend.md</code>/<code>.html</code>.
+  </footer>
+</div>
+<script>mermaid.initialize({startOnLoad:true, theme:'neutral', flowchart:{curve:'basis'}});</script>
+</body>
+</html>

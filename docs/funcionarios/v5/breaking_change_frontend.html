@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Breaking Changes — Frontend (v5)</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+  :root{
+    --bg:#f7f8fa; --card:#fff; --ink:#1c2430; --muted:#5b6b7c; --line:#e2e7ee;
+    --brand:#1f6feb; --brand-soft:#e8f0fe; --ok:#1a7f4b; --ok-soft:#e6f4ec;
+    --warn:#b25e09; --warn-soft:#fcefe0; --red:#c23b3b; --red-soft:#fdecec;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 20px 80px}
+  header.hero{background:linear-gradient(135deg,#7a3b06,#c8760f);color:#fff;padding:48px 0 40px;margin-bottom:8px}
+  header.hero .wrap{padding-top:0}
+  .kicker{text-transform:uppercase;letter-spacing:.12em;font-size:12px;opacity:.9;font-weight:600}
+  h1{font-size:32px;margin:.2em 0 .3em;line-height:1.15}
+  header.hero p{font-size:17px;opacity:.95;max-width:70ch;margin:.4em 0 0}
+  .meta{margin-top:18px;font-size:13px;opacity:.92}
+  h2{font-size:22px;margin:40px 0 6px;padding-top:10px;border-top:2px solid var(--line)}
+  h2 .n{color:var(--warn);font-variant-numeric:tabular-nums;margin-right:.4em}
+  h3{font-size:16px;margin:22px 0 8px}
+  p{margin:10px 0} .lead{font-size:16px;color:var(--muted)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:16px 0;box-shadow:0 1px 2px rgba(20,40,80,.04)}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13.5px}
+  th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:#f6ede1;font-weight:600}
+  tr:nth-child(even) td{background:#fafbfd}
+  code{background:#eef1f5;border-radius:5px;padding:1px 6px;font:12.5px/1.5 "SF Mono",ui-monospace,Consolas,monospace}
+  pre{background:#0f1622;color:#e6edf3;border-radius:10px;padding:14px 16px;overflow-x:auto;font:12.5px/1.55 "SF Mono",ui-monospace,Consolas,monospace}
+  .ba{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+  @media(max-width:760px){.ba{grid-template-columns:1fr}}
+  .ba .col{border-radius:10px;padding:14px 16px;border:1px solid var(--line)}
+  .ba .before{background:var(--red-soft);border-color:#f2caca}
+  .ba .after{background:var(--ok-soft);border-color:#c5e7d3}
+  .ba h4{margin:0 0 8px;font-size:14px;text-transform:uppercase;letter-spacing:.06em}
+  .ba .before h4{color:var(--red)} .ba .after h4{color:var(--ok)}
+  .ba ul{margin:0;padding-left:18px} .ba li{margin:4px 0;font-size:13.5px}
+  .callout{border-radius:10px;padding:13px 16px;margin:14px 0;font-size:14px}
+  .callout.warn{background:var(--warn-soft);border:1px solid #f2dcbe}
+  .callout.key{background:var(--brand-soft);border:1px solid #cfe0fd}
+  .badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:5px;background:var(--red);color:#fff;letter-spacing:.03em}
+  .diagram{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin:18px 0;overflow-x:auto}
+  .diagram .cap{font-size:13px;color:var(--muted);margin:0 0 10px;font-weight:600}
+  .mermaid{display:flex;justify-content:center}
+  .check{list-style:none;padding:0;margin:8px 0}
+  .check li{padding:8px 12px;border:1px solid var(--line);border-radius:8px;margin:6px 0;background:var(--card);font-size:14px}
+  .check li::before{content:"☐ ";color:var(--warn);font-weight:700}
+  footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">RH-Service · Frontend</div>
+    <h1>Breaking Changes — v5</h1>
+    <p>Guia de migração do frontend para o modelo de <b>Mapa de Pessoal</b> (Lugares + Afectações). O que muda no contrato e nos ecrãs.</p>
+    <div class="meta">Documentação <b>v5</b> · refactor Position Management · companion do <code>api_guide.html</code></div>
+  </div>
+</header>
+<div class="wrap">
+
+  <div class="card">
+    <b>TL;DR</b>
+    <ol style="margin:8px 0 0">
+      <li>O registo deixa de enviar unidade/cargo/carreira — envia <b><code>positionId</code></b> + <code>gradeId</code>.</li>
+      <li>Enquadramento + Colocação → uma só <b>Afectação</b> (<code>assignment</code>).</li>
+      <li>Novos ecrãs: gestão do <b>Mapa de Pessoal</b> e <b>picker de Lugar vago</b>.</li>
+      <li>Novas queries: chefe, responsável, unidade-atual, vagas.</li>
+      <li>Mobilidade exige <b><code>destinationPositionId</code></b>.</li>
+    </ol>
+  </div>
+
+  <h2 id="registo"><span class="n">1.</span>Registo de colaborador <span class="badge">BREAKING</span></h2>
+  <div class="ba">
+    <div class="col before">
+      <h4>Antes</h4>
+      <ul>
+        <li>enviava <code>unidadeOrganicaId</code>, <code>cargoId</code>, <code>careerId</code>, <code>categoryId</code></li>
+        <li>bloco <code>enquadramento</code> + bloco <code>colocacao</code></li>
+        <li>resposta com <code>enquadramentoId</code></li>
+      </ul>
+    </div>
+    <div class="col after">
+      <h4>Agora</h4>
+      <ul>
+        <li>envia só <code>afectacao: { positionId, gradeId, origem, dataInicio }</code></li>
+        <li>unidade/cargo/carreira <b>derivam do Lugar</b></li>
+        <li>resposta com <code>afectacaoId</code></li>
+      </ul>
+    </div>
+  </div>
+  <pre>POST /api/v1/rh/funcionarios/registar
+{
+  "funcionario": { … },
+  "contrato": { … },              // opcional
+  "afectacao": { "positionId":"uuid", "gradeId":"uuid|null",
+                 "origem":"ADMISSAO", "dataInicio":"YYYY-MM-DD" },
+  "dadosBancarios": { … }         // opcional
+}
+// → 201 { funcionarioId, afectacaoId }</pre>
+  <div class="callout warn"><b>Ação FE:</b> no ecrã de admissão, unidade/cargo/carreira/categoria passam a <b>só-leitura</b>, preenchidos a partir do Lugar selecionado.</div>
+
+  <h2 id="picker"><span class="n">2.</span>Picker de Lugar vago (novo)</h2>
+  <p>Para admitir, escolher um Lugar vago da unidade:</p>
+  <pre>GET /api/v1/rh/colaboradores/assignments/unidade/{unidadeId}/vagas/lista
+→ Lugares vagos com jobNome, unidadeNome, careerNome, categoryNome, foraDeGrelha</pre>
+  <div class="callout key">Filtrar o picker de <b>escalões</b> pela categoria do Lugar (<code>grade.categoryId == position.categoryId</code>) — a API ainda não valida no servidor.</div>
+
+  <h2 id="mapa"><span class="n">3.</span>Gestão do Mapa de Pessoal (novo ecrã)</h2>
+  <table>
+    <tr><th>Ação</th><th>Endpoint</th></tr>
+    <tr><td>Listar por unidade (+ vagas)</td><td><code>GET /estrutura/positions?unidadeId={id}</code></td></tr>
+    <tr><td>Criar</td><td><code>POST /estrutura/positions</code></td></tr>
+    <tr><td>Editar</td><td><code>PUT /estrutura/positions/{id}</code></td></tr>
+    <tr><td>Congelar</td><td><code>PATCH /estrutura/positions/{id}/freeze</code></td></tr>
+    <tr><td>Extinguir</td><td><code>DELETE /estrutura/positions/{id}</code></td></tr>
+  </table>
+  <p>Chefias ao criar: <code>parentPositionId</code> (reporte) e <code>managesUnitId</code> (unidade dirigida). O card de unidade mostra <b>dotação / ocupados / vagas</b>.</p>
+
+  <h2 id="queries"><span class="n">4.</span>Consultas de estrutura viva (novas)</h2>
+  <table>
+    <tr><th>Pergunta</th><th>Endpoint</th></tr>
+    <tr><td>Onde está o funcionário?</td><td><code>GET /assignments/funcionario/{id}/unidade-atual</code></td></tr>
+    <tr><td>Quem é o chefe?</td><td><code>GET /assignments/funcionario/{id}/chefe</code></td></tr>
+    <tr><td>Responsável da unidade?</td><td><code>GET /assignments/unidade/{id}/responsavel</code></td></tr>
+    <tr><td>Vagas da unidade?</td><td><code>GET /assignments/unidade/{id}/vagas</code></td></tr>
+  </table>
+
+  <h2 id="mobilidade"><span class="n">5.</span>Mobilidade <span class="badge">BREAKING</span></h2>
+  <pre>// LicencaMobilidadeRequestDTO ganha:
+"destinationPositionId": "uuid"   // OBRIGATÓRIO para MOBILIDADE (senão 422)</pre>
+  <div class="diagram">
+    <p class="cap">Mobilidade com regresso ao Lugar de origem</p>
+    <pre class="mermaid">
+sequenceDiagram
+  participant FE as Frontend
+  participant API as RH-Service
+  FE->>API: PUT /licencas-mobilidade/{id}/approve
+  API-->>FE: 200 · afectação criada no Lugar de destino
+  Note over API: Lugar de origem fica vago
+  FE->>API: PUT /licencas-mobilidade/{id}/close
+  API-->>FE: 200 · regresso ao Lugar de origem
+    </pre>
+  </div>
+
+  <h2 id="estado"><span class="n">6.</span>Mudança de estado</h2>
+  <p><code>PATCH /funcionarios/{id}/worker-state</code> — request <b>inalterado</b>. Efeito novo: <code>RETIRED</code>/<code>INACTIVE</code> encerram a afectação corrente → o Lugar volta a vago.</p>
+
+  <h2 id="removidos"><span class="n">7.</span>Endpoints removidos / substituídos</h2>
+  <table>
+    <tr><th>Removido</th><th>Usar</th></tr>
+    <tr><td><code>/funcionarios/{id}/enquadramentos</code></td><td><code>/colaboradores/assignments</code></td></tr>
+    <tr><td><code>/funcionarios/{id}/colocacoes</code></td><td><code>/colaboradores/assignments</code></td></tr>
+    <tr><td>audit catálogo <code>enquadramentos</code></td><td>audit catálogo <code>assignments</code></td></tr>
+  </table>
+  <div class="callout key">O bloco <code>enquadramento</code> <b>ainda aparece</b> em <code>GET /funcionarios/{id}/details</code> (mesma forma, por compat) — mas é <b>derivado</b> do Lugar. Não há CRUD de enquadramento.</div>
+
+  <h2 id="checklist"><span class="n">8.</span>Checklist de migração FE</h2>
+  <ul class="check">
+    <li>Ecrã de admissão: remover inputs de unidade/cargo/carreira; adicionar picker de Lugar vago + escalão.</li>
+    <li>Ler <code>afectacaoId</code> (em vez de <code>enquadramentoId</code>) na resposta de registo.</li>
+    <li>Novo ecrã de gestão do Mapa de Pessoal (Lugares + chefias + vagas).</li>
+    <li>Mobilidade: adicionar campo <code>destinationPositionId</code>.</li>
+    <li>Remover chamadas a <code>/enquadramentos</code> e <code>/colocacoes</code>.</li>
+    <li>Usar as novas queries (unidade-atual, chefe, responsavel, vagas).</li>
+    <li>Enviar <code>Accept: application/json</code> em todas as chamadas.</li>
+  </ul>
+
+  <footer>
+    RH-Service · Documentação v5 · Breaking Changes Frontend · pt-PT<br>
+    Contrato completo: <code>api_guide.md</code> / <code>api_guide.html</code> · Modelo: <code>modelo_negocio.html</code>, <code>modelo_relacional.html</code>
+  </footer>
+</div>
+<script>mermaid.initialize({startOnLoad:true, theme:'neutral'});</script>
+</body>
+</html>
