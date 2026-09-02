@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RH-Service — Como Funciona (Guia da Aplicação)</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+  :root{
+    --bg:#f7f8fa; --card:#fff; --ink:#1c2430; --muted:#5b6b7c; --line:#e2e7ee;
+    --brand:#1f6feb; --brand-soft:#e8f0fe; --ok:#1a7f4b; --ok-soft:#e6f4ec;
+    --warn:#b25e09; --warn-soft:#fcefe0; --accent:#6b3fc4; --accent-soft:#efe9fb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
+  header.hero{background:linear-gradient(135deg,#12325e,#1f6feb);color:#fff;padding:48px 0 40px;margin-bottom:8px}
+  header.hero .wrap{padding-top:0}
+  .kicker{text-transform:uppercase;letter-spacing:.12em;font-size:12px;opacity:.85;font-weight:600}
+  h1{font-size:32px;margin:.2em 0 .3em;line-height:1.15}
+  header.hero p{font-size:17px;opacity:.94;max-width:70ch;margin:.4em 0 0}
+  .meta{margin-top:18px;font-size:13px;opacity:.9}
+  .meta b{font-weight:600}
+  h2{font-size:23px;margin:44px 0 6px;padding-top:10px;border-top:2px solid var(--line)}
+  h2 .n{color:var(--brand);font-variant-numeric:tabular-nums;margin-right:.4em}
+  h3{font-size:18px;margin:26px 0 8px}
+  p{margin:10px 0}
+  .lead{font-size:16px;color:var(--muted)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:16px 0;
+    box-shadow:0 1px 2px rgba(20,40,80,.04)}
+  .grid{display:grid;gap:14px}
+  .grid.c2{grid-template-columns:repeat(2,1fr)}
+  .grid.c3{grid-template-columns:repeat(3,1fr)}
+  .grid.c4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:820px){.grid.c2,.grid.c3,.grid.c4{grid-template-columns:1fr}}
+  .bc{border-left:4px solid var(--brand);background:var(--card);border-radius:8px;padding:14px 16px}
+  .bc h4{margin:0 0 4px;font-size:15px}
+  .bc p{margin:0;font-size:13.5px;color:var(--muted)}
+  .bc.estrutura{border-color:var(--accent)} .bc.carreiras{border-color:var(--ok)}
+  .bc.param{border-color:var(--warn)} .bc.self{border-color:#0a8}
+  .tag{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:999px;
+    background:var(--brand-soft);color:var(--brand);margin:2px 4px 2px 0}
+  .tag.g{background:var(--ok-soft);color:var(--ok)} .tag.p{background:var(--accent-soft);color:var(--accent)}
+  .tag.w{background:var(--warn-soft);color:var(--warn)}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14px}
+  th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
+  th{background:#eef2f7;font-weight:600}
+  tr:nth-child(even) td{background:#fafbfd}
+  .callout{border-radius:10px;padding:14px 16px;margin:16px 0;font-size:14px}
+  .callout.key{background:var(--brand-soft);border:1px solid #cfe0fd}
+  .callout.rule{background:var(--ok-soft);border:1px solid #c5e7d3}
+  .callout.warn{background:var(--warn-soft);border:1px solid #f2dcbe}
+  .callout b{font-weight:600}
+  .diagram{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin:18px 0;overflow-x:auto}
+  .diagram .cap{font-size:13px;color:var(--muted);margin:0 0 10px;font-weight:600}
+  .mermaid{display:flex;justify-content:center}
+  ul.clean{margin:8px 0;padding-left:20px} ul.clean li{margin:5px 0}
+  .toc{columns:2;font-size:14px} .toc a{color:var(--brand);text-decoration:none} .toc a:hover{text-decoration:underline}
+  @media(max-width:820px){.toc{columns:1}}
+  footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+  .pill{font-size:12px;background:#eef2f7;border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--muted)}
+  .analogy{background:#fffdf6;border:1px dashed #e6cf9a;border-radius:10px;padding:14px 16px;margin:16px 0;font-size:14px}
+  .analogy b{color:#8a5a00}
+  .step{display:flex;gap:14px;align-items:flex-start;margin:12px 0}
+  .step .num{flex:0 0 34px;height:34px;border-radius:50%;background:var(--brand);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px}
+  .step .body h4{margin:4px 0 3px;font-size:15.5px}
+  .step .body p{margin:0;font-size:14px;color:var(--muted)}
+  .term{font-size:12.5px;color:var(--muted)}
+  .term code{background:#eef1f5;border-radius:4px;padding:1px 5px;font-size:12px}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">RH-Service · SIGDI / SIPPROG</div>
+    <h1>Como Funciona a Aplicação</h1>
+    <p>Um guia de leitura simples sobre o que a aplicação de Recursos Humanos faz — da configuração inicial ao dia-a-dia — para quem precisa de perceber o negócio sem entrar no código.</p>
+    <div class="meta">Guia de apresentação · linguagem acessível · acompanha os documentos técnicos <b>v5</b> (modelo de negócio, modelo relacional, guia de API)</div>
+  </div>
+</header>
+<div class="wrap">
+
+  <div class="card">
+    <b>O que vais encontrar aqui</b>
+    <div class="toc" style="margin-top:8px">
+      <a href="#ideia">1. A ideia em uma página</a><br>
+      <a href="#areas">2. As grandes áreas da aplicação</a><br>
+      <a href="#config">3. Configuração de apoio (o que se prepara primeiro)</a><br>
+      <a href="#conceitos">4. Os quatro conceitos que explicam tudo</a><br>
+      <a href="#lugar">5. O Mapa de Pessoal e a ideia da "cadeira"</a><br>
+      <a href="#carreira">6. Carreira, categoria e escalão</a><br>
+      <a href="#ciclo">7. O ciclo de vida do colaborador</a><br>
+      <a href="#movimentos">8. Os movimentos, um a um</a><br>
+      <a href="#ausencias">9. Ausências, licenças e mobilidade</a><br>
+      <a href="#self">10. O trabalhador vê os seus dados (self-service)</a><br>
+      <a href="#historico">11. Histórico e auditoria — porque importa</a><br>
+      <a href="#glossario">12. Glossário simples</a>
+    </div>
+  </div>
+
+  <!-- 1 -->
+  <h2 id="ideia"><span class="n">1.</span>A ideia em uma página</h2>
+  <p class="lead">A aplicação gere <b>a vida profissional dos trabalhadores</b> de um organismo público em Cabo Verde: quem são, em que lugar estão colocados, com que contrato e carreira, e tudo o que lhes acontece ao longo do tempo — admissões, progressões, mobilidades, ausências e saídas.</p>
+  <div class="grid c3">
+    <div class="card"><b>As pessoas</b><p class="lead" style="font-size:14px">Cada trabalhador, com os seus dados pessoais, contrato, família, qualificações, formações, dados bancários, documentos e recibos.</p></div>
+    <div class="card"><b>A organização</b><p class="lead" style="font-size:14px">As unidades, os cargos e o <b>quadro de pessoal</b> — os lugares que a organização pode ter preenchidos.</p></div>
+    <div class="card"><b>O que acontece</b><p class="lead" style="font-size:14px">Todos os movimentos e mudanças de estado, guardados com data — nada se perde, tudo fica no histórico.</p></div>
+  </div>
+  <div class="analogy"><b>Analogia:</b> pense num <b>teatro</b>. A organização tem um número fixo de <b>cadeiras numeradas</b> (o quadro de pessoal). Cada pessoa senta-se numa cadeira durante um período; quando sai, a cadeira fica <b>livre</b> para outra pessoa. A aplicação sabe sempre <b>quem está sentado onde</b>, e guarda a lista de <b>quem já lá esteve</b>.</div>
+
+  <!-- 2 -->
+  <h2 id="areas"><span class="n">2.</span>As grandes áreas da aplicação</h2>
+  <p>Por dentro, a aplicação está arrumada em áreas com responsabilidades distintas. Não é preciso conhecer o código — basta perceber para que serve cada uma.</p>
+  <div class="grid c2">
+    <div class="bc"><h4>Colaboradores</h4><p>A pessoa e tudo o que lhe pertence: dados pessoais, contrato, família (dependentes), <b>qualificações e formações</b>, dados bancários, documentos, recibos, processos disciplinares, ausências e a sua <b>colocação num lugar</b>.</p></div>
+    <div class="bc estrutura"><h4>Estrutura</h4><p>O "esqueleto" da organização: unidades (departamentos, direções), cargos, funções e o <b>Mapa de Pessoal</b> — os lugares disponíveis.</p></div>
+    <div class="bc carreiras"><h4>Carreiras</h4><p>As regras de progressão da função pública: carreira → categoria → escalão. Define como se sobe e o índice salarial.</p></div>
+    <div class="bc param"><h4>Configuração de apoio</h4><p>As "listas de referência" que alimentam o resto: tipos de contrato, tipos de ausência, feriados, estados do trabalhador, etc. É o que se prepara antes de operar.</p></div>
+    <div class="bc self"><h4>Self-service</h4><p>A área onde o próprio trabalhador consulta os seus dados: perfil, saldos de férias, recibos, documentos.</p></div>
+    <div class="bc"><h4>Transversais</h4><p>Segurança (quem pode fazer o quê), registo de auditoria (quem alterou o quê e quando) e outras funções de suporte comuns a tudo.</p></div>
+  </div>
+  <div class="callout key"><b>Fora deste guia:</b> existe ainda um módulo de <b>avaliação de desempenho</b> (SIADAP / objetivos estratégicos). É um mundo próprio e não é abordado aqui.</div>
+
+  <!-- 3 -->
+  <h2 id="config"><span class="n">3.</span>Configuração de apoio — o que se prepara primeiro</h2>
+  <p>Antes de admitir a primeira pessoa, a organização configura um conjunto de <b>listas de referência</b>. São escolhas feitas uma vez (e mantidas ao longo do tempo) que garantem coerência: em vez de cada utilizador escrever "à mão" o tipo de contrato ou o tipo de ausência, escolhe de uma lista aprovada. É o alicerce que faz o resto funcionar bem.</p>
+  <table>
+    <tr><th>Lista de referência</th><th>Para que serve</th><th>Exemplos</th></tr>
+    <tr><td><b>Estados do trabalhador</b></td><td>Situação de cada pessoa face à organização.</td><td>Activo, Inactivo, Reformado</td></tr>
+    <tr><td><b>Tipos de contrato</b></td><td>Os tipos de contrato possíveis, conforme a lei (DL 4/2024).</td><td>Nomeação, contrato a termo, comissão de serviço</td></tr>
+    <tr><td><b>Vínculos laborais</b></td><td>A natureza do vínculo à Administração Pública.</td><td>quadro, contratado, avençado</td></tr>
+    <tr><td><b>Tipos de ausência</b></td><td>Motivos de falta e as suas regras (se descontam saldo, se precisam de aprovação, limite anual).</td><td>Férias, doença, licença parental</td></tr>
+    <tr><td><b>Subtipos de mobilidade/licença</b></td><td>Variantes especiais e o seu efeito (se afetam vencimento, se contam para antiguidade).</td><td>Mobilidade, requisição, destacamento</td></tr>
+    <tr><td><b>Tipos de documento</b></td><td>Que documentos se anexam e em que formatos.</td><td>BI/Passaporte, diploma, contrato assinado (pdf, docx)</td></tr>
+    <tr><td><b>Feriados</b></td><td>Dias não úteis (nacionais e municipais) para o cálculo de ausências.</td><td>1 de Janeiro, Dia da Independência…</td></tr>
+    <tr><td><b>Opções genéricas</b></td><td>Pequenas listas usadas em vários sítios (categorias, rótulos).</td><td>estado civil, tipo de habilitação…</td></tr>
+  </table>
+  <div class="callout rule"><b>Porque é que isto importa para o negócio:</b> listas de referência bem definidas significam <b>dados consistentes</b>, <b>relatórios fiáveis</b> e <b>conformidade legal</b> — todos escolhem das mesmas opções, sem erros de digitação nem invenções.</div>
+
+  <!-- 4 -->
+  <h2 id="conceitos"><span class="n">4.</span>Os quatro conceitos que explicam tudo</h2>
+  <p>Se perceber estas quatro palavras, percebe a aplicação inteira.</p>
+  <div class="grid c2">
+    <div class="card"><h3 style="margin-top:0">👤 Pessoa (Funcionário)</h3>
+      <p>Quem é o trabalhador: identidade, NIF, estado. <b>Não guarda</b> a unidade nem o cargo — isso vem do lugar onde está colocado.</p></div>
+    <div class="card"><h3 style="margin-top:0">🪑 Lugar</h3>
+      <p>Uma "cadeira" no quadro de pessoal de uma unidade, com um cargo associado. <b>Uma cadeira = um ocupante de cada vez.</b></p></div>
+    <div class="card"><h3 style="margin-top:0">🔗 Afectação (colocação)</h3>
+      <p>A ligação entre uma pessoa e um lugar, durante um período. É aqui que fica o <b>escalão</b> e o <b>motivo</b> do movimento. Guarda-se com data de início e fim.</p></div>
+    <div class="card"><h3 style="margin-top:0">📄 Contrato</h3>
+      <p>O vínculo jurídico-laboral: tipo, datas, regime e base legal. Uma pessoa tem um contrato em vigor de cada vez.</p></div>
+  </div>
+  <div class="callout key"><b>A regra de ouro:</b> a unidade, o cargo e a carreira de uma pessoa <b>não são escritos na pessoa</b> — <b>derivam do lugar</b> que ela ocupa. Mudou de lugar? Muda tudo automaticamente. Isto evita dados repetidos e contraditórios.</div>
+
+  <!-- 5 -->
+  <h2 id="lugar"><span class="n">5.</span>O Mapa de Pessoal e a ideia da "cadeira"</h2>
+  <p>O <b>Mapa de Pessoal</b> é a lista de todos os lugares que a organização tem. Cada lugar é rico em contexto: pertence a uma <b>unidade</b>, tem um <b>cargo</b>, e pode ter uma <b>carreira/categoria</b> (lugar de grelha) ou não (lugar <b>fora de grelha</b>, como um tarefeiro).</p>
+
+  <div class="diagram">
+    <p class="cap">Um lugar ao longo do tempo — várias pessoas passam pela mesma cadeira</p>
+    <pre class="mermaid">
+flowchart LR
+  L(("🪑 Lugar A-01<br/>Técnico · Departamento RH")):::pos
+  A1["Ana ocupou<br/>2024 → 2025<br/><small>(saiu — no histórico)</small>"]:::old
+  A2["Bruno ocupa<br/>2025 → hoje<br/><small>(ocupante atual)</small>"]:::cur
+  A1-.já esteve cá.->L
+  A2--está cá agora-->L
+  classDef pos fill:#efe9fb,stroke:#6b3fc4,color:#2a1a4a;
+  classDef old fill:#f1f3f6,stroke:#9aa7b5,color:#5b6b7c;
+  classDef cur fill:#e8f0fe,stroke:#1f6feb;
+    </pre>
+  </div>
+
+  <p>A partir do Mapa de Pessoal, a aplicação responde a perguntas de gestão de forma imediata:</p>
+  <table>
+    <tr><th>Pergunta de gestão</th><th>Resposta</th></tr>
+    <tr><td>Quantas vagas tem o Departamento X?</td><td>Total de lugares menos os que estão ocupados.</td></tr>
+    <tr><td>Quem dirige a unidade Y?</td><td>A pessoa que ocupa o lugar de chefia dessa unidade.</td></tr>
+    <tr><td>A quem reporta este trabalhador?</td><td>Ao ocupante do lugar-chefe do lugar dele.</td></tr>
+    <tr><td>Este lugar está livre?</td><td>Está livre se não tiver ocupante atual — calculado, nunca esquecido.</td></tr>
+  </table>
+  <div class="callout rule"><b>Uma cadeira, um ocupante.</b> A aplicação impede que duas pessoas sejam colocadas no mesmo lugar ao mesmo tempo. Se se tentar, a operação é recusada com uma mensagem clara.</div>
+  <p class="term">Termo técnico opcional: o lugar chama-se <code>position</code> e a colocação chama-se <code>assignment</code> nos documentos técnicos.</p>
+
+  <!-- 6 -->
+  <h2 id="carreira"><span class="n">6.</span>Carreira, categoria e escalão</h2>
+  <p>Na função pública, a progressão segue uma grelha em três níveis (regime PCFR, DL 4/2024). É como uma escada:</p>
+  <div class="diagram">
+    <p class="cap">A escada da progressão</p>
+    <pre class="mermaid">
+flowchart LR
+  CA["Carreira<br/><small>ex.: Técnico Superior</small>"]-->CT["Categoria<br/><small>ex.: TS de 1ª classe</small>"]-->GR["Escalão<br/><small>ex.: Escalão 3 → índice salarial</small>"]
+  classDef c fill:#e6f4ec,stroke:#1a7f4b;
+  class CA,CT,GR c;
+    </pre>
+  </div>
+  <ul class="clean">
+    <li><b>Carreira</b> — a família profissional (ex.: Técnico Superior, Assistente Técnico).</li>
+    <li><b>Categoria</b> — o grau dentro da carreira (ex.: 1ª classe, 2ª classe).</li>
+    <li><b>Escalão</b> — o degrau concreto, que define o índice salarial. É <b>a posição da pessoa na grelha</b> e fica guardado na sua colocação.</li>
+  </ul>
+  <div class="callout warn"><b>Regra de coerência:</b> um lugar de carreira <b>exige</b> um escalão, e esse escalão tem de pertencer à <b>categoria do lugar</b> — não se mistura o escalão de uma categoria com o lugar de outra. Um lugar fora de grelha (sem carreira) <b>não</b> tem escalão. A aplicação valida isto e recusa combinações inválidas com uma mensagem que explica exatamente o que está errado.</div>
+
+  <!-- 7 -->
+  <h2 id="ciclo"><span class="n">7.</span>O ciclo de vida do colaborador</h2>
+  <p>Do primeiro dia à saída, a vida do trabalhador na aplicação passa por estados bem definidos. Cada transição é uma ação registada.</p>
+  <div class="diagram">
+    <p class="cap">Do registo à saída — o percurso completo</p>
+    <pre class="mermaid">
+stateDiagram-v2
+  [*] --> Registado: admissão (pessoa + contrato + colocação num lugar livre)
+  Registado --> Activo
+  Activo --> Activo: progressão / promoção / mobilidade
+  Activo --> Ausente: ausência ou licença aprovada
+  Ausente --> Activo: regresso
+  Activo --> Inactivo: passa a inactivo (liberta o lugar)
+  Activo --> Reformado: reforma (liberta o lugar)
+  Inactivo --> [*]
+  Reformado --> [*]
+    </pre>
+  </div>
+  <p>Quando alguém passa a <b>inactivo</b> ou <b>reformado</b>, a sua colocação é encerrada automaticamente e o <b>lugar volta a ficar livre</b> no Mapa de Pessoal, pronto para nova admissão.</p>
+
+  <!-- 8 -->
+  <h2 id="movimentos"><span class="n">8.</span>Os movimentos, um a um</h2>
+  <p>Todo o percurso é feito de "movimentos". Cada um regista o seu <b>motivo</b>, o que permite depois analisar a rotatividade e a evolução das carreiras.</p>
+
+  <div class="step"><div class="num">1</div><div class="body"><h4>Admissão</h4>
+    <p>Regista-se a pessoa e o contrato, e coloca-se num <b>lugar livre</b>. A unidade, o cargo e a carreira já vêm do lugar — só se escolhe o escalão. É aqui que o "picker de lugar vago" ajuda o utilizador de RH.</p></div></div>
+  <div class="step"><div class="num">2</div><div class="body"><h4>Progressão</h4>
+    <p>A pessoa sobe de escalão <b>no mesmo lugar</b>. Abre-se uma nova colocação com o escalão superior; a anterior fica no histórico.</p></div></div>
+  <div class="step"><div class="num">3</div><div class="body"><h4>Promoção</h4>
+    <p>A pessoa passa para um <b>lugar novo</b> de categoria/carreira superior.</p></div></div>
+  <div class="step"><div class="num">4</div><div class="body"><h4>Mobilidade</h4>
+    <p>A pessoa vai temporariamente para um <b>lugar de outra unidade</b>, mantendo o seu escalão. A aplicação guarda o lugar de origem para permitir o <b>regresso</b> no fim da mobilidade.</p></div></div>
+  <div class="step"><div class="num">5</div><div class="body"><h4>Transferência</h4>
+    <p>Mudança <b>definitiva</b> de lugar/unidade.</p></div></div>
+  <div class="step"><div class="num">6</div><div class="body"><h4>Cessação / Reforma</h4>
+    <p>Encerra-se a colocação; o lugar volta a livre.</p></div></div>
+
+  <div class="diagram">
+    <p class="cap">Mobilidade temporária com regresso — o caso mais "vivo" do modelo</p>
+    <pre class="mermaid">
+sequenceDiagram
+  participant RH as RH
+  participant App as Aplicação
+  RH->>App: aprovar mobilidade da Ana (destino: lugar na Direção B)
+  App-->>App: encerra a colocação atual (lugar na Unidade A) e guarda a origem
+  App-->>App: abre colocação de mobilidade (lugar B, mesmo escalão)
+  Note over App: Ana passa a contar na Direção B · o lugar A fica livre
+  RH->>App: terminar a mobilidade da Ana
+  App-->>App: encerra a colocação no lugar B
+  App-->>App: reabre o lugar de origem A (se ainda estiver livre)
+  Note over App: Ana regressa ao lugar A · percurso todo no histórico
+    </pre>
+  </div>
+
+  <!-- 9 -->
+  <h2 id="ausencias"><span class="n">9.</span>Ausências, licenças e mobilidade</h2>
+  <p>Cada trabalhador tem <b>saldos</b> por tipo de ausência (ex.: dias de férias disponíveis) e submete <b>pedidos</b> que seguem um fluxo de aprovação.</p>
+  <div class="diagram">
+    <p class="cap">Fluxo típico de um pedido de ausência</p>
+    <pre class="mermaid">
+flowchart LR
+  P["Submeter pedido"]:::b --> V{"Precisa de<br/>aprovação?"}:::d
+  V -- Sim --> A["Aprovar / Rejeitar"]:::b
+  V -- Não --> OK["Registado"]:::g
+  A -- Aprovado --> D["Desconta saldo<br/>(se o tipo o exigir)"]:::g
+  A -- Rejeitado --> R["Sem efeito"]:::w
+  classDef b fill:#e8f0fe,stroke:#1f6feb;
+  classDef g fill:#e6f4ec,stroke:#1a7f4b;
+  classDef w fill:#fcefe0,stroke:#b25e09;
+  classDef d fill:#fff,stroke:#9aa7b5;
+    </pre>
+  </div>
+  <div class="grid c3">
+    <div class="card"><b>Pedido de ausência</b><p class="lead" style="font-size:13.5px">submeter → aprovar / rejeitar / cancelar. Desconta saldo conforme o tipo.</p></div>
+    <div class="card"><b>Licença / mobilidade</b><p class="lead" style="font-size:13.5px">criar → aprovar → (terminar / cancelar). Uma mobilidade aprovada gera a colocação no destino.</p></div>
+    <div class="card"><b>Saldos</b><p class="lead" style="font-size:13.5px">por pessoa e por tipo; servem de base para validar os pedidos.</p></div>
+  </div>
+
+  <!-- 10 -->
+  <h2 id="self"><span class="n">10.</span>O trabalhador vê os seus dados (self-service)</h2>
+  <p>A aplicação tem uma área onde o próprio trabalhador acede à sua informação, sem depender do RH para tudo:</p>
+  <div class="grid c4">
+    <div class="card"><b>Perfil</b><p class="lead" style="font-size:13px">unidade, cargo e carreira atuais.</p></div>
+    <div class="card"><b>Ausências</b><p class="lead" style="font-size:13px">saldos e pedidos.</p></div>
+    <div class="card"><b>Recibos</b><p class="lead" style="font-size:13px">os seus recibos de vencimento.</p></div>
+    <div class="card"><b>Documentos</b><p class="lead" style="font-size:13px">o seu dossier pessoal.</p></div>
+  </div>
+  <div class="callout rule"><b>Valor:</b> o self-service <b>alivia a carga do RH</b> — o trabalhador consulta e submete sozinho o que é rotina.</div>
+
+  <!-- 11 -->
+  <h2 id="historico"><span class="n">11.</span>Histórico e auditoria — porque importa</h2>
+  <p>Duas características atravessam toda a aplicação e são um grande valor de negócio:</p>
+  <div class="grid c2">
+    <div class="card"><h3 style="margin-top:0">📜 Histórico completo</h3>
+      <p>Nada é apagado quando muda. Cada colocação, cada contrato, cada estado guarda a versão anterior com datas. É sempre possível reconstruir <b>como estavam as coisas numa data passada</b> — essencial para a função pública (antiguidade, reconstituição de carreira, litígios).</p></div>
+    <div class="card"><h3 style="margin-top:0">🔍 Auditoria</h3>
+      <p>A aplicação regista <b>quem</b> criou ou alterou <b>o quê</b> e <b>quando</b>. Dá rastreabilidade total e responde a inspeções e auditorias com confiança.</p></div>
+  </div>
+  <div class="callout key"><b>Em resumo:</b> a aplicação não guarda apenas o "estado de hoje" — guarda a <b>história</b>. Isso transforma o RH de um simples registo num sistema de confiança e conformidade.</div>
+
+  <!-- 12 -->
+  <h2 id="glossario"><span class="n">12.</span>Glossário simples</h2>
+  <table>
+    <tr><th>Termo</th><th>Em linguagem simples</th></tr>
+    <tr><td><b>Lugar</b></td><td>Uma cadeira do quadro de pessoal, numa unidade, com um cargo.</td></tr>
+    <tr><td><b>Afectação / Colocação</b></td><td>A pessoa sentada numa cadeira, durante um período.</td></tr>
+    <tr><td><b>Mapa de Pessoal</b></td><td>A lista de todos os lugares e quem os ocupa.</td></tr>
+    <tr><td><b>Escalão</b></td><td>O degrau salarial da pessoa na sua carreira.</td></tr>
+    <tr><td><b>Fora de grelha</b></td><td>Um lugar sem carreira nem escalão (ex.: tarefeiro).</td></tr>
+    <tr><td><b>Provido / Vago</b></td><td>Lugar ocupado / livre.</td></tr>
+    <tr><td><b>Mobilidade</b></td><td>Ir trabalhar temporariamente para outra unidade, com direito a regresso.</td></tr>
+    <tr><td><b>Histórico</b></td><td>Todas as versões anteriores, guardadas com datas — nada se perde.</td></tr>
+  </table>
+
+  <footer>
+    RH-Service · Guia de apresentação · pt-PT<br>
+    Para o detalhe técnico, ver os documentos irmãos: <b>modelo_negocio.html</b> (lógica de negócio), <b>modelo_relacional.html</b> (dados), <b>api_guide</b> (integração) e <b>breaking_change_frontend</b> (mudanças no frontend).
+  </footer>
+</div>
+<script>mermaid.initialize({startOnLoad:true, theme:'neutral', flowchart:{curve:'basis'}});</script>
+</body>
+</html>
