@@ -4,6 +4,9 @@ import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
 import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.AssignmentId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
+import cv.igrp.RH_Service.carreiras.domain.models.Grade;
+import cv.igrp.RH_Service.carreiras.domain.repository.GradeRepository;
+import cv.igrp.RH_Service.carreiras.domain.valueobject.GradeId;
 import cv.igrp.RH_Service.estrutura.domain.models.Position;
 import cv.igrp.RH_Service.estrutura.domain.repository.PositionRepository;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.PositionId;
@@ -26,6 +29,7 @@ public class AssignmentService {
 
     private final AssignmentRepository assignmentRepository;
     private final PositionRepository positionRepository;
+    private final GradeRepository gradeRepository;
 
     /**
      * Afecta um colaborador a um Lugar. Se já houver afectação PRINCIPAL corrente e a nova
@@ -59,6 +63,16 @@ public class AssignmentService {
         if (!position.isForaDeGrelha() && gradeId == null)
             throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
                     "O Lugar é de carreira — o escalão (gradeId) é obrigatório.");
+
+        // PCFR: o escalão escolhido tem de pertencer à categoria do Lugar
+        if (gradeId != null) {
+            Grade grade = gradeRepository.findById(GradeId.from(gradeId))
+                    .orElseThrow(() -> IgrpResponseStatusException.notFound(
+                            "Escalão não encontrado: " + gradeId));
+            if (!grade.getCategoryId().getValor().equals(position.getCategoryId()))
+                throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                        "O escalão não pertence à categoria do Lugar '" + position.getNumeroLugar() + "'.");
+        }
 
         // SCD Type 2: encerrar a afectação PRINCIPAL corrente antes de abrir a nova
         if (Assignment.PRINCIPAL.equals(tipo)) {
