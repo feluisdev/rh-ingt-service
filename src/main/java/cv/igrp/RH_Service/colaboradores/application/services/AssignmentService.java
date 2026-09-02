@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.colaboradores.application.services;
 
 import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
 import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
+import cv.igrp.RH_Service.colaboradores.domain.valueobject.AssignmentId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.estrutura.domain.models.Position;
 import cv.igrp.RH_Service.estrutura.domain.repository.PositionRepository;
@@ -80,11 +81,42 @@ public class AssignmentService {
      */
     public Assignment afectarMobilidade(FuncionarioId funcionarioId, UUID positionId,
                                         LocalDate dataInicio, String notes) {
-        UUID gradeAtual = assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId)
-                .map(Assignment::getGradeId)
-                .orElse(null);
+        Optional<Assignment> atual = assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId);
+        UUID gradeAtual = atual.map(Assignment::getGradeId).orElse(null);
+        // Guarda a afectação de origem para permitir o regresso (mobilidade temporária).
+        UUID origemId = atual.map(a -> a.getId().getValor()).orElse(null);
         return afectar(funcionarioId, positionId, gradeAtual, null,
-                Assignment.MOBILIDADE, Assignment.PRINCIPAL, dataInicio, null, notes);
+                Assignment.MOBILIDADE, Assignment.PRINCIPAL, dataInicio, origemId, notes);
+    }
+
+    /**
+     * Regresso de mobilidade (temporária): fecha a afectação de MOBILIDADE corrente e
+     * reabre a afectação de origem ({@code origin_assignment_id}) num novo período corrente,
+     * no mesmo Lugar de origem, herdando escalão/função. Se a mobilidade não registou origem
+     * (permanente) ou se o Lugar de origem já foi reafectado/extinto, apenas fecha a corrente.
+     * Idempotente: sem afectação corrente, não faz nada.
+     */
+    public void regressarDeMobilidade(FuncionarioId funcionarioId, LocalDate dataRegresso) {
+        Optional<Assignment> correnteOpt = assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId);
+        if (correnteOpt.isEmpty()) return;
+
+        Assignment corrente = correnteOpt.get();
+        corrente.encerrar(dataRegresso);
+        assignmentRepository.save(corrente);
+
+        UUID origemId = corrente.getOriginAssignmentId();
+        if (origemId == null) return; // mobilidade permanente — nada a reabrir
+
+        Assignment origem = assignmentRepository.findById(AssignmentId.from(origemId)).orElse(null);
+        if (origem == null) return;
+
+        // Só reabre se o Lugar de origem ainda estiver vago (não foi reafectado entretanto).
+        if (assignmentRepository.isPositionOccupied(origem.getPositionId())) return;
+
+        assignmentRepository.save(Assignment.criar(
+                funcionarioId, origem.getPositionId(), origem.getGradeId(), origem.getFunctionId(),
+                Assignment.PRINCIPAL, Assignment.MOBILIDADE, dataRegresso, null,
+                "Regresso de mobilidade ao Lugar de origem"));
     }
 
     /**
