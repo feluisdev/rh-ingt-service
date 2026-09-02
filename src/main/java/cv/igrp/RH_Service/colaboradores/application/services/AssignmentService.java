@@ -5,7 +5,9 @@ import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.AssignmentId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.carreiras.domain.models.Grade;
+import cv.igrp.RH_Service.carreiras.domain.repository.CategoryRepository;
 import cv.igrp.RH_Service.carreiras.domain.repository.GradeRepository;
+import cv.igrp.RH_Service.carreiras.domain.valueobject.CategoryId;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.GradeId;
 import cv.igrp.RH_Service.estrutura.domain.models.Position;
 import cv.igrp.RH_Service.estrutura.domain.repository.PositionRepository;
@@ -30,6 +32,7 @@ public class AssignmentService {
     private final AssignmentRepository assignmentRepository;
     private final PositionRepository positionRepository;
     private final GradeRepository gradeRepository;
+    private final CategoryRepository categoryRepository;
 
     /**
      * Afecta um colaborador a um Lugar. Se já houver afectação PRINCIPAL corrente e a nova
@@ -71,7 +74,12 @@ public class AssignmentService {
                             "Escalão não encontrado: " + gradeId));
             if (!grade.getCategoryId().getValor().equals(position.getCategoryId()))
                 throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
-                        "O escalão não pertence à categoria do Lugar '" + position.getNumeroLugar() + "'.");
+                        "O escalão '" + grade.getName() + "' pertence à categoria '"
+                                + nomeCategoria(grade.getCategoryId().getValor())
+                                + "', mas o Lugar '" + position.getNumeroLugar()
+                                + "' exige um escalão da categoria '"
+                                + nomeCategoria(position.getCategoryId())
+                                + "'. Escolha um escalão dessa categoria.");
         }
 
         // SCD Type 2: encerrar a afectação PRINCIPAL corrente antes de abrir a nova
@@ -144,5 +152,13 @@ public class AssignmentService {
                     a.encerrar(dataFim);
                     assignmentRepository.save(a);
                 });
+    }
+
+    /** Nome legível da categoria para mensagens de erro; devolve o UUID se não for encontrada. */
+    private String nomeCategoria(UUID categoryId) {
+        if (categoryId == null) return "(sem categoria)";
+        return categoryRepository.findById(CategoryId.from(categoryId))
+                .map(c -> c.getName())
+                .orElse(categoryId.toString());
     }
 }
