@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Repoe a base de dados local recursoshumanos_db a partir do zero.
 
