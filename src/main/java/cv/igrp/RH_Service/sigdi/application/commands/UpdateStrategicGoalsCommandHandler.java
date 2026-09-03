@@ -66,6 +66,23 @@ public class UpdateStrategicGoalsCommandHandler implements CommandHandler<Update
         .orElseThrow(() -> IgrpResponseStatusException.badRequest(
             "Prazo não configurado para a submissão de objetivos estratégicos PAA/BSC"));
 
+    // FIX-01 / A-124-01: the indicator list is decided explicitly here, and the two cases are
+    // NOT the same thing.
+    //   - indicators == null (the "indicators" key is ABSENT from the request body) means
+    //     "do not touch": the goal keeps the indicators it already has, and goal.update()
+    //     receives exactly that list.
+    //   - indicators != null, INCLUDING the empty list, means "replace": [] removes them all.
+    //     That is deliberate and it is not a defect. There is no dedicated indicator endpoint
+    //     in this service, so updating the goal is the only way the product offers to remove
+    //     the last KPI; a guard that ignored [] would make that impossible by any route.
+    //
+    // This guard depends on UpdateStategicGoalDTO leaving the "indicators" field WITHOUT an
+    // initializer. If a regeneration by iGRP Studio restores "= new ArrayList<>()", the
+    // information is destroyed before it reaches this method and no code here can recover it:
+    // every absent key would arrive as an empty list and edit-then-save would wipe the KPIs
+    // again. The half of the fix that survives such a regeneration is therefore not this
+    // "if" but UpdateStategicGoalDtoIndicatorsContractTest, which turns the regression from
+    // silent data loss into a red build.
     java.util.List<cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicIndicator> domainIndicators = goal.getIndicators();
     if (dto.getIndicators() != null) {
         domainIndicators = dto.getIndicators().stream().map(indDto -> {

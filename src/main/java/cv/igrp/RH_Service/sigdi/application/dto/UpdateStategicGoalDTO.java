@@ -34,6 +34,12 @@ public class UpdateStategicGoalDTO  {
   @Max(value = 2100, message = "O campo <year> não pode ser superior a 2100")
   private Integer year ;
 
-  private java.util.List<StrategicIndicatorDTO> indicators = new java.util.ArrayList<>();
+  // The absence of an initializer is deliberate: it is what lets Jackson tell an ABSENT
+  // "indicators" key (field stays null) apart from an EMPTY list (field is a non-null, empty
+  // list). Absent means "do not touch the existing indicators"; [] means "remove them all".
+  // A regeneration by iGRP Studio would put the empty-ArrayList initializer back on this field
+  // and, with it, the silent data loss of finding A-124-01 --
+  // UpdateStategicGoalDtoIndicatorsContractTest fails in that case.
+  private java.util.List<StrategicIndicatorDTO> indicators;
 
 }
