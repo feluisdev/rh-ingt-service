@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RH-Service — Guia de Configuração e Registo (v5)</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+  :root{
+    --bg:#f7f8fa; --card:#fff; --ink:#1c2430; --muted:#5b6b7c; --line:#e2e7ee;
+    --brand:#1f6feb; --brand-soft:#e8f0fe; --ok:#1a7f4b; --ok-soft:#e6f4ec;
+    --warn:#b25e09; --warn-soft:#fcefe0; --accent:#6b3fc4; --accent-soft:#efe9fb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
+  header.hero{background:linear-gradient(135deg,#3a1d6e,#6b3fc4);color:#fff;padding:48px 0 40px;margin-bottom:8px}
+  header.hero .wrap{padding-top:0}
+  .kicker{text-transform:uppercase;letter-spacing:.12em;font-size:12px;opacity:.85;font-weight:600}
+  h1{font-size:32px;margin:.2em 0 .3em;line-height:1.15}
+  header.hero p{font-size:17px;opacity:.94;max-width:70ch;margin:.4em 0 0}
+  .meta{margin-top:18px;font-size:13px;opacity:.9}
+  .meta b{font-weight:600}
+  h2{font-size:23px;margin:44px 0 6px;padding-top:10px;border-top:2px solid var(--line)}
+  h2 .n{color:var(--accent);font-variant-numeric:tabular-nums;margin-right:.4em}
+  h3{font-size:18px;margin:26px 0 8px}
+  p{margin:10px 0} .lead{font-size:16px;color:var(--muted)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:16px 0;box-shadow:0 1px 2px rgba(20,40,80,.04)}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:13.5px}
+  th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:#efeaf9;font-weight:600}
+  tr:nth-child(even) td{background:#fafbfd}
+  code{background:#eef1f5;border-radius:5px;padding:1px 6px;font:12.5px/1.5 "SF Mono",ui-monospace,Consolas,monospace}
+  .callout{border-radius:10px;padding:14px 16px;margin:16px 0;font-size:14px}
+  .callout.key{background:var(--brand-soft);border:1px solid #cfe0fd}
+  .callout.rule{background:var(--ok-soft);border:1px solid #c5e7d3}
+  .callout.warn{background:var(--warn-soft);border:1px solid #f2dcbe}
+  .diagram{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin:18px 0;overflow-x:auto}
+  .diagram .cap{font-size:13px;color:var(--muted);margin:0 0 10px;font-weight:600}
+  .mermaid{display:flex;justify-content:center;min-width:600px}
+  .toc{columns:2;font-size:14px} .toc a{color:var(--accent);text-decoration:none} .toc a:hover{text-decoration:underline}
+  @media(max-width:820px){.toc{columns:1}}
+  footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+  pre.code{background:#11161f;color:#e6edf6;border-radius:10px;padding:14px 16px;overflow-x:auto;
+    font:12.5px/1.6 "SF Mono",ui-monospace,Consolas,monospace;margin:12px 0}
+  pre.code .c{color:#7f93ab} pre.code .k{color:#9ecbff} pre.code .s{color:#a5d6a7} pre.code .m{color:#ffcc80}
+  .step{display:flex;gap:14px;align-items:flex-start;margin:0 0 4px}
+  .step .num{flex:0 0 34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px}
+  .step .t{font-size:18px;font-weight:600;margin:3px 0 0}
+  .req{font-size:13.5px;color:var(--muted);margin:2px 0 0 48px}
+  .pill{display:inline-block;font:600 11px/1.8 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    padding:0 8px;border-radius:999px;margin-right:6px;vertical-align:middle}
+  .p-post{background:#e6f4ec;color:#1a7f4b} .p-get{background:#e8f0fe;color:#1f6feb}
+  .p-put{background:#fcefe0;color:#b25e09} .p-patch{background:#efe9fb;color:#6b3fc4}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">RH-Service · SIGDI / SIPPROG</div>
+    <h1>Guia de Configuração e Registo</h1>
+    <p>Um exemplo completo, do zero até ao funcionário registado: como se configuram os <b>Lugares</b> (positions) e tudo o que os suporta, e como a <b>Afectação</b> (assignment) liga a pessoa ao Lugar.</p>
+    <div class="meta">Documentação <b>v5</b> · exemplo: <b>Câmara Municipal da Praia — Divisão de Recursos Humanos</b> · UUID fictícios mas coerentes entre passos</div>
+  </div>
+</header>
+<div class="wrap">
+
+  <div class="card">
+    <b>Índice</b>
+    <div class="toc" style="margin-top:8px">
+      <a href="#ideia">1. A ideia central em 60 segundos</a><br>
+      <a href="#onde">2. Porque é que cada campo está onde está</a><br>
+      <a href="#ecra">3. O ecrã de admissão, passo a passo</a><br>
+      <a href="#movimentos">4. Movimentos: carreira, categoria, direcção, mobilidade</a><br>
+      <a href="#ordem">5. Ordem obrigatória de configuração</a><br>
+      <a href="#p0">6. Passo 0 — Catálogos</a><br>
+      <a href="#p1">7. Passo 1 — Unidades orgânicas</a><br>
+      <a href="#p2">8. Passo 2 — Cargos e Funções</a><br>
+      <a href="#p3">9. Passo 3 — Carreira · Categoria · Escalão</a><br>
+      <a href="#p4">10. Passo 4 — Lugares (Mapa de Pessoal)</a><br>
+      <a href="#p5">11. Passo 5 — Confirmar as vagas</a><br>
+      <a href="#p6">12. Passo 6 — Registar o funcionário</a><br>
+      <a href="#p7">13. Passo 7 — Verificar o resultado</a><br>
+      <a href="#erros">14. Erros 422 e o que significam</a><br>
+      <a href="#resumo">15. Resumo executável</a>
+    </div>
+  </div>
+
+  <h2 id="ideia"><span class="n">1.</span>A ideia central em 60 segundos</h2>
+  <div class="card">
+    <p>O modelo v5 assenta em três peças:</p>
+    <table>
+      <tr><th style="width:160px">Peça</th><th>O que é</th><th style="width:180px">Analogia</th></tr>
+      <tr><td><b>Lugar</b><br><code>t_position</code></td>
+          <td>Uma <b>cadeira</b> do Mapa de Pessoal. Existe mesmo sem ninguém sentado. Traz consigo a unidade, o cargo e — se for de carreira — a carreira + categoria.</td>
+          <td>A cadeira e a placa na porta.</td></tr>
+      <tr><td><b>Funcionário</b><br><code>t_funcionario</code></td>
+          <td>A <b>pessoa</b>. Só dados de identificação — não tem unidade, nem cargo, nem carreira.</td>
+          <td>A pessoa.</td></tr>
+      <tr><td><b>Afectação</b><br><code>t_assignment</code></td>
+          <td>A <b>ponte no tempo</b>: quem está sentado em que cadeira, desde quando, com que escalão e por que motivo (origem).</td>
+          <td>O acto que senta a pessoa na cadeira.</td></tr>
+    </table>
+    <div class="callout key">
+      <b>Consequência prática:</b> o frontend nunca envia "unidade" ou "cargo" ao registar alguém. Envia apenas o <code>positionId</code> — <b>tudo o resto deriva do Lugar</b>. A unidade, o cargo, a carreira e a categoria de um funcionário lêem-se sempre através da sua afectação corrente.
+    </div>
+  </div>
+
+  <div class="diagram">
+    <p class="cap">O triângulo — e o que cada lado traz</p>
+    <pre class="mermaid">
+flowchart LR
+  U["Unidade Orgânica<br/>DRH"] --> P
+  J["Cargo / Job<br/>Técnico Superior"] --> P
+  C["Carreira → Categoria<br/>PCFR"] --> P
+  P["LUGAR<br/>DRH-002"]:::pos --> A
+  F["Funcionário<br/>Ana Tavares"]:::per --> A
+  G["Escalão<br/>Escalão 1"] --> A
+  A["AFECTAÇÃO<br/>desde 2026-09-01<br/>origem ADMISSAO"]:::asg
+  classDef pos fill:#efe9fb,stroke:#6b3fc4,stroke-width:2px
+  classDef per fill:#e8f0fe,stroke:#1f6feb,stroke-width:2px
+  classDef asg fill:#e6f4ec,stroke:#1a7f4b,stroke-width:2px
+    </pre>
+    <p class="lead" style="font-size:13.5px;margin:0">Repare onde vive o <b>escalão</b>: na afectação, não no Lugar. O Lugar diz "categoria Técnico Superior"; a afectação diz "esta pessoa está no Escalão 1 dessa categoria".</p>
+  </div>
+
+  <h2 id="onde"><span class="n">2.</span>Porque é que cada campo está onde está</h2>
+  <p class="lead">A dúvida mais comum: se o Lugar tem carreira e categoria, porque é que o <b>escalão</b> e a <b>função</b> ficam na afectação?</p>
+
+  <div class="card">
+    <b>O teste que decide tudo</b>
+    <p style="font-size:17px;margin:10px 0 14px">
+      <i>"Este valor sobrevive à saída da pessoa?"</i><br>
+      <b>Sim → fica no Lugar (Position). Não → fica na Afectação (Assignment).</b>
+    </p>
+    <table>
+      <tr><th style="width:180px">Campo</th><th style="width:130px">Onde vive</th><th>Porquê</th></tr>
+      <tr><td><code>unidadeOrganicaId</code><br><code>jobId</code></td><td><b>Position</b></td>
+          <td>A cadeira continua a ser "um Técnico Superior da DRH" mesmo estando vazia.</td></tr>
+      <tr><td><code>careerId</code><br><code>categoryId</code></td><td><b>Position</b></td>
+          <td>O Mapa de Pessoal orçamenta o lugar <i>como sendo</i> de uma carreira/categoria — é o instrumento legal que o define, não o ocupante.</td></tr>
+      <tr><td><code>gradeId</code> (escalão)</td><td><b>Assignment</b></td>
+          <td>O escalão é a antiguidade <b>da pessoa</b>. A Ana entra no Escalão 1 e daqui a três anos progride para o 2 — a cadeira não mudou. Se ela sair e entrar o João, ele traz o escalão dele.</td></tr>
+      <tr><td><code>functionId</code></td><td><b>Assignment</b></td>
+          <td>É o que a pessoa <b>faz</b> naquele período. A mesma cadeira pode ter hoje "Processamento salarial" e amanhã "Recrutamento", conforme quem a ocupa.</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <b>Três consequências concretas se o escalão estivesse no Lugar</b>
+    <table>
+      <tr><th style="width:30px">#</th><th style="width:230px">Problema</th><th>Detalhe</th></tr>
+      <tr><td>1</td><td>Progredir passaria a ser alterar o Mapa de Pessoal</td>
+          <td>Progredir a Ana obrigaria a <code>PUT /positions/{id}</code> — mexer num instrumento com base legal (<code>legalBase</code>, despacho, orçamento) para registar um facto que é apenas da carreira dela.</td></tr>
+      <tr><td>2</td><td>Perdia-se o histórico por pessoa</td>
+          <td><code>t_assignment</code> é SCD2 (<code>is_current</code>, <code>data_inicio</code>, <code>data_fim</code>). É por isso que a progressão é só <code>POST /assignments</code> com <code>origem: PROGRESSAO</code> e novo <code>gradeId</code>: fecha o período anterior, abre outro. No Lugar, a linha do tempo do escalão ficaria misturada entre ocupantes sucessivos.</td></tr>
+      <tr><td>3</td><td>A mobilidade deixaria de funcionar</td>
+          <td><code>AssignmentService.afectarMobilidade</code> <b>herda o escalão da afectação corrente</b> e leva-o para o Lugar de destino: a pessoa muda de cadeira mas mantém a posição na grelha. Só é possível porque o escalão viaja com a pessoa.</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <b>A cadeia da grelha parte-se em dois ecrãs</b>
+    <p>Carreira, categoria e escalão <b>estão</b> directamente relacionados — é uma cascata encaixada. O que muda é <i>quem</i> decide cada nível:</p>
+    <div class="diagram" style="margin:12px 0">
+      <pre class="mermaid">
+flowchart LR
+  subgraph EL["Ecrã do LUGAR (Position)"]
+    C["1 · Carreira"] --> K["2 · Categoria"]
+  end
+  subgraph EA["Ecrã da AFECTAÇÃO (Assignment)"]
+    G["3 · Escalão"]
+  end
+  K -. "restringe" .-> G
+  J["Cargo (job)"] -. "restringe" .-> FN["Função"]
+  EL -.- J
+      </pre>
+    </div>
+    <table>
+      <tr><th style="width:60px">Passo</th><th style="width:230px">Escolhe</th><th>Endpoint que alimenta o combo</th><th style="width:150px">Ecrã</th></tr>
+      <tr><td>1º</td><td>Carreira</td><td><span class="pill p-get">GET</span><code>/careers/combobox</code></td><td>Lugar</td></tr>
+      <tr><td>2º</td><td>Categoria <i>dessa carreira</i></td><td><span class="pill p-get">GET</span><code>/careers/{careerId}/categories</code></td><td>Lugar</td></tr>
+      <tr><td>3º</td><td>Escalão <i>dessa categoria</i></td><td><span class="pill p-get">GET</span><code>/categories/{categoryId}/grades</code></td><td>Afectação</td></tr>
+    </table>
+    <div class="callout key">
+      <b>Sempre carreira → categoria, nunca o contrário.</b> No modelo, <code>t_category.career_id</code> e <code>t_grade.category_id</code> só existem num sentido: uma categoria pertence a uma carreira, um escalão pertence a uma categoria.
+    </div>
+    <p><b>A dobradiça entre os dois ecrãs</b> é a validação da afectação: o Lugar não diz <i>qual</i> o escalão, mas diz <b>de que conjunto</b> o escalão tem de sair.</p>
+<pre class="code"><span class="c">// AssignmentService — a única validação de coerência da grelha</span>
+<span class="k">if</span> (grade.getCategoryId() != position.getCategoryId()) <span class="k">throw</span> 422;</pre>
+    <p>O mesmo raciocínio vale para a <b>função</b>: <code>t_funcao.job_id</code> aponta ao cargo, e o cargo está no Lugar — a cadeira restringe o universo de funções possíveis, mas a escolha concreta faz-se na afectação.</p>
+    <div class="callout warn">
+      <b>Lacuna conhecida no backend:</b> o <code>CreatePositionCommandHandler</code> e o <code>UpdatePositionCommandHandler</code> <b>não validam</b> que a <code>categoryId</code> pertence à <code>careerId</code> enviada. Hoje é o frontend que garante a cascata; uma chamada directa à API pode criar um Lugar incoerente, que só se nota nos filtros e relatórios. A coerência escalão↔categoria, essa, é validada na afectação.
+    </div>
+  </div>
+
+  <div class="card">
+    <b>Em analogia</b>
+    <table>
+      <tr><td style="width:230px"><b>Carreira/Categoria no Lugar</b></td><td>A placa na porta: <i>"Lugar de Técnico Superior, carreira técnica superior"</i>. Está lá com ou sem ninguém.</td></tr>
+      <tr><td><b>Escalão na Afectação</b></td><td>O degrau de antiguidade que a pessoa traz consigo — e leva consigo se mudar de cadeira.</td></tr>
+      <tr><td><b>Função na Afectação</b></td><td>A lista de tarefas que aquela pessoa tem enquanto ali está.</td></tr>
+    </table>
+    <p class="lead" style="font-size:14px;margin-bottom:0">É esta separação que mantém correctos, ao mesmo tempo: a contagem de vagas (<code>dotacao</code>/<code>ocupados</code>), o histórico de carreira da pessoa, e a mobilidade com regresso ao Lugar de origem.</p>
+  </div>
+
+  <h2 id="ecra"><span class="n">3.</span>O ecrã de admissão, passo a passo</h2>
+  <p class="lead">Cada passo entrega o parâmetro do seguinte. Só o primeiro é uma escolha humana — nenhum id tem de ser adivinhado.</p>
+
+  <div class="card">
+    <b>Encadeamento das chamadas</b>
+<pre class="code"><span class="c">1 · escolher a unidade</span>
+<span class="k">GET</span> /estrutura/organizational-units/combobox        <span class="c">→ unidadeId</span>
+    <span class="c">(ou ?parentUnitId={id} para navegar a árvore nível a nível)</span>
+
+<span class="c">2 · escolher o Lugar vago</span>
+<span class="k">GET</span> /colaboradores/assignments/unidade/{unidadeId}/vagas/lista
+    <span class="c">→ o objecto PositionResponseDTO inteiro:</span>
+    <span class="c">  positionId · categoryId · jobId · foraDeGrelha</span>
+
+<span class="c">3 · combos dependentes do Lugar escolhido</span>
+<span class="k">GET</span> /categories/{categoryId}/grades              <span class="c">→ gradeId   (saltar se foraDeGrelha)</span>
+<span class="k">GET</span> /estrutura/functions/combobox?jobId={jobId} <span class="c">→ functionId (opcional)</span>
+
+<span class="c">4 · submeter</span>
+<span class="k">POST</span> /funcionarios/registar</pre>
+    <div class="callout key">
+      <b>Guarde o objecto do Lugar, não só o id.</b> O erro clássico é guardar apenas o <code>positionId</code> e depois ter de ir buscar o <code>categoryId</code> outra vez. Ele já vem no item que o utilizador clicou.
+    </div>
+  </div>
+
+  <div class="card">
+    <b>Como fica o ecrã</b>
+<pre class="code">┌─ Admissão · escolher Lugar ──────────────────────────────────┐
+│                                                              │
+│  Unidade orgânica  [ Divisão de Recursos Humanos      ▾ ]    │
+│                                                              │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │  Dotação 3       Ocupados 1        Vagas 2             │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                                                              │
+│   Nº Lugar   Cargo               Carreira / Categoria        │
+│  ○ DRH-001   Chefe de Divisão    Téc. Superior / Téc. Sup.   │
+│  ● DRH-003   Técnico Superior    — fora de grelha —          │
+│                                                              │
+│                              [ Cancelar ]  [ Continuar → ]   │
+└──────────────────────────────────────────────────────────────┘</pre>
+    <p>A lista só traz vagos, por isso dispensa coluna de estado. Os três contadores do cabeçalho vêm no próprio wrapper da resposta. Ao seleccionar <code>DRH-003</code> (fora de grelha), o combo de escalão do passo seguinte <b>não deve aparecer</b>.</p>
+  </div>
+
+  <div class="card">
+    <b>Os dois endpoints não são intermutáveis</b>
+    <table>
+      <tr><th style="width:34%"></th><th><code>GET /estrutura/positions?unidadeId=</code></th><th><code>GET /assignments/unidade/{id}/vagas/lista</code></th></tr>
+      <tr><td>Filtro base</td><td>unidade + <code>is_active</code></td><td>unidade + <code>is_active</code></td></tr>
+      <tr><td>Exclui CONGELADO / EXTINTO</td><td><b>não</b></td><td>sim (<code>podeSerOcupado()</code>)</td></tr>
+      <tr><td>Exclui os já ocupados</td><td><b>não</b></td><td>sim (<code>!isPositionOccupied()</code>)</td></tr>
+      <tr><td>Campo <code>ocupado</code> de cada item</td><td><b><code>null</code></b> — o <code>PositionMapper</code> nunca o preenche</td><td><code>false</code>, posto explicitamente</td></tr>
+      <tr><td><code>dotacao</code> / <code>ocupados</code> / <code>vagas</code></td><td>só <code>dotacao</code> (= nº de linhas); os outros ficam a <b>0</b></td><td>os três calculados</td></tr>
+    </table>
+    <div class="callout warn">
+      <b>Para um picker de admissão use sempre <code>/vagas/lista</code>.</b> O <code>/positions</code> não sabe dizer quem está ocupado — o <code>PositionMapper</code> não tem sequer o <code>AssignmentRepository</code> injectado. Serve para ver o Mapa de Pessoal, não para escolher uma cadeira livre.
+    </div>
+  </div>
+
+  <div class="card">
+    <b>Limites do que existe hoje</b>
+    <table>
+      <tr><td style="width:270px">Pesquisar sem escolher unidade</td><td>Não é possível: <code>unidadeId</code> é obrigatório nos dois endpoints.</td></tr>
+      <tr><td>Incluir as sub-unidades</td><td>Não: <code>findByUnidadeOrganicaIdAndIsActiveTrue</code> é igualdade simples na coluna — a árvore não é percorrida. Se a unidade tiver secções filhas com Lugares próprios, é preciso escolher a secção.</td></tr>
+      <tr><td>Filtrar por cargo/carreira, paginar</td><td>Só do lado do cliente. A lista de uma unidade vem inteira numa resposta.</td></tr>
+    </table>
+  </div>
+
+  <h2 id="movimentos"><span class="n">4.</span>Movimentos: carreira, categoria, direcção, mobilidade</h2>
+  <div class="callout key" style="font-size:15px">
+    Como a <b>unidade</b>, o <b>cargo</b>, a <b>carreira</b> e a <b>categoria</b> vivem no Lugar, mudar qualquer um deles significa <b>mudar de Lugar</b> — ou seja, uma nova afectação. O <b>único</b> movimento que mantém a mesma cadeira é a progressão de escalão, porque o escalão vive na afectação.
+  </div>
+
+  <div class="card">
+    <table>
+      <tr><th style="width:180px">Movimento</th><th style="width:120px">Muda de Lugar?</th><th>Como se faz</th></tr>
+      <tr><td><b>Progressão</b><br>(sobe de escalão)</td><td><b>Não</b></td>
+          <td><span class="pill p-post">POST</span><code>/assignments</code> com o <b>mesmo</b> <code>positionId</code>, novo <code>gradeId</code>, <code>origem: PROGRESSAO</code>.</td></tr>
+      <tr><td><b>Promoção</b><br>(muda de categoria)</td><td><b>Sim</b></td>
+          <td>Tem de existir um Lugar <b>vago</b> da nova categoria. <span class="pill p-post">POST</span><code>/assignments</code> com o novo <code>positionId</code> + um <code>gradeId</code> dessa categoria, <code>origem: PROMOCAO</code>.</td></tr>
+      <tr><td><b>Mudança de carreira</b></td><td><b>Sim</b></td>
+          <td>Igual à promoção, mas o Lugar de destino pertence a outra carreira. <code>origem: PROMOCAO</code> ou <code>TRANSFERENCIA</code>, conforme o acto administrativo.</td></tr>
+      <tr><td><b>Mudança de direcção</b><br>(outra unidade)</td><td><b>Sim</b></td>
+          <td>Escolher um Lugar vago da unidade de destino. <code>origem: TRANSFERENCIA</code>. Mesmo que o cargo e a categoria sejam idênticos, a cadeira é outra — porque a unidade está no Lugar.</td></tr>
+      <tr><td><b>Mobilidade</b></td><td><b>Sim</b>, com bilhete de volta</td>
+          <td>Não se chama <code>/assignments</code> à mão: <span class="pill p-put">PUT</span><code>/licencas-mobilidade/{id}/approve</code> faz tudo (ver abaixo).</td></tr>
+      <tr><td><b>Cessação / Reforma</b></td><td>Liberta o Lugar</td>
+          <td><span class="pill p-patch">PATCH</span><code>/funcionarios/{id}/worker-state</code> → <code>RETIRED</code>/<code>INACTIVE</code>. Encerra a afectação corrente; a cadeira volta a vaga.</td></tr>
+    </table>
+    <div class="callout rule">
+      <b>O que acontece à cadeira antiga:</b> nada é preciso fazer. Em <code>AssignmentService.afectar</code>, quando a nova afectação é <code>PRINCIPAL</code>, a corrente é encerrada em <code>dataInicio − 1 dia</code> (SCD Type 2) — e o Lugar antigo passa automaticamente a <b>vago</b>, porque "ocupado" é derivado de <code>is_current</code>.
+    </div>
+    <div class="callout warn">
+      <b>Não se promove sem Lugar.</b> Se não existir um Lugar vago da nova categoria, a promoção fica bloqueada — e é o comportamento correcto: o Mapa de Pessoal é um instrumento orçamental. Primeiro cria-se ou descongela-se o Lugar; só depois se promove.
+    </div>
+  </div>
+
+  <div class="card">
+    <b>Mudar a pessoa de cadeira ≠ mudar a cadeira de sítio</b>
+    <table>
+      <tr><th style="width:250px">Quer…</th><th style="width:270px">Faz</th><th>Porquê</th></tr>
+      <tr><td>Transferir <b>uma pessoa</b> para outra direcção</td><td><span class="pill p-post">POST</span><code>/assignments</code> num Lugar da unidade de destino</td><td>Movimento individual. O Mapa de Pessoal fica igual.</td></tr>
+      <tr><td><b>Reorganizar serviços</b> — a própria cadeira passa a pertencer a outra unidade</td><td><span class="pill p-put">PUT</span><code>/positions/{id}</code> a mudar <code>unidadeOrganicaId</code></td><td>Alteração do Mapa de Pessoal. Quem lá está sentado vai junto, sem nova afectação.</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <b>Mobilidade em detalhe — a única que sabe regressar</b>
+    <p>Sim: a mobilidade <b>muda o Lugar</b> da pessoa. A diferença para uma transferência é que guarda o caminho de volta.</p>
+    <table>
+      <tr><th style="width:170px">Passo</th><th>O que acontece</th></tr>
+      <tr><td><span class="pill p-put">PUT</span><code>/approve</code></td>
+          <td>Se o subtipo tem <code>record_type = MOBILIDADE</code>, exige <code>destinationPositionId</code> (senão <code>422</code>) e chama <code>afectarMobilidade</code>: encerra a afectação corrente, abre uma nova no Lugar de destino <b>herdando o <code>gradeId</code></b>, e guarda o id da afectação anterior em <code>origin_assignment_id</code>.</td></tr>
+      <tr><td><span class="pill p-put">PUT</span><code>/close</code></td>
+          <td>Encerra a afectação de mobilidade e <b>reabre</b> a de origem, no mesmo Lugar, com o mesmo escalão e função. <b>Só se o Lugar de origem ainda estiver vago</b> — se entretanto foi ocupado ou extinto, limita-se a fechar a corrente.</td></tr>
+      <tr><td><span class="pill p-put">PUT</span><code>/cancel</code></td>
+          <td>Reverte a mobilidade activa pelo mesmo mecanismo.</td></tr>
+    </table>
+    <div class="callout key">
+      <b>O escalão viaja com a pessoa.</b> É por isto que ele vive na afectação e não no Lugar: a mobilidade muda a cadeira mas mantém a posição-na-grelha. Se o escalão estivesse no Lugar, ao regressar a pessoa herdaria o escalão de quem ocupou a cadeira entretanto.
+    </div>
+    <div class="callout warn">
+      <b>Nota:</b> só a mobilidade preenche <code>origin_assignment_id</code>. O <code>POST /assignments</code> passa sempre <code>null</code> nesse campo — uma transferência normal é definitiva e não tem regresso automático.
+    </div>
+  </div>
+
+  <div class="diagram">
+    <p class="cap">Mobilidade — ida e volta ao Lugar de origem</p>
+    <pre class="mermaid">
+sequenceDiagram
+  participant P as Pessoa
+  participant O as Lugar origem (DRH-002)
+  participant D as Lugar destino (DFP-005)
+  P->>O: afectação corrente · Escalão 2
+  Note over P,D: PUT /licencas-mobilidade/{id}/approve
+  O-->>P: afectação encerrada (Lugar volta a VAGO)
+  P->>D: nova afectação MOBILIDADE<br/>escalão herdado · origin_assignment_id guardado
+  Note over P,D: PUT /licencas-mobilidade/{id}/close
+  D-->>P: afectação encerrada
+  P->>O: reabre a afectação de origem<br/>(só se o Lugar ainda estiver vago)
+    </pre>
+  </div>
+
+  <h2 id="ordem"><span class="n">5.</span>Ordem obrigatória de configuração</h2>
+  <p class="lead">Cada passo depende do anterior. Saltar um dá <code>400</code> ou <code>422</code> mais à frente.</p>
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart TD
+  S0["0 · Catálogos<br/>worker-states · vínculos · tipos de contrato · tipos de documento"] --> S1
+  S1["1 · Unidades orgânicas"] --> S4
+  S2["2 · Cargos (jobs) · Funções"] --> S4
+  S3["3 · Carreiras → Categorias → Escalões"] --> S4
+  S0 --> S2
+  S0 --> S3
+  S4["4 · LUGARES (positions)<br/>= Mapa de Pessoal"] --> S5["5 · Confirmar vagas"]
+  S5 --> S6["6 · Registar funcionário<br/>POST /funcionarios/registar"]
+  S6 --> S7["7 · Verificação: unidade · chefe · vagas"]
+    </pre>
+  </div>
+  <table>
+    <tr><th style="width:30px">#</th><th style="width:200px">Configura</th><th>É preciso porque…</th><th>Endpoint base</th></tr>
+    <tr><td>0</td><td>Catálogos</td><td>O registo procura o estado <code>ACTIVE</code>; o contrato precisa de tipo de contrato; o documento de identificação precisa de tipo.</td><td><code>/catalogs/*</code></td></tr>
+    <tr><td>1</td><td>Unidades orgânicas</td><td>Todo o Lugar pertence a uma unidade (obrigatório).</td><td><code>/estrutura/organizational-units</code></td></tr>
+    <tr><td>2</td><td>Cargos e funções</td><td>Todo o Lugar tem um cargo (obrigatório). A função é opcional e escolhe-se na afectação.</td><td><code>/estrutura/jobs</code> · <code>/estrutura/functions</code></td></tr>
+    <tr><td>3</td><td>Carreira / Categoria / Escalão</td><td>Só para Lugares <b>de carreira</b>. Sem escalões não é possível afectar ninguém a esses Lugares.</td><td><code>/careers</code> · <code>/categories</code> · <code>/grades</code></td></tr>
+    <tr><td>4</td><td><b>Lugares</b></td><td>É a cadeira. Sem Lugar vago não há admissão possível.</td><td><code>/estrutura/positions</code></td></tr>
+    <tr><td>5</td><td>—</td><td>Confirmar que existe cadeira vaga antes de registar.</td><td><code>/colaboradores/assignments/unidade/{id}/vagas</code></td></tr>
+    <tr><td>6</td><td><b>Funcionário</b></td><td>Cria pessoa + contrato + afectação numa só transacção.</td><td><code>/funcionarios/registar</code></td></tr>
+  </table>
+
+  <h2 id="p0"><span class="n">6.</span>Passo 0 — Catálogos</h2>
+  <div class="card">
+    <div class="step"><div class="num">0</div><div><div class="t">O mínimo indispensável</div></div></div>
+    <p class="req">Normalmente já vem carregado por migração/seed. Confirme antes de tudo — se faltar o estado <code>ACTIVE</code>, o registo falha com <i>"Estado 'ACTIVE' não configurado no sistema."</i></p>
+
+    <p><span class="pill p-get">GET</span><code>/api/v1/rh/catalogs/worker-states/combobox</code> — tem de existir <code>ACTIVE</code>.</p>
+
+    <p><b>Vínculo laboral</b> (categoria macro do contrato):</p>
+<pre class="code"><span class="k">POST</span> /api/v1/rh/catalogs/vinculos-laborais
+{
+  <span class="k">"code"</span>: <span class="s">"NOMEACAO"</span>,
+  <span class="k">"description"</span>: <span class="s">"Nomeação definitiva"</span>,
+  <span class="k">"countsSeniority"</span>: true,
+  <span class="k">"eligibleForProgression"</span>: true
+}
+<span class="c">→ 201 { "id": "40000000-0000-4000-8000-000000000001" }</span></pre>
+
+    <p><b>Tipo de contrato</b> (DL 4/2024) — aponta ao vínculo criado acima:</p>
+<pre class="code"><span class="k">POST</span> /api/v1/rh/catalogs/contract-types
+{
+  <span class="k">"code"</span>: <span class="s">"CTFP-TI"</span>,
+  <span class="k">"description"</span>: <span class="s">"Contrato de trabalho em funções públicas — tempo indeterminado"</span>,
+  <span class="k">"vinculoLaboralId"</span>: <span class="s">"40000000-0000-4000-8000-000000000001"</span>,
+  <span class="k">"isRenewable"</span>: false,
+  <span class="k">"requiresCareerStructure"</span>: true
+}
+<span class="c">→ 201 { "id": "41000000-0000-4000-8000-000000000001" }</span></pre>
+
+    <p><b>Tipo de documento</b> de identificação (usado no funcionário e no dossier):</p>
+<pre class="code"><span class="k">POST</span> /api/v1/rh/catalogs/document-types
+{
+  <span class="k">"codigo"</span>: <span class="s">"CNI"</span>,
+  <span class="k">"descricao"</span>: <span class="s">"Cartão Nacional de Identificação"</span>,
+  <span class="k">"allowedExtensions"</span>: <span class="s">"pdf,jpg,png"</span>,
+  <span class="k">"category"</span>: <span class="s">"IDENTIFICACAO"</span>
+}
+<span class="c">→ 201 { "id": "42000000-0000-4000-8000-000000000001" }</span></pre>
+    <div class="callout warn"><b>Nota de estado real:</b> <code>category</code> em <code>t_tipo_documento</code> e <code>t_leave_type</code> é uma <b>String</b>, não uma FK para <code>t_option_entity</code>.</div>
+  </div>
+
+  <h2 id="p1"><span class="n">7.</span>Passo 1 — Unidades orgânicas</h2>
+  <div class="card">
+    <div class="step"><div class="num">1</div><div><div class="t">A árvore da organização</div></div></div>
+    <p class="req">Auto-relação <code>parentUnitId</code>. Criar sempre de cima para baixo.</p>
+<pre class="code"><span class="c">// Unidade de topo</span>
+<span class="k">POST</span> /api/v1/rh/estrutura/organizational-units
+{
+  <span class="k">"code"</span>: <span class="s">"CMP"</span>,
+  <span class="k">"name"</span>: <span class="s">"Câmara Municipal da Praia"</span>,
+  <span class="k">"acronym"</span>: <span class="s">"CMP"</span>,
+  <span class="k">"unitType"</span>: <span class="s">"CAMARA"</span>,
+  <span class="k">"parentUnitId"</span>: null
+}
+<span class="c">→ 201 { "id": "10000000-0000-4000-8000-000000000001" }</span>
+
+<span class="c">// Divisão filha</span>
+<span class="k">POST</span> /api/v1/rh/estrutura/organizational-units
+{
+  <span class="k">"code"</span>: <span class="s">"CMP-DRH"</span>,
+  <span class="k">"name"</span>: <span class="s">"Divisão de Recursos Humanos"</span>,
+  <span class="k">"acronym"</span>: <span class="s">"DRH"</span>,
+  <span class="k">"unitType"</span>: <span class="s">"DIVISAO"</span>,
+  <span class="k">"parentUnitId"</span>: <span class="s">"10000000-0000-4000-8000-000000000001"</span>
+}
+<span class="c">→ 201 { "id": "10000000-0000-4000-8000-000000000002" }</span></pre>
+  </div>
+
+  <h2 id="p2"><span class="n">8.</span>Passo 2 — Cargos (jobs) e Funções</h2>
+  <div class="card">
+    <div class="step"><div class="num">2</div><div><div class="t">O que a pessoa é vs. o que a pessoa faz</div></div></div>
+    <p class="req"><b>Cargo (job)</b> = a designação genérica que fica na placa do Lugar. <b>Função</b> = tarefa concreta associada a um cargo, escolhida na afectação (opcional).</p>
+<pre class="code"><span class="k">POST</span> /api/v1/rh/estrutura/jobs
+{ <span class="k">"code"</span>: <span class="s">"CH-DIV"</span>, <span class="k">"name"</span>: <span class="s">"Chefe de Divisão"</span>, <span class="k">"nivel"</span>: 2 }
+<span class="c">→ 201 { "id": "20000000-0000-4000-8000-000000000001" }</span>
+
+<span class="k">POST</span> /api/v1/rh/estrutura/jobs
+{ <span class="k">"code"</span>: <span class="s">"TS"</span>, <span class="k">"name"</span>: <span class="s">"Técnico Superior"</span>, <span class="k">"nivel"</span>: 4 }
+<span class="c">→ 201 { "id": "20000000-0000-4000-8000-000000000002" }</span>
+
+<span class="c">// Função concreta dentro do cargo Técnico Superior</span>
+<span class="k">POST</span> /api/v1/rh/estrutura/functions
+{
+  <span class="k">"code"</span>: <span class="s">"TS-PROC-SAL"</span>,
+  <span class="k">"name"</span>: <span class="s">"Processamento salarial"</span>,
+  <span class="k">"jobId"</span>: <span class="s">"20000000-0000-4000-8000-000000000002"</span>
+}
+<span class="c">→ 201 { "id": "21000000-0000-4000-8000-000000000001" }</span></pre>
+  </div>
+
+  <h2 id="p3"><span class="n">9.</span>Passo 3 — Carreira · Categoria · Escalão (PCFR)</h2>
+  <div class="card">
+    <div class="step"><div class="num">3</div><div><div class="t">A grelha remuneratória, em três níveis encaixados</div></div></div>
+    <p class="req"><code>Carreira → Categoria (career_id) → Escalão (category_id)</code>. É esta cadeia que a afectação valida.</p>
+<pre class="code"><span class="k">POST</span> /api/v1/rh/careers
+{ <span class="k">"code"</span>: <span class="s">"CTS"</span>, <span class="k">"name"</span>: <span class="s">"Carreira Técnica Superior"</span>, <span class="k">"regime"</span>: <span class="s">"GERAL"</span> }
+<span class="c">→ 201 { "id": "30000000-0000-4000-8000-000000000001" }</span>
+
+<span class="k">POST</span> /api/v1/rh/categories
+{
+  <span class="k">"careerId"</span>: <span class="s">"30000000-0000-4000-8000-000000000001"</span>,
+  <span class="k">"code"</span>: <span class="s">"TS"</span>,
+  <span class="k">"name"</span>: <span class="s">"Técnico Superior"</span>,
+  <span class="k">"ordemProgressao"</span>: 1
+}
+<span class="c">→ 201 { "id": "31000000-0000-4000-8000-000000000001" }</span>
+
+<span class="c">// Escalões da categoria — pelo menos um, senão não se pode afectar</span>
+<span class="k">POST</span> /api/v1/rh/grades
+{
+  <span class="k">"categoryId"</span>: <span class="s">"31000000-0000-4000-8000-000000000001"</span>,
+  <span class="k">"gradeNumber"</span>: 1, <span class="k">"codigo"</span>: <span class="s">"TS-E1"</span>, <span class="k">"name"</span>: <span class="s">"Escalão 1"</span>,
+  <span class="k">"salaryIndex"</span>: 100.00, <span class="k">"salaryBase"</span>: 78500.00
+}
+<span class="c">→ 201 { "id": "32000000-0000-4000-8000-000000000001" }</span>
+
+<span class="k">POST</span> /api/v1/rh/grades
+{ <span class="k">"categoryId"</span>: <span class="s">"31000000-...-0001"</span>, <span class="k">"gradeNumber"</span>: 2,
+  <span class="k">"name"</span>: <span class="s">"Escalão 2"</span>, <span class="k">"salaryBase"</span>: 84200.00 }
+<span class="c">→ 201 { "id": "32000000-0000-4000-8000-000000000002" }</span></pre>
+    <div class="callout rule"><b>Regra que morde mais tarde:</b> o escalão enviado na afectação tem de pertencer à <b>categoria do Lugar</b>. Um escalão da categoria "Assistente Técnico" num Lugar de "Técnico Superior" → <code>422</code>.</div>
+  </div>
+
+  <h2 id="p4"><span class="n">10.</span>Passo 4 — Lugares (o Mapa de Pessoal)</h2>
+  <p class="lead">Aqui tudo converge. Criamos três Lugares que cobrem os três casos que existem na prática.</p>
+
+  <div class="card">
+    <div class="step"><div class="num">A</div><div><div class="t">Lugar de chefia — dirige a unidade</div></div></div>
+    <p class="req">O campo <code>managesUnitId</code> é o que faz deste Lugar o <b>responsável</b> da DRH. É por ele que <code>GET /unidade/{id}/responsavel</code> responde.</p>
+<pre class="code"><span class="k">POST</span> /api/v1/rh/estrutura/positions
+{
+  <span class="k">"numeroLugar"</span>: <span class="s">"DRH-001"</span>,
+  <span class="k">"jobId"</span>: <span class="s">"20000000-...-0001"</span>,          <span class="c">// Chefe de Divisão</span>
+  <span class="k">"unidadeOrganicaId"</span>: <span class="s">"10000000-...-0002"</span>, <span class="c">// DRH</span>
+  <span class="k">"careerId"</span>: <span class="s">"30000000-...-0001"</span>,
+  <span class="k">"categoryId"</span>: <span class="s">"31000000-...-0001"</span>,
+  <span class="k">"parentPositionId"</span>: null,               <span class="c">// reporta fora do exemplo</span>
+  <span class="k">"managesUnitId"</span>: <span class="s">"10000000-...-0002"</span>,   <span class="c">// ← dirige a DRH</span>
+  <span class="k">"legalBase"</span>: <span class="s">"Despacho n.º 12/2026"</span>
+}
+<span class="c">→ 201 { "id": "50000000-0000-4000-8000-000000000001" }</span></pre>
+  </div>
+
+  <div class="card">
+    <div class="step"><div class="num">B</div><div><div class="t">Lugar de carreira — o caso normal</div></div></div>
+    <p class="req">Tem <code>careerId</code> <b>e</b> <code>categoryId</code> → é um Lugar <b>de grelha</b>, e a afectação vai <b>exigir</b> <code>gradeId</code>. O <code>parentPositionId</code> aponta ao Lugar de chefia: é assim que se calcula o chefe direto.</p>
+<pre class="code"><span class="k">POST</span> /api/v1/rh/estrutura/positions
+{
+  <span class="k">"numeroLugar"</span>: <span class="s">"DRH-002"</span>,
+  <span class="k">"jobId"</span>: <span class="s">"20000000-...-0002"</span>,          <span class="c">// Técnico Superior</span>
+  <span class="k">"unidadeOrganicaId"</span>: <span class="s">"10000000-...-0002"</span>,
+  <span class="k">"careerId"</span>: <span class="s">"30000000-...-0001"</span>,
+  <span class="k">"categoryId"</span>: <span class="s">"31000000-...-0001"</span>,
+  <span class="k">"parentPositionId"</span>: <span class="s">"50000000-...-0001"</span>,  <span class="c">// ← reporta ao DRH-001</span>
+  <span class="k">"managesUnitId"</span>: null,
+  <span class="k">"legalBase"</span>: <span class="s">"Mapa de Pessoal 2026, ref. 14"</span>
+}
+<span class="c">→ 201 { "id": "50000000-0000-4000-8000-000000000002" }</span></pre>
+  </div>
+
+  <div class="card">
+    <div class="step"><div class="num">C</div><div><div class="t">Lugar fora de grelha — cargo de confiança</div></div></div>
+    <p class="req"><code>careerId</code> <b>ou</b> <code>categoryId</code> a <code>null</code> → <b>fora de grelha</b>. A afectação a este Lugar <b>proíbe</b> <code>gradeId</code>.</p>
+<pre class="code"><span class="k">POST</span> /api/v1/rh/estrutura/positions
+{
+  <span class="k">"numeroLugar"</span>: <span class="s">"DRH-003"</span>,
+  <span class="k">"jobId"</span>: <span class="s">"20000000-...-0002"</span>,
+  <span class="k">"unidadeOrganicaId"</span>: <span class="s">"10000000-...-0002"</span>,
+  <span class="k">"careerId"</span>: null,
+  <span class="k">"categoryId"</span>: null,
+  <span class="k">"parentPositionId"</span>: <span class="s">"50000000-...-0001"</span>,
+  <span class="k">"legalBase"</span>: <span class="s">"Cargo de confiança — art. 21.º"</span>
+}
+<span class="c">→ 201 { "id": "50000000-0000-4000-8000-000000000003" }</span></pre>
+  </div>
+
+  <table>
+    <tr><th>Lugar</th><th>Cargo</th><th>Grelha</th><th>Escalão na afectação</th><th>Papel na hierarquia</th></tr>
+    <tr><td><code>DRH-001</code></td><td>Chefe de Divisão</td><td>de carreira</td><td><b>obrigatório</b></td><td>dirige a DRH (<code>managesUnitId</code>)</td></tr>
+    <tr><td><code>DRH-002</code></td><td>Técnico Superior</td><td>de carreira</td><td><b>obrigatório</b></td><td>reporta a DRH-001 (<code>parentPositionId</code>)</td></tr>
+    <tr><td><code>DRH-003</code></td><td>Técnico Superior</td><td><b>fora de grelha</b></td><td><b>proibido</b></td><td>reporta a DRH-001</td></tr>
+  </table>
+  <div class="callout key">
+    <b>Estados do Lugar:</b> <code>ATIVO</code> · <code>CONGELADO</code> (<span class="pill p-patch">PATCH</span><code>/positions/{id}/freeze</code>) · <code>EXTINTO</code> (<span class="pill p-put">DELETE</span><code>/positions/{id}</code>). Só um Lugar <code>ATIVO</code> com <code>isActive=true</code> pode ser ocupado.<br>
+    <b>Provido/Vago não é coluna</b> — é derivado: um Lugar está ocupado se tiver uma afectação com <code>is_current=true</code>.
+  </div>
+
+  <h2 id="p5"><span class="n">11.</span>Passo 5 — Confirmar as vagas</h2>
+  <div class="card">
+    <p><span class="pill p-get">GET</span><code>/api/v1/rh/colaboradores/assignments/unidade/10000000-...-0002/vagas</code></p>
+<pre class="code">{
+  <span class="k">"unidadeId"</span>: <span class="s">"10000000-0000-4000-8000-000000000002"</span>,
+  <span class="k">"dotacao"</span>: 3,   <span class="c">// Lugares criados</span>
+  <span class="k">"ocupados"</span>: 0,
+  <span class="k">"vagas"</span>: 3
+}</pre>
+    <p><span class="pill p-get">GET</span><code>/.../unidade/{id}/vagas/lista</code> — é este o <b>picker do ecrã de admissão</b>: devolve só os Lugares vagos, para o utilizador escolher a cadeira.</p>
+  </div>
+
+  <h2 id="p6"><span class="n">12.</span>Passo 6 — Registar o funcionário</h2>
+  <p class="lead">Uma só chamada, uma só transacção: pessoa + contrato + afectação + dados bancários + dossier.</p>
+  <div class="card">
+    <p><span class="pill p-post">POST</span><code>/api/v1/rh/funcionarios/registar</code></p>
+<pre class="code">{
+  <span class="k">"funcionario"</span>: {
+    <span class="k">"nomeCompleto"</span>: <span class="s">"Ana Filipa Semedo Tavares"</span>,
+    <span class="k">"dataNascimento"</span>: <span class="s">"1992-04-17"</span>,
+    <span class="k">"genero"</span>: <span class="s">"F"</span>,
+    <span class="k">"estadoCivil"</span>: <span class="s">"SOLTEIRO"</span>,
+    <span class="k">"nif"</span>: <span class="s">"178904531"</span>,
+    <span class="k">"documentTypeId"</span>: <span class="s">"42000000-...-0001"</span>,   <span class="c">// CNI (passo 0)</span>
+    <span class="k">"numeroDocumento"</span>: <span class="s">"CV1234567"</span>,
+    <span class="k">"dataEmissaoDoc"</span>: <span class="s">"2022-03-10"</span>,
+    <span class="k">"dataValidadeDoc"</span>: <span class="s">"2032-03-10"</span>,
+    <span class="k">"nacionalidade"</span>: <span class="s">"Cabo-verdiana"</span>,
+    <span class="k">"email"</span>: <span class="s">"ana.tavares@cmpraia.cv"</span>,
+    <span class="k">"telefone"</span>: <span class="s">"+2389912345"</span>,
+    <span class="k">"morada"</span>: <span class="s">"Achada Santo António, Rua 5"</span>,
+    <span class="k">"ilha"</span>: <span class="s">"Santiago"</span>,
+    <span class="k">"concelho"</span>: <span class="s">"Praia"</span>,
+    <span class="k">"localidade"</span>: <span class="s">"Achada Santo António"</span>
+    <span class="c">// dataAdmissao não é enviada: havendo contrato, é substituída por contrato.startDate</span>
+  },
+
+  <span class="k">"contrato"</span>: {
+    <span class="k">"contractTypeId"</span>: <span class="s">"41000000-...-0001"</span>,   <span class="c">// CTFP-TI (passo 0)</span>
+    <span class="k">"contractNumber"</span>: <span class="s">"CMP/2026/0087"</span>,
+    <span class="k">"startDate"</span>: <span class="s">"2026-09-01"</span>,
+    <span class="k">"endDate"</span>: null,
+    <span class="k">"regimeTrabalho"</span>: <span class="s">"TEMPO_INTEIRO"</span>,
+    <span class="k">"percentagemTempo"</span>: 100,
+    <span class="k">"legalBase"</span>: <span class="s">"DL 4/2024, art. 12.º"</span>
+  },
+
+  <span class="k">"afectacao"</span>: {
+    <span class="k">"positionId"</span>: <span class="s">"50000000-...-0002"</span>,     <span class="c">// ← DRH-002, o Lugar vago</span>
+    <span class="k">"gradeId"</span>: <span class="s">"32000000-...-0001"</span>,        <span class="c">// ← Escalão 1 (obrigatório: Lugar de carreira)</span>
+    <span class="k">"functionId"</span>: <span class="s">"21000000-...-0001"</span>,     <span class="c">// opcional: Processamento salarial</span>
+    <span class="k">"origem"</span>: <span class="s">"ADMISSAO"</span>,
+    <span class="k">"assignmentType"</span>: <span class="s">"PRINCIPAL"</span>,
+    <span class="k">"dataInicio"</span>: <span class="s">"2026-09-01"</span>,           <span class="c">// ignorada se houver contrato</span>
+    <span class="k">"notes"</span>: <span class="s">"Admissão por concurso externo 2026"</span>
+  },
+
+  <span class="k">"dadosBancarios"</span>: {
+    <span class="k">"banco"</span>: <span class="s">"BCA"</span>,
+    <span class="k">"numeroConta"</span>: <span class="s">"00123456789"</span>,
+    <span class="k">"iban"</span>: <span class="s">"CV64000300004547069110176"</span>,
+    <span class="k">"numeroSegurancaSocial"</span>: <span class="s">"9912345678"</span>
+  },
+
+  <span class="k">"dossier"</span>: [
+    {
+      <span class="k">"documentTypeId"</span>: <span class="s">"42000000-...-0001"</span>,
+      <span class="k">"fileKey"</span>: <span class="s">"rh/2026/09/cni-ana-tavares.pdf"</span>,  <span class="c">// já carregado no MinIO</span>
+      <span class="k">"originalFilename"</span>: <span class="s">"cni-ana-tavares.pdf"</span>,
+      <span class="k">"contentType"</span>: <span class="s">"application/pdf"</span>,
+      <span class="k">"fileSize"</span>: 284113,
+      <span class="k">"description"</span>: <span class="s">"Cópia do CNI"</span>
+    }
+  ]
+}</pre>
+    <p><b>Resposta <code>201</code>:</b></p>
+<pre class="code">{
+  <span class="k">"funcionarioId"</span>: <span class="s">"60000000-0000-4000-8000-000000000001"</span>,
+  <span class="k">"numeroFuncionario"</span>: <span class="s">"F000148"</span>,       <span class="c">// gerado por seq_numero_funcionario</span>
+  <span class="k">"contratoId"</span>: <span class="s">"61000000-...-0001"</span>,
+  <span class="k">"afectacaoId"</span>: <span class="s">"70000000-...-0001"</span>,     <span class="c">// ← não existe "enquadramentoId"</span>
+  <span class="k">"dadosBancariosId"</span>: <span class="s">"62000000-...-0001"</span>,
+  <span class="k">"documentoIds"</span>: [<span class="s">"63000000-...-0001"</span>],
+  <span class="k">"message"</span>: <span class="s">"Colaborador registado com sucesso"</span>
+}</pre>
+  </div>
+
+  <div class="card">
+    <b>O que o servidor faz por si, nesta ordem</b>
+    <table>
+      <tr><th style="width:30px">#</th><th style="width:210px">Acção</th><th>Detalhe</th></tr>
+      <tr><td>1</td><td>Alinha a data de admissão</td><td>Havendo contrato, <code>funcionario.dataAdmissao = contrato.startDate</code>. Sem contrato, <code>dataAdmissao</code> é <b>obrigatória</b> (senão <code>400</code>).</td></tr>
+      <tr><td>2</td><td>Valida unicidade</td><td><code>409</code> se o NIF ou o número de documento já existirem.</td></tr>
+      <tr><td>3</td><td>Atribui o estado</td><td>Procura o worker-state de código <code>ACTIVE</code> e associa-o.</td></tr>
+      <tr><td>4</td><td>Gera o número</td><td><code>nextval('seq_numero_funcionario')</code> → formato <code>F%06d</code>.</td></tr>
+      <tr><td>5</td><td>Cria o contrato</td><td>SCD2, <code>is_current=true</code>.</td></tr>
+      <tr><td>6</td><td>Cria a <b>afectação</b></td><td>Passa pelo <code>AssignmentService</code> — todas as regras da secção 11.</td></tr>
+      <tr><td>7</td><td>Dados bancários + dossier</td><td>Opcionais; os documentos referenciam o funcionário por <code>reference_id</code>.</td></tr>
+    </table>
+    <div class="callout warn"><b>Tudo numa transacção:</b> se a afectação falhar (Lugar ocupado, escalão errado), <b>nada</b> é gravado — nem funcionário, nem contrato.</div>
+  </div>
+
+  <h2 id="p7"><span class="n">13.</span>Passo 7 — Verificar o resultado</h2>
+  <div class="card">
+    <p><span class="pill p-get">GET</span><code>/colaboradores/assignments/funcionario/60000000-...-0001/unidade-atual</code> → a DRH (derivada do Lugar DRH-002).</p>
+    <p><span class="pill p-get">GET</span><code>/colaboradores/assignments/funcionario/60000000-...-0001/chefe</code> → quem ocupa <code>DRH-001</code>, via <code>parentPositionId</code>. Se ninguém ocupar esse Lugar, não há chefe.</p>
+    <p><span class="pill p-get">GET</span><code>/colaboradores/assignments/unidade/10000000-...-0002/vagas</code> → agora <code>{ dotacao: 3, ocupados: 1, vagas: 2 }</code>.</p>
+    <p><span class="pill p-get">GET</span><code>/funcionarios/60000000-...-0001/details</code> → detalhe agregado, com o bloco <code>enquadramento</code> derivado do Lugar (mantido só por compatibilidade).</p>
+    <p><span class="pill p-get">GET</span><code>/funcionarios?unidadeOrganicaId=10000000-...-0002</code> → o filtro por unidade e por carreira funciona <b>através da afectação corrente</b>, não de colunas do funcionário.</p>
+  </div>
+
+  <div class="diagram">
+    <p class="cap">Estado final da DRH depois do registo</p>
+    <pre class="mermaid">
+flowchart TD
+  DRH["DRH · dotação 3 · ocupados 1 · vagas 2"]
+  DRH --- P1["DRH-001 · Chefe de Divisão<br/>VAGO · dirige a DRH"]
+  DRH --- P2["DRH-002 · Técnico Superior<br/>OCUPADO"]
+  DRH --- P3["DRH-003 · fora de grelha<br/>VAGO"]
+  P2 --- A["Afectação PRINCIPAL<br/>desde 2026-09-01 · ADMISSAO<br/>Escalão 1"]
+  A --- F["Ana Filipa Semedo Tavares<br/>F000148 · ACTIVE"]
+  P2 -. parent_position_id .-> P1
+  P3 -. parent_position_id .-> P1
+    </pre>
+  </div>
+
+  <h2 id="erros"><span class="n">14.</span>Erros <code>422</code> e o que significam</h2>
+  <div class="card">
+    <p class="lead">Estas validações vivem no <code>AssignmentService</code> e aplicam-se ao registo, à afectação avulsa e à mobilidade.</p>
+    <table>
+      <tr><th style="width:38%">Mensagem</th><th>Causa</th><th>Correcção</th></tr>
+      <tr><td>O Lugar 'X' não está disponível (estado=CONGELADO).</td><td>Lugar congelado, extinto ou com <code>isActive=false</code>.</td><td>Descongelar ou escolher outro Lugar.</td></tr>
+      <tr><td>O Lugar 'X' já está ocupado.</td><td>Já existe afectação com <code>is_current=true</code> nesse Lugar. <b>Uma cadeira, um ocupante.</b></td><td>Usar <code>/vagas/lista</code> e escolher um Lugar vago.</td></tr>
+      <tr><td>O Lugar é de carreira — o escalão (gradeId) é obrigatório.</td><td>Lugar com carreira+categoria e <code>gradeId: null</code>.</td><td>Enviar um escalão da categoria do Lugar.</td></tr>
+      <tr><td>O Lugar está fora da grelha (sem carreira/categoria) — não pode ter escalão.</td><td>Lugar sem carreira/categoria mas com <code>gradeId</code> preenchido.</td><td>Enviar <code>gradeId: null</code>.</td></tr>
+      <tr><td>O escalão 'E1' pertence à categoria 'A', mas o Lugar 'DRH-002' exige um escalão da categoria 'Técnico Superior'.</td><td>Escalão de outra categoria.</td><td><code>GET /categories/{categoryIdDoLugar}/grades</code> e escolher daí.</td></tr>
+    </table>
+    <div class="callout rule">
+      <b>Regra para o UI:</b> o combo de escalões deve ser preenchido <b>depois</b> de escolher o Lugar, filtrado pela categoria desse Lugar — e deve desaparecer quando o Lugar tem <code>foraDeGrelha: true</code> (o <code>PositionResponseDTO</code> traz esse flag pronto a usar).
+    </div>
+    <p><b>Índices que garantem as regras na base de dados:</b> índice único parcial <code>(position_id) WHERE is_current</code> (um ocupante por Lugar) e <code>(funcionario_id) WHERE is_current AND assignment_type='PRINCIPAL'</code> (uma afectação principal por pessoa).</p>
+  </div>
+
+  <div class="card">
+    <b>Depois da admissão — os movimentos usam a mesma afectação</b>
+    <table>
+      <tr><th style="width:190px">Movimento</th><th>Como se faz</th><th>Efeito no Lugar</th></tr>
+      <tr><td><b>Progressão / Promoção</b></td><td><span class="pill p-post">POST</span><code>/assignments</code> com <code>origem: PROGRESSAO</code> e novo <code>gradeId</code></td><td>Fecha a afectação anterior (SCD2) e abre nova. Mesma cadeira, escalão novo.</td></tr>
+      <tr><td><b>Mobilidade</b></td><td><span class="pill p-put">PUT</span><code>/licencas-mobilidade/{id}/approve</code> (exige <code>destinationPositionId</code>)</td><td>Ocupa o Lugar de destino <b>herdando o escalão</b>; guarda <code>origin_assignment_id</code> para o regresso.</td></tr>
+      <tr><td><b>Regresso de mobilidade</b></td><td><span class="pill p-put">PUT</span><code>/licencas-mobilidade/{id}/close</code></td><td>Reabre o Lugar de origem — <b>só se ainda estiver vago</b>.</td></tr>
+      <tr><td><b>Cessação / Reforma</b></td><td><span class="pill p-patch">PATCH</span><code>/funcionarios/{id}/worker-state</code> → <code>RETIRED</code>/<code>INACTIVE</code></td><td>Encerra a afectação corrente; o Lugar volta a <b>vago</b>.</td></tr>
+    </table>
+  </div>
+
+  <h2 id="resumo"><span class="n">15.</span>Resumo executável</h2>
+  <div class="card">
+    <p class="lead">A mesma sequência em <code>curl</code>, para semear um ambiente de desenvolvimento do zero.</p>
+<pre class="code"><span class="m">BASE</span>=http://localhost:8091/api/v1/rh
+<span class="m">H</span>=<span class="s">'-H Content-Type:application/json -H Accept:application/json'</span>
+
+<span class="c"># 0 · catálogos</span>
+curl $H -X POST $BASE/catalogs/vinculos-laborais  -d @vinculo.json
+curl $H -X POST $BASE/catalogs/contract-types     -d @contract-type.json
+curl $H -X POST $BASE/catalogs/document-types     -d @document-type.json
+curl     $BASE/catalogs/worker-states/combobox    <span class="c"># confirmar ACTIVE</span>
+
+<span class="c"># 1 · unidades   2 · cargos e funções   3 · grelha PCFR</span>
+curl $H -X POST $BASE/estrutura/organizational-units -d @unidade-cmp.json
+curl $H -X POST $BASE/estrutura/organizational-units -d @unidade-drh.json
+curl $H -X POST $BASE/estrutura/jobs                 -d @job-chefe.json
+curl $H -X POST $BASE/estrutura/jobs                 -d @job-ts.json
+curl $H -X POST $BASE/estrutura/functions            -d @funcao-proc-sal.json
+curl $H -X POST $BASE/careers                        -d @carreira-ts.json
+curl $H -X POST $BASE/categories                     -d @categoria-ts.json
+curl $H -X POST $BASE/grades                         -d @escalao-1.json
+
+<span class="c"># 4 · lugares</span>
+curl $H -X POST $BASE/estrutura/positions -d @lugar-drh-001.json
+curl $H -X POST $BASE/estrutura/positions -d @lugar-drh-002.json
+curl $H -X POST $BASE/estrutura/positions -d @lugar-drh-003.json
+
+<span class="c"># 5 · vagas   6 · registo   7 · verificação</span>
+curl     <span class="s">"$BASE/colaboradores/assignments/unidade/$UNIDADE_DRH/vagas/lista"</span>
+curl $H -X POST $BASE/funcionarios/registar -d @registo-ana.json
+curl     <span class="s">"$BASE/colaboradores/assignments/funcionario/$FUNC_ID/unidade-atual"</span>
+curl     <span class="s">"$BASE/colaboradores/assignments/funcionario/$FUNC_ID/chefe"</span></pre>
+  </div>
+
+  <div class="callout key">
+    <b>Regra de ouro para quem integra:</b> nunca guarde no funcionário a unidade, o cargo ou a carreira. Guarde a afectação com o seu <code>positionId</code> — e leia o resto sempre a partir dele. É o que torna correctos os movimentos, as vagas e o histórico.
+  </div>
+
+  <footer>
+    RH-Service · Documentação v5 · Guia de Configuração e Registo · pt-PT<br>
+    Ver também: <code>modelo_relacional.html</code> · <code>api_guide.md</code> · <code>regras_negocio.html</code> · <code>breaking_change_frontend.md</code>
+  </footer>
+</div>
+<script>mermaid.initialize({startOnLoad:true, theme:'neutral'});</script>
+</body>
+</html>
