@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -111,6 +112,67 @@ public class CreatePaaSubmissionPeriodCommandHandler implements CommandHandler<C
             throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
                     "Sobrepõe-se a " + nearestAfter.getPurpose().getDescription() + ", "
                             + nearestAfter.getStartDate().format(fmt) + "–" + nearestAfter.getEndDate().format(fmt));
+        }
+
+        // Rule 4: annual-cycle precedence (FIX-08, milestone v28.0).
+        //
+        // (a) WHICH FINDING THIS CLOSES. "A ordem do ciclo anual é declarada e não é imposta"
+        //     (Alta, Phase 121) -- docs/qa/121-ACHADO-ordem-do-ciclo.md. Purpose.java declares a
+        //     fixed position per finalidade (BSC -> PAA -> SIADAP), deliberately NOT derived from
+        //     ordinal(); until this rule existed nothing enforced it, and a POST could open
+        //     SIADAP_FINAL (position 6) with none of the five preceding phases in place.
+        //     Opening a window at position N now requires a window at position N-1, for the SAME
+        //     year, with status CLOSED (operator decision 1, 2026-09-04, 130-CONTEXT.md).
+        //
+        // (b) IT GENERALIZES RULE 2, IT DOES NOT REPLACE IT. Rule 2 above is the only precedence
+        //     guard that existed, and it covers the cascade WITHIN a single position: PAA
+        //     INDIVIDUAL_LEVEL requires a closed PAA UNIT_LEVEL window. Rule 4 is precedence
+        //     BETWEEN positions. The two do not collide and Rule 2 stays untouched -- it still
+        //     runs first, so a PAA individual window with no closed unit sibling is still refused
+        //     by Rule 2's own message, not by this one.
+        //
+        // (c) IT IS LEVEL-AGNOSTIC, AND THE REASON IS WRITTEN RATHER THAN CHOSEN IN SILENCE. The
+        //     decision reads "a window at position N-1 in the same year with status CLOSED" and
+        //     names no level. Level is Rule 2's business, inside a position. So any closed window
+        //     at position N-1 satisfies this rule, whatever its PaaLevel.
+        //
+        // (d) POSITION 1 IS NOT GATED. It has no predecessor, so there is nothing to require.
+        //     The guard is skipped entirely for it.
+        //
+        // (e) THE POSITION IN THE FILE IS AFTER RULE 2 AND AFTER RULE 3, AND THAT IS DELIBERATE.
+        //     docs/qa/130-PRECONDICOES.md Section 4.4 measured, before this wave started, what
+        //     each placement costs: ahead of Rule 3 it breaks three existing title assertions
+        //     that are about overlap and not about precedence, and ahead of Rule 2 it starves the
+        //     stub of createPaaIndividualPeriodStillRequiresClosedPaaUnitLevelPeriod, producing an
+        //     UnnecessaryStubbingException with nothing actually wrong. Placed here it reads
+        //     yearPeriods, which Rule 3 has already fetched, so no new repository port is opened.
+        //
+        // (f) THE ACCEPTED COST. This prevents two phases of the cycle being open in parallel,
+        //     even when the business would sometimes want it. That cost was stated and accepted by
+        //     the operator in decision 1; it is not a side effect discovered afterwards.
+        //
+        // The predecessor is looked up over the FULL yearPeriods list and not over
+        // latestByPositionAndType: the dedup map keeps only the newest record per (position, level)
+        // pair, so a closed predecessor hidden behind a newer reopened sibling would be lost, and
+        // this rule only asks whether *some* closed window exists at that position.
+        int previousPosition = newPosition - 1;
+        if (previousPosition >= 1) {
+            Optional<Purpose> requiredPredecessor = Arrays.stream(Purpose.values())
+                    .filter(p -> p.getPosition() == previousPosition)
+                    .findFirst();
+            // If no finalidade declares position N-1 the declared sequence has a hole and there is
+            // nothing to require; the guard is skipped rather than inventing a predecessor.
+            if (requiredPredecessor.isPresent()) {
+                boolean predecessorClosed = yearPeriods.stream()
+                        .filter(p -> p.getPurpose().getPosition() == previousPosition)
+                        .anyMatch(p -> p.isClosed());
+                if (!predecessorClosed) {
+                    throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                            "Não é possível abrir o período de " + purpose.getDescription()
+                                    + " sem que o período de " + requiredPredecessor.get().getDescription()
+                                    + " esteja fechado para o ano " + dto.getYear());
+                }
+            }
         }
 
         PaaSubmissionPeriod period = PaaSubmissionPeriod.create(
