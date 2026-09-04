@@ -28,7 +28,10 @@ public interface ColabsAssignmentEntityRepository extends JpaRepository<Assignme
     // PositionEntity porque AssignmentEntity guarda positionId como UUID simples (sem
     // @ManyToOne), decisao do modelo de Position Management para manter os agregados
     // desacoplados. Em JPQL o join sem associacao faz-se por igualdade na clausula WHERE.
-    @Query("SELECT a FROM AssignmentEntity a, PositionEntity p "
+    // O nome JPA da entidade e "ColabsAssignmentEntity", nao "AssignmentEntity": esta
+    // fixado em @Entity(name=...) para nao colidir com outra Assignment no contexto de
+    // persistencia. Em JPQL vale o nome da entidade, nao o da classe.
+    @Query("SELECT a FROM ColabsAssignmentEntity a, PositionEntity p "
             + "WHERE p.id = a.positionId "
             + "AND p.unidadeOrganicaId = :unidadeOrganicaId "
             + "AND a.dataInicio <= :endOfYear "
