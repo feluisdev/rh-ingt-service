@@ -53,10 +53,11 @@ import org.junit.jupiter.api.Test;
  * policy marks incoherent EXACTLY the pairs the handler refuses. If the two ever drift, the
  * product would warn about one rule and refuse by another, which is worse than either rule alone.
  *
- * <p><b>Wave 5 of Phase 130 must EXTEND this test, not replace it.</b> When the {@code status}
- * clause lands -- linking to a cancelled goal is refused, decision 3 of {@code 130-CONTEXT.md} --
- * the pair table below has to grow a cancelled-goal row on both sides, or the two implementations
- * of that clause will be free to disagree from the day it is written.
+ * <p><b>Wave 5 of Phase 130 EXTENDED this test, and did not replace it.</b> The {@code status}
+ * clause has landed -- linking to a cancelled goal is refused, decision 3 of
+ * {@code 130-CONTEXT.md} -- and the pair table below grew a cancelled-goal row on BOTH sides plus
+ * a row that breaks the two clauses at once. Without those rows the two implementations of that
+ * clause would have been free to disagree from the day it was written.
  *
  * <p>Mocks are built by hand rather than through {@code MockitoExtension} on purpose: each case
  * drives TWO collaborators with different call shapes (the handler asks {@code findByCode}, the
@@ -83,6 +84,17 @@ class StrategyLinkCoherencePolicyTest {
             StrategicGoalsPerspective perspective) {
         return StrategicGoal.reconstruct(StrategicGoalId.gerarNovo(), UUID.randomUUID(), identityId,
                 title, perspective, BigDecimal.ONE, Estado.A, "Descrição de teste",
+                null, null, 2026, List.of());
+    }
+
+    /**
+     * The same goal, cancelled. Estado.I is the persisted "Inativo" code, and it is read through
+     * {@code StrategicGoal.isActive()} on both sides -- never by comparing strings.
+     */
+    private StrategicGoal cancelledGoalWithPerspective(InstitutionalIdentityId identityId, String title,
+            StrategicGoalsPerspective perspective) {
+        return StrategicGoal.reconstruct(StrategicGoalId.gerarNovo(), UUID.randomUUID(), identityId,
+                title, perspective, BigDecimal.ONE, Estado.I, "Descrição de teste",
                 null, null, 2026, List.of());
     }
 
@@ -153,31 +165,54 @@ class StrategyLinkCoherencePolicyTest {
     }
 
     /**
-     * The mirror, over the four cases the rule admits: source above the target, source below it,
-     * both at the same order, and a perspective with no configured row at all.
+     * The mirror, over the seven cases the two clauses admit: source above the target, source
+     * below it, both at the same order, a perspective with no configured row at all, a cancelled
+     * source, a cancelled target, and a pair that breaks the status clause AND the order clause at
+     * once.
+     *
+     * <p>The three cancelled rows are wave 5's addition. Note that the cancelled rows use
+     * LEARNING(4) -> PROCESS(3) -- the direction the rule ALLOWS, and the exact pair the first row
+     * proves is coherent when both goals are active. That is deliberate: it makes the status the
+     * only variable, so a row cannot pass for the wrong reason.
      */
     @Test
     @DisplayName("The policy marks incoherent exactly the pairs CreateStrategyMapLinkCommandHandler refuses")
     void policyMarksExactlyWhatTheCreateHandlerRefuses() {
         record Pair(String name, StrategicGoalsPerspective source, StrategicGoalsPerspective target,
-                Map<String, Integer> orders) {
+                Map<String, Integer> orders, boolean sourceCancelled, boolean targetCancelled) {
         }
 
         List<Pair> pairs = List.of(
                 new Pair("origem acima do destino (LEARNING 4 -> PROCESS 3)",
-                        StrategicGoalsPerspective.LEARNING, StrategicGoalsPerspective.PROCESS, SEEDED_ORDERS),
+                        StrategicGoalsPerspective.LEARNING, StrategicGoalsPerspective.PROCESS, SEEDED_ORDERS,
+                        false, false),
                 new Pair("origem abaixo do destino (FINANCIAL 1 -> LEARNING 4)",
-                        StrategicGoalsPerspective.FINANCIAL, StrategicGoalsPerspective.LEARNING, SEEDED_ORDERS),
+                        StrategicGoalsPerspective.FINANCIAL, StrategicGoalsPerspective.LEARNING, SEEDED_ORDERS,
+                        false, false),
                 new Pair("mesma ordem (PROCESS 3 -> PROCESS 3)",
-                        StrategicGoalsPerspective.PROCESS, StrategicGoalsPerspective.PROCESS, SEEDED_ORDERS),
+                        StrategicGoalsPerspective.PROCESS, StrategicGoalsPerspective.PROCESS, SEEDED_ORDERS,
+                        false, false),
                 new Pair("perspetiva não configurada (LEARNING sem linha -> PROCESS 3)",
                         StrategicGoalsPerspective.LEARNING, StrategicGoalsPerspective.PROCESS,
-                        ORDERS_WITHOUT_LEARNING));
+                        ORDERS_WITHOUT_LEARNING, false, false),
+                new Pair("origem cancelada, direção permitida (LEARNING 4 -> PROCESS 3)",
+                        StrategicGoalsPerspective.LEARNING, StrategicGoalsPerspective.PROCESS, SEEDED_ORDERS,
+                        true, false),
+                new Pair("destino cancelado, direção permitida (LEARNING 4 -> PROCESS 3)",
+                        StrategicGoalsPerspective.LEARNING, StrategicGoalsPerspective.PROCESS, SEEDED_ORDERS,
+                        false, true),
+                new Pair("as duas cláusulas violadas (FINANCIAL 1 -> LEARNING 4, os dois cancelados)",
+                        StrategicGoalsPerspective.FINANCIAL, StrategicGoalsPerspective.LEARNING, SEEDED_ORDERS,
+                        true, true));
 
         for (Pair pair : pairs) {
             InstitutionalIdentity identity = activeIdentity();
-            StrategicGoal source = goalWithPerspective(identity.getId(), "Objetivo de origem", pair.source());
-            StrategicGoal target = goalWithPerspective(identity.getId(), "Objetivo de destino", pair.target());
+            StrategicGoal source = pair.sourceCancelled()
+                    ? cancelledGoalWithPerspective(identity.getId(), "Objetivo de origem", pair.source())
+                    : goalWithPerspective(identity.getId(), "Objetivo de origem", pair.source());
+            StrategicGoal target = pair.targetCancelled()
+                    ? cancelledGoalWithPerspective(identity.getId(), "Objetivo de destino", pair.target())
+                    : goalWithPerspective(identity.getId(), "Objetivo de destino", pair.target());
 
             boolean handlerRefuses = createHandlerRefuses(identity, source, target, pair.orders());
             boolean policyMarks = !policyReportFor(identity, source, target, pair.orders()).isEmpty();
@@ -254,6 +289,69 @@ class StrategyLinkCoherencePolicyTest {
         assertEquals(IncoherentLinkDTO.Reason.PERSPECTIVE_NOT_CONFIGURED, reported.get(0).getReason());
     }
 
+    /**
+     * Wave 5's clause, reported with its own reason and with the END named. A stored link to a
+     * cancelled goal is REPORTED here and REFUSED in the create handler -- the asymmetry of
+     * decision 3 of {@code 130-CONTEXT.md} is about creating a NEW incoherence versus naming one
+     * that is already stored, and this test is the second half of it.
+     */
+    @Test
+    @DisplayName("A cancelled goal is reported with its own reason, and the description names which end")
+    void cancelledGoalIsReportedWithItsOwnReason() {
+        InstitutionalIdentity identity = activeIdentity();
+        StrategicGoal activeSource = goalWithPerspective(identity.getId(), "Formar as equipas",
+                StrategicGoalsPerspective.LEARNING);
+        StrategicGoal cancelledTarget = cancelledGoalWithPerspective(identity.getId(),
+                "Digitalizar o atendimento", StrategicGoalsPerspective.PROCESS);
+
+        List<IncoherentLinkDTO> reported =
+                policyReportFor(identity, activeSource, cancelledTarget, SEEDED_ORDERS);
+
+        assertEquals(1, reported.size());
+        assertEquals(IncoherentLinkDTO.Reason.GOAL_CANCELLED, reported.get(0).getReason());
+        assertEquals(List.of(IncoherentLinkDTO.Reason.GOAL_CANCELLED), reported.get(0).getReasons());
+        assertEquals("O objetivo de destino está cancelado.", reported.get(0).getReasonDesc());
+
+        StrategicGoal cancelledSource = cancelledGoalWithPerspective(identity.getId(),
+                "Formar as equipas", StrategicGoalsPerspective.LEARNING);
+        StrategicGoal activeTarget = goalWithPerspective(identity.getId(), "Digitalizar o atendimento",
+                StrategicGoalsPerspective.PROCESS);
+
+        List<IncoherentLinkDTO> otherEnd =
+                policyReportFor(identity, cancelledSource, activeTarget, SEEDED_ORDERS);
+
+        assertEquals(1, otherEnd.size());
+        assertEquals(IncoherentLinkDTO.Reason.GOAL_CANCELLED, otherEnd.get(0).getReason());
+        assertEquals("O objetivo de origem está cancelado.", otherEnd.get(0).getReasonDesc());
+    }
+
+    /**
+     * A warning that hides half of its own cause is a warning by halves: the reader would fix the
+     * status, come back, and meet the same link reported again for the direction. Both reasons
+     * travel, and {@code reasonDesc} carries both sentences -- which is what the two consumers
+     * render, neither of them keeping a translation table of its own.
+     */
+    @Test
+    @DisplayName("A link that breaks both clauses is reported with BOTH reasons, not just the first")
+    void aLinkBreakingBothClausesReportsBothReasons() {
+        InstitutionalIdentity identity = activeIdentity();
+        StrategicGoal source = cancelledGoalWithPerspective(identity.getId(), "Reduzir o custo unitário",
+                StrategicGoalsPerspective.FINANCIAL);
+        StrategicGoal target = cancelledGoalWithPerspective(identity.getId(), "Formar as equipas",
+                StrategicGoalsPerspective.LEARNING);
+
+        List<IncoherentLinkDTO> reported = policyReportFor(identity, source, target, SEEDED_ORDERS);
+
+        assertEquals(1, reported.size());
+        assertEquals(List.of(IncoherentLinkDTO.Reason.GOAL_CANCELLED,
+                IncoherentLinkDTO.Reason.CAUSE_EFFECT_ORDER_INVERTED), reported.get(0).getReasons());
+        // The single-valued field keeps the FIRST cause, in the order the create handler evaluates
+        // its guards -- status before perspective.
+        assertEquals(IncoherentLinkDTO.Reason.GOAL_CANCELLED, reported.get(0).getReason());
+        assertTrue(reported.get(0).getReasonDesc().contains("Os dois objetivos ligados estão cancelados."));
+        assertTrue(reported.get(0).getReasonDesc().contains("ordem inferior"));
+    }
+
     @Test
     @DisplayName("findIncoherentLinksForGoal restricts to the named goal and returns empty for a goal with no links")
     void findIncoherentLinksForGoalRestrictsToTheNamedGoal() {
@@ -306,6 +404,12 @@ class StrategyLinkCoherencePolicyTest {
 
         assertTrue(policy.findIncoherentLinks().isEmpty());
         assertTrue(policy.findIncoherentLinksForGoal(StrategicGoalId.gerarNovo()).isEmpty());
+
+        // And the distinction wave 5 needs: an empty list from findIncoherentLinks() is
+        // indistinguishable from "nothing was evaluated". findIncoherentLinksIfIdentityActive()
+        // answers Optional.empty() for the second, which is what lets the BSC-perspective response
+        // tell the user WHY the list is empty instead of implying there is nothing to warn about.
+        assertTrue(policy.findIncoherentLinksIfIdentityActive().isEmpty());
     }
 
     /**

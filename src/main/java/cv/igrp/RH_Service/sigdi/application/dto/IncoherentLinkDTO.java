@@ -20,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -33,9 +34,18 @@ public class IncoherentLinkDTO {
    * created. The field exists from day one, with more than one value, because rule 5 of the
    * project CLAUDE.md forbids an indistinguishable warning: a caller that received a flat list
    * with no cause attached could not tell a link broken by perspective ORDER from a link broken
-   * by anything else, and would have to guess. Wave 5 of Phase 130 adds
-   * {@code TARGET_GOAL_CANCELLED} / {@code SOURCE_GOAL_CANCELLED} here; that is the whole reason
-   * this enum is not collapsed into a boolean.
+   * by anything else, and would have to guess. Wave 5 of Phase 130 adds {@code GOAL_CANCELLED}
+   * here; that is the whole reason this enum is not collapsed into a boolean.
+   *
+   * <p><b>Divergence from what wave 4 predicted here, written and not silently applied.</b> The
+   * sentence above used to announce TWO new values, {@code SOURCE_GOAL_CANCELLED} and
+   * {@code TARGET_GOAL_CANCELLED}. Wave 5 added ONE, {@code GOAL_CANCELLED}, and the reason is the
+   * criterion this enum already uses everywhere else: two causes stay apart when their REMEDIES
+   * differ ("re-point the link" versus "configure the perspective"). A cancelled source and a
+   * cancelled target have the SAME remedy, and WHICH end is cancelled is already carried without
+   * ambiguity by {@link #reasonDesc} and by the {@code sourceGoalTitle} / {@code targetGoalTitle}
+   * fields. Splitting on an axis the reader does not act on would have added a distinction that
+   * costs a caller a branch and buys nothing.
    */
   public enum Reason {
     /**
@@ -55,7 +65,20 @@ public class IncoherentLinkDTO {
      * {@code CAUSE_EFFECT_ORDER_INVERTED} because the two causes need different remedies: one is
      * fixed by re-pointing the link, the other by configuring the perspective.
      */
-    PERSPECTIVE_NOT_CONFIGURED
+    PERSPECTIVE_NOT_CONFIGURED,
+
+    /**
+     * At least one of the two goals the link joins is cancelled ({@code Estado.I}). This is the
+     * pair {@code CreateStrategyMapLinkCommandHandler} refuses from wave 5 of Phase 130 onwards
+     * (FIX-10 / A-125-01), with "Não é possível ligar: o objetivo de origem|destino está
+     * cancelado".
+     *
+     * <p><b>This value reports; it never removes.</b> The two links stored in this environment
+     * both join cancelled goals, and they are the material of the finding: the guard in the
+     * create handler is for CREATING, and this reason exists so an already-stored link can be
+     * NAMED without being touched.
+     */
+    GOAL_CANCELLED
   }
 
   private UUID linkId;
@@ -78,10 +101,28 @@ public class IncoherentLinkDTO {
   /** Null when the target perspective has no configured row -- see {@link Reason}. */
   private Integer targetPerspectiveOrder;
 
+  /**
+   * The FIRST cause found, in the same order the create handler evaluates its guards: the status
+   * clause runs before the perspective clause, so a link that violates both reports
+   * {@code GOAL_CANCELLED} here. Kept as a single value because wave 4's consumers already read
+   * it; {@link #reasons} is the complete list and always contains this one.
+   */
   private Reason reason;
 
   /**
-   * Human-readable PT-PT sentence for {@link #reason}. It travels with the code, following the
+   * EVERY cause this link violates, and not only the first -- added by wave 5 of Phase 130.
+   *
+   * <p>A link can violate more than one clause at once: the two stored in this environment join
+   * cancelled goals, and reordering perspectives can additionally invert their cause-effect
+   * direction. Reporting only the first would be a warning that hides half of its own cause, and
+   * the reader would fix one thing and see the link reported again for another. Never empty, and
+   * its first element is always {@link #reason}.
+   */
+  private List<Reason> reasons;
+
+  /**
+   * Human-readable PT-PT sentence covering ALL of {@link #reasons}, not only {@link #reason}. It
+   * travels with the code, following the
    * same precedent as {@code FormGenerationRevertSkippedItemDTO#reasonDescription} and
    * {@code StategicGoalResponseDTO#statusDesc}: the server owns the wording, so no caller has to
    * keep a translation table of its own in sync with this enum.
