@@ -2,13 +2,13 @@
 -- Description: Organizational units, functions, and jobs
 
 -- Organizational Units (Hierarchical)
-INSERT INTO t_unidade_organica (id, code, name, acronym, unit_type_option_id, parent_unit_id, is_active, created_date, created_by) VALUES
+INSERT INTO t_unidade_organica (id, code, name, acronym, type, parent_unit_id, is_active, created_date, created_by) VALUES
 -- Level 1: Ministry
-('31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e301', 'MIN_FIN', 'Ministério das Finanças e do Fomento Empresarial', 'MFFE', '21e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e201', NULL, true, NOW(), 'system'),
+('31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e301', 'MIN_FIN', 'Ministério das Finanças e do Fomento Empresarial', 'MFFE', 'MINISTRY', NULL, true, NOW(), 'system'),
 -- Level 2: Direction
-('31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e302', 'DGP', 'Direção Geral do Planeamento, Orçamento e Gestão', 'DGPOG', '21e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e202', '31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e301', true, NOW(), 'system'),
+('31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e302', 'DGP', 'Direção Geral do Planeamento, Orçamento e Gestão', 'DGPOG', 'DIRECTION', '31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e301', true, NOW(), 'system'),
 -- Level 3: Service
-('31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e303', 'SERV_RH', 'Serviço de Recursos Humanos', 'SRH', '21e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e203', '31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e302', true, NOW(), 'system')
+('31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e303', 'SERV_RH', 'Serviço de Recursos Humanos', 'SRH', 'SERVICE', '31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e302', true, NOW(), 'system')
 ON CONFLICT (code) DO NOTHING;
 
 -- Functions

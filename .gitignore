@@ -33,5 +33,11 @@ build/
 .vscode/
 .env
 
-### MinIO runtime data ###
+### Local ###
+# Copias do .env: o repositorio ja teve segredos reais rastreados, e um
+# .env.bak solto e a forma mais facil de repetir o acidente.
+.env.bak*
+# Logs de execucao local, incluindo os que scripts/reset-db.ps1 escreve.
+/.logs/
+# Artefactos de runtime do MinIO montado por docker-compose.
 data/

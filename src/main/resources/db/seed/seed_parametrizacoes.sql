@@ -75,13 +75,17 @@ ON CONFLICT (code) DO NOTHING;
 -- affects_pay=true    → processamento salarial afectado
 -- counts_for_seniority=false → período não conta para antiguidade PCFR
 -- =============================================================
-INSERT INTO t_leave_mobility_subtype (id, code, description, record_type, affects_pay, counts_for_seniority, can_self_submit, is_active, created_date, created_by) VALUES
-('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1', 'LIC_SEM_VENCIMENTO', 'Licença sem Vencimento', 'LICENCA',    true,  false, false, true, NOW(), 'system'),
-('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e2', 'LIC_PARENTAL',       'Licença Parental',        'LICENCA',    false, true,  false, true, NOW(), 'system'),
-('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e3', 'LIC_FORMACAO',       'Licença para Formação',   'LICENCA',    false, true,  true,  true, NOW(), 'system'),
-('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e4', 'MOB_COMISSAO',       'Comissão de Serviço',     'MOBILIDADE', false, true,  false, true, NOW(), 'system'),
-('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e5', 'MOB_REQUISICAO',     'Requisição',              'MOBILIDADE', false, true,  false, true, NOW(), 'system'),
-('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e6', 'MOB_DESTACAMENTO',   'Destacamento',            'MOBILIDADE', false, true,  false, true, NOW(), 'system')
+-- name repeats the label held in description because V6 declares name NOT NULL while
+-- LeaveMobilitySubtypeEntity maps no such field -- the entity only knows code/description.
+-- Until that mismatch is settled (V6 even carries an orphan "Remover NOT NULL indevidos"
+-- comment with no matching statement), any insert has to fill name by hand.
+INSERT INTO t_leave_mobility_subtype (id, code, name, description, record_type, affects_pay, counts_for_seniority, can_self_submit, is_active, created_date, created_by) VALUES
+('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1', 'LIC_SEM_VENCIMENTO', 'Licença sem Vencimento', 'Licença sem Vencimento', 'LICENCA',    true,  false, false, true, NOW(), 'system'),
+('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e2', 'LIC_PARENTAL',       'Licença Parental',       'Licença Parental',       'LICENCA',    false, true,  false, true, NOW(), 'system'),
+('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e3', 'LIC_FORMACAO',       'Licença para Formação',  'Licença para Formação',  'LICENCA',    false, true,  true,  true, NOW(), 'system'),
+('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e4', 'MOB_COMISSAO',       'Comissão de Serviço',    'Comissão de Serviço',    'MOBILIDADE', false, true,  false, true, NOW(), 'system'),
+('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e5', 'MOB_REQUISICAO',     'Requisição',             'Requisição',             'MOBILIDADE', false, true,  false, true, NOW(), 'system'),
+('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e6', 'MOB_DESTACAMENTO',   'Destacamento',           'Destacamento',           'MOBILIDADE', false, true,  false, true, NOW(), 'system')
 ON CONFLICT (code) DO NOTHING;
 
 -- =============================================================
