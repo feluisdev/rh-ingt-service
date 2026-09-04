@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.scheduler;
 
+import cv.igrp.RH_Service.shared.config.AppTimeZone;
 import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
@@ -42,7 +43,7 @@ public class TacitAcceptanceScheduler {
     public void processTacitAcceptances() {
         LOGGER.info("Starting automated job to check and apply PAA tacit acceptances...");
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(AppTimeZone.CABO_VERDE);
         List<TacticalActivitiesEntity> pendingExceeded = jpaRepository
                 .findAllByAcceptanceStatusAndEndDateBefore(AcceptanceStatus.PENDING_ACCEPTANCE.getCode(), today);
 

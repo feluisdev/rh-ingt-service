@@ -2,6 +2,7 @@
   "type": "enum",
   "module": "sigdi",
   "name": "KeyResultMetricUnit",
+  "readOnly": true,
   "values": [
     {
       "name": "PERCENT",

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CancelStrategicGoalCommand implements Command {
 
-  @NotBlank(message = "The field <id> is required")
+  @NotBlank(message = "O campo <id> é obrigatório")
   private String id;
 
 }

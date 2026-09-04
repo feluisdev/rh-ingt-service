@@ -15,15 +15,15 @@ import lombok.AllArgsConstructor;
 @IgrpDTO
 public class ChangeRequestDTO {
 
-  @NotBlank(message = "The field <fieldName> is required")
+  @NotBlank(message = "O campo <fieldName> é obrigatório")
   private String fieldName;
 
   private String currentValue;
 
   private String proposedValue;
 
-  @NotBlank(message = "The field <justification> is required")
-  @Size(min = 50, message = "The field length <justification> must be at least 50 characters")
-  @Size(max = 1000, message = "The field length <justification> cannot be more than 1000 characters")
+  @NotBlank(message = "O campo <justification> é obrigatório")
+  @Size(min = 50, message = "O campo <justification> deve ter pelo menos 50 caracteres")
+  @Size(max = 1000, message = "O campo <justification> não pode ter mais de 1000 caracteres")
   private String justification;
 }

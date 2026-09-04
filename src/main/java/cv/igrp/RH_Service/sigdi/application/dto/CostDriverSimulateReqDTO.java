@@ -21,11 +21,11 @@ import java.util.Map;
 @IgrpDTO
 public class CostDriverSimulateReqDTO  {
 
-  @NotBlank(message = "The field <driverType> is required")
+  @NotBlank(message = "O campo <driverType> é obrigatório")
 
   private String driverType ;
 
-  @NotNull(message = "The field <params> is required")
+  @NotNull(message = "O campo <params> é obrigatório")
 
   private Map<String, Object> params = new HashMap<>();
 

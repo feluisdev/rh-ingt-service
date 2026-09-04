@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service;
 
 import cv.igrp.RH_Service.shared.config.ApplicationAuditorAware;
+import cv.igrp.RH_Service.shared.config.AppTimeZone;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -32,7 +33,11 @@ public class RecursosHumanosApplication {
 
   @Bean
   public DateTimeProvider auditDateTimeProvider() {
-    return () -> Optional.of(LocalDateTime.now());
+    // Cabo Verde zone, not the JVM default -- @CreatedDate/@LastModifiedDate on every
+    // AuditEntity-derived entity must use the same explicit zone as AppTimeZone.CABO_VERDE
+    // (see Phase 79 / DATA-01/DATA-03), or containers defaulting to UTC would silently
+    // shift audit timestamps by the zone offset.
+    return () -> Optional.of(LocalDateTime.now(AppTimeZone.CABO_VERDE));
   }
 
 

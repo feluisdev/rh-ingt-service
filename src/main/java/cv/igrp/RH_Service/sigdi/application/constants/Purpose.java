@@ -15,13 +15,18 @@ public enum Purpose implements IgrpEnum<String> {
     PAA("PAA", "Plano de Atividades Anual", 2),
     SIADAP("SIADAP", "Avaliação de Desempenho (SIADAP)", 3),
     SIADAP_INTERIM("SIADAP_INTERIM", "Avaliação Intercalar SIADAP", 4),
-    SIADAP_FINAL("SIADAP_FINAL", "Avaliação Final SIADAP", 5);
+    SIADAP_SELF_EVAL("SIADAP_SELF_EVAL", "Autoavaliação SIADAP", 5),
+    SIADAP_FINAL("SIADAP_FINAL", "Avaliação Final SIADAP", 6);
 
     private final String code;
     private final String description;
     // Fixed position in the annual PAA/SIADAP sequence (FASE-02) -- intentionally NOT
     // derived from Java's implicit ordinal(), and unrelated to StrategicGoal's
     // BSC-canvas position/coordinate concept (positionX/positionY).
+    // The code is persisted in a VARCHAR(20) column with no CHECK constraint
+    // (V19__paa_submission_period_purpose.sql:12), so any future value must fit in
+    // 20 characters -- this is why SIADAP_SELF_EVAL (17 chars) was chosen over the
+    // fully-spelled "SELF_EVALUATION" variant (22 chars), which would not fit.
     private final int position;
 
     Purpose(String code, String description, int position) {
@@ -54,7 +59,7 @@ public enum Purpose implements IgrpEnum<String> {
     public static Purpose fromCodeOrThrow(String code) {
         return fromCode(code).orElseThrow(() ->
                 IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST,
-                        "Invalid Purpose for this code: " + code));
+                        "Código inválido para Purpose: " + code));
     }
 
     public static Map<String, String> codeDescriptionMap() {

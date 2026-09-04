@@ -19,6 +19,7 @@ public class OrganizationalUnitMapper {
         entity.setUnitType(domain.getUnitType());
         entity.setDescricao(domain.getDescricao());
         entity.setParentUnitId(domain.getParentUnitId() != null ? domain.getParentUnitId().getValor() : null);
+        entity.setResponsibleEmployeeId(domain.getResponsibleEmployeeId());
         entity.setIsActive(domain.isActive());
         return entity;
     }
@@ -35,10 +36,14 @@ public class OrganizationalUnitMapper {
                 entity.getUnitType(),
                 entity.getDescricao(),
                 parentId,
+                entity.getResponsibleEmployeeId(),
                 entity.getIsActive() != null && entity.getIsActive()
         );
     }
 
+    // Nao preenche o nome do responsavel aqui de proposito: o mapper nao tem
+    // acesso ao modulo que o resolveria, e e isso que mantem a fronteira de
+    // modulo. O nome resolve-se nos handlers de leitura, atras do port dedicado.
     public OrganizationalUnitResponseDTO toDTO(OrganizationalUnit domain) {
         if (domain == null) return null;
         OrganizationalUnitResponseDTO dto = new OrganizationalUnitResponseDTO();
@@ -49,6 +54,7 @@ public class OrganizationalUnitMapper {
         dto.setUnitType(domain.getUnitType());
         dto.setDescricao(domain.getDescricao());
         dto.setParentUnitId(domain.getParentUnitId() != null ? domain.getParentUnitId().getValor() : null);
+        dto.setResponsibleEmployeeId(domain.getResponsibleEmployeeId());
         dto.setIsActive(domain.isActive());
         dto.setEstadoDesc(domain.isActive() ? "Ativo" : "Inativo");
         return dto;

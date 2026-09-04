@@ -13,11 +13,11 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class GetListIdentitieQuery implements Query {
 
-  @NotBlank(message = "The field <cicleYear> is required")
+  @NotBlank(message = "O campo <cicleYear> é obrigatório")
   private String cicleYear;
-  @NotBlank(message = "The field <pageNumber> is required")
+  @NotBlank(message = "O campo <pageNumber> é obrigatório")
   private String pageNumber;
-  @NotBlank(message = "The field <pageSize> is required")
+  @NotBlank(message = "O campo <pageSize> é obrigatório")
   private String pageSize;
 
 }

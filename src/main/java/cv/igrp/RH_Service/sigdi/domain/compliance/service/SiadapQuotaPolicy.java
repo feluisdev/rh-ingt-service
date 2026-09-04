@@ -31,5 +31,25 @@ public class SiadapQuotaPolicy {
 
     return excellent <= allowed;
   }
+
+  public static boolean isWithinGoodQuota(List<SiadapEvaluation> evaluations, BigDecimal maxPercentGood) {
+    if (evaluations == null || evaluations.isEmpty()) return true;
+    if (maxPercentGood == null) throw new IllegalArgumentException("maxPercentGood é obrigatório");
+    if (maxPercentGood.compareTo(BigDecimal.ZERO) < 0 || maxPercentGood.compareTo(new BigDecimal("100")) > 0) {
+      throw new IllegalArgumentException("maxPercentGood deve ser >= 0 e <= 100");
+    }
+
+    long total = evaluations.size();
+    long good = evaluations.stream()
+        .filter(e -> SiadapMeritRating.GOOD.equals(e.getMeritRating()))
+        .count();
+
+    long allowed = BigDecimal.valueOf(total)
+        .multiply(maxPercentGood)
+        .divide(new BigDecimal("100"), 0, RoundingMode.FLOOR)
+        .longValue();
+
+    return good <= allowed;
+  }
 }
 

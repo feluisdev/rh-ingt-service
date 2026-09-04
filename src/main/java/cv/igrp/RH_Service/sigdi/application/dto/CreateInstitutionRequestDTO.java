@@ -18,13 +18,13 @@ import lombok.AllArgsConstructor;
 @IgrpDTO
 public class CreateInstitutionRequestDTO  {
 
-  @NotBlank(message = "The field <code> is required")
+  @NotBlank(message = "O campo <code> é obrigatório")
 
   private String code ;
-  @NotBlank(message = "The field <name> is required")
+  @NotBlank(message = "O campo <name> é obrigatório")
 
   private String name ;
-  @NotBlank(message = "The field <type> is required")
+  @NotBlank(message = "O campo <type> é obrigatório")
 
   private String type ;
 

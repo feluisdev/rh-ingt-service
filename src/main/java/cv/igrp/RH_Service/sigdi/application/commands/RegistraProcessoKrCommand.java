@@ -14,7 +14,7 @@ public class RegistraProcessoKrCommand implements Command {
 
   
   private KeyResultCheckinRequestDTO keyresultcheckinrequest;
-  @NotBlank(message = "The field <id> is required")
+  @NotBlank(message = "O campo <id> é obrigatório")
   private String id;
 
 }

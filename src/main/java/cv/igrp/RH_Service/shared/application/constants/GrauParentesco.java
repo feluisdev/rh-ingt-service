@@ -56,7 +56,7 @@ public enum GrauParentesco implements IgrpEnum<String> {
   * @throws IllegalArgumentException if no enum value exists for the given code
   */
   public static GrauParentesco fromCodeOrThrow(String code) {
-    return fromCode(code).orElseThrow(() -> new IllegalArgumentException("Invalid GrauParentesco for this code: " + code));
+    return fromCode(code).orElseThrow(() -> new IllegalArgumentException("Código inválido para GrauParentesco: " + code));
   }
 
   /**

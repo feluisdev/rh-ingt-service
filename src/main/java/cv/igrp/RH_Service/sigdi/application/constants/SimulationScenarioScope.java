@@ -59,7 +59,7 @@ public enum SimulationScenarioScope implements IgrpEnum<String> {
   * @throws IllegalArgumentException if no enum value exists for the given code
   */
   public static SimulationScenarioScope fromCodeOrThrow(String code) {
-    return fromCode(code).orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST, "Invalid SimulationScenarioScope for this code: " + code));
+    return fromCode(code).orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST, "Código inválido para SimulationScenarioScope: " + code));
   }
 
   /**

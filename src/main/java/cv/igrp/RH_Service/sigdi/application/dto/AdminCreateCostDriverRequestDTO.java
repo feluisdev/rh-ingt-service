@@ -20,10 +20,10 @@ import java.util.Map;
 @IgrpDTO
 public class AdminCreateCostDriverRequestDTO  {
 
-  @NotBlank(message = "The field <driverType> is required")
+  @NotBlank(message = "O campo <driverType> é obrigatório")
 
   private String driverType ;
-  @NotBlank(message = "The field <validFrom> is required")
+  @NotBlank(message = "O campo <validFrom> é obrigatório")
 
   private String validFrom ;
 

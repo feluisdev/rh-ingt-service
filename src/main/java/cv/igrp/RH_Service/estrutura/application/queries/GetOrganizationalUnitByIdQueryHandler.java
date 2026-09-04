@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.estrutura.application.queries;
 
 import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.estrutura.application.dto.OrganizationalUnitResponseDTO;
+import cv.igrp.RH_Service.estrutura.application.port.FuncionarioLookupPort;
 import cv.igrp.RH_Service.estrutura.domain.repository.OrganizationalUnitRepository;
 import cv.igrp.RH_Service.estrutura.domain.repository.PositionRepository;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.OrganizationalUnitId;
@@ -25,6 +26,7 @@ public class GetOrganizationalUnitByIdQueryHandler
     private final PositionRepository positionRepository;
     private final AssignmentRepository assignmentRepository;
     private final OptionLookupPort optionLookupPort;
+    private final FuncionarioLookupPort funcionarioLookupPort;
 
     @IgrpQueryHandler
     public ResponseEntity<OrganizationalUnitResponseDTO> handle(GetOrganizationalUnitByIdQuery query) {
@@ -47,6 +49,11 @@ public class GetOrganizationalUnitByIdQueryHandler
         if (unit.getParentUnitId() != null) {
             unitRepository.findById(unit.getParentUnitId())
                     .ifPresent(parent -> dto.setParentUnitName(parent.getName()));
+        }
+
+        if (unit.getResponsibleEmployeeId() != null) {
+            funcionarioLookupPort.findById(unit.getResponsibleEmployeeId())
+                    .ifPresent(f -> dto.setResponsibleEmployeeName(f.getNomeCompleto()));
         }
 
         return ResponseEntity.ok(dto);

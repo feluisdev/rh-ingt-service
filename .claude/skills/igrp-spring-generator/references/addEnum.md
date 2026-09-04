@@ -126,7 +126,7 @@ public enum <EnumName> implements IgrpEnum<String> {
   * @throws IllegalArgumentException if no enum value exists for the given code
   */
   public static <EnumName> fromCodeOrThrow(String code) {
-    return fromCode(code).orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST, "Invalid <EnumName> for this code: " + code));
+    return fromCode(code).orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST, "Código inválido para <EnumName>: " + code));
   }
 
   /**

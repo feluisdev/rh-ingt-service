@@ -37,11 +37,11 @@ public class RegistraProcessoKrCommandHandler
       var keyResult = keyResultRepository.findByIdFull(keyResultId)
             .orElseThrow(() -> IgrpResponseStatusException.notFound("KeyResult não encontrado"));
 
-      var updated = keyResult.applyCheckin(request.getValuedAdded(), request.getEvidenceUrl(), request.getComment());
+      var updated = keyResult.applyCheckin(request.getValueAdded(), request.getEvidenceUrl(), request.getComment());
 
       keyResultRepository.save(updated);
 
-      return ResponseEntity.ok("Check-in registrado com sucesso");
+      return ResponseEntity.ok("Check-in registado com sucesso");
    }
 
 }

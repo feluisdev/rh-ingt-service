@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.sigdi.infrastructure.persistence.adapters.tatical;
 
+import cv.igrp.RH_Service.shared.config.AppTimeZone;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.PaaSubmissionPeriod;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -69,7 +71,8 @@ public class PaaSubmissionPeriodRepositoryImpl implements PaaSubmissionPeriodRep
         // Defensive: (type, purpose) is not enforced unique across overlapping date ranges
         // (see 59-REVIEW.md CR-02) — take the most recently created match instead of assuming
         // a single result, to avoid IncorrectResultSizeDataAccessException.
-        return jpaRepository.findAllActiveByTypeAndPurpose(type.getCode(), purpose.getCode())
+        LocalDate today = LocalDate.now(AppTimeZone.CABO_VERDE);
+        return jpaRepository.findAllActiveByTypeAndPurpose(type.getCode(), purpose.getCode(), today)
                 .stream()
                 .findFirst()
                 .map(mapper::toDomain);
@@ -79,7 +82,8 @@ public class PaaSubmissionPeriodRepositoryImpl implements PaaSubmissionPeriodRep
     @Override
     public Optional<PaaSubmissionPeriod> findActiveByTypeAndYearAndPurpose(PaaLevel type, Integer year, Purpose purpose) {
         // Defensive — see comment on findActiveByTypeAndPurpose above.
-        return jpaRepository.findAllActiveByTypeAndYearAndPurpose(type.getCode(), year, purpose.getCode())
+        LocalDate today = LocalDate.now(AppTimeZone.CABO_VERDE);
+        return jpaRepository.findAllActiveByTypeAndYearAndPurpose(type.getCode(), year, purpose.getCode(), today)
                 .stream()
                 .findFirst()
                 .map(mapper::toDomain);
@@ -109,5 +113,45 @@ public class PaaSubmissionPeriodRepositoryImpl implements PaaSubmissionPeriodRep
     @Override
     public long countAllByPurpose(Purpose purpose) {
         return jpaRepository.countByPurpose(purpose.getCode());
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<PaaSubmissionPeriod> findByTypeAndYearAndPurpose(PaaLevel type, Integer year, Purpose purpose) {
+        // Defensive — see comment on findActiveByTypeAndPurpose above. Sem filtro de
+        // estado nem de data: ver comentário no PaaSubmissionPeriodEntityRepository.
+        return jpaRepository.findAllByTypeAndYearAndPurpose(type.getCode(), year, purpose.getCode())
+                .stream()
+                .findFirst()
+                .map(mapper::toDomain);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<PaaSubmissionPeriod> findOpenExpired(LocalDate today, int limit) {
+        // Sempre página zero, nunca um índice de página crescente: quem consome esta leitura
+        // muda o status das linhas que acabou de ler (fecha-as), portanto as linhas
+        // processadas saem do conjunto de resultados a cada passagem seguinte. Um offset
+        // crescente saltaria linhas ainda por processar. O varrimento em lotes (Fase 117,
+        // plano 02) faz-se repetindo a primeira página até esta deixar de devolver algo.
+        Pageable pageable = PageRequest.of(0, limit);
+        return jpaRepository.findOpenWithEndDateBefore(today, pageable)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<PaaSubmissionPeriod> findOpenActiveOn(LocalDate today, int limit) {
+        // Sempre página zero, pela mesma razão de findOpenExpired acima: o agendador de
+        // abertura muda o que a consulta devolve (grava lote para o período, que passa a
+        // bloquear a próxima leitura via a guarda de idempotência), por isso um offset
+        // crescente saltaria períodos ainda por processar.
+        Pageable pageable = PageRequest.of(0, limit);
+        return jpaRepository.findOpenActiveOn(today, pageable)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 }

@@ -18,16 +18,16 @@ import lombok.AllArgsConstructor;
 @IgrpDTO
 public class CreateDelegationRequestDTO  {
 
-  @NotBlank(message = "The field <delegateUserId> is required")
+  @NotBlank(message = "O campo <delegateUserId> é obrigatório")
 
   private String delegateUserId ;
-  @NotBlank(message = "The field <scope> is required")
+  @NotBlank(message = "O campo <scope> é obrigatório")
 
   private String scope ;
-  @NotBlank(message = "The field <startDate> is required")
+  @NotBlank(message = "O campo <startDate> é obrigatório")
 
   private String startDate ;
-  @NotBlank(message = "The field <endDate> is required")
+  @NotBlank(message = "O campo <endDate> é obrigatório")
 
   private String endDate ;
 

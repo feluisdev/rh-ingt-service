@@ -20,5 +20,6 @@
       "primaryKey": false
     }
   ],
-  "id": "wfcomment01"
+  "id": "wfcomment01",
+  "readOnly": true
 }

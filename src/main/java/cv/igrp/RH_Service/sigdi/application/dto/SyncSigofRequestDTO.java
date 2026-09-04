@@ -18,10 +18,10 @@ import lombok.AllArgsConstructor;
 @IgrpDTO
 public class SyncSigofRequestDTO  {
 
-  @NotNull(message = "The field <fiscalYear> is required")
+  @NotNull(message = "O campo <fiscalYear> é obrigatório")
 
   private Integer fiscalYear ;
-  @NotBlank(message = "The field <scope> is required")
+  @NotBlank(message = "O campo <scope> é obrigatório")
 
   private String scope ;
 

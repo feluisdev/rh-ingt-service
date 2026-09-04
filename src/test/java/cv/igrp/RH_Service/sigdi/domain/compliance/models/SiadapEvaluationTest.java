@@ -1,7 +1,9 @@
 package cv.igrp.RH_Service.sigdi.domain.compliance.models;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
@@ -201,5 +203,87 @@ class SiadapEvaluationTest {
 
         assertThrows(IgrpResponseStatusException.class,
                 () -> open.applyObjectiveRevision("OBJ-1", "Nova descrição revista"));
+    }
+
+    // ============================================================
+    // SIA-03 -- aceitação tácita da autoavaliação (fim da janela)
+    // ============================================================
+
+    private SiadapEvaluation buildSelfEvaluationPhaseEvaluation() {
+        return buildOpenEvaluation()
+                .contractualizeObjectives(buildValidObjectives())
+                .acceptObjectives()
+                .openSelfEvaluationPhase();
+    }
+
+    @Test
+    void applyTacitSelfEvaluationAcceptance_fromSelfEvaluation_advancesToManagerEvaluationWithoutScore() {
+        SiadapEvaluation selfEvaluation = buildSelfEvaluationPhaseEvaluation();
+
+        SiadapEvaluation tacitlyAccepted = selfEvaluation.applyTacitSelfEvaluationAcceptance();
+
+        assertEquals(EvaluationPhase.MANAGER_EVALUATION, tacitlyAccepted.getPhase());
+        assertEquals(null, tacitlyAccepted.getSelfEvaluationScore());
+        assertTrue(tacitlyAccepted.isSelfEvaluationTacitlyAccepted());
+    }
+
+    @Test
+    void applyTacitSelfEvaluationAcceptance_rejectedWhenNotSelfEvaluation() {
+        SiadapEvaluation open = buildOpenEvaluation();
+        assertThrows(IgrpResponseStatusException.class, open::applyTacitSelfEvaluationAcceptance);
+
+        SiadapEvaluation managerEvaluation = buildSelfEvaluationPhaseEvaluation().applyTacitSelfEvaluationAcceptance();
+        // Idempotência: uma segunda invocação sobre o resultado da primeira também lança --
+        // é do que o agendador do Plano 03 depende para não reprocessar a mesma avaliação.
+        assertThrows(IgrpResponseStatusException.class, managerEvaluation::applyTacitSelfEvaluationAcceptance);
+    }
+
+    @Test
+    void applyTacitSelfEvaluationAcceptance_leavesAcceptanceStatusUntouched() {
+        SiadapEvaluation selfEvaluation = buildSelfEvaluationPhaseEvaluation();
+
+        SiadapEvaluation tacitlyAccepted = selfEvaluation.applyTacitSelfEvaluationAcceptance();
+
+        assertEquals(selfEvaluation.getAcceptanceStatus(), tacitlyAccepted.getAcceptanceStatus());
+    }
+
+    @Test
+    void submitSelfEvaluation_stillRequiresPhaseAndScore() {
+        SiadapEvaluation selfEvaluation = buildSelfEvaluationPhaseEvaluation();
+
+        assertThrows(IgrpResponseStatusException.class, () -> selfEvaluation.submitSelfEvaluation(null));
+        assertThrows(IgrpResponseStatusException.class, () -> selfEvaluation.submitSelfEvaluation(BigDecimal.ZERO));
+        assertThrows(IgrpResponseStatusException.class, () -> selfEvaluation.submitSelfEvaluation(new BigDecimal("6")));
+
+        SiadapEvaluation open = buildOpenEvaluation();
+        assertThrows(IgrpResponseStatusException.class, () -> open.submitSelfEvaluation(new BigDecimal("4")));
+
+        SiadapEvaluation submitted = selfEvaluation.submitSelfEvaluation(new BigDecimal("4"));
+        assertEquals(new BigDecimal("4"), submitted.getSelfEvaluationScore());
+        assertEquals(false, submitted.isSelfEvaluationTacitlyAccepted());
+    }
+
+    @Test
+    void tacitlyAcceptedEvaluation_reachesHarmonizationWithoutSelfEvaluationScore() {
+        SiadapEvaluation tacitlyAccepted = buildSelfEvaluationPhaseEvaluation()
+                .applyTacitSelfEvaluationAcceptance();
+
+        SiadapEvaluation withAchievements = tacitlyAccepted
+                .recordObjectiveAchievement("OBJ-1", new BigDecimal("100"), 3)
+                .recordObjectiveAchievement("OBJ-2", new BigDecimal("100"), 3)
+                .recordObjectiveAchievement("OBJ-3", new BigDecimal("100"), 3);
+
+        SiadapEvaluation withCompetencies = withAchievements.setCompetencies(
+                List.of(CompetencyItem.create("COMP-1", "Orientação para o Serviço Público",
+                        CompetencyCategory.BEHAVIORAL)));
+
+        SiadapEvaluation evaluated = withCompetencies.evaluateCompetency("COMP-1", 4);
+
+        SiadapEvaluation finalized = evaluated.finalizeEvaluation();
+
+        assertEquals(EvaluationPhase.HARMONIZATION, finalized.getPhase());
+        assertNotNull(finalized.getFinalScore());
+        assertEquals(null, finalized.getSelfEvaluationScore());
+        assertTrue(finalized.isSelfEvaluationTacitlyAccepted());
     }
 }

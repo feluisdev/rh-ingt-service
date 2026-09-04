@@ -194,8 +194,8 @@ Generate a `\n\t`-joined string of annotations in this order:
 1) `@JsonProperty("...")` if `jsonAttributeName`
 2) `@JacksonXmlProperty(localName = "...")` if `xmlAttributeName`
 3) Required validations (`required=true`):
-   - if `type === "string"` and no collectionType or collectionType is `none`: `@NotBlank(message = "The field <name> is required")`
-   - else `@NotNull(message = "The field <name> is required")`
-   - if `collectionType === "list"` also `@NotEmpty(message = "The field <name> must not be empty")`
+   - if `type === "string"` and no collectionType or collectionType is `none`: `@NotBlank(message = "O campo <name> é obrigatório")`
+   - else `@NotNull(message = "O campo <name> é obrigatório")`
+   - if `collectionType === "list"` also `@NotEmpty(message = "O campo <name> não pode estar vazio")`
 4) String validations: `@Size(min=...)`, `@Size(max=...)`, `@Pattern(...)` (escape backslashes)
 5) Email/URL: `@Email(...)`, `@URL(...)`

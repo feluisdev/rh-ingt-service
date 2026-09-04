@@ -32,7 +32,8 @@ public class InstitutionalIdentityMapper {
         InstitutionalValues.of(entity.getValuesJson()),
         entity.getVersionComment(),
         entity.isActive(),
-        new ArrayList<StrategicGoal>());
+        new ArrayList<StrategicGoal>(),
+        entity.getCreatedDate());
   }
 
   public InstitutionalIdentity toDomainFull(InstitutionalIdentityEntity entity) {
@@ -51,7 +52,8 @@ public class InstitutionalIdentityMapper {
         InstitutionalValues.of(entity.getValuesJson()),
         entity.getVersionComment(),
         entity.isActive(),
-        goals);
+        goals,
+        entity.getCreatedDate());
   }
 
   public InstitutionalIdentityEntity toEntity(InstitutionalIdentity domain) {
@@ -81,6 +83,7 @@ public class InstitutionalIdentityMapper {
     response.setValues(domain.getValues().getValores());
     response.setVersionComment(domain.getVersionComment());
     response.setActive(domain.isActive());
+    response.setCreatedAt(domain.getCreatedAt());
     return response;
   }
 

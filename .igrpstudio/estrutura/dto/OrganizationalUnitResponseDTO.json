@@ -13,7 +13,10 @@
     {"name": "descricao", "type": "string", "required": false},
     {"name": "parentUnitId", "type": "string", "required": false},
     {"name": "parentUnitName", "type": "string", "required": false},
+    {"name": "responsibleEmployeeId", "type": "string", "required": false},
+    {"name": "responsibleEmployeeName", "type": "string", "required": false},
     {"name": "isActive", "type": "boolean", "required": false},
-    {"name": "estadoDesc", "type": "string", "required": false}
+    {"name": "estadoDesc", "type": "string", "required": false},
+    {"name": "nColaboradores", "type": "long", "required": false}
   ]
 }

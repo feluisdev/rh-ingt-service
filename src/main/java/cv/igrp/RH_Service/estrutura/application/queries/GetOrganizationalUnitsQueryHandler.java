@@ -2,6 +2,8 @@ package cv.igrp.RH_Service.estrutura.application.queries;
 
 import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.estrutura.application.dto.WrapperListaOrganizationalUnitDTO;
+import cv.igrp.RH_Service.estrutura.application.port.FuncionarioLookupDTO;
+import cv.igrp.RH_Service.estrutura.application.port.FuncionarioLookupPort;
 import cv.igrp.RH_Service.estrutura.domain.filter.OrganizationalUnitFilter;
 import cv.igrp.RH_Service.estrutura.domain.repository.OrganizationalUnitRepository;
 import cv.igrp.RH_Service.estrutura.domain.repository.PositionRepository;
@@ -31,6 +33,7 @@ public class GetOrganizationalUnitsQueryHandler
     private final PositionRepository positionRepository;
     private final AssignmentRepository assignmentRepository;
     private final OptionLookupPort optionLookupPort;
+    private final FuncionarioLookupPort funcionarioLookupPort;
 
     @IgrpQueryHandler
     public ResponseEntity<WrapperListaOrganizationalUnitDTO> handle(GetOrganizationalUnitsQuery query) {
@@ -58,6 +61,12 @@ public class GetOrganizationalUnitsQueryHandler
         Map<UUID, String> parentNames = unitRepository.findAllByIds(parentIds).stream()
                 .collect(Collectors.toMap(u -> u.getId().getValor(), u -> u.getName()));
 
+        Set<UUID> responsibleIds = pageResult.getData().stream()
+                .map(u -> u.getResponsibleEmployeeId())
+                .filter(id -> id != null)
+                .collect(Collectors.toSet());
+        Map<UUID, FuncionarioLookupDTO> responsibleEmployees = funcionarioLookupPort.findAllByIds(responsibleIds);
+
         var content = pageResult.getData().stream().map(unit -> {
             var dto = mapper.toDTO(unit);
             long ocupados = positionRepository.findByUnidade(unit.getId().getValor()).stream()
@@ -70,6 +79,10 @@ public class GetOrganizationalUnitsQueryHandler
             }
             if (unit.getParentUnitId() != null) {
                 dto.setParentUnitName(parentNames.get(unit.getParentUnitId().getValor()));
+            }
+            if (unit.getResponsibleEmployeeId() != null) {
+                FuncionarioLookupDTO responsible = responsibleEmployees.get(unit.getResponsibleEmployeeId());
+                if (responsible != null) dto.setResponsibleEmployeeName(responsible.getNomeCompleto());
             }
             return dto;
         }).toList();

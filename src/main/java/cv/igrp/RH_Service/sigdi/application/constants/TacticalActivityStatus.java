@@ -64,7 +64,7 @@ public enum TacticalActivityStatus implements IgrpEnum<String> {
   * @throws IllegalArgumentException if no enum value exists for the given code
   */
   public static TacticalActivityStatus fromCodeOrThrow(String code) {
-    return fromCode(code).orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST, "Invalid TacticalActivityStatus for this code: " + code));
+    return fromCode(code).orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST, "Código inválido para TacticalActivityStatus: " + code));
   }
 
   /**

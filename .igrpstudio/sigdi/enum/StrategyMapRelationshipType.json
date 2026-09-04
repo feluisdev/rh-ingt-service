@@ -2,6 +2,7 @@
   "type": "enum",
   "module": "sigdi",
   "name": "StrategyMapRelationshipType",
+  "readOnly": true,
   "values": [
     {
       "name": "CAUSE_EFFECT",

@@ -83,5 +83,6 @@
       "collectionType": "list"
     }
   ],
-  "id": "zn6123cdef"
+  "id": "zn6123cdef",
+  "readOnly": true
 }

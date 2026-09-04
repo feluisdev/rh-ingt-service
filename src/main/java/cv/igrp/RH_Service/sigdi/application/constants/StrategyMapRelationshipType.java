@@ -58,7 +58,7 @@ public enum StrategyMapRelationshipType implements IgrpEnum<String> {
   * @throws IllegalArgumentException if no enum value exists for the given code
   */
   public static StrategyMapRelationshipType fromCodeOrThrow(String code) {
-    return fromCode(code).orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST, "Invalid StrategyMapRelationshipType for this code: " + code));
+    return fromCode(code).orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST, "Código inválido para StrategyMapRelationshipType: " + code));
   }
 
   /**

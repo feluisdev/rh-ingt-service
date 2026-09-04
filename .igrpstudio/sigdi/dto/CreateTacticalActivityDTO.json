@@ -164,5 +164,6 @@
       "primaryKey": false
     }
   ],
-  "id": "create-tactical-activity-dto"
+  "id": "create-tactical-activity-dto",
+  "readOnly": true
 }

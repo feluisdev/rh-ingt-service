@@ -24,5 +24,6 @@
       "collectionType": "list"
     }
   ],
-  "id": "wrapperwfInboxdto01"
+  "id": "wrapperwfInboxdto01",
+  "readOnly": true
 }

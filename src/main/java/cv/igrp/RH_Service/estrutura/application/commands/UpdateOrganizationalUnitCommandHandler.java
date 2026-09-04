@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.estrutura.application.commands;
 
 import cv.igrp.RH_Service.estrutura.application.dto.OrganizationalUnitResponseDTO;
+import cv.igrp.RH_Service.estrutura.application.port.FuncionarioLookupPort;
 import cv.igrp.RH_Service.estrutura.domain.repository.OrganizationalUnitRepository;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.OrganizationalUnitId;
 import cv.igrp.RH_Service.estrutura.infrastructure.mappers.OrganizationalUnitMapper;
@@ -15,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 @RequiredArgsConstructor
 public class UpdateOrganizationalUnitCommandHandler
@@ -25,6 +28,7 @@ public class UpdateOrganizationalUnitCommandHandler
     private final OrganizationalUnitRepository unitRepository;
     private final OrganizationalUnitMapper mapper;
     private final OptionLookupPort optionLookupPort;
+    private final FuncionarioLookupPort funcionarioLookupPort;
 
     @IgrpCommandHandler
     public ResponseEntity<OrganizationalUnitResponseDTO> handle(UpdateOrganizationalUnitCommand command) {
@@ -45,8 +49,15 @@ public class UpdateOrganizationalUnitCommandHandler
             parentId = validateAndGetParentId(dto.getParentUnitId().toString(), id);
         }
 
+        UUID responsibleEmployeeId = validateAndGetResponsibleEmployeeId(dto.getResponsibleEmployeeId());
+
+        // PUT e substituicao total (D-10, 109-02-PLAN.md), mesma semantica de
+        // parentUnitId: um pedido que omita responsibleEmployeeId limpa-o. O gume e
+        // real -- este campo passa a decidir quem avalia quem -- e esta pinado por
+        // teste (UpdateOrganizationalUnitCommandHandlerTest, caso 4), nao apenas
+        // documentado aqui.
         unit.atualizar(dto.getCode(), dto.getName(), dto.getAcronym(), dto.getUnitType(),
-                dto.getDescricao(), parentId);
+                dto.getDescricao(), parentId, responsibleEmployeeId);
         var updated = unitRepository.save(unit);
 
         var responseDto = mapper.toDTO(updated);
@@ -57,6 +68,10 @@ public class UpdateOrganizationalUnitCommandHandler
         if (parentId != null) {
             unitRepository.findById(parentId)
                     .ifPresent(parent -> responseDto.setParentUnitName(parent.getName()));
+        }
+        if (responsibleEmployeeId != null) {
+            funcionarioLookupPort.findById(responsibleEmployeeId)
+                    .ifPresent(f -> responseDto.setResponsibleEmployeeName(f.getNomeCompleto()));
         }
         return ResponseEntity.ok(responseDto);
     }
@@ -74,5 +89,19 @@ public class UpdateOrganizationalUnitCommandHandler
                     "Não é possível definir uma unidade inactiva como unidade-mãe.");
         }
         return parentId;
+    }
+
+    // Nao valida que o responsavel pertence a propria unidade -- nao-decisao
+    // explicita do operador (D-06, 2026-08-24, ver 109-02-PLAN.md): os tres
+    // funcionarios da base estao todos na mesma unidade, pelo que a restricao
+    // nao seria exercida por dado nenhum. O que se valida e que o funcionario existe.
+    private UUID validateAndGetResponsibleEmployeeId(UUID responsibleEmployeeId) {
+        if (responsibleEmployeeId == null) {
+            return null;
+        }
+        funcionarioLookupPort.findById(responsibleEmployeeId)
+                .orElseThrow(() -> IgrpResponseStatusException.badRequest(
+                        "Funcionário responsável não encontrado: " + responsibleEmployeeId));
+        return responsibleEmployeeId;
     }
 }

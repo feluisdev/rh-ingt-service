@@ -9,6 +9,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import cv.igrp.RH_Service.shared.config.AppTimeZone;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
@@ -82,23 +83,50 @@ class CreatePaaSubmissionPeriodCommandHandlerTest {
     }
 
     @Test
-    void createPaaUnitLevelPeriodWithNoPurposeInDtoDefaultsToPaa() {
+    void rejectsCreateWhenPurposeIsAbsentFromDto() {
+        // PRZ-03: o caminho de produção que atribuía Purpose.PAA em silêncio deixou de
+        // existir -- este teste substitui createPaaUnitLevelPeriodWithNoPurposeInDtoDefaultsToPaa,
+        // que afirmava exactamente o comportamento que esta fase elimina.
         LocalDate start = LocalDate.now();
         LocalDate end = start.plusDays(10);
         CreatePaaSubmissionPeriodDTO dto = new CreatePaaSubmissionPeriodDTO(
                 PaaLevel.UNIT_LEVEL.getCode(), start, end, 2026, null);
 
-        when(repository.findByTypeAndYearAndStatusAndPurpose(
-                PaaLevel.UNIT_LEVEL, 2026, "OPEN", Purpose.PAA))
-                .thenReturn(Optional.empty());
-        when(repository.save(any(PaaSubmissionPeriod.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
-        when(repository.findAllByYear(2026)).thenReturn(List.of());
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(new CreatePaaSubmissionPeriodCommand(dto)));
 
-        ResponseEntity<PaaSubmissionPeriodResponseDTO> response =
-                handler.handle(new CreatePaaSubmissionPeriodCommand(dto));
+        assertEquals(400, exception.getBody().getStatus());
+        verify(repository, never()).save(any());
+    }
 
-        assertEquals(Purpose.PAA.getCode(), response.getBody().getPurpose());
+    @Test
+    void rejectsCreateWhenPurposeIsBlankInDto() {
+        LocalDate start = LocalDate.now();
+        LocalDate end = start.plusDays(10);
+        CreatePaaSubmissionPeriodDTO dto = new CreatePaaSubmissionPeriodDTO(
+                PaaLevel.UNIT_LEVEL.getCode(), start, end, 2026, "   ");
+
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(new CreatePaaSubmissionPeriodCommand(dto)));
+
+        assertEquals(400, exception.getBody().getStatus());
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void rejectsCreateWhenPurposeCodeIsUnknown() {
+        // Guarda de não-regressão: Purpose.fromCodeOrThrow já recusa um código desconhecido
+        // com 400 hoje; este teste prova que a nova guarda de ausência/branco não o substitui.
+        LocalDate start = LocalDate.now();
+        LocalDate end = start.plusDays(10);
+        CreatePaaSubmissionPeriodDTO dto = new CreatePaaSubmissionPeriodDTO(
+                PaaLevel.UNIT_LEVEL.getCode(), start, end, 2026, "NAO_EXISTE");
+
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(new CreatePaaSubmissionPeriodCommand(dto)));
+
+        assertEquals(400, exception.getBody().getStatus());
+        verify(repository, never()).save(any());
     }
 
     @Test
@@ -233,6 +261,69 @@ class CreatePaaSubmissionPeriodCommandHandlerTest {
     }
 
     @Test
+    void detectsOverlapWithClosedUnitLevelSiblingHiddenBehindNewerIndividualLevelAtSamePosition() {
+        // WR-02 regression: PAA (position 2) has two periods live in the same year --
+        // UNIT_LEVEL closed early per Rule 2 (status CLOSED well before its date range
+        // elapses) and a newer INDIVIDUAL_LEVEL sibling created afterwards with a much
+        // narrower window. Deduping by position alone would keep only the newer
+        // INDIVIDUAL_LEVEL record and miss that the new period actually overlaps the
+        // still-live UNIT_LEVEL date range.
+        PaaSubmissionPeriod unitPeriod = PaaSubmissionPeriod.reconstruct(
+                UUID.randomUUID(), Purpose.PAA, PaaLevel.UNIT_LEVEL,
+                LocalDate.of(2026, 1, 1), LocalDate.of(2026, 8, 31), "CLOSED", 2026);
+        PaaSubmissionPeriod individualPeriod = PaaSubmissionPeriod.reconstruct(
+                UUID.randomUUID(), Purpose.PAA, PaaLevel.INDIVIDUAL_LEVEL,
+                LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 15), "CLOSED", 2026);
+
+        CreatePaaSubmissionPeriodDTO dto = new CreatePaaSubmissionPeriodDTO(
+                PaaLevel.INDIVIDUAL_LEVEL.getCode(), LocalDate.of(2026, 5, 1),
+                LocalDate.of(2026, 6, 1), 2026, Purpose.SIADAP.getCode());
+
+        when(repository.findByTypeAndYearAndStatusAndPurpose(
+                PaaLevel.INDIVIDUAL_LEVEL, 2026, "OPEN", Purpose.SIADAP))
+                .thenReturn(Optional.empty());
+        // newest-first, mirrors findAllByYear's ORDER BY createdDate DESC
+        when(repository.findAllByYear(2026)).thenReturn(List.of(individualPeriod, unitPeriod));
+
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(new CreatePaaSubmissionPeriodCommand(dto)));
+
+        String title = exception.getBody().getTitle();
+        assertEquals(422, exception.getBody().getStatus());
+        assertTrue(title.contains("Plano de Atividades Anual"));
+        assertTrue(title.contains("31/08/2026"));
+    }
+
+    @Test
+    void acceptsWhenNewPeriodOverlapsNeitherSamePositionSiblingOfDifferentType() {
+        // Sanity check for the (position, type) grouping: two PAA siblings (UNIT_LEVEL and
+        // INDIVIDUAL_LEVEL) share position 2, but neither range actually overlaps the new
+        // period -- must not be rejected just because the position now carries two candidates.
+        PaaSubmissionPeriod unitPeriod = PaaSubmissionPeriod.reconstruct(
+                UUID.randomUUID(), Purpose.PAA, PaaLevel.UNIT_LEVEL,
+                LocalDate.of(2026, 1, 1), LocalDate.of(2026, 2, 28), "CLOSED", 2026);
+        PaaSubmissionPeriod individualPeriod = PaaSubmissionPeriod.reconstruct(
+                UUID.randomUUID(), Purpose.PAA, PaaLevel.INDIVIDUAL_LEVEL,
+                LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 15), "CLOSED", 2026);
+
+        CreatePaaSubmissionPeriodDTO dto = new CreatePaaSubmissionPeriodDTO(
+                PaaLevel.INDIVIDUAL_LEVEL.getCode(), LocalDate.of(2026, 5, 1),
+                LocalDate.of(2026, 6, 1), 2026, Purpose.SIADAP.getCode());
+
+        when(repository.findByTypeAndYearAndStatusAndPurpose(
+                PaaLevel.INDIVIDUAL_LEVEL, 2026, "OPEN", Purpose.SIADAP))
+                .thenReturn(Optional.empty());
+        when(repository.findAllByYear(2026)).thenReturn(List.of(individualPeriod, unitPeriod));
+        when(repository.save(any(PaaSubmissionPeriod.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        ResponseEntity<PaaSubmissionPeriodResponseDTO> response =
+                handler.handle(new CreatePaaSubmissionPeriodCommand(dto));
+
+        assertEquals(201, response.getStatusCode().value());
+    }
+
+    @Test
     void overlapErrorMessageNamesConflictingFinalidadeAndExactDates() {
         // SOBREP-03: the conflict message must name the Finalidade and format both dates
         // dd/MM/yyyy (not the domain's ISO LocalDate.toString() form).
@@ -287,5 +378,86 @@ class CreatePaaSubmissionPeriodCommandHandlerTest {
                 handler.handle(new CreatePaaSubmissionPeriodCommand(dto));
 
         assertEquals(201, response.getStatusCode().value());
+    }
+
+    @Test
+    void createReturnsDaysRemainingComputedFromCaboVerdeZone() {
+        // DATA-01 regression (79-RESEARCH.md Pitfall 1): daysRemaining must be computed with
+        // AppTimeZone.CABO_VERDE, not the JVM default zone. Both start/end are anchored to the
+        // same Cabo Verde "today" the handler itself uses, so the assertion stays correct on any
+        // machine -- the first daysRemaining assertion in this file (79-02-PLAN.md Task 1).
+        LocalDate today = LocalDate.now(AppTimeZone.CABO_VERDE);
+        LocalDate start = today;
+        LocalDate end = today.plusDays(15);
+        CreatePaaSubmissionPeriodDTO dto = new CreatePaaSubmissionPeriodDTO(
+                PaaLevel.UNIT_LEVEL.getCode(), start, end, 2026, Purpose.PAA.getCode());
+
+        when(repository.findByTypeAndYearAndStatusAndPurpose(
+                PaaLevel.UNIT_LEVEL, 2026, "OPEN", Purpose.PAA))
+                .thenReturn(Optional.empty());
+        when(repository.save(any(PaaSubmissionPeriod.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(repository.findAllByYear(2026)).thenReturn(List.of());
+
+        ResponseEntity<PaaSubmissionPeriodResponseDTO> response =
+                handler.handle(new CreatePaaSubmissionPeriodCommand(dto));
+
+        assertEquals(201, response.getStatusCode().value());
+        assertEquals(15L, response.getBody().getDaysRemaining());
+    }
+
+    @Test
+    void acceptsSelfEvaluationWindowSandwichedBetweenInterimAndFinal() {
+        // SIA-02 criterion 3: the sixth Purpose value (SIADAP_SELF_EVAL, position 5) must slot
+        // between SIADAP_INTERIM (position 4) and the renumbered SIADAP_FINAL (position 6)
+        // without triggering the overlap rule when there is a gap on both sides.
+        PaaSubmissionPeriod siadapInterim = PaaSubmissionPeriod.reconstruct(
+                UUID.randomUUID(), Purpose.SIADAP_INTERIM, PaaLevel.INDIVIDUAL_LEVEL,
+                LocalDate.of(2026, 1, 1), LocalDate.of(2026, 6, 30), "CLOSED", 2026);
+        PaaSubmissionPeriod siadapFinal = PaaSubmissionPeriod.reconstruct(
+                UUID.randomUUID(), Purpose.SIADAP_FINAL, PaaLevel.INDIVIDUAL_LEVEL,
+                LocalDate.of(2026, 11, 1), LocalDate.of(2026, 12, 15), "CLOSED", 2026);
+
+        CreatePaaSubmissionPeriodDTO dto = new CreatePaaSubmissionPeriodDTO(
+                PaaLevel.INDIVIDUAL_LEVEL.getCode(), LocalDate.of(2026, 7, 1),
+                LocalDate.of(2026, 10, 31), 2026, Purpose.SIADAP_SELF_EVAL.getCode());
+
+        when(repository.findByTypeAndYearAndStatusAndPurpose(
+                PaaLevel.INDIVIDUAL_LEVEL, 2026, "OPEN", Purpose.SIADAP_SELF_EVAL))
+                .thenReturn(Optional.empty());
+        when(repository.findAllByYear(2026)).thenReturn(List.of(siadapInterim, siadapFinal));
+        when(repository.save(any(PaaSubmissionPeriod.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        ResponseEntity<PaaSubmissionPeriodResponseDTO> response =
+                handler.handle(new CreatePaaSubmissionPeriodCommand(dto));
+
+        assertEquals(201, response.getStatusCode().value());
+    }
+
+    @Test
+    void rejectsSelfEvaluationWindowThatOverlapsTheFinalEvaluationPhase() {
+        // The nearest-following neighbor is now SIADAP_FINAL at the renumbered position 6 --
+        // proves the Rule 3 comparison still catches the overlap after the renumbering.
+        PaaSubmissionPeriod siadapFinal = PaaSubmissionPeriod.reconstruct(
+                UUID.randomUUID(), Purpose.SIADAP_FINAL, PaaLevel.INDIVIDUAL_LEVEL,
+                LocalDate.of(2026, 11, 1), LocalDate.of(2026, 12, 15), "CLOSED", 2026);
+
+        CreatePaaSubmissionPeriodDTO dto = new CreatePaaSubmissionPeriodDTO(
+                PaaLevel.INDIVIDUAL_LEVEL.getCode(), LocalDate.of(2026, 7, 1),
+                LocalDate.of(2026, 11, 15), 2026, Purpose.SIADAP_SELF_EVAL.getCode());
+
+        when(repository.findByTypeAndYearAndStatusAndPurpose(
+                PaaLevel.INDIVIDUAL_LEVEL, 2026, "OPEN", Purpose.SIADAP_SELF_EVAL))
+                .thenReturn(Optional.empty());
+        when(repository.findAllByYear(2026)).thenReturn(List.of(siadapFinal));
+
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(new CreatePaaSubmissionPeriodCommand(dto)));
+
+        String title = exception.getBody().getTitle();
+        assertEquals(422, exception.getBody().getStatus());
+        assertTrue(title.contains("Avaliação Final SIADAP"));
+        assertTrue(title.contains("01/11/2026"));
     }
 }

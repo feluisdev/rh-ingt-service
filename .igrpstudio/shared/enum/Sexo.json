@@ -2,6 +2,7 @@
   "type": "enum",
   "module": "shared",
   "name": "Sexo",
+  "readOnly": true,
   "values": [
     {
       "name": "MASCULINO",

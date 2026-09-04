@@ -91,6 +91,15 @@ public class SiadapEvaluation {
      */
     private final String lastNegotiationComment;
 
+    /**
+     * SIA-03: distingue "o avaliado submeteu a autoavaliação" ({@link #submitSelfEvaluation}) de
+     * "a janela de autoavaliação fechou sem submissão e a fase avançou tacitamente"
+     * ({@link #applyTacitSelfEvaluationAcceptance}). Sem este campo os dois caminhos produzem o
+     * mesmo registo a partir de {@code MANAGER_EVALUATION} — {@code selfEvaluationScore} a
+     * {@code null} nos dois casos torna-os indistinguíveis para quem lê.
+     */
+    private final boolean selfEvaluationTacitlyAccepted;
+
     private SiadapEvaluation(SiadapEvaluationId id, String employeeId, Integer year,
                               String organicUnitId, String evaluatorId,
                               List<IndividualObjective> objectives,
@@ -99,7 +108,7 @@ public class SiadapEvaluation {
                               BigDecimal selfEvaluationScore, BigDecimal finalScore,
                               SiadapMeritRating meritRating, boolean validatedQuota,
                               EvaluationPhase phase, AcceptanceStatus acceptanceStatus,
-                              String lastNegotiationComment) {
+                              String lastNegotiationComment, boolean selfEvaluationTacitlyAccepted) {
         if (id == null) throw new IllegalArgumentException("id é obrigatório");
         if (employeeId == null || employeeId.isBlank()) throw new IllegalArgumentException("employeeId é obrigatório");
         if (year == null) throw new IllegalArgumentException("year é obrigatório");
@@ -122,6 +131,7 @@ public class SiadapEvaluation {
         this.phase = (phase != null) ? phase : EvaluationPhase.OPEN;
         this.acceptanceStatus = acceptanceStatus;
         this.lastNegotiationComment = lastNegotiationComment;
+        this.selfEvaluationTacitlyAccepted = selfEvaluationTacitlyAccepted;
     }
 
     // ============================================================
@@ -141,7 +151,7 @@ public class SiadapEvaluation {
                 new ArrayList<>(), new ArrayList<>(),
                 resultsWeight, competenciesWeight,
                 null, null, null, false,
-                EvaluationPhase.OPEN, null, null
+                EvaluationPhase.OPEN, null, null, false
         );
     }
 
@@ -154,11 +164,11 @@ public class SiadapEvaluation {
                                                BigDecimal selfEvaluationScore, BigDecimal finalScore,
                                                SiadapMeritRating meritRating, boolean validatedQuota,
                                                EvaluationPhase phase, AcceptanceStatus acceptanceStatus,
-                                               String lastNegotiationComment) {
+                                               String lastNegotiationComment, boolean selfEvaluationTacitlyAccepted) {
         return new SiadapEvaluation(id, employeeId, year, organicUnitId, evaluatorId,
                 objectives, competencies, resultsWeight, competenciesWeight,
                 selfEvaluationScore, finalScore, meritRating, validatedQuota, phase, acceptanceStatus,
-                lastNegotiationComment);
+                lastNegotiationComment, selfEvaluationTacitlyAccepted);
     }
 
     // ============================================================
@@ -198,7 +208,8 @@ public class SiadapEvaluation {
                 newObjectives, this.competencies,
                 this.resultsWeight, this.competenciesWeight,
                 this.selfEvaluationScore, null, null, false,
-                this.phase, AcceptanceStatus.PENDING_ACCEPTANCE, this.lastNegotiationComment);
+                this.phase, AcceptanceStatus.PENDING_ACCEPTANCE, this.lastNegotiationComment,
+                this.selfEvaluationTacitlyAccepted);
     }
 
     /**
@@ -217,7 +228,8 @@ public class SiadapEvaluation {
                 this.objectives, this.competencies,
                 this.resultsWeight, this.competenciesWeight,
                 this.selfEvaluationScore, this.finalScore, this.meritRating, this.validatedQuota,
-                EvaluationPhase.IN_PROGRESS, AcceptanceStatus.ACCEPTED, this.lastNegotiationComment);
+                EvaluationPhase.IN_PROGRESS, AcceptanceStatus.ACCEPTED, this.lastNegotiationComment,
+                this.selfEvaluationTacitlyAccepted);
     }
 
     /**
@@ -237,7 +249,7 @@ public class SiadapEvaluation {
                 this.objectives, this.competencies,
                 this.resultsWeight, this.competenciesWeight,
                 this.selfEvaluationScore, this.finalScore, this.meritRating, this.validatedQuota,
-                this.phase, AcceptanceStatus.NEGOTIATING, comment);
+                this.phase, AcceptanceStatus.NEGOTIATING, comment, this.selfEvaluationTacitlyAccepted);
     }
 
     /**
@@ -264,7 +276,7 @@ public class SiadapEvaluation {
                 updated, this.competencies,
                 this.resultsWeight, this.competenciesWeight,
                 this.selfEvaluationScore, null, null, false, this.phase, this.acceptanceStatus,
-                this.lastNegotiationComment);
+                this.lastNegotiationComment, this.selfEvaluationTacitlyAccepted);
     }
 
     /**
@@ -291,7 +303,8 @@ public class SiadapEvaluation {
                 updated, this.competencies,
                 this.resultsWeight, this.competenciesWeight,
                 this.selfEvaluationScore, this.finalScore, this.meritRating, this.validatedQuota,
-                this.phase, this.acceptanceStatus, this.lastNegotiationComment);
+                this.phase, this.acceptanceStatus, this.lastNegotiationComment,
+                this.selfEvaluationTacitlyAccepted);
     }
 
     /**
@@ -309,7 +322,35 @@ public class SiadapEvaluation {
                 this.objectives, this.competencies,
                 this.resultsWeight, this.competenciesWeight,
                 selfScore, this.finalScore, this.meritRating, false,
-                EvaluationPhase.MANAGER_EVALUATION, this.acceptanceStatus, this.lastNegotiationComment);
+                EvaluationPhase.MANAGER_EVALUATION, this.acceptanceStatus, this.lastNegotiationComment,
+                false);
+    }
+
+    /**
+     * SIA-03: avança a autoavaliação de {@code SELF_EVALUATION} para {@code MANAGER_EVALUATION}
+     * sem nota, quando a janela de submissão fechou e o avaliado não submeteu (aceitação tácita).
+     * <p>
+     * Ao contrário de {@code TacticalActivity.applyTacitAcceptance()} do PAA, este método
+     * transita a fase: no PAA a aceitação tácita muda o estado de uma proposta já existente
+     * (avaliador propôs, avaliado não respondeu); aqui é a ausência de ação do avaliado, dentro
+     * de uma janela temporal, que substitui a submissão em si — não há proposta a aceitar, há
+     * uma fase a avançar. {@code selfEvaluationScore} mantém-se {@code null} e
+     * {@code selfEvaluationTacitlyAccepted} passa a {@code true}, para que o caminho tácito
+     * continue distinguível do caminho normal ({@link #submitSelfEvaluation}) em todas as fases
+     * seguintes do ciclo.
+     */
+    public SiadapEvaluation applyTacitSelfEvaluationAcceptance() {
+        if (!EvaluationPhase.SELF_EVALUATION.equals(this.phase))
+            throw IgrpResponseStatusException.badRequest(
+                    "Aceitação tácita da autoavaliação só é possível na fase SELF_EVALUATION");
+
+        return new SiadapEvaluation(this.id, this.employeeId, this.year,
+                this.organicUnitId, this.evaluatorId,
+                this.objectives, this.competencies,
+                this.resultsWeight, this.competenciesWeight,
+                this.selfEvaluationScore, this.finalScore, this.meritRating, false,
+                EvaluationPhase.MANAGER_EVALUATION, this.acceptanceStatus, this.lastNegotiationComment,
+                true);
     }
 
     /**
@@ -340,7 +381,7 @@ public class SiadapEvaluation {
                 this.objectives, newCompetencies,
                 this.resultsWeight, this.competenciesWeight,
                 this.selfEvaluationScore, null, null, false, this.phase, this.acceptanceStatus,
-                this.lastNegotiationComment);
+                this.lastNegotiationComment, this.selfEvaluationTacitlyAccepted);
     }
 
     /**
@@ -363,7 +404,7 @@ public class SiadapEvaluation {
                 this.objectives, updated,
                 this.resultsWeight, this.competenciesWeight,
                 this.selfEvaluationScore, null, null, false, this.phase, this.acceptanceStatus,
-                this.lastNegotiationComment);
+                this.lastNegotiationComment, this.selfEvaluationTacitlyAccepted);
     }
 
     /**
@@ -393,7 +434,8 @@ public class SiadapEvaluation {
                 this.objectives, this.competencies,
                 this.resultsWeight, this.competenciesWeight,
                 this.selfEvaluationScore, final_, merit, false,
-                EvaluationPhase.HARMONIZATION, this.acceptanceStatus, this.lastNegotiationComment);
+                EvaluationPhase.HARMONIZATION, this.acceptanceStatus, this.lastNegotiationComment,
+                this.selfEvaluationTacitlyAccepted);
     }
 
     /**
@@ -407,7 +449,8 @@ public class SiadapEvaluation {
                 this.objectives, this.competencies,
                 this.resultsWeight, this.competenciesWeight,
                 this.selfEvaluationScore, this.finalScore, this.meritRating, true,
-                EvaluationPhase.CLOSED, this.acceptanceStatus, this.lastNegotiationComment);
+                EvaluationPhase.CLOSED, this.acceptanceStatus, this.lastNegotiationComment,
+                this.selfEvaluationTacitlyAccepted);
     }
 
     /** Atribui diretamente a menção de mérito (pelo avaliador/CCA). */
@@ -418,7 +461,7 @@ public class SiadapEvaluation {
                 this.resultsWeight, this.competenciesWeight,
                 this.selfEvaluationScore, this.finalScore,
                 rating, this.validatedQuota, this.phase, this.acceptanceStatus,
-                this.lastNegotiationComment);
+                this.lastNegotiationComment, this.selfEvaluationTacitlyAccepted);
     }
 
     // ============================================================
@@ -505,7 +548,8 @@ public class SiadapEvaluation {
                 this.objectives, this.competencies,
                 this.resultsWeight, this.competenciesWeight,
                 this.selfEvaluationScore, this.finalScore, this.meritRating, this.validatedQuota,
-                newPhase, this.acceptanceStatus, this.lastNegotiationComment);
+                newPhase, this.acceptanceStatus, this.lastNegotiationComment,
+                this.selfEvaluationTacitlyAccepted);
     }
 
     /**
@@ -518,7 +562,8 @@ public class SiadapEvaluation {
                 this.objectives, this.competencies,
                 this.resultsWeight, this.competenciesWeight,
                 this.selfEvaluationScore, this.finalScore, this.meritRating, this.validatedQuota,
-                this.phase, newAcceptanceStatus, this.lastNegotiationComment);
+                this.phase, newAcceptanceStatus, this.lastNegotiationComment,
+                this.selfEvaluationTacitlyAccepted);
     }
 
     public boolean isClosed() {

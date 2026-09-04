@@ -19,19 +19,19 @@ import java.math.BigDecimal;
 @IgrpDTO
 public class UpdateStategicGoalDTO  {
 
-  @Size(min = 5, message = "The field length <title> must be at least 5 characters")
-	@Size(max = 100, message = "The field length <title> cannot be more than 100 characters")
+  @Size(min = 5, message = "O campo <title> deve ter pelo menos 5 caracteres")
+	@Size(max = 100, message = "O campo <title> não pode ter mais de 100 caracteres")
   
   private String title ;
-  @Size(min = 1, message = "The field length <description> must be at least 1 characters")
-	@Size(max = 500, message = "The field length <description> cannot be more than 500 characters")
+  @Size(min = 1, message = "O campo <description> deve ter pelo menos 1 caractere")
+	@Size(max = 500, message = "O campo <description> não pode ter mais de 500 caracteres")
   
   private String description ;
   
   private BigDecimal weight ;
 
-  @Min(value = 2000, message = "The field <year> must be at least 2000")
-  @Max(value = 2100, message = "The field <year> cannot be more than 2100")
+  @Min(value = 2000, message = "O campo <year> não pode ser inferior a 2000")
+  @Max(value = 2100, message = "O campo <year> não pode ser superior a 2100")
   private Integer year ;
 
   private java.util.List<StrategicIndicatorDTO> indicators = new java.util.ArrayList<>();

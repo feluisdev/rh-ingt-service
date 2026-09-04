@@ -44,7 +44,7 @@ public enum AcceptanceStatus implements IgrpEnum<String> {
     public static AcceptanceStatus fromCodeOrThrow(String code) {
         return fromCode(code).orElseThrow(() ->
                 IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST,
-                        "Invalid AcceptanceStatus for this code: " + code));
+                        "Código inválido para AcceptanceStatus: " + code));
     }
 
     public static Map<String, String> codeDescriptionMap() {

@@ -17,8 +17,23 @@ public class ApplicationAuditorAware implements AuditorAware<String> {
 
   private static final String SYSTEM_FALLBACK = "system-bot@nosi.cv";
 
+  /**
+   * Resolve o auditor corrente para efeitos de {@code created_by}/{@code last_modified_by}.
+   *
+   * <p>Consulta primeiro {@link SystemAuditor#current()}. Um âmbito de sistema activo é uma
+   * afirmação explícita de que a escrita em curso não é de nenhum utilizador — feita por um
+   * agendador, por exemplo — e essa afirmação prevalece sobre o que estiver no
+   * {@link SecurityContextHolder}, mesmo que por acaso lá esteja uma autenticação (residual de
+   * uma thread reaproveitada). Só na ausência de um âmbito de sistema é que se segue o caminho
+   * habitual: {@code sub} do JWT, depois {@code Authentication#getName()}, depois o fallback
+   * genérico.
+   */
   @Override
   public Optional<String> getCurrentAuditor() {
+    Optional<String> systemAuditor = SystemAuditor.current();
+    if (systemAuditor.isPresent()) {
+      return systemAuditor;
+    }
     return Optional.ofNullable(getCurrentSubjectName()).filter(s -> !s.isBlank());
   }
 

@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.sigdi.domain.tatical.models;
 
+import cv.igrp.RH_Service.shared.config.AppTimeZone;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
@@ -43,12 +44,6 @@ public class PaaSubmissionPeriod {
         return new PaaSubmissionPeriod(UUID.randomUUID(), purpose, type, startDate, endDate, "OPEN", year);
     }
 
-    /** Backward-compatible overload — defaults purpose to PAA for callers not yet updated. */
-    public static PaaSubmissionPeriod create(PaaLevel type, LocalDate startDate,
-                                              LocalDate endDate, Integer year) {
-        return create(Purpose.PAA, type, startDate, endDate, year);
-    }
-
     public static PaaSubmissionPeriod reconstruct(UUID id, Purpose purpose, PaaLevel type, LocalDate startDate,
                                                    LocalDate endDate, String status, Integer year) {
         return new PaaSubmissionPeriod(id, purpose, type, startDate, endDate, status, year);
@@ -69,7 +64,7 @@ public class PaaSubmissionPeriod {
     }
 
     public boolean isActiveToday() {
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(AppTimeZone.CABO_VERDE);
         return isOpen() && !today.isBefore(startDate) && !today.isAfter(endDate);
     }
 }

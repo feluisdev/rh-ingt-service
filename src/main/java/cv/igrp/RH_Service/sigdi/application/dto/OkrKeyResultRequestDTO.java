@@ -19,16 +19,16 @@ import java.math.BigDecimal;
 @IgrpDTO
 public class OkrKeyResultRequestDTO  {
 
-  @NotBlank(message = "The field <title> is required")
+  @NotBlank(message = "O campo <title> é obrigatório")
 
   private String title ;
-  @NotNull(message = "The field <targetValue> is required")
+  @NotNull(message = "O campo <targetValue> é obrigatório")
 
   private BigDecimal targetValue ;
-  @NotBlank(message = "The field <unit> is required")
+  @NotBlank(message = "O campo <unit> é obrigatório")
 
   private String unit ;
-  @NotNull(message = "The field <weight> is required")
+  @NotNull(message = "O campo <weight> é obrigatório")
 
   private BigDecimal weight ;
 

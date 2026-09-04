@@ -56,5 +56,6 @@
       "primaryKey": false
     }
   ],
-  "id": "changerequestdto01"
+  "id": "changerequestdto01",
+  "readOnly": true
 }

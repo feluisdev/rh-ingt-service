@@ -54,7 +54,7 @@ public enum Estado implements IgrpEnum<String> {
   * @throws IllegalArgumentException if no enum value exists for the given code
   */
   public static Estado fromCodeOrThrow(String code) {
-    return fromCode(code).orElseThrow(() -> new IllegalArgumentException("Invalid Estado for this code: " + code));
+    return fromCode(code).orElseThrow(() -> new IllegalArgumentException("Código inválido para Estado: " + code));
   }
 
   /**

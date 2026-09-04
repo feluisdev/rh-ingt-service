@@ -18,13 +18,13 @@ import lombok.AllArgsConstructor;
 @IgrpDTO
 public class GoalPositionResponseDTO  {
 
-  @NotBlank(message = "The field <goalId> is required")
+  @NotBlank(message = "O campo <goalId> é obrigatório")
 
   private String goalId ;
-  @NotNull(message = "The field <x> is required")
+  @NotNull(message = "O campo <x> é obrigatório")
 
   private Double x ;
-  @NotNull(message = "The field <y> is required")
+  @NotNull(message = "O campo <y> é obrigatório")
 
   private Double y ;
 

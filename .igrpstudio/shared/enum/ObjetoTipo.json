@@ -2,6 +2,7 @@
   "type": "enum",
   "module": "shared",
   "name": "ObjetoTipo",
+  "readOnly": true,
   "values": [
     {
       "name": "FUNCIONARIO",

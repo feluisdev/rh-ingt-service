@@ -2,6 +2,7 @@
   "type": "enum",
   "module": "shared",
   "name": "EstadoCivil",
+  "readOnly": true,
   "values": [
     {
       "name": "SOLTEIRO",

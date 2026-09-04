@@ -11,13 +11,13 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class GetBudgetAvailabilityQuery implements Query {
 
-  @NotBlank(message = "The field <classifier> is required")
+  @NotBlank(message = "O campo <classifier> é obrigatório")
   private String classifier;
 
-  @NotBlank(message = "The field <organicUnitId> is required")
+  @NotBlank(message = "O campo <organicUnitId> é obrigatório")
   private String organicUnitId;
 
-  @NotNull(message = "The field <fiscalYear> is required")
+  @NotNull(message = "O campo <fiscalYear> é obrigatório")
   private Integer fiscalYear;
 
   private String requestedAmount;

@@ -19,19 +19,19 @@ import java.math.BigDecimal;
 @IgrpDTO
 public class CreateScenarioRequestDTO  {
 
-  @NotBlank(message = "The field <name> is required")
+  @NotBlank(message = "O campo <name> é obrigatório")
 
   private String name ;
-  @NotBlank(message = "The field <type> is required")
+  @NotBlank(message = "O campo <type> é obrigatório")
 
   private String type ;
-  @NotNull(message = "The field <percentage> is required")
+  @NotNull(message = "O campo <percentage> é obrigatório")
 
   private BigDecimal percentage ;
-  @NotBlank(message = "The field <scope> is required")
+  @NotBlank(message = "O campo <scope> é obrigatório")
 
   private String scope ;
-  @NotNull(message = "The field <fiscalYear> is required")
+  @NotNull(message = "O campo <fiscalYear> é obrigatório")
 
   private Integer fiscalYear ;
 
@@ -40,5 +40,8 @@ public class CreateScenarioRequestDTO  {
 
 
   private Boolean excludeObligatory ;
+
+
+  private String targetId ;
 
 }

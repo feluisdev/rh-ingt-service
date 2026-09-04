@@ -14,7 +14,7 @@ public class UpdateCostDriverCommand implements Command {
 
   
   private CostDriverRequestDTO costdriverrequest;
-  @NotBlank(message = "The field <id> is required")
+  @NotBlank(message = "O campo <id> é obrigatório")
   private String id;
 
 }

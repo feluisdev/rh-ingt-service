@@ -19,10 +19,10 @@ import java.math.BigDecimal;
 @IgrpDTO
 public class BudgetValidationRequestDTO  {
 
-  @NotBlank(message = "The field <economicClassifier> is required")
+  @NotBlank(message = "O campo <economicClassifier> é obrigatório")
   
   private String economicClassifier ;
-  @NotNull(message = "The field <budgetEstimated> is required")
+  @NotNull(message = "O campo <budgetEstimated> é obrigatório")
   
   private BigDecimal budgetEstimated ;
 

@@ -9,7 +9,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
 import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
 import cv.igrp.RH_Service.sigdi.application.constants.EvaluationPhase;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
@@ -52,6 +54,9 @@ class ContractualizeObjectivesCommandHandlerTest {
     @Mock
     private PaaSubmissionPeriodRepository periodRepository;
 
+    @Mock
+    private CurrentEmployeeResolver currentEmployeeResolver;
+
     @InjectMocks
     private ContractualizeObjectivesCommandHandler handler;
 
@@ -85,6 +90,8 @@ class ContractualizeObjectivesCommandHandlerTest {
 
         when(evaluationRepository.findById(any(SiadapEvaluationId.class)))
                 .thenReturn(Optional.of(evaluation));
+        when(currentEmployeeResolver.resolve())
+                .thenReturn(FuncionarioId.from(evaluation.getEvaluatorId()));
         when(periodRepository.findActiveByTypeAndYearAndPurpose(
                 PaaLevel.INDIVIDUAL_LEVEL, YEAR, Purpose.SIADAP))
                 .thenReturn(Optional.empty());
@@ -111,6 +118,8 @@ class ContractualizeObjectivesCommandHandlerTest {
 
         when(evaluationRepository.findById(any(SiadapEvaluationId.class)))
                 .thenReturn(Optional.of(evaluation));
+        when(currentEmployeeResolver.resolve())
+                .thenReturn(FuncionarioId.from(evaluation.getEvaluatorId()));
         when(periodRepository.findActiveByTypeAndYearAndPurpose(
                 PaaLevel.INDIVIDUAL_LEVEL, YEAR, Purpose.SIADAP))
                 .thenReturn(Optional.of(activePeriod));
@@ -133,5 +142,29 @@ class ContractualizeObjectivesCommandHandlerTest {
         SiadapEvaluation saved = captor.getValue();
         assertEquals(AcceptanceStatus.PENDING_ACCEPTANCE, saved.getAcceptanceStatus());
         assertEquals(EvaluationPhase.OPEN, saved.getPhase());
+    }
+
+    // WR-01: only the avaliador desta avaliação pode contratualizar os objetivos.
+    @Test
+    void throwsForbiddenWhenCurrentUserIsNotTheEvaluator() {
+        SiadapEvaluationId evalId = SiadapEvaluationId.gerarNovo();
+        SiadapEvaluation evaluation = buildEvaluation(evalId);
+
+        when(evaluationRepository.findById(any(SiadapEvaluationId.class)))
+                .thenReturn(Optional.of(evaluation));
+        when(currentEmployeeResolver.resolve())
+                .thenReturn(FuncionarioId.gerarNovo());
+
+        ContractualizeObjectivesCommand command = buildCommand(evalId.getStringValor());
+
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(command));
+
+        assertEquals(403, exception.getBody().getStatus());
+
+        verify(evaluationRepository, never()).save(any());
+        // T-101-03: a ordem ator-antes-de-prazo tem de ser assertada por comportamento —
+        // um chamador não autorizado nunca deve chegar a consultar o prazo configurado.
+        verify(periodRepository, never()).findActiveByTypeAndYearAndPurpose(any(), any(), any());
     }
 }

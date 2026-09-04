@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.dto.ContractualizeObjectivesRequestDTO;
@@ -14,6 +15,7 @@ import cv.igrp.RH_Service.sigdi.infrastructure.mappers.compliance.SiadapEvaluati
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// ACTOR-CHECK: ENFORCED -- evaluation.evaluatorId; only the avaliador may contractualize objectives
 @Component
 @RequiredArgsConstructor
 public class ContractualizeObjectivesCommandHandler
@@ -29,6 +32,7 @@ public class ContractualizeObjectivesCommandHandler
   private final SiadapEvaluationRepository evaluationRepository;
   private final SiadapEvaluationMapper mapper;
   private final PaaSubmissionPeriodRepository periodRepository;
+  private final CurrentEmployeeResolver currentEmployeeResolver;
 
   @IgrpCommandHandler
   @Transactional
@@ -40,8 +44,16 @@ public class ContractualizeObjectivesCommandHandler
     SiadapEvaluation evaluation = evaluationRepository.findById(evalId)
         .orElseThrow(() -> IgrpResponseStatusException.notFound("Avaliação não encontrada"));
 
+    // WR-01: only the avaliador desta avaliação pode contratualizar os objetivos.
+    String currentEmployeeId = currentEmployeeResolver.resolve().getStringValor();
+    if (!currentEmployeeId.equals(evaluation.getEvaluatorId()))
+      throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN,
+          "Apenas o avaliador desta avaliação pode contratualizar os objetivos");
+
     // PRAZO-03: fail-closed deadline enforcement — no active SIADAP individual period
     // for the evaluation's fiscal year blocks contractualization (59-RESEARCH.md Pitfall 4).
+    // Inserted AFTER the actor check above, matching the auth-before-business-rule
+    // ordering used by sibling handlers (FinalizeEvaluationCommandHandler.java:49-51).
     periodRepository.findActiveByTypeAndYearAndPurpose(
             PaaLevel.INDIVIDUAL_LEVEL, evaluation.getYear(), Purpose.SIADAP)
         .orElseThrow(() -> IgrpResponseStatusException.badRequest("Prazo não configurado para este ano"));

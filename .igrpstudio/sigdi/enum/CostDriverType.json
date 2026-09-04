@@ -2,6 +2,7 @@
   "type": "enum",
   "module": "sigdi",
   "name": "CostDriverType",
+  "readOnly": true,
   "values": [
     {
       "name": "PER_DIEM",

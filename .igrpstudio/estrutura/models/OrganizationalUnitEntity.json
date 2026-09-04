@@ -12,6 +12,7 @@
     {"name": "unitType", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "descricao", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "parentUnitId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "responsibleEmployeeId", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "isActive", "type": "boolean", "objectType": "java", "primaryKey": false}
   ]
 }

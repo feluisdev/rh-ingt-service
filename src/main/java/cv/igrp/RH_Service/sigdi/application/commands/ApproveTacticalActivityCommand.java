@@ -14,6 +14,6 @@ public class ApproveTacticalActivityCommand implements Command {
 
   private WorkflowCommentDTO workflowcomment;
 
-  @NotBlank(message = "The field <id> is required")
+  @NotBlank(message = "O campo <id> é obrigatório")
   private String id;
 }

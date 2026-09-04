@@ -1,7 +1,10 @@
 package cv.igrp.RH_Service.sigdi.application.queries;
 
+import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
+import cv.igrp.RH_Service.sigdi.application.constants.EvaluationPhase;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.SiadapEvaluationEntity;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.SiadapEvaluationEntityRepository;
+import cv.igrp.RH_Service.sigdi.infrastructure.persistence.specifications.SiadapEvaluationSpecifications;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapEvaluationDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperSiadapEvaluationListDTO;
 import cv.igrp.RH_Service.sigdi.application.port.FuncionarioLookupPort;
@@ -12,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,8 +50,14 @@ public class ListSiadapEvaluationsQueryHandler
     int page = parseIntOrDefault(query.getPageNumber(), 0);
     int size = parseIntOrDefault(query.getPageSize(), 20);
 
-    String year = query.getYear().toString();
-    Page<SiadapEvaluationEntity> pageResult = repository.findByYear(year, PageRequest.of(page, size));
+    String statusParam = query.getStatus();
+    EvaluationPhase phase = (statusParam == null || statusParam.isBlank())
+        ? null
+        : EvaluationPhase.fromCodeOrThrow(statusParam);
+
+    Specification<SiadapEvaluationEntity> spec =
+        SiadapEvaluationSpecifications.byFilters(query.getYear(), query.getOrganicUnitId(), phase);
+    Page<SiadapEvaluationEntity> pageResult = repository.findAll(spec, PageRequest.of(page, size));
 
     List<SiadapEvaluationDTO> data = pageResult.getContent().stream()
         .map(this::toDto)
@@ -81,9 +91,16 @@ public class ListSiadapEvaluationsQueryHandler
     dto.setOrganicUnitId(e.getOrganicUnitId());
     dto.setEvaluatorId(e.getEvaluatorId());
     dto.setPhase(e.getEvaluationPhase());
+    dto.setSelfEvaluationTacitlyAccepted(e.isSelfEvaluationTacitlyAccepted());
     dto.setSelfEvaluationScore(e.getSelfEvaluationScore());
     dto.setResultsWeight(e.getResultsWeight());
     dto.setCompetenciesWeight(e.getCompetenciesWeight());
+    // Critério 6, Fase 104: feeds deriveObjectiveNotifications on the frontend; removing any of
+    // these three fields is caught by ListSiadapEvaluationsQueryHandlerTest.
+    dto.setAcceptanceStatus(e.getAcceptanceStatus());
+    dto.setAcceptanceStatusDesc(AcceptanceStatus.fromCode(e.getAcceptanceStatus())
+        .map(AcceptanceStatus::getDescription).orElse(null));
+    dto.setLastNegotiationComment(e.getLastNegotiationComment());
 
     // Lookup employee name
     try {
@@ -100,6 +117,21 @@ public class ListSiadapEvaluationsQueryHandler
             .ifPresent(org -> dto.setOrganicUnitName(org.getName()));
       } catch (Exception ex) {
         dto.setOrganicUnitName(null);
+      }
+    }
+
+    // Lookup evaluator name -- LIG-03. evaluatorId can be null (Phase 109, decision D-05): a unit
+    // without a responsible employee, or an evaluee without a current enquadramento, does not
+    // block evaluation creation. No textual fallback here on purpose: composing one from the raw
+    // id would leak an internal identifier into a screen column and an exported PDF, in a system
+    // with no RBAC layer; leaving the name null lets the two existing frontend readers fall back
+    // to the dash they already render.
+    if (e.getEvaluatorId() != null) {
+      try {
+        funcionarioLookupPort.findById(UUID.fromString(e.getEvaluatorId()))
+            .ifPresent(evaluator -> dto.setEvaluatorName(evaluator.getNomeCompleto()));
+      } catch (Exception ex) {
+        // Invalid id or lookup failure: evaluatorName stays unset (null), never a raw identifier.
       }
     }
 

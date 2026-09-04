@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+// ACTOR-CHECK: ENFORCED -- evaluation.employeeId; only the avaliado may request negotiation of the proposed objectives
 @Component
 @RequiredArgsConstructor
 public class NegotiateSiadapObjectivesCommandHandler

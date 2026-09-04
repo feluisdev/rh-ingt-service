@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -68,5 +69,14 @@ public class AssignmentRepositoryImpl implements AssignmentRepository {
     @Override
     public boolean isPositionOccupied(UUID positionId) {
         return entityRepository.existsByPositionIdAndIsCurrentTrue(positionId);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Assignment> findAllByUnidadeOrganicaCoveringYear(UUID unidadeOrganicaId, int year) {
+        LocalDate startOfYear = LocalDate.of(year, 1, 1);
+        LocalDate endOfYear = LocalDate.of(year, 12, 31);
+        return entityRepository.findAllByUnidadeOrganicaCoveringRange(unidadeOrganicaId, startOfYear, endOfYear)
+                .stream().map(mapper::toDomain).toList();
     }
 }
