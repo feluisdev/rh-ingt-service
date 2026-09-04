@@ -34,6 +34,19 @@ public class UpdateStategicGoalDTO  {
   @Max(value = 2100, message = "O campo <year> não pode ser superior a 2100")
   private Integer year ;
 
+  // FIX-09 / A-124-02: the BSC perspective code, as a String. Until Phase 130 this field did not
+  // exist at all: the client sent "perspective", Jackson had nowhere to put it, the service does
+  // not configure fail-on-unknown-properties, and the value was dropped in silence while the
+  // response said 200 and the toast said the changes had been saved.
+  //
+  // The absence of an initializer is deliberate, for the same reason as "indicators" below: it is
+  // what lets Jackson tell an ABSENT key (field stays null, meaning "keep the current
+  // perspective") apart from a value the caller actually sent. A regeneration by iGRP Studio
+  // would delete this field outright and reopen A-124-02 --
+  // UpdateStategicGoalDtoPerspectiveContractTest fails in that case, turning the regeneration
+  // into a red build instead of silent data loss.
+  private String perspective ;
+
   // The absence of an initializer is deliberate: it is what lets Jackson tell an ABSENT
   // "indicators" key (field stays null) apart from an EMPTY list (field is a non-null, empty
   // list). Absent means "do not touch the existing indicators"; [] means "remove them all".
