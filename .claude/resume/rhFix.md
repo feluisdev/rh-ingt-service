@@ -14,7 +14,7 @@ Refactor dos "movimentos do colaborador": adoptar **Position Management (Mapa de
   - `docs/funcionarios/v4/ADR_Position_Management_Mapa_Pessoal.md` (ADR-002 — schema/decisões).
 - **Estado do TODO — FASE 1A ✅ CONCLUÍDA:**
   - [x] 1A.1 branch criada.
-  - [x] 1A.2 migração `V30__position_assignment.sql` (defensiva, idempotente — testada 2x = só skips; índices únicos parciais; `_aud`).
+  - [x] 1A.2 migração `V37__position_assignment.sql` (defensiva, idempotente — testada 2x = só skips; índices únicos parciais; `_aud`).
   - [x] 1A.3 `scripts/cleanup/clean_movimentos.sql` (idempotente).
   - [x] 1A.4 `PositionEntity` (estrutura/), `AssignmentEntity` (`@Entity(name="ColabsAssignmentEntity")`).
   - [x] 1A.5 `PositionId`/`AssignmentId`, `Position`/`Assignment` (domínio), mappers, ports (`PositionRepository`/`AssignmentRepository`), spring-data repos, adapters.
@@ -124,7 +124,7 @@ Entregar como doc `docs/funcionarios/v4/` + (opcional) artifact HTML. Formato de
 - **RETIDO (compat, NÃO apagar):** `EnquadramentoResponseDTO.java` (+ manifest) — ainda é o **shape de resposta** do bloco `enquadramento` em `ColaboradorDetailsResponseDTO`/`GetColaboradorDetailsQueryHandler` (repoint A2, por compat FE). Restaurado após eliminação acidental.
 - **RETIDO (histórico):** `V10__enquadramento.sql` (Flyway — apagá-la parte a validação) e `docs/funcionarios/v4/ADR_Modelo_Movimentos_Enquadramento_Colocacao.md` (ADR antigo).
 
-**C) Tabelas legadas órfãs — ✅ LARGADAS (2026-09-02, migração `V31__drop_legacy_orphan_tables.sql`):**
+**C) Tabelas legadas órfãs — ✅ LARGADAS (2026-09-02, migração `V38__drop_legacy_orphan_tables.sql`):**
 - Varrimento completo (69 tabelas public vs 58 `@Table` de entities). Órfãs = sem entity, sem FK viva, não criadas por Flyway (todas materializadas por `ddl-auto`). Diretiva do utilizador: "se nenhuma entity aponta, não precisamos delas".
 - **Largadas (6 public + 2 `_aud`):** `t_contrato_entity`(0, FK→t_cargo), `t_cargo`(1, ex-`t_job` legado), `t_documento`(0, ex-`t_document`), `t_professional_situation`(7, catálogo dormente s/ entity), `t_employee_professional_assignments`(0)+`_aud`, `t_employee_unit_assignments`(0)+`_aud`.
 - **Dump de segurança:** `scripts/cleanup/backup_legacy_before_drop_2026-09-02.sql` (data-only, 87 linhas).
@@ -164,7 +164,7 @@ Entregar como doc `docs/funcionarios/v4/` + (opcional) artifact HTML. Formato de
 - **JDK 23 obrigatório** (release 23). `JAVA_HOME` do sistema aponta p/ jdk-21 (falha). Usar: `C:\Program Files\Eclipse Adoptium\jdk-23.0.2.7-hotspot`. PowerShell: `$env:JAVA_HOME="C:\Program Files\Eclipse Adoptium\jdk-23.0.2.7-hotspot"; mvn -q -DskipTests compile`.
 - Run: `docker-compose up` → `java -jar target/RH-Service-0.0.1-SNAPSHOT.jar` (perfil development, 8091, sem auth).
 - BD: `docker exec -i postgres-ingt-rh psql -U postgres -d recursoshumanos_db` (container `postgres-ingt-rh`, porta 5436).
-- Aplicar migração à mão: `Get-Content src\main\resources\db\migration\V30__position_assignment.sql -Raw | docker exec -i postgres-ingt-rh psql -U postgres -d recursoshumanos_db`.
+- Aplicar migração à mão: `Get-Content src\main\resources\db\migration\V37__position_assignment.sql -Raw | docker exec -i postgres-ingt-rh psql -U postgres -d recursoshumanos_db`.
 - Limpar movimentos: `Get-Content scripts\cleanup\clean_movimentos.sql -Raw | docker exec -i postgres-ingt-rh psql -U postgres -d recursoshumanos_db`.
 
 ## Open questions
@@ -200,7 +200,7 @@ Start-Process mvn -ArgumentList "-DskipTests","spring-boot:run" -RedirectStandar
 - Nota tooling: PowerShell 5.1 → `Invoke-WebRequest -UseBasicParsing` + `Accept: application/json`. Scripts de teste no scratchpad (`test_blocoA.ps1`, `test_blocoB_filter.ps1`, `test_regressao.ps1`).
 - **COMMITADO** (branch `feat/position-management`): `8306216` refactor(colaboradores): regresso de mobilidade via afectacao (Bloco A) + `ea3b3d0` refactor(colaboradores): eliminar CRUD standalone enquadramento/colocacao (Bloco B). `settings.json`/`data/` deixados fora. Ainda por fazer push (não autorizado).
 
-- **Bloco C CONCLUÍDO** (2026-09-02): `V31__drop_legacy_orphan_tables.sql` larga 8 tabelas órfãs (6 public + 2 `_aud`); dump em `scripts/cleanup/`. Testado (app arranca, Flyway V31 success, sem recriação, regressão 13/13). **Por commitar** (V31 + dump + handoff).
+- **Bloco C CONCLUÍDO** (2026-09-02): `V38__drop_legacy_orphan_tables.sql` larga 8 tabelas órfãs (6 public + 2 `_aud`); dump em `scripts/cleanup/`. Testado (app arranca, Flyway V38 success, sem recriação, regressão 13/13). **Por commitar** (V38 + dump + handoff).
 
 **CONCLUÍDO na sessão /resume #2 (2026-09-02):**
 - **Guard PCFR** (escalão∈categoria) em `AssignmentService.afectar()`: injeta `GradeRepository`+`CategoryRepository` (ports de `carreiras/`); 422 se `grade.categoryId != position.categoryId`. Cobre registo/afectação/mobilidade. **Testado live 2/2** (201 / 422). Commits `eb00908` (guard) + `48201c0` (mensagem com nomes das categorias).

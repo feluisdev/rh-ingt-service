@@ -1,5 +1,5 @@
 -- =============================================================
--- V30 — Position Management (Mapa de Pessoal)
+-- V37 — Position Management (Mapa de Pessoal)
 --   t_position  (Lugar)      — camada estrutura/
 --   t_assignment (Afectação) — camada colaboradores/ (funde
 --                              enquadramento + colocação)

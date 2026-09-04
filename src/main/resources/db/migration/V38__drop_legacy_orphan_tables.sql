@@ -1,5 +1,5 @@
 -- =============================================================
--- V31 — DROP de tabelas legadas órfãs (sem entity JPA, sem uso)
+-- V38 — DROP de tabelas legadas órfãs (sem entity JPA, sem uso)
 -- -------------------------------------------------------------
 -- Todas estas tabelas foram materializadas por Hibernate ddl-auto a partir de
 -- entities que já não existem (ou nunca chegaram a ser usadas). Nenhuma é criada
@@ -31,5 +31,5 @@ DROP TABLE IF EXISTS audit_schema.t_employee_professional_assignments_aud CASCAD
 DROP TABLE IF EXISTS audit_schema.t_employee_unit_assignments_aud         CASCADE;
 
 DO $$ BEGIN
-    RAISE NOTICE 'V31: tabelas legadas órfãs largadas (ou inexistentes) — schema limpo.';
+    RAISE NOTICE 'V38: tabelas legadas órfãs largadas (ou inexistentes) — schema limpo.';
 END $$;

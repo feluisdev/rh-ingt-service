@@ -126,7 +126,7 @@ docker exec -i postgres-ingt-rh psql -U postgres -d recursoshumanos_db < scripts
 
 ### Fase 1A — Schema + limpeza + domínio ✅ CONCLUÍDA
 - [x] **1A.1** Criar branch `feat/position-management` a partir de `dev`.
-- [x] **1A.2** Migração Flyway defensiva `V30__position_assignment.sql`: `t_position` + `t_assignment` + índices únicos parciais + tabelas `_aud`. Testada idempotente (2ª corrida = só skips).
+- [x] **1A.2** Migração Flyway defensiva `V37__position_assignment.sql`: `t_position` + `t_assignment` + índices únicos parciais + tabelas `_aud`. Testada idempotente (2ª corrida = só skips).
 - [x] **1A.3** Script `scripts/cleanup/clean_movimentos.sql` (idempotente, defensivo).
 - [x] **1A.4** Entidades JPA: `PositionEntity` (estrutura), `AssignmentEntity` (`@Entity(name="ColabsAssignmentEntity")`).
 - [x] **1A.5** Domínio + VOs `PositionId`/`AssignmentId` + mappers + ports + spring-data repos + adapters.
