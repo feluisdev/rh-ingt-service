@@ -43,7 +43,12 @@ public class PublicHolidayRepositoryImpl implements PublicHolidayRepository {
     @Transactional(readOnly = true)
     @Override
     public boolean existsByHolidayDateAndNational(LocalDate holidayDate, boolean national) {
-        return publicHolidayEntityRepository.existsByHolidayDateAndIsNational(holidayDate, national);
+        // Só um feriado nacional ACTIVO por data bloqueia (BR-PH-01). A consulta
+        // anterior ignorava is_active, pelo que um feriado inactivo na mesma data
+        // impedia a criação de um novo.
+        return national
+                ? publicHolidayEntityRepository.existsByHolidayDateAndIsNationalTrueAndIsActiveTrue(holidayDate)
+                : publicHolidayEntityRepository.existsByHolidayDateAndIsNational(holidayDate, false);
     }
 
     @Transactional(readOnly = true)

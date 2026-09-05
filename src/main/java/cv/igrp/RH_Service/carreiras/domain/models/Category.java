@@ -2,9 +2,11 @@ package cv.igrp.RH_Service.carreiras.domain.models;
 
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CareerId;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CategoryId;
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import lombok.Getter;
 
 @Getter
+
 public class Category {
 
     private CategoryId id;
@@ -52,14 +54,14 @@ public class Category {
 
     public void desativar() {
         if (Boolean.FALSE.equals(this.isActive)) {
-            throw new IllegalStateException("Categoria já está inativa");
+            throw IgrpResponseStatusException.conflict("Categoria já está inativa.");
         }
         this.isActive = false;
     }
 
     public void reativar() {
         if (Boolean.TRUE.equals(this.isActive)) {
-            throw new IllegalStateException("Categoria já está ativa");
+            throw IgrpResponseStatusException.conflict("Categoria já está ativa.");
         }
         this.isActive = true;
     }

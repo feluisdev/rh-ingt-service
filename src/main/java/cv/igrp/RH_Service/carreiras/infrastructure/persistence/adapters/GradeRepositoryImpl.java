@@ -108,14 +108,15 @@ public class GradeRepositoryImpl implements GradeRepository {
 
     @Override
     public boolean isReferencedByActiveAssignment(GradeId gradeId) {
-        try {
-            Boolean exists = jdbcTemplate.queryForObject(
-                "SELECT EXISTS (SELECT 1 FROM employee_professional_assignments WHERE grade_id = ? AND is_active = true)",
-                Boolean.class, gradeId.getValor());
-            return Boolean.TRUE.equals(exists);
-        } catch (Exception e) {
-            // table does not exist yet — no active assignments possible
-            return false;
-        }
+        // A afectação vive em t_assignment (V37). A tabela anterior,
+        // employee_professional_assignments, foi largada na V38 -- a consulta antiga
+        // falhava sempre e o catch devolvia false, pelo que a regra nunca disparava.
+        // SQL directo, e não o repositório JPA de colaboradores, para não atravessar
+        // a fronteira do módulo a partir de carreiras.
+        Boolean exists = jdbcTemplate.queryForObject(
+            "SELECT EXISTS (SELECT 1 FROM t_assignment "
+                + "WHERE grade_id = ? AND is_current = TRUE AND is_active = TRUE)",
+            Boolean.class, gradeId.getValor());
+        return Boolean.TRUE.equals(exists);
     }
 }

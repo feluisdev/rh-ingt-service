@@ -10,7 +10,9 @@ import cv.igrp.RH_Service.carreiras.domain.repository.GradeRepository;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CategoryId;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.GradeId;
 import cv.igrp.RH_Service.estrutura.domain.models.Position;
+import cv.igrp.RH_Service.estrutura.domain.repository.FunctionRepository;
 import cv.igrp.RH_Service.estrutura.domain.repository.PositionRepository;
+import cv.igrp.RH_Service.estrutura.domain.valueobject.FunctionId;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.PositionId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class AssignmentService {
     private final PositionRepository positionRepository;
     private final GradeRepository gradeRepository;
     private final CategoryRepository categoryRepository;
+    private final FunctionRepository functionRepository;
 
     /**
      * Afecta um colaborador a um Lugar. Se já houver afectação PRINCIPAL corrente e a nova
@@ -80,6 +83,17 @@ public class AssignmentService {
                                 + "' exige um escalão da categoria '"
                                 + nomeCategoria(position.getCategoryId())
                                 + "'. Escolha um escalão dessa categoria.");
+        }
+
+        // Coerência cargo↔função (BR-FUN-02): a função escolhida tem de pertencer ao
+        // cargo do Lugar. Funções genéricas (jobId nulo) servem qualquer cargo -- essa
+        // decisão vive em OrgFunction.validarCompatibilidadeComCargo, que até aqui
+        // existia sem nenhum chamador.
+        if (functionId != null) {
+            functionRepository.findById(FunctionId.from(functionId))
+                    .orElseThrow(() -> IgrpResponseStatusException.notFound(
+                            "Função não encontrada: " + functionId))
+                    .validarCompatibilidadeComCargo(position.getJobId());
         }
 
         // SCD Type 2: encerrar a afectação PRINCIPAL corrente antes de abrir a nova

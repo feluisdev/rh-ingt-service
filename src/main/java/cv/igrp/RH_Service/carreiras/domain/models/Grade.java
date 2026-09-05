@@ -2,11 +2,12 @@ package cv.igrp.RH_Service.carreiras.domain.models;
 
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CategoryId;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.GradeId;
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import java.math.BigDecimal;
 import lombok.Getter;
 
-import java.math.BigDecimal;
-
 @Getter
+
 public class Grade {
 
     private GradeId id;
@@ -61,14 +62,14 @@ public class Grade {
 
     public void desativar() {
         if (Boolean.FALSE.equals(this.isActive)) {
-            throw new IllegalStateException("Escalão já está inativo");
+            throw IgrpResponseStatusException.conflict("Escalão já está inativo.");
         }
         this.isActive = false;
     }
 
     public void reativar() {
         if (Boolean.TRUE.equals(this.isActive)) {
-            throw new IllegalStateException("Escalão já está ativo");
+            throw IgrpResponseStatusException.conflict("Escalão já está ativo.");
         }
         this.isActive = true;
     }

@@ -1,9 +1,11 @@
 package cv.igrp.RH_Service.carreiras.domain.models;
 
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CareerId;
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import lombok.Getter;
 
 @Getter
+
 public class Career {
 
     private CareerId id;
@@ -47,14 +49,14 @@ public class Career {
 
     public void desativar() {
         if (Boolean.FALSE.equals(this.isActive)) {
-            throw new IllegalStateException("Carreira já está inativa");
+            throw IgrpResponseStatusException.conflict("Carreira já está inativa.");
         }
         this.isActive = false;
     }
 
     public void reativar() {
         if (Boolean.TRUE.equals(this.isActive)) {
-            throw new IllegalStateException("Carreira já está ativa");
+            throw IgrpResponseStatusException.conflict("Carreira já está ativa.");
         }
         this.isActive = true;
     }
