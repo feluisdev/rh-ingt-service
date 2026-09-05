@@ -6,7 +6,7 @@
   "revision": true,
   "attributes": [
     {"name": "id", "type": "string", "objectType": "java", "primaryKey": true},
-    {"name": "careerId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "career", "type": "relation", "relation": {"type": "ManyToOne", "entity": "CareerEntity", "fetchType": "lazy", "joinColumn": "career_id", "module": "carreiras"}},
     {"name": "code", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "name", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "description", "type": "string", "objectType": "java", "primaryKey": false},

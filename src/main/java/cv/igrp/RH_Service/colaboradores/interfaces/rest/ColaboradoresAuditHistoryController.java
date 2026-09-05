@@ -35,7 +35,7 @@ public class ColaboradoresAuditHistoryController {
     @Operation(
         summary = "Historial de alterações de um registo de colaboradores",
         description = "Devolve todas as revisões de um registo identificado por catalog e entityId. " +
-                      "Valores aceites para catalog: funcionarios, enquadramentos, contratos, dependentes, qualificacoes.",
+                      "Valores aceites para catalog: funcionarios, assignments, contratos, dependentes, qualificacoes.",
         responses = {
             @ApiResponse(
                 responseCode = "200",

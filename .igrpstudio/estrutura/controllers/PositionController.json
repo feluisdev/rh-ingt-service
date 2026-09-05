@@ -1,0 +1,91 @@
+{
+  "type": "controller",
+  "name": "Position",
+  "module": "estrutura",
+  "description": "Mapa de Pessoal — gestão de Lugares",
+  "basePath": "api/v1/rh/estrutura/positions",
+  "actions": [
+    {
+      "actionName": "getPositions",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {"type": "WrapperListaPositionDTO", "objectType": "dto", "name": "data", "collectionType": "none", "module": "estrutura"}
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {"type": "string", "name": "unidadeId", "isRequired": true}
+      ]
+    },
+    {
+      "actionName": "getPositionById",
+      "path": "{positionId}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {"type": "PositionResponse", "objectType": "dto", "name": "data", "collectionType": "none", "module": "estrutura"}
+            }
+          }
+        }
+      },
+      "pathVariables": [{"name": "positionId", "type": "string", "isRequired": true}]
+    },
+    {
+      "actionName": "createPosition",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {"type": "PositionRequest", "collectionType": "none", "name": "data", "objectType": "dto", "module": "estrutura"}
+          }
+        }
+      },
+      "responses": {
+        "201": {"name": "Created", "content": {"application/json": {"schema": {"type": "string", "name": "data", "collectionType": "map"}}}}
+      }
+    },
+    {
+      "actionName": "updatePosition",
+      "path": "{positionId}",
+      "method": "PUT",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {"type": "PositionRequest", "collectionType": "none", "name": "data", "objectType": "dto", "module": "estrutura"}
+          }
+        }
+      },
+      "responses": {
+        "200": {"name": "OK", "content": {"application/json": {"schema": {"type": "PositionResponse", "objectType": "dto", "name": "data", "collectionType": "none", "module": "estrutura"}}}}
+      },
+      "pathVariables": [{"name": "positionId", "type": "string", "isRequired": true}]
+    },
+    {
+      "actionName": "freezePosition",
+      "path": "{positionId}/freeze",
+      "method": "PATCH",
+      "responses": {
+        "200": {"name": "OK", "content": {"application/json": {"schema": {"type": "string", "name": "data", "collectionType": "map"}}}}
+      },
+      "pathVariables": [{"name": "positionId", "type": "string", "isRequired": true}]
+    },
+    {
+      "actionName": "extinguishPosition",
+      "path": "{positionId}",
+      "method": "DELETE",
+      "responses": {
+        "200": {"name": "OK", "content": {"application/json": {"schema": {"type": "string", "name": "data", "collectionType": "map"}}}}
+      },
+      "pathVariables": [{"name": "positionId", "type": "string", "isRequired": true}]
+    }
+  ],
+  "id": "position_ctrl_001"
+}

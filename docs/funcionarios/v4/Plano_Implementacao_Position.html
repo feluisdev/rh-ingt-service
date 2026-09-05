@@ -1,0 +1,386 @@
+<title>Plano de Implementação — Position</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,400&family=Public+Sans:wght@0,400;0,500;0,600;0,700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#F1F4F2;--surface:#FBFCFB;--surface-2:#FFFFFF;--plate:#F5F8F6;
+    --ink:#16211E;--ink-soft:#33433E;--muted:#5C6C67;--faint:#8A9793;
+    --line:#DCE4E1;--line-strong:#C5D0CC;
+    --accent:#0F6E63;--accent-deep:#0A4A43;--accent-wash:#E4EEEB;
+    --rust:#B0501B;--rust-wash:#F6E7DD;--gold:#9A7A16;--gold-wash:#F4EAD0;
+    --good:#3F7A4B;--good-wash:#E2EFE3;--blue:#2C6E8F;--blue-wash:#E0EDF2;
+    --shadow:0 1px 2px rgba(20,40,35,.05),0 10px 30px -20px rgba(20,40,35,.30);
+  }
+  :root:not([data-theme="light"]){@media (prefers-color-scheme:dark){
+    --bg:#0E1513;--surface:#151E1B;--surface-2:#1A2521;--plate:#111A17;
+    --ink:#EAF0ED;--ink-soft:#C6D2CD;--muted:#93A29C;--faint:#6C7C77;
+    --line:#28352F;--line-strong:#35443E;
+    --accent:#4FBFAF;--accent-deep:#7FD6C8;--accent-wash:#16302B;
+    --rust:#E4926A;--rust-wash:#33231A;--gold:#D8B84E;--gold-wash:#2E2914;
+    --good:#7BB988;--good-wash:#18271B;--blue:#7FBBD6;--blue-wash:#152A33;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 34px -20px rgba(0,0,0,.65);
+  }}
+  :root[data-theme="dark"]{
+    --bg:#0E1513;--surface:#151E1B;--surface-2:#1A2521;--plate:#111A17;
+    --ink:#EAF0ED;--ink-soft:#C6D2CD;--muted:#93A29C;--faint:#6C7C77;
+    --line:#28352F;--line-strong:#35443E;
+    --accent:#4FBFAF;--accent-deep:#7FD6C8;--accent-wash:#16302B;
+    --rust:#E4926A;--rust-wash:#33231A;--gold:#D8B84E;--gold-wash:#2E2914;
+    --good:#7BB988;--good-wash:#18271B;--blue:#7FBBD6;--blue-wash:#152A33;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 34px -20px rgba(0,0,0,.65);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:"Public Sans",system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+  .wrap{max-width:960px;margin:0 auto;padding:0 clamp(18px,4vw,40px)}
+  h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif;font-weight:600;line-height:1.14;text-wrap:balance;color:var(--ink)}
+  h1{font-size:clamp(2.1rem,5.5vw,3.3rem);letter-spacing:-.02em;margin:.6rem 0 .7rem}
+  h2{font-size:clamp(1.5rem,3.4vw,2.1rem);letter-spacing:-.01em;margin:0 0 .5rem}
+  h3{font-size:1.2rem;margin:2rem 0 .5rem}
+  h4{font-size:1rem;margin:0 0 .3rem}
+  p{margin:0 0 1rem;color:var(--ink-soft)}
+  .lead{font-size:1.15rem;color:var(--ink-soft);line-height:1.55}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:500}
+  .mono,code{font-family:"IBM Plex Mono",monospace}
+  code{font-size:.84em}
+  p code,li code,td code{background:var(--accent-wash);color:var(--accent-deep);padding:.06em .36em;border-radius:4px;font-size:.82em}
+  strong{color:var(--ink);font-weight:600}
+  a{color:var(--accent)}
+  section{padding:clamp(2rem,5vw,3.4rem) 0}
+  section+section{border-top:1px solid var(--line)}
+
+  nav.toc{position:sticky;top:0;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);z-index:20}
+  nav.toc ol{display:flex;gap:.2rem;flex-wrap:wrap;list-style:none;margin:0 auto;max-width:960px;padding:.55rem clamp(18px,4vw,40px);font-family:"IBM Plex Mono",monospace;font-size:.72rem}
+  nav.toc a{color:var(--muted);text-decoration:none;padding:.24rem .5rem;border-radius:6px}
+  nav.toc a:hover{background:var(--accent-wash);color:var(--accent-deep)}
+
+  header.hero{border-bottom:1px solid var(--line)}
+  .hero-inner{padding:clamp(2.6rem,7vw,4.6rem) 0 clamp(1.8rem,4vw,2.6rem)}
+  .meta-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.4rem}
+  .chip{font-family:"IBM Plex Mono",monospace;font-size:.72rem;padding:.32rem .65rem;border:1px solid var(--line-strong);border-radius:999px;color:var(--muted);background:var(--surface)}
+  .chip b{color:var(--ink)}
+  .chip.br{border-color:var(--accent);color:var(--accent-deep)}
+
+  .callout{border-left:3px solid var(--accent);background:var(--accent-wash);padding:1rem 1.2rem;border-radius:0 10px 10px 0;margin:1.3rem 0}
+  .callout .t{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:600;display:block;margin-bottom:.35rem}
+  .callout p{margin:0;color:var(--ink-soft)}
+  .callout.rust{border-color:var(--rust);background:var(--rust-wash)}.callout.rust .t{color:var(--rust)}
+  .callout.gold{border-color:var(--gold);background:var(--gold-wash)}.callout.gold .t{color:var(--gold)}
+
+  .decisions{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin:1.3rem 0}
+  .dec{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:.9rem 1rem;box-shadow:var(--shadow)}
+  .dec .k{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+  .dec h4{margin:.2rem 0 .2rem;font-size:.98rem}
+  .dec p{font-size:.84rem;margin:0;color:var(--muted)}
+  @media(max-width:720px){.decisions{grid-template-columns:1fr}}
+
+  /* pipeline */
+  .pipe{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin:1.6rem 0}
+  .ph{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:1rem;box-shadow:var(--shadow)}
+  .ph::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;border-radius:13px 13px 0 0}
+  .ph.p1::before{background:var(--accent)}.ph.p2::before{background:var(--blue)}
+  .ph.p3::before{background:var(--gold)}.ph.p4::before{background:var(--good)}
+  .ph .n{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.08em;color:var(--faint)}
+  .ph h4{margin:.3rem 0 .4rem}
+  .ph p{font-size:.8rem;margin:0;color:var(--muted)}
+  @media(max-width:820px){.pipe{grid-template-columns:1fr 1fr}}
+  @media(max-width:480px){.pipe{grid-template-columns:1fr}}
+
+  /* todo checklist */
+  .todo{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1.3rem 1.4rem;box-shadow:var(--shadow);margin:1.2rem 0}
+  .todo h4{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:.7rem}
+  .todo ul{list-style:none;padding:0;margin:0}
+  .todo li{position:relative;padding:.4rem 0 .4rem 1.9rem;font-size:.9rem;color:var(--ink-soft);border-bottom:1px dashed var(--line)}
+  .todo li:last-child{border-bottom:none}
+  .todo li::before{content:"";position:absolute;left:0;top:.55rem;width:16px;height:16px;border:1.5px solid var(--line-strong);border-radius:4px;background:var(--surface-2)}
+  .todo li .id{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--accent);margin-right:.4rem}
+
+  pre{background:var(--plate);border:1px solid var(--line-strong);border-radius:11px;padding:1rem 1.1rem;overflow-x:auto;font-family:"IBM Plex Mono",monospace;font-size:.78rem;line-height:1.65;color:var(--ink-soft);margin:1.1rem 0}
+  pre .c{color:var(--faint)}
+  pre .kw{color:var(--accent-deep);font-weight:500}
+  :root[data-theme="dark"] pre .kw,:root:not([data-theme="light"]) pre .kw{color:var(--accent)}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) pre .kw{color:var(--accent)}}
+  pre .g{color:var(--good)}
+
+  .tbl-wrap{overflow-x:auto;margin:1.3rem 0;border:1px solid var(--line);border-radius:11px;box-shadow:var(--shadow)}
+  table{border-collapse:collapse;width:100%;font-size:.88rem;background:var(--surface);min-width:520px}
+  th,td{text-align:left;padding:.7rem .9rem;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{background:var(--surface-2);font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:500}
+  tbody tr:last-child td{border-bottom:none}
+  .yes{color:var(--good);font-weight:600}.no{color:var(--rust);font-weight:600}
+
+  .gate{display:flex;gap:.8rem;align-items:flex-start;background:var(--good-wash);border:1px solid color-mix(in srgb,var(--good) 40%,var(--line));border-radius:12px;padding:1.1rem 1.2rem;margin:1.3rem 0}
+  .gate .ic{flex:0 0 auto;color:var(--good)}
+  .gate p{margin:0;color:var(--ink-soft);font-size:.92rem}
+
+  footer{padding:2.6rem 0 3.5rem;border-top:1px solid var(--line);color:var(--faint);font-size:.82rem}
+  ul.body{padding-left:1.1rem;margin:0 0 1rem}ul.body li{margin-bottom:.4rem;color:var(--ink-soft)}
+</style>
+
+<nav class="toc" aria-label="Índice">
+  <ol>
+    <li><a href="#top">Início</a></li>
+    <li><a href="#decisoes">Decisões</a></li>
+    <li><a href="#fluxo">Fluxo</a></li>
+    <li><a href="#schema">Schema</a></li>
+    <li><a href="#limpeza">Limpeza</a></li>
+    <li><a href="#todo">TODO</a></li>
+    <li><a href="#testes">Testes</a></li>
+    <li><a href="#merge">Merge</a></li>
+    <li><a href="#frontend">Frontend</a></li>
+  </ol>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap hero-inner">
+    <span class="eyebrow">Plano de execução · Fase 1</span>
+    <h1>Position Management — plano de implementação e migração</h1>
+    <p class="lead">O fluxo completo, do schema ao merge: branch isolada, migração defensiva e idempotente, arranque limpo (sem backfill), testes de fumo + endpoint + não-regressão, e só depois merge para <code>dev</code>. Documento para leres <strong>antes</strong> de qualquer código.</p>
+    <div class="meta-row">
+      <span class="chip br"><b>Branch</b> · feat/position-management</span>
+      <span class="chip"><b>Base</b> · dev @ 9bdaac0</span>
+      <span class="chip"><b>Base ADR</b> · ADR-002</span>
+      <span class="chip"><b>Progressão</b> · fase 2 (fora)</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- DECISÕES -->
+<section id="decisoes">
+  <div class="wrap">
+    <span class="eyebrow">O que está fixado</span>
+    <h2>Decisões de arranque</h2>
+    <p>Tudo isto já foi decidido contigo. O plano assenta nestas escolhas — não são para reabrir.</p>
+    <div class="decisions">
+      <div class="dec"><span class="k">Modelo</span><h4>Position Management "bem feito"</h4><p>1 Lugar = 1 cadeira · Lugar rico (carreira+categoria) · escalão na afectação · <code>manages_unit_id</code> para chefia.</p></div>
+      <div class="dec"><span class="k">Arranque</span><h4>Limpo, sem backfill</h4><p>App no início: limpamos os dados de movimentos de dev. Sem reconstrução de Lugares a partir de dados antigos.</p></div>
+      <div class="dec"><span class="k">Tabelas antigas</span><h4>Deprecadas, não largadas</h4><p><code>t_employee_professional_assignments</code> e <code>t_employee_unit_assignments</code> ficam como rede de segurança. DROP só numa fase futura.</p></div>
+      <div class="dec"><span class="k">Migração</span><h4>Defensiva + idempotente</h4><p>Nada criado sem verificar existência. Corre N vezes sem partir. Backfill NUNCA vai no Flyway.</p></div>
+      <div class="dec"><span class="k">Limpeza</span><h4>Script em <code>scripts/</code></h4><p>SQL idempotente para reproduzir o "começar limpo" em qualquer ambiente. Fora do Flyway.</p></div>
+      <div class="dec"><span class="k">Isolamento</span><h4>Branch própria + gate de merge</h4><p>Não toca <code>t_unidade_organica</code> nem <code>sigdi/</code>. Merge para <code>dev</code> só com tudo verde e a tua luz verde.</p></div>
+    </div>
+    <div class="callout"><span class="t">Cada passo atualiza o handoff</span><p>A cada passo concluído, o <code>.claude/resume/rhFix.md</code> é atualizado com o estado do TODO — de modo que uma sessão nova, só com <code>/resume</code>, saiba exactamente o que já foi feito e qual é o próximo passo.</p></div>
+  </div>
+</section>
+
+<!-- FLUXO -->
+<section id="fluxo">
+  <div class="wrap">
+    <span class="eyebrow">Visão geral</span>
+    <h2>O fluxo em quatro fases</h2>
+    <p>Sequencial. Cada fase termina com o handoff atualizado. A Fase 4 (merge) só arranca com autorização explícita.</p>
+    <div class="pipe">
+      <div class="ph p1"><span class="n">FASE 1A</span><h4>Schema + limpeza</h4><p>Migração defensiva de <code>t_position</code> e <code>t_assignment</code> (+ tabelas Envers). Script de limpeza. Entidades e domínio.</p></div>
+      <div class="ph p2"><span class="n">FASE 1B</span><h4>Lógica + endpoints</h4><p>Mapa de Pessoal CRUD, Afectação, repontar registo + mobilidade + estado. Queries responsável/chefe/vagas.</p></div>
+      <div class="ph p3"><span class="n">FASE 1C</span><h4>Regenerar + testar</h4><p>Manifests <code>.igrpstudio</code>, controllers. Smoke + endpoint + não-regressão (incl. sigdi).</p></div>
+      <div class="ph p4"><span class="n">FASE 2 (gate)</span><h4>Merge para dev</h4><p>Tudo verde → relatório frontend → <strong>com a tua luz verde</strong>, merge <code>feat/position-management → dev</code>.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- SCHEMA -->
+<section id="schema">
+  <div class="wrap">
+    <span class="eyebrow">Migração defensiva</span>
+    <h2>O schema — criado com verificação, idempotente</h2>
+    <p>Migração Flyway <strong>só de estrutura</strong> (nunca dados). Guardas <code>IF NOT EXISTS</code> em tudo; FKs e índices dentro de blocos <code>DO $$</code> que verificam <code>pg_constraint</code>/<code>pg_class</code> antes de criar. Correr duas vezes não parte nada.</p>
+
+    <h3><code>t_position</code> — o Lugar</h3>
+    <pre><span class="c">-- V__position_assignment.sql  (Flyway, só estrutura)</span>
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> t_position (
+  id                   UUID <span class="kw">PRIMARY KEY</span>,
+  numero_lugar         VARCHAR(60)  <span class="kw">NOT NULL</span>,
+  job_id               UUID <span class="kw">NOT NULL</span>,
+  unidade_organica_id  UUID <span class="kw">NOT NULL</span>,
+  career_id            UUID,                 <span class="c">-- null = fora de grelha (tarefeiro)</span>
+  category_id          UUID,                 <span class="c">-- null = fora de grelha</span>
+  parent_position_id   UUID,                 <span class="c">-- reporte estrutural (chefia)</span>
+  manages_unit_id      UUID,                 <span class="c">-- unidade que este Lugar dirige</span>
+  estado               VARCHAR(20) <span class="kw">NOT NULL DEFAULT</span> 'ATIVO', <span class="c">-- ATIVO|CONGELADO|EXTINTO</span>
+  legal_base           VARCHAR(255),
+  is_active            BOOLEAN <span class="kw">NOT NULL DEFAULT</span> true,
+  created_at TIMESTAMP, created_by VARCHAR(255),
+  updated_at TIMESTAMP, updated_by VARCHAR(255)
+);
+<span class="c">-- FKs + índices dentro de DO $$ ... IF NOT EXISTS (idempotente)</span>
+<span class="c">-- UNIQUE(numero_lugar); UNIQUE(manages_unit_id) WHERE is_active;</span>
+<span class="c">-- t_position_aud (Envers) criada na mesma migração.</span></pre>
+
+    <h3><code>t_assignment</code> — a Afectação (funde enquadramento+colocação)</h3>
+    <pre><span class="kw">CREATE TABLE IF NOT EXISTS</span> t_assignment (
+  id                   UUID <span class="kw">PRIMARY KEY</span>,
+  funcionario_id       UUID <span class="kw">NOT NULL</span>,
+  position_id          UUID <span class="kw">NOT NULL</span>,       <span class="c">-- a cadeira ocupada</span>
+  grade_id             UUID,                 <span class="c">-- escalão (por-pessoa); null fora de grelha</span>
+  function_id          UUID,
+  assignment_type      VARCHAR(20) <span class="kw">NOT NULL DEFAULT</span> 'PRINCIPAL',
+  origem               VARCHAR(20) <span class="kw">NOT NULL</span>, <span class="c">-- ADMISSAO|PROGRESSAO|PROMOCAO|MOBILIDADE|...</span>
+  origin_assignment_id UUID,                 <span class="c">-- mobilidade temporária: afectação a restaurar</span>
+  data_inicio          DATE <span class="kw">NOT NULL</span>,
+  data_fim             DATE,                 <span class="c">-- null = corrente</span>
+  is_current           BOOLEAN <span class="kw">NOT NULL DEFAULT</span> true,
+  is_active            BOOLEAN <span class="kw">NOT NULL DEFAULT</span> true,
+  notes                TEXT,
+  created_at TIMESTAMP, created_by VARCHAR(255),
+  updated_at TIMESTAMP, updated_by VARCHAR(255)
+);
+<span class="c">-- UNIQUE(position_id) WHERE is_current  (um ocupante por cadeira)</span>
+<span class="c">-- t_assignment_aud (Envers) criada na mesma migração.</span></pre>
+
+    <div class="callout gold"><span class="t">Detalhe importante — Envers</span><p>As entidades são <code>@Audited</code>, logo a migração cria também <code>t_position_aud</code> e <code>t_assignment_aud</code>. Isto entra na checklist para não falhar o arranque do Hibernate.</p></div>
+  </div>
+</section>
+
+<!-- LIMPEZA -->
+<section id="limpeza">
+  <div class="wrap">
+    <span class="eyebrow">Arranque limpo</span>
+    <h2>Script de limpeza — <code>scripts/cleanup/</code></h2>
+    <p>Fora do Flyway. Idempotente e defensivo: só toca no que existe, seguro para correr N vezes. Por defeito limpa apenas os dados de <strong>movimentos</strong> (as tabelas do refactor) — não mexe em funcionários nem contratos.</p>
+    <pre><span class="c">-- scripts/cleanup/clean_movimentos.sql</span>
+<span class="c">-- Reset dos dados de movimentos para arranque limpo do Position Management.</span>
+<span class="c">-- Idempotente: seguro para correr várias vezes. NÃO toca funcionarios/contratos.</span>
+<span class="kw">DO</span> $$
+<span class="kw">BEGIN</span>
+  <span class="kw">IF</span> to_regclass('public.t_assignment') <span class="kw">IS NOT NULL THEN</span>
+    <span class="kw">TRUNCATE TABLE</span> t_assignment <span class="kw">RESTART IDENTITY CASCADE</span>;
+  <span class="kw">END IF</span>;
+  <span class="kw">IF</span> to_regclass('public.t_position') <span class="kw">IS NOT NULL THEN</span>
+    <span class="kw">TRUNCATE TABLE</span> t_position <span class="kw">RESTART IDENTITY CASCADE</span>;
+  <span class="kw">END IF</span>;
+  <span class="kw">IF</span> to_regclass('public.t_employee_professional_assignments') <span class="kw">IS NOT NULL THEN</span>
+    <span class="kw">TRUNCATE TABLE</span> t_employee_professional_assignments <span class="kw">CASCADE</span>;
+  <span class="kw">END IF</span>;
+  <span class="kw">IF</span> to_regclass('public.t_employee_unit_assignments') <span class="kw">IS NOT NULL THEN</span>
+    <span class="kw">TRUNCATE TABLE</span> t_employee_unit_assignments <span class="kw">CASCADE</span>;
+  <span class="kw">END IF</span>;
+  <span class="g">RAISE NOTICE 'Movimentos limpos — pronto para arranque Position Management.'</span>;
+<span class="kw">END</span> $$;</pre>
+    <div class="callout"><span class="t">Como corres</span><p><code>docker exec -i postgres-ingt-rh psql -U postgres -d recursoshumanos_db &lt; scripts/cleanup/clean_movimentos.sql</code>. Noutro ambiente, mesma coisa com as credenciais desse ambiente.</p></div>
+    <p style="font-size:.9rem;color:var(--muted)">Se algum dia quiseres um reset mais fundo (incl. funcionários/contratos para demo do zero), acrescenta-se um segundo script <code>clean_colaboradores.sql</code> no mesmo padrão. Por agora fica só o de movimentos.</p>
+  </div>
+</section>
+
+<!-- TODO -->
+<section id="todo">
+  <div class="wrap">
+    <span class="eyebrow">Checklist de execução</span>
+    <h2>O TODO, passo a passo</h2>
+    <p>Cada item é atómico e verificável. À medida que forem feitos, ficam marcados no <code>TODO_Fase1_Position.md</code> e o handoff é atualizado.</p>
+
+    <div class="todo">
+      <h4>Fase 1A — Schema + limpeza + domínio</h4>
+      <ul>
+        <li><span class="id">1A.1</span> Criar branch <code>feat/position-management</code> a partir de <code>dev</code>. <em>(feito)</em></li>
+        <li><span class="id">1A.2</span> Migração Flyway defensiva: <code>t_position</code> + <code>t_assignment</code> + FKs/índices + tabelas <code>_aud</code>.</li>
+        <li><span class="id">1A.3</span> Script <code>scripts/cleanup/clean_movimentos.sql</code> (idempotente).</li>
+        <li><span class="id">1A.4</span> Entidades JPA: <code>PositionEntity</code> (estrutura), <code>AssignmentEntity</code> (colaboradores) + convenções <code>Colabs</code>.</li>
+        <li><span class="id">1A.5</span> Domínio + VOs tipados: <code>PositionId</code>, <code>AssignmentId</code>; mappers; repos/adapters.</li>
+        <li><span class="id">1A.6</span> Build verde (<code>mvn -DskipTests package</code>) + arranque da app sem erro de schema.</li>
+      </ul>
+    </div>
+    <div class="todo">
+      <h4>Fase 1B — Lógica + endpoints</h4>
+      <ul>
+        <li><span class="id">1B.1</span> Mapa de Pessoal: CRUD de Lugares (criar/editar/congelar/extinguir; marcar chefia <code>manages_unit_id</code>).</li>
+        <li><span class="id">1B.2</span> Afectação: criar/fechar/versionar (SCD Type 2 no handler).</li>
+        <li><span class="id">1B.3</span> Repontar <code>RegistarColaboradorCommandHandler</code> → afecta a Lugar vago; valida PCFR contra a categoria do Lugar.</li>
+        <li><span class="id">1B.4</span> Repontar mobilidade (<code>AprovarLicencaMobilidade…</code>) → fecha/abre afectação; temporária restaura origem.</li>
+        <li><span class="id">1B.5</span> Repontar <code>MudarEstadoColaborador…</code> (RETIRED/INACTIVE fecham a afectação).</li>
+        <li><span class="id">1B.6</span> Queries: responsável-unidade, chefe-funcionário, unidade-atual, vagas, mapa-pessoal.</li>
+      </ul>
+    </div>
+    <div class="todo">
+      <h4>Fase 1C — Regenerar + testar</h4>
+      <ul>
+        <li><span class="id">1C.1</span> Manifests <code>.igrpstudio</code> + controllers (Position, Assignment); deprecar endpoints de enquadramento/colocação.</li>
+        <li><span class="id">1C.2</span> Smoke tests (app arranca, migração aplicada, endpoints respondem).</li>
+        <li><span class="id">1C.3</span> Testes de endpoint do fluxo novo (criar Lugar → registar → mobilidade → vagas/chefia).</li>
+        <li><span class="id">1C.4</span> Não-regressão: funcionário/contrato/ausências/documentos + compilação e lookups do <code>sigdi/</code>.</li>
+        <li><span class="id">1C.5</span> Relatório de testes (verde/vermelho por caso).</li>
+      </ul>
+    </div>
+    <div class="todo">
+      <h4>Fase 2 — Gate</h4>
+      <ul>
+        <li><span class="id">2.1</span> Documento-relatório para o frontend (contrato de API novo).</li>
+        <li><span class="id">2.2</span> Com tudo verde e a tua autorização: merge <code>feat/position-management → dev</code>.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- TESTES -->
+<section id="testes">
+  <div class="wrap">
+    <span class="eyebrow">Validação</span>
+    <h2>Testes — fumo, endpoint e não-regressão</h2>
+    <p>Perfil <code>development</code> (segurança OFF, <strong>sem auth</strong>), porta 8091, BD <code>localhost:5436</code>. Testes por <code>curl</code>/HTTP directo.</p>
+
+    <h3>Funcionalidade nova (tem de passar)</h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Caso</th><th>Acção</th><th>Esperado</th></tr></thead>
+      <tbody>
+        <tr><td>Criar Lugar</td><td>POST mapa-pessoal (cargo+unidade+carreira/categoria)</td><td>201; Lugar <code>ATIVO</code>, vago</td></tr>
+        <tr><td>Registar colaborador</td><td>POST registo com <code>positionId</code> vago</td><td>201; afectação criada; Lugar fica provido</td></tr>
+        <tr><td>Lugar ocupado</td><td>registar 2.ª pessoa no mesmo Lugar</td><td>422 (uma cadeira, um ocupante)</td></tr>
+        <tr><td>Mobilidade</td><td>aprovar mobilidade p/ Lugar de outra unidade</td><td>afectação antiga fechada, nova corrente; unidade muda sem drift</td></tr>
+        <tr><td>Vagas</td><td>GET vagas/{unidade}</td><td>dotação − ocupados, exacto</td></tr>
+        <tr><td>Responsável / chefe</td><td>GET responsavel-unidade, chefe-funcionario</td><td>ocupante correcto (ou "vago")</td></tr>
+        <tr><td>Fora de grelha</td><td>registar tarefeiro (Lugar sem carreira)</td><td>201; sem escalão; sem validação PCFR</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Não-regressão (não pode partir)</h3>
+    <ul class="body">
+      <li>Funcionário: criar/editar/listar/estado — <span class="yes">inalterado</span>.</li>
+      <li>Contrato, dependentes, dados bancários, documentos — <span class="yes">inalterado</span>.</li>
+      <li>Ausências / licenças / saldos — <span class="yes">inalterado</span>.</li>
+      <li><code>sigdi/</code>: compila; <code>FuncionarioLookupAdapter</code> e <code>OrganicaLookupAdapter</code> devolvem o mesmo; <code>GET unidade-atual</code> = mesmo UUID que a colocação devolvia.</li>
+      <li>Flyway: histórico consistente; migração aplica-se limpa em BD nova.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- MERGE -->
+<section id="merge">
+  <div class="wrap">
+    <span class="eyebrow">Critério de saída</span>
+    <h2>O gate de merge</h2>
+    <div class="gate">
+      <span class="ic" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <p><strong>Merge para <code>dev</code> só quando:</strong> build verde · migração aplica limpa em BD nova · todos os testes de funcionalidade nova passam · zero regressões (incl. sigdi compila e responde) · relatório de testes verde · relatório de frontend entregue · <strong>e tu autorizas</strong>. Sem autorização, não há merge.</p>
+    </div>
+    <p style="font-size:.9rem;color:var(--muted)">As tabelas antigas <strong>não</strong> são largadas neste merge — ficam deprecadas como rede de segurança. O DROP é uma decisão/fase posterior.</p>
+  </div>
+</section>
+
+<!-- FRONTEND -->
+<section id="frontend">
+  <div class="wrap">
+    <span class="eyebrow">Entregável final</span>
+    <h2>Relatório para o frontend</h2>
+    <p>No fim, um documento próprio para a equipa de frontend, cobrindo o que muda no contrato de API:</p>
+    <ul class="body">
+      <li><strong>Registo:</strong> deixa de enviar unidade/cargo/carreira/categoria; passa a enviar <code>positionId</code> + <code>gradeId</code>.</li>
+      <li><strong>Ecrãs novos:</strong> gestão do Mapa de Pessoal (criar Lugares, marcar chefias, ver vagas por unidade).</li>
+      <li><strong>Picker de Lugar vago</strong> no formulário de admissão (unidade/cargo/carreira ficam só-leitura, derivados do Lugar).</li>
+      <li><strong>Endpoints deprecados</strong> (enquadramento/colocação) → substituídos por Afectação; tabela de mapeamento antigo→novo.</li>
+      <li><strong>Novas queries</strong> disponíveis: responsável-unidade, chefe-funcionário, vagas, mapa-pessoal.</li>
+      <li><strong>Contratos de request/response</strong> com exemplos JSON.</li>
+    </ul>
+    <div class="callout"><span class="t">Nota</span><p>Este relatório é o último passo — escrito depois de os endpoints estarem implementados e testados, para reflectir o contrato real, não o previsto.</p></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>SIPPROG / INGT · Plano de implementação Fase 1 — Position Management. Base: <code>ADR_Position_Management_Mapa_Pessoal.md</code> (ADR-002). Branch <code>feat/position-management</code>. Progressão = fase 2, fora deste plano.</p>
+  </div>
+</footer>

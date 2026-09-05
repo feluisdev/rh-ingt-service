@@ -37,7 +37,7 @@ public class ReciboVencimentoRepositoryImpl implements ReciboVencimentoRepositor
     @Override
     public List<ReciboVencimento> findAllByFuncionarioId(FuncionarioId funcionarioId, ReciboFilter filter) {
         if (filter == null) {
-            return entityRepository.findAllByFuncionarioId(funcionarioId.getValor())
+            return entityRepository.findAllByFuncionario_Id(funcionarioId.getValor())
                     .stream().map(mapper::toDomain).toList();
         }
         if (filter.getPeriodYear() != null && filter.getPeriodMonth() != null) {
@@ -49,14 +49,14 @@ public class ReciboVencimentoRepositoryImpl implements ReciboVencimentoRepositor
             return entityRepository.findAllByFuncionarioIdAndPeriodYear(funcionarioId.getValor(), filter.getPeriodYear())
                     .stream().map(mapper::toDomain).toList();
         }
-        return entityRepository.findAllByFuncionarioId(funcionarioId.getValor())
+        return entityRepository.findAllByFuncionario_Id(funcionarioId.getValor())
                 .stream().map(mapper::toDomain).toList();
     }
 
     @Transactional(readOnly = true)
     @Override
     public boolean existsByFuncionarioIdAndPeriod(FuncionarioId funcionarioId, Integer periodMonth, Integer periodYear) {
-        return entityRepository.existsByFuncionarioIdAndPeriodMonthAndPeriodYear(
+        return entityRepository.existsByFuncionario_IdAndPeriodMonthAndPeriodYear(
                 funcionarioId.getValor(), periodMonth, periodYear);
     }
 }

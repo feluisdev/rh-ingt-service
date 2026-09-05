@@ -30,8 +30,9 @@ public class ContractTypeEntity extends AuditEntity {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "vinculo_laboral_id")
-    private UUID vinculoLaboralId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vinculo_laboral_id")
+    private VinculoLaboralEntity vinculoLaboral;
 
     @Column(name = "is_renewable", nullable = false)
     private Boolean isRenewable = false;

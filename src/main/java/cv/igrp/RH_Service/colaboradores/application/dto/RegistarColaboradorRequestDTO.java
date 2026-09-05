@@ -20,8 +20,9 @@ public class RegistarColaboradorRequestDTO {
     @Valid
     private ContratoRequestDTO contrato;
 
+    /** Afectação a um Lugar (Position) — substitui o antigo enquadramento+colocação. */
     @Valid
-    private EnquadramentoRequestDTO enquadramento;
+    private AfectacaoRequestDTO afectacao;
 
     @Valid
     private DadosBancariosRequestDTO dadosBancarios;

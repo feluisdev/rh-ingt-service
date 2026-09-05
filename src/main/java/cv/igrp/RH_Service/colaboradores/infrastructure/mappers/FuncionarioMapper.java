@@ -4,10 +4,17 @@ import cv.igrp.RH_Service.colaboradores.application.dto.FuncionarioResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.FuncionarioEntity;
+import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.DocumentTypeEntity;
+import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.WorkerStateEntity;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.JpaReferences;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component("colabsFuncionarioMapper")
+@RequiredArgsConstructor
 public class FuncionarioMapper {
+
+    private final JpaReferences refs;
 
     public Funcionario toDomain(FuncionarioEntity e) {
         return Funcionario.reconstituir(
@@ -18,7 +25,7 @@ public class FuncionarioMapper {
                 e.getGenero(),
                 e.getEstadoCivil(),
                 e.getNif(),
-                e.getDocumentTypeId(),
+                refs.idOf(e.getDocumentType(), DocumentTypeEntity::getId),
                 e.getNumeroDocumento(),
                 e.getDataEmissaoDoc(),
                 e.getDataValidadeDoc(),
@@ -29,7 +36,7 @@ public class FuncionarioMapper {
                 e.getIlha(),
                 e.getConcelho(),
                 e.getLocalidade(),
-                e.getWorkerStateId(),
+                refs.idOf(e.getWorkerState(), WorkerStateEntity::getId),
                 e.getDataAdmissao(),
                 e.getIsActive()
         );
@@ -44,7 +51,7 @@ public class FuncionarioMapper {
         e.setGenero(f.getGenero());
         e.setEstadoCivil(f.getEstadoCivil());
         e.setNif(f.getNif());
-        e.setDocumentTypeId(f.getDocumentTypeId());
+        e.setDocumentType(refs.ref(DocumentTypeEntity.class, f.getDocumentTypeId()));
         e.setNumeroDocumento(f.getNumeroDocumento());
         e.setDataEmissaoDoc(f.getDataEmissaoDoc());
         e.setDataValidadeDoc(f.getDataValidadeDoc());
@@ -55,7 +62,7 @@ public class FuncionarioMapper {
         e.setIlha(f.getIlha());
         e.setConcelho(f.getConcelho());
         e.setLocalidade(f.getLocalidade());
-        e.setWorkerStateId(f.getWorkerStateId());
+        e.setWorkerState(refs.ref(WorkerStateEntity.class, f.getWorkerStateId()));
         e.setDataAdmissao(f.getDataAdmissao());
         e.setIsActive(f.getIsActive());
         return e;

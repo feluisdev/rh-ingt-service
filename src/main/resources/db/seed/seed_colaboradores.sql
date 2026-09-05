@@ -1,8 +1,10 @@
 -- SEED: Colaboradores
--- Description: Employees with their respective contracts, placements, and career mappings
+-- Description: Employees with their respective contracts, positions and assignments
 --
 -- Reference keys resolved against the current schema (several columns moved from free text
--- to foreign keys, and the assignment tables gained the t_ prefix):
+-- to foreign keys). A colocacao e o enquadramento deixaram de existir como tabelas
+-- proprias: sao agora Lugar (t_position) + Afectacao (t_assignment) -- ver Position
+-- Management (V37) e o drop do legado (V38):
 --   worker_state_id   c1e1e1e1-...e1e1 = ACTIVE           (t_worker_state)
 --   contract_type_id  b84e1b52-...e1e  = NOMEACAO_DEFINITIVA
 --                     b84e1b52-...e20  = CTFP_TERMO_CERTO (t_contract_type)
@@ -19,16 +21,30 @@ INSERT INTO t_contrato (id, funcionario_id, contract_type_id, start_date, contra
 ('a2e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ea02', '91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e902', 'b84e1b52-2c6c-4b5a-9b5a-7e1e1e1e1e20', '2015-06-01', 'CONT-002', true, NOW(), 'system')
 ON CONFLICT (contract_number) DO NOTHING;
 
--- Placements (Colocação)
-INSERT INTO t_employee_unit_assignments (id, funcionario_id, unit_id, job_id, start_date, is_current, is_active, assignment_type, created_date, created_by) VALUES
-('b3e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1eb01', '91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e901', '31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e303', '51e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e501', '2010-01-01', true, true, 'PERMANENT', NOW(), 'system'),
-('b3e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1eb02', '91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e902', '31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e303', '51e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e502', '2015-06-01', true, true, 'PERMANENT', NOW(), 'system')
-ON CONFLICT (id) DO NOTHING;
+-- Mapa de Pessoal (Lugar) + Afectacao
+--
+-- O modelo de colocacao/enquadramento (t_employee_unit_assignments +
+-- t_employee_professional_assignments) foi eliminado no Bloco B e as tabelas
+-- largadas pela V38. Passou a haver duas entidades: o Lugar (t_position), que
+-- e a cadeira no mapa de pessoal e onde vive a unidade organica, e a Afectacao
+-- (t_assignment), que liga o colaborador ao Lugar num periodo.
+--
+-- Os dados aqui sao os mesmos das duas tabelas antigas, reunidos: o job e a
+-- unidade vinham da colocacao, a carreira/categoria/escalao do enquadramento.
+--
+-- data_inicio usa a data da COLOCACAO (2010/2015), nao a do enquadramento
+-- (2020/2021): e a data de entrada na unidade, e e ela que responde a
+-- "quem esteve nesta unidade no ano X" -- a consulta que a geracao de fichas
+-- SIADAP faz (findAllByUnidadeOrganicaCoveringYear). Com a data do
+-- enquadramento, um periodo de 2015 nao encontraria a Maria.
+INSERT INTO t_position (id, numero_lugar, job_id, unidade_organica_id, career_id, category_id, estado, is_active, created_date, created_by) VALUES
+('d5e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ed01', 'LUG-0001', '51e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e501', '31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e303', '61e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e601', '71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e701', 'ATIVO', true, NOW(), 'system'),
+('d5e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ed02', 'LUG-0002', '51e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e502', '31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e303', '61e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e601', '71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e702', 'ATIVO', true, NOW(), 'system')
+ON CONFLICT (numero_lugar) DO NOTHING;
 
--- Career Mapping (Enquadramento)
-INSERT INTO t_employee_professional_assignments (id, funcionario_id, career_id, category_id, grade_id, cargo_id, unidade_organica_id, data_inicio, is_current, created_date, created_by) VALUES
-('c4e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ec01', '91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e901', '61e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e601', '71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e701', '81e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e802', '51e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e501', '31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e303', '2020-01-01', true, NOW(), 'system'),
-('c4e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ec02', '91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e902', '61e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e601', '71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e702', '81e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e803', '51e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e502', '31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e303', '2021-01-01', true, NOW(), 'system')
+INSERT INTO t_assignment (id, funcionario_id, position_id, grade_id, assignment_type, origem, data_inicio, is_current, is_active, created_date, created_by) VALUES
+('e6e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ee01', '91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e901', 'd5e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ed01', '81e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e802', 'PRINCIPAL', 'ADMISSAO', '2010-01-01', true, true, NOW(), 'system'),
+('e6e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ee02', '91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e902', 'd5e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ed02', '81e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e803', 'PRINCIPAL', 'ADMISSAO', '2015-06-01', true, true, NOW(), 'system')
 ON CONFLICT (id) DO NOTHING;
 
 -- Documents (referencing funcionario via reference_entity/reference_id)

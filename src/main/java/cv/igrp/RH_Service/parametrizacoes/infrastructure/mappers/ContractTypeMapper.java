@@ -2,12 +2,18 @@ package cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers;
 
 import cv.igrp.RH_Service.parametrizacoes.application.dto.ContractTypeResponseDTO;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.ContractType;
-import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.ContractTypeEntity;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.ContractTypeId;
+import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.ContractTypeEntity;
+import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.VinculoLaboralEntity;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.JpaReferences;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class ContractTypeMapper {
+
+    private final JpaReferences refs;
 
     public ContractTypeEntity toEntity(ContractType domain) {
         if (domain == null) return null;
@@ -15,7 +21,7 @@ public class ContractTypeMapper {
         entity.setId(domain.getId().getValor());
         entity.setCode(domain.getCode());
         entity.setDescription(domain.getDescription());
-        entity.setVinculoLaboralId(domain.getVinculoLaboralId());
+        entity.setVinculoLaboral(refs.ref(VinculoLaboralEntity.class, domain.getVinculoLaboralId()));
         entity.setIsRenewable(domain.isRenewable());
         entity.setMaxRenewals(domain.getMaxRenewals());
         entity.setMaxDurationMonths(domain.getMaxDurationMonths());
@@ -30,7 +36,7 @@ public class ContractTypeMapper {
             ContractTypeId.from(entity.getId()),
             entity.getCode(),
             entity.getDescription(),
-            entity.getVinculoLaboralId(),
+            refs.idOf(entity.getVinculoLaboral(), VinculoLaboralEntity::getId),
             Boolean.TRUE.equals(entity.getIsRenewable()),
             entity.getMaxRenewals(),
             entity.getMaxDurationMonths(),

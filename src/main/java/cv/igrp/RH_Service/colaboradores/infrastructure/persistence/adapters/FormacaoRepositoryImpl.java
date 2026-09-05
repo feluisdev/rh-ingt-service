@@ -40,7 +40,7 @@ public class FormacaoRepositoryImpl implements FormacaoRepository {
             return entityRepository.findAllByFuncionarioIdAndYear(funcionarioId.getValor(), filter.getYear())
                     .stream().map(mapper::toDomain).toList();
         }
-        return entityRepository.findAllByFuncionarioId(funcionarioId.getValor())
+        return entityRepository.findAllByFuncionario_Id(funcionarioId.getValor())
                 .stream().map(mapper::toDomain).toList();
     }
 

@@ -5,10 +5,12 @@ import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.mappers.FuncionarioMapper;
-import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.EnquadramentoEntity;
+import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.AssignmentEntity;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.FuncionarioEntity;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.repository.ColabsFuncionarioEntityRepository;
+import cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.PositionEntity;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.SearchSpecificationHelper;
+import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -99,27 +101,35 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
                 predicates = cb.and(predicates, cb.equal(root.get("nif"), filter.getNif()));
             }
             if (filter.getWorkerStateId() != null) {
-                predicates = cb.and(predicates, cb.equal(root.get("workerStateId"), filter.getWorkerStateId()));
+                predicates = cb.and(predicates, cb.equal(root.get("workerState").get("id"), filter.getWorkerStateId()));
             }
+            // Unidade e carreira derivam agora do Lugar (Position) via a Afectação corrente.
+            // Subquery aninhada: funcionários com afectação corrente num Lugar que satisfaz o critério.
             if (filter.getUnidadeOrganicaId() != null) {
-                Subquery<UUID> sub = query.subquery(UUID.class);
-                var epa = sub.from(EnquadramentoEntity.class);
-                sub.select(epa.get("funcionarioId"))
-                   .where(cb.and(
-                       cb.equal(epa.get("unidadeOrganicaId"), filter.getUnidadeOrganicaId()),
-                       cb.isTrue(epa.get("isCurrent"))
-                   ));
-                predicates = cb.and(predicates, root.get("id").in(sub));
+                Subquery<UUID> posSub = query.subquery(UUID.class);
+                Root<PositionEntity> p = posSub.from(PositionEntity.class);
+                posSub.select(p.get("id"))
+                      .where(cb.equal(p.get("unidadeOrganica").get("id"), filter.getUnidadeOrganicaId()));
+
+                Subquery<UUID> aSub = query.subquery(UUID.class);
+                Root<AssignmentEntity> a = aSub.from(AssignmentEntity.class);
+                aSub.select(a.get("funcionario").get("id"))
+                    .where(cb.and(cb.isTrue(a.get("isCurrent")), a.get("position").get("id").in(posSub)));
+
+                predicates = cb.and(predicates, root.get("id").in(aSub));
             }
             if (filter.getCareerId() != null) {
-                Subquery<UUID> sub = query.subquery(UUID.class);
-                var epa = sub.from(EnquadramentoEntity.class);
-                sub.select(epa.get("funcionarioId"))
-                   .where(cb.and(
-                       cb.equal(epa.get("careerId"), filter.getCareerId()),
-                       cb.isTrue(epa.get("isCurrent"))
-                   ));
-                predicates = cb.and(predicates, root.get("id").in(sub));
+                Subquery<UUID> posSub = query.subquery(UUID.class);
+                Root<PositionEntity> p = posSub.from(PositionEntity.class);
+                posSub.select(p.get("id"))
+                      .where(cb.equal(p.get("career").get("id"), filter.getCareerId()));
+
+                Subquery<UUID> aSub = query.subquery(UUID.class);
+                Root<AssignmentEntity> a = aSub.from(AssignmentEntity.class);
+                aSub.select(a.get("funcionario").get("id"))
+                    .where(cb.and(cb.isTrue(a.get("isCurrent")), a.get("position").get("id").in(posSub)));
+
+                predicates = cb.and(predicates, root.get("id").in(aSub));
             }
 
             Boolean isActive = filter.getIsActive();

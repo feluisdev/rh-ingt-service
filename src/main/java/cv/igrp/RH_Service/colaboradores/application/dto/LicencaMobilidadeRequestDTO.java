@@ -22,4 +22,6 @@ public class LicencaMobilidadeRequestDTO {
     private String observacoes;
     private String justification;
     private java.util.UUID destinationUnitId;
+    /** Lugar (Position) de destino — obrigatório para mobilidade que muda de cadeira. */
+    private java.util.UUID destinationPositionId;
 }

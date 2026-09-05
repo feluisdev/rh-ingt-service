@@ -1,11 +1,12 @@
 package cv.igrp.RH_Service.estrutura.application.queries;
 
-import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.repository.ColabsColocacaoEntityRepository;
+import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.estrutura.application.dto.WrapperListaOrganizationalUnitDTO;
 import cv.igrp.RH_Service.estrutura.application.port.FuncionarioLookupDTO;
 import cv.igrp.RH_Service.estrutura.application.port.FuncionarioLookupPort;
 import cv.igrp.RH_Service.estrutura.domain.filter.OrganizationalUnitFilter;
 import cv.igrp.RH_Service.estrutura.domain.repository.OrganizationalUnitRepository;
+import cv.igrp.RH_Service.estrutura.domain.repository.PositionRepository;
 import cv.igrp.RH_Service.estrutura.infrastructure.mappers.OrganizationalUnitMapper;
 import cv.igrp.RH_Service.parametrizacoes.application.port.OptionDTO;
 import cv.igrp.RH_Service.parametrizacoes.application.port.OptionLookupPort;
@@ -29,7 +30,8 @@ public class GetOrganizationalUnitsQueryHandler
 
     private final OrganizationalUnitRepository unitRepository;
     private final OrganizationalUnitMapper mapper;
-    private final ColabsColocacaoEntityRepository colocacaoRepository;
+    private final PositionRepository positionRepository;
+    private final AssignmentRepository assignmentRepository;
     private final OptionLookupPort optionLookupPort;
     private final FuncionarioLookupPort funcionarioLookupPort;
 
@@ -67,7 +69,10 @@ public class GetOrganizationalUnitsQueryHandler
 
         var content = pageResult.getData().stream().map(unit -> {
             var dto = mapper.toDTO(unit);
-            dto.setNColaboradores(colocacaoRepository.countByUnitIdAndIsCurrentTrueAndIsActiveTrue(unit.getId().getValor()));
+            long ocupados = positionRepository.findByUnidade(unit.getId().getValor()).stream()
+                    .filter(p -> assignmentRepository.isPositionOccupied(p.getId().getValor()))
+                    .count();
+            dto.setNColaboradores(ocupados);
             if (unit.getUnitType() != null) {
                 OptionDTO opt = unitTypeDescs.get(unit.getUnitType());
                 if (opt != null) dto.setUnitTypeDesc(opt.cvalue());

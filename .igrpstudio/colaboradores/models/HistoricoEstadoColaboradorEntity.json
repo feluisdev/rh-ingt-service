@@ -6,9 +6,9 @@
   "revision": true,
   "attributes": [
     {"name": "id",               "type": "string",  "objectType": "java", "primaryKey": true},
-    {"name": "funcionarioId",    "type": "string",  "objectType": "java", "primaryKey": false, "nullable": false},
-    {"name": "estadoAnteriorId", "type": "string",  "objectType": "java", "primaryKey": false, "nullable": true},
-    {"name": "estadoNovoId",     "type": "string",  "objectType": "java", "primaryKey": false, "nullable": false},
+    {"name": "funcionario", "type": "relation", "relation": {"type": "ManyToOne", "entity": "FuncionarioEntity", "fetchType": "lazy", "joinColumn": "funcionario_id", "module": "colaboradores"}},
+    {"name": "estadoAnterior", "type": "relation", "relation": {"type": "ManyToOne", "entity": "WorkerStateEntity", "fetchType": "lazy", "joinColumn": "estado_anterior_id", "module": "parametrizacoes"}},
+    {"name": "estadoNovo", "type": "relation", "relation": {"type": "ManyToOne", "entity": "WorkerStateEntity", "fetchType": "lazy", "joinColumn": "estado_novo_id", "module": "parametrizacoes"}},
     {"name": "motivoCkey",       "type": "string",  "objectType": "java", "primaryKey": false, "nullable": true},
     {"name": "dataEfectividade", "type": "date",    "objectType": "java", "primaryKey": false, "nullable": false},
     {"name": "observacao",       "type": "string",  "objectType": "java", "primaryKey": false, "nullable": true}

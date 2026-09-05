@@ -1,0 +1,565 @@
+<title>Ciclo de Vida do Colaborador</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,600;1,9..144,400&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#F1F4F2;
+    --surface:#FBFCFB;
+    --surface-2:#FFFFFF;
+    --plate:#F6F8F7;
+    --ink:#16211E;
+    --ink-soft:#33433E;
+    --muted:#5C6C67;
+    --faint:#8A9793;
+    --line:#DCE4E1;
+    --line-strong:#C5D0CC;
+    --accent:#0F6E63;
+    --accent-deep:#0A4A43;
+    --accent-wash:#E4EEEB;
+    --rust:#B0501B;
+    --rust-wash:#F6E7DD;
+    --gold:#9A7A16;
+    --good:#3F7A4B;
+    --shadow:0 1px 2px rgba(20,40,35,.05), 0 8px 28px -18px rgba(20,40,35,.28);
+  }
+  :root:not([data-theme="light"]){
+    @media (prefers-color-scheme: dark){
+      --bg:#0E1513;
+      --surface:#151E1B;
+      --surface-2:#1A2521;
+      --plate:#F4F7F5;
+      --ink:#EAF0ED;
+      --ink-soft:#C6D2CD;
+      --muted:#93A29C;
+      --faint:#6C7C77;
+      --line:#28352F;
+      --line-strong:#35443E;
+      --accent:#4FBFAF;
+      --accent-deep:#7FD6C8;
+      --accent-wash:#16302B;
+      --rust:#E4926A;
+      --rust-wash:#33231A;
+      --gold:#D8B84E;
+      --good:#7BB988;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px -18px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0E1513;
+    --surface:#151E1B;
+    --surface-2:#1A2521;
+    --plate:#F4F7F5;
+    --ink:#EAF0ED;
+    --ink-soft:#C6D2CD;
+    --muted:#93A29C;
+    --faint:#6C7C77;
+    --line:#28352F;
+    --line-strong:#35443E;
+    --accent:#4FBFAF;
+    --accent-deep:#7FD6C8;
+    --accent-wash:#16302B;
+    --rust:#E4926A;
+    --rust-wash:#33231A;
+    --gold:#D8B84E;
+    --good:#7BB988;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px -18px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Public Sans", ui-sans-serif, system-ui, sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *{animation:none!important;transition:none!important}
+  }
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 clamp(18px,4vw,48px)}
+  .col{max-width:720px;margin-left:auto;margin-right:auto}
+
+  /* ---------- Typography ---------- */
+  h1,h2,h3{font-family:"Fraunces", Georgia, serif;font-weight:600;line-height:1.12;text-wrap:balance;color:var(--ink)}
+  h2{font-size:clamp(1.6rem,3.4vw,2.35rem);margin:0 0 .5rem;letter-spacing:-.01em}
+  h3{font-size:clamp(1.15rem,2vw,1.4rem);margin:2.4rem 0 .6rem;letter-spacing:-.005em}
+  p{margin:0 0 1.05rem;color:var(--ink-soft)}
+  a{color:var(--accent);text-decoration-color:color-mix(in srgb,var(--accent) 35%,transparent);text-underline-offset:2px}
+  a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+  strong{color:var(--ink);font-weight:600}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:500}
+  .lead{font-size:1.18rem;color:var(--ink-soft);line-height:1.55}
+  code,.mono{font-family:"IBM Plex Mono",monospace;font-size:.86em}
+  p code, li code{background:var(--accent-wash);color:var(--accent-deep);padding:.08em .38em;border-radius:4px;font-size:.82em}
+
+  /* ---------- Hero ---------- */
+  .hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+  .hero-inner{padding:clamp(3.5rem,9vw,7rem) 0 clamp(2.5rem,5vw,4rem)}
+  .hero h1{font-size:clamp(2.5rem,6.5vw,4.6rem);font-weight:600;letter-spacing:-.02em;margin:.7rem 0 1.1rem;max-width:16ch}
+  .hero .lead{max-width:56ch}
+  .hero-grid{
+    position:absolute;inset:0;z-index:-1;opacity:.5;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:38px 38px;
+    -webkit-mask-image:radial-gradient(120% 90% at 82% 8%, #000 0%, transparent 65%);
+    mask-image:radial-gradient(120% 90% at 82% 8%, #000 0%, transparent 65%);
+  }
+  .meta-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.8rem}
+  .chip{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.02em;padding:.34rem .7rem;border:1px solid var(--line-strong);border-radius:999px;color:var(--muted);background:var(--surface)}
+  .chip b{color:var(--ink);font-weight:600}
+  .chip.state{border-color:var(--gold);color:var(--gold)}
+
+  /* ---------- Section rhythm ---------- */
+  section{padding:clamp(2.6rem,6vw,4.4rem) 0}
+  section+section{border-top:1px solid var(--line)}
+  .part-label{display:flex;align-items:baseline;gap:.9rem;margin-bottom:1.6rem}
+  .part-num{font-family:"Fraunces",serif;font-size:2.6rem;font-weight:500;color:var(--accent);line-height:1;opacity:.85}
+
+  /* ---------- Callouts ---------- */
+  .note{border-left:3px solid var(--accent);background:var(--accent-wash);padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin:1.4rem 0;color:var(--ink-soft)}
+  .note.warn{border-color:var(--rust);background:var(--rust-wash)}
+  .note.warn strong{color:var(--rust)}
+  .note p:last-child{margin-bottom:0}
+  .note .tag{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:.35rem;color:var(--accent);font-weight:600}
+  .note.warn .tag{color:var(--rust)}
+
+  /* ---------- Cards ---------- */
+  .cards{display:grid;gap:1rem;margin:1.6rem 0}
+  .cards.c3{grid-template-columns:repeat(3,1fr)}
+  .cards.c2{grid-template-columns:repeat(2,1fr)}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1.3rem 1.35rem;box-shadow:var(--shadow)}
+  .card h4{font-family:"Fraunces",serif;font-size:1.08rem;font-weight:600;margin:.2rem 0 .5rem;color:var(--ink)}
+  .card p{font-size:.92rem;margin-bottom:0;color:var(--muted)}
+  .card .k{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+  @media(max-width:820px){.cards.c3{grid-template-columns:1fr}.cards.c2{grid-template-columns:1fr}}
+
+  /* ---------- Lifecycle band ---------- */
+  .lifecycle{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;margin:1.8rem 0 .5rem;counter-reset:stage}
+  .stage{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1.1rem 1rem 1.2rem;overflow:hidden}
+  .stage::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:var(--accent);opacity:.85}
+  .stage .ph{font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.1em;color:var(--faint)}
+  .stage h4{font-family:"Fraunces",serif;font-size:1.02rem;font-weight:600;margin:.35rem 0 .4rem;color:var(--ink)}
+  .stage p{font-size:.82rem;margin:0;color:var(--muted)}
+  .stage.s2::before{background:#2C8C7E}
+  .stage.s3::before{background:var(--gold)}
+  .stage.s4::before{background:var(--rust)}
+  .stage.s5::before{background:var(--accent-deep)}
+  @media(max-width:900px){.lifecycle{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.lifecycle{grid-template-columns:1fr}}
+
+  /* ---------- Diagram plate ---------- */
+  figure{margin:1.8rem 0}
+  .plate{background:var(--plate);border:1px solid var(--line-strong);border-radius:14px;padding:1.4rem;overflow-x:auto;box-shadow:var(--shadow)}
+  .plate .mermaid{display:flex;justify-content:center;min-width:min-content}
+  figcaption{font-size:.85rem;color:var(--muted);margin-top:.7rem;text-align:center;font-style:italic}
+  figcaption b{font-style:normal}
+
+  /* ---------- Drift diagram (hand SVG) ---------- */
+  .drift{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;margin:1.6rem 0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1.5rem;box-shadow:var(--shadow)}
+  .drift .box{border:1.5px solid var(--line-strong);border-radius:10px;padding:1rem;text-align:center;background:var(--surface-2)}
+  .drift .box .lbl{font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);display:block;margin-bottom:.5rem}
+  .drift .box .unit{font-family:"Fraunces",serif;font-size:1.5rem;font-weight:600}
+  .drift .box.stale{border-color:var(--rust);background:var(--rust-wash)}
+  .drift .box.stale .unit{color:var(--rust)}
+  .drift .box.fresh{border-color:var(--good)}
+  .drift .box.fresh .unit{color:var(--good)}
+  .drift .vs{font-family:"IBM Plex Mono",monospace;font-size:.75rem;color:var(--faint);text-align:center}
+  .drift .vs .x{font-size:1.4rem;color:var(--rust);display:block}
+  @media(max-width:640px){.drift{grid-template-columns:1fr;gap:.7rem}}
+
+  /* ---------- Tables ---------- */
+  .tbl-wrap{overflow-x:auto;margin:1.6rem 0;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+  table{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--surface);min-width:560px}
+  th,td{text-align:left;padding:.8rem 1rem;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{background:var(--surface-2);font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500;position:sticky;top:0}
+  tbody tr:last-child td{border-bottom:none}
+  td strong{color:var(--ink)}
+  td .mono{color:var(--accent-deep);background:var(--accent-wash);padding:.05em .3em;border-radius:3px;white-space:nowrap}
+  .yes{color:var(--good);font-weight:600}
+  .no{color:var(--rust);font-weight:600}
+  .warnmk{color:var(--gold);font-weight:600}
+
+  /* ---------- Option compare ---------- */
+  .options{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin:1.8rem 0}
+  .opt{border:1px solid var(--line);border-radius:14px;padding:1.5rem;background:var(--surface);box-shadow:var(--shadow);position:relative}
+  .opt.reco{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent), var(--shadow)}
+  .opt .badge{position:absolute;top:-11px;right:16px;background:var(--accent);color:#fff;font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;padding:.28rem .6rem;border-radius:999px;font-weight:600}
+  :root[data-theme="dark"] .opt .badge, :root:not([data-theme="light"]) .opt .badge{color:#08211D}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .opt .badge{color:#08211D}}
+  .opt .tag{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+  .opt h3{margin:.3rem 0 .7rem}
+  .opt ul{margin:.6rem 0 0;padding-left:0;list-style:none}
+  .opt li{position:relative;padding-left:1.5rem;margin-bottom:.5rem;font-size:.9rem;color:var(--ink-soft)}
+  .opt li.pro::before{content:"+";position:absolute;left:0;color:var(--good);font-weight:700}
+  .opt li.con::before{content:"−";position:absolute;left:.15rem;color:var(--rust);font-weight:700}
+  @media(max-width:760px){.options{grid-template-columns:1fr}}
+
+  /* ---------- Reference list ---------- */
+  ul.plain{list-style:none;padding:0;margin:1.2rem 0}
+  ul.plain li{padding:.55rem 0;border-bottom:1px dashed var(--line);font-size:.9rem}
+  ul.plain li:last-child{border-bottom:none}
+
+  /* ---------- TOC ---------- */
+  nav.toc{position:sticky;top:0;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);z-index:20}
+  nav.toc ol{display:flex;gap:.3rem;flex-wrap:wrap;list-style:none;margin:0;padding:.6rem 0;font-family:"IBM Plex Mono",monospace;font-size:.74rem;max-width:1180px;margin:0 auto;padding-left:clamp(18px,4vw,48px);padding-right:clamp(18px,4vw,48px)}
+  nav.toc a{color:var(--muted);text-decoration:none;padding:.25rem .55rem;border-radius:6px}
+  nav.toc a:hover{background:var(--accent-wash);color:var(--accent-deep)}
+
+  /* ---------- Footer ---------- */
+  footer{padding:3rem 0 4rem;border-top:1px solid var(--line);color:var(--faint);font-size:.82rem}
+  .sig{font-family:"IBM Plex Mono",monospace;letter-spacing:.04em}
+
+  ul.body{padding-left:1.1rem;margin:0 0 1.05rem}
+  ul.body li{margin-bottom:.5rem;color:var(--ink-soft)}
+  hr.soft{border:none;border-top:1px solid var(--line);margin:2.4rem 0}
+</style>
+
+<nav class="toc" aria-label="Índice">
+  <ol>
+    <li><a href="#top">Início</a></li>
+    <li><a href="#sumario">Sumário</a></li>
+    <li><a href="#industria">I · A Indústria</a></li>
+    <li><a href="#sipprog">II · SIPPROG hoje</a></li>
+    <li><a href="#alvo">III · Modelo-alvo</a></li>
+    <li><a href="#opcoes">IV · Decisão</a></li>
+    <li><a href="#fontes">Fontes</a></li>
+  </ol>
+</nav>
+
+<header class="hero" id="top">
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="wrap hero-inner">
+    <span class="eyebrow">ADR · Análise & Recomendação · Módulo colaboradores</span>
+    <h1>O ciclo de vida do colaborador, do mercado ao SIPPROG</h1>
+    <p class="lead">Como os grandes HRIS — Oracle Fusion HCM, Workday e SAP SuccessFactors — modelam o percurso de um trabalhador da admissão à cessação, e o que esse padrão nos diz sobre o modelo actual de enquadramento, colocação e mobilidade.</p>
+    <div class="meta-row">
+      <span class="chip"><b>Projeto</b> · SIPPROG / INGT</span>
+      <span class="chip"><b>Âmbito</b> · módulo <span class="mono">colaboradores/</span></span>
+      <span class="chip state"><b>Estado</b> · Proposto — aguarda decisão</span>
+      <span class="chip"><b>Data</b> · 2026-08-29</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ============ SUMÁRIO ============ -->
+<section id="sumario">
+  <div class="wrap col">
+    <span class="eyebrow">Em síntese</span>
+    <h2>O que este documento conclui</h2>
+    <p>Um HRIS moderno organiza tudo à volta de <strong>uma linha de vida única e datada</strong> por trabalhador. Cada mudança — promoção, transferência, mobilidade, alteração salarial — não apaga o passado: cria uma nova versão datada. O nosso modelo já acerta no essencial (históricos separados, versionamento por datas), mas falha nas <strong>fronteiras</strong>: a unidade orgânica vive em dois sítios ao mesmo tempo, o que gera divergência silenciosa (<em>drift</em>) e registos incompletos.</p>
+    <div class="cards c3">
+      <div class="card"><span class="k">O que está certo</span><h4>Históricos separados</h4><p>Contrato, enquadramento e colocação mudam por razões diferentes. Separá-los é normalização correcta — e alinhado com o mercado.</p></div>
+      <div class="card"><span class="k">O problema</span><h4>Fronteira difusa</h4><p>A unidade orgânica está no enquadramento <em>e</em> na colocação. A mobilidade só actualiza um → o outro fica desactualizado.</p></div>
+      <div class="card"><span class="k">A lacuna</span><h4>Falta o «Lugar»</h4><p>Não existe o conceito de <em>Position</em> (cargo dentro de uma unidade, com número e chefia). É o que o mercado usa para eliminar a duplicação.</p></div>
+    </div>
+    <div class="note">
+      <span class="tag">Recomendação</span>
+      <p>Adoptar já a <strong>Opção A</strong> (retirar a unidade do enquadramento, criar a colocação no acto de registo) para estancar o <em>drift</em> com baixo risco; planear a <strong>Opção B</strong> (introdução de <span class="mono">Position</span> + <span class="mono">Assignment</span> unificado) como evolução v5. Detalhe em <a href="#opcoes">§IV</a>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PARTE I — INDÚSTRIA ============ -->
+<section id="industria">
+  <div class="wrap col">
+    <div class="part-label"><span class="part-num">I</span><div><span class="eyebrow">Pesquisa de mercado</span><h2 style="margin-top:.2rem">Como a indústria trata o ciclo de vida</h2></div></div>
+    <p class="lead">Oracle, Workday e SAP diferem nos nomes, mas convergem numa mesma arquitectura. Vale a pena percebê-la antes de decidir o que mudar em casa.</p>
+  </div>
+
+  <div class="wrap">
+    <h3 style="max-width:720px;margin-left:auto;margin-right:auto">1 · O percurso «hire-to-retire»</h3>
+    <div class="col" style="max-width:720px"><p>Todo o HRIS assenta num percurso canónico — o <em>employee lifecycle</em> ou «hire-to-retire». Cada fase dispara processos de negócio próprios (Hire, Change Job, Terminate), mas todos escrevem na mesma linha de vida do trabalhador.</p></div>
+    <div class="lifecycle">
+      <div class="stage s1"><span class="ph">Fase 01</span><h4>Recrutamento</h4><p>Pré-admissão: candidatura, selecção, verificações. Ainda não há trabalhador.</p></div>
+      <div class="stage s2"><span class="ph">Fase 02</span><h4>Admissão</h4><p>Hire + onboarding. Nasce o trabalhador, o vínculo e a primeira colocação.</p></div>
+      <div class="stage s3"><span class="ph">Fase 03</span><h4>Vida activa</h4><p>Movimentos: promoção, progressão, transferência, alteração salarial, avaliação.</p></div>
+      <div class="stage s4"><span class="ph">Fase 04</span><h4>Ausências &amp; mobilidade</h4><p>Licenças, requisições, mobilidade entre serviços — suspensões temporárias do posto.</p></div>
+      <div class="stage s5"><span class="ph">Fase 05</span><h4>Cessação</h4><p>Offboarding: rescisão, aposentação, saída. O vínculo fecha, o histórico permanece.</p></div>
+    </div>
+    <div class="col" style="max-width:720px">
+      <div class="note"><span class="tag">A chave</span><p>As fases 03 e 04 — onde vivem os «movimentos» que estamos a analisar — são geridas <strong>na mesma entidade datada</strong> (o <em>Assignment</em>). No mercado, não são tabelas paralelas que partilham campos.</p></div>
+    </div>
+  </div>
+
+  <div class="wrap col">
+    <h3>2 · A estrutura de dados: Worker → Work Relationship → Assignment</h3>
+    <p>Por baixo do percurso, a modelação repete-se. SAP descreve-a como três níveis (organização · pessoa · emprego); Oracle formaliza-a numa cadeia de três entidades. É o esqueleto que devemos ter como referência:</p>
+    <div class="cards c2" style="grid-template-columns:1fr">
+      <div class="card"><span class="k">Nível 1 · Pessoa</span><h4>Worker</h4><p>A pessoa física. Existe uma vez, atravessa todos os vínculos e movimentos ao longo do tempo.</p></div>
+      <div class="card"><span class="k">Nível 2 · Vínculo</span><h4>Work Relationship</h4><p>O laço legal com a organização (≈ o nosso <strong>contrato</strong>). Entidade <em>separada</em> — pode haver vários ao longo da carreira. Oracle e Workday mantêm-no distinto do posto.</p></div>
+      <div class="card"><span class="k">Nível 3 · Posto</span><h4>Assignment</h4><p>Onde a pessoa está e o que faz <em>agora</em>: cargo, escalão, unidade, chefia, datas. É <strong>um só</strong> registo versionado — qualquer mudança gera nova versão datada.</p></div>
+    </div>
+    <p>O ponto decisivo é o <strong>Assignment</strong>: no mercado, a unidade orgânica, o cargo e o escalão vivem <em>todos no mesmo registo datado</em>. Não há uma tabela para «cargo» e outra para «unidade» que precisem de ser mantidas em sincronia. É precisamente isso que o nosso modelo separou a mais.</p>
+  </div>
+
+  <div class="wrap col">
+    <h3>3 · Job vs. Position — os dois modelos de «staffing»</h3>
+    <p>Aqui reside o conceito que nos falta. Workday distingue dois modelos de dotação de pessoal, e a escolha entre eles define a rigidez do quadro:</p>
+    <div class="options">
+      <div class="opt">
+        <span class="tag">Job Management</span>
+        <h3>Gestão por Cargo</h3>
+        <p style="font-size:.9rem;color:var(--muted)">O cargo é um papel genérico («Técnico Superior»). Não é preciso criar um lugar para contratar — abre-se a vaga directamente sobre o cargo. Flexível, leve, mas <strong>não</strong> conhece «quantos lugares há» nem «quem reporta a quem».</p>
+      </div>
+      <div class="opt reco">
+        <span class="badge">Função pública</span>
+        <span class="tag">Position Management</span>
+        <h3>Gestão por Lugar</h3>
+        <p style="font-size:.9rem;color:var(--muted)">Cada lugar (<em>Position</em>) é uma <strong>instância do cargo dentro de uma unidade</strong>, com número único, posição-pai (chefia) e ocupação de um por vez. É o modelo do <strong>quadro de pessoal</strong> — o que a administração pública precisa.</p>
+      </div>
+    </div>
+    <div class="note"><span class="tag">Porque nos importa</span><p>Numa <em>Position</em>, a unidade e a chefia estão <strong>definidas uma só vez, no lugar</strong>. O trabalhador é ligado ao lugar — herda dele a unidade e a hierarquia. Não há como a unidade «divergir», porque só existe num sítio. É a solução estrutural para o nosso problema de fronteira.</p></div>
+  </div>
+
+  <div class="wrap col">
+    <h3>4 · Datação efectiva (effective dating) e SCD Tipo 2</h3>
+    <p>O mecanismo temporal é universal e tem nome: <strong>Slowly Changing Dimension Tipo 2</strong>. Em vez de editar o valor actual, o sistema fecha a linha vigente e abre uma nova a partir da data efectiva. Nada se perde; a história fica reconstruível em qualquer data.</p>
+    <ul class="body">
+      <li><strong>Uma linha por mudança</strong>, com <span class="mono">start_date</span> / <span class="mono">end_date</span> e uma flag de registo «actual».</li>
+      <li><strong>Sem lacunas nem sobreposições</strong>: o fim de uma versão encosta ao início da seguinte. A SAP impõe que exista <em>sempre</em> um registo de Job Information corrente — nunca um período sem posto.</li>
+      <li><strong>O registo corrente</strong> aponta para uma data-fim fictícia no futuro (ex.: <span class="mono">9999-12-31</span>).</li>
+      <li><strong>Retroactividade controlada</strong>: datar para trás obriga a correcções de vencimento e auditoria — permitido, mas com disciplina.</li>
+    </ul>
+    <div class="note"><span class="tag">Bom sinal</span><p>O SIPPROG <strong>já faz SCD Tipo 2</strong> (<span class="mono">is_current</span> + datas). Este pilar está correcto e deve ser mantido tal como está. Note-se porém a regra «sem lacunas»: um colaborador que nasce <em>sem colocação</em> viola-a — e é exactamente um dos defeitos diagnosticados.</p></div>
+  </div>
+
+  <div class="wrap">
+    <h3 style="max-width:720px;margin:2.4rem auto .6rem">Quadro comparativo — os três HRIS de referência</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Conceito</th><th>Oracle Fusion HCM</th><th>Workday</th><th>SAP SuccessFactors EC</th><th>No SIPPROG hoje</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Pessoa</strong></td><td>Person / Worker</td><td>Worker</td><td>Person</td><td><span class="mono">Funcionario</span> <span class="yes">✓</span></td></tr>
+          <tr><td><strong>Vínculo legal</strong></td><td>Work Relationship</td><td>Employment agreement</td><td>Employment Information</td><td><span class="mono">Contrato</span> <span class="yes">✓</span></td></tr>
+          <tr><td><strong>Papel genérico</strong></td><td>Job</td><td>Job Profile</td><td>Job Classification</td><td><span class="mono">Cargo</span> <span class="yes">✓</span></td></tr>
+          <tr><td><strong>Lugar (cargo+unidade)</strong></td><td>Position</td><td>Position</td><td>Position</td><td>— <span class="no">✗ falta</span></td></tr>
+          <tr><td><strong>Posto do trabalhador</strong></td><td>Assignment (1 datado)</td><td>Worker → Position</td><td>Job Information (1 datado)</td><td>Enquadramento <span class="warnmk">+</span> Colocação <span class="warnmk">⚠ 2 tabelas</span></td></tr>
+          <tr><td><strong>Escalão salarial</strong></td><td>Grade</td><td>Compensation Grade</td><td>Pay Grade</td><td><span class="mono">Grade</span> <span class="warnmk">⚠ dados mortos</span></td></tr>
+          <tr><td><strong>Versionamento</strong></td><td>Effective dating</td><td>Effective dating</td><td>Effective dating</td><td><span class="mono">is_current</span>+datas <span class="yes">✓</span></td></tr>
+          <tr><td><strong>Hierarquia / chefia</strong></td><td>Position tree</td><td>Supervisory Org</td><td>Position hierarchy</td><td>— <span class="no">✗ falta</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="col" style="max-width:720px">A leitura da última coluna é clara: acertámos na pessoa, no vínculo, no cargo e no versionamento. Falhamos onde os três convergem — a existência de um <strong>Lugar</strong> e a unificação do <strong>posto</strong> num só registo datado.</p>
+  </div>
+</section>
+
+<!-- ============ PARTE II — SIPPROG HOJE ============ -->
+<section id="sipprog">
+  <div class="wrap col">
+    <div class="part-label"><span class="part-num">II</span><div><span class="eyebrow">Diagnóstico do código</span><h2 style="margin-top:.2rem">O modelo SIPPROG, hoje</h2></div></div>
+    <p class="lead">O módulo tem três «movimentos», em históricos separados — o que, à luz da §I, é a decisão certa. O problema não é a separação; é a fronteira entre eles.</p>
+
+    <div class="cards c3">
+      <div class="card"><span class="k">t_contrato</span><h4>Contrato</h4><p>O vínculo legal. Não partilha campos com os outros — por isso <strong>nunca</strong> gera confusão.</p></div>
+      <div class="card"><span class="k">t_employee_professional_assignments</span><h4>Enquadramento</h4><p>Posicionamento na grelha PCFR: carreira + categoria + escalão + cargo + função.</p></div>
+      <div class="card"><span class="k">t_employee_unit_assignments</span><h4>Colocação</h4><p>A unidade orgânica onde o colaborador está fisicamente afecto.</p></div>
+    </div>
+
+    <h3>Os quatro defeitos verificados no código</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Defeito</th><th>Consequência</th><th>Referência</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1</strong></td><td><strong>Duplicação de unidade e cargo.</strong> Enquadramento e colocação guardam ambos a unidade (<span class="mono">unidade_organica_id</span> vs <span class="mono">unit_id</span>) e o cargo (<span class="mono">cargo_id</span> vs <span class="mono">job_id</span>), com timelines próprias.</td><td>Dois sítios para a mesma verdade → podem discordar.</td><td class="mono" style="white-space:nowrap">EnquadramentoEntity.java:47-48<br>ColocacaoEntity.java:29-33</td></tr>
+          <tr><td><strong>2</strong></td><td><strong>Drift na mobilidade.</strong> O handler de mobilidade só fecha/cria a <em>colocação</em> (com <span class="mono">cargo=null</span>); nunca toca no enquadramento.</td><td>Após mobilidade, o enquadramento aponta para a unidade <em>antiga</em>.</td><td class="mono" style="white-space:nowrap">AprovarLicenca<br>MobilidadeCommandHandler.java:49-58</td></tr>
+          <tr><td><strong>3</strong></td><td><strong>Registo sem colocação.</strong> O registo completo cria funcionário + contrato + enquadramento + banco + documentos, mas <em>não</em> cria colocação.</td><td>Colaborador nasce «Sem colocações registadas» — viola a regra «sem lacunas».</td><td class="mono" style="white-space:nowrap">RegistarColaborador<br>CommandHandler.java:33-86</td></tr>
+          <tr><td><strong>4</strong></td><td><strong>Progressão não detectada.</strong> <span class="mono">Category.ordem_progressao</span>, <span class="mono">Grade</span> e <span class="mono">eligible_for_progression</span> existem mas nenhum handler os consome.</td><td>A progressão só é <em>registada</em>, nunca <em>calculada</em>. Sem alertas de elegibilidade.</td><td class="mono">— (dados mortos)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>O <em>drift</em> da mobilidade, ilustrado</h3>
+    <p>Registe-se um colaborador na unidade <strong>A</strong>, depois aprove-se uma mobilidade para a unidade <strong>B</strong>. Como a mobilidade só mexe na colocação, as duas tabelas passam a discordar sobre onde a pessoa está:</p>
+    <div class="drift">
+      <div class="box stale">
+        <span class="lbl">Enquadramento · unidade_organica_id</span>
+        <span class="unit">Unidade A</span>
+        <p style="font-size:.78rem;margin:.5rem 0 0;color:var(--muted)">nunca actualizado</p>
+      </div>
+      <div class="vs"><span class="x">≠</span>discordam</div>
+      <div class="box fresh">
+        <span class="lbl">Colocação · unit_id (is_current)</span>
+        <span class="unit">Unidade B</span>
+        <p style="font-size:.78rem;margin:.5rem 0 0;color:var(--muted)">actualizado pela mobilidade</p>
+      </div>
+    </div>
+    <p style="font-size:.9rem;color:var(--muted)">Qual delas responde a «em que unidade está o colaborador?» torna-se uma pergunta sem resposta fiável — depende de que tabela o código consultar.</p>
+
+    <figure>
+      <div class="plate">
+<pre class="mermaid">
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EAF1EF','primaryTextColor':'#16211E','primaryBorderColor':'#0F6E63','lineColor':'#5C6C67','secondaryColor':'#F6E7DD','tertiaryColor':'#F6F8F7','fontFamily':'IBM Plex Mono, monospace','fontSize':'13px'}}}%%
+erDiagram
+    FUNCIONARIO ||--o{ CONTRATO : "tem"
+    FUNCIONARIO ||--o{ ENQUADRAMENTO : "tem"
+    FUNCIONARIO ||--o{ COLOCACAO : "tem"
+    ENQUADRAMENTO }o--|| UNIDADE_A : "unidade_organica_id"
+    ENQUADRAMENTO }o--|| CARGO : "cargo_id"
+    COLOCACAO }o--|| UNIDADE_B : "unit_id (DUPLICA!)"
+    COLOCACAO }o--o| CARGO2 : "job_id (DUPLICA!)"
+    ENQUADRAMENTO {
+        uuid unidade_organica_id "duplicada"
+        uuid cargo_id "duplicado"
+        date data_inicio
+        bool is_current
+    }
+    COLOCACAO {
+        uuid unit_id "duplicada"
+        uuid job_id "duplicado"
+        date start_date
+        bool is_current
+    }
+</pre>
+      </div>
+      <figcaption><b>Modelo actual.</b> A unidade e o cargo vivem em duas tabelas com timelines independentes — a origem estrutural do <em>drift</em>.</figcaption>
+    </figure>
+
+    <div class="note warn"><span class="tag">Nota de leitura</span><p>O contrato <strong>não</strong> sofre destes problemas — porque não partilha campos com ninguém. É o próprio modelo a provar a tese: entidades com fronteiras limpas nunca se confundem. Os defeitos concentram-se onde enquadramento e colocação se sobrepõem.</p></div>
+  </div>
+</section>
+
+<!-- ============ PARTE III — MODELO-ALVO ============ -->
+<section id="alvo">
+  <div class="wrap col">
+    <div class="part-label"><span class="part-num">III</span><div><span class="eyebrow">Para onde ir</span><h2 style="margin-top:.2rem">O modelo-alvo</h2></div></div>
+    <p class="lead">A ideia central, herdada do mercado: a unidade deixa de andar solta. Passa a viver no <strong>Lugar (Position)</strong>. O <strong>Assignment</strong> — que funde enquadramento e colocação — aponta para o lugar e herda dele a unidade, o cargo e a chefia, de um só sítio.</p>
+  </div>
+
+  <div class="wrap">
+    <figure>
+      <div class="plate">
+<pre class="mermaid">
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EAF1EF','primaryTextColor':'#16211E','primaryBorderColor':'#0F6E63','lineColor':'#5C6C67','secondaryColor':'#E4EEEB','tertiaryColor':'#F6F8F7','fontFamily':'IBM Plex Mono, monospace','fontSize':'13px'}}}%%
+erDiagram
+    FUNCIONARIO ||--o{ CONTRATO : "histórico de"
+    FUNCIONARIO ||--o{ ASSIGNMENT : "histórico de"
+    CONTRATO }o--|| CONTRACT_TYPE : "é do tipo"
+    ASSIGNMENT }o--|| POSITION : "ocupa"
+    ASSIGNMENT }o--o| GRADE : "no escalão"
+    ASSIGNMENT }o--o{ MOBILIDADE : "originado por"
+    POSITION }o--|| JOB : "instância de"
+    POSITION }o--|| UNIDADE_ORGANICA : "dentro de"
+    POSITION }o--o| POSITION : "reporta a (chefia)"
+    JOB }o--o| CAREER : "grelha por defeito"
+    CAREER ||--o{ CATEGORY : "contém"
+    CATEGORY ||--o{ GRADE : "contém"
+    ASSIGNMENT {
+        uuid position_id
+        uuid grade_id
+        date data_inicio
+        bool is_current
+        string origem "ADMISSAO|PROGRESSAO|MOBILIDADE"
+    }
+    POSITION {
+        string numero_lugar
+        uuid job_id
+        uuid unidade_organica_id
+        uuid parent_position_id
+    }
+</pre>
+      </div>
+      <figcaption><b>Modelo-alvo.</b> A unidade existe uma só vez — na <span class="mono">Position</span>. O <span class="mono">Assignment</span> herda-a. Zero duplicação, zero <em>drift</em>, e a hierarquia de chefia «de graça».</figcaption>
+    </figure>
+  </div>
+
+  <div class="wrap col">
+    <h3>Mapeamento — do modelo actual para o alvo</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Conceito de mercado</th><th>Tabela SIPPROG actual</th><th>Acção proposta</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Work Relationship</strong></td><td class="mono">t_contrato</td><td>Manter separado <span class="yes">✓</span></td></tr>
+          <tr><td><strong>Job</strong></td><td class="mono">t_job (cargo) + t_career/t_category</td><td>Manter; papel genérico</td></tr>
+          <tr><td><strong>Grade</strong></td><td class="mono">t_grade</td><td>Manter — e passar a consumir</td></tr>
+          <tr><td><strong>Position (Lugar)</strong></td><td><em>não existe</em></td><td class="no"><strong>Criar</strong> t_position = job + unidade + parent + nº lugar</td></tr>
+          <tr><td><strong>Assignment</strong></td><td class="mono">enquadramento + colocação</td><td class="no"><strong>Fundir</strong> num histórico → Position + Grade</td></tr>
+          <tr><td><strong>Unidade orgânica</strong></td><td class="mono">unidade_organica_id + unit_id</td><td class="no"><strong>Remover</strong> do enquadramento → vive na Position</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Progressão de carreira — a lacuna transversal</h3>
+    <p>Independente das opções abaixo. Hoje a progressão é <strong>registada</strong> (novo enquadramento) mas <strong>não detectada</strong>. Numa fase própria, recomenda-se um motor de elegibilidade que leia o histórico e calcule tempo-no-escalão e elegibilidade — reanimando <span class="mono">Category.ordem_progressao</span>, <span class="mono">Grade</span> e <span class="mono">eligible_for_progression</span>, hoje dados mortos — e emita alertas de «colaborador elegível para progressão».</p>
+  </div>
+</section>
+
+<!-- ============ PARTE IV — DECISÃO ============ -->
+<section id="opcoes">
+  <div class="wrap col">
+    <div class="part-label"><span class="part-num">IV</span><div><span class="eyebrow">Duas vias</span><h2 style="margin-top:.2rem">Opções &amp; decisão</h2></div></div>
+    <p class="lead">A decisão de âmbito fica com o responsável. As duas vias não se excluem — A é um passo dentro do caminho para B.</p>
+
+    <div class="options">
+      <div class="opt reco">
+        <span class="badge">Recomendada agora</span>
+        <span class="tag">Opção A</span>
+        <h3>Passo mínimo</h3>
+        <ul>
+          <li class="pro"><strong>Remover</strong> <span class="mono">unidade_organica_id</span> do enquadramento; a colocação passa a dona única da unidade.</li>
+          <li class="pro">«Unidade actual» resolve-se pela colocação corrente (<span class="mono">funcionario_id + is_current</span>).</li>
+          <li class="pro">No registo, criar <strong>também</strong> a colocação inicial (mesma unidade do enquadramento).</li>
+          <li class="pro">Resolve o <em>drift</em> e o «nasce sem colocação» com pouca disrupção.</li>
+          <li class="con">Mantém dois históricos; não traz Position / hierarquia / quadro de pessoal.</li>
+        </ul>
+      </div>
+      <div class="opt">
+        <span class="tag">Opção B</span>
+        <h3>Alinhada com o mercado</h3>
+        <ul>
+          <li class="pro">Introduzir <span class="mono">t_position</span> (Lugar).</li>
+          <li class="pro">Fundir enquadramento + colocação num <span class="mono">Assignment</span> datado → Position + Grade.</li>
+          <li class="pro">Hierarquia/chefia e quadro de pessoal «de graça»; zero duplicação; alinhado Oracle/Workday.</li>
+          <li class="con">Migração significativa: schema, mappers, DTOs, handlers, seed, controllers gerados via <span class="mono">.igrpstudio/</span>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Recomendação do autor</h3>
+    <p>Começar pela <strong>Opção A</strong> — corrige já o <em>drift</em> e o registo incompleto, com baixo risco — e planear a <strong>Opção B</strong> como evolução <strong>v5</strong>, com a Position a resolver hierarquia e quadro de pessoal. A <strong>progressão</strong> fica como fase autónoma, depois de qualquer das opções.</p>
+
+    <div class="note"><span class="tag">Decisões em aberto</span><p><strong>1 · Âmbito:</strong> Opção A (mínima) ou Opção B (Position/Assignment)? &nbsp;·&nbsp; <strong>2 · Progressão:</strong> incluir já um motor de elegibilidade ou adiar para fase própria? &nbsp;·&nbsp; <strong>3 ·</strong> validar a sintaxe dos diagramas antes de partilhar.</p></div>
+
+    <hr class="soft">
+    <div class="note warn"><span class="tag">Risco a assinalar</span><p>Remover <span class="mono">unidade_organica_id</span> do enquadramento é uma <strong>migração destrutiva</strong>, com dependências em <span class="mono">V10__enquadramento.sql</span>, <span class="mono">seed_colaboradores.sql</span>, mappers, DTOs e <span class="mono">EnquadramentoRequestDTO</span> (onde a unidade é hoje obrigatória). Planear a migração de dados antes de tocar no schema.</p></div>
+  </div>
+</section>
+
+<!-- ============ FONTES ============ -->
+<section id="fontes">
+  <div class="wrap col">
+    <span class="eyebrow">Referências</span>
+    <h2>Fontes — boas práticas de mercado</h2>
+    <ul class="plain">
+      <li><a href="https://www.oracle.com/human-capital-management/what-is-hcm/">Oracle — What Is Human Capital Management?</a> (percurso hire-to-retire)</li>
+      <li><a href="https://docs.oracle.com/en/cloud/saas/human-resources/fawhr/assignments.html">Oracle Fusion HCM — Assignments</a> (Work Relationship → Assignment, datação efectiva)</li>
+      <li><a href="https://docs.oracle.com/en/cloud/saas/human-resources/21c/faigh/jobs-and-positions.html">Oracle Fusion HCM — Jobs and Positions</a> (Job vs Position)</li>
+      <li><a href="https://docs.oracle.com/en/cloud/saas/human-resources/25b/faucf/how-grades-and-grade-rates-work-with-jobs-positions-assignments.html">Oracle — How Grades Work with Jobs, Positions, Assignments</a></li>
+      <li><a href="https://workday.wustl.edu/items/supervisory-organizations-in-workday/">Workday — Supervisory Organizations</a> (hierarquia, «quem reporta a quem»)</li>
+      <li><a href="https://www.suretysystems.com/insights/workday-position-management-101/">Workday Position Management 101</a> (Position vs Job management, um ocupante por lugar)</li>
+      <li><a href="https://help.sap.com/docs/successfactors-employee-central/implementing-employee-central-core/job-information">SAP SuccessFactors — Job Information</a> (effective-dated, «sem lacunas»)</li>
+      <li><a href="https://userapps.support.sap.com/sap/support/knowledge/en/2511923">SAP — What is Effective Dating?</a></li>
+      <li><a href="https://www.kimballgroup.com/2008/09/slowly-changing-dimensions-part-2/">Kimball Group — Slowly Changing Dimensions, Part 2</a> (SCD Tipo 2)</li>
+      <li><a href="https://www.analyticsengineering.com/resources/slowly-changing-dimensions-type-2-explained">Slowly Changing Dimensions Type 2, explicado</a></li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap col">
+    <p class="sig">ADR — Modelo de Movimentos do Colaborador · Enquadramento × Colocação × Mobilidade</p>
+    <p style="margin:.3rem 0 0">SIPPROG / INGT · módulo <span class="mono">colaboradores/</span> · documento de análise — não altera o Modelo_Relacional_RH_v4.0. Estado: proposto, aguarda decisão de âmbito.</p>
+  </div>
+</footer>
+
+<script>
+  // Toggle theme note guard: nothing to run. Mermaid renders natively in the artifact host.
+</script>

@@ -11,7 +11,7 @@ public class RegistarColaboradorResponseDTO {
     private String funcionarioId;
     private String numeroFuncionario;
     private String contratoId;
-    private String enquadramentoId;
+    private String afectacaoId;
     private String dadosBancariosId;
     private List<String> documentoIds;
     private String message;

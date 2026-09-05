@@ -38,7 +38,7 @@ public class SaldoAusenciaRepositoryImpl implements SaldoAusenciaRepository {
     @Transactional(readOnly = true)
     @Override
     public List<SaldoAusencia> findAllByFuncionarioId(FuncionarioId funcionarioId, SaldoAusenciaFilter filter) {
-        Stream<SaldoAusencia> stream = entityRepository.findAllByFuncionarioId(funcionarioId.getValor())
+        Stream<SaldoAusencia> stream = entityRepository.findAllByFuncionario_Id(funcionarioId.getValor())
                 .stream().map(mapper::toDomain);
         if (filter.getAno() != null)
             stream = stream.filter(s -> s.getAno() == filter.getAno());
@@ -51,7 +51,7 @@ public class SaldoAusenciaRepositoryImpl implements SaldoAusenciaRepository {
     @Override
     public Optional<SaldoAusencia> findByFuncionarioIdAndTipoAusenciaIdAndAno(
             FuncionarioId funcionarioId, TipoAusenciaId tipoAusenciaId, int ano) {
-        return entityRepository.findByFuncionarioIdAndTipoAusenciaIdAndAno(
+        return entityRepository.findByFuncionario_IdAndTipoAusencia_IdAndAno(
                 funcionarioId.getValor(), tipoAusenciaId.getValor(), ano).map(mapper::toDomain);
     }
 
@@ -59,7 +59,7 @@ public class SaldoAusenciaRepositoryImpl implements SaldoAusenciaRepository {
     @Override
     public boolean existsByFuncionarioIdAndTipoAusenciaIdAndAno(
             FuncionarioId funcionarioId, TipoAusenciaId tipoAusenciaId, int ano) {
-        return entityRepository.existsByFuncionarioIdAndTipoAusenciaIdAndAno(
+        return entityRepository.existsByFuncionario_IdAndTipoAusencia_IdAndAno(
                 funcionarioId.getValor(), tipoAusenciaId.getValor(), ano);
     }
 }

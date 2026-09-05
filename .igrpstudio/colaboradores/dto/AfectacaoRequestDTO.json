@@ -1,0 +1,16 @@
+{
+  "type": "dto",
+  "name": "AfectacaoRequestDTO",
+  "module": "colaboradores",
+  "template": "classic",
+  "attributes": [
+    {"name": "funcionarioId", "type": "string", "required": true},
+    {"name": "positionId", "type": "string", "required": true},
+    {"name": "gradeId", "type": "string", "required": false},
+    {"name": "functionId", "type": "string", "required": false},
+    {"name": "origem", "type": "string", "required": false},
+    {"name": "assignmentType", "type": "string", "required": false},
+    {"name": "dataInicio", "type": "date", "required": false},
+    {"name": "notes", "type": "string", "required": false}
+  ]
+}

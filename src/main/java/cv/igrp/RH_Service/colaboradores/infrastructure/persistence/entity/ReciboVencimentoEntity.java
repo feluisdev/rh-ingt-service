@@ -27,8 +27,9 @@ public class ReciboVencimentoEntity extends AuditEntity {
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
 
-    @Column(name = "funcionario_id", nullable = false)
-    private UUID funcionarioId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "funcionario_id", nullable = false)
+    private FuncionarioEntity funcionario;
 
     @Column(name = "period_month", nullable = false)
     private Integer periodMonth;
@@ -45,6 +46,7 @@ public class ReciboVencimentoEntity extends AuditEntity {
     @Column(name = "net_salary", nullable = false, precision = 15, scale = 2)
     private BigDecimal netSalary;
 
-    @Column(name = "document_id", nullable = false)
-    private UUID documentId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "document_id", nullable = false)
+    private DocumentoEntity document;
 }

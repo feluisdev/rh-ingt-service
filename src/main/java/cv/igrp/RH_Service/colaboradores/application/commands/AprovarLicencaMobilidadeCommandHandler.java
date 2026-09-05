@@ -1,8 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
-import cv.igrp.RH_Service.colaboradores.domain.models.Colocacao;
-import cv.igrp.RH_Service.colaboradores.domain.models.TipoAfectacao;
-import cv.igrp.RH_Service.colaboradores.domain.repository.ColocacaoRepository;
+import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
 import cv.igrp.RH_Service.colaboradores.domain.repository.LicencaMobilidadeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.SubtipoLicencaMobilidadeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.LicencaMobilidadeId;
@@ -25,7 +23,7 @@ public class AprovarLicencaMobilidadeCommandHandler
         implements CommandHandler<AprovarLicencaMobilidadeCommand, ResponseEntity<Map<String, ?>>> {
 
     private final LicencaMobilidadeRepository licencaRepository;
-    private final ColocacaoRepository colocacaoRepository;
+    private final AssignmentService assignmentService;
     private final SubtipoLicencaMobilidadeRepository subtipoRepository;
 
     @IgrpCommandHandler
@@ -47,14 +45,15 @@ public class AprovarLicencaMobilidadeCommandHandler
         boolean isMobilidade = subtipo != null && "MOBILIDADE".equals(subtipo.getRecordType());
 
         if (isMobilidade) {
+            if (licenca.getDestinationPositionId() == null)
+                throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                        "A mobilidade exige um Lugar de destino (destinationPositionId) para abrir a afectação.");
+
             var hoje = LocalDate.now();
-            colocacaoRepository.fecharColocacaoAtual(licenca.getFuncionarioId(), hoje);
-            var novaColocacao = Colocacao.criar(
-                    licenca.getFuncionarioId(),
-                    licenca.getDestinationUnitId(),
-                    null, hoje,
-                    TipoAfectacao.MOBILIDADE, null);
-            colocacaoRepository.save(novaColocacao);
+            String notes = "Mobilidade" + (licenca.getDespachoNumero() != null
+                    ? " (despacho " + licenca.getDespachoNumero() + ")" : "");
+            assignmentService.afectarMobilidade(licenca.getFuncionarioId(),
+                    licenca.getDestinationPositionId(), hoje, notes);
         }
 
         return ResponseEntity.ok(Map.of("message", "Aprovado com sucesso"));

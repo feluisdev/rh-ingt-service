@@ -35,7 +35,7 @@ public class QualificacaoRepositoryImpl implements QualificacaoRepository {
     @Transactional(readOnly = true)
     @Override
     public List<Qualificacao> findAllByFuncionarioId(FuncionarioId funcionarioId) {
-        return entityRepository.findByFuncionarioId(funcionarioId.getValor())
+        return entityRepository.findByFuncionario_Id(funcionarioId.getValor())
                 .stream().map(mapper::toDomain).toList();
     }
 }

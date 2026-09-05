@@ -12,7 +12,7 @@
     {"name": "genero",           "type": "string",  "objectType": "java", "primaryKey": false, "nullable": false},
     {"name": "estadoCivil",      "type": "string",  "objectType": "java", "primaryKey": false, "nullable": false},
     {"name": "nif",              "type": "string",  "objectType": "java", "primaryKey": false, "nullable": false, "unique": true},
-    {"name": "documentTypeId",   "type": "string",  "objectType": "java", "primaryKey": false, "nullable": true, "foreignKey": "document_type"},
+    {"name": "documentType", "type": "relation", "relation": {"type": "ManyToOne", "entity": "DocumentTypeEntity", "fetchType": "lazy", "joinColumn": "document_type_id", "module": "parametrizacoes"}},
     {"name": "numeroDocumento",  "type": "string",  "objectType": "java", "primaryKey": false, "nullable": true, "unique": true},
     {"name": "dataEmissaoDoc",   "type": "date",    "objectType": "java", "primaryKey": false, "nullable": true},
     {"name": "dataValidadeDoc",  "type": "date",    "objectType": "java", "primaryKey": false, "nullable": true},
@@ -23,7 +23,7 @@
     {"name": "ilha",             "type": "string",  "objectType": "java", "primaryKey": false, "nullable": true},
     {"name": "concelho",         "type": "string",  "objectType": "java", "primaryKey": false, "nullable": true},
     {"name": "localidade",       "type": "string",  "objectType": "java", "primaryKey": false, "nullable": true},
-    {"name": "workerStateId",    "type": "string",  "objectType": "java", "primaryKey": false, "nullable": true, "foreignKey": "t_worker_state"},
+    {"name": "workerState", "type": "relation", "relation": {"type": "ManyToOne", "entity": "WorkerStateEntity", "fetchType": "lazy", "joinColumn": "worker_state_id", "module": "parametrizacoes"}},
     {"name": "dataAdmissao",     "type": "date",    "objectType": "java", "primaryKey": false, "nullable": false},
     {"name": "isActive",         "type": "boolean", "objectType": "java", "primaryKey": false, "nullable": false}
   ]

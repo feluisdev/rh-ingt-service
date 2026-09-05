@@ -12,15 +12,15 @@ import java.util.UUID;
 public interface CategoryEntityRepository
         extends JpaRepository<CategoryEntity, UUID>, JpaSpecificationExecutor<CategoryEntity> {
 
-    boolean existsByCodeAndCareerId(String code, UUID careerId);
+    boolean existsByCodeAndCareer_Id(String code, UUID careerId);
 
-    boolean existsByCodeAndCareerIdAndIdNot(String code, UUID careerId, UUID id);
+    boolean existsByCodeAndCareer_IdAndIdNot(String code, UUID careerId, UUID id);
 
-    List<CategoryEntity> findByCareerIdAndIsActiveTrue(UUID careerId);
+    List<CategoryEntity> findByCareer_IdAndIsActiveTrue(UUID careerId);
 
-    List<CategoryEntity> findByCareerId(UUID careerId);
+    List<CategoryEntity> findByCareer_Id(UUID careerId);
 
-    boolean existsByCareerIdAndIsActiveTrue(UUID careerId);
+    boolean existsByCareer_IdAndIsActiveTrue(UUID careerId);
 
-    long countByCareerId(UUID careerId);
+    long countByCareer_Id(UUID careerId);
 }

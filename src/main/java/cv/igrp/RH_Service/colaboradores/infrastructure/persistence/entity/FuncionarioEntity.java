@@ -3,6 +3,8 @@
 
 package cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity;
 
+import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.DocumentTypeEntity;
+import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.WorkerStateEntity;
 import cv.igrp.RH_Service.shared.config.AuditEntity;
 import cv.igrp.framework.stereotype.IgrpEntity;
 import jakarta.persistence.*;
@@ -44,8 +46,9 @@ public class FuncionarioEntity extends AuditEntity {
     @Column(name = "nif", unique = true, nullable = false, length = 20)
     private String nif;
 
-    @Column(name = "document_type_id")
-    private UUID documentTypeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "document_type_id")
+    private DocumentTypeEntity documentType;
 
     @Column(name = "numero_documento", unique = true, length = 50)
     private String numeroDocumento;
@@ -77,8 +80,9 @@ public class FuncionarioEntity extends AuditEntity {
     @Column(name = "localidade", length = 100)
     private String localidade;
 
-    @Column(name = "worker_state_id")
-    private UUID workerStateId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "worker_state_id")
+    private WorkerStateEntity workerState;
 
     @Column(name = "data_admissao", nullable = false)
     private LocalDate dataAdmissao;

@@ -3,6 +3,7 @@
 
 package cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity;
 
+import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.FuncionarioEntity;
 import cv.igrp.RH_Service.shared.config.AuditEntity;
 import cv.igrp.framework.stereotype.IgrpEntity;
 import jakarta.persistence.*;
@@ -40,11 +41,13 @@ public class OrganizationalUnitEntity extends AuditEntity {
     @Column(name = "descricao")
     private String descricao;
 
-    @Column(name = "parent_unit_id")
-    private UUID parentUnitId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_unit_id")
+    private OrganizationalUnitEntity parentUnit;
 
-    @Column(name = "responsible_employee_id")
-    private UUID responsibleEmployeeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "responsible_employee_id")
+    private FuncionarioEntity responsibleEmployee;
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;

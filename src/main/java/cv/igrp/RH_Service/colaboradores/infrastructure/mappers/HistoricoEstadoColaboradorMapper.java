@@ -4,18 +4,25 @@ import cv.igrp.RH_Service.colaboradores.application.dto.HistoricoEstadoColaborad
 import cv.igrp.RH_Service.colaboradores.domain.models.HistoricoEstadoColaborador;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.HistoricoEstadoColaboradorId;
+import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.FuncionarioEntity;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.HistoricoEstadoColaboradorEntity;
+import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.WorkerStateEntity;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.JpaReferences;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class HistoricoEstadoColaboradorMapper {
+
+    private final JpaReferences refs;
 
     public HistoricoEstadoColaboradorEntity toEntity(HistoricoEstadoColaborador domain) {
         HistoricoEstadoColaboradorEntity e = new HistoricoEstadoColaboradorEntity();
         e.setId(domain.getId().getValor());
-        e.setFuncionarioId(domain.getFuncionarioId().getValor());
-        e.setEstadoAnteriorId(domain.getEstadoAnteriorId());
-        e.setEstadoNovoId(domain.getEstadoNovoId());
+        e.setFuncionario(refs.ref(FuncionarioEntity.class, domain.getFuncionarioId().getValor()));
+        e.setEstadoAnterior(refs.ref(WorkerStateEntity.class, domain.getEstadoAnteriorId()));
+        e.setEstadoNovo(refs.ref(WorkerStateEntity.class, domain.getEstadoNovoId()));
         e.setMotivoCkey(domain.getMotivoCkey());
         e.setDataEfectividade(domain.getDataEfectividade());
         e.setObservacao(domain.getObservacao());
@@ -25,9 +32,9 @@ public class HistoricoEstadoColaboradorMapper {
     public HistoricoEstadoColaborador toDomain(HistoricoEstadoColaboradorEntity e) {
         return HistoricoEstadoColaborador.reconstruir(
                 HistoricoEstadoColaboradorId.from(e.getId()),
-                FuncionarioId.from(e.getFuncionarioId()),
-                e.getEstadoAnteriorId(),
-                e.getEstadoNovoId(),
+                FuncionarioId.from(e.getFuncionario().getId()),
+                refs.idOf(e.getEstadoAnterior(), WorkerStateEntity::getId),
+                e.getEstadoNovo().getId(),
                 e.getMotivoCkey(),
                 e.getDataEfectividade(),
                 e.getObservacao(),
