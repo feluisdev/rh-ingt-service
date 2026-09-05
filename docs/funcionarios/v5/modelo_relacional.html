@@ -81,7 +81,7 @@
     <table>
       <tr><th>Convenção</th><th>Descrição</th></tr>
       <tr><td><b>Chave primária</b></td><td><code>id UUID</code> em todas as tabelas.</td></tr>
-      <tr><td><b>Relações</b></td><td>Coluna <code>&lt;alvo&gt;_id UUID</code> (ex.: <code>funcionario_id</code>). <b>Sem FK física declarada</b> na maioria — a integridade é garantida na aplicação. Exceção: <code>t_contrato</code> usa <code>@ManyToOne</code> real (FK física para <code>t_funcionario</code> e <code>t_contract_type</code>).</td></tr>
+      <tr><td><b>Relações</b></td><td>Associação <code>@ManyToOne(LAZY)</code> com <code>@JoinColumn</code> sobre a coluna <code>&lt;alvo&gt;_id UUID</code> (ex.: <code>funcionario_id</code>) — <b>41 associações em 19 entidades</b>, com FK física criada pelo <code>ddl-auto</code>. Duas exceções deliberadas, que ficam como coluna UUID solta: <code>t_document.reference_id</code> (polimórfico) e <code>t_iam_user_profile.funcionario_id</code>. O <b>domínio não conhece estas associações</b>: continua a referir-se por identidade tipada (<code>FuncionarioId</code>, …); a tradução vive em <code>shared/infrastructure/persistence/JpaReferences</code>.</td></tr>
       <tr><td><b>Soft delete</b></td><td><code>is_active BOOLEAN</code> — registos "apagados" ficam <code>false</code>, não são removidos.</td></tr>
       <tr><td><b>Historização (SCD2)</b></td><td><code>is_current</code>, <code>data_inicio</code>, <code>data_fim</code> — em <code>t_assignment</code> e <code>t_contrato</code>. Uma versão corrente por chave de negócio.</td></tr>
       <tr><td><b>Auditoria</b></td><td>Entidades <code>@Audited</code> (Envers) geram tabela <code>_aud</code> em <code>audit_schema</code>; colunas de trilho <code>created_date</code>/<code>created_by</code>, <code>last_modified_date</code>/<code>last_modified_by</code>.</td></tr>
@@ -174,21 +174,21 @@ erDiagram
     <p class="cap">Funcionário como agregado — tudo pendura de t_funcionario</p>
     <pre class="mermaid">
 erDiagram
-  t_funcionario ||--o{ t_contrato        : "funcionario_id (FK física)"
+  t_funcionario ||--o{ t_contrato        : "funcionario_id"
   t_funcionario ||--o{ t_dados_bancarios : "funcionario_id"
   t_funcionario ||--o{ t_dependente      : "funcionario_id"
   t_funcionario ||--o{ t_qualificacao    : "funcionario_id"
   t_funcionario ||--o{ t_training        : "funcionario_id"
   t_funcionario ||--o{ t_historico_estado_colaborador : "funcionario_id"
-  t_funcionario ||--o| t_iam_user_profile : "funcionario_id"
-  t_contrato    }o--o| t_contract_type   : "contract_type_id (FK física)"
+  t_funcionario ||--o| t_iam_user_profile : "funcionario_id (UUID solto)"
+  t_contrato    }o--o| t_contract_type   : "contract_type_id"
   t_historico_estado_colaborador }o--|| t_worker_state : "estado_anterior/novo_id"
     </pre>
   </div>
   <table>
     <tr><th>Tabela</th><th>Módulo</th><th>Papel · FKs</th></tr>
     <tr><td><code>t_funcionario</code></td><td><span class="mod m-col">colaboradores</span></td><td>A pessoa. <code>worker_state_id</code>→estado, <code>document_type_id</code>→tipo de doc. de identificação.</td></tr>
-    <tr><td><code>t_contrato</code></td><td><span class="mod m-col">colaboradores</span></td><td>Vínculo jurídico. <b>FK física</b> <code>funcionario_id</code>, <code>contract_type_id</code>. SCD2 (<code>is_current</code>).</td></tr>
+    <tr><td><code>t_contrato</code></td><td><span class="mod m-col">colaboradores</span></td><td>Vínculo jurídico. <code>funcionario_id</code>, <code>contract_type_id</code>. SCD2 (<code>is_current</code>).</td></tr>
     <tr><td><code>t_dados_bancarios</code></td><td><span class="mod m-col">colaboradores</span></td><td>IBAN/conta do funcionário.</td></tr>
     <tr><td><code>t_dependente</code></td><td><span class="mod m-col">colaboradores</span></td><td>Dependentes (agregado familiar).</td></tr>
     <tr><td><code>t_qualificacao</code></td><td><span class="mod m-col">colaboradores</span></td><td>Habilitações académicas/profissionais.</td></tr>
@@ -239,7 +239,7 @@ erDiagram
     <tr><td><code>t_payroll_slip</code></td><td><span class="mod m-col">colaboradores</span></td><td>Recibo de vencimento. <code>funcionario_id</code>, <code>document_id</code>.</td></tr>
     <tr><td><code>t_disciplinary_process</code></td><td><span class="mod m-col">colaboradores</span></td><td>Processo disciplinar do funcionário.</td></tr>
   </table>
-  <div class="callout warn"><b>Documentos polimórficos:</b> <code>t_document.reference_id</code> não tem FK física porque aponta a tabelas diferentes conforme o contexto. A coerência é gerida pela aplicação (cada controller de "documentos" filtra pelo seu tipo de dono).</div>
+  <div class="callout warn"><b>Documentos polimórficos:</b> <code>t_document.reference_id</code> é uma das duas colunas que <b>não</b> foi convertida em <code>@ManyToOne</code>, porque aponta a tabelas diferentes conforme o contexto (contrato, formação, qualificação, recibo, processo, licença…). Não pode ter FK física; a coerência é gerida pela aplicação, com cada controller de "documentos" a filtrar pelo seu tipo de dono.</div>
 
   <h2 id="catalogos"><span class="n">7.</span>Catálogos (parametrizações)</h2>
   <table>
@@ -260,7 +260,7 @@ erDiagram
     <tr><th>#</th><th>Tabela</th><th>Módulo</th><th>Entidade JPA</th><th>FKs (colunas <code>*_id</code>)</th></tr>
     <tr><td>1</td><td><code>t_funcionario</code></td><td><span class="mod m-col">col</span></td><td>FuncionarioEntity</td><td>worker_state_id, document_type_id</td></tr>
     <tr><td>2</td><td><code>t_assignment</code></td><td><span class="mod m-col">col</span></td><td>AssignmentEntity</td><td>funcionario_id, position_id, grade_id, function_id, origin_assignment_id</td></tr>
-    <tr><td>3</td><td><code>t_contrato</code></td><td><span class="mod m-col">col</span></td><td>ContratoEntity</td><td>funcionario_id*, contract_type_id* (FK física)</td></tr>
+    <tr><td>3</td><td><code>t_contrato</code></td><td><span class="mod m-col">col</span></td><td>ContratoEntity</td><td>funcionario_id, contract_type_id</td></tr>
     <tr><td>4</td><td><code>t_dados_bancarios</code></td><td><span class="mod m-col">col</span></td><td>DadosBancariosEntity</td><td>funcionario_id</td></tr>
     <tr><td>5</td><td><code>t_dependente</code></td><td><span class="mod m-col">col</span></td><td>DependenteEntity</td><td>funcionario_id</td></tr>
     <tr><td>6</td><td><code>t_qualificacao</code></td><td><span class="mod m-col">col</span></td><td>QualificacaoEntity</td><td>funcionario_id</td></tr>
@@ -271,9 +271,9 @@ erDiagram
     <tr><td>11</td><td><code>t_leave_mobility</code></td><td><span class="mod m-col">col</span></td><td>LicencaMobilidadeEntity</td><td>funcionario_id, subtipo_id, destination_unit_id, destination_position_id, document_id</td></tr>
     <tr><td>12</td><td><code>t_disciplinary_process</code></td><td><span class="mod m-col">col</span></td><td>ProcessoDisciplinarEntity</td><td>funcionario_id</td></tr>
     <tr><td>13</td><td><code>t_payroll_slip</code></td><td><span class="mod m-col">col</span></td><td>ReciboVencimentoEntity</td><td>funcionario_id, document_id</td></tr>
-    <tr><td>14</td><td><code>t_document</code></td><td><span class="mod m-col">col</span></td><td>DocumentoEntity</td><td>document_type_id, reference_id (polimórfico)</td></tr>
+    <tr><td>14</td><td><code>t_document</code></td><td><span class="mod m-col">col</span></td><td>DocumentoEntity</td><td>document_type_id, <b>reference_id</b> (polimórfico — UUID solto)</td></tr>
     <tr><td>15</td><td><code>t_position</code></td><td><span class="mod m-est">est</span></td><td>PositionEntity</td><td>job_id, unidade_organica_id, career_id, category_id, parent_position_id, manages_unit_id</td></tr>
-    <tr><td>16</td><td><code>t_unidade_organica</code></td><td><span class="mod m-est">est</span></td><td>OrganizationalUnitEntity</td><td>parent_unit_id</td></tr>
+    <tr><td>16</td><td><code>t_unidade_organica</code></td><td><span class="mod m-est">est</span></td><td>OrganizationalUnitEntity</td><td>parent_unit_id, responsible_employee_id</td></tr>
     <tr><td>17</td><td><code>t_job</code></td><td><span class="mod m-est">est</span></td><td>JobEntity</td><td>—</td></tr>
     <tr><td>18</td><td><code>t_funcao</code></td><td><span class="mod m-est">est</span></td><td>FunctionEntity</td><td>job_id</td></tr>
     <tr><td>19</td><td><code>t_career</code></td><td><span class="mod m-car">car</span></td><td>CareerEntity</td><td>—</td></tr>
@@ -287,9 +287,9 @@ erDiagram
     <tr><td>27</td><td><code>t_tipo_documento</code></td><td><span class="mod m-par">par</span></td><td>DocumentTypeEntity</td><td>— (category: String)</td></tr>
     <tr><td>28</td><td><code>t_public_holiday</code></td><td><span class="mod m-par">par</span></td><td>PublicHolidayEntity</td><td>—</td></tr>
     <tr><td>29</td><td><code>t_option_entity</code></td><td><span class="mod m-par">par</span></td><td>OptionEntity</td><td>—</td></tr>
-    <tr><td>30</td><td><code>t_iam_user_profile</code></td><td><span class="mod m-sh">sh</span></td><td>IAMUserProfileEntity</td><td>funcionario_id</td></tr>
+    <tr><td>30</td><td><code>t_iam_user_profile</code></td><td><span class="mod m-sh">sh</span></td><td>IAMUserProfileEntity</td><td><b>funcionario_id</b> (UUID solto)</td></tr>
   </table>
-  <p class="lead" style="font-size:13.5px">* FK física real (<code>@JoinColumn</code>). Restantes são colunas UUID sem FK declarada.</p>
+  <p class="lead" style="font-size:13.5px">Todas as FKs acima são associações <code>@ManyToOne</code> com <code>@JoinColumn</code>, <b>excepto</b> as duas assinaladas a negrito (<code>t_document.reference_id</code> e <code>t_iam_user_profile.funcionario_id</code>), que permanecem colunas UUID sem FK declarada.</p>
 
   <footer>
     RH-Service · Documentação v5 · Modelo Relacional · pt-PT<br>

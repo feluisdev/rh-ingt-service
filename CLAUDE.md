@@ -146,7 +146,7 @@ Shared value objects: `ExternalID` (UUID wrapper), `Estado` enum (ATIVO/INATIVO)
 
 ## Language
 
-All SpecKit artifacts (specs, plans, tasks, checklists) must be written in European Portuguese (pt-PT).
+All documentation and design artifacts must be written in European Portuguese (pt-PT).
 
 ## Commit Convention
 
@@ -160,11 +160,24 @@ docs(sigdi): ...
 
 ## Documentation
 
-### v4 — Active source of truth (RH refactor)
+### v5 — Active source of truth
 
-- `/docs/funcionarios/v4/Modelo_Relacional_RH_v4.0.md` — ER model (26 tables, 9 functional blocks)
-- `/docs/funcionarios/v4/Especificacao_Tecnica_Modulo_RH_v4.0.md` — Technical API spec (REST endpoints by module)
-- `/docs/funcionarios/v4/Arquitectura_Modulos_RH_v4.0.md` — Module architecture (umbrella `colaboradores/`, BC mapping, hexagonal layout)
+`/docs/funcionarios/v5/` is where the work is driven from. The SpecKit `specs/`
+tree was removed on 2026-09-05; do not reintroduce it or cite it as a plan.
+
+- `modelo_relacional.html` — ER model, table-by-table reference, conventions
+- `modelo_negocio.html` — business model
+- `regras_negocio.html` — numbered business-rule catalogue (BR-*, non-sigdi scope)
+- `api_guide.md` / `api_guide.html` — REST API guide
+- `guia_configuracao_registo.html` — configuration and registration walkthrough
+- `apresentacao_aplicacao.html` — application walkthrough
+- `breaking_change_frontend.md` — front-end breaking changes
+
+### v4 / Legacy
+
+- `/docs/funcionarios/v4/Modelo_Relacional_RH_v4.0.md` — ER model (superseded by v5)
+- `/docs/funcionarios/v4/Especificacao_Tecnica_Modulo_RH_v4.0.md` — API spec (superseded by v5)
+- `/docs/funcionarios/v4/Arquitectura_Modulos_RH_v4.0.md` — Module architecture
 
 ### v3 / Legacy
 
@@ -172,9 +185,3 @@ docs(sigdi): ...
 - `/docs/05-Infraestrutura-e-Persistencia.md` — Database and infrastructure design
 - `/docs/05.01-Spec-Tecnica-Backend-api.md` — Technical API spec (v3, superseded by v4 above)
 - `/endpoints.md` — Auto-documented API endpoint list (current legacy state)
-
-<!-- SPECKIT START -->
-Active feature plan: [specs/009-dossier-formacoes-disciplinar-recibos/plan.md](specs/009-dossier-formacoes-disciplinar-recibos/plan.md)
-For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the current plan.
-<!-- SPECKIT END -->
