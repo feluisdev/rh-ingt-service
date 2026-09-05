@@ -41,34 +41,34 @@ public class AssignmentRepositoryImpl implements AssignmentRepository {
     @Override
     public Optional<Assignment> findCurrentPrincipalByFuncionario(FuncionarioId funcionarioId) {
         return entityRepository
-                .findByFuncionarioIdAndIsCurrentTrueAndAssignmentType(funcionarioId.getValor(), Assignment.PRINCIPAL)
+                .findByFuncionario_IdAndIsCurrentTrueAndAssignmentType(funcionarioId.getValor(), Assignment.PRINCIPAL)
                 .map(mapper::toDomain);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<Assignment> findCurrentByFuncionario(FuncionarioId funcionarioId) {
-        return entityRepository.findByFuncionarioIdAndIsCurrentTrue(funcionarioId.getValor())
+        return entityRepository.findByFuncionario_IdAndIsCurrentTrue(funcionarioId.getValor())
                 .stream().map(mapper::toDomain).toList();
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<Assignment> findAllByFuncionarioOrderByDataInicioDesc(FuncionarioId funcionarioId) {
-        return entityRepository.findByFuncionarioIdOrderByDataInicioDesc(funcionarioId.getValor())
+        return entityRepository.findByFuncionario_IdOrderByDataInicioDesc(funcionarioId.getValor())
                 .stream().map(mapper::toDomain).toList();
     }
 
     @Transactional(readOnly = true)
     @Override
     public Optional<Assignment> findCurrentByPosition(UUID positionId) {
-        return entityRepository.findByPositionIdAndIsCurrentTrue(positionId).map(mapper::toDomain);
+        return entityRepository.findByPosition_IdAndIsCurrentTrue(positionId).map(mapper::toDomain);
     }
 
     @Transactional(readOnly = true)
     @Override
     public boolean isPositionOccupied(UUID positionId) {
-        return entityRepository.existsByPositionIdAndIsCurrentTrue(positionId);
+        return entityRepository.existsByPosition_IdAndIsCurrentTrue(positionId);
     }
 
     @Transactional(readOnly = true)

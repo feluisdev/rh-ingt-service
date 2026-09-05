@@ -13,7 +13,7 @@ public interface OrganizationalUnitEntityRepository
 
     boolean existsByCode(String code);
     boolean existsByCodeAndIdNot(String code, UUID id);
-    boolean existsByParentUnitIdAndIsActiveTrue(UUID parentUnitId);
+    boolean existsByParentUnit_IdAndIsActiveTrue(UUID parentUnitId);
     Optional<OrganizationalUnitEntity> findByCode(String code);
     List<OrganizationalUnitEntity> findByIsActiveTrue();
 }

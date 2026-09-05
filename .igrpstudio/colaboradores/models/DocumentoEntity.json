@@ -8,7 +8,7 @@
     {"name": "id", "type": "string", "objectType": "java", "primaryKey": true},
     {"name": "referenceEntity", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "referenceId", "type": "string", "objectType": "java", "primaryKey": false},
-    {"name": "documentTypeId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "documentType", "type": "relation", "relation": {"type": "ManyToOne", "entity": "DocumentTypeEntity", "fetchType": "lazy", "joinColumn": "document_type_id", "module": "parametrizacoes"}},
     {"name": "fileKey", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "originalFilename", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "contentType", "type": "string", "objectType": "java", "primaryKey": false},

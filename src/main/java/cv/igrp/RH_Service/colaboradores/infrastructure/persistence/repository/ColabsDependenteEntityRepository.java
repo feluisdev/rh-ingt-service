@@ -7,5 +7,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ColabsDependenteEntityRepository extends JpaRepository<DependenteEntity, UUID> {
-    List<DependenteEntity> findByFuncionarioId(UUID funcionarioId);
+    List<DependenteEntity> findByFuncionario_Id(UUID funcionarioId);
 }

@@ -1,5 +1,7 @@
 package cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity;
 
+import cv.igrp.RH_Service.carreiras.infrastructure.persistence.entity.CareerEntity;
+import cv.igrp.RH_Service.carreiras.infrastructure.persistence.entity.CategoryEntity;
 import cv.igrp.RH_Service.shared.config.AuditEntity;
 import cv.igrp.framework.stereotype.IgrpEntity;
 import jakarta.persistence.*;
@@ -25,23 +27,29 @@ public class PositionEntity extends AuditEntity {
     @Column(name = "numero_lugar", unique = true, nullable = false, length = 60)
     private String numeroLugar;
 
-    @Column(name = "job_id", nullable = false)
-    private UUID jobId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "job_id", nullable = false)
+    private JobEntity job;
 
-    @Column(name = "unidade_organica_id", nullable = false)
-    private UUID unidadeOrganicaId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "unidade_organica_id", nullable = false)
+    private OrganizationalUnitEntity unidadeOrganica;
 
-    @Column(name = "career_id")
-    private UUID careerId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "career_id")
+    private CareerEntity career;
 
-    @Column(name = "category_id")
-    private UUID categoryId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private CategoryEntity category;
 
-    @Column(name = "parent_position_id")
-    private UUID parentPositionId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_position_id")
+    private PositionEntity parentPosition;
 
-    @Column(name = "manages_unit_id")
-    private UUID managesUnitId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "manages_unit_id")
+    private OrganizationalUnitEntity managesUnit;
 
     @Column(name = "estado", nullable = false, length = 20)
     private String estado;

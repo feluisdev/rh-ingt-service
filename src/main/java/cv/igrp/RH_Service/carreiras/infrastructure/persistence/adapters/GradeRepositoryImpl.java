@@ -50,7 +50,7 @@ public class GradeRepositoryImpl implements GradeRepository {
             var predicates = cb.conjunction();
 
             if (filter.getCategoryId() != null) {
-                predicates = cb.and(predicates, cb.equal(root.get("categoryId"), filter.getCategoryId()));
+                predicates = cb.and(predicates, cb.equal(root.get("category").get("id"), filter.getCategoryId()));
             }
 
             if (filter.getCode() != null && !filter.getCode().isBlank()) {
@@ -82,7 +82,7 @@ public class GradeRepositoryImpl implements GradeRepository {
     @Transactional(readOnly = true)
     @Override
     public List<Grade> findByCategoryIdOrderByGradeNumber(CategoryId categoryId) {
-        return entityRepository.findByCategoryIdOrderByGradeNumber(categoryId.getValor())
+        return entityRepository.findByCategory_IdOrderByGradeNumber(categoryId.getValor())
                 .stream()
                 .map(mapper::toDomain)
                 .toList();
@@ -91,19 +91,19 @@ public class GradeRepositoryImpl implements GradeRepository {
     @Transactional(readOnly = true)
     @Override
     public boolean existsByGradeNumberAndCategoryId(Integer gradeNumber, CategoryId categoryId) {
-        return entityRepository.existsByGradeNumberAndCategoryId(gradeNumber, categoryId.getValor());
+        return entityRepository.existsByGradeNumberAndCategory_Id(gradeNumber, categoryId.getValor());
     }
 
     @Transactional(readOnly = true)
     @Override
     public boolean existsByGradeNumberAndCategoryIdAndIdNot(Integer gradeNumber, CategoryId categoryId, GradeId id) {
-        return entityRepository.existsByGradeNumberAndCategoryIdAndIdNot(gradeNumber, categoryId.getValor(), id.getValor());
+        return entityRepository.existsByGradeNumberAndCategory_IdAndIdNot(gradeNumber, categoryId.getValor(), id.getValor());
     }
 
     @Transactional(readOnly = true)
     @Override
     public long countByCategoryId(CategoryId categoryId) {
-        return entityRepository.countByCategoryId(categoryId.getValor());
+        return entityRepository.countByCategory_Id(categoryId.getValor());
     }
 
     @Override

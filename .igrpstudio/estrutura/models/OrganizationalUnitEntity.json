@@ -11,8 +11,8 @@
     {"name": "acronym", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "unitType", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "descricao", "type": "string", "objectType": "java", "primaryKey": false},
-    {"name": "parentUnitId", "type": "string", "objectType": "java", "primaryKey": false},
-    {"name": "responsibleEmployeeId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "parentUnit", "type": "relation", "relation": {"type": "ManyToOne", "entity": "OrganizationalUnitEntity", "fetchType": "lazy", "joinColumn": "parent_unit_id", "module": "estrutura"}},
+    {"name": "responsibleEmployee", "type": "relation", "relation": {"type": "ManyToOne", "entity": "FuncionarioEntity", "fetchType": "lazy", "joinColumn": "responsible_employee_id", "module": "colaboradores"}},
     {"name": "isActive", "type": "boolean", "objectType": "java", "primaryKey": false}
   ]
 }

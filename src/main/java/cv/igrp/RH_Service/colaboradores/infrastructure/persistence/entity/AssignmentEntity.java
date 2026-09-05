@@ -1,5 +1,8 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity;
 
+import cv.igrp.RH_Service.carreiras.infrastructure.persistence.entity.GradeEntity;
+import cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.FunctionEntity;
+import cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.PositionEntity;
 import cv.igrp.RH_Service.shared.config.AuditEntity;
 import cv.igrp.framework.stereotype.IgrpEntity;
 import jakarta.persistence.*;
@@ -23,17 +26,21 @@ public class AssignmentEntity extends AuditEntity {
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
 
-    @Column(name = "funcionario_id", nullable = false)
-    private UUID funcionarioId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "funcionario_id", nullable = false)
+    private FuncionarioEntity funcionario;
 
-    @Column(name = "position_id", nullable = false)
-    private UUID positionId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "position_id", nullable = false)
+    private PositionEntity position;
 
-    @Column(name = "grade_id")
-    private UUID gradeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "grade_id")
+    private GradeEntity grade;
 
-    @Column(name = "function_id")
-    private UUID functionId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "function_id")
+    private FunctionEntity function;
 
     @Column(name = "assignment_type", nullable = false, length = 20)
     private String assignmentType;
@@ -41,8 +48,9 @@ public class AssignmentEntity extends AuditEntity {
     @Column(name = "origem", nullable = false, length = 20)
     private String origem;
 
-    @Column(name = "origin_assignment_id")
-    private UUID originAssignmentId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "origin_assignment_id")
+    private AssignmentEntity originAssignment;
 
     @Column(name = "data_inicio", nullable = false)
     private LocalDate dataInicio;

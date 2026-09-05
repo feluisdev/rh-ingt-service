@@ -4,16 +4,22 @@ import cv.igrp.RH_Service.colaboradores.application.dto.QualificacaoResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.models.Qualificacao;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.QualificacaoId;
+import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.FuncionarioEntity;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.QualificacaoEntity;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.JpaReferences;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component("colabsQualificacaoMapper")
+@RequiredArgsConstructor
 public class QualificacaoMapper {
+
+    private final JpaReferences refs;
 
     public Qualificacao toDomain(QualificacaoEntity e) {
         return Qualificacao.reconstituir(
                 QualificacaoId.from(e.getId()),
-                FuncionarioId.from(e.getFuncionarioId()),
+                FuncionarioId.from(e.getFuncionario().getId()),
                 e.getLevel(), e.getCourseName(), e.getInstitution(),
                 e.getCountry(), e.getStartDate(), e.getEndDate(),
                 e.getCompleted(), e.getIsActive());
@@ -22,7 +28,7 @@ public class QualificacaoMapper {
     public QualificacaoEntity toEntity(Qualificacao q) {
         QualificacaoEntity e = new QualificacaoEntity();
         e.setId(q.getId().getValor());
-        e.setFuncionarioId(q.getFuncionarioId().getValor());
+        e.setFuncionario(refs.ref(FuncionarioEntity.class, q.getFuncionarioId().getValor()));
         e.setLevel(q.getLevel());
         e.setCourseName(q.getCourseName());
         e.setInstitution(q.getInstitution());

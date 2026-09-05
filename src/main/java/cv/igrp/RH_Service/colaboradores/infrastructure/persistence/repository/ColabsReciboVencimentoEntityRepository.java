@@ -10,13 +10,13 @@ import java.util.UUID;
 
 public interface ColabsReciboVencimentoEntityRepository extends JpaRepository<ReciboVencimentoEntity, UUID> {
 
-    boolean existsByFuncionarioIdAndPeriodMonthAndPeriodYear(UUID funcionarioId, Integer periodMonth, Integer periodYear);
+    boolean existsByFuncionario_IdAndPeriodMonthAndPeriodYear(UUID funcionarioId, Integer periodMonth, Integer periodYear);
 
-    List<ReciboVencimentoEntity> findAllByFuncionarioId(UUID funcionarioId);
+    List<ReciboVencimentoEntity> findAllByFuncionario_Id(UUID funcionarioId);
 
-    @Query("SELECT r FROM ColabsReciboVencimentoEntity r WHERE r.funcionarioId = :funcionarioId AND r.periodYear = :periodYear")
+    @Query("SELECT r FROM ColabsReciboVencimentoEntity r WHERE r.funcionario.id = :funcionarioId AND r.periodYear = :periodYear")
     List<ReciboVencimentoEntity> findAllByFuncionarioIdAndPeriodYear(@Param("funcionarioId") UUID funcionarioId, @Param("periodYear") int periodYear);
 
-    @Query("SELECT r FROM ColabsReciboVencimentoEntity r WHERE r.funcionarioId = :funcionarioId AND r.periodYear = :periodYear AND r.periodMonth = :periodMonth")
+    @Query("SELECT r FROM ColabsReciboVencimentoEntity r WHERE r.funcionario.id = :funcionarioId AND r.periodYear = :periodYear AND r.periodMonth = :periodMonth")
     List<ReciboVencimentoEntity> findAllByFuncionarioIdAndPeriodYearAndPeriodMonth(@Param("funcionarioId") UUID funcionarioId, @Param("periodYear") int periodYear, @Param("periodMonth") int periodMonth);
 }

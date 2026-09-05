@@ -41,13 +41,13 @@ public class PositionRepositoryImpl implements PositionRepository {
     @Transactional(readOnly = true)
     @Override
     public Optional<Position> findResponsavelDeUnidade(UUID unidadeOrganicaId) {
-        return entityRepository.findByManagesUnitIdAndIsActiveTrue(unidadeOrganicaId).map(mapper::toDomain);
+        return entityRepository.findByManagesUnit_IdAndIsActiveTrue(unidadeOrganicaId).map(mapper::toDomain);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<Position> findByUnidade(UUID unidadeOrganicaId) {
-        return entityRepository.findByUnidadeOrganicaIdAndIsActiveTrue(unidadeOrganicaId)
+        return entityRepository.findByUnidadeOrganica_IdAndIsActiveTrue(unidadeOrganicaId)
                 .stream().map(mapper::toDomain).toList();
     }
 

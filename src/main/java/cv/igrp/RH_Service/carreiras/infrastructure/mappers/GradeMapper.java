@@ -5,16 +5,22 @@ import cv.igrp.RH_Service.carreiras.domain.models.Grade;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CategoryId;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.GradeId;
 import cv.igrp.RH_Service.carreiras.infrastructure.persistence.entity.GradeEntity;
+import cv.igrp.RH_Service.carreiras.infrastructure.persistence.entity.CategoryEntity;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.JpaReferences;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class GradeMapper {
+
+    private final JpaReferences refs;
 
     public GradeEntity toEntity(Grade domain) {
         if (domain == null) return null;
         GradeEntity entity = new GradeEntity();
         entity.setId(domain.getId().getValor());
-        entity.setCategoryId(domain.getCategoryId().getValor());
+        entity.setCategory(refs.ref(CategoryEntity.class, domain.getCategoryId().getValor()));
         entity.setGradeNumber(domain.getGradeNumber());
         entity.setCodigo(domain.getCodigo());
         entity.setName(domain.getName());
@@ -28,7 +34,7 @@ public class GradeMapper {
         if (entity == null) return null;
         return Grade.reconstituir(
                 GradeId.from(entity.getId()),
-                CategoryId.from(entity.getCategoryId()),
+                CategoryId.from(entity.getCategory().getId()),
                 entity.getGradeNumber(),
                 entity.getCodigo(),
                 entity.getName(),

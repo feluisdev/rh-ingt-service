@@ -35,14 +35,14 @@ public class DadosBancariosRepositoryImpl implements DadosBancariosRepository {
     @Transactional(readOnly = true)
     @Override
     public List<DadosBancarios> findAllByFuncionarioId(FuncionarioId funcionarioId) {
-        return entityRepository.findByFuncionarioId(funcionarioId.getValor())
+        return entityRepository.findByFuncionario_Id(funcionarioId.getValor())
                 .stream().map(mapper::toDomain).toList();
     }
 
     @Transactional(readOnly = true)
     @Override
     public Optional<DadosBancarios> findActiveByFuncionarioId(FuncionarioId funcionarioId) {
-        return entityRepository.findByFuncionarioIdAndIsActiveTrue(funcionarioId.getValor())
+        return entityRepository.findByFuncionario_IdAndIsActiveTrue(funcionarioId.getValor())
                 .map(mapper::toDomain);
     }
 }

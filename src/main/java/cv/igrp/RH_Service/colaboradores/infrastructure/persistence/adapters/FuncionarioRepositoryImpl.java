@@ -101,7 +101,7 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
                 predicates = cb.and(predicates, cb.equal(root.get("nif"), filter.getNif()));
             }
             if (filter.getWorkerStateId() != null) {
-                predicates = cb.and(predicates, cb.equal(root.get("workerStateId"), filter.getWorkerStateId()));
+                predicates = cb.and(predicates, cb.equal(root.get("workerState").get("id"), filter.getWorkerStateId()));
             }
             // Unidade e carreira derivam agora do Lugar (Position) via a Afectação corrente.
             // Subquery aninhada: funcionários com afectação corrente num Lugar que satisfaz o critério.
@@ -109,12 +109,12 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
                 Subquery<UUID> posSub = query.subquery(UUID.class);
                 Root<PositionEntity> p = posSub.from(PositionEntity.class);
                 posSub.select(p.get("id"))
-                      .where(cb.equal(p.get("unidadeOrganicaId"), filter.getUnidadeOrganicaId()));
+                      .where(cb.equal(p.get("unidadeOrganica").get("id"), filter.getUnidadeOrganicaId()));
 
                 Subquery<UUID> aSub = query.subquery(UUID.class);
                 Root<AssignmentEntity> a = aSub.from(AssignmentEntity.class);
-                aSub.select(a.get("funcionarioId"))
-                    .where(cb.and(cb.isTrue(a.get("isCurrent")), a.get("positionId").in(posSub)));
+                aSub.select(a.get("funcionario").get("id"))
+                    .where(cb.and(cb.isTrue(a.get("isCurrent")), a.get("position").get("id").in(posSub)));
 
                 predicates = cb.and(predicates, root.get("id").in(aSub));
             }
@@ -122,12 +122,12 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
                 Subquery<UUID> posSub = query.subquery(UUID.class);
                 Root<PositionEntity> p = posSub.from(PositionEntity.class);
                 posSub.select(p.get("id"))
-                      .where(cb.equal(p.get("careerId"), filter.getCareerId()));
+                      .where(cb.equal(p.get("career").get("id"), filter.getCareerId()));
 
                 Subquery<UUID> aSub = query.subquery(UUID.class);
                 Root<AssignmentEntity> a = aSub.from(AssignmentEntity.class);
-                aSub.select(a.get("funcionarioId"))
-                    .where(cb.and(cb.isTrue(a.get("isCurrent")), a.get("positionId").in(posSub)));
+                aSub.select(a.get("funcionario").get("id"))
+                    .where(cb.and(cb.isTrue(a.get("isCurrent")), a.get("position").get("id").in(posSub)));
 
                 predicates = cb.and(predicates, root.get("id").in(aSub));
             }

@@ -7,7 +7,13 @@ import cv.igrp.RH_Service.colaboradores.domain.repository.SubtipoLicencaMobilida
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.LicencaMobilidadeId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.SubtipoLicencaMobilidadeId;
+import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.DocumentoEntity;
+import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.FuncionarioEntity;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.LicencaMobilidadeEntity;
+import cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.OrganizationalUnitEntity;
+import cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.PositionEntity;
+import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.LeaveMobilitySubtypeEntity;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.JpaReferences;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,27 +21,29 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class LicencaMobilidadeMapper {
 
+    private final JpaReferences refs;
+
     private final SubtipoLicencaMobilidadeRepository subtipoRepository;
 
     public LicencaMobilidade toDomain(LicencaMobilidadeEntity e) {
         return LicencaMobilidade.reconstituir(
                 LicencaMobilidadeId.from(e.getId()),
-                FuncionarioId.from(e.getFuncionarioId()),
-                SubtipoLicencaMobilidadeId.from(e.getSubtipoId()),
+                FuncionarioId.from(e.getFuncionario().getId()),
+                SubtipoLicencaMobilidadeId.from(e.getSubtipo().getId()),
                 e.getDataInicio(), e.getDataFim(),
                 e.getEntidadeDestino(), e.getDespachoNumero(),
                 e.getObservacoes(), e.getIsActive(),
-                e.getStatus(), e.getDestinationUnitId(),
-                e.getDestinationPositionId(),
-                e.getJustification(), e.getDocumentId(),
+                e.getStatus(), refs.idOf(e.getDestinationUnit(), OrganizationalUnitEntity::getId),
+                refs.idOf(e.getDestinationPosition(), PositionEntity::getId),
+                e.getJustification(), refs.idOf(e.getDocument(), DocumentoEntity::getId),
                 e.getRejectionReason());
     }
 
     public LicencaMobilidadeEntity toEntity(LicencaMobilidade l) {
         LicencaMobilidadeEntity e = new LicencaMobilidadeEntity();
         e.setId(l.getId().getValor());
-        e.setFuncionarioId(l.getFuncionarioId().getValor());
-        e.setSubtipoId(l.getSubtipoId().getValor());
+        e.setFuncionario(refs.ref(FuncionarioEntity.class, l.getFuncionarioId().getValor()));
+        e.setSubtipo(refs.ref(LeaveMobilitySubtypeEntity.class, l.getSubtipoId().getValor()));
         e.setDataInicio(l.getDataInicio());
         e.setDataFim(l.getDataFim());
         e.setEntidadeDestino(l.getEntidadeDestino());
@@ -43,10 +51,10 @@ public class LicencaMobilidadeMapper {
         e.setObservacoes(l.getObservacoes());
         e.setIsActive(l.getIsActive());
         e.setStatus(l.getStatus() != null ? l.getStatus() : "PENDING");
-        e.setDestinationUnitId(l.getDestinationUnitId());
-        e.setDestinationPositionId(l.getDestinationPositionId());
+        e.setDestinationUnit(refs.ref(OrganizationalUnitEntity.class, l.getDestinationUnitId()));
+        e.setDestinationPosition(refs.ref(PositionEntity.class, l.getDestinationPositionId()));
         e.setJustification(l.getJustification());
-        e.setDocumentId(l.getDocumentId());
+        e.setDocument(refs.ref(DocumentoEntity.class, l.getDocumentId()));
         e.setRejectionReason(l.getRejectionReason());
         return e;
     }

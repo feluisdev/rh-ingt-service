@@ -10,8 +10,8 @@ import java.util.UUID;
 
 public interface ColabsFormacaoEntityRepository extends JpaRepository<FormacaoEntity, UUID> {
 
-    List<FormacaoEntity> findAllByFuncionarioId(UUID funcionarioId);
+    List<FormacaoEntity> findAllByFuncionario_Id(UUID funcionarioId);
 
-    @Query("SELECT f FROM ColabsFormacaoEntity f WHERE f.funcionarioId = :funcionarioId AND YEAR(f.startDate) = :year")
+    @Query("SELECT f FROM ColabsFormacaoEntity f WHERE f.funcionario.id = :funcionarioId AND YEAR(f.startDate) = :year")
     List<FormacaoEntity> findAllByFuncionarioIdAndYear(@Param("funcionarioId") UUID funcionarioId, @Param("year") int year);
 }

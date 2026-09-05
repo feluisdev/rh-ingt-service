@@ -99,7 +99,7 @@ public class OrganizationalUnitRepositoryImpl implements OrganizationalUnitRepos
     @Transactional(readOnly = true)
     @Override
     public boolean existsActiveChildrenOf(OrganizationalUnitId parentId) {
-        return entityRepository.existsByParentUnitIdAndIsActiveTrue(parentId.getValor());
+        return entityRepository.existsByParentUnit_IdAndIsActiveTrue(parentId.getValor());
     }
 
     @Transactional(readOnly = true)

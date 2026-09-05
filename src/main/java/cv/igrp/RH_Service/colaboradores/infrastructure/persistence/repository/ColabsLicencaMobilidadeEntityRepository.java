@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface ColabsLicencaMobilidadeEntityRepository extends JpaRepository<LicencaMobilidadeEntity, UUID> {
 
-    List<LicencaMobilidadeEntity> findAllByFuncionarioId(UUID funcionarioId);
+    List<LicencaMobilidadeEntity> findAllByFuncionario_Id(UUID funcionarioId);
 
-    List<LicencaMobilidadeEntity> findAllByFuncionarioIdAndIsActiveTrue(UUID funcionarioId);
+    List<LicencaMobilidadeEntity> findAllByFuncionario_IdAndIsActiveTrue(UUID funcionarioId);
 }

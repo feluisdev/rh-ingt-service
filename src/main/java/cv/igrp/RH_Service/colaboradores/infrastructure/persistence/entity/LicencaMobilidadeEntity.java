@@ -1,5 +1,8 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity;
 
+import cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.OrganizationalUnitEntity;
+import cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.PositionEntity;
+import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.LeaveMobilitySubtypeEntity;
 import cv.igrp.RH_Service.shared.config.AuditEntity;
 import cv.igrp.framework.stereotype.IgrpEntity;
 import jakarta.persistence.*;
@@ -23,11 +26,13 @@ public class LicencaMobilidadeEntity extends AuditEntity {
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
 
-    @Column(name = "funcionario_id", nullable = false)
-    private UUID funcionarioId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "funcionario_id", nullable = false)
+    private FuncionarioEntity funcionario;
 
-    @Column(name = "subtipo_id", nullable = false)
-    private UUID subtipoId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "subtipo_id", nullable = false)
+    private LeaveMobilitySubtypeEntity subtipo;
 
     @Column(name = "data_inicio", nullable = false)
     private LocalDate dataInicio;
@@ -50,17 +55,20 @@ public class LicencaMobilidadeEntity extends AuditEntity {
     @Column(name = "status", nullable = false, length = 20)
     private String status;
 
-    @Column(name = "destination_unit_id")
-    private UUID destinationUnitId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "destination_unit_id")
+    private OrganizationalUnitEntity destinationUnit;
 
-    @Column(name = "destination_position_id")
-    private UUID destinationPositionId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "destination_position_id")
+    private PositionEntity destinationPosition;
 
     @Column(name = "justification", columnDefinition = "TEXT")
     private String justification;
 
-    @Column(name = "document_id")
-    private UUID documentId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "document_id")
+    private DocumentoEntity document;
 
     @Column(name = "rejection_reason", columnDefinition = "TEXT")
     private String rejectionReason;

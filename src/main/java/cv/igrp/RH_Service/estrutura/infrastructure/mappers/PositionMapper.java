@@ -4,6 +4,8 @@ import cv.igrp.RH_Service.carreiras.domain.repository.CareerRepository;
 import cv.igrp.RH_Service.carreiras.domain.repository.CategoryRepository;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CareerId;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CategoryId;
+import cv.igrp.RH_Service.carreiras.infrastructure.persistence.entity.CareerEntity;
+import cv.igrp.RH_Service.carreiras.infrastructure.persistence.entity.CategoryEntity;
 import cv.igrp.RH_Service.estrutura.application.dto.PositionResponseDTO;
 import cv.igrp.RH_Service.estrutura.domain.models.Position;
 import cv.igrp.RH_Service.estrutura.domain.repository.JobRepository;
@@ -11,15 +13,19 @@ import cv.igrp.RH_Service.estrutura.domain.repository.OrganizationalUnitReposito
 import cv.igrp.RH_Service.estrutura.domain.valueobject.JobId;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.OrganizationalUnitId;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.PositionId;
+import cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.JobEntity;
+import cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.OrganizationalUnitEntity;
 import cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.PositionEntity;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.JpaReferences;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 public class PositionMapper {
+
+    private final JpaReferences refs;
 
     private final JobRepository jobRepository;
     private final OrganizationalUnitRepository unidadeRepository;
@@ -77,12 +83,12 @@ public class PositionMapper {
         PositionEntity entity = new PositionEntity();
         entity.setId(domain.getId().getValor());
         entity.setNumeroLugar(domain.getNumeroLugar());
-        entity.setJobId(domain.getJobId());
-        entity.setUnidadeOrganicaId(domain.getUnidadeOrganicaId());
-        entity.setCareerId(domain.getCareerId());
-        entity.setCategoryId(domain.getCategoryId());
-        entity.setParentPositionId(domain.getParentPositionId());
-        entity.setManagesUnitId(domain.getManagesUnitId());
+        entity.setJob(refs.ref(JobEntity.class, domain.getJobId()));
+        entity.setUnidadeOrganica(refs.ref(OrganizationalUnitEntity.class, domain.getUnidadeOrganicaId()));
+        entity.setCareer(refs.ref(CareerEntity.class, domain.getCareerId()));
+        entity.setCategory(refs.ref(CategoryEntity.class, domain.getCategoryId()));
+        entity.setParentPosition(refs.ref(PositionEntity.class, domain.getParentPositionId()));
+        entity.setManagesUnit(refs.ref(OrganizationalUnitEntity.class, domain.getManagesUnitId()));
         entity.setEstado(domain.getEstado());
         entity.setLegalBase(domain.getLegalBase());
         entity.setIsActive(domain.isActive());
@@ -94,12 +100,12 @@ public class PositionMapper {
         return Position.reconstituir(
                 PositionId.from(entity.getId()),
                 entity.getNumeroLugar(),
-                entity.getJobId(),
-                entity.getUnidadeOrganicaId(),
-                entity.getCareerId(),
-                entity.getCategoryId(),
-                entity.getParentPositionId(),
-                entity.getManagesUnitId(),
+                entity.getJob().getId(),
+                entity.getUnidadeOrganica().getId(),
+                refs.idOf(entity.getCareer(), CareerEntity::getId),
+                refs.idOf(entity.getCategory(), CategoryEntity::getId),
+                refs.idOf(entity.getParentPosition(), PositionEntity::getId),
+                refs.idOf(entity.getManagesUnit(), OrganizationalUnitEntity::getId),
                 entity.getEstado(),
                 entity.getLegalBase(),
                 entity.getIsActive() != null && entity.getIsActive()

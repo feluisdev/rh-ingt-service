@@ -7,5 +7,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface HistoricoEstadoColaboradorEntityRepository extends JpaRepository<HistoricoEstadoColaboradorEntity, UUID> {
-    List<HistoricoEstadoColaboradorEntity> findAllByFuncionarioIdOrderByDataEfectividadeDesc(UUID funcionarioId);
+    List<HistoricoEstadoColaboradorEntity> findAllByFuncionario_IdOrderByDataEfectividadeDesc(UUID funcionarioId);
 }

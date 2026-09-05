@@ -38,7 +38,7 @@ public class PedidoAusenciaRepositoryImpl implements PedidoAusenciaRepository {
     @Transactional(readOnly = true)
     @Override
     public List<PedidoAusencia> findAllByFuncionarioId(FuncionarioId funcionarioId, PedidoAusenciaFilter filter) {
-        Stream<PedidoAusencia> stream = entityRepository.findAllByFuncionarioId(funcionarioId.getValor())
+        Stream<PedidoAusencia> stream = entityRepository.findAllByFuncionario_Id(funcionarioId.getValor())
                 .stream().map(mapper::toDomain);
         if (filter.getEstado() != null)
             stream = stream.filter(p -> filter.getEstado().equals(p.getEstado()));

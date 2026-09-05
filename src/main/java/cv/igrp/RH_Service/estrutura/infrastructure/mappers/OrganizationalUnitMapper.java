@@ -1,13 +1,19 @@
 package cv.igrp.RH_Service.estrutura.infrastructure.mappers;
 
+import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.FuncionarioEntity;
 import cv.igrp.RH_Service.estrutura.application.dto.OrganizationalUnitResponseDTO;
 import cv.igrp.RH_Service.estrutura.domain.models.OrganizationalUnit;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.OrganizationalUnitId;
 import cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.OrganizationalUnitEntity;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.JpaReferences;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class OrganizationalUnitMapper {
+
+    private final JpaReferences refs;
 
     public OrganizationalUnitEntity toEntity(OrganizationalUnit domain) {
         if (domain == null) return null;
@@ -18,16 +24,16 @@ public class OrganizationalUnitMapper {
         entity.setAcronym(domain.getAcronym());
         entity.setUnitType(domain.getUnitType());
         entity.setDescricao(domain.getDescricao());
-        entity.setParentUnitId(domain.getParentUnitId() != null ? domain.getParentUnitId().getValor() : null);
-        entity.setResponsibleEmployeeId(domain.getResponsibleEmployeeId());
+        entity.setParentUnit(refs.ref(OrganizationalUnitEntity.class, domain.getParentUnitId() != null ? domain.getParentUnitId().getValor() : null));
+        entity.setResponsibleEmployee(refs.ref(FuncionarioEntity.class, domain.getResponsibleEmployeeId()));
         entity.setIsActive(domain.isActive());
         return entity;
     }
 
     public OrganizationalUnit toDomain(OrganizationalUnitEntity entity) {
         if (entity == null) return null;
-        OrganizationalUnitId parentId = entity.getParentUnitId() != null
-                ? OrganizationalUnitId.from(entity.getParentUnitId()) : null;
+        OrganizationalUnitId parentId = refs.idOf(entity.getParentUnit(), OrganizationalUnitEntity::getId) != null
+                ? OrganizationalUnitId.from(refs.idOf(entity.getParentUnit(), OrganizationalUnitEntity::getId)) : null;
         return OrganizationalUnit.reconstruir(
                 OrganizationalUnitId.from(entity.getId()),
                 entity.getCode(),
@@ -36,7 +42,7 @@ public class OrganizationalUnitMapper {
                 entity.getUnitType(),
                 entity.getDescricao(),
                 parentId,
-                entity.getResponsibleEmployeeId(),
+                refs.idOf(entity.getResponsibleEmployee(), FuncionarioEntity::getId),
                 entity.getIsActive() != null && entity.getIsActive()
         );
     }

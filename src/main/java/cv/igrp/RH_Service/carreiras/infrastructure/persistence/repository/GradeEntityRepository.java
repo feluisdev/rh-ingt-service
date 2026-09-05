@@ -10,13 +10,13 @@ import java.util.UUID;
 public interface GradeEntityRepository
         extends JpaRepository<GradeEntity, UUID>, JpaSpecificationExecutor<GradeEntity> {
 
-    boolean existsByGradeNumberAndCategoryId(Integer gradeNumber, UUID categoryId);
+    boolean existsByGradeNumberAndCategory_Id(Integer gradeNumber, UUID categoryId);
 
-    boolean existsByGradeNumberAndCategoryIdAndIdNot(Integer gradeNumber, UUID categoryId, UUID id);
+    boolean existsByGradeNumberAndCategory_IdAndIdNot(Integer gradeNumber, UUID categoryId, UUID id);
 
-    List<GradeEntity> findByCategoryIdOrderByGradeNumber(UUID categoryId);
+    List<GradeEntity> findByCategory_IdOrderByGradeNumber(UUID categoryId);
 
-    boolean existsByCategoryIdAndIsActiveTrue(UUID categoryId);
+    boolean existsByCategory_IdAndIsActiveTrue(UUID categoryId);
 
-    long countByCategoryId(UUID categoryId);
+    long countByCategory_Id(UUID categoryId);
 }

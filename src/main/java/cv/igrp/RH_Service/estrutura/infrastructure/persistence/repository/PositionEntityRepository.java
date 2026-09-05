@@ -14,6 +14,6 @@ public interface PositionEntityRepository
     boolean existsByNumeroLugar(String numeroLugar);
     boolean existsByNumeroLugarAndIdNot(String numeroLugar, UUID id);
     Optional<PositionEntity> findByNumeroLugar(String numeroLugar);
-    Optional<PositionEntity> findByManagesUnitIdAndIsActiveTrue(UUID managesUnitId);
-    List<PositionEntity> findByUnidadeOrganicaIdAndIsActiveTrue(UUID unidadeOrganicaId);
+    Optional<PositionEntity> findByManagesUnit_IdAndIsActiveTrue(UUID managesUnitId);
+    List<PositionEntity> findByUnidadeOrganica_IdAndIsActiveTrue(UUID unidadeOrganicaId);
 }

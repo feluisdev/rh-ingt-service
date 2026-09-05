@@ -2,18 +2,24 @@ package cv.igrp.RH_Service.colaboradores.infrastructure.mappers;
 
 import cv.igrp.RH_Service.colaboradores.application.dto.ProcessoDisciplinarDTO;
 import cv.igrp.RH_Service.colaboradores.domain.models.ProcessoDisciplinar;
-import cv.igrp.RH_Service.colaboradores.domain.valueobject.ProcessoDisciplinarId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
+import cv.igrp.RH_Service.colaboradores.domain.valueobject.ProcessoDisciplinarId;
+import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.FuncionarioEntity;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.ProcessoDisciplinarEntity;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.JpaReferences;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component("colabsProcessoDisciplinarMapper")
+@RequiredArgsConstructor
 public class ProcessoDisciplinarMapper {
+
+    private final JpaReferences refs;
 
     public ProcessoDisciplinar toDomain(ProcessoDisciplinarEntity e) {
         return ProcessoDisciplinar.reconstituir(
                 ProcessoDisciplinarId.from(e.getId()),
-                FuncionarioId.from(e.getFuncionarioId()),
+                FuncionarioId.from(e.getFuncionario().getId()),
                 e.getProcessNumber(), e.getStartDate(), e.getEndDate(),
                 e.getPenalty(), e.getPenaltyStartDate(), e.getPenaltyEndDate(),
                 e.getOfficialBulletin(), e.getNotes());
@@ -22,7 +28,7 @@ public class ProcessoDisciplinarMapper {
     public ProcessoDisciplinarEntity toEntity(ProcessoDisciplinar p) {
         ProcessoDisciplinarEntity e = new ProcessoDisciplinarEntity();
         e.setId(p.getId().getValor());
-        e.setFuncionarioId(p.getFuncionarioId().getValor());
+        e.setFuncionario(refs.ref(FuncionarioEntity.class, p.getFuncionarioId().getValor()));
         e.setProcessNumber(p.getProcessNumber());
         e.setStartDate(p.getStartDate());
         e.setEndDate(p.getEndDate());

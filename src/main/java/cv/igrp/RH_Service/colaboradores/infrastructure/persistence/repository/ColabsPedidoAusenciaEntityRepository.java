@@ -11,10 +11,10 @@ import java.util.UUID;
 
 public interface ColabsPedidoAusenciaEntityRepository extends JpaRepository<PedidoAusenciaEntity, UUID> {
 
-    List<PedidoAusenciaEntity> findAllByFuncionarioId(UUID funcionarioId);
+    List<PedidoAusenciaEntity> findAllByFuncionario_Id(UUID funcionarioId);
 
     @Query("SELECT CASE WHEN COUNT(p) > 0 THEN TRUE ELSE FALSE END FROM ColabsPedidoAusenciaEntity p " +
-           "WHERE p.funcionarioId = :funcionarioId " +
+           "WHERE p.funcionario.id = :funcionarioId " +
            "AND p.estado IN ('APROVADO', 'PENDENTE') " +
            "AND p.dataInicio <= :dataFim " +
            "AND p.dataFim >= :dataInicio")

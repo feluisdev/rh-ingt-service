@@ -6,7 +6,7 @@
   "revision": true,
   "attributes": [
     {"name": "id", "type": "string", "objectType": "java", "primaryKey": true},
-    {"name": "categoryId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "category", "type": "relation", "relation": {"type": "ManyToOne", "entity": "CategoryEntity", "fetchType": "lazy", "joinColumn": "category_id", "module": "carreiras"}},
     {"name": "gradeNumber", "type": "integer", "objectType": "java", "primaryKey": false},
     {"name": "codigo", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "name", "type": "string", "objectType": "java", "primaryKey": false},

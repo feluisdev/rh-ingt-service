@@ -5,15 +5,21 @@ import cv.igrp.RH_Service.colaboradores.domain.models.Formacao;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FormacaoId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.FormacaoEntity;
+import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.FuncionarioEntity;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.JpaReferences;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component("colabsFormacaoMapper")
+@RequiredArgsConstructor
 public class FormacaoMapper {
+
+    private final JpaReferences refs;
 
     public Formacao toDomain(FormacaoEntity e) {
         return Formacao.reconstituir(
                 FormacaoId.from(e.getId()),
-                FuncionarioId.from(e.getFuncionarioId()),
+                FuncionarioId.from(e.getFuncionario().getId()),
                 e.getName(), e.getInstitution(), e.getTrainingType(),
                 e.getStartDate(), e.getEndDate(), e.getDurationHours());
     }
@@ -21,7 +27,7 @@ public class FormacaoMapper {
     public FormacaoEntity toEntity(Formacao f) {
         FormacaoEntity e = new FormacaoEntity();
         e.setId(f.getId().getValor());
-        e.setFuncionarioId(f.getFuncionarioId().getValor());
+        e.setFuncionario(refs.ref(FuncionarioEntity.class, f.getFuncionarioId().getValor()));
         e.setName(f.getName());
         e.setInstitution(f.getInstitution());
         e.setTrainingType(f.getTrainingType());

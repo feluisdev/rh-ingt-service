@@ -12,11 +12,11 @@ import java.util.UUID;
 
 public interface ColabsAssignmentEntityRepository extends JpaRepository<AssignmentEntity, UUID> {
 
-    Optional<AssignmentEntity> findByFuncionarioIdAndIsCurrentTrueAndAssignmentType(UUID funcionarioId, String assignmentType);
-    List<AssignmentEntity> findByFuncionarioIdAndIsCurrentTrue(UUID funcionarioId);
-    List<AssignmentEntity> findByFuncionarioIdOrderByDataInicioDesc(UUID funcionarioId);
-    Optional<AssignmentEntity> findByPositionIdAndIsCurrentTrue(UUID positionId);
-    boolean existsByPositionIdAndIsCurrentTrue(UUID positionId);
+    Optional<AssignmentEntity> findByFuncionario_IdAndIsCurrentTrueAndAssignmentType(UUID funcionarioId, String assignmentType);
+    List<AssignmentEntity> findByFuncionario_IdAndIsCurrentTrue(UUID funcionarioId);
+    List<AssignmentEntity> findByFuncionario_IdOrderByDataInicioDesc(UUID funcionarioId);
+    Optional<AssignmentEntity> findByPosition_IdAndIsCurrentTrue(UUID positionId);
+    boolean existsByPosition_IdAndIsCurrentTrue(UUID positionId);
 
     // Predicado temporal de sobreposicao de intervalo: uma afectacao cobre o intervalo
     // [startOfYear, endOfYear] se comecar antes ou no fim do intervalo (dataInicio <= endOfYear)
@@ -24,16 +24,14 @@ public interface ColabsAssignmentEntityRepository extends JpaRepository<Assignme
     // dataFim >= startOfYear). O OR sobre a coluna anulavel dataFim nao se exprime em nome
     // derivado -- ver precedente em PaaSubmissionPeriodEntityRepository.
     //
-    // A unidade organica vive no Lugar, nao na afectacao: o join e explicito sobre
-    // PositionEntity porque AssignmentEntity guarda positionId como UUID simples (sem
-    // @ManyToOne), decisao do modelo de Position Management para manter os agregados
-    // desacoplados. Em JPQL o join sem associacao faz-se por igualdade na clausula WHERE.
+    // A unidade organica vive no Lugar, nao na afectacao: o join percorre a associacao
+    // a.position. O acesso a p.unidadeOrganica.id le a chave estrangeira do proprio
+    // t_position, sem segundo join para t_unidade_organica.
     // O nome JPA da entidade e "ColabsAssignmentEntity", nao "AssignmentEntity": esta
     // fixado em @Entity(name=...) para nao colidir com outra Assignment no contexto de
     // persistencia. Em JPQL vale o nome da entidade, nao o da classe.
-    @Query("SELECT a FROM ColabsAssignmentEntity a, PositionEntity p "
-            + "WHERE p.id = a.positionId "
-            + "AND p.unidadeOrganicaId = :unidadeOrganicaId "
+    @Query("SELECT a FROM ColabsAssignmentEntity a JOIN a.position p "
+            + "WHERE p.unidadeOrganica.id = :unidadeOrganicaId "
             + "AND a.dataInicio <= :endOfYear "
             + "AND (a.dataFim IS NULL OR a.dataFim >= :startOfYear) "
             + "ORDER BY a.dataInicio ASC")

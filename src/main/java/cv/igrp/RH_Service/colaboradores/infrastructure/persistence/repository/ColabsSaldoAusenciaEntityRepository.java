@@ -9,11 +9,11 @@ import java.util.UUID;
 
 public interface ColabsSaldoAusenciaEntityRepository extends JpaRepository<SaldoAusenciaEntity, UUID> {
 
-    List<SaldoAusenciaEntity> findAllByFuncionarioId(UUID funcionarioId);
+    List<SaldoAusenciaEntity> findAllByFuncionario_Id(UUID funcionarioId);
 
-    Optional<SaldoAusenciaEntity> findByFuncionarioIdAndTipoAusenciaIdAndAno(
+    Optional<SaldoAusenciaEntity> findByFuncionario_IdAndTipoAusencia_IdAndAno(
             UUID funcionarioId, UUID tipoAusenciaId, int ano);
 
-    boolean existsByFuncionarioIdAndTipoAusenciaIdAndAno(
+    boolean existsByFuncionario_IdAndTipoAusencia_IdAndAno(
             UUID funcionarioId, UUID tipoAusenciaId, int ano);
 }

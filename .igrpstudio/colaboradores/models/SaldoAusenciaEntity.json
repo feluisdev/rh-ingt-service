@@ -6,8 +6,8 @@
   "revision": true,
   "attributes": [
     {"name": "id", "type": "string", "objectType": "java", "primaryKey": true},
-    {"name": "funcionarioId", "type": "string", "objectType": "java", "primaryKey": false},
-    {"name": "tipoAusenciaId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "funcionario", "type": "relation", "relation": {"type": "ManyToOne", "entity": "FuncionarioEntity", "fetchType": "lazy", "joinColumn": "funcionario_id", "module": "colaboradores"}},
+    {"name": "tipoAusencia", "type": "relation", "relation": {"type": "ManyToOne", "entity": "LeaveTypeEntity", "fetchType": "lazy", "joinColumn": "tipo_ausencia_id", "module": "parametrizacoes"}},
     {"name": "ano", "type": "integer", "objectType": "java", "primaryKey": false},
     {"name": "diasDireito", "type": "integer", "objectType": "java", "primaryKey": false},
     {"name": "diasGozados", "type": "integer", "objectType": "java", "primaryKey": false},

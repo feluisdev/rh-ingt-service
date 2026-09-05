@@ -7,5 +7,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ColabsQualificacaoEntityRepository extends JpaRepository<QualificacaoEntity, UUID> {
-    List<QualificacaoEntity> findByFuncionarioId(UUID funcionarioId);
+    List<QualificacaoEntity> findByFuncionario_Id(UUID funcionarioId);
 }

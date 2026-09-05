@@ -7,21 +7,21 @@ import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.ContratoEntity;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.FuncionarioEntity;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.ContractTypeEntity;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.JpaReferences;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component("colabsContratoMapper")
+@RequiredArgsConstructor
 public class ContratoMapper {
 
-    @PersistenceContext
-    private EntityManager entityManager;
+    private final JpaReferences refs;
 
     public Contrato toDomain(ContratoEntity e) {
         return Contrato.reconstituir(
                 ContratoId.from(e.getId()),
                 FuncionarioId.from(e.getFuncionario().getId()),
-                e.getContractType() != null ? e.getContractType().getId() : null,
+                refs.idOf(e.getContractType(), ContractTypeEntity::getId),
                 e.getContractNumber(),
                 e.getStartDate(),
                 e.getEndDate(),
@@ -38,16 +38,8 @@ public class ContratoMapper {
     public ContratoEntity toEntity(Contrato c) {
         ContratoEntity e = new ContratoEntity();
         e.setId(c.getId().getValor());
-
-        // Associa por referência (proxy lazy) — sem carregar o agregado nem instanciar objectos detached.
-        e.setFuncionario(entityManager.getReference(
-                FuncionarioEntity.class, c.getFuncionarioId().getValor()));
-
-        if (c.getContractTypeId() != null) {
-            e.setContractType(entityManager.getReference(
-                    ContractTypeEntity.class, c.getContractTypeId()));
-        }
-
+        e.setFuncionario(refs.ref(FuncionarioEntity.class, c.getFuncionarioId().getValor()));
+        e.setContractType(refs.ref(ContractTypeEntity.class, c.getContractTypeId()));
         e.setContractNumber(c.getContractNumber());
         e.setStartDate(c.getStartDate());
         e.setEndDate(c.getEndDate());

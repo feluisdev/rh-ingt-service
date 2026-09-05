@@ -50,7 +50,7 @@ public class CategoryRepositoryImpl implements CategoryRepository {
             var predicates = cb.conjunction();
 
             if (filter.getCareerId() != null) {
-                predicates = cb.and(predicates, cb.equal(root.get("careerId"), filter.getCareerId()));
+                predicates = cb.and(predicates, cb.equal(root.get("career").get("id"), filter.getCareerId()));
             }
 
             if (filter.getCode() != null && !filter.getCode().isBlank()) {
@@ -82,7 +82,7 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     @Transactional(readOnly = true)
     @Override
     public List<Category> findByCareerId(CareerId careerId) {
-        return entityRepository.findByCareerId(careerId.getValor())
+        return entityRepository.findByCareer_Id(careerId.getValor())
                 .stream()
                 .map(mapper::toDomain)
                 .toList();
@@ -91,24 +91,24 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     @Transactional(readOnly = true)
     @Override
     public boolean existsByCodeAndCareerId(String code, CareerId careerId) {
-        return entityRepository.existsByCodeAndCareerId(code, careerId.getValor());
+        return entityRepository.existsByCodeAndCareer_Id(code, careerId.getValor());
     }
 
     @Transactional(readOnly = true)
     @Override
     public boolean existsByCodeAndCareerIdAndIdNot(String code, CareerId careerId, CategoryId id) {
-        return entityRepository.existsByCodeAndCareerIdAndIdNot(code, careerId.getValor(), id.getValor());
+        return entityRepository.existsByCodeAndCareer_IdAndIdNot(code, careerId.getValor(), id.getValor());
     }
 
     @Transactional(readOnly = true)
     @Override
     public boolean existsActiveGradesByCategoryId(CategoryId categoryId) {
-        return gradeEntityRepository.existsByCategoryIdAndIsActiveTrue(categoryId.getValor());
+        return gradeEntityRepository.existsByCategory_IdAndIsActiveTrue(categoryId.getValor());
     }
 
     @Transactional(readOnly = true)
     @Override
     public long countByCareerId(CareerId careerId) {
-        return entityRepository.countByCareerId(careerId.getValor());
+        return entityRepository.countByCareer_Id(careerId.getValor());
     }
 }

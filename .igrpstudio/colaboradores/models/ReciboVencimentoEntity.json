@@ -6,12 +6,12 @@
   "revision": true,
   "attributes": [
     {"name": "id", "type": "string", "objectType": "java", "primaryKey": true},
-    {"name": "funcionarioId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "funcionario", "type": "relation", "relation": {"type": "ManyToOne", "entity": "FuncionarioEntity", "fetchType": "lazy", "joinColumn": "funcionario_id", "module": "colaboradores"}},
     {"name": "periodMonth", "type": "integer", "objectType": "java", "primaryKey": false},
     {"name": "periodYear", "type": "integer", "objectType": "java", "primaryKey": false},
     {"name": "issueDate", "type": "date", "objectType": "java", "primaryKey": false},
     {"name": "grossSalary", "type": "decimal", "objectType": "java", "primaryKey": false},
     {"name": "netSalary", "type": "decimal", "objectType": "java", "primaryKey": false},
-    {"name": "documentId", "type": "string", "objectType": "java", "primaryKey": false}
+    {"name": "document", "type": "relation", "relation": {"type": "ManyToOne", "entity": "DocumentoEntity", "fetchType": "lazy", "joinColumn": "document_id", "module": "colaboradores"}}
   ]
 }
