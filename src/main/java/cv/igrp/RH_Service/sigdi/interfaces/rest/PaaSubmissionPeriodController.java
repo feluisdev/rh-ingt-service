@@ -17,6 +17,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.FormGenerationDetailDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.FormGenerationRevertResultDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.FormGenerationSummaryDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.PaaSubmissionPeriodResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.PaaSubmissionPeriodRevisionDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.UpdatePaaSubmissionPeriodDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperListPaaSubmissionPeriodDTO;
 import cv.igrp.RH_Service.shared.security.DenialMessage;
@@ -112,6 +113,25 @@ public class PaaSubmissionPeriodController {
       @PathVariable(value = "id") String id) {
       final var command = new ClosePaaSubmissionPeriodCommand(java.util.UUID.fromString(id));
       return commandBus.send(command);
+  }
+
+  // ACTOR-CHECK: NO GUARD (T-133-13, threat register) -- sem @PreAuthorize, coerente com os dois
+  // GET vizinhos deste controlador (periods, periods/active), medidos em M-CIC-04/M-CIC-05 como
+  // não tendo guarda declarada. Leitura de auditoria pura, aplicação interna e atrás de
+  // autenticação; não se inventa aqui uma nona permissão (CLAUDE.md, dívida sistémica: o backend
+  // não tem camada RBAC -- os @PreAuthorize dos outros endpoints deste controlador estão inertes
+  // em development por SECURITY_ENABLED=false, A-132-121).
+  @GetMapping(value = "periods/{id}/audit")
+  @Operation(
+      summary = "Get PAA Submission Period Audit History",
+      description = "Devolve uma entrada por revisão da janela (Hibernate Envers), com o valor "
+          + "que cada campo tinha nessa revisão -- instantâneos, não diferenças já calculadas. "
+          + "Ordenado por número de revisão ascendente."
+  )
+  public ResponseEntity<List<PaaSubmissionPeriodRevisionDTO>> getPaaSubmissionPeriodAudit(
+      @PathVariable(value = "id") String id) {
+      final var query = new GetPaaSubmissionPeriodAuditQuery(UUID.fromString(id));
+      return queryBus.handle(query);
   }
 
   @GetMapping(value = "periods/active")
