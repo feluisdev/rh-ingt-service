@@ -5,6 +5,7 @@ import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.dto.PaaSubmissionPeriodResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.service.PaaSubmissionPeriodSequenceRules;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.PaaSubmissionPeriod;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.framework.core.domain.CommandHandler;
@@ -15,20 +16,21 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 public class CreatePaaSubmissionPeriodCommandHandler implements CommandHandler<CreatePaaSubmissionPeriodCommand, ResponseEntity<PaaSubmissionPeriodResponseDTO>> {
 
     private final PaaSubmissionPeriodRepository repository;
+    // Instantiated directly rather than constructor-injected: PaaSubmissionPeriodSequenceRules
+    // is stateless (no dependencies of its own), and CreatePaaSubmissionPeriodCommandHandlerTest
+    // uses Mockito's @InjectMocks against the single-argument constructor with no mock for this
+    // type -- adding it as a constructor parameter makes Mockito pass null for it, which is a
+    // test file this plan is not allowed to touch (133-03 Task 1 acceptance criteria).
+    private final PaaSubmissionPeriodSequenceRules sequenceRules = new PaaSubmissionPeriodSequenceRules();
 
     public CreatePaaSubmissionPeriodCommandHandler(PaaSubmissionPeriodRepository repository) {
         this.repository = repository;
@@ -62,57 +64,12 @@ public class CreatePaaSubmissionPeriodCommandHandler implements CommandHandler<C
             }
         }
 
-        // Rule 3: Cross-type overlap — sequence-based nearest-neighbor comparison (SOBREP-01/02/03)
+        // Rule 3: Cross-type overlap — sequence-based nearest-neighbor comparison (SOBREP-01/02/03).
+        // Extracted into PaaSubmissionPeriodSequenceRules (133-03) so creation and alteration
+        // share a single implementation of the two-stage D-14 logic instead of two copies.
         List<PaaSubmissionPeriod> yearPeriods = repository.findAllByYear(dto.getYear());
-
-        // Reduce to the most-recent period per (sequence position, level) pair, handling
-        // reopening. A single purpose position can have two periods live in the same year,
-        // distinguished only by type (UNIT_LEVEL vs INDIVIDUAL_LEVEL — see Rule 2); deduping
-        // by position alone would silently drop whichever sibling wasn't created last, hiding
-        // a real overlap (WR-02) since Rule 2 only requires the Unit period's status to be
-        // CLOSED, not that its date range has actually elapsed.
-        // yearPeriods already arrives ordered createdDate DESC (see the JPQL below), so
-        // putIfAbsent keeps the newest per pair — the same "most recent wins" convention used
-        // by findActiveByTypeAndPurpose/findActiveByTypeAndYearAndPurpose/findByTypeAndYearAndStatusAndPurpose
-        // in PaaSubmissionPeriodRepositoryImpl.
-        Map<String, PaaSubmissionPeriod> latestByPositionAndType = new LinkedHashMap<>();
-        for (PaaSubmissionPeriod p : yearPeriods) {
-            String key = p.getPurpose().getPosition() + ":" + p.getType().getCode();
-            latestByPositionAndType.putIfAbsent(key, p);
-        }
-        Map<Integer, List<PaaSubmissionPeriod>> candidatesByPosition = latestByPositionAndType.values().stream()
-                .collect(Collectors.groupingBy(p -> p.getPurpose().getPosition()));
-
         int newPosition = purpose.getPosition();
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-        // A position can now carry two candidates (Unit + Individual); compare against the
-        // most restrictive one — the latest end date approaching from the left, the earliest
-        // start date approaching from the right — rather than an arbitrary single survivor.
-        PaaSubmissionPeriod nearestBefore = candidatesByPosition.keySet().stream()
-                .filter(pos -> pos < newPosition)
-                .max(Integer::compareTo)
-                .flatMap(pos -> candidatesByPosition.get(pos).stream()
-                        .max(Comparator.comparing(PaaSubmissionPeriod::getEndDate)))
-                .orElse(null);
-
-        PaaSubmissionPeriod nearestAfter = candidatesByPosition.keySet().stream()
-                .filter(pos -> pos > newPosition)
-                .min(Integer::compareTo)
-                .flatMap(pos -> candidatesByPosition.get(pos).stream()
-                        .min(Comparator.comparing(PaaSubmissionPeriod::getStartDate)))
-                .orElse(null);
-
-        if (nearestBefore != null && !dto.getStartDate().isAfter(nearestBefore.getEndDate())) {
-            throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Sobrepõe-se a " + nearestBefore.getPurpose().getDescription() + ", "
-                            + nearestBefore.getStartDate().format(fmt) + "–" + nearestBefore.getEndDate().format(fmt));
-        }
-        if (nearestAfter != null && !nearestAfter.getStartDate().isAfter(dto.getEndDate())) {
-            throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Sobrepõe-se a " + nearestAfter.getPurpose().getDescription() + ", "
-                            + nearestAfter.getStartDate().format(fmt) + "–" + nearestAfter.getEndDate().format(fmt));
-        }
+        sequenceRules.enforceNoOverlap(yearPeriods, newPosition, dto.getStartDate(), dto.getEndDate(), null);
 
         // Rule 4: annual-cycle precedence (FIX-08, milestone v28.0).
         //
@@ -151,10 +108,11 @@ public class CreatePaaSubmissionPeriodCommandHandler implements CommandHandler<C
         //     even when the business would sometimes want it. That cost was stated and accepted by
         //     the operator in decision 1; it is not a side effect discovered afterwards.
         //
-        // The predecessor is looked up over the FULL yearPeriods list and not over
-        // latestByPositionAndType: the dedup map keeps only the newest record per (position, level)
-        // pair, so a closed predecessor hidden behind a newer reopened sibling would be lost, and
-        // this rule only asks whether *some* closed window exists at that position.
+        // The predecessor is looked up over the FULL yearPeriods list and not over the
+        // dedup map that PaaSubmissionPeriodSequenceRules builds internally for Rule 3: that map
+        // keeps only the newest record per (position, level) pair, so a closed predecessor hidden
+        // behind a newer reopened sibling would be lost, and this rule only asks whether *some*
+        // closed window exists at that position.
         int previousPosition = newPosition - 1;
         if (previousPosition >= 1) {
             Optional<Purpose> requiredPredecessor = Arrays.stream(Purpose.values())

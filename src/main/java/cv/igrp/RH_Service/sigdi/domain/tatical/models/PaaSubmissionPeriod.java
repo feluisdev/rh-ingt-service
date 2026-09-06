@@ -5,6 +5,7 @@ import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -78,6 +79,25 @@ public class PaaSubmissionPeriod {
             throw IgrpResponseStatusException.badRequest("Período já está fechado");
         return new PaaSubmissionPeriod(this.id, this.purpose, this.type, this.startDate, this.endDate, "CLOSED",
                 this.year, this.createdDate, this.createdBy);
+    }
+
+    // 133-03 / JAN-03 (D-18, D-19): the only alteration path this entity has, and it exists
+    // precisely because the entity is otherwise immutable by construction. purpose and type are
+    // deliberately NOT parameters -- changing WHICH window this is would not be an alteration,
+    // it would be creating a different window (133-UI-SPEC.md Appendix B). status, createdDate
+    // and createdBy are carried over unchanged, exactly as close() already does; the caller
+    // (UpdatePaaSubmissionPeriodCommandHandler) is the one that guards status via isOpen()
+    // before ever calling this.
+    public PaaSubmissionPeriod changeSchedule(LocalDate newStartDate, LocalDate newEndDate, Integer newYear) {
+        // Guards against the constructor's IllegalArgumentException surfacing as a 500 -- the
+        // same invariant (startDate before endDate) re-checked here so the failure is a 422
+        // ProblemDetail instead.
+        if (newStartDate != null && newEndDate != null && newStartDate.isAfter(newEndDate)) {
+            throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "startDate deve ser anterior a endDate");
+        }
+        return new PaaSubmissionPeriod(this.id, this.purpose, this.type, newStartDate, newEndDate, this.status,
+                newYear, this.createdDate, this.createdBy);
     }
 
     public boolean isOpen() {
