@@ -7,6 +7,7 @@ import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -19,9 +20,20 @@ public class PaaSubmissionPeriod {
     private final LocalDate endDate;
     private final String status; // OPEN | CLOSED
     private final Integer year;
+    // Read-only audit stamps mirrored from AuditEntity (created_date/created_by), both nullable
+    // because a period just created in memory has no audit stamp yet. Not part of constructor
+    // validation for that reason.
+    private final LocalDateTime createdDate;
+    private final String createdBy;
 
     private PaaSubmissionPeriod(UUID id, Purpose purpose, PaaLevel type, LocalDate startDate,
                                 LocalDate endDate, String status, Integer year) {
+        this(id, purpose, type, startDate, endDate, status, year, null, null);
+    }
+
+    private PaaSubmissionPeriod(UUID id, Purpose purpose, PaaLevel type, LocalDate startDate,
+                                LocalDate endDate, String status, Integer year,
+                                LocalDateTime createdDate, String createdBy) {
         if (purpose == null) throw new IllegalArgumentException("purpose é obrigatório");
         if (type == null) throw new IllegalArgumentException("type é obrigatório");
         if (startDate == null) throw new IllegalArgumentException("startDate é obrigatório");
@@ -37,6 +49,8 @@ public class PaaSubmissionPeriod {
         this.endDate = endDate;
         this.status = (status != null) ? status : "OPEN";
         this.year = year;
+        this.createdDate = createdDate;
+        this.createdBy = createdBy;
     }
 
     public static PaaSubmissionPeriod create(Purpose purpose, PaaLevel type, LocalDate startDate,
@@ -46,13 +60,24 @@ public class PaaSubmissionPeriod {
 
     public static PaaSubmissionPeriod reconstruct(UUID id, Purpose purpose, PaaLevel type, LocalDate startDate,
                                                    LocalDate endDate, String status, Integer year) {
-        return new PaaSubmissionPeriod(id, purpose, type, startDate, endDate, status, year);
+        return reconstruct(id, purpose, type, startDate, endDate, status, year, null, null);
+    }
+
+    // Overload added instead of changing the 7-arg signature: 44 call sites measured across 13
+    // files (11 of them tests) rely on it. createdDate/createdBy are read-only here — the only
+    // writer of those columns is AuditingEntityListener over updatable=false columns; this
+    // overload never feeds back into PaaSubmissionPeriodMapper.toEntity (see mapper comment).
+    public static PaaSubmissionPeriod reconstruct(UUID id, Purpose purpose, PaaLevel type, LocalDate startDate,
+                                                   LocalDate endDate, String status, Integer year,
+                                                   LocalDateTime createdDate, String createdBy) {
+        return new PaaSubmissionPeriod(id, purpose, type, startDate, endDate, status, year, createdDate, createdBy);
     }
 
     public PaaSubmissionPeriod close() {
         if ("CLOSED".equals(this.status))
             throw IgrpResponseStatusException.badRequest("Período já está fechado");
-        return new PaaSubmissionPeriod(this.id, this.purpose, this.type, this.startDate, this.endDate, "CLOSED", this.year);
+        return new PaaSubmissionPeriod(this.id, this.purpose, this.type, this.startDate, this.endDate, "CLOSED",
+                this.year, this.createdDate, this.createdBy);
     }
 
     public boolean isOpen() {
