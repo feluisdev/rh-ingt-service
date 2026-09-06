@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -25,4 +26,6 @@ public class PaaSubmissionPeriodResponseDTO {
     private Long daysRemaining;
     private String purpose;
     private String purposeDesc;
+    private LocalDateTime createdDate;
+    private String createdBy;
 }
