@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.TacticalActivityId;
@@ -15,9 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class AcceptTacticalActivityCommandHandler implements CommandHandler<AcceptTacticalActivityCommand, ResponseEntity<TacticalActivityResponseDTO>> {
 
     private final TacticalActivityRepository repository;
+    private final PaaActivityWindowPolicy windowPolicy;
 
-    public AcceptTacticalActivityCommandHandler(TacticalActivityRepository repository) {
+    public AcceptTacticalActivityCommandHandler(TacticalActivityRepository repository,
+            PaaActivityWindowPolicy windowPolicy) {
         this.repository = repository;
+        this.windowPolicy = windowPolicy;
     }
 
     @IgrpCommandHandler
@@ -27,6 +31,10 @@ public class AcceptTacticalActivityCommandHandler implements CommandHandler<Acce
         TacticalActivityId id = TacticalActivityId.from(command.getId());
         TacticalActivity activity = repository.findById(id)
                 .orElseThrow(() -> IgrpResponseStatusException.notFound("Atividade tática não encontrada"));
+
+        // A-132-111 / POR-02 (Phase 134): submission window checked before the state transition,
+        // sourced from the loaded entity's paaLevel -- the client cannot pick it (D-27).
+        windowPolicy.requireOpenFor(activity.getPaaLevel());
 
         TacticalActivity accepted = activity.accept();
         TacticalActivity saved = repository.save(accepted);
