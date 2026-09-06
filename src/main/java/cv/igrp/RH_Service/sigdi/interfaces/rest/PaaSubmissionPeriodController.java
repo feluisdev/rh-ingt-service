@@ -17,6 +17,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.FormGenerationDetailDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.FormGenerationRevertResultDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.FormGenerationSummaryDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.PaaSubmissionPeriodResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.UpdatePaaSubmissionPeriodDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WrapperListPaaSubmissionPeriodDTO;
 import cv.igrp.RH_Service.shared.security.DenialMessage;
 
@@ -66,6 +67,33 @@ public class PaaSubmissionPeriodController {
   public ResponseEntity<PaaSubmissionPeriodResponseDTO> createPaaSubmissionPeriod(
       @Valid @RequestBody CreatePaaSubmissionPeriodDTO createPaaSubmissionPeriodRequest) {
       final var command = new CreatePaaSubmissionPeriodCommand(createPaaSubmissionPeriodRequest);
+      return commandBus.send(command);
+  }
+
+  // ACTOR-CHECK: ENFORCED -- reuses paa.periodoSubmissao.criar (IgrpAuthorizationService), not a
+  // ninth permission. 133-03 / JAN-03 (D-25 precedent, 119-05-PLAN.md): whoever can create a
+  // window can correct it before it opens -- the alteration verb only ever accepts a window
+  // whose startDate is still in the future (guards in UpdatePaaSubmissionPeriodCommandHandler),
+  // the same population that .criar already gates. Declaring a dedicated permission here would
+  // add a ninth entry that .igrpstudio/permissions.json would then have to track by hand --
+  // correspondence that today nothing verifies (see the eight already-inert @PreAuthorize below).
+  // SECURITY NOTE (T-133-08, threat register): this is a sensitive write route with NO effective
+  // RBAC in this environment -- SECURITY_ENABLED=false in the development profile makes every
+  // @PreAuthorize on this controller inert (A-132-121), a systemic gap this task does not (and
+  // cannot) close. Documented, not invented around.
+  @PreAuthorize("@igrpAuthorization.checkPermission(T(Permission).PAA_PERIODOSUBMISSAO_CRIAR)")
+  @DenialMessage("Não tem permissão para alterar períodos de submissão.")
+  @PutMapping(value = "periods/{id}")
+  @Operation(
+      summary = "Update PAA Submission Period Schedule",
+      description = "Altera as datas e o ano de um período de submissão cujo startDate ainda "
+          + "está no futuro. Não reabre períodos já começados ou já fechados (T-140/D-18). "
+          + "Exige a permissão paa.periodoSubmissao.criar."
+  )
+  public ResponseEntity<PaaSubmissionPeriodResponseDTO> updatePaaSubmissionPeriod(
+      @PathVariable(value = "id") String id,
+      @Valid @RequestBody UpdatePaaSubmissionPeriodDTO updatePaaSubmissionPeriodRequest) {
+      final var command = new UpdatePaaSubmissionPeriodCommand(java.util.UUID.fromString(id), updatePaaSubmissionPeriodRequest);
       return commandBus.send(command);
   }
 
