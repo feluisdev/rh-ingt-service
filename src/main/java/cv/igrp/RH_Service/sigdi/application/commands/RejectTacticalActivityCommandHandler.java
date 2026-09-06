@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.dto.ActivityWorkflowResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.TacticalActivityId;
@@ -21,9 +22,12 @@ public class RejectTacticalActivityCommandHandler
   private static final Logger LOGGER = LoggerFactory.getLogger(RejectTacticalActivityCommandHandler.class);
 
   private final TacticalActivityRepository repository;
+  private final PaaActivityWindowPolicy windowPolicy;
 
-  public RejectTacticalActivityCommandHandler(TacticalActivityRepository repository) {
+  public RejectTacticalActivityCommandHandler(TacticalActivityRepository repository,
+      PaaActivityWindowPolicy windowPolicy) {
     this.repository = repository;
+    this.windowPolicy = windowPolicy;
   }
 
   @IgrpCommandHandler
@@ -35,6 +39,12 @@ public class RejectTacticalActivityCommandHandler
 
     TacticalActivity activity = repository.findByIdFull(id)
         .orElseThrow(() -> IgrpResponseStatusException.notFound("TacticalActivity não encontrada"));
+
+    // A-132-111 / POR-02 (Phase 134): the window gate comes before the comment validation
+    // below, on purpose -- outside the window, the reason the user needs to hear is the
+    // deadline, and rejecting for a missing comment first would send them to fix the wrong
+    // thing (the A-132-114 finding is the same problem in another handler).
+    windowPolicy.requireOpenFor(activity.getPaaLevel());
 
     String comment = (command.getWorkflowcomment() != null) ? command.getWorkflowcomment().getComment() : null;
     if (comment == null || comment.isBlank()) {
