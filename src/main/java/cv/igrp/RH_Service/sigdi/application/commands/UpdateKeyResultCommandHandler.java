@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.KeyResultMetricUnit;
 import cv.igrp.RH_Service.sigdi.application.dto.KeyResultRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import cv.igrp.RH_Service.sigdi.application.dto.KeyResultResponseDTO;
+import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.KeyResultRepository;
+import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.KeyResultId;
 
 @Component
@@ -21,9 +24,15 @@ public class UpdateKeyResultCommandHandler implements CommandHandler<UpdateKeyRe
    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateKeyResultCommandHandler.class);
 
    private final KeyResultRepository keyResultRepository;
+   private final TacticalActivityRepository activityRepository;
+   private final PaaActivityWindowPolicy windowPolicy;
 
-   public UpdateKeyResultCommandHandler(KeyResultRepository keyResultRepository) {
+   public UpdateKeyResultCommandHandler(KeyResultRepository keyResultRepository,
+                                        TacticalActivityRepository activityRepository,
+                                        PaaActivityWindowPolicy windowPolicy) {
      this.keyResultRepository = keyResultRepository;
+     this.activityRepository = activityRepository;
+     this.windowPolicy = windowPolicy;
    }
 
    @IgrpCommandHandler
@@ -46,6 +55,19 @@ public class UpdateKeyResultCommandHandler implements CommandHandler<UpdateKeyRe
           && !current.getActivityId().getValor().getValor().equals(request.getActivityId())) {
         throw IgrpResponseStatusException.badRequest("activityId não pode ser alterado");
       }
+
+      // A-132-112 (Fase 136-06): o activityId vem sempre do resultado-chave já carregado,
+      // nunca do pedido -- usar o do pedido reabriria por outra porta a guarda de cima. Um
+      // resultado-chave sem activityId é órfão e é recusado, não deixado passar em silêncio.
+      // O ato entra por reversão da T-139 pela D-47.
+      if (current.getActivityId() == null) {
+        throw IgrpResponseStatusException.badRequest(
+            "KeyResult sem activityId associado -- não é possível determinar a janela do PAA");
+      }
+      TacticalActivity activity = activityRepository.findById(current.getActivityId())
+          .orElseThrow(() -> IgrpResponseStatusException.badRequest(
+              "activityId do KeyResult é inválido"));
+      windowPolicy.requireOpenFor(activity.getPaaLevel());
 
       KeyResultMetricUnit metricUnit = request.getMetricUnit() != null
           ? KeyResultMetricUnit.fromCodeOrThrow(request.getMetricUnit())
