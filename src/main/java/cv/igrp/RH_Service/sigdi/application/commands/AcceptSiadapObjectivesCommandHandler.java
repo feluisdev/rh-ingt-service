@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapEvaluationDTO;
+import cv.igrp.RH_Service.sigdi.application.service.SiadapObjectivesWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;
 import cv.igrp.RH_Service.sigdi.domain.compliance.repository.SiadapEvaluationRepository;
 import cv.igrp.RH_Service.sigdi.domain.compliance.valueobject.SiadapEvaluationId;
@@ -23,6 +24,7 @@ public class AcceptSiadapObjectivesCommandHandler
 
   private final SiadapEvaluationRepository evaluationRepository;
   private final SiadapEvaluationMapper mapper;
+  private final SiadapObjectivesWindowPolicy windowPolicy;
   private final CurrentEmployeeResolver currentEmployeeResolver;
 
   @IgrpCommandHandler
@@ -39,6 +41,12 @@ public class AcceptSiadapObjectivesCommandHandler
     if (!currentEmployeeId.equals(evaluation.getEmployeeId()))
       throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN,
           "Apenas o avaliado desta avaliação pode aceitar os objetivos propostos");
+
+    // D-47 (2026-09-10): A-132-114 found the accept step -- the act that actually fixes the
+    // annual commitment -- saved without consulting the SIADAP window at all. It now consults
+    // the same class ContractualizeObjectivesCommandHandler and
+    // NegotiateSiadapObjectivesCommandHandler consult (Plano 136-05).
+    windowPolicy.requireContractualizationOpenFor(evaluation.getYear());
 
     SiadapEvaluation accepted = evaluation.acceptObjectives();
     SiadapEvaluation saved = evaluationRepository.save(accepted);

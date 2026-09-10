@@ -2,15 +2,13 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
-import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
-import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.dto.ContractualizeObjectivesRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapEvaluationDTO;
+import cv.igrp.RH_Service.sigdi.application.service.SiadapObjectivesWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;
 import cv.igrp.RH_Service.sigdi.domain.compliance.repository.SiadapEvaluationRepository;
 import cv.igrp.RH_Service.sigdi.domain.compliance.valueobject.IndividualObjective;
 import cv.igrp.RH_Service.sigdi.domain.compliance.valueobject.SiadapEvaluationId;
-import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.compliance.SiadapEvaluationMapper;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
@@ -31,7 +29,7 @@ public class ContractualizeObjectivesCommandHandler
 
   private final SiadapEvaluationRepository evaluationRepository;
   private final SiadapEvaluationMapper mapper;
-  private final PaaSubmissionPeriodRepository periodRepository;
+  private final SiadapObjectivesWindowPolicy windowPolicy;
   private final CurrentEmployeeResolver currentEmployeeResolver;
 
   @IgrpCommandHandler
@@ -54,9 +52,10 @@ public class ContractualizeObjectivesCommandHandler
     // for the evaluation's fiscal year blocks contractualization (59-RESEARCH.md Pitfall 4).
     // Inserted AFTER the actor check above, matching the auth-before-business-rule
     // ordering used by sibling handlers (FinalizeEvaluationCommandHandler.java:49-51).
-    periodRepository.findActiveByTypeAndYearAndPurpose(
-            PaaLevel.INDIVIDUAL_LEVEL, evaluation.getYear(), Purpose.SIADAP)
-        .orElseThrow(() -> IgrpResponseStatusException.badRequest("Prazo não configurado para este ano"));
+    // D-47 (2026-09-10): criterion now owned by SiadapObjectivesWindowPolicy, the same class
+    // NegotiateSiadapObjectivesCommandHandler and AcceptSiadapObjectivesCommandHandler consult,
+    // so the three steps of contractualization no longer risk diverging (Plano 136-05).
+    windowPolicy.requireContractualizationOpenFor(evaluation.getYear());
 
     List<IndividualObjective> objectives = req.getObjectives().stream()
         .map(dto -> IndividualObjective.create(

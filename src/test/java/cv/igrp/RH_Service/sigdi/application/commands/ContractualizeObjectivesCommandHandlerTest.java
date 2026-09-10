@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -14,20 +16,16 @@ import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
 import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
 import cv.igrp.RH_Service.sigdi.application.constants.EvaluationPhase;
-import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
-import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.dto.ContractualizeObjectivesRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.IndividualObjectiveDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapEvaluationDTO;
+import cv.igrp.RH_Service.sigdi.application.service.SiadapObjectivesWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;
 import cv.igrp.RH_Service.sigdi.domain.compliance.repository.SiadapEvaluationRepository;
 import cv.igrp.RH_Service.sigdi.domain.compliance.valueobject.SiadapEvaluationId;
-import cv.igrp.RH_Service.sigdi.domain.tatical.models.PaaSubmissionPeriod;
-import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.compliance.SiadapEvaluationMapper;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -52,7 +50,7 @@ class ContractualizeObjectivesCommandHandlerTest {
     private SiadapEvaluationMapper mapper;
 
     @Mock
-    private PaaSubmissionPeriodRepository periodRepository;
+    private SiadapObjectivesWindowPolicy windowPolicy;
 
     @Mock
     private CurrentEmployeeResolver currentEmployeeResolver;
@@ -84,7 +82,7 @@ class ContractualizeObjectivesCommandHandlerTest {
     }
 
     @Test
-    void blocksWhenNoActiveSiadapIndividualPeriodExistsForTheEvaluationYear() {
+    void blocksWhenWindowPolicyRefusesTheEvaluationYear() {
         SiadapEvaluationId evalId = SiadapEvaluationId.gerarNovo();
         SiadapEvaluation evaluation = buildEvaluation(evalId);
 
@@ -92,9 +90,8 @@ class ContractualizeObjectivesCommandHandlerTest {
                 .thenReturn(Optional.of(evaluation));
         when(currentEmployeeResolver.resolve())
                 .thenReturn(FuncionarioId.from(evaluation.getEvaluatorId()));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(
-                PaaLevel.INDIVIDUAL_LEVEL, YEAR, Purpose.SIADAP))
-                .thenReturn(Optional.empty());
+        doThrow(IgrpResponseStatusException.badRequest("Prazo não configurado para este ano"))
+                .when(windowPolicy).requireContractualizationOpenFor(YEAR);
 
         ContractualizeObjectivesCommand command = buildCommand(evalId.getStringValor());
 
@@ -108,21 +105,14 @@ class ContractualizeObjectivesCommandHandlerTest {
     }
 
     @Test
-    void succeedsWhenAnActiveSiadapIndividualPeriodExists() {
+    void succeedsWhenWindowPolicyAllowsTheEvaluationYear() {
         SiadapEvaluationId evalId = SiadapEvaluationId.gerarNovo();
         SiadapEvaluation evaluation = buildEvaluation(evalId);
-
-        PaaSubmissionPeriod activePeriod = PaaSubmissionPeriod.create(
-                Purpose.SIADAP, PaaLevel.INDIVIDUAL_LEVEL,
-                LocalDate.now().minusDays(1), LocalDate.now().plusDays(30), YEAR);
 
         when(evaluationRepository.findById(any(SiadapEvaluationId.class)))
                 .thenReturn(Optional.of(evaluation));
         when(currentEmployeeResolver.resolve())
                 .thenReturn(FuncionarioId.from(evaluation.getEvaluatorId()));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(
-                PaaLevel.INDIVIDUAL_LEVEL, YEAR, Purpose.SIADAP))
-                .thenReturn(Optional.of(activePeriod));
         when(evaluationRepository.save(any(SiadapEvaluation.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
         when(mapper.toFullDto(any(SiadapEvaluation.class)))
@@ -133,6 +123,8 @@ class ContractualizeObjectivesCommandHandlerTest {
         ResponseEntity<SiadapEvaluationDTO> response = handler.handle(command);
 
         assertEquals(200, response.getStatusCode().value());
+
+        verify(windowPolicy, times(1)).requireContractualizationOpenFor(YEAR);
 
         ArgumentCaptor<SiadapEvaluation> captor = ArgumentCaptor.forClass(SiadapEvaluation.class);
         verify(evaluationRepository, times(1)).save(captor.capture());
@@ -165,6 +157,6 @@ class ContractualizeObjectivesCommandHandlerTest {
         verify(evaluationRepository, never()).save(any());
         // T-101-03: a ordem ator-antes-de-prazo tem de ser assertada por comportamento —
         // um chamador não autorizado nunca deve chegar a consultar o prazo configurado.
-        verify(periodRepository, never()).findActiveByTypeAndYearAndPurpose(any(), any(), any());
+        verify(windowPolicy, never()).requireContractualizationOpenFor(anyInt());
     }
 }

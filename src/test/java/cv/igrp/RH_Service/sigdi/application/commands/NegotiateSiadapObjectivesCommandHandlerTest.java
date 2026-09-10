@@ -3,6 +3,8 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -15,6 +17,7 @@ import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
 import cv.igrp.RH_Service.sigdi.application.constants.EvaluationPhase;
 import cv.igrp.RH_Service.sigdi.application.dto.NegotiateSiadapObjectivesRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapEvaluationDTO;
+import cv.igrp.RH_Service.sigdi.application.service.SiadapObjectivesWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;
 import cv.igrp.RH_Service.sigdi.domain.compliance.repository.SiadapEvaluationRepository;
 import cv.igrp.RH_Service.sigdi.domain.compliance.valueobject.IndividualObjective;
@@ -44,6 +47,9 @@ class NegotiateSiadapObjectivesCommandHandlerTest {
 
     @Mock
     private SiadapEvaluationMapper mapper;
+
+    @Mock
+    private SiadapObjectivesWindowPolicy windowPolicy;
 
     @Mock
     private CurrentEmployeeResolver currentEmployeeResolver;
@@ -89,6 +95,8 @@ class NegotiateSiadapObjectivesCommandHandlerTest {
         ResponseEntity<SiadapEvaluationDTO> response = handler.handle(command);
 
         assertEquals(200, response.getStatusCode().value());
+
+        verify(windowPolicy, times(1)).requireContractualizationOpenFor(YEAR);
 
         ArgumentCaptor<SiadapEvaluation> captor = ArgumentCaptor.forClass(SiadapEvaluation.class);
         verify(evaluationRepository, times(1)).save(captor.capture());
@@ -163,6 +171,30 @@ class NegotiateSiadapObjectivesCommandHandlerTest {
 
         assertEquals(403, exception.getBody().getStatus());
 
+        verify(evaluationRepository, never()).save(any());
+        verify(windowPolicy, never()).requireContractualizationOpenFor(anyInt());
+    }
+
+    // D-47 / A-132-114: negotiate must refuse outside the SIADAP window, not just propose.
+    @Test
+    void throwsBadRequestWhenWindowPolicyRefusesTheEvaluationYear() {
+        SiadapEvaluation evaluation = buildPendingAcceptanceEvaluation();
+        SiadapEvaluationId evalId = evaluation.getId();
+
+        when(evaluationRepository.findById(any(SiadapEvaluationId.class)))
+                .thenReturn(Optional.of(evaluation));
+        when(currentEmployeeResolver.resolve())
+                .thenReturn(FuncionarioId.from(evaluation.getEmployeeId()));
+        doThrow(IgrpResponseStatusException.badRequest("Prazo não configurado para este ano"))
+                .when(windowPolicy).requireContractualizationOpenFor(YEAR);
+
+        NegotiateSiadapObjectivesCommand command = new NegotiateSiadapObjectivesCommand(
+                evalId.getStringValor(), new NegotiateSiadapObjectivesRequestDTO());
+
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(command));
+
+        assertEquals(400, exception.getBody().getStatus());
         verify(evaluationRepository, never()).save(any());
     }
 }

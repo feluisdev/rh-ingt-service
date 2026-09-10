@@ -2,15 +2,13 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
-import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
-import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapInterimFeedbackDTO;
+import cv.igrp.RH_Service.sigdi.application.service.SiadapObjectivesWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapInterimFeedback;
 import cv.igrp.RH_Service.sigdi.domain.compliance.repository.SiadapEvaluationRepository;
 import cv.igrp.RH_Service.sigdi.domain.compliance.repository.SiadapInterimFeedbackRepository;
 import cv.igrp.RH_Service.sigdi.domain.compliance.valueobject.SiadapEvaluationId;
-import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.compliance.SiadapInterimFeedbackMapper;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
@@ -30,7 +28,7 @@ public class ProposeObjectiveRevisionCommandHandler
 
   private final SiadapInterimFeedbackRepository feedbackRepository;
   private final SiadapEvaluationRepository evaluationRepository;
-  private final PaaSubmissionPeriodRepository periodRepository;
+  private final SiadapObjectivesWindowPolicy windowPolicy;
   private final SiadapInterimFeedbackMapper mapper;
   private final CurrentEmployeeResolver currentEmployeeResolver;
 
@@ -53,9 +51,10 @@ public class ProposeObjectiveRevisionCommandHandler
     // Área 4 (Phase 72): checks the dedicated SIADAP_INTERIM period, not the contractualization
     // SIADAP period — this handler gates interim objective-revision proposals, which belong to
     // the Avaliação Intercalar phase, not the initial SIADAP contractualization phase.
-    periodRepository.findActiveByTypeAndYearAndPurpose(
-            PaaLevel.INDIVIDUAL_LEVEL, evaluation.getYear(), Purpose.SIADAP_INTERIM)
-        .orElseThrow(() -> IgrpResponseStatusException.badRequest("Prazo não configurado para este ano"));
+    // D-47 (2026-09-10): criterion now owned by SiadapObjectivesWindowPolicy, the same class
+    // NegotiateObjectiveRevisionCommandHandler and AcceptObjectiveRevisionCommandHandler consult,
+    // so the three steps of revision no longer risk diverging (Plano 136-05).
+    windowPolicy.requireRevisionOpenFor(evaluation.getYear());
 
     UUID evalUuid = UUID.fromString(command.getEvaluationId());
     SiadapInterimFeedback feedback = feedbackRepository.findByEvaluationId(evalUuid)
