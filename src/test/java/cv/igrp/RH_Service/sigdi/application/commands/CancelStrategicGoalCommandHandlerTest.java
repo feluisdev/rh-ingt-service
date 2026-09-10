@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -12,15 +12,12 @@ import static org.mockito.Mockito.when;
 
 import cv.igrp.RH_Service.shared.application.constants.Estado;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
-import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.constants.StrategicGoalsPerspective;
+import cv.igrp.RH_Service.sigdi.application.service.StrategicGoalWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentityId;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
-import cv.igrp.RH_Service.sigdi.domain.tatical.models.PaaSubmissionPeriod;
-import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -52,7 +49,7 @@ public class CancelStrategicGoalCommandHandlerTest {
     private StrategicGoalRepository goalRepository;
 
     @Mock
-    private PaaSubmissionPeriodRepository periodRepository;
+    private StrategicGoalWindowPolicy windowPolicy;
 
     @InjectMocks
     private CancelStrategicGoalCommandHandler cancelStrategicGoalCommandHandler;
@@ -88,7 +85,7 @@ public class CancelStrategicGoalCommandHandlerTest {
                         commandFor(UUID.randomUUID().toString())));
 
         assertEquals(404, ex.getStatusCode().value());
-        verifyNoInteractions(periodRepository);
+        verifyNoInteractions(windowPolicy);
         verify(goalRepository, never()).save(any(StrategicGoal.class));
     }
 
@@ -107,7 +104,7 @@ public class CancelStrategicGoalCommandHandlerTest {
                         commandFor(UUID.randomUUID().toString())));
 
         assertEquals(422, ex.getStatusCode().value());
-        verifyNoInteractions(periodRepository);
+        verifyNoInteractions(windowPolicy);
         verify(goalRepository, never()).save(any(StrategicGoal.class));
     }
 
@@ -119,9 +116,6 @@ public class CancelStrategicGoalCommandHandlerTest {
     void handleWithActiveGoalAndOpenWindowCancelsTheGoal() {
         when(goalRepository.findById(any(StrategicGoalId.class)))
                 .thenReturn(Optional.of(activeGoal(YEAR)));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(
-                PaaLevel.UNIT_LEVEL, YEAR, Purpose.PAA_BSC_OBJECTIVES))
-                .thenReturn(Optional.of(mock(PaaSubmissionPeriod.class)));
         when(goalRepository.save(any(StrategicGoal.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -145,9 +139,9 @@ public class CancelStrategicGoalCommandHandlerTest {
     void handleWithActiveGoalAndClosedWindowIsRefusedWithBadRequestAndNeverSaves() {
         when(goalRepository.findById(any(StrategicGoalId.class)))
                 .thenReturn(Optional.of(activeGoal(YEAR)));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(
-                PaaLevel.UNIT_LEVEL, YEAR, Purpose.PAA_BSC_OBJECTIVES))
-                .thenReturn(Optional.empty());
+        doThrow(IgrpResponseStatusException.badRequest(
+                "Prazo não configurado para a submissão de objetivos estratégicos PAA/BSC"))
+                .when(windowPolicy).requireOpenFor(YEAR);
 
         IgrpResponseStatusException ex = assertThrows(IgrpResponseStatusException.class,
                 () -> cancelStrategicGoalCommandHandler.handle(
@@ -177,7 +171,7 @@ public class CancelStrategicGoalCommandHandlerTest {
         assertEquals(400, ex.getStatusCode().value());
         assertEquals("O ano é obrigatório para a submissão de objetivos estratégicos PAA/BSC.",
                 ex.getBody().getTitle());
-        verifyNoInteractions(periodRepository);
+        verifyNoInteractions(windowPolicy);
         verify(goalRepository, never()).save(any(StrategicGoal.class));
     }
 }

@@ -1,17 +1,15 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
-import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.constants.StrategicGoalsPerspective;
 import cv.igrp.RH_Service.sigdi.application.dto.IncoherentLinkDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.StategicGoalResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.StrategicIndicatorDTO;
+import cv.igrp.RH_Service.sigdi.application.service.StrategicGoalWindowPolicy;
 import cv.igrp.RH_Service.sigdi.application.service.StrategyLinkCoherencePolicy;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
-import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.StrategicGoalMapper;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
@@ -32,16 +30,16 @@ public class UpdateStrategicGoalsCommandHandler implements CommandHandler<Update
 
   private final StrategicGoalRepository goalRepository;
   private final StrategicGoalMapper goalMapper;
-  private final PaaSubmissionPeriodRepository periodRepository;
+  private final StrategicGoalWindowPolicy windowPolicy;
   private final StrategyLinkCoherencePolicy coherencePolicy;
 
   public UpdateStrategicGoalsCommandHandler(StrategicGoalRepository goalRepository,
                                             StrategicGoalMapper goalMapper,
-                                            PaaSubmissionPeriodRepository periodRepository,
+                                            StrategicGoalWindowPolicy windowPolicy,
                                             StrategyLinkCoherencePolicy coherencePolicy) {
     this.goalRepository = goalRepository;
     this.goalMapper = goalMapper;
-    this.periodRepository = periodRepository;
+    this.windowPolicy = windowPolicy;
     this.coherencePolicy = coherencePolicy;
   }
 
@@ -68,10 +66,9 @@ public class UpdateStrategicGoalsCommandHandler implements CommandHandler<Update
       throw IgrpResponseStatusException.badRequest(
           "O ano é obrigatório para a submissão de objetivos estratégicos PAA/BSC.");
     }
-    periodRepository.findActiveByTypeAndYearAndPurpose(
-            PaaLevel.UNIT_LEVEL, effectiveYear, Purpose.PAA_BSC_OBJECTIVES)
-        .orElseThrow(() -> IgrpResponseStatusException.badRequest(
-            "Prazo não configurado para a submissão de objetivos estratégicos PAA/BSC"));
+    // Fase 136-06: critério movido para StrategicGoalWindowPolicy -- deixa de ser consulta em
+    // linha, para não repetir a segunda cópia do mesmo critério.
+    windowPolicy.requireOpenFor(effectiveYear);
 
     // FIX-01 / A-124-01: the indicator list is decided explicitly here, and the two cases are
     // NOT the same thing.

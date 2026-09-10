@@ -5,26 +5,23 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
-import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.constants.StrategicGoalsPerspective;
 import cv.igrp.RH_Service.sigdi.application.dto.IncoherentLinkDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.StategicGoalResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.UpdateStategicGoalDTO;
+import cv.igrp.RH_Service.sigdi.application.service.StrategicGoalWindowPolicy;
 import cv.igrp.RH_Service.sigdi.application.service.StrategyLinkCoherencePolicy;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicIndicator;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalIdentityId;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
-import cv.igrp.RH_Service.sigdi.domain.tatical.models.PaaSubmissionPeriod;
-import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.StrategicGoalMapper;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -49,7 +46,7 @@ public class UpdateStrategicGoalsCommandHandlerTest {
     private StrategicGoalMapper goalMapper;
 
     @Mock
-    private PaaSubmissionPeriodRepository periodRepository;
+    private StrategicGoalWindowPolicy windowPolicy;
 
     // FIX-09 / A-124-02, wave 4 of Phase 130. The handler gained a fourth collaborator: the
     // read-only reporter that answers "which stored links would the rule in force no longer allow
@@ -71,8 +68,6 @@ public class UpdateStrategicGoalsCommandHandlerTest {
         when(goalRepository.findById(any(StrategicGoalId.class))).thenReturn(Optional.of(existingGoal));
         when(goalRepository.save(any(StrategicGoal.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.UNIT_LEVEL, 2027, Purpose.PAA_BSC_OBJECTIVES))
-                .thenReturn(Optional.of(mock(PaaSubmissionPeriod.class)));
         stubMapperResponse();
 
         UpdateStategicGoalDTO dto = new UpdateStategicGoalDTO();
@@ -100,8 +95,6 @@ public class UpdateStrategicGoalsCommandHandlerTest {
         when(goalRepository.findById(any(StrategicGoalId.class))).thenReturn(Optional.of(existingGoal));
         when(goalRepository.save(any(StrategicGoal.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.UNIT_LEVEL, 2020, Purpose.PAA_BSC_OBJECTIVES))
-                .thenReturn(Optional.of(mock(PaaSubmissionPeriod.class)));
         stubMapperResponse();
 
         UpdateStategicGoalDTO dto = new UpdateStategicGoalDTO();
@@ -149,8 +142,9 @@ public class UpdateStrategicGoalsCommandHandlerTest {
                 2020, new ArrayList<>());
 
         when(goalRepository.findById(any(StrategicGoalId.class))).thenReturn(Optional.of(existingGoal));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.UNIT_LEVEL, 2026, Purpose.PAA_BSC_OBJECTIVES))
-                .thenReturn(Optional.empty());
+        doThrow(IgrpResponseStatusException.badRequest(
+                "Prazo não configurado para a submissão de objetivos estratégicos PAA/BSC"))
+                .when(windowPolicy).requireOpenFor(2026);
 
         UpdateStategicGoalDTO dto = new UpdateStategicGoalDTO();
         dto.setTitle("Objetivo Original");
@@ -190,8 +184,6 @@ public class UpdateStrategicGoalsCommandHandlerTest {
         when(goalRepository.findById(any(StrategicGoalId.class))).thenReturn(Optional.of(existingGoal));
         when(goalRepository.save(any(StrategicGoal.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.UNIT_LEVEL, 2026, Purpose.PAA_BSC_OBJECTIVES))
-                .thenReturn(Optional.of(mock(PaaSubmissionPeriod.class)));
         stubMapperResponse();
 
         UpdateStategicGoalDTO dto = new UpdateStategicGoalDTO();
@@ -239,8 +231,6 @@ public class UpdateStrategicGoalsCommandHandlerTest {
         when(goalRepository.findById(any(StrategicGoalId.class))).thenReturn(Optional.of(existingGoal));
         when(goalRepository.save(any(StrategicGoal.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.UNIT_LEVEL, 2026, Purpose.PAA_BSC_OBJECTIVES))
-                .thenReturn(Optional.of(mock(PaaSubmissionPeriod.class)));
         stubMapperResponse();
 
         UpdateStategicGoalDTO dto = new UpdateStategicGoalDTO();
@@ -312,8 +302,6 @@ public class UpdateStrategicGoalsCommandHandlerTest {
         when(goalRepository.findById(any(StrategicGoalId.class))).thenReturn(Optional.of(existingGoal));
         when(goalRepository.save(any(StrategicGoal.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.UNIT_LEVEL, 2026, Purpose.PAA_BSC_OBJECTIVES))
-                .thenReturn(Optional.of(mock(PaaSubmissionPeriod.class)));
         stubMapperResponse();
 
         UpdateStategicGoalDTO dto = new UpdateStategicGoalDTO();
@@ -351,8 +339,6 @@ public class UpdateStrategicGoalsCommandHandlerTest {
         when(goalRepository.findById(any(StrategicGoalId.class))).thenReturn(Optional.of(existingGoal));
         when(goalRepository.save(any(StrategicGoal.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.UNIT_LEVEL, 2026, Purpose.PAA_BSC_OBJECTIVES))
-                .thenReturn(Optional.of(mock(PaaSubmissionPeriod.class)));
         stubMapperResponse();
 
         UpdateStategicGoalDTO dto = new UpdateStategicGoalDTO();
@@ -383,8 +369,6 @@ public class UpdateStrategicGoalsCommandHandlerTest {
                 2026, new ArrayList<>());
 
         when(goalRepository.findById(any(StrategicGoalId.class))).thenReturn(Optional.of(existingGoal));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.UNIT_LEVEL, 2026, Purpose.PAA_BSC_OBJECTIVES))
-                .thenReturn(Optional.of(mock(PaaSubmissionPeriod.class)));
 
         UpdateStategicGoalDTO dto = new UpdateStategicGoalDTO();
         dto.setTitle("Objetivo Original");
@@ -420,8 +404,6 @@ public class UpdateStrategicGoalsCommandHandlerTest {
         when(goalRepository.findById(any(StrategicGoalId.class))).thenReturn(Optional.of(existingGoal));
         when(goalRepository.save(any(StrategicGoal.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.UNIT_LEVEL, 2026, Purpose.PAA_BSC_OBJECTIVES))
-                .thenReturn(Optional.of(mock(PaaSubmissionPeriod.class)));
         stubMapperResponse();
         when(coherencePolicy.findIncoherentLinksForGoal(any(StrategicGoalId.class)))
                 .thenReturn(List.of(anIncoherentLink("Objetivo Original", "Objetivo de destino")));
@@ -463,8 +445,6 @@ public class UpdateStrategicGoalsCommandHandlerTest {
         when(goalRepository.findById(any(StrategicGoalId.class))).thenReturn(Optional.of(existingGoal));
         when(goalRepository.save(any(StrategicGoal.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.UNIT_LEVEL, 2026, Purpose.PAA_BSC_OBJECTIVES))
-                .thenReturn(Optional.of(mock(PaaSubmissionPeriod.class)));
         stubMapperResponse();
         // coherencePolicy is left unstubbed on purpose: Mockito answers an empty list.
 

@@ -1,12 +1,10 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
-import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
+import cv.igrp.RH_Service.sigdi.application.service.StrategicGoalWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
-import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import org.slf4j.Logger;
@@ -25,12 +23,12 @@ public class CancelStrategicGoalCommandHandler
   private static final Logger LOGGER = LoggerFactory.getLogger(CancelStrategicGoalCommandHandler.class);
 
   private final StrategicGoalRepository goalRepository;
-  private final PaaSubmissionPeriodRepository periodRepository;
+  private final StrategicGoalWindowPolicy windowPolicy;
 
   public CancelStrategicGoalCommandHandler(StrategicGoalRepository goalRepository,
-                                           PaaSubmissionPeriodRepository periodRepository) {
+                                           StrategicGoalWindowPolicy windowPolicy) {
     this.goalRepository = goalRepository;
-    this.periodRepository = periodRepository;
+    this.windowPolicy = windowPolicy;
   }
 
   @IgrpCommandHandler
@@ -75,10 +73,9 @@ public class CancelStrategicGoalCommandHandler
       throw IgrpResponseStatusException.badRequest(
           "O ano é obrigatório para a submissão de objetivos estratégicos PAA/BSC.");
     }
-    periodRepository.findActiveByTypeAndYearAndPurpose(
-            PaaLevel.UNIT_LEVEL, effectiveYear, Purpose.PAA_BSC_OBJECTIVES)
-        .orElseThrow(() -> IgrpResponseStatusException.badRequest(
-            "Prazo não configurado para a submissão de objetivos estratégicos PAA/BSC"));
+    // Fase 136-06: critério movido para StrategicGoalWindowPolicy -- deixa de ser consulta em
+    // linha, para não repetir a primeira cópia do mesmo critério.
+    windowPolicy.requireOpenFor(effectiveYear);
 
     StrategicGoal cancelled = goal.cancel();
     goalRepository.save(cancelled);
