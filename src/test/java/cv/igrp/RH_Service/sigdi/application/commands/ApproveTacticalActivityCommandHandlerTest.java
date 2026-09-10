@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -15,6 +16,7 @@ import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.dto.ActivityWorkflowResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WorkflowCommentDTO;
+import cv.igrp.RH_Service.sigdi.application.service.ActivityApprovalHistoryRecorder;
 import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
@@ -47,6 +49,9 @@ class ApproveTacticalActivityCommandHandlerTest {
 
   @Mock
   private PaaActivityWindowPolicy windowPolicy;
+
+  @Mock
+  private ActivityApprovalHistoryRecorder historyRecorder;
 
   @InjectMocks
   private ApproveTacticalActivityCommandHandler handler;
@@ -87,6 +92,8 @@ class ApproveTacticalActivityCommandHandlerTest {
 
     assertThrows(IgrpResponseStatusException.class, () -> handler.handle(command));
     verify(repository, never()).save(any());
+    // A-135-2AB (Phase 136, plano 136-10): uma transição recusada não deixa rasto nenhum.
+    verify(historyRecorder, never()).record(any(), any(), any(), any(), any());
   }
 
   // T-134: the level queried is the loaded entity's paaLevel, never a value the client could
@@ -138,5 +145,9 @@ class ApproveTacticalActivityCommandHandlerTest {
     assertNotNull(body);
     assertNotEquals(body.getPreviousStatus(), body.getCurrentStatus());
     assertEquals("Aprovado, prossiga", body.getComment());
+
+    // A-135-2AB (Phase 136, plano 136-10): aprovar deixa rasto, com o comentário do fluxo.
+    verify(historyRecorder, times(1)).record(any(), eq("PENDING_TACTICAL"), eq("PENDING_STRATEGIC"),
+        eq("PENDING_STRATEGIC"), eq("Aprovado, prossiga"));
   }
 }

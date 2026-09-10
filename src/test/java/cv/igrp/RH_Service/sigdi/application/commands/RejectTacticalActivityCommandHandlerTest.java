@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -14,6 +15,7 @@ import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.dto.ActivityWorkflowResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.WorkflowCommentDTO;
+import cv.igrp.RH_Service.sigdi.application.service.ActivityApprovalHistoryRecorder;
 import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
@@ -49,6 +51,9 @@ class RejectTacticalActivityCommandHandlerTest {
 
   @Mock
   private PaaActivityWindowPolicy windowPolicy;
+
+  @Mock
+  private ActivityApprovalHistoryRecorder historyRecorder;
 
   @InjectMocks
   private RejectTacticalActivityCommandHandler handler;
@@ -97,6 +102,8 @@ class RejectTacticalActivityCommandHandlerTest {
         IgrpResponseStatusException.class, () -> handler.handle(command));
     assertEquals(DEADLINE_MESSAGE, thrown.getBody().getTitle());
     verify(repository, never()).save(any());
+    // A-135-2AB (Phase 136, plano 136-10): uma transição recusada não deixa rasto nenhum.
+    verify(historyRecorder, never()).record(any(), any(), any(), any(), any());
   }
 
   // Case 2: THE case that proves the order. Window closed AND comment blank at the same time --
@@ -119,6 +126,7 @@ class RejectTacticalActivityCommandHandlerTest {
     assertEquals(DEADLINE_MESSAGE, thrown.getBody().getTitle());
     assertNotEquals(COMMENT_MESSAGE, thrown.getBody().getTitle());
     verify(repository, never()).save(any());
+    verify(historyRecorder, never()).record(any(), any(), any(), any(), any());
   }
 
   // Case 3: window open, comment blank -- the pre-existing comment validation must still fire.
@@ -161,5 +169,9 @@ class RejectTacticalActivityCommandHandlerTest {
     assertNotNull(body);
     assertNotEquals(body.getPreviousStatus(), body.getCurrentStatus());
     assertEquals("Faltam evidências no dossier", body.getComment());
+
+    // A-135-2AB (Phase 136, plano 136-10): rejeitar deixa rasto, com o comentário do fluxo.
+    verify(historyRecorder, times(1)).record(any(), eq("PENDING_TACTICAL"), eq("DRAFT"), eq("DRAFT"),
+        eq("Faltam evidências no dossier"));
   }
 }

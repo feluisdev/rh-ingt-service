@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -13,8 +14,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.service.ActivityApprovalHistoryRecorder;
 import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
@@ -47,6 +50,9 @@ class NegotiateTacticalActivityCommandHandlerTest {
 
   @Mock
   private PaaActivityWindowPolicy windowPolicy;
+
+  @Mock
+  private ActivityApprovalHistoryRecorder historyRecorder;
 
   @InjectMocks
   private NegotiateTacticalActivityCommandHandler handler;
@@ -114,6 +120,8 @@ class NegotiateTacticalActivityCommandHandlerTest {
 
     assertThrows(IgrpResponseStatusException.class, () -> handler.handle(command));
     verify(repository, never()).save(any());
+    // A-135-2AB (Phase 136, plano 136-10): uma transição recusada não deixa rasto nenhum.
+    verify(historyRecorder, never()).record(any(), any(), any(), any(), any());
   }
 
   // T-134-14: the level queried is the loaded entity's paaLevel, never a value the client could
@@ -172,5 +180,13 @@ class NegotiateTacticalActivityCommandHandlerTest {
     assertEquals(PaaLevel.INDIVIDUAL_LEVEL.getCode(), body.getPaaLevel());
     assertNull(body.getAcceptanceStatus());
     assertNull(body.getAcceptanceStatusDesc());
+
+    // A-135-2AB (Phase 136, plano 136-10): negociar transiciona acceptanceStatus (não status) --
+    // fromStatus vem de PENDING_ACCEPTANCE, toStatus/action de NEGOTIATING. O rasto usa a
+    // instância devolvida pela transição (negotiated), não o "saved" estubado sem
+    // acceptanceStatus, por isso a chamada acontece mesmo quando o repositório devolve um
+    // resultado inesperado.
+    verify(historyRecorder, times(1)).record(any(), eq(AcceptanceStatus.PENDING_ACCEPTANCE.getCode()),
+        eq(AcceptanceStatus.NEGOTIATING.getCode()), eq(AcceptanceStatus.NEGOTIATING.getCode()), any());
   }
 }

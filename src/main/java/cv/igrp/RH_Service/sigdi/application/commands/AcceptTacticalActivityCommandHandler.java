@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.service.ActivityApprovalHistoryRecorder;
 import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
@@ -17,11 +18,14 @@ public class AcceptTacticalActivityCommandHandler implements CommandHandler<Acce
 
     private final TacticalActivityRepository repository;
     private final PaaActivityWindowPolicy windowPolicy;
+    private final ActivityApprovalHistoryRecorder historyRecorder;
 
     public AcceptTacticalActivityCommandHandler(TacticalActivityRepository repository,
-            PaaActivityWindowPolicy windowPolicy) {
+            PaaActivityWindowPolicy windowPolicy,
+            ActivityApprovalHistoryRecorder historyRecorder) {
         this.repository = repository;
         this.windowPolicy = windowPolicy;
+        this.historyRecorder = historyRecorder;
     }
 
     @IgrpCommandHandler
@@ -36,8 +40,21 @@ public class AcceptTacticalActivityCommandHandler implements CommandHandler<Acce
         // sourced from the loaded entity's paaLevel -- the client cannot pick it (D-27).
         windowPolicy.requireOpenFor(activity.getPaaLevel());
 
+        // A-135-2AB (Phase 136, plano 136-10): accept() transiciona acceptanceStatus, não
+        // status -- é esse o campo capturado antes da transição para servir de fromStatus.
+        String previousAcceptanceStatus = activity.getAcceptanceStatus() != null
+                ? activity.getAcceptanceStatus().getCode()
+                : null;
+
         TacticalActivity accepted = activity.accept();
         TacticalActivity saved = repository.save(accepted);
+
+        // Rasto de auditoria escrito depois do save, dentro da mesma fronteira @Transactional --
+        // nunca antes, porque gravaria histórico de uma transição que ainda podia falhar. Usa a
+        // instância devolvida pela própria transição (accepted), não o retorno do repositório
+        // (saved), para não depender do que o mock/adapter de save() decidir devolver.
+        historyRecorder.record(accepted.getId(), previousAcceptanceStatus,
+                accepted.getAcceptanceStatus().getCode(), accepted.getAcceptanceStatus().getCode(), null);
 
         TacticalActivityResponseDTO response = new TacticalActivityResponseDTO();
         response.setId(saved.getId().getValor().getValor());
