@@ -2,7 +2,6 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.sigdi.application.dto.GoalPositionRequestDTO;
 import cv.igrp.framework.core.domain.Command;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +13,16 @@ public class UpdateGoalPositionCommand implements Command {
 
   private GoalPositionRequestDTO updategoalposition;
 
-  @NotBlank(message = "O campo <goalId> é obrigatório")
+  // A-135-03 (mesma família, achada ao construir o portão do plano 07): este objeto nunca é
+  // parâmetro @Valid @RequestBody de nenhum controlador -- é construído dentro do método do
+  // controlador (StrategyController.updateGoalPosition: new UpdateGoalPositionCommand(dto,
+  // goalId)), fora do alcance de qualquer validação de bean do Spring. O campo é transporte
+  // interno preenchido pelo controlador a partir do {goalId} do caminho; a fonte de verdade é
+  // o caminho, não o corpo. O SpringCommandBus não corre Bean Validation sobre objetos
+  // Command, só faz dispatch por classe -- a restrição de presença obrigatória que aqui
+  // esteve nunca foi avaliada. Remoção
+  // segue o precedente 613207ed (Fase 135, UpdateTacticalActivityCommand) e SIA-06 (Fase
+  // 113).
   private String goalId;
 
 }
