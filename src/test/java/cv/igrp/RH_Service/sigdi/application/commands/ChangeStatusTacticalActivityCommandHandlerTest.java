@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -10,9 +11,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.security.SecurityContextHelper;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.dto.TaticalActivityStatusDTO;
+import cv.igrp.RH_Service.sigdi.application.service.ActivityApprovalHistoryRecorder;
 import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
@@ -20,8 +21,6 @@ import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityReposi
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.Budget;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.DateRange;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.TacticalActivityId;
-import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.TacticalActivitiesEntityRepository;
-import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.TaticalActivityHistoryEntityRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -52,13 +51,7 @@ class ChangeStatusTacticalActivityCommandHandlerTest {
   private TacticalActivityRepository repository;
 
   @Mock
-  private TaticalActivityHistoryEntityRepository historyRepository;
-
-  @Mock
-  private TacticalActivitiesEntityRepository entityRepository;
-
-  @Mock
-  private SecurityContextHelper securityContextHelper;
+  private ActivityApprovalHistoryRecorder historyRecorder;
 
   @Mock
   private PaaActivityWindowPolicy windowPolicy;
@@ -104,11 +97,11 @@ class ChangeStatusTacticalActivityCommandHandlerTest {
     assertThrows(IgrpResponseStatusException.class, () -> handler.handle(command));
 
     verify(repository, never()).save(any());
-    verify(historyRepository, never()).save(any());
-    verify(entityRepository, never()).findById(any());
+    verify(historyRecorder, never()).record(any(), any(), any(), any(), any());
   }
 
-  // Com a janela aberta, a transição continua a funcionar e a escrever o histórico como antes.
+  // Com a janela aberta, a transição continua a funcionar e a escrever o histórico como antes,
+  // agora através do colaborador único (A-135-2AB, Phase 136, plano 136-10).
   @Test
   void handleTransitionsAndSavesWhenWindowIsOpen() {
     TacticalActivity activity = pendingTacticalActivity(PaaLevel.UNIT_LEVEL);
@@ -117,7 +110,6 @@ class ChangeStatusTacticalActivityCommandHandlerTest {
         .thenReturn(Optional.of(activity));
     when(repository.save(any(TacticalActivity.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
-    when(entityRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
 
     ChangeStatusTacticalActivityCommand command = rejectCommandFor(activity);
 
@@ -127,5 +119,6 @@ class ChangeStatusTacticalActivityCommandHandlerTest {
     assertEquals("DRAFT", response.getBody().get("status"));
     verify(repository, times(1)).save(any(TacticalActivity.class));
     verify(windowPolicy).requireOpenFor(PaaLevel.UNIT_LEVEL);
+    verify(historyRecorder, times(1)).record(any(), eq("PENDING_TACTICAL"), eq("DRAFT"), eq("REJECTED"), any());
   }
 }

@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -17,6 +18,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.port.EconomicClassifierPort;
 import cv.igrp.RH_Service.sigdi.application.port.FuncionarioLookupPort;
 import cv.igrp.RH_Service.sigdi.application.port.OrganicaLookupPort;
+import cv.igrp.RH_Service.sigdi.application.service.ActivityApprovalHistoryRecorder;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
@@ -24,8 +26,6 @@ import cv.igrp.RH_Service.sigdi.domain.tatical.models.PaaSubmissionPeriod;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
-import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.TacticalActivitiesEntityRepository;
-import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.TaticalActivityHistoryEntityRepository;
 
 import java.time.LocalDate;
 import java.time.Year;
@@ -61,10 +61,7 @@ public class CreateTacticalActivityCommandHandlerTest {
     private FuncionarioLookupPort funcionarioLookupPort;
 
     @Mock
-    private TaticalActivityHistoryEntityRepository historyRepository;
-
-    @Mock
-    private TacticalActivitiesEntityRepository entityRepository;
+    private ActivityApprovalHistoryRecorder historyRecorder;
 
     @Mock
     private PaaSubmissionPeriodRepository periodRepository;
@@ -103,5 +100,9 @@ public class CreateTacticalActivityCommandHandlerTest {
         assertNotNull(response);
         assertEquals(201, response.getStatusCode().value());
         verify(activityRepository, times(1)).save(any(TacticalActivity.class));
+
+        // A-135-2AB (Phase 136, plano 136-10): a escrita de histórico da criação passou a viver
+        // no colaborador único, com fromStatus = "NEW" como antes.
+        verify(historyRecorder, times(1)).record(any(), eq("NEW"), any(), any(), any());
     }
 }

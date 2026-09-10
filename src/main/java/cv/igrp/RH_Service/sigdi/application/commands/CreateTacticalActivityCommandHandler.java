@@ -8,6 +8,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.BudgetInfoDTO;
 import cv.igrp.RH_Service.sigdi.application.port.EconomicClassifierPort;
 import cv.igrp.RH_Service.sigdi.application.port.FuncionarioLookupPort;
 import cv.igrp.RH_Service.sigdi.application.port.OrganicaLookupPort;
+import cv.igrp.RH_Service.sigdi.application.service.ActivityApprovalHistoryRecorder;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
@@ -15,11 +16,6 @@ import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRep
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.Budget;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.DateRange;
-import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.TacticalActivitiesEntity;
-import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.TaticalActivityHistoryEntity;
-import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.TacticalActivitiesEntityRepository;
-import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.TaticalActivityHistoryEntityRepository;
-import java.util.UUID;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import org.springframework.http.HttpStatus;
@@ -42,8 +38,7 @@ public class CreateTacticalActivityCommandHandler
   private final SecurityContextHelper securityContextHelper;
   private final OrganicaLookupPort organicaLookupPort;
   private final FuncionarioLookupPort funcionarioLookupPort;
-  private final TaticalActivityHistoryEntityRepository historyRepository;
-  private final TacticalActivitiesEntityRepository entityRepository;
+  private final ActivityApprovalHistoryRecorder historyRecorder;
   private final PaaSubmissionPeriodRepository periodRepository;
 
   public CreateTacticalActivityCommandHandler(EconomicClassifierPort economicClassifierPort,
@@ -52,8 +47,7 @@ public class CreateTacticalActivityCommandHandler
       SecurityContextHelper securityContextHelper,
       OrganicaLookupPort organicaLookupPort,
       FuncionarioLookupPort funcionarioLookupPort,
-      TaticalActivityHistoryEntityRepository historyRepository,
-      TacticalActivitiesEntityRepository entityRepository,
+      ActivityApprovalHistoryRecorder historyRecorder,
       PaaSubmissionPeriodRepository periodRepository) {
     this.economicClassifierPort = economicClassifierPort;
     this.goalRepository = goalRepository;
@@ -61,8 +55,7 @@ public class CreateTacticalActivityCommandHandler
     this.securityContextHelper = securityContextHelper;
     this.organicaLookupPort = organicaLookupPort;
     this.funcionarioLookupPort = funcionarioLookupPort;
-    this.historyRepository = historyRepository;
-    this.entityRepository = entityRepository;
+    this.historyRecorder = historyRecorder;
     this.periodRepository = periodRepository;
   }
 
@@ -131,23 +124,11 @@ public class CreateTacticalActivityCommandHandler
 
     TacticalActivity saved = activityRepository.save(activity);
 
-    // Save initial history
-    TacticalActivitiesEntity actEntity = entityRepository.findById(saved.getId().getValor().getValor()).orElse(null);
-    if (actEntity != null) {
-      TaticalActivityHistoryEntity history = new TaticalActivityHistoryEntity();
-      history.setId(UUID.randomUUID());
-      history.setInstitutionId(actEntity.getInstitutionId());
-      history.setActivityId(actEntity);
-      history.setAction(saved.getStatus().getCode());
-      try {
-        history.setActorId(UUID.fromString(securityContextHelper.getCurrentUserId()));
-      } catch (Exception e) {
-        history.setActorId(null);
-      }
-      history.setFromStatus("NEW");
-      history.setToStatus(saved.getStatus().getCode());
-      historyRepository.save(history);
-    }
+    // A-135-2AB (Phase 136, plano 136-10): escrita de histórico movida para o colaborador
+    // único (ActivityApprovalHistoryRecorder), depois do save -- mesmo comportamento de antes
+    // (fromStatus = "NEW", toStatus/action = estado inicial da atividade criada).
+    historyRecorder.record(saved.getId(), "NEW", saved.getStatus().getCode(),
+        saved.getStatus().getCode(), null);
 
     TacticalActivityResponseDTO response = new TacticalActivityResponseDTO();
     response.setId(saved.getId().getValor().getValor());
