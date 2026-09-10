@@ -1,15 +1,15 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
+import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.dto.BudgetInfoDTO;
 import cv.igrp.RH_Service.sigdi.application.port.EconomicClassifierPort;
 import cv.igrp.RH_Service.sigdi.application.port.FuncionarioLookupPort;
 import cv.igrp.RH_Service.sigdi.application.port.OrganicaLookupPort;
+import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
-import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.Budget;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.DateRange;
@@ -35,20 +35,20 @@ public class UpdateTacticalActivityCommandHandler
   private final TacticalActivityRepository activityRepository;
   private final OrganicaLookupPort organicaLookupPort;
   private final FuncionarioLookupPort funcionarioLookupPort;
-  private final PaaSubmissionPeriodRepository periodRepository;
+  private final PaaActivityWindowPolicy windowPolicy;
 
   public UpdateTacticalActivityCommandHandler(EconomicClassifierPort economicClassifierPort,
       StrategicGoalRepository goalRepository,
       TacticalActivityRepository activityRepository,
       OrganicaLookupPort organicaLookupPort,
       FuncionarioLookupPort funcionarioLookupPort,
-      PaaSubmissionPeriodRepository periodRepository) {
+      PaaActivityWindowPolicy windowPolicy) {
     this.economicClassifierPort = economicClassifierPort;
     this.goalRepository = goalRepository;
     this.activityRepository = activityRepository;
     this.organicaLookupPort = organicaLookupPort;
     this.funcionarioLookupPort = funcionarioLookupPort;
-    this.periodRepository = periodRepository;
+    this.windowPolicy = windowPolicy;
   }
 
   @IgrpCommandHandler
@@ -60,10 +60,10 @@ public class UpdateTacticalActivityCommandHandler
         .orElseThrow(() -> IgrpResponseStatusException.notFound("Atividade não encontrada"));
 
     // PRAZO-03: fail-closed deadline enforcement — sourced from the loaded entity's
-    // paaLevel (never the request DTO, since update() does not accept/change it).
-    periodRepository.findActiveByTypeAndYearAndPurpose(activity.getPaaLevel(), java.time.Year.now().getValue(), Purpose.PAA)
-        .orElseThrow(() -> IgrpResponseStatusException.badRequest(
-            "Prazo não configurado para a submissão de atividades do PAA"));
+    // paaLevel (never the request DTO, since update() does not accept/change it). 136-11:
+    // consulta movida para o dono único do critério (PaaActivityWindowPolicy), que já lê o
+    // ano no fuso de Cabo Verde.
+    windowPolicy.requireOpenFor(activity.getPaaLevel());
 
     var request = command.getTacticalActivity();
 
@@ -129,6 +129,13 @@ public class UpdateTacticalActivityCommandHandler
     response.setVersion(saved.getVersion());
     response.setStatus(saved.getStatus().getCode());
     response.setStatusDesc(saved.getStatus().getDescription());
+    // A-135-2Z (Phase 136, plano 136-11): a resposta do PUT trazia paaLevel/paaLevelDesc a
+    // null, apesar de a coluna paa_level na base estar correta -- update() (linha 404, ver
+    // TacticalActivity.java) devolve this.paaLevel inalterado, nunca aceita nem altera este
+    // campo. A resposta passa a espelhar a base, como CreateTacticalActivityCommandHandler
+    // já fazia.
+    response.setPaaLevel(saved.getPaaLevel() != null ? saved.getPaaLevel().getCode() : PaaLevel.UNIT_LEVEL.getCode());
+    response.setPaaLevelDesc(saved.getPaaLevel() != null ? saved.getPaaLevel().getDescription() : PaaLevel.UNIT_LEVEL.getDescription());
 
     if (saved.getOrganicUnitId() != null) {
       organicaLookupPort.findById(saved.getOrganicUnitId())
