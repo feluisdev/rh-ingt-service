@@ -1,14 +1,20 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.dto.AssignBudgetDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.BudgetInfoDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.port.EconomicClassifierPort;
+import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
@@ -49,6 +55,9 @@ class AssignTacticalActivityBudgetCommandHandlerTest {
 
   @Mock
   private TacticalActivityRepository activityRepository;
+
+  @Mock
+  private PaaActivityWindowPolicy windowPolicy;
 
   @InjectMocks
   private AssignTacticalActivityBudgetCommandHandler handler;
@@ -107,5 +116,45 @@ class AssignTacticalActivityBudgetCommandHandlerTest {
 
     assertEquals(200, response.getStatusCode().value());
     assertEquals("DRAFT", response.getBody().getStatus());
+  }
+
+  // T-136 contraprova: janela fechada -- recusa antes de consultar o EconomicClassifierPort (a
+  // recusa mais barata primeiro) e nunca grava.
+  @Test
+  void handleRejectsAndNeverSavesOrQueriesBudgetWhenWindowIsClosed() {
+    TacticalActivity activity = pendingBudgetActivity();
+    AssignBudgetDTO request = budgetRequestFor(activity.getId().getValor().getValor());
+
+    when(activityRepository.findById(any(TacticalActivityId.class)))
+        .thenReturn(Optional.of(activity));
+    doThrow(IgrpResponseStatusException.badRequest(
+            "Prazo não configurado para a submissão de atividades do PAA"))
+        .when(windowPolicy)
+        .requireOpenFor(any(PaaLevel.class));
+
+    assertThrows(IgrpResponseStatusException.class,
+        () -> handler.handle(new AssignTacticalActivityBudgetCommand(request)));
+
+    verify(activityRepository, never()).save(any());
+    verify(economicClassifierPort, never()).getBudget(any());
+  }
+
+  // Regressão do A-135-2AA (135-08): com a janela aberta, um classificador sem disponibilidade
+  // continua a devolver 422 e não 400 -- o portão de prazo não pode mascarar essa recusa.
+  @Test
+  void handleStillReturns422WhenBudgetUnavailableAndWindowIsOpen() {
+    TacticalActivity activity = pendingBudgetActivity();
+    AssignBudgetDTO request = budgetRequestFor(activity.getId().getValor().getValor());
+
+    when(activityRepository.findById(any(TacticalActivityId.class)))
+        .thenReturn(Optional.of(activity));
+    when(economicClassifierPort.getBudget("02.03.01"))
+        .thenReturn(new BudgetInfoDTO("02.03.01", new BigDecimal("100.00"), "CVE", LocalDate.now()));
+
+    IgrpResponseStatusException ex = assertThrows(IgrpResponseStatusException.class,
+        () -> handler.handle(new AssignTacticalActivityBudgetCommand(request)));
+
+    assertEquals(422, ex.getBody().getStatus());
+    verify(activityRepository, never()).save(any());
   }
 }

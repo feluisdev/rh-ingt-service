@@ -2,8 +2,11 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.dto.ChangeRequestResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.ChangeRequest;
+import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.ChangeRequestRepository;
+import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.ChangeRequestId;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
@@ -21,9 +24,15 @@ public class RejectChangeRequestCommandHandler
   private static final Logger LOGGER = LoggerFactory.getLogger(RejectChangeRequestCommandHandler.class);
 
   private final ChangeRequestRepository changeRequestRepository;
+  private final TacticalActivityRepository activityRepository;
+  private final PaaActivityWindowPolicy windowPolicy;
 
-  public RejectChangeRequestCommandHandler(ChangeRequestRepository changeRequestRepository) {
+  public RejectChangeRequestCommandHandler(ChangeRequestRepository changeRequestRepository,
+                                           TacticalActivityRepository activityRepository,
+                                           PaaActivityWindowPolicy windowPolicy) {
     this.changeRequestRepository = changeRequestRepository;
+    this.activityRepository = activityRepository;
+    this.windowPolicy = windowPolicy;
   }
 
   @IgrpCommandHandler
@@ -40,6 +49,16 @@ public class RejectChangeRequestCommandHandler
     if (comment == null || comment.isBlank()) {
       throw IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST, "Comentário é obrigatório para rejeitar");
     }
+
+    // A-132-109 / COR-01 (Phase 136, D-47 reverts T-139's 2026-09-05 exclusion of this handler).
+    // Before this plan the handler did not load the activity at all -- it does now, only to read
+    // the paaLevel the submission window is gated on (D-27, Phase 134: never from the request).
+    // Not-found uses the same wording ApproveChangeRequestCommandHandler already uses for the
+    // same fact, so there is not a second sentence for one thing.
+    TacticalActivity activity = activityRepository.findById(changeRequest.getActivityId())
+        .orElseThrow(() -> IgrpResponseStatusException.notFound(
+            "A atividade tática visada pelo pedido de alteração não foi encontrada"));
+    windowPolicy.requireOpenFor(activity.getPaaLevel());
 
     ChangeRequest rejected = changeRequest.reject(comment);
     ChangeRequest saved = changeRequestRepository.save(rejected);

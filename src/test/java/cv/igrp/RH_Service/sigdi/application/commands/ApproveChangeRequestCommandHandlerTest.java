@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,6 +13,7 @@ import cv.igrp.RH_Service.sigdi.application.constants.ChangeRequestStatus;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.TacticalActivityStatus;
 import cv.igrp.RH_Service.sigdi.application.dto.ChangeRequestResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.ChangeRequest;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
@@ -56,6 +58,9 @@ class ApproveChangeRequestCommandHandlerTest {
 
     @Mock
     private TacticalActivityRepository activityRepository;
+
+    @Mock
+    private PaaActivityWindowPolicy windowPolicy;
 
     @InjectMocks
     private ApproveChangeRequestCommandHandler handler;
@@ -210,6 +215,28 @@ class ApproveChangeRequestCommandHandlerTest {
                 ChangeRequestStatus.APPROVED, null, "já aprovado antes");
 
         when(changeRequestRepository.findById(any())).thenReturn(Optional.of(cr));
+
+        assertThrows(IgrpResponseStatusException.class, () -> handler.handle(commandFor(cr)));
+
+        verify(activityRepository, never()).save(any());
+        verify(changeRequestRepository, never()).save(any());
+    }
+
+    // A-132-107 / COR-01 (Phase 136, D-47 reverts T-139's exclusion of this handler): T-136
+    // contraprova -- janela fechada recusa, e NENHUM dos dois save() é chamado. Um 200 nunca
+    // prova uma escrita (D-56); aqui o que prova a recusa é o never().save(any()) sobre os dois
+    // repositórios, não apenas a exceção lançada.
+    @Test
+    void handle_windowClosed_refusesAndSavesNothing() {
+        TacticalActivity activity = approvedActivity();
+        ChangeRequest cr = pendingRequest(activity.getId(), "budget", "1000", "2500");
+
+        when(changeRequestRepository.findById(any())).thenReturn(Optional.of(cr));
+        when(activityRepository.findById(any())).thenReturn(Optional.of(activity));
+        doThrow(IgrpResponseStatusException.badRequest(
+                        "Prazo não configurado para a submissão de atividades do PAA"))
+                .when(windowPolicy)
+                .requireOpenFor(any(PaaLevel.class));
 
         assertThrows(IgrpResponseStatusException.class, () -> handler.handle(commandFor(cr)));
 

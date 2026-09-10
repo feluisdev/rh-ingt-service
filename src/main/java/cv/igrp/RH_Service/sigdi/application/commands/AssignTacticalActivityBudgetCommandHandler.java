@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.dto.BudgetInfoDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.port.EconomicClassifierPort;
+import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.Budget;
@@ -24,11 +25,13 @@ public class AssignTacticalActivityBudgetCommandHandler
 
   private final EconomicClassifierPort economicClassifierPort;
   private final TacticalActivityRepository activityRepository;
+  private final PaaActivityWindowPolicy windowPolicy;
 
   public AssignTacticalActivityBudgetCommandHandler(EconomicClassifierPort economicClassifierPort,
-      TacticalActivityRepository activityRepository) {
+      TacticalActivityRepository activityRepository, PaaActivityWindowPolicy windowPolicy) {
     this.economicClassifierPort = economicClassifierPort;
     this.activityRepository = activityRepository;
+    this.windowPolicy = windowPolicy;
   }
 
   @IgrpCommandHandler
@@ -39,6 +42,13 @@ public class AssignTacticalActivityBudgetCommandHandler
     
     TacticalActivity activity = activityRepository.findById(TacticalActivityId.from(request.getActivityId()))
         .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.NOT_FOUND, "Atividade não encontrada"));
+
+    // A-132-110 / COR-01 (Phase 136, D-47 reverts T-139's 2026-09-05 exclusion of this handler).
+    // Checked before the EconomicClassifierPort call below on purpose, not after: the deadline
+    // refusal is the cheapest and most structural one, and refusing here avoids an external call
+    // for an act that could never have gone through anyway. paaLevel comes from the loaded
+    // activity, never from the request (D-27, Phase 134).
+    windowPolicy.requireOpenFor(activity.getPaaLevel());
 
     // Validate budget availability
     BudgetInfoDTO budgetInfo = economicClassifierPort.getBudget(request.getEconomicClassifier());

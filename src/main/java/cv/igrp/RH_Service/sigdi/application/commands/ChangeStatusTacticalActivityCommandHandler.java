@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.TacticalActivityStatus;
 import cv.igrp.RH_Service.sigdi.application.dto.TaticalActivityStatusDTO;
+import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.TacticalActivityId;
 import cv.igrp.framework.core.domain.CommandHandler;
@@ -30,15 +31,18 @@ public class ChangeStatusTacticalActivityCommandHandler implements CommandHandle
    private final TaticalActivityHistoryEntityRepository historyRepository;
    private final TacticalActivitiesEntityRepository entityRepository;
    private final SecurityContextHelper securityContextHelper;
+   private final PaaActivityWindowPolicy windowPolicy;
 
-   public ChangeStatusTacticalActivityCommandHandler(TacticalActivityRepository repository, 
+   public ChangeStatusTacticalActivityCommandHandler(TacticalActivityRepository repository,
          TaticalActivityHistoryEntityRepository historyRepository,
          TacticalActivitiesEntityRepository entityRepository,
-         SecurityContextHelper securityContextHelper) {
+         SecurityContextHelper securityContextHelper,
+         PaaActivityWindowPolicy windowPolicy) {
      this.repository = repository;
      this.historyRepository = historyRepository;
      this.entityRepository = entityRepository;
      this.securityContextHelper = securityContextHelper;
+     this.windowPolicy = windowPolicy;
    }
 
    @IgrpCommandHandler
@@ -52,6 +56,13 @@ public class ChangeStatusTacticalActivityCommandHandler implements CommandHandle
 
       var activity = repository.findByIdFull(id)
           .orElseThrow(() -> IgrpResponseStatusException.notFound("TacticalActivity não encontrada"));
+
+      // A-132-111 / COR-01 (Phase 136, D-47 reverts T-139's 2026-09-05 exclusion of this
+      // handler -- the sixth of six transition handlers A-132-111 named; the other five closed
+      // in Phase 134). D-54: reachable via PATCH /api/tactical/activities/[id]/status, but
+      // changeActivityStatus (functions/tactical.ts:406) has no caller in the interface today --
+      // reproduce this one against the BFF route directly, not through the UI.
+      windowPolicy.requireOpenFor(activity.getPaaLevel());
 
       TacticalActivityStatus desiredStatus = TacticalActivityStatus.fromCodeOrThrow(request.getStatus());
 

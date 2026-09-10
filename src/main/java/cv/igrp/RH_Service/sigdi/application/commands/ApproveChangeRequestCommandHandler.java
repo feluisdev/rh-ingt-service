@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.ChangeRequestField;
 import cv.igrp.RH_Service.sigdi.application.dto.ChangeRequestResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.ChangeRequest;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.ChangeRequestRepository;
@@ -24,11 +25,14 @@ public class ApproveChangeRequestCommandHandler
 
   private final ChangeRequestRepository changeRequestRepository;
   private final TacticalActivityRepository activityRepository;
+  private final PaaActivityWindowPolicy windowPolicy;
 
   public ApproveChangeRequestCommandHandler(ChangeRequestRepository changeRequestRepository,
-                                            TacticalActivityRepository activityRepository) {
+                                            TacticalActivityRepository activityRepository,
+                                            PaaActivityWindowPolicy windowPolicy) {
     this.changeRequestRepository = changeRequestRepository;
     this.activityRepository = activityRepository;
+    this.windowPolicy = windowPolicy;
   }
 
   @IgrpCommandHandler
@@ -55,6 +59,11 @@ public class ApproveChangeRequestCommandHandler
     TacticalActivity activity = activityRepository.findById(changeRequest.getActivityId())
         .orElseThrow(() -> IgrpResponseStatusException.notFound(
             "A atividade tática visada pelo pedido de alteração não foi encontrada"));
+
+    // A-132-107 / COR-01 (Phase 136, D-47 reverts T-139's 2026-09-05 exclusion of this handler,
+    // which the D-29 ambiguity note of Phase 134 had left open): submission window checked here,
+    // sourced from the loaded activity's paaLevel (D-27), still before either save below.
+    windowPolicy.requireOpenFor(activity.getPaaLevel());
 
     TacticalActivity changedActivity = activity.applyApprovedChange(field, changeRequest.getProposedValue());
 
