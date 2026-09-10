@@ -65,7 +65,7 @@
       "before": false,
       "after": false,
       "positive": false,
-      "minLength": 1,
+      "minLength": 10,
       "maxLength": 2000,
       "isEmail": false,
       "isUrl": false,
