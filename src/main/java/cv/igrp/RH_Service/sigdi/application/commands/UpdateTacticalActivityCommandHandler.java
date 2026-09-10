@@ -6,6 +6,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.BudgetInfoDTO;
 import cv.igrp.RH_Service.sigdi.application.port.EconomicClassifierPort;
 import cv.igrp.RH_Service.sigdi.application.port.FuncionarioLookupPort;
 import cv.igrp.RH_Service.sigdi.application.port.OrganicaLookupPort;
+import cv.igrp.RH_Service.sigdi.application.service.ActivityApprovalHistoryRecorder;
 import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
@@ -36,19 +37,22 @@ public class UpdateTacticalActivityCommandHandler
   private final OrganicaLookupPort organicaLookupPort;
   private final FuncionarioLookupPort funcionarioLookupPort;
   private final PaaActivityWindowPolicy windowPolicy;
+  private final ActivityApprovalHistoryRecorder historyRecorder;
 
   public UpdateTacticalActivityCommandHandler(EconomicClassifierPort economicClassifierPort,
       StrategicGoalRepository goalRepository,
       TacticalActivityRepository activityRepository,
       OrganicaLookupPort organicaLookupPort,
       FuncionarioLookupPort funcionarioLookupPort,
-      PaaActivityWindowPolicy windowPolicy) {
+      PaaActivityWindowPolicy windowPolicy,
+      ActivityApprovalHistoryRecorder historyRecorder) {
     this.economicClassifierPort = economicClassifierPort;
     this.goalRepository = goalRepository;
     this.activityRepository = activityRepository;
     this.organicaLookupPort = organicaLookupPort;
     this.funcionarioLookupPort = funcionarioLookupPort;
     this.windowPolicy = windowPolicy;
+    this.historyRecorder = historyRecorder;
   }
 
   @IgrpCommandHandler
@@ -64,6 +68,12 @@ public class UpdateTacticalActivityCommandHandler
     // consulta movida para o dono único do critério (PaaActivityWindowPolicy), que já lê o
     // ano no fuso de Cabo Verde.
     windowPolicy.requireOpenFor(activity.getPaaLevel());
+
+    // A-136-50 (Phase 136, plano 136-15): capturado antes de update(), que sempre reverte o
+    // estado (TacticalActivity.java:398, "as per requirements") -- o 136-13 mediu que esta
+    // reversão nunca chegava a t_activity_approval_history, oitava porta do defeito que o
+    // 136-10 corrigiu nos outros sete handlers.
+    String previousStatus = activity.getStatus().getCode();
 
     var request = command.getTacticalActivity();
 
@@ -109,6 +119,15 @@ public class UpdateTacticalActivityCommandHandler
         budget);
 
     TacticalActivity saved = activityRepository.save(updatedActivity);
+
+    // A-136-50 (136-15): só grava quando a chamada produziu uma transição real -- uma DRAFT
+    // com orçamento que se mantém DRAFT depois de gravar não é um ato de auditoria, e não
+    // deixa linha. O colaborador não valida isto por si (ver o seu Javadoc), por isso a
+    // guarda vive aqui.
+    String newStatus = saved.getStatus().getCode();
+    if (!previousStatus.equals(newStatus)) {
+      historyRecorder.record(saved.getId(), previousStatus, newStatus, newStatus, null);
+    }
 
     TacticalActivityResponseDTO response = new TacticalActivityResponseDTO();
     response.setId(saved.getId().getValor().getValor());

@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -20,6 +22,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.port.EconomicClassifierPort;
 import cv.igrp.RH_Service.sigdi.application.port.FuncionarioLookupPort;
 import cv.igrp.RH_Service.sigdi.application.port.OrganicaLookupPort;
+import cv.igrp.RH_Service.sigdi.application.service.ActivityApprovalHistoryRecorder;
 import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
@@ -62,6 +65,9 @@ class UpdateTacticalActivityCommandHandlerTest {
 
     @Mock
     private PaaActivityWindowPolicy windowPolicy;
+
+    @Mock
+    private ActivityApprovalHistoryRecorder historyRecorder;
 
     @InjectMocks
     private UpdateTacticalActivityCommandHandler handler;
@@ -121,6 +127,10 @@ class UpdateTacticalActivityCommandHandlerTest {
         // entidade gravada, não inventa nem devolve null.
         assertEquals(PaaLevel.UNIT_LEVEL.getCode(), response.getBody().getPaaLevel());
         assertEquals(PaaLevel.UNIT_LEVEL.getDescription(), response.getBody().getPaaLevelDesc());
+
+        // A-136-50 (136-15): esta atividade nasce e fica PENDING_BUDGET (sem orçamento no
+        // pedido) -- não é uma transição real, e não deixa rasto.
+        verify(historyRecorder, never()).record(any(), any(), any(), any(), any());
     }
 
     // 136-11: prova que a recusa da política chega até ao chamador e que nada é gravado.
@@ -161,6 +171,7 @@ class UpdateTacticalActivityCommandHandlerTest {
 
         assertThrows(IgrpResponseStatusException.class, () -> handler.handle(command));
         verify(activityRepository, never()).save(any());
+        verify(historyRecorder, never()).record(any(), any(), any(), any(), any());
     }
 
     // PAA-02: proves resistance to a direct call to the handler, bypassing the UI entirely --
@@ -219,5 +230,60 @@ class UpdateTacticalActivityCommandHandlerTest {
 
         assertThrows(IgrpResponseStatusException.class, () -> handler.handle(command));
         verify(activityRepository, never()).save(any());
+        verify(historyRecorder, never()).record(any(), any(), any(), any(), any());
+    }
+
+    // A-136-50 (136-15): reproduz o percurso do 136-13 -- atividade com orçamento, submetida
+    // (DRAFT -> PENDING_TACTICAL), depois um PUT que só altera o título. update() reverte a
+    // PENDING_TACTICAL -> DRAFT (o orçamento é o mesmo, effectiveBudget != null): uma
+    // transição real, que agora deixa rasto.
+    @Test
+    void handleRecordsHistoryWhenUpdateRevertsSubmittedActivityToDraft() {
+        UUID strategicGoalId = UUID.randomUUID();
+        UUID organicUnitId = UUID.randomUUID();
+        Budget budget = Budget.of(new BigDecimal("5000"), "02.03.01");
+
+        TacticalActivity draft = TacticalActivity.create(
+                UUID.randomUUID(),
+                StrategicGoalId.from(strategicGoalId),
+                organicUnitId,
+                "Atividade submetida",
+                null,
+                null,
+                null,
+                null,
+                null,
+                DateRange.of(LocalDate.now(), LocalDate.now().plusDays(10)),
+                budget,
+                PaaLevel.UNIT_LEVEL);
+        TacticalActivity existingActivity = draft.submit();
+
+        when(activityRepository.findById(any(TacticalActivityId.class)))
+                .thenReturn(Optional.of(existingActivity));
+        when(goalRepository.findById(any(StrategicGoalId.class)))
+                .thenReturn(Optional.of(mock(StrategicGoal.class)));
+        when(organicaLookupPort.findById(organicUnitId))
+                .thenReturn(Optional.of(mock(OrganicaDTO.class)));
+        when(economicClassifierPort.getBudget("02.03.01"))
+                .thenReturn(new BudgetInfoDTO("02.03.01", new BigDecimal("999999"), "CVE", LocalDate.now()));
+        when(activityRepository.save(any(TacticalActivity.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        CreateTacticalActivityDTO dto = new CreateTacticalActivityDTO();
+        dto.setStrategicGoalId(strategicGoalId);
+        dto.setOrganicUnitId(organicUnitId);
+        dto.setTitle("Título alterado sem tocar orçamento");
+        dto.setStartDate(LocalDate.now());
+        dto.setEndDate(LocalDate.now().plusDays(20));
+        dto.setBudgetEstimated(new BigDecimal("5000"));
+        dto.setEconomicClassifier("02.03.01");
+
+        UpdateTacticalActivityCommand command =
+                new UpdateTacticalActivityCommand(dto, existingActivity.getId().getStringValor());
+
+        handler.handle(command);
+
+        verify(historyRecorder, times(1)).record(any(TacticalActivityId.class),
+                eq("PENDING_TACTICAL"), eq("DRAFT"), eq("DRAFT"), isNull());
     }
 }

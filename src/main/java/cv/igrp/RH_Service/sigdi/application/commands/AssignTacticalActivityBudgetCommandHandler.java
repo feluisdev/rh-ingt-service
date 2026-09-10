@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.dto.BudgetInfoDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.port.EconomicClassifierPort;
+import cv.igrp.RH_Service.sigdi.application.service.ActivityApprovalHistoryRecorder;
 import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
@@ -26,12 +27,15 @@ public class AssignTacticalActivityBudgetCommandHandler
   private final EconomicClassifierPort economicClassifierPort;
   private final TacticalActivityRepository activityRepository;
   private final PaaActivityWindowPolicy windowPolicy;
+  private final ActivityApprovalHistoryRecorder historyRecorder;
 
   public AssignTacticalActivityBudgetCommandHandler(EconomicClassifierPort economicClassifierPort,
-      TacticalActivityRepository activityRepository, PaaActivityWindowPolicy windowPolicy) {
+      TacticalActivityRepository activityRepository, PaaActivityWindowPolicy windowPolicy,
+      ActivityApprovalHistoryRecorder historyRecorder) {
     this.economicClassifierPort = economicClassifierPort;
     this.activityRepository = activityRepository;
     this.windowPolicy = windowPolicy;
+    this.historyRecorder = historyRecorder;
   }
 
   @IgrpCommandHandler
@@ -58,10 +62,22 @@ public class AssignTacticalActivityBudgetCommandHandler
           "Budget limit exceeded for this classifier. Available: " + budgetInfo.availableBudget());
     }
 
+    // Varredura de A-136-50 (136-15): assignBudget() só transiciona PENDING_BUDGET -> DRAFT;
+    // noutro estado devolve a mesma atividade sem mudança. Capturado antes da transição de
+    // domínio, comparado com o estado gravado logo abaixo.
+    String previousStatus = activity.getStatus().getCode();
+
     Budget budget = Budget.of(request.getBudgetEstimated(), request.getEconomicClassifier());
-    
+
     TacticalActivity updated = activity.assignBudget(budget);
     TacticalActivity saved = activityRepository.save(updated);
+
+    // Só grava quando a transição foi real -- ver o mesmo critério em
+    // UpdateTacticalActivityCommandHandler.
+    String newStatus = saved.getStatus().getCode();
+    if (!previousStatus.equals(newStatus)) {
+      historyRecorder.record(saved.getId(), previousStatus, newStatus, newStatus, null);
+    }
 
     TacticalActivityResponseDTO response = new TacticalActivityResponseDTO();
     response.setId(saved.getId().getValor().getValor());

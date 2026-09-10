@@ -3,8 +3,11 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -14,6 +17,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.AssignBudgetDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.BudgetInfoDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.port.EconomicClassifierPort;
+import cv.igrp.RH_Service.sigdi.application.service.ActivityApprovalHistoryRecorder;
 import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
@@ -58,6 +62,9 @@ class AssignTacticalActivityBudgetCommandHandlerTest {
 
   @Mock
   private PaaActivityWindowPolicy windowPolicy;
+
+  @Mock
+  private ActivityApprovalHistoryRecorder historyRecorder;
 
   @InjectMocks
   private AssignTacticalActivityBudgetCommandHandler handler;
@@ -116,6 +123,11 @@ class AssignTacticalActivityBudgetCommandHandlerTest {
 
     assertEquals(200, response.getStatusCode().value());
     assertEquals("DRAFT", response.getBody().getStatus());
+
+    // Varredura de A-136-50 (136-15): a mesma transição PENDING_BUDGET -> DRAFT que o captor
+    // acima prova ter sido gravada tem agora de deixar rasto em t_activity_approval_history.
+    verify(historyRecorder, times(1)).record(any(TacticalActivityId.class),
+        eq("PENDING_BUDGET"), eq("DRAFT"), eq("DRAFT"), isNull());
   }
 
   // T-136 contraprova: janela fechada -- recusa antes de consultar o EconomicClassifierPort (a
@@ -137,6 +149,7 @@ class AssignTacticalActivityBudgetCommandHandlerTest {
 
     verify(activityRepository, never()).save(any());
     verify(economicClassifierPort, never()).getBudget(any());
+    verify(historyRecorder, never()).record(any(), any(), any(), any(), any());
   }
 
   // Regressão do A-135-2AA (135-08): com a janela aberta, um classificador sem disponibilidade
@@ -156,5 +169,6 @@ class AssignTacticalActivityBudgetCommandHandlerTest {
 
     assertEquals(422, ex.getBody().getStatus());
     verify(activityRepository, never()).save(any());
+    verify(historyRecorder, never()).record(any(), any(), any(), any(), any());
   }
 }

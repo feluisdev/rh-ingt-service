@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.ChangeRequestField;
 import cv.igrp.RH_Service.sigdi.application.dto.ChangeRequestResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.service.ActivityApprovalHistoryRecorder;
 import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.ChangeRequest;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
@@ -26,13 +27,16 @@ public class ApproveChangeRequestCommandHandler
   private final ChangeRequestRepository changeRequestRepository;
   private final TacticalActivityRepository activityRepository;
   private final PaaActivityWindowPolicy windowPolicy;
+  private final ActivityApprovalHistoryRecorder historyRecorder;
 
   public ApproveChangeRequestCommandHandler(ChangeRequestRepository changeRequestRepository,
                                             TacticalActivityRepository activityRepository,
-                                            PaaActivityWindowPolicy windowPolicy) {
+                                            PaaActivityWindowPolicy windowPolicy,
+                                            ActivityApprovalHistoryRecorder historyRecorder) {
     this.changeRequestRepository = changeRequestRepository;
     this.activityRepository = activityRepository;
     this.windowPolicy = windowPolicy;
+    this.historyRecorder = historyRecorder;
   }
 
   @IgrpCommandHandler
@@ -65,9 +69,21 @@ public class ApproveChangeRequestCommandHandler
     // sourced from the loaded activity's paaLevel (D-27), still before either save below.
     windowPolicy.requireOpenFor(activity.getPaaLevel());
 
+    // Varredura de A-136-50 (136-15): applyApprovedChange() sempre devolve a atividade a
+    // PENDING_TACTICAL (o guard do método já exige APPROVED antes de correr), uma transição
+    // real -- o mesmo defeito que o 136-13 mediu em Update, aqui na aprovação de Change
+    // Request. Nenhum dos sete handlers que o 136-10 ligou ao colaborador cobre este.
+    String previousStatus = activity.getStatus().getCode();
+
     TacticalActivity changedActivity = activity.applyApprovedChange(field, changeRequest.getProposedValue());
 
     activityRepository.save(changedActivity);
+
+    String newStatus = changedActivity.getStatus().getCode();
+    if (!previousStatus.equals(newStatus)) {
+      historyRecorder.record(changedActivity.getId(), previousStatus, newStatus, newStatus, comment);
+    }
+
     ChangeRequest saved = changeRequestRepository.save(approved);
 
     LOGGER.info("Change Request {} aprovado: campo {} da atividade {} alterado, atividade em {}",
