@@ -7,19 +7,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import cv.igrp.RH_Service.shared.config.AppTimeZone;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.PaaSubmissionPeriod;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.Year;
+import java.time.ZoneOffset;
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -39,8 +43,16 @@ class PaaActivityWindowPolicyTest {
     @Mock
     private PaaSubmissionPeriodRepository periodRepository;
 
-    @InjectMocks
+    // Construído explicitamente, não por @InjectMocks: a classe ganhou um segundo construtor
+    // (periodRepository, Clock) só para teste, e o Mockito escolhe sempre o construtor com
+    // mais parâmetros -- injetaria um Clock nulo, porque não há nenhum @Mock Clock neste
+    // ficheiro. Chamar o construtor de produção explicitamente evita a ambiguidade.
     private PaaActivityWindowPolicy policy;
+
+    @BeforeEach
+    void setUp() {
+        policy = new PaaActivityWindowPolicy(periodRepository);
+    }
 
     @Test
     void requireOpenForDoesNotThrowWhenWindowIsActive() {
@@ -103,5 +115,41 @@ class PaaActivityWindowPolicyTest {
         assertEquals(400, exception.getBody().getStatus());
         assertTrue(exception.getBody().getTitle().contains(
                 "Prazo não configurado para a submissão de atividades do PAA"));
+    }
+
+    /**
+     * T-136-36 (D-53): prova que o ano consultado é o de Cabo Verde, não o do sistema, no
+     * instante exato em que os dois discordam -- 23:30 de 31 de dezembro em Cabo Verde é já
+     * 00:30 de 1 de janeiro em UTC. {@code Year.now(ZoneId)} sozinho não chega para este teste:
+     * fixa o fuso, mas não o instante, e sem fixar o instante o teste corre contra o relógio
+     * real e só falharia (ou passaria por acidente) uma vez por ano. Por isso a política ganhou
+     * um construtor de teste que aceita um {@link Clock} -- este teste fixa os dois ao mesmo
+     * tempo.
+     */
+    @Test
+    void requireOpenForUsesCapeVerdeYearNotUtcYearAtTheYearBoundary() {
+        // 2025-12-31T23:30 em Cabo Verde (UTC-1) == 2026-01-01T00:30Z em UTC.
+        Instant instantWhereCvAndUtcDisagree = Instant.parse("2026-01-01T00:30:00Z");
+        Clock cvClockAtTheBoundary = Clock.fixed(instantWhereCvAndUtcDisagree, AppTimeZone.CABO_VERDE);
+
+        // Confirma a premissa do teste: no mesmo instante, o fuso UTC já leria 2026.
+        Clock utcClockAtTheSameInstant = Clock.fixed(instantWhereCvAndUtcDisagree, ZoneOffset.UTC);
+        assertEquals(2025, Year.now(cvClockAtTheBoundary).getValue());
+        assertEquals(2026, Year.now(utcClockAtTheSameInstant).getValue());
+
+        PaaActivityWindowPolicy policyAtTheBoundary =
+                new PaaActivityWindowPolicy(periodRepository, cvClockAtTheBoundary);
+
+        when(periodRepository.findActiveByTypeAndYearAndPurpose(LEVEL, 2025, Purpose.PAA))
+                .thenReturn(Optional.of(mock(PaaSubmissionPeriod.class)));
+
+        assertDoesNotThrow(() -> policyAtTheBoundary.requireOpenFor(LEVEL));
+
+        // A prova em si: o repositório foi interrogado com o ano de Cabo Verde (2025), nunca
+        // com o ano UTC (2026) -- mesmo instante, fuso diferente, resposta diferente.
+        Mockito.verify(periodRepository)
+                .findActiveByTypeAndYearAndPurpose(LEVEL, 2025, Purpose.PAA);
+        Mockito.verify(periodRepository, Mockito.never())
+                .findActiveByTypeAndYearAndPurpose(LEVEL, 2026, Purpose.PAA);
     }
 }

@@ -3,16 +3,15 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.security.SecurityContextHelper;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
-import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.dto.BudgetInfoDTO;
 import cv.igrp.RH_Service.sigdi.application.port.EconomicClassifierPort;
 import cv.igrp.RH_Service.sigdi.application.port.FuncionarioLookupPort;
 import cv.igrp.RH_Service.sigdi.application.port.OrganicaLookupPort;
 import cv.igrp.RH_Service.sigdi.application.service.ActivityApprovalHistoryRecorder;
+import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
-import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.Budget;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.DateRange;
@@ -39,7 +38,7 @@ public class CreateTacticalActivityCommandHandler
   private final OrganicaLookupPort organicaLookupPort;
   private final FuncionarioLookupPort funcionarioLookupPort;
   private final ActivityApprovalHistoryRecorder historyRecorder;
-  private final PaaSubmissionPeriodRepository periodRepository;
+  private final PaaActivityWindowPolicy windowPolicy;
 
   public CreateTacticalActivityCommandHandler(EconomicClassifierPort economicClassifierPort,
       StrategicGoalRepository goalRepository,
@@ -48,7 +47,7 @@ public class CreateTacticalActivityCommandHandler
       OrganicaLookupPort organicaLookupPort,
       FuncionarioLookupPort funcionarioLookupPort,
       ActivityApprovalHistoryRecorder historyRecorder,
-      PaaSubmissionPeriodRepository periodRepository) {
+      PaaActivityWindowPolicy windowPolicy) {
     this.economicClassifierPort = economicClassifierPort;
     this.goalRepository = goalRepository;
     this.activityRepository = activityRepository;
@@ -56,7 +55,7 @@ public class CreateTacticalActivityCommandHandler
     this.organicaLookupPort = organicaLookupPort;
     this.funcionarioLookupPort = funcionarioLookupPort;
     this.historyRecorder = historyRecorder;
-    this.periodRepository = periodRepository;
+    this.windowPolicy = windowPolicy;
   }
 
   @IgrpCommandHandler
@@ -103,10 +102,10 @@ public class CreateTacticalActivityCommandHandler
         : PaaLevel.UNIT_LEVEL;
 
     // PRAZO-03: fail-closed deadline enforcement — no active PAA period for the
-    // resolved level/current year blocks activity creation (BLOQ-02).
-    periodRepository.findActiveByTypeAndYearAndPurpose(paaLevel, java.time.Year.now().getValue(), Purpose.PAA)
-        .orElseThrow(() -> IgrpResponseStatusException.badRequest(
-            "Prazo não configurado para a submissão de atividades do PAA"));
+    // resolved level/current year blocks activity creation (BLOQ-02). 136-11: consulta
+    // movida para o dono único do critério (PaaActivityWindowPolicy), que já lê o ano no
+    // fuso de Cabo Verde.
+    windowPolicy.requireOpenFor(paaLevel);
 
     TacticalActivity activity = TacticalActivity.create(
         securityContextHelper.getCurrentInstitutionId(),
