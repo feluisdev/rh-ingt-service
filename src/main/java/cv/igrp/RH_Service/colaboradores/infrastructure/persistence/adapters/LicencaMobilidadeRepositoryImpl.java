@@ -37,7 +37,7 @@ public class LicencaMobilidadeRepositoryImpl implements LicencaMobilidadeReposit
     @Transactional(readOnly = true)
     @Override
     public List<LicencaMobilidade> findAllByFuncionarioId(FuncionarioId funcionarioId, LicencaMobilidadeFilter filter) {
-        Stream<LicencaMobilidade> stream = entityRepository.findAllByFuncionarioId(funcionarioId.getValor())
+        Stream<LicencaMobilidade> stream = entityRepository.findAllByFuncionario_Id(funcionarioId.getValor())
                 .stream().map(mapper::toDomain);
         if (Boolean.TRUE.equals(filter.getActive()))
             stream = stream.filter(l -> Boolean.TRUE.equals(l.getIsActive()));

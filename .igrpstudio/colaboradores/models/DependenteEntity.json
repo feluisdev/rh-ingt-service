@@ -6,7 +6,7 @@
   "revision": true,
   "attributes": [
     {"name": "id", "type": "string", "objectType": "java", "primaryKey": true},
-    {"name": "funcionarioId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "funcionario", "type": "relation", "relation": {"type": "ManyToOne", "entity": "FuncionarioEntity", "fetchType": "lazy", "joinColumn": "funcionario_id", "module": "colaboradores"}},
     {"name": "nome", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "parentesco", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "dataNascimento", "type": "date", "objectType": "java", "primaryKey": false},

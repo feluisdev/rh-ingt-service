@@ -35,7 +35,7 @@ public class ProcessoDisciplinarRepositoryImpl implements ProcessoDisciplinarRep
     @Transactional(readOnly = true)
     @Override
     public List<ProcessoDisciplinar> findAllByFuncionarioId(FuncionarioId funcionarioId) {
-        return entityRepository.findAllByFuncionarioId(funcionarioId.getValor())
+        return entityRepository.findAllByFuncionario_Id(funcionarioId.getValor())
                 .stream().map(mapper::toDomain).toList();
     }
 }

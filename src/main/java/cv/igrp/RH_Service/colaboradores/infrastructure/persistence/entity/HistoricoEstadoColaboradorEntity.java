@@ -1,9 +1,13 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity;
 
+import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.WorkerStateEntity;
 import cv.igrp.RH_Service.shared.config.AuditEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,14 +27,17 @@ public class HistoricoEstadoColaboradorEntity extends AuditEntity {
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
-    @Column(name = "funcionario_id", nullable = false)
-    private UUID funcionarioId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "funcionario_id", nullable = false)
+    private FuncionarioEntity funcionario;
 
-    @Column(name = "estado_anterior_id")
-    private UUID estadoAnteriorId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "estado_anterior_id")
+    private WorkerStateEntity estadoAnterior;
 
-    @Column(name = "estado_novo_id", nullable = false)
-    private UUID estadoNovoId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "estado_novo_id", nullable = false)
+    private WorkerStateEntity estadoNovo;
 
     @Column(name = "motivo_ckey", length = 100)
     private String motivoCkey;

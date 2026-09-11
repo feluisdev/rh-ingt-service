@@ -35,7 +35,7 @@ public class DependenteRepositoryImpl implements DependenteRepository {
     @Transactional(readOnly = true)
     @Override
     public List<Dependente> findAllByFuncionarioId(FuncionarioId funcionarioId) {
-        return entityRepository.findByFuncionarioId(funcionarioId.getValor())
+        return entityRepository.findByFuncionario_Id(funcionarioId.getValor())
                 .stream().map(mapper::toDomain).toList();
     }
 }

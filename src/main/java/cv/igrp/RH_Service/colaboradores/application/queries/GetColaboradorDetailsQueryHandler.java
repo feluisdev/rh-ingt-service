@@ -8,24 +8,26 @@ import cv.igrp.RH_Service.carreiras.domain.valueobject.CategoryId;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.GradeId;
 import cv.igrp.RH_Service.colaboradores.application.dto.ColaboradorDetailsResponseDTO;
 import cv.igrp.RH_Service.colaboradores.application.dto.DadosBancariosResponseDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.EnquadramentoResponseDTO;
 import cv.igrp.RH_Service.colaboradores.domain.filter.DocumentoFilter;
+import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.ContratoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.DadosBancariosRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.DocumentoRepository;
-import cv.igrp.RH_Service.colaboradores.domain.repository.EnquadramentoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.mappers.ContratoMapper;
 import cv.igrp.RH_Service.colaboradores.infrastructure.mappers.DadosBancariosMapper;
 import cv.igrp.RH_Service.colaboradores.infrastructure.mappers.DocumentoMapper;
-import cv.igrp.RH_Service.colaboradores.infrastructure.mappers.EnquadramentoMapper;
 import cv.igrp.RH_Service.colaboradores.infrastructure.mappers.FuncionarioMapper;
 import cv.igrp.RH_Service.estrutura.domain.repository.FunctionRepository;
 import cv.igrp.RH_Service.estrutura.domain.repository.JobRepository;
 import cv.igrp.RH_Service.estrutura.domain.repository.OrganizationalUnitRepository;
+import cv.igrp.RH_Service.estrutura.domain.repository.PositionRepository;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.FunctionId;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.JobId;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.OrganizationalUnitId;
+import cv.igrp.RH_Service.estrutura.domain.valueobject.PositionId;
 import cv.igrp.RH_Service.parametrizacoes.application.port.OptionDTO;
 import cv.igrp.RH_Service.parametrizacoes.application.port.OptionLookupPort;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.OptionCcode;
@@ -61,8 +63,8 @@ public class GetColaboradorDetailsQueryHandler
     private final ContratoMapper contratoMapper;
     private final ContractTypeRepository contractTypeRepository;
 
-    private final EnquadramentoRepository enquadramentoRepository;
-    private final EnquadramentoMapper enquadramentoMapper;
+    private final AssignmentRepository assignmentRepository;
+    private final PositionRepository positionRepository;
     private final CareerRepository careerRepository;
     private final CategoryRepository categoryRepository;
     private final GradeRepository gradeRepository;
@@ -101,27 +103,52 @@ public class GetColaboradorDetailsQueryHandler
                     return dto;
                 }).orElse(null);
 
-        var enquadramentoDTO = enquadramentoRepository.findCurrentByFuncionarioId(funcionarioId)
-                .map(e -> {
-                    var dto = enquadramentoMapper.toDTO(e);
-                    if (e.getCareerId() != null)
-                        careerRepository.findById(CareerId.from(e.getCareerId()))
-                                .ifPresent(c -> dto.setCareerName(c.getName()));
-                    if (e.getCategoryId() != null)
-                        categoryRepository.findById(CategoryId.from(e.getCategoryId()))
-                                .ifPresent(c -> dto.setCategoryName(c.getName()));
-                    if (e.getGradeId() != null)
-                        gradeRepository.findById(GradeId.from(e.getGradeId()))
+        // Enquadramento derivado do NOVO modelo: afectação corrente + Lugar (Position).
+        // A forma da resposta mantém-se por compatibilidade com o frontend.
+        var enquadramentoDTO = assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId)
+                .map(a -> {
+                    var pos = a.getPositionId() != null
+                            ? positionRepository.findById(PositionId.from(a.getPositionId())).orElse(null)
+                            : null;
+                    var dto = new EnquadramentoResponseDTO();
+                    dto.setId(a.getId().getStringValor());
+                    dto.setFuncionarioId(funcionarioId.getStringValor());
+                    dto.setDataInicio(a.getDataInicio());
+                    dto.setDataFim(a.getDataFim());
+                    dto.setIsCurrent(a.getIsCurrent());
+                    dto.setIsCurrentDesc(Boolean.TRUE.equals(a.getIsCurrent()) ? "Corrente" : "Histórico");
+                    if (a.getGradeId() != null) {
+                        dto.setGradeId(a.getGradeId().toString());
+                        gradeRepository.findById(GradeId.from(a.getGradeId()))
                                 .ifPresent(g -> dto.setGradeName(g.getName()));
-                    if (e.getCargoId() != null)
-                        jobRepository.findById(JobId.from(e.getCargoId()))
-                                .ifPresent(j -> dto.setCargoName(j.getName()));
-                    if (e.getFunctionId() != null)
-                        functionRepository.findById(FunctionId.from(e.getFunctionId()))
+                    }
+                    if (a.getFunctionId() != null) {
+                        dto.setFunctionId(a.getFunctionId().toString());
+                        functionRepository.findById(FunctionId.from(a.getFunctionId()))
                                 .ifPresent(f -> dto.setFunctionName(f.getName()));
-                    if (e.getUnidadeOrganicaId() != null)
-                        organizationalUnitRepository.findById(OrganizationalUnitId.from(e.getUnidadeOrganicaId()))
-                                .ifPresent(u -> dto.setUnitName(u.getName()));
+                    }
+                    if (pos != null) {
+                        if (pos.getCareerId() != null) {
+                            dto.setCareerId(pos.getCareerId().toString());
+                            careerRepository.findById(CareerId.from(pos.getCareerId()))
+                                    .ifPresent(c -> dto.setCareerName(c.getName()));
+                        }
+                        if (pos.getCategoryId() != null) {
+                            dto.setCategoryId(pos.getCategoryId().toString());
+                            categoryRepository.findById(CategoryId.from(pos.getCategoryId()))
+                                    .ifPresent(c -> dto.setCategoryName(c.getName()));
+                        }
+                        if (pos.getJobId() != null) {
+                            dto.setCargoId(pos.getJobId().toString());
+                            jobRepository.findById(JobId.from(pos.getJobId()))
+                                    .ifPresent(j -> dto.setCargoName(j.getName()));
+                        }
+                        if (pos.getUnidadeOrganicaId() != null) {
+                            dto.setUnidadeOrganicaId(pos.getUnidadeOrganicaId().toString());
+                            organizationalUnitRepository.findById(OrganizationalUnitId.from(pos.getUnidadeOrganicaId()))
+                                    .ifPresent(u -> dto.setUnitName(u.getName()));
+                        }
+                    }
                     return dto;
                 }).orElse(null);
 

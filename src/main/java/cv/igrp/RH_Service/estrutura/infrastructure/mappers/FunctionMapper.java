@@ -6,12 +6,16 @@ import cv.igrp.RH_Service.estrutura.domain.repository.JobRepository;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.FunctionId;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.JobId;
 import cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.FunctionEntity;
+import cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.JobEntity;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.JpaReferences;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class FunctionMapper {
+
+    private final JpaReferences refs;
 
     private final JobRepository jobRepository;
 
@@ -22,7 +26,7 @@ public class FunctionMapper {
         entity.setCode(domain.getCode());
         entity.setName(domain.getName());
         entity.setDescription(domain.getDescription());
-        entity.setJobId(domain.getJobId());
+        entity.setJob(refs.ref(JobEntity.class, domain.getJobId()));
         entity.setIsActive(domain.isActive());
         return entity;
     }
@@ -34,7 +38,7 @@ public class FunctionMapper {
                 entity.getCode(),
                 entity.getName(),
                 entity.getDescription(),
-                entity.getJobId(),
+                refs.idOf(entity.getJob(), JobEntity::getId),
                 entity.getIsActive() != null && entity.getIsActive()
         );
     }

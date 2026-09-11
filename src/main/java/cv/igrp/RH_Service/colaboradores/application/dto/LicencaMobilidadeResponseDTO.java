@@ -20,6 +20,7 @@ public class LicencaMobilidadeResponseDTO {
     private String status;
     private String destinationUnitId;
     private String destinationUnitName;
+    private String destinationPositionId;
     private String justification;
     private String rejectionReason;
 }

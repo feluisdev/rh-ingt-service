@@ -50,7 +50,7 @@ public class GradeRepositoryImpl implements GradeRepository {
             var predicates = cb.conjunction();
 
             if (filter.getCategoryId() != null) {
-                predicates = cb.and(predicates, cb.equal(root.get("categoryId"), filter.getCategoryId()));
+                predicates = cb.and(predicates, cb.equal(root.get("category").get("id"), filter.getCategoryId()));
             }
 
             if (filter.getCode() != null && !filter.getCode().isBlank()) {
@@ -82,7 +82,7 @@ public class GradeRepositoryImpl implements GradeRepository {
     @Transactional(readOnly = true)
     @Override
     public List<Grade> findByCategoryIdOrderByGradeNumber(CategoryId categoryId) {
-        return entityRepository.findByCategoryIdOrderByGradeNumber(categoryId.getValor())
+        return entityRepository.findByCategory_IdOrderByGradeNumber(categoryId.getValor())
                 .stream()
                 .map(mapper::toDomain)
                 .toList();
@@ -91,31 +91,32 @@ public class GradeRepositoryImpl implements GradeRepository {
     @Transactional(readOnly = true)
     @Override
     public boolean existsByGradeNumberAndCategoryId(Integer gradeNumber, CategoryId categoryId) {
-        return entityRepository.existsByGradeNumberAndCategoryId(gradeNumber, categoryId.getValor());
+        return entityRepository.existsByGradeNumberAndCategory_Id(gradeNumber, categoryId.getValor());
     }
 
     @Transactional(readOnly = true)
     @Override
     public boolean existsByGradeNumberAndCategoryIdAndIdNot(Integer gradeNumber, CategoryId categoryId, GradeId id) {
-        return entityRepository.existsByGradeNumberAndCategoryIdAndIdNot(gradeNumber, categoryId.getValor(), id.getValor());
+        return entityRepository.existsByGradeNumberAndCategory_IdAndIdNot(gradeNumber, categoryId.getValor(), id.getValor());
     }
 
     @Transactional(readOnly = true)
     @Override
     public long countByCategoryId(CategoryId categoryId) {
-        return entityRepository.countByCategoryId(categoryId.getValor());
+        return entityRepository.countByCategory_Id(categoryId.getValor());
     }
 
     @Override
     public boolean isReferencedByActiveAssignment(GradeId gradeId) {
-        try {
-            Boolean exists = jdbcTemplate.queryForObject(
-                "SELECT EXISTS (SELECT 1 FROM employee_professional_assignments WHERE grade_id = ? AND is_active = true)",
-                Boolean.class, gradeId.getValor());
-            return Boolean.TRUE.equals(exists);
-        } catch (Exception e) {
-            // table does not exist yet — no active assignments possible
-            return false;
-        }
+        // A afectação vive em t_assignment (V37). A tabela anterior,
+        // employee_professional_assignments, foi largada na V38 -- a consulta antiga
+        // falhava sempre e o catch devolvia false, pelo que a regra nunca disparava.
+        // SQL directo, e não o repositório JPA de colaboradores, para não atravessar
+        // a fronteira do módulo a partir de carreiras.
+        Boolean exists = jdbcTemplate.queryForObject(
+            "SELECT EXISTS (SELECT 1 FROM t_assignment "
+                + "WHERE grade_id = ? AND is_current = TRUE AND is_active = TRUE)",
+            Boolean.class, gradeId.getValor());
+        return Boolean.TRUE.equals(exists);
     }
 }

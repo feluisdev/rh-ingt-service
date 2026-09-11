@@ -5,15 +5,21 @@ import cv.igrp.RH_Service.colaboradores.domain.models.Dependente;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.DependenteId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.DependenteEntity;
+import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.FuncionarioEntity;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.JpaReferences;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component("colabsDependenteMapper")
+@RequiredArgsConstructor
 public class DependenteMapper {
+
+    private final JpaReferences refs;
 
     public Dependente toDomain(DependenteEntity e) {
         return Dependente.reconstituir(
                 DependenteId.from(e.getId()),
-                FuncionarioId.from(e.getFuncionarioId()),
+                FuncionarioId.from(e.getFuncionario().getId()),
                 e.getFullName(), e.getRelationshipType(),
                 e.getBirthDate(), e.getNif(), e.getIsActive());
     }
@@ -21,7 +27,7 @@ public class DependenteMapper {
     public DependenteEntity toEntity(Dependente d) {
         DependenteEntity e = new DependenteEntity();
         e.setId(d.getId().getValor());
-        e.setFuncionarioId(d.getFuncionarioId().getValor());
+        e.setFuncionario(refs.ref(FuncionarioEntity.class, d.getFuncionarioId().getValor()));
         e.setFullName(d.getFullName());
         e.setRelationshipType(d.getRelationshipType());
         e.setBirthDate(d.getBirthDate());

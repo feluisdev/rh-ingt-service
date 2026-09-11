@@ -6,8 +6,8 @@
   "revision": true,
   "attributes": [
     {"name": "id", "type": "string", "objectType": "java", "primaryKey": true},
-    {"name": "funcionarioId", "type": "string", "objectType": "java", "primaryKey": false},
-    {"name": "subtipoId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "funcionario", "type": "relation", "relation": {"type": "ManyToOne", "entity": "FuncionarioEntity", "fetchType": "lazy", "joinColumn": "funcionario_id", "module": "colaboradores"}},
+    {"name": "subtipo", "type": "relation", "relation": {"type": "ManyToOne", "entity": "LeaveMobilitySubtypeEntity", "fetchType": "lazy", "joinColumn": "subtipo_id", "module": "parametrizacoes"}},
     {"name": "dataInicio", "type": "date", "objectType": "java", "primaryKey": false},
     {"name": "dataFim", "type": "date", "objectType": "java", "primaryKey": false},
     {"name": "entidadeDestino", "type": "string", "objectType": "java", "primaryKey": false},
@@ -15,9 +15,10 @@
     {"name": "observacoes", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "isActive", "type": "boolean", "objectType": "java", "primaryKey": false},
     {"name": "status", "type": "string", "objectType": "java", "primaryKey": false},
-    {"name": "destinationUnitId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "destinationUnit", "type": "relation", "relation": {"type": "ManyToOne", "entity": "OrganizationalUnitEntity", "fetchType": "lazy", "joinColumn": "destination_unit_id", "module": "estrutura"}},
+    {"name": "destinationPosition", "type": "relation", "relation": {"type": "ManyToOne", "entity": "PositionEntity", "fetchType": "lazy", "joinColumn": "destination_position_id", "module": "estrutura"}},
     {"name": "justification", "type": "string", "objectType": "java", "primaryKey": false},
-    {"name": "documentId", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "document", "type": "relation", "relation": {"type": "ManyToOne", "entity": "DocumentoEntity", "fetchType": "lazy", "joinColumn": "document_id", "module": "colaboradores"}},
     {"name": "rejectionReason", "type": "string", "objectType": "java", "primaryKey": false}
   ]
 }

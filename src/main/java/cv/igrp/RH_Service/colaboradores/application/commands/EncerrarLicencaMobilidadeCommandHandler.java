@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
-import cv.igrp.RH_Service.colaboradores.domain.repository.ColocacaoRepository;
+import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
 import cv.igrp.RH_Service.colaboradores.domain.repository.LicencaMobilidadeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.SubtipoLicencaMobilidadeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.LicencaMobilidadeId;
@@ -23,7 +23,7 @@ public class EncerrarLicencaMobilidadeCommandHandler
         implements CommandHandler<EncerrarLicencaMobilidadeCommand, ResponseEntity<Map<String, ?>>> {
 
     private final LicencaMobilidadeRepository licencaRepository;
-    private final ColocacaoRepository colocacaoRepository;
+    private final AssignmentService assignmentService;
     private final SubtipoLicencaMobilidadeRepository subtipoRepository;
 
     @IgrpCommandHandler
@@ -45,14 +45,9 @@ public class EncerrarLicencaMobilidadeCommandHandler
         boolean isMobilidade = subtipo != null && "MOBILIDADE".equals(subtipo.getRecordType());
 
         if (isMobilidade) {
-            // Close the MOBILIDADE colocação
-            colocacaoRepository.fecharColocacaoAtual(licenca.getFuncionarioId(), LocalDate.now());
-            // Restore the most recent non-mobilidade colocação
-            colocacaoRepository.findMostRecentNonMobilidadeByFuncionarioId(licenca.getFuncionarioId())
-                    .ifPresent(anterior -> {
-                        anterior.reabrir();
-                        colocacaoRepository.save(anterior);
-                    });
+            // Fecha a afectação de MOBILIDADE corrente e reabre o Lugar de origem
+            // (mobilidade temporária) via origin_assignment_id.
+            assignmentService.regressarDeMobilidade(licenca.getFuncionarioId(), LocalDate.now());
         }
 
         return ResponseEntity.ok(Map.of("message", "Encerrado com sucesso"));

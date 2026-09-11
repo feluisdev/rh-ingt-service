@@ -27,7 +27,7 @@ public class HistoricoEstadoColaboradorRepositoryAdapter implements HistoricoEst
     @Override
     public List<HistoricoEstadoColaborador> findAllByFuncionarioId(FuncionarioId funcionarioId) {
         return entityRepository
-                .findAllByFuncionarioIdOrderByDataEfectividadeDesc(funcionarioId.getValor())
+                .findAllByFuncionario_IdOrderByDataEfectividadeDesc(funcionarioId.getValor())
                 .stream()
                 .map(mapper::toDomain)
                 .toList();

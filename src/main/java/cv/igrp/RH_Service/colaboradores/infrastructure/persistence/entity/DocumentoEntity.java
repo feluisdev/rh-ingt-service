@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity;
 
+import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.DocumentTypeEntity;
 import cv.igrp.RH_Service.shared.config.AuditEntity;
 import cv.igrp.framework.stereotype.IgrpEntity;
 import jakarta.persistence.*;
@@ -28,8 +29,9 @@ public class DocumentoEntity extends AuditEntity {
     @Column(name = "reference_id", nullable = false)
     private UUID referenceId;
 
-    @Column(name = "document_type_id", nullable = false)
-    private UUID documentTypeId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "document_type_id", nullable = false)
+    private DocumentTypeEntity documentType;
 
     @Column(name = "file_key", nullable = false, length = 500)
     private String fileKey;

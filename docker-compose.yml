@@ -129,7 +129,6 @@ services:
       - postgres-ingt-rh
     environment:
       - SERVER_PORT=${SERVICE_PORT}
-      - SERVICE_NAME=recursoshumanos-service
       - SPRING_ACTIVE_PROFILE=${SERVICE_PROFILE}
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-ingt-rh:${POSTGRES_INTERNAL_PORT}/${POSTGRES_DATABASE}
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}

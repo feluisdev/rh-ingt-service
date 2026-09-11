@@ -37,6 +37,17 @@
       "skipFieldRevision": false
     },
     {
+      "name": "vinculoLaboral",
+      "type": "relation",
+      "relation": {
+        "type": "ManyToOne",
+        "entity": "VinculoLaboralEntity",
+        "fetchType": "lazy",
+        "joinColumn": "vinculo_laboral_id",
+        "module": "parametrizacoes"
+      }
+    },
+    {
       "name": "requiresCareerStructure",
       "type": "boolean",
       "nullable": true,

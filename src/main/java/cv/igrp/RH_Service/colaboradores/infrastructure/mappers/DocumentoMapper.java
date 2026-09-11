@@ -7,12 +7,16 @@ import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.entity.Docume
 import cv.igrp.RH_Service.parametrizacoes.application.dto.DocumentTypeResponseDTO;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.DocumentTypeRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.DocumentTypeId;
+import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.DocumentTypeEntity;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.JpaReferences;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component("colabsDocumentoMapper")
 @RequiredArgsConstructor
 public class DocumentoMapper {
+
+    private final JpaReferences refs;
 
     private final DocumentTypeRepository documentTypeRepository;
 
@@ -21,7 +25,7 @@ public class DocumentoMapper {
                 DocumentoId.from(e.getId()),
                 e.getReferenceEntity(),
                 e.getReferenceId(),
-                DocumentTypeId.from(e.getDocumentTypeId()),
+                DocumentTypeId.from(e.getDocumentType().getId()),
                 e.getFileKey(), e.getOriginalFilename(),
                 e.getContentType(), e.getFileSize(),
                 e.getDescription(), e.getIsActive());
@@ -32,7 +36,7 @@ public class DocumentoMapper {
         e.setId(d.getId().getValor());
         e.setReferenceEntity(d.getReferenceEntity());
         e.setReferenceId(d.getReferenceId());
-        e.setDocumentTypeId(d.getDocumentTypeId().getValor());
+        e.setDocumentType(refs.ref(DocumentTypeEntity.class, d.getDocumentTypeId().getValor()));
         e.setFileKey(d.getFileKey());
         e.setOriginalFilename(d.getOriginalFilename());
         e.setContentType(d.getContentType());

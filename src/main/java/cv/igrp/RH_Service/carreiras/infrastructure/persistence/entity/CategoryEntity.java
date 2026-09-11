@@ -25,8 +25,9 @@ public class CategoryEntity extends AuditEntity {
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
 
-    @Column(name = "career_id", nullable = false)
-    private UUID careerId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "career_id", nullable = false)
+    private CareerEntity career;
 
     @Column(name = "code", nullable = false, length = 50)
     private String code;

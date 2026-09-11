@@ -1,0 +1,1335 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dossiê do Colaborador — RH-Service</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ink:#16202e; --paper:#f7f6f2; --surface:#ffffff; --surface-2:#f0eee7;
+  --border:#dcd8cd; --muted:#5d6674; --faint:#8a8f99;
+  --accent:#1d6a8c; --accent-deep:#134f68; --accent-soft:#e5eef2;
+  --ochre:#a9762f;
+  --ok:#2f7d5b; --ok-soft:#e3f0e8;
+  --warn:#9a6a12; --warn-soft:#f6ecd6;
+  --bad:#b4433a; --bad-soft:#f6e2df;
+  --code-bg:#fbfaf7;
+  --tok-key:#134f68; --tok-str:#2f7d5b; --tok-num:#a9762f; --tok-punc:#8a8f99; --tok-bool:#7a5aa8;
+  --shadow:0 1px 2px rgba(20,30,45,.05),0 6px 24px rgba(20,30,45,.06);
+  --maxw:74ch;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ink:#e8e9ec; --paper:#12161d; --surface:#1a2029; --surface-2:#222a35;
+    --border:#313a47; --muted:#9aa3b2; --faint:#6d7686;
+    --accent:#5fb0d0; --accent-deep:#8fcbe4; --accent-soft:#1a2b36;
+    --ochre:#d0a057;
+    --ok:#6fc79b; --ok-soft:#172a22;
+    --warn:#e0b25e; --warn-soft:#2c2416;
+    --bad:#e58a80; --bad-soft:#2e1c1a;
+    --code-bg:#10141b;
+    --tok-key:#8fcbe4; --tok-str:#6fc79b; --tok-num:#e0b25e; --tok-punc:#6d7686; --tok-bool:#c3a6e8;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#e8e9ec; --paper:#12161d; --surface:#1a2029; --surface-2:#222a35;
+  --border:#313a47; --muted:#9aa3b2; --faint:#6d7686;
+  --accent:#5fb0d0; --accent-deep:#8fcbe4; --accent-soft:#1a2b36;
+  --ochre:#d0a057;
+  --ok:#6fc79b; --ok-soft:#172a22;
+  --warn:#e0b25e; --warn-soft:#2c2416;
+  --bad:#e58a80; --bad-soft:#2e1c1a;
+  --code-bg:#10141b;
+  --tok-key:#8fcbe4; --tok-str:#6fc79b; --tok-num:#e0b25e; --tok-punc:#6d7686; --tok-bool:#c3a6e8;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  font-size:16.5px;line-height:1.62;-webkit-font-smoothing:antialiased}
+img{max-width:100%}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+
+.wrap{display:grid;grid-template-columns:292px minmax(0,1fr);max-width:1280px;margin:0 auto}
+.side{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;
+  border-right:1px solid var(--border);padding:26px 20px 60px;background:var(--surface)}
+.main{padding:0 clamp(20px,4vw,70px) 120px;min-width:0}
+@media (max-width:920px){.wrap{grid-template-columns:1fr}
+  .side{position:static;height:auto;border-right:none;border-bottom:1px solid var(--border)}}
+
+.brand{display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.brand .mk{width:34px;height:34px;flex:none;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-deep));
+  display:grid;place-items:center;color:#fff;font-family:"Spectral",serif;font-weight:700;font-size:18px}
+.brand b{font-weight:600;font-size:15px}
+.brand span{display:block;font-size:11.5px;color:var(--faint);font-weight:400}
+.side nav{margin-top:18px;font-size:13px}
+.side nav .grp{margin:15px 0 5px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.11em;color:var(--ochre);font-weight:500}
+.side nav a{display:block;color:var(--muted);padding:3.5px 10px;border-radius:6px;border-left:2px solid transparent;line-height:1.35}
+.side nav a:hover{color:var(--ink);background:var(--surface-2);text-decoration:none}
+.side nav a.on{color:var(--accent-deep);border-left-color:var(--accent);background:var(--accent-soft);font-weight:500}
+.themebtn{margin-top:20px;width:100%;border:1px solid var(--border);background:var(--surface-2);color:var(--muted);
+  font:inherit;font-size:12.5px;padding:8px 12px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:8px;justify-content:center}
+.themebtn:hover{color:var(--ink);border-color:var(--accent)}
+
+.hero{padding:60px 0 30px;border-bottom:1px solid var(--border);margin-bottom:14px}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;text-transform:uppercase;letter-spacing:.16em;
+  color:var(--ochre);font-weight:500;margin:0 0 16px}
+.hero h1{font-family:"Spectral",Georgia,serif;font-weight:700;font-size:clamp(33px,5.2vw,56px);line-height:1.05;
+  letter-spacing:-.01em;margin:0;text-wrap:balance}
+.hero .lede{font-size:clamp(17px,2.2vw,20px);color:var(--muted);max-width:60ch;margin:22px 0 0;line-height:1.55}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+.chip{font-family:"IBM Plex Mono",monospace;font-size:12px;background:var(--surface);border:1px solid var(--border);
+  border-radius:100px;padding:5px 13px;color:var(--muted)}
+.chip b{color:var(--accent-deep);font-weight:500}
+
+.main h2{font-family:"Spectral",Georgia,serif;font-weight:700;font-size:clamp(25px,3.4vw,34px);line-height:1.1;
+  letter-spacing:-.01em;margin:16px 0 6px;text-wrap:balance;scroll-margin-top:16px}
+.main h3{font-family:"Spectral",Georgia,serif;font-weight:600;font-size:22px;margin:40px 0 4px;scroll-margin-top:16px}
+.main h4{font-size:13.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent-deep);margin:26px 0 6px;font-weight:600}
+.sec-eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ochre);font-weight:500;display:block;margin:70px 0 -2px}
+.main p{max-width:var(--maxw)}
+.main>section>ul,.main>section>ol{max-width:var(--maxw)}
+.lead{font-size:18px;color:var(--muted);max-width:var(--maxw)}
+strong{font-weight:600}
+code{font-family:"IBM Plex Mono",monospace;font-size:.85em;background:var(--surface-2);padding:.12em .4em;border-radius:5px;
+  border:1px solid var(--border);color:var(--accent-deep);white-space:nowrap}
+
+.note{border:1px solid var(--border);border-left:3px solid var(--accent);background:var(--surface);border-radius:10px;
+  padding:15px 20px;margin:22px 0;max-width:var(--maxw);box-shadow:var(--shadow)}
+.note.rule{border-left-color:var(--ochre)}
+.note .k{font-family:"IBM Plex Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--faint);display:block;margin-bottom:4px}
+.note p{margin:.3em 0}.note p:first-of-type{margin-top:0}.note p:last-child{margin-bottom:0}
+
+.stage{font-family:"IBM Plex Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.1em;
+  font-weight:500;margin:30px 0 6px;display:flex;align-items:center;gap:8px;color:var(--muted)}
+.stage::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.stage.tab::before{background:var(--ochre)}
+.stage.api::before{background:var(--ok)}
+
+.tablewrap{overflow-x:auto;margin:16px 0;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:480px}
+th,td{text-align:left;padding:10px 15px;border-bottom:1px solid var(--border);vertical-align:top}
+thead th{background:var(--surface-2);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);
+  font-weight:600;white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--accent-soft)}
+td code{white-space:nowrap}
+.mono{font-family:"IBM Plex Mono",monospace;font-size:13px}
+
+/* domain block */
+.block{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:4px 30px 30px;margin:24px 0;box-shadow:var(--shadow)}
+@media (max-width:560px){.block{padding:4px 16px 22px}}
+.block .rail{display:flex;align-items:center;gap:14px;padding:22px 0 4px;border-bottom:1px solid var(--border);margin-bottom:8px}
+.block .num{font-family:"Spectral",serif;font-weight:700;font-size:30px;color:var(--accent);width:52px;height:52px;flex:none;
+  border-radius:12px;background:var(--accent-soft);display:grid;place-items:center}
+.block .rail h3{margin:0;font-size:23px}
+.block .rail .sub{font-size:13px;color:var(--faint);font-family:"IBM Plex Mono",monospace;margin-top:2px}
+
+/* endpoint detail card */
+.endpoint{border:1px solid var(--border);border-radius:12px;margin:16px 0;background:var(--surface);overflow:hidden}
+.eh{display:flex;align-items:center;gap:11px;padding:12px 16px;background:var(--surface-2);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.v{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;color:#fff;padding:3px 9px;border-radius:6px;letter-spacing:.03em;flex:none}
+.v.get{background:#2f7d5b}.v.post{background:#1d6a8c}.v.put{background:#9a6a12}.v.patch{background:#7a5aa8}.v.delete{background:#b4433a}
+.eh .epath{font-family:"IBM Plex Mono",monospace;font-size:13.5px;color:var(--ink);word-break:break-word;font-weight:500}
+.ebody{padding:15px 18px}
+.ebody>p{max-width:none;margin:0 0 12px}
+.ebody>p:last-child{margin-bottom:0}
+.facts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.fact{font-size:12.5px;border:1px solid var(--border);border-radius:8px;padding:5px 11px;background:var(--paper);display:inline-flex;gap:6px;align-items:baseline}
+.fact b{font-family:"IBM Plex Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);font-weight:600}
+.fact.tab{border-color:var(--ochre)}.fact.tab b{color:var(--ochre)}
+.fact.eff b{color:var(--accent-deep)}
+.exchange{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0 0}
+@media (max-width:760px){.exchange{grid-template-columns:1fr}}
+.code{border:1px solid var(--border);border-radius:9px;overflow:hidden;background:var(--code-bg)}
+.code .lbl{font-family:"IBM Plex Mono",monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;
+  padding:6px 13px;background:var(--surface-2);border-bottom:1px solid var(--border);color:var(--muted);display:flex;justify-content:space-between}
+.code .lbl .st{color:var(--ok)}
+.code pre{margin:0;padding:13px 15px;overflow-x:auto;font-family:"IBM Plex Mono",monospace;font-size:12.5px;line-height:1.55;color:var(--ink)}
+.tok-key{color:var(--tok-key)}.tok-str{color:var(--tok-str)}.tok-num{color:var(--tok-num)}.tok-punc{color:var(--tok-punc)}.tok-bool{color:var(--tok-bool)}
+.single{margin-top:12px}
+
+.flow{font-family:"IBM Plex Mono",monospace;font-size:13px;background:var(--code-bg);border:1px solid var(--border);border-radius:10px;
+  padding:16px 18px;margin:16px 0;overflow-x:auto;line-height:1.7;color:var(--muted);white-space:pre}
+
+.diagram{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin:22px 0;box-shadow:var(--shadow)}
+.diagram .mermaid{min-width:760px}
+.dcap{font-size:13px;color:var(--faint);text-align:center;margin-top:8px;font-family:"IBM Plex Mono",monospace}
+
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin:16px 0 4px;font-size:13.5px}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.dot{width:11px;height:11px;border-radius:3px;flex:none}
+.dot.ok{background:var(--ok)}.dot.warn{background:var(--warn)}.dot.bad{background:var(--bad)}
+.coh{border:1px solid var(--border);border-radius:12px;padding:2px 20px 6px;margin:16px 0;background:var(--surface)}
+.coh .row{display:grid;grid-template-columns:26px 1fr;gap:14px;padding:16px 0;border-bottom:1px solid var(--border)}
+.coh .row:last-child{border-bottom:none}
+.coh .row .tag{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;font-weight:700;font-size:13px;color:#fff;font-family:"IBM Plex Mono",monospace}
+.coh .row.ok .tag{background:var(--ok)}.coh .row.warn .tag{background:var(--warn)}.coh .row.bad .tag{background:var(--bad)}
+.coh .row h4{margin:0 0 3px;text-transform:none;letter-spacing:0;color:var(--ink);font-size:16px}
+.coh .row p{margin:0;font-size:14px;color:var(--muted);max-width:none}
+
+.pill{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:11px;padding:2px 9px;border-radius:100px;
+  border:1px solid var(--border);color:var(--muted);background:var(--surface-2)}
+hr.div{border:none;border-top:1px solid var(--border);margin:56px 0}
+.foot{border-top:1px solid var(--border);margin-top:80px;padding-top:26px;font-size:13px;color:var(--faint)}
+.foot code{font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<aside class="side">
+  <div class="brand"><div class="mk">RH</div><div><b>RH-Service</b><span>SIPPROG · INGT · Cabo Verde</span></div></div>
+  <nav id="toc">
+    <div class="grp">Fundamentos</div>
+    <a href="#intro">Visão geral</a>
+    <a href="#comoler">Como ler este guia</a>
+    <a href="#modelo-mental">O modelo mental</a>
+    <a href="#er">Modelo de dados (ER)</a>
+    <div class="grp">Catálogos (pré-requisitos)</div>
+    <a href="#b0">0 · Lookups genéricos</a>
+    <a href="#b1">1 · Parametrizações</a>
+    <a href="#b2">2 · Estrutura orgânica</a>
+    <a href="#b3">3 · Carreiras (PCFR)</a>
+    <div class="grp">O dossiê do funcionário</div>
+    <a href="#b4">4 · Núcleo &amp; estado</a>
+    <a href="#b5">5 · Histórico profissional</a>
+    <a href="#b6">6 · Formação e disciplina</a>
+    <a href="#b7">7 · Documentos</a>
+    <a href="#b8">8 · Ausências e recibos</a>
+    <a href="#b9">9 · Sistema</a>
+    <a href="#me">Área reservada /me</a>
+    <div class="grp">Referência</div>
+    <a href="#regras">Regras &amp; códigos HTTP</a>
+    <a href="#coerencia">Coerência código ↔ docs</a>
+    <a href="#endpoints">Índice de endpoints</a>
+  </nav>
+  <button class="themebtn" id="themebtn" type="button">◐ Alternar tema</button>
+</aside>
+
+<main class="main">
+
+<header class="hero" id="intro">
+  <p class="eyebrow">Módulo RH v4 · Dossiê do Colaborador · menos SIGDI</p>
+  <h1>O ciclo de vida do funcionário público, endpoint a endpoint</h1>
+  <p class="lede">Para cada operação da API: o que faz, o contexto de negócio, que tabela afeta, e um
+  exemplo real de pedido e resposta. Da regra à coluna e ao JSON.</p>
+  <div class="meta">
+    <span class="chip"><b>29</b> tabelas RH</span>
+    <span class="chip"><b>32</b> controllers</span>
+    <span class="chip">prefixo <b>api/v1/rh</b></span>
+    <span class="chip">Java 23 · Spring Boot 3.5</span>
+  </div>
+</header>
+
+<section>
+<p class="lead">O <strong>RH-Service</strong> gere o dossiê completo do funcionário público de Cabo Verde,
+no âmbito do SIPPROG (Sistema de Informação do Pessoal e Progressões) do INGT. Cobre todo o percurso —
+da admissão à cessação: identificação, contratos, enquadramento na grelha de carreiras (PCFR), colocação
+em unidades orgânicas, dependentes, habilitações, formações, processos disciplinares, ausências, licenças,
+mobilidades e recibos.</p>
+</section>
+
+<!-- COMO LER -->
+<section>
+<span class="sec-eyebrow">Orientação</span>
+<h2 id="comoler">Como ler este guia</h2>
+<p>Cada bloco funcional segue sempre a mesma ordem: <strong>Negócio</strong> (o quê e porquê) →
+<strong>Tabela</strong> (onde se guarda) → <strong>Endpoints</strong> (o que se faz, com exemplos).
+Cada endpoint é apresentado numa ficha como esta:</p>
+
+<div class="endpoint">
+  <div class="eh"><span class="v post">POST</span><span class="epath">api/v1/rh/exemplo</span></div>
+  <div class="ebody">
+    <p>Uma frase em linguagem simples do que a operação faz e quando se usa.</p>
+    <div class="facts">
+      <span class="fact tab"><b>tabela</b> a tabela afetada</span>
+      <span class="fact eff"><b>efeito</b> o que muda no sistema</span>
+      <span class="fact"><b>perfil</b> quem pode chamar</span>
+    </div>
+    <div class="exchange">
+      <div class="code"><div class="lbl">Pedido · JSON</div><pre class="json">{ "campo": "valor" }</pre></div>
+      <div class="code"><div class="lbl">Resposta <span class="st">201</span></div><pre class="json">{ "id": "uuid", "campo": "valor" }</pre></div>
+    </div>
+  </div>
+</div>
+
+<div class="note">
+  <span class="k">Convenções</span>
+  <p><strong>Prefixo</strong>: todos os caminhos começam por <code>api/v1/rh/</code> (omitido nas fichas por brevidade).
+  <strong>IDs</strong>: UUID. <strong>Datas</strong>: <code>YYYY-MM-DD</code>. <strong>Paginação</strong>:
+  <code>pagina</code> (0-based) e <code>tamanho</code>. <strong>Soft delete</strong>: <code>DELETE</code>
+  marca <code>is_active = false</code>; reativa-se com <code>/activate</code>. Campos <code>*Desc</code>/<code>*Name</code>
+  nas respostas são labels legíveis derivados de catálogos.</p>
+</div>
+</section>
+
+<!-- MODELO MENTAL -->
+<section>
+<span class="sec-eyebrow">O modelo mental</span>
+<h2 id="modelo-mental">Quem é vs. o que lhe acontece</h2>
+<p class="lead">O funcionário sabe apenas <em>quem é</em> e em que <em>estado laboral</em> está. Tudo o que
+muda ao longo do tempo — contrato, carreira, unidade — vive em <strong>históricos separados</strong>,
+porque cada dimensão muda por uma razão diferente.</p>
+<div class="flow">Funcionário
+   ├── Histórico de Contratos       ↳ muda com: renovação, mudança de tipo de contrato
+   ├── Histórico de Enquadramentos  ↳ muda com: promoção de escalão, mudança de cargo
+   └── Histórico de Colocações      ↳ muda com: mobilidade para outra unidade</div>
+<div class="note rule">
+  <span class="k">Padrão <code>is_current</code></span>
+  <p>Em cada histórico há <strong>um único registo ativo por funcionário</strong>. Ao criar um novo, o
+  anterior fecha (<code>is_current = false</code>, <code>end_date = nova_data − 1 dia</code>) e o novo fica
+  corrente. Esta lógica é feita no <strong>handler da aplicação</strong>, dentro de uma transação.</p>
+</div>
+</section>
+
+<!-- ER -->
+<section>
+<span class="sec-eyebrow">Modelo de dados</span>
+<h2 id="er">Diagrama de entidades e relacionamentos</h2>
+<p class="lead">Tudo orbita o <code>t_funcionario</code>: os catálogos (à esquerda) alimentam os históricos;
+o dossiê pendura-se no funcionário; os documentos ligam-se a qualquer entidade por referência polimórfica.</p>
+<div class="diagram">
+<pre class="mermaid">
+erDiagram
+    T_FUNCIONARIO ||--o{ T_CONTRATO : "tem"
+    T_FUNCIONARIO ||--o{ ENQUADRAMENTO : "tem"
+    T_FUNCIONARIO ||--o{ COLOCACAO : "tem"
+    T_FUNCIONARIO ||--o{ T_DEPENDENTE : "tem"
+    T_FUNCIONARIO ||--o{ T_DADOS_BANCARIOS : "tem"
+    T_FUNCIONARIO ||--o{ T_QUALIFICACAO : "tem"
+    T_FUNCIONARIO ||--o{ T_TRAINING : "realizou"
+    T_FUNCIONARIO ||--o{ T_DISCIPLINARY : "tem"
+    T_FUNCIONARIO ||--o{ T_LEAVE_REQUEST : "solicita"
+    T_FUNCIONARIO ||--o{ T_LEAVE_BALANCE : "saldo"
+    T_FUNCIONARIO ||--o{ T_LEAVE_MOBILITY : "tem"
+    T_FUNCIONARIO ||--o{ T_PAYROLL_SLIP : "recebe"
+    T_FUNCIONARIO ||--o{ T_HIST_ESTADO : "histórico estados"
+    T_FUNCIONARIO }o--o| T_WORKER_STATE : "estado atual"
+    T_FUNCIONARIO }o--o| T_TIPO_DOCUMENTO : "tipo doc id."
+    T_CONTRATO }o--|| T_CONTRACT_TYPE : "tipo"
+    T_CONTRACT_TYPE }o--o| T_VINCULO_LABORAL : "vínculo"
+    ENQUADRAMENTO }o--o| T_CAREER : "carreira"
+    ENQUADRAMENTO }o--o| T_CATEGORY : "categoria"
+    ENQUADRAMENTO }o--o| T_GRADE : "escalão"
+    ENQUADRAMENTO }o--|| T_JOB : "cargo"
+    ENQUADRAMENTO }o--o| T_FUNCAO : "função"
+    ENQUADRAMENTO }o--|| T_UNIDADE : "unidade"
+    COLOCACAO }o--|| T_UNIDADE : "unidade"
+    T_CAREER ||--o{ T_CATEGORY : "tem"
+    T_CATEGORY ||--o{ T_GRADE : "tem"
+    T_FUNCAO }o--o| T_JOB : "pertence a"
+    T_UNIDADE }o--o| T_UNIDADE : "unidade-pai"
+    T_LEAVE_REQUEST }o--|| T_LEAVE_TYPE : "tipo"
+    T_LEAVE_BALANCE }o--|| T_LEAVE_TYPE : "tipo"
+    T_LEAVE_MOBILITY }o--|| T_LEAVE_MOB_SUBTYPE : "subtipo"
+    T_LEAVE_MOBILITY }o--o| T_UNIDADE : "destino"
+    T_DOCUMENT }o--|| T_TIPO_DOCUMENTO : "tipo"
+    T_DOCUMENT }o--o{ T_QUALIFICACAO : "ref. polimórfica"
+    T_DOCUMENT }o--o{ T_TRAINING : "ref. polimórfica"
+    T_PAYROLL_SLIP }o--o| T_DOCUMENT : "pdf"
+</pre>
+</div>
+<p class="dcap">29 tabelas RH · 9 blocos funcionais · + t_iam_user_profile (shared/)</p>
+<div class="note"><span class="k">Como se guardam os catálogos</span>
+  <p>Os campos que apontam para <code>t_option_entity</code> <strong>guardam o <code>ckey</code> como texto</strong>
+  (ex.: <code>genero = "M"</code>), não um UUID. Só o <code>worker_state_id</code> é uma FK de catálogo real
+  no funcionário; os restantes catálogos de comportamento são FK UUID a partir dos históricos e sub-recursos.</p>
+</div>
+</section>
+
+<hr class="div">
+
+<!-- ============ BLOCO 0 ============ -->
+<section>
+<span class="sec-eyebrow">Bloco 0 · Fundação</span>
+<h2 id="b0">Lookups genéricos — uma tabela para todas as etiquetas</h2>
+<div class="block">
+  <div class="rail"><div class="num">0</div><div><h3>OptionEntity</h3><div class="sub">t_option_entity · /reference/options</div></div></div>
+
+  <div class="stage">Negócio</div>
+  <p>Campos que são apenas <em>etiquetas</em> sem lógica (sexo, estado civil, nacionalidade, ilha, banco…)
+  não merecem uma tabela cada. Ficam numa única tabela chave-valor. É daqui que o frontend enche todos os
+  dropdowns. Regra de ouro: <strong>tem flags/limites/relações que mudam o comportamento? → tabela dedicada.
+  É só uma etiqueta? → OptionEntity.</strong></p>
+
+  <div class="stage tab">Tabela · t_option_entity</div>
+  <p><code>ccode</code> (grupo) · <code>ckey</code> (chave) · <code>cvalue</code> (label) · <code>locale</code>
+  · <code>sort_order</code> · <code>active</code>. Grupos: <code>SEX</code>, <code>MARITAL_STATUS</code>,
+  <code>NATIONALITY</code>, <code>ISLAND</code>, <code>CONCELHO</code>, <code>RELATIONSHIP_TYPE</code>,
+  <code>QUALIFICATION_LEVEL</code>, <code>TRAINING_TYPE</code>, <code>DOC_CATEGORY</code>,
+  <code>LEAVE_CATEGORY</code>, <code>BANCO</code>, <code>WORK_REGIME</code>, <code>CAREER_REGIME</code>,
+  <code>WORKER_STATE_REASON</code>, <code>RECORD_TYPE</code>.</p>
+
+  <div class="stage api">Endpoints</div>
+  <div class="endpoint">
+    <div class="eh"><span class="v get">GET</span><span class="epath">/reference/options?ccode={grupo}</span></div>
+    <div class="ebody">
+      <p>Lista as opções ativas de um grupo — a base de qualquer dropdown no frontend.</p>
+      <div class="facts"><span class="fact tab"><b>lê</b> t_option_entity</span><span class="fact"><b>perfil</b> autenticado</span></div>
+      <div class="code single"><div class="lbl">Resposta <span class="st">200</span> · ccode=MARITAL_STATUS</div><pre class="json">[
+  { "ckey": "SOLTEIRO", "cvalue": "Solteiro(a)", "sortOrder": 1 },
+  { "ckey": "CASADO",   "cvalue": "Casado(a)",   "sortOrder": 2 },
+  { "ckey": "VIUVO",    "cvalue": "Viúvo(a)",    "sortOrder": 5 }
+]</pre></div>
+    </div>
+  </div>
+  <div class="endpoint">
+    <div class="eh"><span class="v post">POST</span><span class="epath">/reference/options</span></div>
+    <div class="ebody">
+      <p>Cria uma nova etiqueta num grupo. O <code>ckey</code> é imutável e único por <code>(ccode, ckey, locale)</code>.</p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_option_entity</span><span class="fact"><b>perfil</b> HR-Admin</span></div>
+      <div class="code single"><div class="lbl">Pedido · JSON</div><pre class="json">{
+  "ccode": "MARITAL_STATUS",
+  "ckey": "SEPARADO",
+  "cvalue": "Separado(a)",
+  "locale": "pt-CV",
+  "sortOrder": 6
+}</pre></div>
+    </div>
+  </div>
+  <p class="mono" style="color:var(--faint);font-size:12.5px">Também: PUT /reference/options/{id} · DELETE /reference/options/{id} · GET /reference/options/combobox?ccode=</p>
+</div>
+</section>
+
+<!-- ============ BLOCO 1 ============ -->
+<section>
+<span class="sec-eyebrow">Bloco 1 · Comportamento</span>
+<h2 id="b1">Parametrizações com comportamento</h2>
+<div class="block">
+  <div class="rail"><div class="num">1</div><div><h3>Catálogos dedicados</h3><div class="sub">/catalogs/*</div></div></div>
+
+  <div class="stage">Negócio</div>
+  <p>Estes catálogos têm tabela própria porque os seus campos <strong>alteram a lógica do sistema</strong>:
+  um estado <code>is_core</code> não se apaga; um tipo de ausência com <code>deducts_balance</code> dispara
+  validação de saldo; um tipo de contrato define se o enquadramento exige carreira. Todos têm CRUD completo
+  sob <code>/catalogs/</code> e a desativação é recusada (409) se estiverem em uso.</p>
+
+  <div class="stage tab">Tabelas &amp; campos que mudam o comportamento</div>
+  <div class="tablewrap"><table>
+  <thead><tr><th>Catálogo · tabela</th><th>Campos com impacto</th></tr></thead><tbody>
+  <tr><td>Estados do trabalhador<br><span class="mono">t_worker_state</span></td><td><code>is_core</code> protege ACTIVE/INACTIVE (DELETE→409). Único FK de catálogo no funcionário.</td></tr>
+  <tr><td>Vínculos laborais<br><span class="mono">t_vinculo_laboral</span></td><td><code>counts_seniority</code>, <code>eligible_for_progression</code> — regras PCFR.</td></tr>
+  <tr><td>Tipos de contrato<br><span class="mono">t_contract_type</span></td><td><code>vinculo_laboral_id</code>, <code>is_renewable</code>, <code>max_renewals</code>, <code>max_duration_months</code>, <code>requires_career_structure</code>.</td></tr>
+  <tr><td>Tipos de documento<br><span class="mono">t_tipo_documento</span></td><td><code>allowed_extensions</code> valida o upload. Campos em pt: <code>codigo</code>/<code>descricao</code>.</td></tr>
+  <tr><td>Tipos de ausência<br><span class="mono">t_leave_type</span></td><td><code>deducts_balance</code>, <code>requires_approval</code>, <code>max_days_per_year</code>.</td></tr>
+  <tr><td>Subtipos licença/mobilidade<br><span class="mono">t_leave_mobility_subtype</span></td><td><code>record_type</code>, <code>affects_pay</code>, <code>counts_for_seniority</code>, <code>can_self_submit</code>.</td></tr>
+  <tr><td>Feriados<br><span class="mono">t_public_holiday</span></td><td><code>is_national</code> — usado no cálculo de dias úteis.</td></tr>
+  </tbody></table></div>
+
+  <div class="note rule"><span class="k">Regra chave</span><p>O <strong>vínculo laboral</strong> não vive no
+  funcionário — é uma propriedade do <em>tipo de contrato</em>. Com um contrato ativo, o vínculo é inferido por
+  <code>contract_type → vinculo_laboral</code>.</p></div>
+
+  <div class="stage api">Endpoints — exemplos representativos</div>
+  <div class="endpoint">
+    <div class="eh"><span class="v post">POST</span><span class="epath">/catalogs/contract-types</span></div>
+    <div class="ebody">
+      <p>Define uma figura contratual legal (DL 4/2024). O <code>requiresCareerStructure</code> decide se o
+      enquadramento exigirá carreira/categoria/escalão.</p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_contract_type</span><span class="fact eff"><b>efeito</b> condiciona enquadramentos</span><span class="fact"><b>perfil</b> HR-Admin</span></div>
+      <div class="code single"><div class="lbl">Pedido · JSON</div><pre class="json">{
+  "code": "CTFP_TERMO_CERTO",
+  "description": "CTFP por prazo determinado (DL 4/2024).",
+  "vinculoLaboralId": "uuid-vinculo-contratado",
+  "isRenewable": true,
+  "maxRenewals": 3,
+  "maxDurationMonths": 36,
+  "requiresCareerStructure": true
+}</pre></div>
+    </div>
+  </div>
+  <div class="endpoint">
+    <div class="eh"><span class="v post">POST</span><span class="epath">/catalogs/leave-types</span></div>
+    <div class="ebody">
+      <p>Cria um tipo de ausência. <code>deductsBalance</code> e <code>requiresApproval</code> definem todo o
+      fluxo do pedido: valida saldo? precisa de aprovação da chefia?</p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_leave_type</span><span class="fact eff"><b>efeito</b> molda o fluxo de pedidos</span></div>
+      <div class="code single"><div class="lbl">Pedido · JSON</div><pre class="json">{
+  "code": "FERIAS",
+  "description": "Férias Anuais",
+  "category": "GOZAMENTO",
+  "deductsBalance": true,
+  "requiresApproval": true,
+  "maxDaysPerYear": 22
+}</pre></div>
+    </div>
+  </div>
+  <p class="mono" style="color:var(--faint);font-size:12.5px">CRUD idêntico em: /catalogs/worker-states · /vinculos-laborais · /leave-mobility-subtypes · /document-types · /public-holidays (GET · GET/{id} · POST · PUT/{id} · DELETE/{id}).</p>
+</div>
+</section>
+
+<!-- ============ BLOCO 2 ============ -->
+<section>
+<span class="sec-eyebrow">Bloco 2 · Estrutura</span>
+<h2 id="b2">Estrutura organizacional</h2>
+<div class="block">
+  <div class="rail"><div class="num">2</div><div><h3>Unidades, cargos e funções</h3><div class="sub">/estrutura/*</div></div></div>
+
+  <div class="stage">Negócio</div>
+  <p>As <strong>unidades orgânicas</strong> formam uma árvore (Direção → Departamento → Divisão → Secção).
+  Os <strong>cargos</strong> são a designação oficial; as <strong>funções</strong> o papel efetivamente
+  exercido. Cada função pode pertencer a um cargo (<code>jobId</code>): o funcionário com esse cargo
+  <em>herda</em> todas as funções ligadas a ele; o <code>functionId</code> no enquadramento regista qual
+  exerce. Ao registar o enquadramento, valida-se <code>funcao.job_id == cargo_id</code> (ou nulo) → senão 422.</p>
+
+  <div class="stage tab">Tabelas</div>
+  <p><span class="mono">t_unidade_organica</span> (<code>parent_unit_id</code>, <code>type</code>, <code>acronym</code>)
+  · <span class="mono">t_job</span> (<code>code</code>, <code>nivel</code>) ·
+  <span class="mono">t_funcao</span> (<code>job_id</code> nullable).</p>
+
+  <div class="stage api">Endpoints</div>
+  <div class="endpoint">
+    <div class="eh"><span class="v post">POST</span><span class="epath">/estrutura/organizational-units</span></div>
+    <div class="ebody">
+      <p>Cria uma unidade. Para uma sub-unidade, indica-se o <code>parentUnitId</code>; a raiz tem-no a <code>null</code>.</p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_unidade_organica</span><span class="fact"><b>perfil</b> HR-Admin</span></div>
+      <div class="code single"><div class="lbl">Pedido · JSON</div><pre class="json">{
+  "code": "DAM",
+  "name": "Departamento de Administração e Modernização",
+  "acronym": "DAM",
+  "unitType": "DEPARTAMENTO",
+  "descricao": "Apoio administrativo e modernização",
+  "parentUnitId": "uuid-da-direcao-mae"
+}</pre></div>
+      <p style="margin-top:12px;font-size:14px;color:var(--muted)"><code>DELETE .../{id}/deactivate</code> é bloqueado (409) se tiver sub-unidades ativas ou funcionários colocados. Reativa com <code>PATCH .../{id}/activate</code>.</p>
+    </div>
+  </div>
+  <div class="endpoint">
+    <div class="eh"><span class="v get">GET</span><span class="epath">/estrutura/functions?jobId={cargoId}</span></div>
+    <div class="ebody">
+      <p>Lista as funções compatíveis com um cargo — usado quando o utilizador seleciona o cargo na UI, para filtrar as funções disponíveis.</p>
+      <div class="facts"><span class="fact tab"><b>lê</b> t_funcao</span></div>
+    </div>
+  </div>
+  <p class="mono" style="color:var(--faint);font-size:12.5px">CRUD em /estrutura/organizational-units · /estrutura/jobs · /estrutura/functions. Cada um tem /combobox e o par /activate (PATCH) · /deactivate (DELETE).</p>
+</div>
+</section>
+
+<!-- ============ BLOCO 3 ============ -->
+<section>
+<span class="sec-eyebrow">Bloco 3 · Carreiras</span>
+<h2 id="b3">Carreiras e progressão (PCFR)</h2>
+<div class="block">
+  <div class="rail"><div class="num">3</div><div><h3>Carreira → Categoria → Escalão</h3><div class="sub">/careers · /categories · /grades</div></div></div>
+
+  <div class="stage">Negócio</div>
+  <p>A grelha salarial do PCFR (DL 4/2024) é uma hierarquia rígida. Uma <strong>carreira</strong> agrupa
+  <strong>categorias</strong>; cada categoria contém <strong>escalões</strong>. O escalão carrega o índice
+  e o salário base; a categoria define a <code>ordem_progressao</code>. Não se cria categoria sem carreira,
+  nem escalão sem categoria.</p>
+
+  <div class="stage tab">Tabelas</div>
+  <p><span class="mono">t_career</span> (<code>regime</code>) · <span class="mono">t_category</span>
+  (UQ <code>career_id + code</code>, <code>ordem_progressao</code>) · <span class="mono">t_grade</span>
+  (UQ <code>category_id + grade_number</code>, <code>salary_index</code>, <code>salary_base</code>).</p>
+
+  <div class="stage api">Endpoints</div>
+  <div class="endpoint">
+    <div class="eh"><span class="v post">POST</span><span class="epath">/grades</span></div>
+    <div class="ebody">
+      <p>Cria um escalão dentro de uma categoria, com o índice salarial e o salário base em CVE.</p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_grade</span><span class="fact"><b>perfil</b> HR-Admin</span></div>
+      <div class="exchange">
+        <div class="code"><div class="lbl">Pedido · JSON</div><pre class="json">{
+  "categoryId": "uuid-da-categoria",
+  "gradeNumber": 1,
+  "codigo": "ESC_1",
+  "name": "Escalão 1",
+  "salaryIndex": 285.5,
+  "salaryBase": 52800.00
+}</pre></div>
+        <div class="code"><div class="lbl">Resposta <span class="st">201</span></div><pre class="json">{
+  "id": "uuid",
+  "categoryId": "uuid-da-categoria",
+  "gradeNumber": 1,
+  "codigo": "ESC_1",
+  "name": "Escalão 1",
+  "salaryIndex": 285.5,
+  "salaryBase": 52800.00,
+  "isActive": true
+}</pre></div>
+      </div>
+    </div>
+  </div>
+  <p class="mono" style="color:var(--faint);font-size:12.5px">Navegação: GET /careers/{id}/categories · GET /categories/{id}/grades. CRUD + /activate em cada nível. Combobox em cada um.</p>
+</div>
+</section>
+
+<hr class="div">
+
+<!-- ============ BLOCO 4 ============ -->
+<section>
+<span class="sec-eyebrow">Bloco 4 · Núcleo</span>
+<h2 id="b4">O funcionário, o seu núcleo e o seu estado</h2>
+<div class="block">
+  <div class="rail"><div class="num">4</div><div><h3>Funcionário · dependentes · dados bancários · estado</h3><div class="sub">/funcionarios</div></div></div>
+
+  <div class="stage">Negócio</div>
+  <p>O <code>Funcionario</code> é o <em>aggregate root</em>: guarda dados pessoais e o estado atual, nunca o
+  contrato/escalão/unidade (esses vivem nos históricos). À volta dele: dependentes (INPS e subsídios) e dados
+  bancários (vencimento). O <strong>estado laboral</strong> muda por um endpoint próprio, com efeitos em cascata.</p>
+
+  <div class="stage tab">Tabelas</div>
+  <p><span class="mono">t_funcionario</span> · <span class="mono">t_dependente</span> ·
+  <span class="mono">t_dados_bancarios</span> · <span class="mono">t_historico_estado_colaborador</span> (histórico de estados).</p>
+
+  <div class="stage api">Endpoints</div>
+
+  <div class="endpoint">
+    <div class="eh"><span class="v get">GET</span><span class="epath">/funcionarios</span></div>
+    <div class="ebody">
+      <p>Lista paginada de funcionários. Filtros: <code>nome</code>, <code>nif</code>, <code>workerStateId</code>,
+      <code>unidadeOrganicaId</code>, <code>careerId</code>, <code>active</code>.</p>
+      <div class="facts"><span class="fact tab"><b>lê</b> t_funcionario</span></div>
+      <div class="code single"><div class="lbl">Resposta <span class="st">200</span> · lista paginada</div><pre class="json">{
+  "content": [ { "id": "uuid", "numeroFuncionario": "F-00001", "nomeCompleto": "Alex Andrade", "nif": "17361994", "workerStateName": "Ativo", "isActive": true } ],
+  "pageNumber": 0, "pageSize": 20, "totalElements": 132, "totalPages": 7
+}</pre></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="eh"><span class="v post">POST</span><span class="epath">/funcionarios/registar</span></div>
+    <div class="ebody">
+      <p>Registo completo do colaborador numa só chamada: dados pessoais + (opcional) contrato, enquadramento,
+      dados bancários e documentos do dossiê. O estado é atribuído automaticamente a <strong>ATIVO</strong>.
+      Existe também <code>POST /funcionarios</code> só para os dados pessoais.</p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_funcionario (+ contrato, enquadramento…)</span><span class="fact"><b>perfil</b> HR-Operator</span></div>
+      <div class="exchange">
+        <div class="code"><div class="lbl">Pedido · JSON</div><pre class="json">{
+  "funcionario": {
+    "nomeCompleto": "Alex Jailson Barbosa Andrade",
+    "dataNascimento": "1990-03-15",
+    "genero": "M",
+    "estadoCivil": "CASADO",
+    "nif": "17361994",
+    "documentTypeId": "uuid-tipo-cni",
+    "numeroDocumento": "1234567",
+    "nacionalidade": "CV",
+    "email": "alex.andrade@ingt.gov.cv",
+    "ilha": "SANTIAGO",
+    "concelho": "PRAIA",
+    "dataAdmissao": "2018-09-01"
+  },
+  "contrato": { "contractTypeId": "uuid-ctfp", "startDate": "2018-09-01" },
+  "dadosBancarios": { "banco": "BCA", "iban": "CV64000300004569832014185" }
+}</pre></div>
+        <div class="code"><div class="lbl">Resposta <span class="st">201</span></div><pre class="json">{
+  "id": "uuid",
+  "numeroFuncionario": "F-00001",
+  "nomeCompleto": "Alex Jailson Barbosa Andrade",
+  "nif": "17361994",
+  "workerStateName": "Ativo",
+  "dataAdmissao": "2018-09-01",
+  "isActive": true,
+  "estadoDesc": "Ativo"
+}</pre></div>
+      </div>
+      <div class="note rule" style="margin-top:14px"><span class="k">Regras na criação</span>
+      <p><code>nif</code> único e imutável · idade ≥ 18 anos · <code>dataAdmissao</code> ≤ hoje ·
+      <code>genero</code>/<code>estadoCivil</code>/<code>nacionalidade</code>/<code>ilha</code>/<code>concelho</code>
+      têm de ser <code>ckey</code> válidos dos respetivos grupos.</p></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="eh"><span class="v get">GET</span><span class="epath">/funcionarios/{id}/details</span></div>
+    <div class="ebody">
+      <p>Devolve o retrato completo do colaborador numa só resposta: dados pessoais + contrato atual +
+      enquadramento atual + dados bancários + documentos. Ideal para o ecrã de perfil.</p>
+      <div class="facts"><span class="fact tab"><b>lê</b> vários (junta os históricos correntes)</span></div>
+      <div class="code single"><div class="lbl">Resposta <span class="st">200</span></div><pre class="json">{
+  "funcionario":    { "...": "FuncionarioResponseDTO" },
+  "contrato":       { "...": "ContratoResponseDTO (atual) ou null" },
+  "enquadramento":  { "...": "EnquadramentoResponseDTO (atual) ou null" },
+  "dadosBancarios": { "...": "DadosBancariosResponseDTO ou null" },
+  "documentos":     [ "...lista de DocumentoResponseDTO" ]
+}</pre></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="eh"><span class="v put">PUT</span><span class="epath">/funcionarios/{id}</span></div>
+    <div class="ebody">
+      <p>Atualiza dados pessoais (e, opcionalmente, bancários) através de um wrapper. O <code>nif</code> e o
+      <code>numeroFuncionario</code> são imutáveis — o <code>nif</code> enviado tem de coincidir com o existente.</p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_funcionario · t_dados_bancarios</span></div>
+      <div class="code single"><div class="lbl">Pedido · JSON</div><pre class="json">{
+  "dadosPessoais": { "nomeCompleto": "Alex J. B. Andrade", "nif": "17361994", "email": "alex@ingt.gov.cv", "...": "restantes campos pessoais" },
+  "dadosBancarios": { "banco": "BCA", "iban": "CV64000300004569832014185" }
+}</pre></div>
+    </div>
+  </div>
+
+  <h4>Estado do colaborador — transições com efeitos em cascata</h4>
+  <p>A mudança de estado não é uma edição comum: é uma transição imutável registada em
+  <code>t_historico_estado_colaborador</code>, com efeitos automáticos no contrato e na colocação.</p>
+  <div class="tablewrap"><table>
+  <thead><tr><th>Novo estado</th><th>Contrato</th><th>Colocação</th></tr></thead><tbody>
+  <tr><td><span class="pill">SUSPENDED</span></td><td>→ SUSPENSO</td><td>—</td></tr>
+  <tr><td><span class="pill">ACTIVE</span> (reativação)</td><td>SUSPENSO → ATIVO</td><td>—</td></tr>
+  <tr><td><span class="pill">RETIRED</span></td><td>→ CESSADO</td><td>Fechada</td></tr>
+  <tr><td><span class="pill">INACTIVE</span></td><td>→ CESSADO</td><td>Fechada</td></tr>
+  </tbody></table></div>
+  <div class="endpoint">
+    <div class="eh"><span class="v patch">PATCH</span><span class="epath">/funcionarios/{id}/worker-state</span></div>
+    <div class="ebody">
+      <p>Transiciona o estado laboral, com motivo e data de efetividade. Recusa transição para o mesmo estado (409)
+      ou diretamente para INACTIVE (422 — a inativação resulta de RETIRED ou cessação).</p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_funcionario · t_historico_estado_colaborador</span><span class="fact eff"><b>efeito</b> cascata em contrato + colocação</span></div>
+      <div class="code single"><div class="lbl">Pedido · JSON</div><pre class="json">{
+  "workerStateId": "uuid-estado-suspended",
+  "motivoCkey": "MEDICAL_SUSPENSION",
+  "dataEfectividade": "2026-05-20",
+  "observacao": "Internamento hospitalar. Regresso previsto em 30 dias."
+}</pre></div>
+    </div>
+  </div>
+  <div class="endpoint">
+    <div class="eh"><span class="v get">GET</span><span class="epath">/funcionarios/{id}/worker-state/historico</span></div>
+    <div class="ebody">
+      <p>Histórico completo de mudanças de estado, do mais recente para o mais antigo.</p>
+      <div class="facts"><span class="fact tab"><b>lê</b> t_historico_estado_colaborador</span></div>
+      <div class="code single"><div class="lbl">Resposta <span class="st">200</span></div><pre class="json">[
+  {
+    "estadoAnteriorDescricao": "ACTIVE",
+    "estadoNovoDescricao": "SUSPENDED",
+    "motivoCkey": "MEDICAL_SUSPENSION",
+    "motivoDescricao": "Suspensão por Motivo de Saúde",
+    "dataEfectividade": "2026-05-20",
+    "registadoPor": "rh.admin@ingt.gov.cv",
+    "registadoEm": "2026-05-20T09:15:00"
+  }
+]</pre></div>
+    </div>
+  </div>
+
+  <h4>Dependentes e dados bancários</h4>
+  <div class="endpoint">
+    <div class="eh"><span class="v post">POST</span><span class="epath">/funcionarios/{id}/dependentes</span></div>
+    <div class="ebody">
+      <p>Regista um dependente (cônjuge, filho…) para efeitos de INPS e subsídios. <code>relationshipType</code> é <code>ckey</code> de <code>RELATIONSHIP_TYPE</code>.</p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_dependente</span></div>
+      <div class="code single"><div class="lbl">Pedido · JSON</div><pre class="json">{ "fullName": "Maria Andrade", "birthDate": "2015-06-20", "relationshipType": "FILHO", "nif": "11223344" }</pre></div>
+    </div>
+  </div>
+  <div class="endpoint">
+    <div class="eh"><span class="v post">POST</span><span class="epath">/funcionarios/{id}/dados-bancarios</span></div>
+    <div class="ebody">
+      <p>Regista uma conta para pagamento. Um funcionário pode ter várias (principal, poupança). <code>banco</code> é <code>ckey</code> de <code>BANCO</code>.</p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_dados_bancarios</span></div>
+      <div class="code single"><div class="lbl">Pedido · JSON</div><pre class="json">{ "banco": "BCA", "numeroConta": "000300004569832014", "iban": "CV64000300004569832014185", "numeroSegurancaSocial": "123456789" }</pre></div>
+    </div>
+  </div>
+  <p class="mono" style="color:var(--faint);font-size:12.5px">Ambos com CRUD + PUT /{id}/activate (reativar).</p>
+</div>
+</section>
+
+<!-- ============ BLOCO 5 ============ -->
+<section>
+<span class="sec-eyebrow">Bloco 5 · O coração</span>
+<h2 id="b5">Histórico profissional — contrato, enquadramento, colocação</h2>
+<div class="block">
+  <div class="rail"><div class="num">5</div><div><h3>Os três históricos independentes</h3><div class="sub">sub-recursos de /funcionarios/{id}</div></div></div>
+
+  <div class="stage">Negócio</div>
+  <p>As três dimensões do percurso profissional mudam por razões diferentes e têm ciclos de vida próprios.
+  Uma promoção de escalão não mexe no contrato; uma renovação de contrato não mexe no escalão; uma mobilidade
+  não mexe em nenhum. Cada um usa o padrão <code>is_current</code>.</p>
+
+  <div class="stage tab">Tabelas</div>
+  <p><span class="mono">t_contrato</span> · <span class="mono">t_employee_professional_assignments</span>
+  (enquadramento) · <span class="mono">t_employee_unit_assignments</span> (colocação).</p>
+
+  <div class="stage api">Contratos</div>
+  <div class="endpoint">
+    <div class="eh"><span class="v post">POST</span><span class="epath">/funcionarios/{id}/contratos</span></div>
+    <div class="ebody">
+      <p>Cria um contrato. Se já existir um corrente, é <strong>cessado automaticamente</strong>
+      (<code>status = CESSADO</code>, <code>is_current = false</code>, <code>end_date = novo_startDate − 1 dia</code>).
+      Renovar ou mudar de tipo = criar um novo. O <code>renewalCount</code> é recalculado.</p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_contrato</span><span class="fact eff"><b>efeito</b> cessa o contrato anterior</span><span class="fact"><b>perfil</b> HR-Operator</span></div>
+      <div class="exchange">
+        <div class="code"><div class="lbl">Pedido · JSON</div><pre class="json">{
+  "contractTypeId": "uuid-ctfp-termo-certo",
+  "contractNumber": "CTFP/2018/001",
+  "startDate": "2018-09-01",
+  "endDate": "2020-08-31",
+  "regimeTrabalho": "TEMPO_COMPLETO",
+  "percentagemTempo": 100.00,
+  "legalBase": "Despacho Nº 15/2018 — BO Nº 35/2018"
+}</pre></div>
+        <div class="code"><div class="lbl">Resposta <span class="st">201</span></div><pre class="json">{
+  "id": "uuid",
+  "contractTypeName": "CTFP a termo certo",
+  "startDate": "2018-09-01",
+  "endDate": "2020-08-31",
+  "isCurrent": true,
+  "status": "ATIVO",
+  "renewalCount": 0,
+  "regimeTrabalho": "TEMPO_COMPLETO"
+}</pre></div>
+      </div>
+    </div>
+  </div>
+  <div class="endpoint">
+    <div class="eh"><span class="v put">PUT</span><span class="epath">/funcionarios/{id}/contratos/{cid}/close</span></div>
+    <div class="ebody">
+      <p>Cessa manualmente o contrato ativo. Ao cessar, o <strong>enquadramento ativo é encerrado
+      automaticamente</strong> na mesma data.</p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_contrato</span><span class="fact eff"><b>efeito</b> encerra o enquadramento atual</span></div>
+      <div class="code single"><div class="lbl">Pedido · JSON</div><pre class="json">{ "endDate": "2026-06-30", "terminationReason": "Termo do prazo contratual", "notes": "Não renovado." }</pre></div>
+    </div>
+  </div>
+  <p class="mono" style="color:var(--faint);font-size:12.5px">Ainda: GET (histórico) · GET/{cid} · PUT/{cid} · PUT/{cid}/suspend · PUT/{cid}/activate · DELETE/{cid} · documentos aninhados.</p>
+
+  <div class="stage api">Enquadramento profissional</div>
+  <div class="endpoint">
+    <div class="eh"><span class="v post">POST</span><span class="epath">/funcionarios/{id}/enquadramentos</span></div>
+    <div class="ebody">
+      <p>Posiciona o funcionário na estrutura e (quando aplicável) na grelha de carreira. Registar uma progressão
+      = criar um novo; o anterior encerra automaticamente (<code>dataFim = dataInicio − 1 dia</code>).</p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_employee_professional_assignments</span><span class="fact eff"><b>efeito</b> encerra o enquadramento anterior</span></div>
+      <div class="note rule" style="margin:0 0 12px"><span class="k">Validações cruzadas</span>
+      <p>Exige contrato <strong>ATIVO</strong> (senão 422) · <code>dataInicio</code> dentro do período do contrato ·
+      se <code>contractType.requiresCareerStructure = true</code>, então <code>careerId</code>/<code>categoryId</code>/<code>gradeId</code>
+      passam a obrigatórios · a hierarquia carreira→categoria→escalão é validada (422 se incoerente).</p></div>
+      <div class="exchange">
+        <div class="code"><div class="lbl">Pedido · trabalhador de carreira</div><pre class="json">{
+  "careerId": "uuid-carreira",
+  "categoryId": "uuid-categoria-tsp",
+  "gradeId": "uuid-escalao-1",
+  "cargoId": "uuid-cargo-tecnico-superior",
+  "functionId": "uuid-funcao-coord-projeto",
+  "unidadeOrganicaId": "uuid-unidade",
+  "dataInicio": "2018-09-01"
+}</pre></div>
+        <div class="code"><div class="lbl">Pedido · sem carreira (tarefeiro)</div><pre class="json">{
+  "cargoId": "uuid-cargo",
+  "unidadeOrganicaId": "uuid-unidade",
+  "dataInicio": "2024-03-01"
+}</pre></div>
+      </div>
+    </div>
+  </div>
+  <p class="mono" style="color:var(--faint);font-size:12.5px">Ainda: GET (histórico) · GET/atual · GET/{eid} · PUT.</p>
+
+  <div class="stage api">Colocação em unidade</div>
+  <div class="endpoint">
+    <div class="eh"><span class="v post">POST</span><span class="epath">/funcionarios/{id}/colocacoes</span></div>
+    <div class="ebody">
+      <p>Atribui o funcionário a uma unidade, com o tipo de afetação. Criar uma nova encerra a anterior.</p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_employee_unit_assignments</span></div>
+      <div class="code single"><div class="lbl">Pedido · JSON</div><pre class="json">{ "unitId": "uuid-unidade-dsgt", "jobId": "uuid-cargo", "startDate": "2018-09-01", "assignmentType": "PRIMARIA", "notes": "Colocação inicial." }</pre></div>
+    </div>
+  </div>
+  <p class="mono" style="color:var(--faint);font-size:12.5px">Ainda: GET · GET/atual · GET/{cid} · PUT/{cid} · PUT/{cid}/close · DELETE/{cid}. assignmentType ∈ PRIMARIA · SECUNDARIA · TEMPORARIA.</p>
+
+  <div class="stage" style="margin-top:26px">Percurso típico de um trabalhador de carreira</div>
+  <div class="flow">1. Admissão  → contrato CTFP_TERMO_CERTO  +  enquadramento TÉCNICO_SUPERIOR_I / TSA / escalão 1
+2. +2 anos   → progressão para escalão 2   (novo enquadramento; o anterior fecha)
+3. Nomeação  → novo contrato NOMEACAO_DEFINITIVA  (CTFP cessa → enquadramento cessa → novo enquadramento)</div>
+</div>
+</section>
+
+<!-- ============ BLOCO 6 ============ -->
+<section>
+<span class="sec-eyebrow">Bloco 6 · Dossiê</span>
+<h2 id="b6">Formação, vida académica e disciplina</h2>
+<div class="block">
+  <div class="rail"><div class="num">6</div><div><h3>Qualificações · formações · processos disciplinares</h3><div class="sub">sub-recursos de /funcionarios/{id}</div></div></div>
+
+  <div class="stage">Negócio</div>
+  <p>Guarda o percurso académico e formativo — e o histórico disciplinar. <strong>Qualificações</strong> são
+  habilitações (podem estar em curso: <code>completed = false</code>). <strong>Formações</strong> são ações com
+  carga horária. <strong>Processos disciplinares</strong> registam a pena e o Boletim Oficial, com acesso
+  restrito a <code>ROLE_HR_ADMIN</code>. Diplomas e certificados anexam-se por documentos aninhados (Bloco 7).</p>
+
+  <div class="stage tab">Tabelas</div>
+  <p><span class="mono">t_qualificacao</span> · <span class="mono">t_training</span> · <span class="mono">t_disciplinary_process</span>.</p>
+
+  <div class="stage api">Endpoints</div>
+  <div class="endpoint">
+    <div class="eh"><span class="v post">POST</span><span class="epath">/funcionarios/{id}/qualificacoes</span></div>
+    <div class="ebody">
+      <p>Regista uma habilitação literária. <code>level</code> é <code>ckey</code> de <code>QUALIFICATION_LEVEL</code>; <code>country</code> de <code>NATIONALITY</code>.</p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_qualificacao</span></div>
+      <div class="exchange">
+        <div class="code"><div class="lbl">Pedido · JSON</div><pre class="json">{
+  "level": "LICENCIATURA",
+  "courseName": "Engenharia Informática",
+  "institution": "Universidade de Cabo Verde",
+  "country": "CV",
+  "startDate": "2008-09-01",
+  "endDate": "2012-07-30",
+  "completed": true
+}</pre></div>
+        <div class="code"><div class="lbl">Resposta <span class="st">201</span></div><pre class="json">{
+  "id": "uuid",
+  "level": "LICENCIATURA",
+  "levelDesc": "Licenciatura",
+  "courseName": "Engenharia Informática",
+  "country": "CV",
+  "countryDesc": "Cabo Verde",
+  "completed": true,
+  "completedDesc": "Sim",
+  "isActive": true
+}</pre></div>
+      </div>
+    </div>
+  </div>
+  <div class="endpoint">
+    <div class="eh"><span class="v post">POST</span><span class="epath">/funcionarios/{id}/formacoes</span></div>
+    <div class="ebody">
+      <p>Regista uma formação profissional. <code>trainingType</code> é <code>ckey</code> de <code>TRAINING_TYPE</code>. Listagem filtrável por <code>year</code>.</p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_training</span></div>
+      <div class="code single"><div class="lbl">Pedido · JSON</div><pre class="json">{ "name": "Gestão de Projetos com PRINCE2", "institution": "IFP", "trainingType": "CURSO", "startDate": "2023-03-06", "endDate": "2023-03-10", "durationHours": 40 }</pre></div>
+    </div>
+  </div>
+  <div class="endpoint">
+    <div class="eh"><span class="v post">POST</span><span class="epath">/funcionarios/{id}/processos-disciplinares</span></div>
+    <div class="ebody">
+      <p>Regista um processo disciplinar com a pena e as suas datas de vigência. <strong>Acesso restrito HR-Admin.</strong></p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_disciplinary_process</span><span class="fact"><b>perfil</b> HR-Admin</span></div>
+      <div class="code single"><div class="lbl">Pedido · JSON</div><pre class="json">{
+  "processNumber": "PD/2024/001",
+  "startDate": "2024-02-10",
+  "endDate": "2024-03-20",
+  "penalty": "Repreensão escrita",
+  "penaltyStartDate": "2024-04-01",
+  "penaltyEndDate": "2024-04-01",
+  "officialBulletin": "BO Nº 12/2024"
+}</pre></div>
+    </div>
+  </div>
+  <p class="mono" style="color:var(--faint);font-size:12.5px">Qualificações/formações: CRUD (+ activate nas qualificações). Processos: GET/POST/PUT. Todos com documentos aninhados.</p>
+</div>
+</section>
+
+<!-- ============ BLOCO 7 ============ -->
+<section>
+<span class="sec-eyebrow">Bloco 7 · Ficheiros</span>
+<h2 id="b7">Documentos — um sistema polimórfico</h2>
+<div class="block">
+  <div class="rail"><div class="num">7</div><div><h3>t_document</h3><div class="sub">/funcionarios/{id}/documentos · aninhados</div></div></div>
+
+  <div class="stage">Negócio</div>
+  <p>Em vez de uma tabela de anexos por entidade, há uma única tabela genérica que se liga a <em>qualquer</em>
+  registo através de <code>reference_entity</code> (a tabela) + <code>reference_id</code> (o UUID). O mesmo
+  mecanismo serve o justificativo de uma ausência, o certificado de uma formação ou o diploma académico.</p>
+
+  <div class="note"><span class="k">Onde fica o ficheiro</span>
+  <p>O ficheiro físico vive no <strong>MinIO</strong> (S3). A tabela guarda só a <code>file_key</code>; o download
+  devolve uma URL pré-assinada — o ficheiro não passa pelo servidor. O fluxo é em duas etapas: (1) o frontend
+  carrega o ficheiro para o MinIO; (2) regista os metadados na API (JSON, não multipart).</p></div>
+
+  <div class="stage tab">Tabela · t_document (polimórfica pura)</div>
+  <p><code>reference_entity</code> · <code>reference_id</code> · <code>document_type_id</code> · <code>file_key</code>
+  · <code>original_filename</code> · <code>content_type</code> · <code>file_size</code>. Sem <code>funcionario_id</code>.</p>
+
+  <div class="stage api">Endpoints</div>
+  <div class="endpoint">
+    <div class="eh"><span class="v post">POST</span><span class="epath">/funcionarios/{id}/documentos</span></div>
+    <div class="ebody">
+      <p>Regista os metadados de um documento já carregado no MinIO. As extensões aceites são validadas pelo
+      <code>document_type.allowed_extensions</code>.</p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_document</span></div>
+      <div class="exchange">
+        <div class="code"><div class="lbl">Pedido · JSON</div><pre class="json">{
+  "documentTypeId": "uuid-tipo-cni",
+  "fileKey": "funcionarios/{id}/cni_alex.pdf",
+  "originalFilename": "cni_alex.pdf",
+  "contentType": "application/pdf",
+  "fileSize": 245680,
+  "description": "Cópia do CNI frente e verso"
+}</pre></div>
+        <div class="code"><div class="lbl">Resposta <span class="st">201</span></div><pre class="json">{
+  "id": "uuid",
+  "referenceEntity": "FUNCIONARIO",
+  "referenceId": "uuid-funcionario",
+  "documentType": { "codigo": "CNI", "allowedExtensions": "pdf,jpg,png" },
+  "originalFilename": "cni_alex.pdf",
+  "fileSize": 245680,
+  "isActive": true
+}</pre></div>
+      </div>
+    </div>
+  </div>
+  <div class="endpoint">
+    <div class="eh"><span class="v get">GET</span><span class="epath">/funcionarios/{id}/documentos/{docId}/download</span></div>
+    <div class="ebody">
+      <p>Devolve uma URL pré-assinada do MinIO para descarregar o ficheiro.</p>
+      <div class="facts"><span class="fact tab"><b>lê</b> t_document + MinIO</span></div>
+    </div>
+  </div>
+  <div class="note rule"><span class="k">Documentos aninhados</span>
+  <p>Cada entidade que pode ter anexos expõe os mesmos endpoints sob o seu caminho — ex.:
+  <code>POST /funcionarios/{id}/contratos/{cid}/documentos</code>. O <code>referenceEntity</code>/<code>referenceId</code>
+  são inferidos do caminho. Vale para contratos, qualificações, formações, processos disciplinares, licenças/mobilidades e recibos.</p></div>
+</div>
+</section>
+
+<!-- ============ BLOCO 8 ============ -->
+<section>
+<span class="sec-eyebrow">Bloco 8 · Operação corrente</span>
+<h2 id="b8">Ausências, licenças, mobilidades e recibos</h2>
+<div class="block">
+  <div class="rail"><div class="num">8</div><div><h3>O dia-a-dia do colaborador</h3><div class="sub">sub-recursos de /funcionarios/{id}</div></div></div>
+
+  <div class="stage">Negócio</div>
+  <p>Três instrumentos distintos: <strong>ausências curtas</strong> (férias, doença) passam por saldo e
+  aprovação; <strong>licenças e mobilidades longas</strong> são geridas por subtipo e podem mover o funcionário
+  entre unidades; <strong>recibos</strong> são apenas armazenados (o RH-Service não processa vencimentos).</p>
+
+  <div class="stage tab">Tabelas</div>
+  <p><span class="mono">t_leave_balance</span> · <span class="mono">t_leave_request</span> ·
+  <span class="mono">t_leave_mobility</span> · <span class="mono">t_payroll_slip</span>.</p>
+
+  <div class="stage api">Pedidos de ausência · ciclo PENDING → APPROVED / REJECTED → CANCELLED</div>
+  <div class="endpoint">
+    <div class="eh"><span class="v post">POST</span><span class="epath">/funcionarios/{id}/pedidos-ausencia</span></div>
+    <div class="ebody">
+      <p>Submete um pedido. O sistema calcula <code>numeroDias</code> (exclui fins-de-semana e feriados), valida
+      saldo (se o tipo <code>deducts_balance</code>), rejeita sobreposições, e — se o tipo não exigir aprovação —
+      aprova de imediato.</p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_leave_request</span><span class="fact eff"><b>efeito</b> reserva dias no saldo</span></div>
+      <div class="exchange">
+        <div class="code"><div class="lbl">Pedido · JSON</div><pre class="json">{
+  "tipoAusenciaId": "uuid-tipo-ferias",
+  "dataInicio": "2026-08-10",
+  "dataFim": "2026-08-21",
+  "motivo": "Período de férias anuais."
+}</pre></div>
+        <div class="code"><div class="lbl">Resposta <span class="st">201</span></div><pre class="json">{
+  "id": "uuid",
+  "tipoAusencia": { "codigo": "FERIAS", "nome": "Férias Anuais", "deductsBalance": true },
+  "dataInicio": "2026-08-10",
+  "dataFim": "2026-08-21",
+  "numeroDias": 8,
+  "estado": "PENDING",
+  "estadoDesc": "Pendente"
+}</pre></div>
+      </div>
+    </div>
+  </div>
+  <div class="endpoint">
+    <div class="eh"><span class="v patch">PATCH</span><span class="epath">/funcionarios/{id}/pedidos-ausencia/{pid}/aprovar</span></div>
+    <div class="ebody">
+      <p>A chefia aprova o pedido; os dias passam de pendentes a gozados no saldo. (Análogos: <code>/rejeitar</code>
+      com justificação e <code>/cancelar</code>.)</p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_leave_request · t_leave_balance</span><span class="fact"><b>perfil</b> Chefia</span></div>
+      <div class="code single"><div class="lbl">Pedido · JSON</div><pre class="json">{ "aprovadoPorId": "uuid-do-aprovador", "observacoesDecisao": "Aprovado." }</pre></div>
+    </div>
+  </div>
+
+  <div class="stage api">Saldos de ausência</div>
+  <div class="endpoint">
+    <div class="eh"><span class="v get">GET</span><span class="epath">/funcionarios/{id}/saldos-ausencia?ano=2026</span></div>
+    <div class="ebody">
+      <p>Mostra, por tipo e ano, os dias de direito, gozados, pendentes e disponíveis (calculado).</p>
+      <div class="facts"><span class="fact tab"><b>lê</b> t_leave_balance</span></div>
+      <div class="code single"><div class="lbl">Resposta <span class="st">200</span></div><pre class="json">{
+  "tipoAusencia": { "codigo": "FERIAS", "nome": "Férias Anuais" },
+  "ano": 2026,
+  "diasDireito": 22,
+  "diasGozados": 8,
+  "diasPendentes": 5,
+  "diasDisponiveis": 9
+}</pre></div>
+    </div>
+  </div>
+  <p class="mono" style="color:var(--faint);font-size:12.5px">POST inicializa o saldo (diasDireito) · PUT /{sid}?diasDireito=22 ajusta (HR-Admin). Dias são sempre inteiros.</p>
+
+  <div class="stage api">Licenças e mobilidades · ciclo PENDING → ACTIVE / CANCELLED → CLOSED</div>
+  <div class="endpoint">
+    <div class="eh"><span class="v post">POST</span><span class="epath">/funcionarios/{id}/licencas-mobilidade</span></div>
+    <div class="ebody">
+      <p>Regista uma licença longa ou uma mobilidade. O <code>recordType</code> (LICENCA/MOBILIDADE) vem do
+      subtipo — não se envia. Em mobilidade, indica-se a unidade de destino.</p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_leave_mobility</span></div>
+      <div class="exchange">
+        <div class="code"><div class="lbl">Pedido · licença sem vencimento</div><pre class="json">{
+  "subtipoId": "uuid-licenca-sem-venc",
+  "dataInicio": "2026-09-01",
+  "dataFim": "2027-08-31",
+  "justification": "Frequência de doutoramento.",
+  "observacoes": "Autorizada por despacho."
+}</pre></div>
+        <div class="code"><div class="lbl">Pedido · mobilidade (comissão)</div><pre class="json">{
+  "subtipoId": "uuid-comissao-servico",
+  "dataInicio": "2026-07-01",
+  "dataFim": "2027-06-30",
+  "destinationUnitId": "uuid-unidade-destino",
+  "entidadeDestino": "Ministério das Finanças",
+  "despachoNumero": "Despacho Nº 8/2026",
+  "justification": "Reforço por necessidade de serviço."
+}</pre></div>
+      </div>
+    </div>
+  </div>
+  <div class="endpoint">
+    <div class="eh"><span class="v put">PUT</span><span class="epath">/funcionarios/{id}/licencas-mobilidade/{lid}/approve</span></div>
+    <div class="ebody">
+      <p>Aprova. Numa mobilidade, <strong>encerra a colocação orgânica atual e cria uma nova na unidade de
+      destino</strong> (orquestrado no handler). Ao <code>/close</code> de uma mobilidade temporária, a
+      colocação anterior é restaurada.</p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_leave_mobility · t_employee_unit_assignments</span><span class="fact eff"><b>efeito</b> muda a colocação</span></div>
+    </div>
+  </div>
+  <p class="mono" style="color:var(--faint);font-size:12.5px">Ainda: GET · GET/{lid} · PUT/{lid} · /reject (body rejectionReason) · /close · /cancel · documentos aninhados.</p>
+
+  <div class="stage api">Recibos de vencimento</div>
+  <div class="endpoint">
+    <div class="eh"><span class="v post">POST</span><span class="epath">/funcionarios/{id}/recibos</span></div>
+    <div class="ebody">
+      <p>Armazena um recibo gerado pelo sistema salarial externo: o PDF (por <code>documentId</code>) e metadados
+      para consulta sem abrir o ficheiro. Único por <code>(funcionário, ano, mês)</code>; exige
+      <code>netSalary ≤ grossSalary</code> e ambos &gt; 0.</p>
+      <div class="facts"><span class="fact tab"><b>escreve</b> t_payroll_slip</span></div>
+      <div class="code single"><div class="lbl">Pedido · JSON</div><pre class="json">{
+  "periodMonth": 4,
+  "periodYear": 2026,
+  "issueDate": "2026-04-30",
+  "grossSalary": 95000.00,
+  "netSalary": 78500.00,
+  "documentId": "uuid-do-pdf"
+}</pre></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ============ BLOCO 9 ============ -->
+<section>
+<span class="sec-eyebrow">Bloco 9 · Sistema</span>
+<h2 id="b9">Feriados, histórico de estados e auditoria</h2>
+<div class="block">
+  <div class="rail"><div class="num">9</div><div><h3>Suporte transversal</h3><div class="sub">t_public_holiday · t_historico_estado_colaborador</div></div></div>
+  <div class="stage tab">Tabelas</div>
+  <p><span class="mono">t_public_holiday</span> alimenta o cálculo de dias úteis (<code>is_national</code>
+  distingue nacionais de municipais; seed com os 11 feriados nacionais de CV). O
+  <span class="mono">t_historico_estado_colaborador</span> guarda cada mudança de estado (ver Bloco 4).</p>
+  <div class="stage api">Auditoria</div>
+  <p>Toda a auditoria de alterações usa <strong>Hibernate Envers</strong> (tabelas <code>_aud</code>), consultável
+  por módulo:</p>
+  <div class="endpoint">
+    <div class="eh"><span class="v get">GET</span><span class="epath">/{módulo}/audit/{catalog}/{entityId}</span></div>
+    <div class="ebody">
+      <p>Histórico de revisões de uma entidade. <code>{módulo}</code> ∈ colaboradores · carreiras · estrutura · catalogs.
+      <code>{catalog}</code> é o nome da entidade (ex.: <code>funcionarios</code>, <code>contratos</code>).</p>
+      <div class="facts"><span class="fact tab"><b>lê</b> tabelas _aud (Envers)</span></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ============ ME ============ -->
+<section>
+<span class="sec-eyebrow">Autosserviço</span>
+<h2 id="me">Área reservada do colaborador — /me</h2>
+<p class="lead">Tudo sob <code>/me</code> filtra pelo funcionário autenticado (claim <code>sub</code> do JWT),
+ignorando qualquer id enviado pelo cliente. Exige <code>ROLE_FUNCIONARIO</code> e estado ativo — inativos recebem 403.</p>
+<div class="endpoint">
+  <div class="eh"><span class="v get">GET</span><span class="epath">/me/profile</span></div>
+  <div class="ebody">
+    <p>Cabeçalho do perfil próprio: identificação + unidade, cargo, função, carreira, categoria e escalão correntes.</p>
+    <div class="code single"><div class="lbl">Resposta <span class="st">200</span></div><pre class="json">{
+  "fullName": "Alex Andrade",
+  "nif": "17361994",
+  "workerState": "Ativo",
+  "currentUnit": { "name": "DSGT" },
+  "currentJob": { "name": "Técnico Superior" },
+  "career": { "name": "Técnico Superior — Nível I" },
+  "category": { "name": "Técnico Superior Principal" },
+  "grade": { "gradeNumber": 1 }
+}</pre></div>
+  </div>
+</div>
+<div class="endpoint">
+  <div class="eh"><span class="v post">POST</span><span class="epath">/me/leave-requests</span></div>
+  <div class="ebody">
+    <p>Submete um pedido de ausência próprio. <strong>Atenção:</strong> os campos self-service usam nomes em
+    inglês, ao contrário do endpoint administrativo.</p>
+    <div class="facts"><span class="fact tab"><b>escreve</b> t_leave_request</span></div>
+    <div class="exchange">
+      <div class="code"><div class="lbl">Pedido · self-service</div><pre class="json">{
+  "leaveTypeId": "uuid-tipo-ferias",
+  "startDate": "2026-08-10",
+  "endDate": "2026-08-21",
+  "notes": "Férias anuais."
+}</pre></div>
+      <div class="code"><div class="lbl">Equivalência com o admin</div><pre class="json">leaveTypeId  →  tipoAusenciaId
+startDate    →  dataInicio
+endDate      →  dataFim
+notes        →  motivo</pre></div>
+    </div>
+  </div>
+</div>
+<p class="mono" style="color:var(--faint);font-size:12.5px">Ainda em /me: GET leave-requests · leave-balances · PUT leave-requests/{id}/cancel · GET/POST leaves-mobilities (só subtipos canSelfSubmit) · GET payroll-slips (+ /{id}/download) · GET documents (+ /{id}/download).</p>
+</section>
+
+<hr class="div">
+
+<!-- ============ REGRAS ============ -->
+<section>
+<span class="sec-eyebrow">Referência</span>
+<h2 id="regras">Regras de negócio &amp; códigos HTTP</h2>
+
+<h4>Unicidade e imutabilidade</h4>
+<div class="tablewrap"><table>
+<thead><tr><th>Tabela · campo</th><th>Regra</th></tr></thead><tbody>
+<tr><td class="mono">t_funcionario · nif, numero_funcionario</td><td>Únicos e imutáveis após criação</td></tr>
+<tr><td class="mono">t_funcionario · numero_documento, email</td><td>Únicos quando preenchidos</td></tr>
+<tr><td class="mono">t_category · (career_id, code)</td><td>Código único na carreira</td></tr>
+<tr><td class="mono">t_grade · (category_id, grade_number)</td><td>Escalão único na categoria</td></tr>
+<tr><td class="mono">t_leave_balance · (funcionário, tipo, ano)</td><td>Um saldo por funcionário/tipo/ano</td></tr>
+<tr><td class="mono">t_payroll_slip · (funcionário, ano, mês)</td><td>Um recibo por mês</td></tr>
+</tbody></table></div>
+
+<h4>Bloqueios de desativação (recusado com 409)</h4>
+<div class="tablewrap"><table>
+<thead><tr><th>Operação</th><th>Bloqueada quando</th></tr></thead><tbody>
+<tr><td class="mono">DELETE t_worker_state</td><td><code>is_core = true</code> ou referenciado por funcionários ativos</td></tr>
+<tr><td class="mono">DELETE t_contract_type</td><td>Referenciado por contratos ativos</td></tr>
+<tr><td class="mono">DELETE t_unidade_organica</td><td>Tem sub-unidades ativas ou funcionários colocados</td></tr>
+<tr><td class="mono">DELETE t_funcionario</td><td>Tem pedidos de ausência em PENDENTE</td></tr>
+</tbody></table></div>
+
+<h4>Códigos HTTP</h4>
+<div class="tablewrap"><table>
+<thead><tr><th>Código</th><th>Quando ocorre</th></tr></thead><tbody>
+<tr><td><span class="pill">200 / 201 / 204</span></td><td>Leitura/atualização · criação · soft delete ou activate</td></tr>
+<tr><td><span class="pill">403</span></td><td>Perfil insuficiente; funcionário inativo em <code>/me</code></td></tr>
+<tr><td><span class="pill">404</span></td><td>ID inexistente ou desativado</td></tr>
+<tr><td><span class="pill">409</span></td><td>Conflito: desativar recurso em uso; <code>is_core</code>; transição para o mesmo estado</td></tr>
+<tr><td><span class="pill">422</span></td><td>Regra de negócio: sobreposição de ausências; saldo insuficiente; hierarquia incoerente; enquadramento sem contrato ativo</td></tr>
+</tbody></table></div>
+
+<div class="note"><span class="k">Onde vivem as validações</span>
+<p><strong>Controller/DTO</strong>: formato e campos obrigatórios. <strong>Handler (aplicação)</strong>: as
+regras de negócio — sobreposição, saldo, sequência de datas, hierarquia carreira/categoria/escalão,
+<code>is_current</code>, aplicação de mobilidade — tudo dentro de transações.</p></div>
+</section>
+
+<!-- ============ COERENCIA ============ -->
+<section>
+<span class="sec-eyebrow">Transparência</span>
+<h2 id="coerencia">Coerência entre o código e a documentação v4</h2>
+<p class="lead">Esta documentação descreve o <strong>estado real do código</strong>, coerente com o
+<em>Modelo Relacional</em>, o <em>API_GUIDE</em> e a <em>Arquitectura</em>. Abaixo, os pontos onde a
+documentação diverge do código.</p>
+<div class="legend">
+  <span><i class="dot ok"></i> Coerente</span>
+  <span><i class="dot warn"></i> Documento desatualizado</span>
+  <span><i class="dot bad"></i> Descrito nas docs, ausente no código</span>
+</div>
+<div class="coh">
+  <div class="row ok"><div class="tag">✓</div><div><h4>Tabelas e colunas</h4><p>As 29 tabelas RH e as colunas verificadas batem com o <code>Modelo_Relacional_RH_v4.0.md</code>. IDs em UUID.</p></div></div>
+  <div class="row ok"><div class="tag">✓</div><div><h4>Endpoints</h4><p>O <code>API_GUIDE.md</code> reflete o código: prefixos <code>/catalogs/</code> e <code>/estrutura/</code>, <code>/registar</code>, documentos aninhados, <code>/me/*</code>.</p></div></div>
+  <div class="row warn"><div class="tag">!</div><div><h4>Especificação Técnica §8.4 — schema antigo</h4><p>Descreve <code>t_funcionario</code> com <code>full_name</code>/<code>sex</code>/<code>nib</code>/<code>photo_document_id</code> e <code>t_document</code> com <code>funcionario_id</code>. O código usa <code>nome_completo</code>/<code>genero</code>/<code>numero_documento</code> e um <code>t_document</code> polimórfico puro; FKs em UUID (não BIGINT).</p></div></div>
+  <div class="row warn"><div class="tag">!</div><div><h4>Especificação Técnica — paths antigos</h4><p>Usa <code>/leave-requests</code> e <code>/leaves-mobilities</code> globais (o código usa sub-recursos aninhados), <code>PUT /approve</code> em inglês (o código usa <code>PATCH /aprovar</code>) e catálogos sem <code>/catalogs/</code>.</p></div></div>
+  <div class="row warn"><div class="tag">!</div><div><h4>Contagem de tabelas</h4><p>A Especificação diz "26 tabelas"; o Modelo Relacional diz "30 (29+1 IAM)". O código confirma 29 RH + 1 IAM.</p></div></div>
+  <div class="row bad"><div class="tag">×</div><div><h4>Triggers de base de dados</h4><p>As docs descrevem triggers (<code>fn_apply_mobility</code>, <code>fn_check_leave_balance</code>, <code>fn_audit_generic</code>…) e a tabela <code>change_history</code>. Nenhum existe: as validações são aplicacionais e a auditoria é Hibernate Envers. <em>(O API_GUIDE §8.3 ainda menciona "trigger" para o fecho de contrato — na realidade é lógica do handler.)</em></p></div></div>
+  <div class="row bad"><div class="tag">×</div><div><h4>Feriados municipais por concelho</h4><p>As docs descrevem feriados municipais por concelho, mas <code>t_public_holiday</code> não tem coluna <code>concelho</code> — só <code>is_national</code>.</p></div></div>
+</div>
+</section>
+
+<!-- ============ ENDPOINTS INDEX ============ -->
+<section>
+<span class="sec-eyebrow">Referência</span>
+<h2 id="endpoints">Índice de endpoints</h2>
+<p class="lead">Prefixo <code>api/v1/rh/</code>. CRUD implícito = GET (lista) · GET/{id} · POST · PUT/{id} · DELETE/{id} (soft).</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Área</th><th>Base</th><th>Operações notáveis</th></tr></thead><tbody>
+<tr><td>Funcionários</td><td class="mono">/funcionarios</td><td>GET lista · POST /registar · GET /{id}/details · /combobox · PATCH /{id}/worker-state · GET /{id}/worker-state/historico</td></tr>
+<tr><td>Contratos</td><td class="mono">/funcionarios/{id}/contratos</td><td>CRUD · /{cid}/close · /suspend · /activate · documentos</td></tr>
+<tr><td>Enquadramentos</td><td class="mono">/funcionarios/{id}/enquadramentos</td><td>GET · /atual · POST · PUT</td></tr>
+<tr><td>Colocações</td><td class="mono">/funcionarios/{id}/colocacoes</td><td>CRUD · /atual · /{cid}/close</td></tr>
+<tr><td>Dependentes</td><td class="mono">/funcionarios/{id}/dependentes</td><td>CRUD · /{id}/activate</td></tr>
+<tr><td>Dados bancários</td><td class="mono">/funcionarios/{id}/dados-bancarios</td><td>CRUD · /{id}/activate</td></tr>
+<tr><td>Qualificações</td><td class="mono">/funcionarios/{id}/qualificacoes</td><td>CRUD · /{id}/activate · documentos</td></tr>
+<tr><td>Formações</td><td class="mono">/funcionarios/{id}/formacoes</td><td>CRUD (?year) · documentos</td></tr>
+<tr><td>Proc. disciplinares</td><td class="mono">/funcionarios/{id}/processos-disciplinares</td><td>GET/POST/PUT · documentos · HR-Admin</td></tr>
+<tr><td>Pedidos de ausência</td><td class="mono">/funcionarios/{id}/pedidos-ausencia</td><td>GET/POST · PATCH /{pid}/aprovar · /rejeitar · /cancelar</td></tr>
+<tr><td>Saldos de ausência</td><td class="mono">/funcionarios/{id}/saldos-ausencia</td><td>GET (?ano) · POST · PUT /{sid}?diasDireito=</td></tr>
+<tr><td>Licenças/mobilidade</td><td class="mono">/funcionarios/{id}/licencas-mobilidade</td><td>CRUD · /approve · /reject · /close · /cancel · documentos</td></tr>
+<tr><td>Recibos</td><td class="mono">/funcionarios/{id}/recibos</td><td>GET/POST/GET{id} · documentos</td></tr>
+<tr><td>Documentos</td><td class="mono">/funcionarios/{id}/documentos</td><td>GET · POST · /{id}/download · DELETE</td></tr>
+<tr><td>Área reservada</td><td class="mono">/me</td><td>profile · leave-requests · leave-balances · leaves-mobilities · payroll-slips · documents</td></tr>
+<tr><td>Estrutura</td><td class="mono">/estrutura</td><td>organizational-units · jobs · functions (?jobId) · /activate · /deactivate · /combobox</td></tr>
+<tr><td>Carreiras</td><td class="mono">/careers · /categories · /grades</td><td>CRUD · /careers/{id}/categories · /categories/{id}/grades · /activate</td></tr>
+<tr><td>Parametrizações</td><td class="mono">/catalogs</td><td>worker-states · vinculos-laborais · contract-types · leave-types · leave-mobility-subtypes · document-types · public-holidays</td></tr>
+<tr><td>Referência</td><td class="mono">/reference/options</td><td>GET (?ccode) · POST · PUT · DELETE · /combobox</td></tr>
+<tr><td>Auditoria</td><td class="mono">/{módulo}/audit</td><td>GET /{catalog}/{entityId} (Envers)</td></tr>
+</tbody></table></div>
+</section>
+
+<footer class="foot">
+  <p><strong>Documentação do Módulo RH · Dossiê do Colaborador</strong> — gerada a partir do código-fonte
+  (29 entities, 32 controllers) e cruzada com os documentos v4. Exemplos de request/response fiéis ao
+  <code>API_GUIDE.md</code>. Fonte da verdade: o código + <code>Modelo_Relacional_RH_v4.0.md</code> + <code>API_GUIDE.md</code>.</p>
+  <p>SIPPROG · INGT — Instituto Nacional de Gestão do Território · Cabo Verde · Java 23 · Spring Boot 3.5.3 · PostgreSQL 17</p>
+</footer>
+
+</main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById('themebtn');
+  function current(){var t=root.getAttribute('data-theme');if(t)return t;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+
+  // JSON syntax highlight
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function hi(code){
+    return esc(code)
+      .replace(/(&quot;)((?:\\.|[^&]|&(?!quot;))*?)(&quot;)(\s*:)/g,'<span class="tok-key">"$2"</span>$4')
+      .replace(/(:\s*)(&quot;(?:\\.|[^&]|&(?!quot;))*?&quot;)/g,'$1<span class="tok-str">$2</span>')
+      .replace(/\b(true|false|null)\b/g,'<span class="tok-bool">$1</span>')
+      .replace(/(:\s*)(-?\d+\.?\d*)/g,'$1<span class="tok-num">$2</span>');
+  }
+  try{
+    document.querySelectorAll('pre.json').forEach(function(p){
+      if(/[:{]/.test(p.textContent)) p.innerHTML=hi(p.textContent);
+    });
+  }catch(e){}
+
+  btn.addEventListener('click',function(){
+    var next=current()==='dark'?'light':'dark';
+    root.setAttribute('data-theme',next);
+    try{localStorage.setItem('rh-theme',next);}catch(e){}
+  });
+  try{var saved=localStorage.getItem('rh-theme');if(saved)root.setAttribute('data-theme',saved);}catch(e){}
+
+  try{ if(window.mermaid){ mermaid.initialize({startOnLoad:true,theme:current()==='dark'?'dark':'neutral',securityLevel:'loose',er:{useMaxWidth:false}}); } }catch(e){}
+
+  var links=[].slice.call(document.querySelectorAll('#toc a'));
+  var map={};links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a;});
+  var targets=links.map(function(a){return document.getElementById(a.getAttribute('href').slice(1));}).filter(Boolean);
+  if('IntersectionObserver' in window){
+    var obs=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if(en.isIntersecting){
+        links.forEach(function(l){l.classList.remove('on');});
+        var a=map[en.target.id]; if(a)a.classList.add('on');
+      }});
+    },{rootMargin:'-12% 0px -78% 0px'});
+    targets.forEach(function(t){obs.observe(t);});
+  }
+})();
+</script>
+</body>
+</html>

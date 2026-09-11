@@ -5,16 +5,22 @@ import cv.igrp.RH_Service.carreiras.domain.models.Category;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CareerId;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CategoryId;
 import cv.igrp.RH_Service.carreiras.infrastructure.persistence.entity.CategoryEntity;
+import cv.igrp.RH_Service.carreiras.infrastructure.persistence.entity.CareerEntity;
+import cv.igrp.RH_Service.shared.infrastructure.persistence.JpaReferences;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class CategoryMapper {
+
+    private final JpaReferences refs;
 
     public CategoryEntity toEntity(Category domain) {
         if (domain == null) return null;
         CategoryEntity entity = new CategoryEntity();
         entity.setId(domain.getId().getValor());
-        entity.setCareerId(domain.getCareerId().getValor());
+        entity.setCareer(refs.ref(CareerEntity.class, domain.getCareerId().getValor()));
         entity.setCode(domain.getCode());
         entity.setName(domain.getName());
         entity.setDescription(domain.getDescription());
@@ -27,7 +33,7 @@ public class CategoryMapper {
         if (entity == null) return null;
         return Category.reconstituir(
                 CategoryId.from(entity.getId()),
-                CareerId.from(entity.getCareerId()),
+                CareerId.from(entity.getCareer().getId()),
                 entity.getCode(),
                 entity.getName(),
                 entity.getDescription(),

@@ -94,6 +94,6 @@ public class CareerRepositoryImpl implements CareerRepository {
     @Transactional(readOnly = true)
     @Override
     public boolean existsActiveCategoriesByCareerId(CareerId careerId) {
-        return categoryEntityRepository.existsByCareerIdAndIsActiveTrue(careerId.getValor());
+        return categoryEntityRepository.existsByCareer_IdAndIsActiveTrue(careerId.getValor());
     }
 }
