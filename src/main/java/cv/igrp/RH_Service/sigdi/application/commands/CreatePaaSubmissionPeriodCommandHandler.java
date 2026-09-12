@@ -121,14 +121,29 @@ public class CreatePaaSubmissionPeriodCommandHandler implements CommandHandler<C
             // If no finalidade declares position N-1 the declared sequence has a hole and there is
             // nothing to require; the guard is skipped rather than inventing a predecessor.
             if (requiredPredecessor.isPresent()) {
-                boolean predecessorClosed = yearPeriods.stream()
-                        .filter(p -> p.getPurpose().getPosition() == previousPosition)
-                        .anyMatch(p -> p.isClosed());
-                if (!predecessorClosed) {
-                    throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
-                            "Não é possível abrir o período de " + purpose.getDescription()
-                                    + " sem que o período de " + requiredPredecessor.get().getDescription()
-                                    + " esteja fechado para o ano " + dto.getYear());
+                // PRZ-01: SIADAP_INTERIM (position 4) allows the contractualization period SIADAP (position 3)
+                // to be either CLOSED or OPEN for the same year, so interim evaluations can start even if
+                // some late-onboarded staff are still completing contractualization.
+                if (purpose == Purpose.SIADAP_INTERIM && requiredPredecessor.get() == Purpose.SIADAP) {
+                    boolean predecessorExists = yearPeriods.stream()
+                            .filter(p -> p.getPurpose() == Purpose.SIADAP)
+                            .anyMatch(p -> p.isClosed() || p.isOpen());
+                    if (!predecessorExists) {
+                        throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                                "Não é possível abrir o período de " + purpose.getDescription()
+                                        + " sem que exista um período de " + requiredPredecessor.get().getDescription()
+                                        + " configurado para o ano " + dto.getYear());
+                    }
+                } else {
+                    boolean predecessorClosed = yearPeriods.stream()
+                            .filter(p -> p.getPurpose().getPosition() == previousPosition)
+                            .anyMatch(p -> p.isClosed());
+                    if (!predecessorClosed) {
+                        throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                                "Não é possível abrir o período de " + purpose.getDescription()
+                                        + " sem que o período de " + requiredPredecessor.get().getDescription()
+                                        + " esteja fechado para o ano " + dto.getYear());
+                    }
                 }
             }
         }

@@ -149,11 +149,12 @@ public class ComplianceController {
   public ResponseEntity<WrapperSiadapEvaluationListDTO> listEvaluations(
     @RequestParam(value = "year") Integer year,
     @RequestParam(value = "organicUnitId", required = false) String organicUnitId,
+    @RequestParam(value = "evaluatorId", required = false) String evaluatorId,
     @RequestParam(value = "status", required = false) String status,
     @RequestParam(value = "pageNumber", required = false, defaultValue = "0") String pageNumber,
     @RequestParam(value = "pageSize",   required = false, defaultValue = "20") String pageSize)
   {
-    final var query = new ListSiadapEvaluationsQuery(year, organicUnitId, status, pageNumber, pageSize);
+    final var query = new ListSiadapEvaluationsQuery(year, organicUnitId, status, pageNumber, pageSize, evaluatorId);
     return queryBus.handle(query);
   }
 

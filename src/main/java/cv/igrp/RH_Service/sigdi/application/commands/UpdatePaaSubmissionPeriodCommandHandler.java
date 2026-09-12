@@ -104,14 +104,26 @@ public class UpdatePaaSubmissionPeriodCommandHandler implements CommandHandler<U
                         .filter(p -> p.getPosition() == previousPosition)
                         .findFirst();
                 if (requiredPredecessor.isPresent()) {
-                    boolean predecessorClosed = yearPeriods.stream()
-                            .filter(p -> p.getPurpose().getPosition() == previousPosition)
-                            .anyMatch(PaaSubmissionPeriod::isClosed);
-                    if (!predecessorClosed) {
-                        throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
-                                "Não é possível alterar o período de " + purpose.getDescription()
-                                        + " sem que o período de " + requiredPredecessor.get().getDescription()
-                                        + " esteja fechado para o ano " + dto.getYear());
+                    if (purpose == Purpose.SIADAP_INTERIM && requiredPredecessor.get() == Purpose.SIADAP) {
+                        boolean predecessorExists = yearPeriods.stream()
+                                .filter(p -> p.getPurpose() == Purpose.SIADAP)
+                                .anyMatch(p -> p.isClosed() || p.isOpen());
+                        if (!predecessorExists) {
+                            throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                                    "Não é possível alterar o período de " + purpose.getDescription()
+                                            + " sem que exista um período de " + requiredPredecessor.get().getDescription()
+                                            + " configurado para o ano " + dto.getYear());
+                        }
+                    } else {
+                        boolean predecessorClosed = yearPeriods.stream()
+                                .filter(p -> p.getPurpose().getPosition() == previousPosition)
+                                .anyMatch(PaaSubmissionPeriod::isClosed);
+                        if (!predecessorClosed) {
+                            throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                                    "Não é possível alterar o período de " + purpose.getDescription()
+                                            + " sem que o período de " + requiredPredecessor.get().getDescription()
+                                            + " esteja fechado para o ano " + dto.getYear());
+                        }
                     }
                 }
             }
