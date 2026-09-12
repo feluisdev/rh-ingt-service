@@ -253,6 +253,29 @@ public class SiadapEvaluation {
     }
 
     /**
+     * Atribui ou substitui o avaliador notador responsável por esta avaliação.
+     * Permitido enquanto a avaliação não estiver concluída ou homologada (não VALIDATED nem CLOSED).
+     */
+    public SiadapEvaluation assignEvaluator(String newEvaluatorId) {
+        if (newEvaluatorId == null || newEvaluatorId.isBlank()) {
+            throw IgrpResponseStatusException.badRequest("O ID do avaliador é obrigatório");
+        }
+        if (EvaluationPhase.CLOSED.equals(this.phase)) {
+            throw IgrpResponseStatusException.badRequest("Não é possível alterar o avaliador de uma avaliação encerrada");
+        }
+        if (newEvaluatorId.equals(this.employeeId)) {
+            throw IgrpResponseStatusException.badRequest("O colaborador não pode ser o seu próprio avaliador");
+        }
+        return new SiadapEvaluation(this.id, this.employeeId, this.year,
+                this.organicUnitId, newEvaluatorId,
+                this.objectives, this.competencies,
+                this.resultsWeight, this.competenciesWeight,
+                this.selfEvaluationScore, this.finalScore, this.meritRating, this.validatedQuota,
+                this.phase, this.acceptanceStatus, this.lastNegotiationComment,
+                this.selfEvaluationTacitlyAccepted);
+    }
+
+    /**
      * Regista o resultado atingido para um objetivo específico.
      *
      * @param objectiveCode código do objetivo

@@ -63,6 +63,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.RecordObjectiveAchievementReques
 import cv.igrp.RH_Service.sigdi.application.dto.SubmitSelfEvaluationRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.FinalizeEvaluationRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.AssignMeritRatingRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.AssignSiadapEvaluatorRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.IndividualObjectiveDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.CompetencyItemDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapInterimFeedbackDTO;
@@ -284,6 +285,28 @@ public class ComplianceController {
   {
     final var query = new GetEvaluationDetailQuery(id);
     return queryBus.handle(query);
+  }
+
+  @PutMapping(value = "siadap/evaluations/{id}/evaluator")
+  @Operation(
+    summary = "Assign or update evaluator",
+    description = "Atribui ou altera o notador (avaliador) responsável por uma avaliação SIADAP.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SiadapEvaluationDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<SiadapEvaluationDTO> assignEvaluator(
+    @PathVariable("id") String id,
+    @Valid @RequestBody AssignSiadapEvaluatorRequestDTO body)
+  {
+    final var command = new AssignSiadapEvaluatorCommand(id, body);
+    return commandBus.send(command);
   }
 
   @PostMapping(value = "siadap/evaluations/{id}/objectives")
