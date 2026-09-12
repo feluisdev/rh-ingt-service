@@ -3,12 +3,12 @@ package cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.adapters;
 import cv.igrp.RH_Service.parametrizacoes.domain.filter.OptionFilter;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.Option;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.OptionRepository;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.OptionId;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.OptionMapper;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.OptionEntity;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.OptionEntityRepository;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.SearchSpecificationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -37,7 +37,7 @@ public class OptionRepositoryImpl implements OptionRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<Option> findById(ExternalID id) {
+    public Optional<Option> findById(OptionId id) {
         return optionEntityRepository.findById(id.getValor())
             .map(optionMapper::toDomain);
     }
@@ -118,7 +118,7 @@ public class OptionRepositoryImpl implements OptionRepository {
 
     @Transactional
     @Override
-    public void delete(ExternalID id) {
+    public void delete(OptionId id) {
         if (!optionEntityRepository.existsById(id.getValor())) {
             throw IgrpResponseStatusException.notFound("Etiqueta não encontrada com id: " + id.getStringValor());
         }

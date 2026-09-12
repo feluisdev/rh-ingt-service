@@ -2,8 +2,8 @@ package cv.igrp.RH_Service.parametrizacoes.domain.repository;
 
 import cv.igrp.RH_Service.parametrizacoes.domain.filter.OptionFilter;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.Option;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.OptionId;
 import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 
 import java.util.Collection;
 import java.util.List;
@@ -13,7 +13,7 @@ public interface OptionRepository {
 
     Option save(Option option);
 
-    Optional<Option> findById(ExternalID id);
+    Optional<Option> findById(OptionId id);
 
     List<Option> findByCcodeAndLocale(String ccode, String locale, boolean active);
 
@@ -25,5 +25,5 @@ public interface OptionRepository {
 
     PageResult<Option> findAll(OptionFilter filter);
 
-    void delete(ExternalID id);
+    void delete(OptionId id);
 }

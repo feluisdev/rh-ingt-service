@@ -2,8 +2,8 @@ package cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers;
 
 import cv.igrp.RH_Service.parametrizacoes.application.dto.OptionResponseDTO;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.Option;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.OptionId;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.OptionEntity;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -26,7 +26,7 @@ public class OptionMapper {
     public Option toDomain(OptionEntity entity) {
         if (entity == null) return null;
         return Option.reconstruir(
-            ExternalID.from(entity.getId()),
+            OptionId.from(entity.getId()),
             entity.getCcode(),
             entity.getCkey(),
             entity.getCvalue(),

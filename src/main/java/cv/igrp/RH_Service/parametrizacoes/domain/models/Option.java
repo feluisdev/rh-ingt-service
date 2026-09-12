@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.parametrizacoes.domain.models;
 
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.OptionId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import lombok.Getter;
 
 import java.util.Objects;
@@ -9,7 +9,7 @@ import java.util.Objects;
 @Getter
 public class Option {
 
-    private ExternalID id;
+    private OptionId id;
     private String ccode;
     private String ckey;
     private String cvalue;
@@ -20,7 +20,7 @@ public class Option {
 
     private Option() {}
 
-    private Option(ExternalID id, String ccode, String ckey, String cvalue,
+    private Option(OptionId id, String ccode, String ckey, String cvalue,
                    String locale, Integer sortOrder, boolean active, String description) {
         this.id = id;
         this.ccode = ccode;
@@ -43,11 +43,11 @@ public class Option {
         }*/
         String effectiveLocale = (locale == null || locale.isBlank()) ? "pt-CV" : locale;
         int effectiveSortOrder = (sortOrder == null) ? 0 : sortOrder;
-        return new Option(ExternalID.gerarNovo(), ccode, ckey, cvalue,
+        return new Option(OptionId.gerarNovo(), ccode, ckey, cvalue,
                          effectiveLocale, effectiveSortOrder, true, description);
     }
 
-    public static Option reconstruir(ExternalID id, String ccode, String ckey, String cvalue,
+    public static Option reconstruir(OptionId id, String ccode, String ckey, String cvalue,
                                       String locale, Integer sortOrder, boolean active, String description) {
         return new Option(id, ccode, ckey, cvalue, locale, sortOrder, active, description);
     }

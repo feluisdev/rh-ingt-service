@@ -3,9 +3,9 @@ package cv.igrp.RH_Service.parametrizacoes.application.commands;
 import cv.igrp.RH_Service.parametrizacoes.application.dto.OptionResponseDTO;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.Option;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.OptionRepository;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.OptionId;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.OptionMapper;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ public class UpdateOptionCommandHandler implements CommandHandler<UpdateOptionCo
     @IgrpCommandHandler
     public ResponseEntity<OptionResponseDTO> handle(UpdateOptionCommand command) {
         var dto = command.getOptionrequest();
-        var id = ExternalID.from(java.util.UUID.fromString(command.getOptionId()));
+        var id = OptionId.from(command.getOptionId());
 
         Option option = optionRepository.findById(id)
             .orElseThrow(() -> IgrpResponseStatusException.notFound(

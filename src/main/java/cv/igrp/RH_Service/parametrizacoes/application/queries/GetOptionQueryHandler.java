@@ -2,9 +2,9 @@ package cv.igrp.RH_Service.parametrizacoes.application.queries;
 
 import cv.igrp.RH_Service.parametrizacoes.application.dto.OptionResponseDTO;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.OptionRepository;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.OptionId;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.OptionMapper;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.shared.domain.valueobject.ExternalID;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class GetOptionQueryHandler implements QueryHandler<GetOptionQuery, Respo
 
     @IgrpQueryHandler
     public ResponseEntity<OptionResponseDTO> handle(GetOptionQuery query) {
-        var id = ExternalID.from(java.util.UUID.fromString(query.getOptionId()));
+        var id = OptionId.from(query.getOptionId());
 
         var option = optionRepository.findById(id)
             .orElseThrow(() -> IgrpResponseStatusException.notFound(
