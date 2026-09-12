@@ -64,6 +64,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.SubmitSelfEvaluationRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.FinalizeEvaluationRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.AssignMeritRatingRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.AssignSiadapEvaluatorRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.AcknowledgeEvaluationRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.IndividualObjectiveDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.CompetencyItemDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapInterimFeedbackDTO;
@@ -307,6 +308,28 @@ public class ComplianceController {
     @Valid @RequestBody AssignSiadapEvaluatorRequestDTO body)
   {
     final var command = new AssignSiadapEvaluatorCommand(id, body);
+    return commandBus.send(command);
+  }
+
+  @PostMapping(value = "siadap/evaluations/{id}/acknowledge")
+  @Operation(
+    summary = "Acknowledge evaluation or submit contradictory",
+    description = "Avaliado toma conhecimento da avaliação ou apresenta contraditório (CIK-01).",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SiadapEvaluationDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<SiadapEvaluationDTO> acknowledgeEvaluation(
+    @PathVariable("id") String id,
+    @Valid @RequestBody AcknowledgeEvaluationRequestDTO body)
+  {
+    final var command = new AcknowledgeEvaluationCommand(id, body);
     return commandBus.send(command);
   }
 

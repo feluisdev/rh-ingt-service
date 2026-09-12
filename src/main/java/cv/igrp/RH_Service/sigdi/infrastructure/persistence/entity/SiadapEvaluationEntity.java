@@ -69,6 +69,16 @@ public class SiadapEvaluationEntity extends AuditEntity {
     @Column(name="last_negotiation_comment", columnDefinition = "TEXT")
     private String lastNegotiationComment;
 
+    @Column(name="acknowledgement_status", length = 30)
+    private String acknowledgementStatus;
+
+    @Lob
+    @Column(name="acknowledgement_comment", columnDefinition = "TEXT")
+    private String acknowledgementComment;
+
+    @Column(name="acknowledged_at")
+    private java.time.LocalDateTime acknowledgedAt;
+
     /** Nota de autoavaliação submetida pelo colaborador (1-5). */
     @Column(name="self_evaluation_score", precision = 4, scale = 2)
     private BigDecimal selfEvaluationScore;
