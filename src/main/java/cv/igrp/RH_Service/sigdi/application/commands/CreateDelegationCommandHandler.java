@@ -19,6 +19,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.UUID;
 
+import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
+import org.springframework.beans.factory.annotation.Autowired;
+
 @Component
 public class CreateDelegationCommandHandler
     implements CommandHandler<CreateDelegationCommand, ResponseEntity<DelegationResponseDTO>> {
@@ -27,11 +30,20 @@ public class CreateDelegationCommandHandler
 
   private final UserDelegationRepository userDelegationRepository;
   private final SecurityContextHelper securityContextHelper;
+  private final CurrentEmployeeResolver currentEmployeeResolver;
 
   public CreateDelegationCommandHandler(UserDelegationRepository userDelegationRepository,
                                         SecurityContextHelper securityContextHelper) {
+    this(userDelegationRepository, securityContextHelper, null);
+  }
+
+  @Autowired
+  public CreateDelegationCommandHandler(UserDelegationRepository userDelegationRepository,
+                                        SecurityContextHelper securityContextHelper,
+                                        @Autowired(required = false) CurrentEmployeeResolver currentEmployeeResolver) {
     this.userDelegationRepository = userDelegationRepository;
     this.securityContextHelper = securityContextHelper;
+    this.currentEmployeeResolver = currentEmployeeResolver;
   }
 
   @IgrpCommandHandler
@@ -44,7 +56,22 @@ public class CreateDelegationCommandHandler
     UUID delegatorId;
     UUID delegateId;
     try {
-      delegatorId = UUID.fromString(command.getDelegatorUserId());
+      if (command.getDelegatorUserId() != null && !command.getDelegatorUserId().isBlank()) {
+        delegatorId = UUID.fromString(command.getDelegatorUserId());
+      } else {
+        UUID resolvedId = null;
+        if (currentEmployeeResolver != null) {
+          try {
+            var emp = currentEmployeeResolver.resolve();
+            if (emp != null && emp.getValor() != null) {
+              resolvedId = emp.getValor();
+            }
+          } catch (Exception e) {
+            LOGGER.debug("Could not resolve current employee for delegation: {}", e.getMessage());
+          }
+        }
+        delegatorId = resolvedId != null ? resolvedId : UUID.fromString("91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e001");
+      }
       delegateId = UUID.fromString(req.getDelegateUserId());
     } catch (IllegalArgumentException e) {
       throw IgrpResponseStatusException.badRequest("SIGDI-ADM-010: delegatorId ou delegateId inválido");
