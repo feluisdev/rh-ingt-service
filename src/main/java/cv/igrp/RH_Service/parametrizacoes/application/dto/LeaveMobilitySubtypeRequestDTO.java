@@ -25,4 +25,10 @@ public class LeaveMobilitySubtypeRequestDTO {
     private boolean countsForSeniority;
 
     private boolean canSelfSubmit;
+
+    /** Duração máxima em dias (mobilidade transitória: 365 — art. 132.º n.º 5). Nulo = sem limite. */
+    private Integer maxDurationDays;
+
+    /** Prorrogações permitidas (em regra, uma). Nulo = sem limite. */
+    private Integer maxExtensions;
 }

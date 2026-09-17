@@ -36,7 +36,9 @@ public class CreateLeaveMobilitySubtypeCommandHandler implements CommandHandler<
             dto.getRecordType(),
             dto.isAffectsPay(),
             dto.isCountsForSeniority(),
-            dto.isCanSelfSubmit()
+            dto.isCanSelfSubmit(),
+            dto.getMaxDurationDays(),
+            dto.getMaxExtensions()
         );
 
         LeaveMobilitySubtype saved = leaveMobilitySubtypeRepository.save(leaveMobilitySubtype);

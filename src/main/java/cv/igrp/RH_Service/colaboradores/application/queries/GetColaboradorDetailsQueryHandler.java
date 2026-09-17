@@ -9,6 +9,8 @@ import cv.igrp.RH_Service.carreiras.domain.valueobject.GradeId;
 import cv.igrp.RH_Service.colaboradores.application.dto.ColaboradorDetailsResponseDTO;
 import cv.igrp.RH_Service.colaboradores.application.dto.DadosBancariosResponseDTO;
 import cv.igrp.RH_Service.colaboradores.application.dto.EnquadramentoResponseDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.MobilidadeEmVigorDTO;
+import cv.igrp.RH_Service.colaboradores.application.services.MobilidadeService;
 import cv.igrp.RH_Service.colaboradores.application.services.VinculoLaboralService;
 import cv.igrp.RH_Service.colaboradores.domain.filter.DocumentoFilter;
 import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
@@ -64,6 +66,7 @@ public class GetColaboradorDetailsQueryHandler
     private final ContratoMapper contratoMapper;
     private final ContractTypeRepository contractTypeRepository;
     private final VinculoLaboralService vinculoLaboralService;
+    private final MobilidadeService mobilidadeService;
 
     private final AssignmentRepository assignmentRepository;
     private final PositionRepository positionRepository;
@@ -182,7 +185,21 @@ public class GetColaboradorDetailsQueryHandler
                 .findAllByReference("FUNCIONARIO", funcionarioId.getValor(), filter)
                 .stream().map(documentoMapper::toDTO).collect(Collectors.toList());
 
+        // Onde exerce funções hoje. O enquadramento acima continua a ser o Lugar de que é titular.
+        var mobilidadeDTO = mobilidadeService.mobilidadeEmVigor(funcionarioId)
+                .map(m -> new MobilidadeEmVigorDTO(
+                        m.getId().getStringValor(),
+                        m.isDestinoInterno() ? "INTERNO" : "EXTERNO",
+                        m.getDestinationUnitId() != null ? m.getDestinationUnitId().toString() : null,
+                        m.isDestinoInterno()
+                                ? organizationalUnitRepository
+                                        .findById(OrganizationalUnitId.from(m.getDestinationUnitId()))
+                                        .map(u -> u.getName()).orElse(null)
+                                : m.getEntidadeDestino(),
+                        m.getDataInicio(), m.getDataFim(), m.getDespachoNumero()))
+                .orElse(null);
+
         return ResponseEntity.ok(new ColaboradorDetailsResponseDTO(
-                funcionarioDTO, contratoDTO, enquadramentoDTO, dadosBancariosDTO, documentos));
+                funcionarioDTO, contratoDTO, enquadramentoDTO, dadosBancariosDTO, documentos, mobilidadeDTO));
     }
 }

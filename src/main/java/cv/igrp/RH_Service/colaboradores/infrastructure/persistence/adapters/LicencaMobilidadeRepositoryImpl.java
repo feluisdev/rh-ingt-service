@@ -47,4 +47,11 @@ public class LicencaMobilidadeRepositoryImpl implements LicencaMobilidadeReposit
             stream = stream.filter(l -> filter.getSubtipoId().equals(l.getSubtipoId().getValor()));
         return stream.toList();
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<LicencaMobilidade> findActiveByFuncionarioIdAt(FuncionarioId funcionarioId, java.time.LocalDate data) {
+        return entityRepository.findActiveAt(funcionarioId.getValor(), data)
+                .stream().map(mapper::toDomain).toList();
+    }
 }

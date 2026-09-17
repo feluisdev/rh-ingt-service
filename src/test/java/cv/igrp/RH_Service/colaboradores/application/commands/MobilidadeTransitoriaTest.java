@@ -52,7 +52,7 @@ class MobilidadeTransitoriaTest {
     private final LocalDate inicio = LocalDate.of(2026, 1, 1);
 
     private void servicos() {
-        mobilidadeService = new MobilidadeService(subtipoRepository, unidadeRepository);
+        mobilidadeService = new MobilidadeService(subtipoRepository, unidadeRepository, licencaRepository);
         aprovar = new AprovarLicencaMobilidadeCommandHandler(licencaRepository, mobilidadeService);
         encerrar = new EncerrarLicencaMobilidadeCommandHandler(licencaRepository);
         cancelar = new CancelarLicencaMobilidadeCommandHandler(licencaRepository);

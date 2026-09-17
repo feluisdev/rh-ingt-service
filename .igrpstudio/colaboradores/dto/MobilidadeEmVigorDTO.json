@@ -1,0 +1,50 @@
+{
+  "type": "dto",
+  "name": "MobilidadeEmVigorDTO",
+  "module": "colaboradores",
+  "template": "classic",
+  "attributes": [
+    {
+      "name": "id",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "destinoTipo",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "destinoUnidadeId",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "destinoNome",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "dataInicio",
+      "type": "date",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "dataFim",
+      "type": "date",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "despachoNumero",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

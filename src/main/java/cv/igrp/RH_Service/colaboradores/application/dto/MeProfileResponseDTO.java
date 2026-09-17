@@ -22,6 +22,8 @@ public class MeProfileResponseDTO {
     private CareerRef career;
     private CategoryRef category;
     private GradeRef grade;
+    /** Mobilidade em vigor, se houver: o Lugar (currentUnit) continua a ser o do titular. */
+    private MobilidadeRef mobilidadeEmVigor;
 
     @Getter @Setter @NoArgsConstructor
     public static class UnitRef {
@@ -56,5 +58,19 @@ public class MeProfileResponseDTO {
         private String id;
         private Integer gradeNumber;
         public GradeRef(String id, Integer gradeNumber) { this.id = id; this.gradeNumber = gradeNumber; }
+    }
+
+    @lombok.Getter
+    @lombok.Setter
+    @lombok.NoArgsConstructor
+    @lombok.AllArgsConstructor
+    public static class MobilidadeRef {
+        private String id;
+        /** INTERNO (unidade nossa) ou EXTERNO (entidade de fora). */
+        private String destinoTipo;
+        private String destinoId;
+        private String destinoNome;
+        private java.time.LocalDate dataInicio;
+        private java.time.LocalDate dataFim;
     }
 }

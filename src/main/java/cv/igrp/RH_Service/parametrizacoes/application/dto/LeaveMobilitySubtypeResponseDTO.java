@@ -27,6 +27,10 @@ public class LeaveMobilitySubtypeResponseDTO {
 
     private boolean canSelfSubmit;
 
+    private Integer maxDurationDays;
+
+    private Integer maxExtensions;
+
     private Boolean isActive;
     private String estadoDesc;
 }

@@ -2,7 +2,9 @@ package cv.igrp.RH_Service.colaboradores.application.services;
 
 import cv.igrp.RH_Service.colaboradores.domain.models.LicencaMobilidade;
 import cv.igrp.RH_Service.colaboradores.domain.models.SubtipoLicencaMobilidade;
+import cv.igrp.RH_Service.colaboradores.domain.repository.LicencaMobilidadeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.SubtipoLicencaMobilidadeRepository;
+import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.SubtipoLicencaMobilidadeId;
 import cv.igrp.RH_Service.estrutura.domain.repository.OrganizationalUnitRepository;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.OrganizationalUnitId;
@@ -10,6 +12,9 @@ import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.Optional;
 
 /**
  * Regras da mobilidade <b>transitória</b> (Lei n.º 20/X/2023, art. 132.º a 137.º).
@@ -31,6 +36,25 @@ public class MobilidadeService {
 
     private final SubtipoLicencaMobilidadeRepository subtipoRepository;
     private final OrganizationalUnitRepository unidadeRepository;
+    private final LicencaMobilidadeRepository licencaRepository;
+
+    /**
+     * Mobilidade em vigor hoje, se houver. É o que responde a "onde a pessoa exerce funções":
+     * a afectação continua a dizer de que Lugar é titular, que não muda durante a mobilidade.
+     * Licenças (que não são mobilidade) não contam — não mudam o local de trabalho.
+     */
+    public Optional<LicencaMobilidade> mobilidadeEmVigor(FuncionarioId funcionarioId) {
+        return mobilidadeEmVigor(funcionarioId, LocalDate.now());
+    }
+
+    public Optional<LicencaMobilidade> mobilidadeEmVigor(FuncionarioId funcionarioId, LocalDate data) {
+        return licencaRepository.findActiveByFuncionarioIdAt(funcionarioId, data).stream()
+                .filter(l -> subtipoRepository
+                        .findById(SubtipoLicencaMobilidadeId.from(l.getSubtipoId().getValor()))
+                        .map(SubtipoLicencaMobilidade::isMobilidade)
+                        .orElse(false))
+                .findFirst();
+    }
 
     public SubtipoLicencaMobilidade subtipoDe(LicencaMobilidade licenca) {
         return subtipoRepository.findById(
@@ -61,6 +85,22 @@ public class MobilidadeService {
                     "Unidade orgânica de destino não encontrada: " + licenca.getDestinationUnitId());
 
         validarDuracao(licenca, subtipo);
+    }
+
+    /**
+     * Prorrogação "por igual período" (art. 132.º n.º 5): o período acrescentado não pode exceder
+     * a duração máxima parametrizada no subtipo. O número de prorrogações é validado no domínio.
+     */
+    public void validarPeriodoDeProrrogacao(LicencaMobilidade licenca, SubtipoLicencaMobilidade subtipo,
+                                            LocalDate novaDataFim) {
+        Integer maxDias = subtipo.getMaxDurationDays();
+        if (maxDias == null || licenca.getDataFim() == null || novaDataFim == null) return;
+
+        long periodoAcrescentado = java.time.temporal.ChronoUnit.DAYS.between(licenca.getDataFim(), novaDataFim);
+        if (periodoAcrescentado > maxDias)
+            throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "A prorrogação pedida (" + periodoAcrescentado + " dias) excede o período máximo do subtipo '"
+                            + subtipo.getNome() + "' (" + maxDias + " dias).");
     }
 
     /**

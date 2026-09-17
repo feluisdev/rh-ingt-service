@@ -9,7 +9,10 @@
       "actionName": "create",
       "method": "POST",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
       ],
       "requestBody": true
     },
@@ -17,11 +20,22 @@
       "actionName": "getAll",
       "method": "GET",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
       ],
       "requestParams": [
-        {"name": "active", "type": "boolean", "required": false},
-        {"name": "subtipoId", "type": "string", "required": false}
+        {
+          "name": "active",
+          "type": "boolean",
+          "required": false
+        },
+        {
+          "name": "subtipoId",
+          "type": "string",
+          "required": false
+        }
       ]
     },
     {
@@ -29,8 +43,14 @@
       "method": "GET",
       "path": "{licencaId}",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "licencaId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "licencaId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -38,8 +58,14 @@
       "method": "PUT",
       "path": "{licencaId}",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "licencaId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "licencaId",
+          "type": "string"
+        }
       ],
       "requestBody": true
     },
@@ -48,8 +74,14 @@
       "method": "PUT",
       "path": "{licencaId}/approve",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "licencaId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "licencaId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -57,8 +89,14 @@
       "method": "PUT",
       "path": "{licencaId}/reject",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "licencaId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "licencaId",
+          "type": "string"
+        }
       ],
       "requestBody": true
     },
@@ -67,8 +105,14 @@
       "method": "PUT",
       "path": "{licencaId}/close",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "licencaId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "licencaId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -76,8 +120,14 @@
       "method": "PUT",
       "path": "{licencaId}/cancel",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "licencaId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "licencaId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -85,8 +135,14 @@
       "method": "PATCH",
       "path": "{licencaId}/ativar",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "licencaId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "licencaId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -94,8 +150,14 @@
       "method": "DELETE",
       "path": "{licencaId}/desativar",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "licencaId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "licencaId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -103,8 +165,14 @@
       "method": "POST",
       "path": "{licencaId}/documentos",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "licencaId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "licencaId",
+          "type": "string"
+        }
       ],
       "requestBody": true
     },
@@ -113,12 +181,26 @@
       "method": "GET",
       "path": "{licencaId}/documentos",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "licencaId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "licencaId",
+          "type": "string"
+        }
       ],
       "requestParams": [
-        {"name": "documentTypeId", "type": "string", "required": false},
-        {"name": "active", "type": "boolean", "required": false}
+        {
+          "name": "documentTypeId",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "required": false
+        }
       ]
     },
     {
@@ -126,9 +208,18 @@
       "method": "GET",
       "path": "{licencaId}/documentos/{docId}",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "licencaId", "type": "string"},
-        {"name": "docId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "licencaId",
+          "type": "string"
+        },
+        {
+          "name": "docId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -136,9 +227,18 @@
       "method": "GET",
       "path": "{licencaId}/documentos/{docId}/download",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "licencaId", "type": "string"},
-        {"name": "docId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "licencaId",
+          "type": "string"
+        },
+        {
+          "name": "docId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -146,10 +246,66 @@
       "method": "DELETE",
       "path": "{licencaId}/documentos/{docId}",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "licencaId", "type": "string"},
-        {"name": "docId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "licencaId",
+          "type": "string"
+        },
+        {
+          "name": "docId",
+          "type": "string"
+        }
       ]
+    },
+    {
+      "actionName": "prorrogar",
+      "method": "PUT",
+      "path": "{licencaId}/prorrogar",
+      "summary": "Prorroga a licença/mobilidade em vigor; o número de prorrogações e o período máximo vêm parametrizados no subtipo",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string",
+          "isRequired": true
+        },
+        {
+          "name": "licencaId",
+          "type": "string",
+          "isRequired": true
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ProrrogacaoMobilidadeRequestDTO",
+              "objectType": "dto",
+              "name": "data",
+              "collectionType": "none",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProrrogacaoMobilidadeResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

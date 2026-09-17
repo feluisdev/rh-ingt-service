@@ -11,6 +11,7 @@ import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.WorkerStateRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.WorkerStateId;
+import cv.igrp.RH_Service.colaboradores.application.services.MobilidadeService;
 import cv.igrp.RH_Service.estrutura.domain.models.Position;
 import cv.igrp.RH_Service.estrutura.domain.repository.JobRepository;
 import cv.igrp.RH_Service.estrutura.domain.repository.OrganizationalUnitRepository;
@@ -37,6 +38,7 @@ public class GetMeProfileQueryHandler
     private final WorkerStateRepository workerStateRepository;
     private final AssignmentRepository assignmentRepository;
     private final PositionRepository positionRepository;
+    private final MobilidadeService mobilidadeService;
     private final OrganizationalUnitRepository unitRepository;
     private final JobRepository jobRepository;
     private final CareerRepository careerRepository;
@@ -93,6 +95,20 @@ public class GetMeProfileQueryHandler
                 gradeRepository.findById(GradeId.from(a.getGradeId())).ifPresent(g ->
                         response.setGrade(new MeProfileResponseDTO.GradeRef(g.getId().getStringValor(), g.getGradeNumber())));
             }
+        });
+
+        // Mobilidade em vigor: diz onde exerce funções hoje. O Lugar (currentUnit) não muda —
+        // a mobilidade transitória não ocupa lugar do quadro no destino (art. 135.º n.º 7).
+        mobilidadeService.mobilidadeEmVigor(funcionarioId).ifPresent(m -> {
+            String destinoNome = m.isDestinoInterno()
+                    ? unitRepository.findById(OrganizationalUnitId.from(m.getDestinationUnitId()))
+                            .map(u -> u.getName()).orElse(null)
+                    : m.getEntidadeDestino();
+            response.setMobilidadeEmVigor(new MeProfileResponseDTO.MobilidadeRef(
+                    m.getId().getStringValor(),
+                    m.isDestinoInterno() ? "INTERNO" : "EXTERNO",
+                    m.getDestinationUnitId() != null ? m.getDestinationUnitId().toString() : null,
+                    destinoNome, m.getDataInicio(), m.getDataFim()));
         });
 
         return ResponseEntity.ok(response);

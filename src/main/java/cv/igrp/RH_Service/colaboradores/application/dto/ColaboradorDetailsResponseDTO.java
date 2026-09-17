@@ -17,4 +17,6 @@ public class ColaboradorDetailsResponseDTO {
     private EnquadramentoResponseDTO enquadramento;
     private DadosBancariosResponseDTO dadosBancarios;
     private List<DocumentoResponseDTO> documentos;
+    /** Mobilidade em vigor, se houver. O bloco enquadramento continua a ser o Lugar do titular. */
+    private MobilidadeEmVigorDTO mobilidadeEmVigor;
 }

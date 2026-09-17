@@ -20,6 +20,8 @@ public class LeaveMobilitySubtypeMapper {
         entity.setCountsForSeniority(domain.isCountsForSeniority());
         entity.setCanSelfSubmit(domain.isCanSelfSubmit());
         entity.setIsActive(domain.isActive());
+        entity.setMaxDurationDays(domain.getMaxDurationDays());
+        entity.setMaxExtensions(domain.getMaxExtensions());
         return entity;
     }
 
@@ -33,7 +35,9 @@ public class LeaveMobilitySubtypeMapper {
             entity.getAffectsPay() != null && entity.getAffectsPay(),
             entity.getCountsForSeniority() != null && entity.getCountsForSeniority(),
             entity.getCanSelfSubmit() != null && entity.getCanSelfSubmit(),
-            entity.getIsActive() != null && entity.getIsActive()
+            entity.getIsActive() != null && entity.getIsActive(),
+            entity.getMaxDurationDays(),
+            entity.getMaxExtensions()
         );
     }
 
@@ -48,6 +52,8 @@ public class LeaveMobilitySubtypeMapper {
         dto.setAffectsPay(domain.isAffectsPay());
         dto.setCountsForSeniority(domain.isCountsForSeniority());
         dto.setCanSelfSubmit(domain.isCanSelfSubmit());
+        dto.setMaxDurationDays(domain.getMaxDurationDays());
+        dto.setMaxExtensions(domain.getMaxExtensions());
         dto.setIsActive(domain.isActive());
         dto.setEstadoDesc(Boolean.TRUE.equals(domain.isActive()) ? "Ativo" : "Inativo");
         return dto;

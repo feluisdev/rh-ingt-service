@@ -132,6 +132,19 @@ public class LicencaMobilidadeController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
+    @PutMapping("{licencaId}/prorrogar")
+    @Operation(summary = "Prorrogar licença/mobilidade em vigor (limites parametrizados no subtipo)")
+    public ResponseEntity<ProrrogacaoMobilidadeResponseDTO> prorrogar(
+            @PathVariable String funcionarioId,
+            @PathVariable String licencaId,
+            @Valid @RequestBody ProrrogacaoMobilidadeRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<ProrrogacaoMobilidadeResponseDTO> response =
+                commandBus.send(new ProrrogarLicencaMobilidadeCommand(licencaId, request));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
     // ── Legacy aliases (mantidos para compatibilidade) ───────────────────────
 
     @PatchMapping("{licencaId}/ativar")

@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.queries;
 
+import cv.igrp.RH_Service.colaboradores.application.services.MobilidadeService;
 import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
 import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
@@ -31,6 +32,7 @@ public class GetUnidadeAtualQueryHandler
     private final FuncionarioRepository funcionarioRepository;
     private final OrganizationalUnitRepository unidadeRepository;
     private final JobRepository jobRepository;
+    private final MobilidadeService mobilidadeService;
 
     @IgrpQueryHandler
     public ResponseEntity<Map<String, Object>> handle(GetUnidadeAtualQuery query) {
@@ -47,12 +49,31 @@ public class GetUnidadeAtualQueryHandler
         Map<String, Object> body = new HashMap<>();
         body.put("funcionarioId", funcionarioId.getStringValor());
         body.put("funcionarioNome", funcionarioNome(funcionarioId));
+        // Titularidade: o Lugar continua a ser do colaborador mesmo durante a mobilidade
+        // (Lei n.º 20/X/2023, art. 135.º n.º 7).
         body.put("positionId", position.getId().getStringValor());
         body.put("numeroLugar", position.getNumeroLugar());
         body.put("unidadeOrganicaId", str(position.getUnidadeOrganicaId()));
         body.put("unidadeNome", unidadeNome(position.getUnidadeOrganicaId()));
         body.put("jobId", str(position.getJobId()));
         body.put("jobNome", jobNome(position.getJobId()));
+
+        // Onde exerce funções hoje: durante uma mobilidade é o destino, não o Lugar de origem.
+        var mobilidade = mobilidadeService.mobilidadeEmVigor(funcionarioId);
+        body.put("emMobilidade", mobilidade.isPresent());
+        mobilidade.ifPresent(m -> {
+            body.put("mobilidadeId", m.getId().getStringValor());
+            body.put("mobilidadeInicio", m.getDataInicio());
+            body.put("mobilidadeFim", m.getDataFim());
+            body.put("mobilidadeDestinoTipo", m.isDestinoInterno() ? "INTERNO" : "EXTERNO");
+            body.put("exerceFuncoesUnidadeId", str(m.getDestinationUnitId()));
+            body.put("exerceFuncoesUnidadeNome", m.isDestinoInterno()
+                    ? unidadeNome(m.getDestinationUnitId()) : m.getEntidadeDestino());
+        });
+        if (mobilidade.isEmpty()) {
+            body.put("exerceFuncoesUnidadeId", str(position.getUnidadeOrganicaId()));
+            body.put("exerceFuncoesUnidadeNome", unidadeNome(position.getUnidadeOrganicaId()));
+        }
         return ResponseEntity.ok(body);
     }
 

@@ -362,6 +362,7 @@ DELETE .../{ownerId}/documentos/{docId}
 | `PUT` | `/{licencaId}/reject` | Rejeitar com motivo. |
 | `PUT` | `/{licencaId}/close` | Encerrar (fim do período ou regresso antecipado). Só a partir de `ACTIVE`. |
 | `PUT` | `/{licencaId}/cancel` | Cancelar (`PENDING` ou `ACTIVE`). |
+| `PUT` | `/{licencaId}/prorrogar` | **Prorrogar** o período em vigor (limites do subtipo). |
 | `PATCH` | `/{licencaId}/ativar` | Igual a `approve` (alias legado). |
 | `DELETE` | `/{licencaId}/desativar` | Soft delete do registo. |
 | `POST/GET/DELETE` | `/{licencaId}/documentos…` | Documentos anexos. |
@@ -390,6 +391,24 @@ Sem nenhum dos dois, o `approve` devolve **422**. O `destinationPositionId` deix
 
 ### Duração e prorrogação
 A duração máxima e o número de prorrogações são **parametrizados no subtipo** (`maxDurationDays`, `maxExtensions`). Por omissão, os subtipos de mobilidade ficam com 365 dias e 1 prorrogação (art. 132.º n.º 5). Se o subtipo tiver duração máxima, a `dataFim` é obrigatória e a duração é validada no `approve` (**422** se exceder).
+
+**`PUT /{licencaId}/prorrogar`** — só com o registo `ACTIVE`:
+```json
+{ "novaDataFim": "YYYY-MM-DD", "despachoNumero": "string | null", "observacoes": "string | null" }
+```
+Resposta `200` (`ProrrogacaoMobilidadeResponseDTO`): `id`, `dataInicio`, `dataFimAnterior`, `dataFim`, `prorrogacoes`, `maxProrrogacoes`.
+Devolve **422** se exceder o número de prorrogações ou se o período acrescentado exceder o máximo do subtipo ("por igual período").
+
+### Onde o colaborador exerce funções
+Durante uma mobilidade, o **Lugar continua a ser o de origem** e passa a haver um bloco à parte a dizer onde a pessoa está:
+
+| Endpoint | O que ganha |
+|---|---|
+| `GET /colaboradores/assignments/funcionario/{id}/unidade-atual` | `emMobilidade`, `mobilidadeId`, `mobilidadeInicio`, `mobilidadeFim`, `mobilidadeDestinoTipo` (INTERNO/EXTERNO), `exerceFuncoesUnidadeId`, `exerceFuncoesUnidadeNome` |
+| `GET /funcionarios/{id}/details` | bloco `mobilidadeEmVigor` (id, destinoTipo, destinoUnidadeId, destinoNome, datas, despacho) |
+| `GET /me` | bloco `mobilidadeEmVigor`; `currentUnit` continua a ser a unidade do Lugar |
+
+Sem mobilidade em vigor, `exerceFuncoesUnidade*` é a unidade do próprio Lugar.
 
 > ⚠️ **Breaking change:** `approve` e `close` já **não** mexem na afectação. Um front-end que mostrava o Lugar de destino após aprovar a mobilidade passa a mostrar o Lugar de origem, que continua a ser o do colaborador.
 

@@ -15,4 +15,10 @@ public interface LicencaMobilidadeRepository {
     Optional<LicencaMobilidade> findById(LicencaMobilidadeId id);
 
     List<LicencaMobilidade> findAllByFuncionarioId(FuncionarioId funcionarioId, LicencaMobilidadeFilter filter);
+
+    /**
+     * Registos em vigor (ACTIVE) do colaborador numa data — é por aqui que se sabe onde a pessoa
+     * exerce funções quando está em mobilidade, já que a afectação continua no Lugar de origem.
+     */
+    List<LicencaMobilidade> findActiveByFuncionarioIdAt(FuncionarioId funcionarioId, java.time.LocalDate data);
 }

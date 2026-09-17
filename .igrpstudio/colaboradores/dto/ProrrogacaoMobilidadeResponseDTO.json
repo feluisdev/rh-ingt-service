@@ -1,0 +1,44 @@
+{
+  "type": "dto",
+  "name": "ProrrogacaoMobilidadeResponseDTO",
+  "module": "colaboradores",
+  "template": "classic",
+  "attributes": [
+    {
+      "name": "id",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "dataInicio",
+      "type": "date",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "dataFimAnterior",
+      "type": "date",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "dataFim",
+      "type": "date",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "prorrogacoes",
+      "type": "integer",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "maxProrrogacoes",
+      "type": "integer",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

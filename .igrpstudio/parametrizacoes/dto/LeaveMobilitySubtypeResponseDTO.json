@@ -74,6 +74,18 @@
       "type": "string",
       "required": false,
       "primaryKey": false
+    },
+    {
+      "name": "maxDurationDays",
+      "type": "integer",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "maxExtensions",
+      "type": "integer",
+      "objectType": "java",
+      "required": false
     }
   ],
   "id": "leave_mobility_subtype_res_dto_001"

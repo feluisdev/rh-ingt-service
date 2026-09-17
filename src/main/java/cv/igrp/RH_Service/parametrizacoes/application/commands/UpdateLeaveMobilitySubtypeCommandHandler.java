@@ -33,7 +33,8 @@ public class UpdateLeaveMobilitySubtypeCommandHandler implements CommandHandler<
                 "Subtipo de licença/mobilidade não encontrado: " + command.getLeaveMobilitySubtypeId()));
 
         leaveMobilitySubtype.atualizar(dto.getDescription(), dto.isAffectsPay(),
-                dto.isCountsForSeniority(), dto.isCanSelfSubmit());
+                dto.isCountsForSeniority(), dto.isCanSelfSubmit(),
+                dto.getMaxDurationDays(), dto.getMaxExtensions());
 
         LeaveMobilitySubtype updated = leaveMobilitySubtypeRepository.save(leaveMobilitySubtype);
 
