@@ -47,8 +47,12 @@ public class OrgFunction {
      * Garante que a função é compatível com o cargo indicado no enquadramento.
      * Funções genéricas (jobId == null) são sempre compatíveis.
      */
+    public boolean isCompativelComCargo(UUID cargoId) {
+        return this.jobId == null || this.jobId.equals(cargoId);
+    }
+
     public void validarCompatibilidadeComCargo(UUID cargoId) {
-        if (this.jobId != null && !this.jobId.equals(cargoId)) {
+        if (!isCompativelComCargo(cargoId)) {
             throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
                     "A função '" + this.name + "' não pertence ao cargo indicado.");
         }

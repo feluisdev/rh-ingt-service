@@ -147,6 +147,7 @@ Cada um: `GET` (lista), `GET/{id}`, `POST`, `PUT/{id}`, `DELETE/{id}/deactivate`
 | `GET` | `/funcionarios/{id}/worker-state/historico` | Histórico de estados. |
 | `POST` | `/funcionarios/{id}/progressao` | **Progressão** para o escalão seguinte (ver 5.4). |
 | `POST` | `/funcionarios/{id}/promocao` | **Promoção** para a categoria seguinte (ver 5.5). |
+| `POST` | `/funcionarios/{id}/transferencia` | **Transferência** para outro Lugar (ver 5.6). |
 | `GET` | `/funcionarios/{id}/details` | Detalhe agregado (inclui bloco `enquadramento` derivado do Lugar, por compat). O bloco `contrato` traz `vinculoLaboralId`, `vinculoLaboralCode` e `vinculoLaboralDesc`, **derivados** do tipo de contrato. |
 | `GET` | `/funcionarios/combobox` | Combobox. |
 
@@ -257,6 +258,45 @@ Passa o colaborador à **categoria imediatamente superior da mesma carreira**. H
 | `422` | Colaborador inactivo · vínculo não permite · sem afectação corrente · `dataEfeito` não posterior ao início da afectação · Lugar actual fora de grelha · categoria de destino inactiva, de outra carreira ou que não é a imediatamente superior · escalão que não pertence à categoria de destino · Lugar de destino ocupado, não ATIVO ou de outra categoria. |
 
 A modalidade **não é guardada**: deduz-se do histórico comparando o Lugar da afectação anterior com o da nova. Regras completas: `regras_negocio.html`, secção 3.2 (BR-PRM-01 a 10).
+
+### 5.6 Transferência — `POST /funcionarios/{id}/transferencia`
+Mudança **definitiva** de Lugar **sem subir na grelha**: mantém carreira, categoria e **escalão** (herdado, não se envia). A unidade orgânica muda por consequência, porque deriva do Lugar.
+
+```json
+{
+  "positionId": "uuid do Lugar de destino",
+  "functionId": "uuid | omitir (mantém a função actual, se for compatível)",
+  "dataEfeito": "YYYY-MM-DD",
+  "despachoNumero": "string | null",
+  "observacoes": "string | null"
+}
+```
+
+**Resposta `201`** (`TransferenciaResponseDTO`)**:**
+```json
+{
+  "id": "uuid da nova afectação",
+  "funcionarioId": "uuid",
+  "positionAnteriorId": "uuid",
+  "numeroLugarAnterior": "L-001",
+  "unidadeOrganicaAnteriorId": "uuid",
+  "positionId": "uuid",
+  "numeroLugar": "L-042",
+  "unidadeOrganicaId": "uuid",
+  "functionId": "uuid | null",
+  "dataEfeito": "YYYY-MM-DD"
+}
+```
+
+| Código | Quando |
+|---|---|
+| `400` | `positionId` ou `dataEfeito` em falta; UUID inválido. |
+| `404` | Funcionário, Lugar ou função não existem. |
+| `422` | Colaborador inactivo · sem afectação corrente · `dataEfeito` não posterior ao início da afectação · Lugar de destino igual ao actual, ocupado ou não ATIVO · Lugar de destino de outra carreira/categoria (use a promoção) · função incompatível com o cargo do destino. |
+
+**Sobre a função:** se não enviar `functionId`, mantém-se a função actual quando é compatível com o cargo do Lugar de destino; quando não é, devolve `422` a pedir que a indique — nunca se perde em silêncio. Regras completas: `regras_negocio.html`, secção 3.3 (BR-TRF-01 a 08).
+
+> Uma mudança **temporária** de Lugar, com regresso, não é transferência: é **mobilidade** (secção 7).
 
 ---
 

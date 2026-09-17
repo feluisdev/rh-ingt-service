@@ -1,0 +1,18 @@
+{
+  "type": "dto",
+  "name": "TransferenciaResponseDTO",
+  "module": "colaboradores",
+  "template": "classic",
+  "attributes": [
+    {"name": "id", "type": "string", "objectType": "java", "required": false},
+    {"name": "funcionarioId", "type": "string", "objectType": "java", "required": false},
+    {"name": "positionAnteriorId", "type": "string", "objectType": "java", "required": false},
+    {"name": "numeroLugarAnterior", "type": "string", "objectType": "java", "required": false},
+    {"name": "unidadeOrganicaAnteriorId", "type": "string", "objectType": "java", "required": false},
+    {"name": "positionId", "type": "string", "objectType": "java", "required": false},
+    {"name": "numeroLugar", "type": "string", "objectType": "java", "required": false},
+    {"name": "unidadeOrganicaId", "type": "string", "objectType": "java", "required": false},
+    {"name": "functionId", "type": "string", "objectType": "java", "required": false},
+    {"name": "dataEfeito", "type": "date", "objectType": "java", "required": false}
+  ]
+}

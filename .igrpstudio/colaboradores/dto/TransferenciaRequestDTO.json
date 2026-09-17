@@ -1,0 +1,13 @@
+{
+  "type": "dto",
+  "name": "TransferenciaRequestDTO",
+  "module": "colaboradores",
+  "template": "classic",
+  "attributes": [
+    {"name": "positionId", "type": "string", "objectType": "java", "required": true},
+    {"name": "functionId", "type": "string", "objectType": "java", "required": false},
+    {"name": "dataEfeito", "type": "date", "objectType": "java", "required": true},
+    {"name": "despachoNumero", "type": "string", "objectType": "java", "required": false},
+    {"name": "observacoes", "type": "string", "objectType": "java", "required": false}
+  ]
+}

@@ -76,6 +76,7 @@
       <a href="#afetacao">3. Afectação (pessoa ↔ Lugar)</a><br>
       &nbsp;&nbsp;<a href="#progressao">3.1 Progressão</a><br>
       &nbsp;&nbsp;<a href="#promocao">3.2 Promoção</a><br>
+      &nbsp;&nbsp;<a href="#transferencia">3.3 Transferência</a><br>
       <a href="#estado">4. Ciclo de vida e mudança de estado</a><br>
       <a href="#ausencias">5. Ausências (pedidos e saldos)</a><br>
       <a href="#mobilidade">6. Licenças e mobilidade</a><br>
@@ -165,7 +166,6 @@
     <tr><td class="id">BR-PRG-08</td><td><b>Mantém o Lugar e a função</b> e <b>não exige vaga</b>: a regra "uma cadeira, um ocupante" (BR-AF-03) não se aplica, porque o ocupante é o próprio colaborador.</td><td>—</td><td class="src">AssignmentService.progredir</td></tr>
     <tr><td class="id">BR-PRG-09</td><td><b>Histórico (SCD Tipo 2):</b> encerra a afectação corrente na véspera da data de efeito e abre uma nova no mesmo Lugar, tipo <code>PRINCIPAL</code>, origem <code>PROGRESSAO</code>. O número do despacho e as observações ficam nas notas da afectação.</td><td>—</td><td class="src">AssignmentService.progredir</td></tr>
   </table>
-  <div class="callout warn"><b>Fora do âmbito da progressão e da promoção (por agora):</b> créditos de desempenho (vêm da avaliação, no módulo sigdi), dotação orçamental, concurso e formação (guarda-se só a referência), subida de vários escalões de uma vez (regularizações, DL n.º 19/2026) e anulação de um movimento. O endpoint genérico <code>POST /assignments</code> com <code>origem=PROGRESSAO</code> continua a existir, mas falha sempre por BR-AF-03 — usar os endpoints próprios.</div>
 
   <h3 id="promocao">3.2 Promoção</h3>
   <p>A promoção passa o colaborador à <b>categoria imediatamente superior da mesma carreira</b>. Corresponde à <i>evolução horizontal por mudança de categoria</i> da Lei n.º 20/X/2023 (art. 140.º n.º 4), que se faz por concurso interno e exige dotação orçamental.</p>
@@ -191,6 +191,22 @@
   </table>
 
 
+  <h3 id="transferencia">3.3 Transferência</h3>
+  <p>A transferência é a mudança <b>definitiva</b> de Lugar <b>sem subir na grelha</b>: mantém carreira, categoria e escalão, e muda a cadeira — e, por consequência, a unidade orgânica, que é derivada do Lugar. Se a categoria subisse seria uma <b>promoção</b> (3.2); se fosse temporária, com regresso, seria <b>mobilidade</b> (secção 6).</p>
+  <p>Endpoint: <code>POST /api/v1/rh/funcionarios/{funcionarioId}/transferencia</code> com <code>positionId</code> e <code>dataEfeito</code> (obrigatórios) e <code>functionId</code>, <code>despachoNumero</code> e <code>observacoes</code> (opcionais). Devolve <code>201</code> com <code>TransferenciaResponseDTO</code>.</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-TRF-01</td><td>O <b>Lugar de destino</b> (<code>positionId</code>) e a <b>data de efeito</b> são obrigatórios; os identificadores têm de ser UUID válidos.</td><td><span class="http h400">400</span></td><td class="src">TransferirColaboradorCommandHandler · TransferenciaRequestDTO</td></tr>
+    <tr><td class="id">BR-TRF-02</td><td>O funcionário tem de existir e estar <b>activo</b>. A transferência <b>não depende do vínculo laboral</b> — não há evolução na carreira.</td><td><span class="http h404">404</span> / <span class="http h422">422</span></td><td class="src">TransferirColaboradorCommandHandler</td></tr>
+    <tr><td class="id">BR-TRF-03</td><td>O colaborador tem de ter <b>afectação principal corrente</b> e a data de efeito tem de ser posterior ao início dessa afectação.</td><td><span class="http h422">422</span></td><td class="src">AssignmentService.transferir</td></tr>
+    <tr><td class="id">BR-TRF-04</td><td>O Lugar de destino tem de existir, estar <b>ATIVO</b> e <b>vago</b> (BR-AF-03), e <b>não pode ser o Lugar actual</b>.</td><td><span class="http h404">404</span> / <span class="http h422">422</span></td><td class="src">AssignmentService.transferir</td></tr>
+    <tr><td class="id">BR-TRF-05</td><td><b>Mesma posição na grelha:</b> o Lugar de destino tem de ter a <b>mesma carreira e a mesma categoria</b> do actual (ou ser igualmente fora de grelha). Categoria diferente ⇒ usar a promoção.</td><td><span class="http h422">422</span></td><td class="src">AssignmentService.transferir</td></tr>
+    <tr><td class="id">BR-TRF-06</td><td><b>O escalão é herdado</b> da afectação corrente e não se envia.</td><td>—</td><td class="src">AssignmentService.transferir</td></tr>
+    <tr><td class="id">BR-TRF-07</td><td><b>Função exercida:</b> a <code>functionId</code> enviada é validada contra o cargo do Lugar de destino (BR-FUN-02). Se não for enviada, mantém-se a função actual <b>quando compatível</b>; se não for compatível, é exigida explicitamente — nunca se perde em silêncio.</td><td><span class="http h404">404</span> / <span class="http h422">422</span></td><td class="src">AssignmentService.transferir · OrgFunction.isCompativelComCargo</td></tr>
+    <tr><td class="id">BR-TRF-08</td><td><b>Histórico (SCD Tipo 2):</b> encerra a afectação corrente na véspera da data de efeito e abre uma nova no Lugar de destino, tipo <code>PRINCIPAL</code>, origem <code>TRANSFERENCIA</code>. O Lugar antigo fica <b>vago</b>.</td><td>—</td><td class="src">AssignmentService.transferir</td></tr>
+  </table>
+
+  <div class="callout warn"><b>Fora do âmbito da progressão, da promoção e da transferência (por agora):</b> créditos de desempenho (vêm da avaliação, no módulo sigdi), dotação orçamental, concurso e formação (guarda-se só a referência), subida de vários escalões de uma vez (regularizações, DL n.º 19/2026) e anulação de um movimento. O endpoint genérico <code>POST /assignments</code> com <code>origem=PROGRESSAO</code> continua a existir, mas falha sempre por BR-AF-03 — usar os endpoints próprios.</div>
   <!-- ============ ESTADO ============ -->
   <h2 id="estado"><span class="n">4.</span>Ciclo de vida e mudança de estado</h2>
   <p>Mudar o estado do trabalhador (worker-state) propaga efeitos ao contrato e à afectação.</p>

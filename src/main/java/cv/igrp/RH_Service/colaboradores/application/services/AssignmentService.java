@@ -228,6 +228,98 @@ public class AssignmentService {
         return new Promocao(nova, categoriaAtual, categoriaDestino, escalao, reclassificado);
     }
 
+    /** Resultado de uma transferência: a nova afectação e os Lugares de partida e de chegada. */
+    public record Transferencia(Assignment afectacao, Position lugarAnterior, Position lugarNovo) {}
+
+    /**
+     * Transferência: mudança <b>definitiva</b> de Lugar sem subir na grelha. A pessoa mantém
+     * carreira, categoria e escalão — muda de cadeira e, por consequência, de unidade orgânica
+     * (que é derivada do Lugar). Se a categoria mudasse seria uma promoção, não uma transferência.
+     *
+     * <p>A função exercida acompanha a pessoa quando é compatível com o cargo do Lugar de destino;
+     * quando não é, exige-se que seja indicada, em vez de se perder em silêncio.
+     */
+    public Transferencia transferir(FuncionarioId funcionarioId, UUID positionIdDestino, UUID functionIdEscolhido,
+                                    LocalDate dataEfeito, String notes) {
+
+        Assignment atual = assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId)
+                .orElseThrow(() -> IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                        "O colaborador não tem afectação principal corrente — não é possível transferir."));
+
+        if (!dataEfeito.isAfter(atual.getDataInicio()))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "A data de efeito tem de ser posterior ao início da afectação corrente ("
+                            + atual.getDataInicio() + ").");
+
+        Position origem = positionRepository.findById(PositionId.from(atual.getPositionId()))
+                .orElseThrow(() -> IgrpResponseStatusException.notFound(
+                        "Lugar não encontrado: " + atual.getPositionId()));
+
+        if (positionIdDestino.equals(atual.getPositionId()))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "O Lugar de destino é o mesmo em que o colaborador já está.");
+
+        Position destino = positionRepository.findById(PositionId.from(positionIdDestino))
+                .orElseThrow(() -> IgrpResponseStatusException.notFound(
+                        "Lugar de destino não encontrado: " + positionIdDestino));
+
+        if (!destino.podeSerOcupado())
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "O Lugar '" + destino.getNumeroLugar() + "' não está disponível (estado="
+                            + destino.getEstado() + ").");
+
+        if (assignmentRepository.isPositionOccupied(positionIdDestino))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "O Lugar '" + destino.getNumeroLugar() + "' já está ocupado.");
+
+        // A transferência não mexe na grelha: mesma carreira, mesma categoria, mesmo escalão.
+        if (origem.isForaDeGrelha() != destino.isForaDeGrelha()
+                || !java.util.Objects.equals(origem.getCareerId(), destino.getCareerId())
+                || !java.util.Objects.equals(origem.getCategoryId(), destino.getCategoryId()))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "A transferência mantém a posição na grelha: o Lugar '" + destino.getNumeroLugar()
+                            + "' tem carreira/categoria diferente do Lugar actual. Para subir de categoria use a promoção.");
+
+        UUID functionId = funcaoDaTransferencia(atual.getFunctionId(), functionIdEscolhido, destino);
+
+        atual.encerrar(dataEfeito.minusDays(1));
+        assignmentRepository.save(atual);
+
+        Assignment nova = assignmentRepository.save(Assignment.criar(
+                funcionarioId, positionIdDestino, atual.getGradeId(), functionId,
+                Assignment.PRINCIPAL, Assignment.TRANSFERENCIA, dataEfeito, null, notes));
+
+        return new Transferencia(nova, origem, destino);
+    }
+
+    /**
+     * Função da afectação de destino: a escolhida (validada contra o cargo do Lugar) ou a actual,
+     * se continuar compatível. Uma função actual incompatível com o novo cargo é um erro explícito
+     * — não se deixa cair em silêncio.
+     */
+    private UUID funcaoDaTransferencia(UUID functionIdActual, UUID functionIdEscolhido, Position destino) {
+        if (functionIdEscolhido != null) {
+            functionRepository.findById(FunctionId.from(functionIdEscolhido))
+                    .orElseThrow(() -> IgrpResponseStatusException.notFound(
+                            "Função não encontrada: " + functionIdEscolhido))
+                    .validarCompatibilidadeComCargo(destino.getJobId());
+            return functionIdEscolhido;
+        }
+
+        if (functionIdActual == null) return null;
+
+        var funcaoActual = functionRepository.findById(FunctionId.from(functionIdActual))
+                .orElseThrow(() -> IgrpResponseStatusException.notFound(
+                        "Função não encontrada: " + functionIdActual));
+
+        if (!funcaoActual.isCompativelComCargo(destino.getJobId()))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "A função actual '" + funcaoActual.getName() + "' não pertence ao cargo do Lugar '"
+                            + destino.getNumeroLugar() + "' — indique a função (functionId) a exercer no destino.");
+
+        return functionIdActual;
+    }
+
     /** Escalão da promoção: o escolhido (tem de ser da categoria de destino) ou o primeiro activo. */
     private Grade escalaoDaPromocao(UUID gradeIdEscolhido, Category categoriaDestino) {
         CategoryId destinoId = categoriaDestino.getId();

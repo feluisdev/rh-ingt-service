@@ -140,6 +140,18 @@ public class FuncionarioController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
+    @PostMapping("{funcionarioId}/transferencia")
+    @Operation(summary = "Transferir o colaborador para outro Lugar, mantendo carreira, categoria e escalão")
+    public ResponseEntity<TransferenciaResponseDTO> transferirColaborador(
+            @PathVariable(value = "funcionarioId") String funcionarioId,
+            @Valid @RequestBody TransferenciaRequestDTO request) {
+        LOGGER.debug("Operation started");
+        final var command = new TransferirColaboradorCommand(funcionarioId, request);
+        ResponseEntity<TransferenciaResponseDTO> response = commandBus.send(command);
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
     @GetMapping("{funcionarioId}/worker-state/historico")
     @Operation(summary = "Histórico de mudanças de estado do colaborador")
     public ResponseEntity<List<HistoricoEstadoColaboradorResponseDTO>> getHistoricoEstadoColaborador(
