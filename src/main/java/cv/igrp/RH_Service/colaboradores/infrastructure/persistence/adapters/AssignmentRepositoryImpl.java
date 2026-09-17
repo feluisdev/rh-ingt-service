@@ -11,8 +11,10 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository("colabsAssignmentRepositoryImpl")
@@ -69,6 +71,13 @@ public class AssignmentRepositoryImpl implements AssignmentRepository {
     @Override
     public boolean isPositionOccupied(UUID positionId) {
         return entityRepository.existsByPosition_IdAndIsCurrentTrue(positionId);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Set<UUID> findOccupiedPositionIds(Collection<UUID> positionIds) {
+        if (positionIds == null || positionIds.isEmpty()) return Set.of();
+        return Set.copyOf(entityRepository.findOccupiedPositionIds(positionIds));
     }
 
     @Transactional(readOnly = true)

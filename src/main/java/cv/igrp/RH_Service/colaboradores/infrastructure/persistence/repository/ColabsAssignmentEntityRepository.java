@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -39,4 +40,12 @@ public interface ColabsAssignmentEntityRepository extends JpaRepository<Assignme
             @Param("unidadeOrganicaId") UUID unidadeOrganicaId,
             @Param("startOfYear") LocalDate startOfYear,
             @Param("endOfYear") LocalDate endOfYear);
+
+    // Ocupacao em bloco: um unico SELECT para todos os Lugares de uma listagem, em vez de
+    // um existsByPosition_IdAndIsCurrentTrue por linha (N+1). Devolve apenas os ids dos
+    // Lugares com afectacao corrente; os restantes estao vagos por ausencia.
+    // Ver nota acima sobre o nome JPA da entidade ("ColabsAssignmentEntity").
+    @Query("SELECT p.id FROM ColabsAssignmentEntity a JOIN a.position p "
+            + "WHERE a.isCurrent = true AND p.id IN :positionIds")
+    List<UUID> findOccupiedPositionIds(@Param("positionIds") Collection<UUID> positionIds);
 }

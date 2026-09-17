@@ -4,8 +4,10 @@ import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.AssignmentId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public interface AssignmentRepository {
@@ -16,6 +18,13 @@ public interface AssignmentRepository {
     List<Assignment> findAllByFuncionarioOrderByDataInicioDesc(FuncionarioId funcionarioId);
     Optional<Assignment> findCurrentByPosition(UUID positionId);
     boolean isPositionOccupied(UUID positionId);
+
+    /**
+     * Quais dos {@code positionIds} tem afectacao corrente. Existe para que uma listagem de
+     * Lugares resolva a ocupacao numa consulta so, em vez de um {@link #isPositionOccupied}
+     * por linha. Os ids ausentes do resultado estao vagos.
+     */
+    Set<UUID> findOccupiedPositionIds(Collection<UUID> positionIds);
 
     /**
      * Quem esteve afectado a um Lugar da unidade orgânica {@code unidadeOrganicaId} durante

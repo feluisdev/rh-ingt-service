@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -40,9 +41,13 @@ public class GetVagasListaUnidadeQueryHandler
 
         long dotacao = lugares.stream().filter(Position::podeSerOcupado).count();
 
+        // Uma consulta para toda a unidade, em vez de um isPositionOccupied por Lugar (N+1).
+        Set<UUID> ocupados = assignmentRepository.findOccupiedPositionIds(
+                lugares.stream().map(p -> p.getId().getValor()).toList());
+
         List<PositionResponseDTO> vagos = lugares.stream()
                 .filter(Position::podeSerOcupado)
-                .filter(p -> !assignmentRepository.isPositionOccupied(p.getId().getValor()))
+                .filter(p -> !ocupados.contains(p.getId().getValor()))
                 .map(p -> {
                     PositionResponseDTO dto = positionMapper.toDTO(p);
                     dto.setOcupado(false);
