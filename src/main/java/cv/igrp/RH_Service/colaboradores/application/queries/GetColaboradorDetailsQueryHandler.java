@@ -9,6 +9,7 @@ import cv.igrp.RH_Service.carreiras.domain.valueobject.GradeId;
 import cv.igrp.RH_Service.colaboradores.application.dto.ColaboradorDetailsResponseDTO;
 import cv.igrp.RH_Service.colaboradores.application.dto.DadosBancariosResponseDTO;
 import cv.igrp.RH_Service.colaboradores.application.dto.EnquadramentoResponseDTO;
+import cv.igrp.RH_Service.colaboradores.application.services.VinculoLaboralService;
 import cv.igrp.RH_Service.colaboradores.domain.filter.DocumentoFilter;
 import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.ContratoRepository;
@@ -62,6 +63,7 @@ public class GetColaboradorDetailsQueryHandler
     private final ContratoRepository contratoRepository;
     private final ContratoMapper contratoMapper;
     private final ContractTypeRepository contractTypeRepository;
+    private final VinculoLaboralService vinculoLaboralService;
 
     private final AssignmentRepository assignmentRepository;
     private final PositionRepository positionRepository;
@@ -100,6 +102,13 @@ public class GetColaboradorDetailsQueryHandler
                     if (c.getContractTypeId() != null)
                         contractTypeRepository.findById(ContractTypeId.from(c.getContractTypeId()))
                                 .ifPresent(ct -> dto.setContractTypeName(ct.getDescription()));
+                    // O vínculo é derivado (contrato → tipo de contrato → vínculo), como o
+                    // provido/vago do Lugar: mostra-se, mas nunca se guarda.
+                    vinculoLaboralService.procurarDoFuncionario(funcionarioId).ifPresent(v -> {
+                        dto.setVinculoLaboralId(v.getId().getStringValor());
+                        dto.setVinculoLaboralCode(v.getCode());
+                        dto.setVinculoLaboralDesc(v.getDescription());
+                    });
                     return dto;
                 }).orElse(null);
 

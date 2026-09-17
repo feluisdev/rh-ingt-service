@@ -125,6 +125,60 @@ public class AssignmentService {
                 Assignment.MOBILIDADE, Assignment.PRINCIPAL, dataInicio, origemId, notes);
     }
 
+    /** Resultado de uma progressão: a nova afectação e os escalões de partida e de chegada. */
+    public record Progressao(Assignment afectacao, Grade escalaoAnterior, Grade escalaoNovo) {}
+
+    /**
+     * Progressão (evolução horizontal dentro da mesma categoria — Lei 20/X/2023, art. 140.º):
+     * sobe o colaborador para o escalão activo imediatamente superior da categoria do seu Lugar.
+     * Mantém o Lugar e a função; não exige vaga. Fecha a afectação PRINCIPAL corrente na véspera
+     * da data de efeito e abre uma nova no mesmo Lugar com origem PROGRESSAO (SCD Type 2).
+     * Não passa por {@link #afectar}: o Lugar já está ocupado — pelo próprio colaborador.
+     */
+    public Progressao progredir(FuncionarioId funcionarioId, LocalDate dataEfeito, String notes) {
+        Assignment atual = assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId)
+                .orElseThrow(() -> IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                        "O colaborador não tem afectação principal corrente — não é possível progredir."));
+
+        if (!dataEfeito.isAfter(atual.getDataInicio()))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "A data de efeito tem de ser posterior ao início da afectação corrente ("
+                            + atual.getDataInicio() + ").");
+
+        Position position = positionRepository.findById(PositionId.from(atual.getPositionId()))
+                .orElseThrow(() -> IgrpResponseStatusException.notFound(
+                        "Lugar não encontrado: " + atual.getPositionId()));
+
+        if (position.isForaDeGrelha() || atual.getGradeId() == null)
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "O Lugar '" + position.getNumeroLugar()
+                            + "' está fora da grelha (sem carreira/categoria) — não há escalões para progredir.");
+
+        Grade escalaoAtual = gradeRepository.findById(GradeId.from(atual.getGradeId()))
+                .orElseThrow(() -> IgrpResponseStatusException.notFound(
+                        "Escalão não encontrado: " + atual.getGradeId()));
+
+        Grade escalaoSeguinte = gradeRepository
+                .findByCategoryIdOrderByGradeNumber(CategoryId.from(position.getCategoryId()))
+                .stream()
+                .filter(g -> Boolean.TRUE.equals(g.getIsActive()))
+                .filter(g -> g.getGradeNumber() > escalaoAtual.getGradeNumber())
+                .findFirst()
+                .orElseThrow(() -> IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                        "O colaborador já está no último escalão da categoria '"
+                                + nomeCategoria(position.getCategoryId()) + "'."));
+
+        atual.encerrar(dataEfeito.minusDays(1));
+        assignmentRepository.save(atual);
+
+        Assignment nova = assignmentRepository.save(Assignment.criar(
+                funcionarioId, atual.getPositionId(), escalaoSeguinte.getId().getValor(),
+                atual.getFunctionId(), Assignment.PRINCIPAL, Assignment.PROGRESSAO,
+                dataEfeito, null, notes));
+
+        return new Progressao(nova, escalaoAtual, escalaoSeguinte);
+    }
+
     /**
      * Regresso de mobilidade (temporária): fecha a afectação de MOBILIDADE corrente e
      * reabre a afectação de origem ({@code origin_assignment_id}) num novo período corrente,

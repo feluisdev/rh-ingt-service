@@ -15,6 +15,10 @@ public class ContratoResponseDTO {
     private String funcionarioId;
     private String contractTypeId;
     private String contractTypeName;
+    // Vínculo laboral — derivado do tipo de contrato, nunca guardado no contrato nem no funcionário.
+    private String vinculoLaboralId;
+    private String vinculoLaboralCode;
+    private String vinculoLaboralDesc;
     private String contractNumber;
     private LocalDate startDate;
     private LocalDate endDate;

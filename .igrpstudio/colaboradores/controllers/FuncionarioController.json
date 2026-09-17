@@ -131,6 +131,43 @@
       }
     },
     {
+      "actionName": "progredirColaborador",
+      "method": "POST",
+      "path": "{funcionarioId}/progressao",
+      "summary": "Progride o colaborador para o escalão imediatamente superior da mesma categoria (mesmo Lugar, origem PROGRESSAO)",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string", "isRequired": true}
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ProgressaoRequestDTO",
+              "objectType": "dto",
+              "name": "data",
+              "collectionType": "none",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "map",
+                "objectType": "java",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "actionName": "getHistoricoEstadoColaborador",
       "method": "GET",
       "path": "{funcionarioId}/worker-state/historico",

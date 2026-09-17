@@ -116,6 +116,18 @@ public class FuncionarioController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
+    @PostMapping("{funcionarioId}/progressao")
+    @Operation(summary = "Progredir o colaborador para o escalão imediatamente superior da mesma categoria")
+    public ResponseEntity<Map<String, ?>> progredirColaborador(
+            @PathVariable(value = "funcionarioId") String funcionarioId,
+            @Valid @RequestBody ProgressaoRequestDTO request) {
+        LOGGER.debug("Operation started");
+        final var command = new ProgredirColaboradorCommand(funcionarioId, request);
+        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
     @GetMapping("{funcionarioId}/worker-state/historico")
     @Operation(summary = "Histórico de mudanças de estado do colaborador")
     public ResponseEntity<List<HistoricoEstadoColaboradorResponseDTO>> getHistoricoEstadoColaborador(

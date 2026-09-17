@@ -1,0 +1,11 @@
+{
+  "type": "dto",
+  "name": "ProgressaoRequestDTO",
+  "module": "colaboradores",
+  "template": "classic",
+  "attributes": [
+    {"name": "dataEfeito", "type": "date", "objectType": "java", "required": true},
+    {"name": "despachoNumero", "type": "string", "objectType": "java", "required": false},
+    {"name": "observacoes", "type": "string", "objectType": "java", "required": false}
+  ]
+}

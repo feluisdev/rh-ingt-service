@@ -145,7 +145,8 @@ Cada um: `GET` (lista), `GET/{id}`, `POST`, `PUT/{id}`, `DELETE/{id}/deactivate`
 | `POST` | `/funcionarios/registar` | **Registo completo** (ver 5.2). |
 | `PATCH` | `/funcionarios/{id}/worker-state` | Mudar estado do trabalhador. |
 | `GET` | `/funcionarios/{id}/worker-state/historico` | Histórico de estados. |
-| `GET` | `/funcionarios/{id}/details` | Detalhe agregado (inclui bloco `enquadramento` derivado do Lugar, por compat). |
+| `POST` | `/funcionarios/{id}/progressao` | **Progressão** para o escalão seguinte (ver 5.4). |
+| `GET` | `/funcionarios/{id}/details` | Detalhe agregado (inclui bloco `enquadramento` derivado do Lugar, por compat). O bloco `contrato` traz `vinculoLaboralId`, `vinculoLaboralCode` e `vinculoLaboralDesc`, **derivados** do tipo de contrato. |
 | `GET` | `/funcionarios/combobox` | Combobox. |
 
 ### 5.2 Registo — `POST /api/v1/rh/funcionarios/registar`
@@ -175,6 +176,38 @@ Cria funcionário + (opcional) contrato + **afectação a um Lugar vago** numa s
 
 ### 5.3 Mudança de estado — `PATCH /funcionarios/{id}/worker-state`
 Mudar para `RETIRED`/`INACTIVE` **encerra a afectação corrente** (o Lugar volta a vago). Request inalterado.
+
+### 5.4 Progressão — `POST /funcionarios/{id}/progressao`
+Sobe o colaborador para o **escalão imediatamente superior da mesma categoria**. O Lugar e a função mantêm-se e não é precisa vaga. **O escalão é escolhido pelo sistema** (o próximo escalão activo da categoria do Lugar), não pelo cliente.
+
+```json
+{
+  "dataEfeito": "YYYY-MM-DD",
+  "despachoNumero": "string | null",
+  "observacoes": "string | null"
+}
+```
+
+**Resposta `201`:**
+```json
+{
+  "id": "uuid da nova afectação",
+  "escalaoAnterior": "Escalão 1",
+  "escalaoNovo": "Escalão 2",
+  "dataEfeito": "YYYY-MM-DD",
+  "message": "Progressão registada com sucesso"
+}
+```
+
+| Código | Quando |
+|---|---|
+| `400` | `dataEfeito` em falta. |
+| `404` | Funcionário não existe. |
+| `422` | Colaborador inactivo · sem contrato corrente ou com vínculo que não permite progressão · sem afectação principal corrente · `dataEfeito` não posterior ao início da afectação corrente · Lugar fora de grelha · já está no último escalão. |
+
+No histórico, a afectação corrente fecha na véspera de `dataEfeito` e abre-se uma nova com `origem = PROGRESSAO`. Regras completas: `regras_negocio.html`, secção 3.1 (BR-PRG-01 a 09).
+
+> Não usar `POST /assignments` com `origem=PROGRESSAO`: falha sempre, porque o Lugar já está ocupado pelo próprio colaborador.
 
 ---
 
