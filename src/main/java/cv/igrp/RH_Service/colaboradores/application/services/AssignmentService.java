@@ -435,11 +435,11 @@ public class AssignmentService {
      * O Lugar volta a estar VAGO (derivado). Idempotente: se não houver afectação
      * corrente, não faz nada.
      */
-    public void encerrarAfectacaoCorrente(FuncionarioId funcionarioId, LocalDate dataFim) {
-        assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId)
-                .ifPresent(a -> {
+    public Optional<Assignment> encerrarAfectacaoCorrente(FuncionarioId funcionarioId, LocalDate dataFim) {
+        return assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId)
+                .map(a -> {
                     a.encerrar(dataFim);
-                    assignmentRepository.save(a);
+                    return assignmentRepository.save(a);
                 });
     }
 

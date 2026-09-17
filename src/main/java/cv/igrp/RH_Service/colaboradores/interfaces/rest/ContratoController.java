@@ -82,12 +82,12 @@ public class ContratoController {
     }
 
     @PutMapping("{contratoId}/close")
-    @Operation(summary = "Encerrar contrato (cessação)")
-    public ResponseEntity<Map<String, ?>> closeContrato(
+    @Operation(summary = "Encerrar contrato = cessação do vínculo (cessa contrato, encerra a afectação e muda o estado do trabalhador)")
+    public ResponseEntity<EstadoColaboradorResponseDTO> closeContrato(
             @PathVariable String contratoId,
             @Valid @RequestBody CloseContratoRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(
+        ResponseEntity<EstadoColaboradorResponseDTO> response = commandBus.send(
                 new CloseContratoCommand(contratoId, request.getEndDate(), request.getTerminationReason(), request.getNotes()));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());

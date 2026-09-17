@@ -12,6 +12,10 @@ import java.util.UUID;
 @Getter
 public class Contrato {
 
+    public static final String ATIVO = "ATIVO";
+    public static final String SUSPENSO = "SUSPENSO";
+    public static final String CESSADO = "CESSADO";
+
     private ContratoId id;
     private FuncionarioId funcionarioId;
     private UUID contractTypeId;

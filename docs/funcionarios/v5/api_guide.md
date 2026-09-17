@@ -177,7 +177,23 @@ Cria funcionário + (opcional) contrato + **afectação a um Lugar vago** numa s
 > ⚠️ **Breaking change:** o registo já **não** aceita unidade/cargo/carreira/categoria — todos derivam do `positionId`. Ver `breaking_change_frontend.md`.
 
 ### 5.3 Mudança de estado — `PATCH /funcionarios/{id}/worker-state`
-Mudar para `RETIRED`/`INACTIVE` **encerra a afectação corrente** (o Lugar volta a vago). Request inalterado.
+Mudar para um **estado de cessação** (catálogo: `endsEmployment = true`) termina o vínculo: cessa o contrato, **encerra a afectação corrente** (o Lugar volta a vago), muda o estado e regista o histórico. Request inalterado.
+
+**Resposta `200`** (`EstadoColaboradorResponseDTO`, já não é um mapa)**:**
+```json
+{
+  "funcionarioId": "uuid",
+  "estadoAnteriorId": "uuid",
+  "estadoNovoId": "uuid",
+  "estadoNovoCode": "RETIRED",
+  "dataEfectividade": "YYYY-MM-DD",
+  "cessouVinculo": true,
+  "contratoId": "uuid | null",
+  "afectacaoEncerradaId": "uuid | null"
+}
+```
+
+> **Cessação tem um caminho único.** Este endpoint e `PUT /contratos/{id}/close` fazem exactamente o mesmo, e devolvem o mesmo DTO. Que estados cessam o vínculo é configuração (`endsEmployment` no catálogo de estados), não código.
 
 ### 5.4 Progressão — `POST /funcionarios/{id}/progressao`
 Sobe o colaborador para o **escalão imediatamente superior da mesma categoria**. O Lugar e a função mantêm-se e não é precisa vaga. **O escalão é escolhido pelo sistema** (o próximo escalão activo da categoria do Lugar), não pelo cliente.
@@ -306,7 +322,7 @@ Todos seguem o padrão CRUD + (quando aplicável) `documentos`:
 
 | Recurso | Base |
 |---|---|
-| Contratos | `/funcionarios/{id}/contratos` — + `close`, `suspend`, `activate`, `documentos` |
+| Contratos | `/funcionarios/{id}/contratos` — + `close`, `suspend`, `activate`, `documentos`. **`close` = cessação do vínculo** (ver nota abaixo) |
 | Dados bancários | `/funcionarios/{id}/dados-bancarios` |
 | Dependentes | `/funcionarios/{id}/dependentes` |
 | Qualificações | `/funcionarios/{id}/qualificacoes` — + `documentos` |
@@ -317,6 +333,10 @@ Todos seguem o padrão CRUD + (quando aplicável) `documentos`:
 | Pedidos de ausência | `/funcionarios/{id}/pedidos-ausencia` — + `aprovar`/`rejeitar`/`cancelar` |
 | Saldos de ausência | `/funcionarios/{id}/saldos-ausencia` |
 | Licenças/mobilidade | `/funcionarios/{id}/licencas-mobilidade` (ver 7) |
+
+> **`PUT /funcionarios/{id}/contratos/{contratoId}/close` cessa o vínculo.** Cessa o contrato, encerra a afectação corrente (o Lugar fica vago), muda o estado do trabalhador para o estado de cessação por omissão e regista o histórico — os mesmos efeitos de `PATCH /funcionarios/{id}/worker-state` com um estado de cessação. Devolve `EstadoColaboradorResponseDTO`.
+>
+> Para **renovar ou substituir** um contrato não se usa o `close`: basta criar o contrato novo, que encerra o anterior (motivo `SUBSTITUICAO`) sem tocar na afectação nem no estado.
 
 ### Sub-recurso `documentos` (padrão)
 ```

@@ -9,14 +9,46 @@
       "actionName": "getFuncionarios",
       "method": "GET",
       "requestParams": [
-        {"name": "nome",              "type": "string",  "required": false},
-        {"name": "nif",               "type": "string",  "required": false},
-        {"name": "workerStateId",     "type": "string",  "required": false},
-        {"name": "unidadeOrganicaId", "type": "string",  "required": false},
-        {"name": "careerId",          "type": "string",  "required": false},
-        {"name": "active",            "type": "boolean", "required": false},
-        {"name": "pagina",            "type": "string",  "required": false},
-        {"name": "tamanho",           "type": "string",  "required": false}
+        {
+          "name": "nome",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "nif",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "workerStateId",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "unidadeOrganicaId",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "careerId",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "required": false
+        },
+        {
+          "name": "pagina",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "tamanho",
+          "type": "string",
+          "required": false
+        }
       ]
     },
     {
@@ -24,7 +56,10 @@
       "method": "GET",
       "path": "{funcionarioId}",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -32,7 +67,11 @@
       "method": "GET",
       "path": "{funcionarioId}/details",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string", "isRequired": true}
+        {
+          "name": "funcionarioId",
+          "type": "string",
+          "isRequired": true
+        }
       ],
       "responses": {
         "200": {
@@ -62,7 +101,10 @@
       "path": "{funcionarioId}",
       "summary": "Actualizar dados pessoais e bancários do funcionário",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
       ],
       "requestBody": {
         "content": {
@@ -99,7 +141,11 @@
       "path": "{funcionarioId}/worker-state",
       "summary": "Muda o estado do colaborador (ACTIVE, SUSPENDED, RETIRED, INACTIVE) com motivo, data de efectividade e efeitos em contrato/colocação",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string", "isRequired": true}
+        {
+          "name": "funcionarioId",
+          "type": "string",
+          "isRequired": true
+        }
       ],
       "requestBody": {
         "content": {
@@ -120,10 +166,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "map",
-                "objectType": "java",
+                "type": "EstadoColaboradorResponseDTO",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "none"
+                "collectionType": "none",
+                "module": "colaboradores"
               }
             }
           }
@@ -136,7 +183,11 @@
       "path": "{funcionarioId}/progressao",
       "summary": "Progride o colaborador para o escalão imediatamente superior da mesma categoria (mesmo Lugar, origem PROGRESSAO)",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string", "isRequired": true}
+        {
+          "name": "funcionarioId",
+          "type": "string",
+          "isRequired": true
+        }
       ],
       "requestBody": {
         "content": {
@@ -174,7 +225,11 @@
       "path": "{funcionarioId}/promocao",
       "summary": "Promove o colaborador para a categoria imediatamente superior da mesma carreira (origem PROMOCAO). Com positionId muda de Lugar; sem positionId o Lugar actual é reclassificado",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string", "isRequired": true}
+        {
+          "name": "funcionarioId",
+          "type": "string",
+          "isRequired": true
+        }
       ],
       "requestBody": {
         "content": {
@@ -212,7 +267,11 @@
       "path": "{funcionarioId}/transferencia",
       "summary": "Transfere o colaborador para outro Lugar vago da mesma carreira/categoria, mantendo o escalão (origem TRANSFERENCIA)",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string", "isRequired": true}
+        {
+          "name": "funcionarioId",
+          "type": "string",
+          "isRequired": true
+        }
       ],
       "requestBody": {
         "content": {
@@ -250,7 +309,11 @@
       "path": "{funcionarioId}/worker-state/historico",
       "summary": "Lista o histórico de mudanças de estado do colaborador, ordenado por data efectividade descendente",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string", "isRequired": true}
+        {
+          "name": "funcionarioId",
+          "type": "string",
+          "isRequired": true
+        }
       ],
       "responses": {
         "200": {
@@ -274,7 +337,10 @@
       "method": "GET",
       "path": "{funcionarioId}/enquadramento",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -282,7 +348,10 @@
       "method": "GET",
       "path": "{funcionarioId}/enquadramentos/historico",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -290,7 +359,10 @@
       "method": "GET",
       "path": "{funcionarioId}/contratos",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -298,7 +370,10 @@
       "method": "GET",
       "path": "{funcionarioId}/dependentes",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -306,7 +381,10 @@
       "method": "GET",
       "path": "{funcionarioId}/qualificacoes",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -342,9 +420,21 @@
       "path": "combobox",
       "method": "GET",
       "requestParams": [
-        {"type": "string", "name": "q",                "isRequired": false},
-        {"type": "string", "name": "unidadeOrganicaId","isRequired": false},
-        {"type": "string", "name": "workerStateId",    "isRequired": false}
+        {
+          "type": "string",
+          "name": "q",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "unidadeOrganicaId",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "workerStateId",
+          "isRequired": false
+        }
       ],
       "responses": {
         "200": {

@@ -17,6 +17,7 @@ public class WorkerStateMapper {
         entity.setDescription(domain.getDescription());
         entity.setIsCore(domain.isCore());
         entity.setIsActive(domain.isActive());
+        entity.setEndsEmployment(domain.isEndsEmployment());
         return entity;
     }
 
@@ -27,7 +28,8 @@ public class WorkerStateMapper {
             entity.getCode(),
             entity.getDescription(),
             entity.getIsCore() != null && entity.getIsCore(),
-            entity.getIsActive() != null && entity.getIsActive()
+            entity.getIsActive() != null && entity.getIsActive(),
+            entity.getEndsEmployment() != null && entity.getEndsEmployment()
         );
     }
 
@@ -38,6 +40,7 @@ public class WorkerStateMapper {
         dto.setCode(domain.getCode());
         dto.setDescription(domain.getDescription());
         dto.setIsCore(domain.isCore());
+        dto.setEndsEmployment(domain.isEndsEmployment());
         dto.setIsActive(domain.isActive());
         dto.setEstadoDesc(Boolean.TRUE.equals(domain.isActive()) ? "Ativo" : "Inativo");
         return dto;

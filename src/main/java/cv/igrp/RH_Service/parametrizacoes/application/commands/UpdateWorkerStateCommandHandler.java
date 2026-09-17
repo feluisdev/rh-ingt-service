@@ -33,7 +33,8 @@ public class UpdateWorkerStateCommandHandler implements CommandHandler<UpdateWor
             .orElseThrow(() -> IgrpResponseStatusException.notFound(
                 "Não encontrado: " + command.getWorkerStateId()));
 
-        workerState.atualizar(command.getWorkerStateRequest().getDescription());
+        workerState.atualizar(command.getWorkerStateRequest().getDescription(),
+                command.getWorkerStateRequest().getEndsEmployment());
         WorkerState saved = workerStateRepository.save(workerState);
 
         return ResponseEntity.ok(workerStateMapper.toDTO(saved));

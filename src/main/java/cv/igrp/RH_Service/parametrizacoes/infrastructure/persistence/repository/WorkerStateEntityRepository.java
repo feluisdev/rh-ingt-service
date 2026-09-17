@@ -9,4 +9,5 @@ import java.util.UUID;
 public interface WorkerStateEntityRepository extends JpaRepository<WorkerStateEntity, UUID>, JpaSpecificationExecutor<WorkerStateEntity> {
     boolean existsByCode(String code);
     java.util.Optional<WorkerStateEntity> findByCodeIgnoreCase(String code);
+    java.util.List<WorkerStateEntity> findByEndsEmploymentTrueAndIsActiveTrueOrderByCode();
 }

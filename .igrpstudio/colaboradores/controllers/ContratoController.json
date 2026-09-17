@@ -10,7 +10,11 @@
       "method": "GET",
       "path": "",
       "pathVariables": [
-        { "type": "string", "name": "funcionarioId", "isRequired": true }
+        {
+          "type": "string",
+          "name": "funcionarioId",
+          "isRequired": true
+        }
       ],
       "responses": {
         "200": {
@@ -67,7 +71,11 @@
       "method": "GET",
       "path": "{contratoId}",
       "pathVariables": [
-        { "type": "string", "name": "contratoId", "isRequired": true }
+        {
+          "type": "string",
+          "name": "contratoId",
+          "isRequired": true
+        }
       ],
       "responses": {
         "200": {
@@ -91,7 +99,11 @@
       "method": "PUT",
       "path": "{contratoId}",
       "pathVariables": [
-        { "type": "string", "name": "contratoId", "isRequired": true }
+        {
+          "type": "string",
+          "name": "contratoId",
+          "isRequired": true
+        }
       ],
       "requestBody": {
         "content": {
@@ -128,7 +140,11 @@
       "method": "DELETE",
       "path": "{contratoId}",
       "pathVariables": [
-        { "type": "string", "name": "contratoId", "isRequired": true }
+        {
+          "type": "string",
+          "name": "contratoId",
+          "isRequired": true
+        }
       ],
       "responses": {
         "200": {
@@ -150,9 +166,13 @@
       "actionName": "closeContrato",
       "method": "PUT",
       "path": "{contratoId}/close",
-      "summary": "Encerrar contrato — transição ATIVO → CESSADO com endDate e terminationReason obrigatórios",
+      "summary": "Encerrar contrato = cessação do vínculo: cessa o contrato, encerra a afectação corrente (o Lugar fica vago), muda o estado do trabalhador e regista o histórico",
       "pathVariables": [
-        { "type": "string", "name": "contratoId", "isRequired": true }
+        {
+          "type": "string",
+          "name": "contratoId",
+          "isRequired": true
+        }
       ],
       "requestBody": {
         "content": {
@@ -173,10 +193,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "map",
-                "objectType": "java",
+                "type": "EstadoColaboradorResponseDTO",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "none"
+                "collectionType": "none",
+                "module": "colaboradores"
               }
             }
           }
@@ -189,7 +210,11 @@
       "path": "{contratoId}/suspend",
       "summary": "Suspender contrato — transição ATIVO → SUSPENSO",
       "pathVariables": [
-        { "type": "string", "name": "contratoId", "isRequired": true }
+        {
+          "type": "string",
+          "name": "contratoId",
+          "isRequired": true
+        }
       ],
       "responses": {
         "200": {
@@ -213,7 +238,11 @@
       "path": "{contratoId}/activate",
       "summary": "Reactivar contrato suspenso — transição SUSPENSO → ATIVO",
       "pathVariables": [
-        { "type": "string", "name": "contratoId", "isRequired": true }
+        {
+          "type": "string",
+          "name": "contratoId",
+          "isRequired": true
+        }
       ],
       "responses": {
         "200": {
@@ -236,7 +265,11 @@
       "method": "POST",
       "path": "{contratoId}/documentos",
       "pathVariables": [
-        { "type": "string", "name": "contratoId", "isRequired": true }
+        {
+          "type": "string",
+          "name": "contratoId",
+          "isRequired": true
+        }
       ],
       "requestBody": {
         "content": {
@@ -273,11 +306,23 @@
       "method": "GET",
       "path": "{contratoId}/documentos",
       "pathVariables": [
-        { "type": "string", "name": "contratoId", "isRequired": true }
+        {
+          "type": "string",
+          "name": "contratoId",
+          "isRequired": true
+        }
       ],
       "requestParams": [
-        { "type": "uuid",    "name": "documentTypeId", "isRequired": false },
-        { "type": "boolean", "name": "active",          "isRequired": false }
+        {
+          "type": "uuid",
+          "name": "documentTypeId",
+          "isRequired": false
+        },
+        {
+          "type": "boolean",
+          "name": "active",
+          "isRequired": false
+        }
       ],
       "responses": {
         "200": {
@@ -301,8 +346,16 @@
       "method": "GET",
       "path": "{contratoId}/documentos/{docId}",
       "pathVariables": [
-        { "type": "string", "name": "contratoId", "isRequired": true },
-        { "type": "string", "name": "docId",      "isRequired": true }
+        {
+          "type": "string",
+          "name": "contratoId",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "docId",
+          "isRequired": true
+        }
       ],
       "responses": {
         "200": {
@@ -326,8 +379,16 @@
       "method": "GET",
       "path": "{contratoId}/documentos/{docId}/download",
       "pathVariables": [
-        { "type": "string", "name": "contratoId", "isRequired": true },
-        { "type": "string", "name": "docId",      "isRequired": true }
+        {
+          "type": "string",
+          "name": "contratoId",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "docId",
+          "isRequired": true
+        }
       ],
       "responses": {
         "200": {
@@ -351,8 +412,16 @@
       "method": "DELETE",
       "path": "{contratoId}/documentos/{docId}",
       "pathVariables": [
-        { "type": "string", "name": "contratoId", "isRequired": true },
-        { "type": "string", "name": "docId",      "isRequired": true }
+        {
+          "type": "string",
+          "name": "contratoId",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "docId",
+          "isRequired": true
+        }
       ],
       "responses": {
         "200": {

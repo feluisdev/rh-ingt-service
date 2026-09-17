@@ -14,29 +14,40 @@ public class WorkerState {
     private String description;
     private boolean core;
     private boolean active;
+    /** Estado de cessação: ao ser atribuído, termina a relação de emprego público. */
+    private boolean endsEmployment;
 
     private WorkerState() {}
 
-    private WorkerState(WorkerStateId id, String code, String description, boolean core, boolean active) {
+    private WorkerState(WorkerStateId id, String code, String description, boolean core, boolean active,
+                        boolean endsEmployment) {
         this.id = id;
         this.code = code;
         this.description = description;
         this.core = core;
         this.active = active;
+        this.endsEmployment = endsEmployment;
     }
 
-    public static WorkerState criar(String code, String description, Boolean isCore) {
+    public static WorkerState criar(String code, String description, Boolean isCore, Boolean endsEmployment) {
         Objects.requireNonNull(code, "code não pode ser nulo");
         boolean effectiveCore = isCore != null && isCore;
-        return new WorkerState(WorkerStateId.gerarNovo(), code, description, effectiveCore, true);
+        return new WorkerState(WorkerStateId.gerarNovo(), code, description, effectiveCore, true,
+                endsEmployment != null && endsEmployment);
     }
 
-    public static WorkerState reconstruir(WorkerStateId id, String code, String description, boolean core, boolean active) {
-        return new WorkerState(id, code, description, core, active);
+    public static WorkerState reconstruir(WorkerStateId id, String code, String description, boolean core,
+                                          boolean active, boolean endsEmployment) {
+        return new WorkerState(id, code, description, core, active, endsEmployment);
     }
 
     public void atualizar(String description) {
         this.description = description;
+    }
+
+    public void atualizar(String description, Boolean endsEmployment) {
+        this.description = description;
+        if (endsEmployment != null) this.endsEmployment = endsEmployment;
     }
 
     public void desativar() {

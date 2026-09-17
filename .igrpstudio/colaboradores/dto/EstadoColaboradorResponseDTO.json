@@ -1,0 +1,16 @@
+{
+  "type": "dto",
+  "name": "EstadoColaboradorResponseDTO",
+  "module": "colaboradores",
+  "template": "classic",
+  "attributes": [
+    {"name": "funcionarioId", "type": "string", "objectType": "java", "required": false},
+    {"name": "estadoAnteriorId", "type": "string", "objectType": "java", "required": false},
+    {"name": "estadoNovoId", "type": "string", "objectType": "java", "required": false},
+    {"name": "estadoNovoCode", "type": "string", "objectType": "java", "required": false},
+    {"name": "dataEfectividade", "type": "date", "objectType": "java", "required": false},
+    {"name": "cessouVinculo", "type": "boolean", "objectType": "java", "required": false},
+    {"name": "contratoId", "type": "string", "objectType": "java", "required": false},
+    {"name": "afectacaoEncerradaId", "type": "string", "objectType": "java", "required": false}
+  ]
+}

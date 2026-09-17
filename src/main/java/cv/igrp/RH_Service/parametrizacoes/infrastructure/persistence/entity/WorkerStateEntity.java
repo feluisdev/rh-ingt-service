@@ -35,4 +35,8 @@ public class WorkerStateEntity extends AuditEntity {
 
     @Column(name = "is_active")
     private Boolean isActive;
+
+    /** Estado que termina a relação de emprego público (cessação) — ver V40. */
+    @Column(name = "ends_employment")
+    private Boolean endsEmployment;
 }

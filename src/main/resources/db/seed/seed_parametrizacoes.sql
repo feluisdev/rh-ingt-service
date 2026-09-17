@@ -8,11 +8,12 @@
 -- 1. Estados do Trabalhador (t_worker_state)
 -- ACTIVE e INACTIVE são estados núcleo (is_core=true) — bloqueiam DELETE/desactivação.
 -- =============================================================
-INSERT INTO t_worker_state (id, code, description, is_core, is_active, created_date, created_by) VALUES
-('c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1', 'ACTIVE',    'Ativo',      true,  true, NOW(), 'system'),
-('c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e2', 'INACTIVE',  'Inativo',    true,  true, NOW(), 'system'),
-('c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e3', 'SUSPENDED', 'Suspenso',   false, true, NOW(), 'system'),
-('c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e4', 'RETIRED',   'Aposentado', false, true, NOW(), 'system')
+-- ends_employment=true → o estado cessa a relação de emprego público (V40)
+INSERT INTO t_worker_state (id, code, description, is_core, is_active, ends_employment, created_date, created_by) VALUES
+('c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1', 'ACTIVE',    'Ativo',      true,  true, false, NOW(), 'system'),
+('c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e2', 'INACTIVE',  'Inativo',    true,  true, true,  NOW(), 'system'),
+('c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e3', 'SUSPENDED', 'Suspenso',   false, true, false, NOW(), 'system'),
+('c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e4', 'RETIRED',   'Aposentado', false, true, true,  NOW(), 'system')
 ON CONFLICT (code) DO NOTHING;
 
 -- =============================================================

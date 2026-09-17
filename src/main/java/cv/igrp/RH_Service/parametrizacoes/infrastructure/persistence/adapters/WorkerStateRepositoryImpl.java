@@ -15,6 +15,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -37,6 +38,13 @@ public class WorkerStateRepositoryImpl implements WorkerStateRepository {
     public Optional<WorkerState> findById(WorkerStateId id) {
         return workerStateEntityRepository.findById(id.getValor())
             .map(workerStateMapper::toDomain);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<WorkerState> findAllEndingEmployment() {
+        return workerStateEntityRepository.findByEndsEmploymentTrueAndIsActiveTrueOrderByCode()
+            .stream().map(workerStateMapper::toDomain).toList();
     }
 
     @Transactional(readOnly = true)

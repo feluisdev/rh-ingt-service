@@ -13,4 +13,6 @@ public class WorkerStateRequestDTO {
     private String code;
     private String description;
     private Boolean isCore;
+    /** Estado que termina a relação de emprego público (cessação). */
+    private Boolean endsEmployment;
 }

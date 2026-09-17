@@ -15,5 +15,6 @@ public class WorkerStateResponseDTO {
     private String description;
     private Boolean isCore;
     private Boolean isActive;
+    private Boolean endsEmployment;
     private String estadoDesc;
 }

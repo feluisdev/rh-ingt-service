@@ -106,12 +106,12 @@ public class FuncionarioController {
 
     @PatchMapping("{funcionarioId}/worker-state")
     @Operation(summary = "Mudar estado do colaborador")
-    public ResponseEntity<Map<String, ?>> mudarEstadoColaborador(
+    public ResponseEntity<EstadoColaboradorResponseDTO> mudarEstadoColaborador(
             @PathVariable String funcionarioId,
             @Valid @RequestBody MudarEstadoColaboradorRequestDTO request) {
         LOGGER.debug("Operation started");
         final var command = new MudarEstadoColaboradorCommand(funcionarioId, request);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<EstadoColaboradorResponseDTO> response = commandBus.send(command);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

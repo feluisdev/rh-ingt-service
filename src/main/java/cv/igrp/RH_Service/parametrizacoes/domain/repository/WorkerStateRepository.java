@@ -5,6 +5,7 @@ import cv.igrp.RH_Service.parametrizacoes.domain.models.WorkerState;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.WorkerStateId;
 import cv.igrp.RH_Service.shared.domain.pagination.PageResult;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface WorkerStateRepository {
@@ -13,4 +14,7 @@ public interface WorkerStateRepository {
     boolean existsByCode(String code);
     java.util.Optional<WorkerState> findByCode(String code);
     PageResult<WorkerState> findAll(WorkerStateFilter filter);
+
+    /** Estados activos que terminam a relação de emprego público (ends_employment). */
+    List<WorkerState> findAllEndingEmployment();
 }

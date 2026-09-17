@@ -25,6 +25,12 @@
       "type": "boolean",
       "required": false,
       "primaryKey": false
+    },
+    {
+      "type": "boolean",
+      "name": "endsEmployment",
+      "objectType": "java",
+      "required": false
     }
   ],
   "id": "worker_state_req_dto_001"
