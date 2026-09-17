@@ -24,7 +24,7 @@ public class SubtipoLicencaMobilidadeRepositoryImpl implements SubtipoLicencaMob
                 SubtipoLicencaMobilidadeId.from(e.getId()),
                 e.getDescription(), e.getCode(), e.getRecordType(),
                 e.getAffectsPay(), e.getCountsForSeniority(), e.getCanSelfSubmit(),
-                e.getIsActive());
+                e.getIsActive(), e.getMaxDurationDays(), e.getMaxExtensions());
     }
 
     private LeaveMobilitySubtypeEntity toEntity(SubtipoLicencaMobilidade s) {
@@ -37,6 +37,8 @@ public class SubtipoLicencaMobilidadeRepositoryImpl implements SubtipoLicencaMob
         e.setCountsForSeniority(s.getCountsForSeniority());
         e.setCanSelfSubmit(s.getCanSelfSubmit());
         e.setIsActive(s.getIsActive());
+        e.setMaxDurationDays(s.getMaxDurationDays());
+        e.setMaxExtensions(s.getMaxExtensions());
         return e;
     }
 

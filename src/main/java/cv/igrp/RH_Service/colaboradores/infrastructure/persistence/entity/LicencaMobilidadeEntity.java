@@ -72,4 +72,8 @@ public class LicencaMobilidadeEntity extends AuditEntity {
 
     @Column(name = "rejection_reason", columnDefinition = "TEXT")
     private String rejectionReason;
+
+    /** Prorrogações já concedidas — ver V41. */
+    @Column(name = "extensions_count")
+    private Integer extensionsCount;
 }

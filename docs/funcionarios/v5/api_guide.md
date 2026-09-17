@@ -351,16 +351,19 @@ DELETE .../{ownerId}/documentos/{docId}
 
 ## 7. Licenças e mobilidade — `/funcionarios/{id}/licencas-mobilidade`
 
+> **A mobilidade transitória não tira o Lugar ao titular** (Lei n.º 20/X/2023, art. 135.º n.º 7). Este processo **não mexe na afectação**: regista onde a pessoa exerce funções e até quando. Para mudar mesmo de Lugar, usar a **transferência** (5.6).
+
 | Método | Path | Descrição |
 |---|---|---|
-| `POST` | `/` | Criar licença/mobilidade. |
+| `POST` | `/` | Criar licença/mobilidade (nasce `PENDING`). |
 | `GET` | `/` · `/{licencaId}` | Listar / detalhe. |
-| `PUT` | `/{licencaId}` | Atualizar. |
-| `PUT` | `/{licencaId}/approve` | Aprovar. MOBILIDADE → cria afectação no Lugar de destino. |
-| `PUT` | `/{licencaId}/reject` | Rejeitar. |
-| `PUT` | `/{licencaId}/close` | Encerrar. MOBILIDADE temporária → **regressa ao Lugar de origem**. |
-| `PUT` | `/{licencaId}/cancel` | Cancelar (reverte mobilidade ativa). |
-| `PATCH` | `/{licencaId}/ativar` · `DELETE /{licencaId}/desativar` | Aliases legados de approve/cancel. |
+| `PUT` | `/{licencaId}` | Atualizar (só enquanto `PENDING`). |
+| `PUT` | `/{licencaId}/approve` | Aprovar (só a partir de `PENDING`). Valida destino e duração. **Não mexe na afectação.** |
+| `PUT` | `/{licencaId}/reject` | Rejeitar com motivo. |
+| `PUT` | `/{licencaId}/close` | Encerrar (fim do período ou regresso antecipado). Só a partir de `ACTIVE`. |
+| `PUT` | `/{licencaId}/cancel` | Cancelar (`PENDING` ou `ACTIVE`). |
+| `PATCH` | `/{licencaId}/ativar` | Igual a `approve` (alias legado). |
+| `DELETE` | `/{licencaId}/desativar` | Soft delete do registo. |
 | `POST/GET/DELETE` | `/{licencaId}/documentos…` | Documentos anexos. |
 
 **`LicencaMobilidadeRequestDTO`** (campos-chave):
@@ -368,14 +371,27 @@ DELETE .../{ownerId}/documentos/{docId}
 {
   "subtipoId": "uuid",                 // t_leave_mobility_subtype (record_type)
   "dataInicio": "YYYY-MM-DD",
-  "dataFim": "YYYY-MM-DD | null",
-  "entidadeDestino": "string",
-  "destinationUnitId": "uuid | null",
-  "destinationPositionId": "uuid | null", // OBRIGATÓRIO p/ MOBILIDADE (senão 422 no approve)
+  "dataFim": "YYYY-MM-DD | null",      // obrigatória se o subtipo tiver duração máxima
+  "entidadeDestino": "string | null",  // mobilidade EXTERNA
+  "destinationUnitId": "uuid | null",  // mobilidade INTERNA
+  "destinationPositionId": "uuid | null", // legado, já não é usado
   "despachoNumero": "string | null",
   "justification": "string | null"
 }
 ```
+
+### Destino da mobilidade
+| Caso | O que enviar |
+|---|---|
+| **Interna** — outra unidade nossa | `destinationUnitId` (tem de existir) |
+| **Externa** — entidade de fora (autarquia, empresa pública, privado, organismo internacional) | `entidadeDestino` |
+
+Sem nenhum dos dois, o `approve` devolve **422**. O `destinationPositionId` deixou de ser exigido: a mobilidade transitória não ocupa Lugar no destino.
+
+### Duração e prorrogação
+A duração máxima e o número de prorrogações são **parametrizados no subtipo** (`maxDurationDays`, `maxExtensions`). Por omissão, os subtipos de mobilidade ficam com 365 dias e 1 prorrogação (art. 132.º n.º 5). Se o subtipo tiver duração máxima, a `dataFim` é obrigatória e a duração é validada no `approve` (**422** se exceder).
+
+> ⚠️ **Breaking change:** `approve` e `close` já **não** mexem na afectação. Um front-end que mostrava o Lugar de destino após aprovar a mobilidade passa a mostrar o Lugar de origem, que continua a ser o do colaborador.
 
 ---
 

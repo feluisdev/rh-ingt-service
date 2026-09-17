@@ -44,4 +44,12 @@ public class LeaveMobilitySubtypeEntity extends AuditEntity {
 
     @Column(name = "is_active")
     private Boolean isActive;
+
+    /** Duração máxima em dias (mobilidade transitória: 365) — ver V41. */
+    @Column(name = "max_duration_days")
+    private Integer maxDurationDays;
+
+    /** Prorrogações permitidas (em regra, uma) — ver V41. */
+    @Column(name = "max_extensions")
+    private Integer maxExtensions;
 }

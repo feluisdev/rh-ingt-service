@@ -36,7 +36,7 @@ public class LicencaMobilidadeMapper {
                 e.getStatus(), refs.idOf(e.getDestinationUnit(), OrganizationalUnitEntity::getId),
                 refs.idOf(e.getDestinationPosition(), PositionEntity::getId),
                 e.getJustification(), refs.idOf(e.getDocument(), DocumentoEntity::getId),
-                e.getRejectionReason());
+                e.getRejectionReason(), e.getExtensionsCount());
     }
 
     public LicencaMobilidadeEntity toEntity(LicencaMobilidade l) {
@@ -56,6 +56,7 @@ public class LicencaMobilidadeMapper {
         e.setJustification(l.getJustification());
         e.setDocument(refs.ref(DocumentoEntity.class, l.getDocumentId()));
         e.setRejectionReason(l.getRejectionReason());
+        e.setExtensionsCount(l.extensoes());
         return e;
     }
 

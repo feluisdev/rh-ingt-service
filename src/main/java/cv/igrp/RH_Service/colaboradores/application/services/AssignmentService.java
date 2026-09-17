@@ -26,7 +26,11 @@ import java.util.UUID;
 /**
  * Serviço de afectação — centraliza a criação/versionamento de Afectações (SCD Type 2)
  * e as regras de negócio (Lugar ocupável, uma cadeira um ocupante, coerência de grelha).
- * Reutilizado pelo registo de colaborador e pela mobilidade.
+ * Reutilizado pelo registo de colaborador e pelos movimentos de carreira.
+ *
+ * <p>A <b>mobilidade transitória não passa por aqui</b>: não ocupa lugar do quadro no destino
+ * (Lei n.º 20/X/2023, art. 135.º n.º 7), logo não cria nem fecha afectações — ver
+ * {@link MobilidadeService}. A mudança definitiva de Lugar é a {@link #transferir transferência}.
  */
 @Service
 @RequiredArgsConstructor
@@ -109,21 +113,6 @@ public class AssignmentService {
         return assignmentRepository.save(Assignment.criar(
                 funcionarioId, positionId, gradeId, functionId, tipo, origem,
                 dataInicio, originAssignmentId, notes));
-    }
-
-    /**
-     * Afecta por MOBILIDADE ao Lugar de destino, herdando o escalão (grade) da afectação
-     * corrente — a mobilidade muda a cadeira mas mantém a posição-na-grelha da pessoa.
-     * A afectação corrente é encerrada (SCD Type 2) dentro de {@link #afectar}.
-     */
-    public Assignment afectarMobilidade(FuncionarioId funcionarioId, UUID positionId,
-                                        LocalDate dataInicio, String notes) {
-        Optional<Assignment> atual = assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId);
-        UUID gradeAtual = atual.map(Assignment::getGradeId).orElse(null);
-        // Guarda a afectação de origem para permitir o regresso (mobilidade temporária).
-        UUID origemId = atual.map(a -> a.getId().getValor()).orElse(null);
-        return afectar(funcionarioId, positionId, gradeAtual, null,
-                Assignment.MOBILIDADE, Assignment.PRINCIPAL, dataInicio, origemId, notes);
     }
 
     /** Resultado de uma progressão: a nova afectação e os escalões de partida e de chegada. */
@@ -398,36 +387,6 @@ public class AssignmentService {
                 dataEfeito, null, notes));
 
         return new Progressao(nova, escalaoAtual, escalaoSeguinte);
-    }
-
-    /**
-     * Regresso de mobilidade (temporária): fecha a afectação de MOBILIDADE corrente e
-     * reabre a afectação de origem ({@code origin_assignment_id}) num novo período corrente,
-     * no mesmo Lugar de origem, herdando escalão/função. Se a mobilidade não registou origem
-     * (permanente) ou se o Lugar de origem já foi reafectado/extinto, apenas fecha a corrente.
-     * Idempotente: sem afectação corrente, não faz nada.
-     */
-    public void regressarDeMobilidade(FuncionarioId funcionarioId, LocalDate dataRegresso) {
-        Optional<Assignment> correnteOpt = assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId);
-        if (correnteOpt.isEmpty()) return;
-
-        Assignment corrente = correnteOpt.get();
-        corrente.encerrar(dataRegresso);
-        assignmentRepository.save(corrente);
-
-        UUID origemId = corrente.getOriginAssignmentId();
-        if (origemId == null) return; // mobilidade permanente — nada a reabrir
-
-        Assignment origem = assignmentRepository.findById(AssignmentId.from(origemId)).orElse(null);
-        if (origem == null) return;
-
-        // Só reabre se o Lugar de origem ainda estiver vago (não foi reafectado entretanto).
-        if (assignmentRepository.isPositionOccupied(origem.getPositionId())) return;
-
-        assignmentRepository.save(Assignment.criar(
-                funcionarioId, origem.getPositionId(), origem.getGradeId(), origem.getFunctionId(),
-                Assignment.PRINCIPAL, Assignment.MOBILIDADE, dataRegresso, null,
-                "Regresso de mobilidade ao Lugar de origem"));
     }
 
     /**

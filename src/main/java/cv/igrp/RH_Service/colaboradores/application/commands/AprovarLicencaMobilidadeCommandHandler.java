@@ -1,30 +1,34 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
-import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
+import cv.igrp.RH_Service.colaboradores.application.services.MobilidadeService;
 import cv.igrp.RH_Service.colaboradores.domain.repository.LicencaMobilidadeRepository;
-import cv.igrp.RH_Service.colaboradores.domain.repository.SubtipoLicencaMobilidadeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.LicencaMobilidadeId;
-import cv.igrp.RH_Service.colaboradores.domain.valueobject.SubtipoLicencaMobilidadeId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.Map;
 
-@Component("colabsAprovarLicencaMobilidadeCommandHandler")
+/**
+ * Aprovar = pôr em vigor a licença ou a mobilidade.
+ *
+ * <p><b>Não mexe na afectação.</b> A mobilidade transitória não ocupa lugar do quadro no destino
+ * (Lei n.º 20/X/2023, art. 135.º n.º 7): o colaborador continua titular do seu Lugar e o regresso
+ * fica garantido. Antes, aprovar fechava a afectação de origem e ocupava um Lugar no destino — o
+ * Lugar de origem ficava vago e podia ser ocupado por outra pessoa, deixando o titular sem Lugar
+ * no regresso.
+ */
+@Component
 @RequiredArgsConstructor
 public class AprovarLicencaMobilidadeCommandHandler
         implements CommandHandler<AprovarLicencaMobilidadeCommand, ResponseEntity<Map<String, ?>>> {
 
     private final LicencaMobilidadeRepository licencaRepository;
-    private final AssignmentService assignmentService;
-    private final SubtipoLicencaMobilidadeRepository subtipoRepository;
+    private final MobilidadeService mobilidadeService;
 
     @IgrpCommandHandler
     @Transactional
@@ -33,28 +37,16 @@ public class AprovarLicencaMobilidadeCommandHandler
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Licença/mobilidade não encontrada: " + command.getLicencaId()));
 
+        // Estado primeiro: um registo já decidido não chega sequer às validações do destino.
         if (!licenca.isPending())
-            throw IgrpResponseStatusException.of(HttpStatus.CONFLICT,
+            throw IgrpResponseStatusException.conflict(
                     "Apenas registos PENDING podem ser aprovados. Estado actual: " + licenca.getStatus());
+
+        var subtipo = mobilidadeService.subtipoDe(licenca);
+        mobilidadeService.validarParaAprovacao(licenca, subtipo);
 
         licenca.aprovar();
         licencaRepository.save(licenca);
-
-        var subtipo = subtipoRepository.findById(SubtipoLicencaMobilidadeId.from(licenca.getSubtipoId().getValor()))
-                .orElse(null);
-        boolean isMobilidade = subtipo != null && "MOBILIDADE".equals(subtipo.getRecordType());
-
-        if (isMobilidade) {
-            if (licenca.getDestinationPositionId() == null)
-                throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
-                        "A mobilidade exige um Lugar de destino (destinationPositionId) para abrir a afectação.");
-
-            var hoje = LocalDate.now();
-            String notes = "Mobilidade" + (licenca.getDespachoNumero() != null
-                    ? " (despacho " + licenca.getDespachoNumero() + ")" : "");
-            assignmentService.afectarMobilidade(licenca.getFuncionarioId(),
-                    licenca.getDestinationPositionId(), hoje, notes);
-        }
 
         return ResponseEntity.ok(Map.of("message", "Aprovado com sucesso"));
     }
