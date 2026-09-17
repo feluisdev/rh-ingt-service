@@ -1,0 +1,16 @@
+{
+  "type": "dto",
+  "name": "ProgressaoResponseDTO",
+  "module": "colaboradores",
+  "template": "classic",
+  "attributes": [
+    {"name": "id", "type": "string", "objectType": "java", "required": false},
+    {"name": "funcionarioId", "type": "string", "objectType": "java", "required": false},
+    {"name": "positionId", "type": "string", "objectType": "java", "required": false},
+    {"name": "escalaoAnteriorId", "type": "string", "objectType": "java", "required": false},
+    {"name": "escalaoAnterior", "type": "string", "objectType": "java", "required": false},
+    {"name": "escalaoNovoId", "type": "string", "objectType": "java", "required": false},
+    {"name": "escalaoNovo", "type": "string", "objectType": "java", "required": false},
+    {"name": "dataEfeito", "type": "date", "objectType": "java", "required": false}
+  ]
+}

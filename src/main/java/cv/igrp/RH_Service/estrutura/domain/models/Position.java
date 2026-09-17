@@ -80,6 +80,21 @@ public class Position {
         this.legalBase = legalBase;
     }
 
+    /**
+     * Reclassifica o Lugar para outra carreira/categoria — é o que acontece numa promoção
+     * em que o ocupante <b>fica na mesma cadeira</b> e é a cadeira que sobe de categoria.
+     * Altera o Mapa de Pessoal: a partir daqui o Lugar pertence à nova categoria, mesmo
+     * depois de o ocupante sair.
+     */
+    public void reclassificarPara(UUID careerId, UUID categoryId) {
+        if (!podeSerOcupado()) {
+            throw IgrpResponseStatusException.conflict(
+                    "Só um Lugar activo (estado ATIVO) pode ser reclassificado. Estado actual: " + this.estado);
+        }
+        this.careerId = careerId;
+        this.categoryId = categoryId;
+    }
+
     public boolean isForaDeGrelha() {
         return this.careerId == null || this.categoryId == null;
     }

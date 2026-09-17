@@ -146,6 +146,7 @@ Cada um: `GET` (lista), `GET/{id}`, `POST`, `PUT/{id}`, `DELETE/{id}/deactivate`
 | `PATCH` | `/funcionarios/{id}/worker-state` | Mudar estado do trabalhador. |
 | `GET` | `/funcionarios/{id}/worker-state/historico` | Histórico de estados. |
 | `POST` | `/funcionarios/{id}/progressao` | **Progressão** para o escalão seguinte (ver 5.4). |
+| `POST` | `/funcionarios/{id}/promocao` | **Promoção** para a categoria seguinte (ver 5.5). |
 | `GET` | `/funcionarios/{id}/details` | Detalhe agregado (inclui bloco `enquadramento` derivado do Lugar, por compat). O bloco `contrato` traz `vinculoLaboralId`, `vinculoLaboralCode` e `vinculoLaboralDesc`, **derivados** do tipo de contrato. |
 | `GET` | `/funcionarios/combobox` | Combobox. |
 
@@ -188,14 +189,17 @@ Sobe o colaborador para o **escalão imediatamente superior da mesma categoria**
 }
 ```
 
-**Resposta `201`:**
+**Resposta `201`** (`ProgressaoResponseDTO`)**:**
 ```json
 {
   "id": "uuid da nova afectação",
+  "funcionarioId": "uuid",
+  "positionId": "uuid",
+  "escalaoAnteriorId": "uuid",
   "escalaoAnterior": "Escalão 1",
+  "escalaoNovoId": "uuid",
   "escalaoNovo": "Escalão 2",
-  "dataEfeito": "YYYY-MM-DD",
-  "message": "Progressão registada com sucesso"
+  "dataEfeito": "YYYY-MM-DD"
 }
 ```
 
@@ -208,6 +212,51 @@ Sobe o colaborador para o **escalão imediatamente superior da mesma categoria**
 No histórico, a afectação corrente fecha na véspera de `dataEfeito` e abre-se uma nova com `origem = PROGRESSAO`. Regras completas: `regras_negocio.html`, secção 3.1 (BR-PRG-01 a 09).
 
 > Não usar `POST /assignments` com `origem=PROGRESSAO`: falha sempre, porque o Lugar já está ocupado pelo próprio colaborador.
+
+### 5.5 Promoção — `POST /funcionarios/{id}/promocao`
+Passa o colaborador à **categoria imediatamente superior da mesma carreira**. Há duas formas e **não se indica qual**: infere-se do pedido.
+
+| Envia `positionId`? | O que acontece |
+|---|---|
+| **Sim** | Muda para esse Lugar, que tem de estar **vago, ATIVO e ser da categoria de destino**. O Lugar antigo fica vago. |
+| **Não** | Fica no mesmo Lugar e **o Lugar sobe de categoria** (reclassificação). O Lugar mantém a nova categoria depois de a pessoa sair. |
+
+```json
+{
+  "categoryId": "uuid da categoria de destino",
+  "positionId": "uuid | omitir",
+  "gradeId": "uuid | omitir (por omissão: 1.º escalão activo da categoria de destino)",
+  "dataEfeito": "YYYY-MM-DD",
+  "despachoNumero": "string | null",
+  "concursoRef": "string | null",
+  "observacoes": "string | null"
+}
+```
+
+**Resposta `201`** (`PromocaoResponseDTO`)**:**
+```json
+{
+  "id": "uuid da nova afectação",
+  "funcionarioId": "uuid",
+  "positionId": "uuid do Lugar final",
+  "categoriaAnteriorId": "uuid",
+  "categoriaAnterior": "Técnico",
+  "categoriaNovaId": "uuid",
+  "categoriaNova": "Técnico Superior",
+  "escalaoId": "uuid",
+  "escalao": "Escalão 1",
+  "lugarReclassificado": true,
+  "dataEfeito": "YYYY-MM-DD"
+}
+```
+
+| Código | Quando |
+|---|---|
+| `400` | `categoryId` ou `dataEfeito` em falta; UUID inválido. |
+| `404` | Funcionário, categoria, Lugar ou escalão não existem. |
+| `422` | Colaborador inactivo · vínculo não permite · sem afectação corrente · `dataEfeito` não posterior ao início da afectação · Lugar actual fora de grelha · categoria de destino inactiva, de outra carreira ou que não é a imediatamente superior · escalão que não pertence à categoria de destino · Lugar de destino ocupado, não ATIVO ou de outra categoria. |
+
+A modalidade **não é guardada**: deduz-se do histórico comparando o Lugar da afectação anterior com o da nova. Regras completas: `regras_negocio.html`, secção 3.2 (BR-PRM-01 a 10).
 
 ---
 

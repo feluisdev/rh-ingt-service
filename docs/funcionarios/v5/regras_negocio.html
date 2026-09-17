@@ -75,6 +75,7 @@
       <a href="#contrato">2. Contrato</a><br>
       <a href="#afetacao">3. Afectação (pessoa ↔ Lugar)</a><br>
       &nbsp;&nbsp;<a href="#progressao">3.1 Progressão</a><br>
+      &nbsp;&nbsp;<a href="#promocao">3.2 Promoção</a><br>
       <a href="#estado">4. Ciclo de vida e mudança de estado</a><br>
       <a href="#ausencias">5. Ausências (pedidos e saldos)</a><br>
       <a href="#mobilidade">6. Licenças e mobilidade</a><br>
@@ -164,7 +165,31 @@
     <tr><td class="id">BR-PRG-08</td><td><b>Mantém o Lugar e a função</b> e <b>não exige vaga</b>: a regra "uma cadeira, um ocupante" (BR-AF-03) não se aplica, porque o ocupante é o próprio colaborador.</td><td>—</td><td class="src">AssignmentService.progredir</td></tr>
     <tr><td class="id">BR-PRG-09</td><td><b>Histórico (SCD Tipo 2):</b> encerra a afectação corrente na véspera da data de efeito e abre uma nova no mesmo Lugar, tipo <code>PRINCIPAL</code>, origem <code>PROGRESSAO</code>. O número do despacho e as observações ficam nas notas da afectação.</td><td>—</td><td class="src">AssignmentService.progredir</td></tr>
   </table>
-  <div class="callout warn"><b>Fora do âmbito (por agora):</b> créditos de desempenho (vêm da avaliação, no módulo sigdi), dotação orçamental, subida de vários escalões de uma vez (regularizações, DL n.º 19/2026) e anulação de uma progressão. O endpoint genérico <code>POST /assignments</code> com <code>origem=PROGRESSAO</code> continua a existir, mas falha sempre por BR-AF-03 — usar o endpoint próprio.</div>
+  <div class="callout warn"><b>Fora do âmbito da progressão e da promoção (por agora):</b> créditos de desempenho (vêm da avaliação, no módulo sigdi), dotação orçamental, concurso e formação (guarda-se só a referência), subida de vários escalões de uma vez (regularizações, DL n.º 19/2026) e anulação de um movimento. O endpoint genérico <code>POST /assignments</code> com <code>origem=PROGRESSAO</code> continua a existir, mas falha sempre por BR-AF-03 — usar os endpoints próprios.</div>
+
+  <h3 id="promocao">3.2 Promoção</h3>
+  <p>A promoção passa o colaborador à <b>categoria imediatamente superior da mesma carreira</b>. Corresponde à <i>evolução horizontal por mudança de categoria</i> da Lei n.º 20/X/2023 (art. 140.º n.º 4), que se faz por concurso interno e exige dotação orçamental.</p>
+  <p>Endpoint: <code>POST /api/v1/rh/funcionarios/{funcionarioId}/promocao</code> com <code>categoryId</code> e <code>dataEfeito</code> (obrigatórios) e <code>positionId</code>, <code>gradeId</code>, <code>despachoNumero</code>, <code>concursoRef</code> e <code>observacoes</code> (opcionais). Devolve <code>201</code> com <code>PromocaoResponseDTO</code>.</p>
+  <div class="callout key"><b>Duas formas, inferidas do pedido — não há campo "modalidade".</b>
+    <ul class="clean">
+      <li><b>Com <code>positionId</code></b> — a pessoa muda para esse Lugar (tem de estar vago e ser da categoria de destino); o Lugar antigo fica vago. A dotação do Mapa de Pessoal não muda.</li>
+      <li><b>Sem <code>positionId</code></b> — a pessoa fica na mesma cadeira e <b>o Lugar sobe de categoria</b> (reclassificação); o Lugar mantém a categoria nova depois de a pessoa sair, e a dotação do Mapa de Pessoal muda.</li>
+    </ul>
+    A forma <b>não se persiste</b>: deduz-se do histórico, comparando o Lugar da afectação anterior com o da nova.</div>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-PRM-01</td><td>A <b>categoria de destino</b> (<code>categoryId</code>) e a <b>data de efeito</b> são obrigatórias; os identificadores têm de ser UUID válidos.</td><td><span class="http h400">400</span></td><td class="src">PromoverColaboradorCommandHandler · PromocaoRequestDTO</td></tr>
+    <tr><td class="id">BR-PRM-02</td><td>O funcionário tem de existir e estar <b>activo</b>.</td><td><span class="http h404">404</span> / <span class="http h422">422</span></td><td class="src">PromoverColaboradorCommandHandler</td></tr>
+    <tr><td class="id">BR-PRM-03</td><td>O <b>vínculo laboral</b> tem de permitir evolução (<code>eligible_for_progression</code>), pela mesma travessia da progressão (BR-PRG-03).</td><td><span class="http h422">422</span></td><td class="src">PromoverColaboradorCommandHandler · VinculoLaboralService</td></tr>
+    <tr><td class="id">BR-PRM-04</td><td>O colaborador tem de ter <b>afectação principal corrente</b>, num Lugar <b>de carreira</b> (não fora de grelha), e a data de efeito tem de ser posterior ao início dessa afectação.</td><td><span class="http h422">422</span></td><td class="src">AssignmentService.promover</td></tr>
+    <tr><td class="id">BR-PRM-05</td><td>A categoria de destino tem de estar <b>activa</b>, pertencer à <b>mesma carreira</b> e ser a <b>imediatamente superior</b> (<code>ordem_progressao</code> + 1).</td><td><span class="http h422">422</span></td><td class="src">AssignmentService.promover</td></tr>
+    <tr><td class="id">BR-PRM-06</td><td><b>Escalão:</b> o <code>gradeId</code> enviado tem de pertencer à categoria de destino; se não for enviado, usa-se o <b>primeiro escalão activo</b> dessa categoria. Sem escalões activos, a promoção é recusada.</td><td><span class="http h404">404</span> / <span class="http h422">422</span></td><td class="src">AssignmentService.promover</td></tr>
+    <tr><td class="id">BR-PRM-07</td><td><b>Com <code>positionId</code>:</b> o Lugar de destino tem de existir, estar <b>ATIVO</b>, estar <b>vago</b> (BR-AF-03) e ser <b>da categoria de destino</b>.</td><td><span class="http h404">404</span> / <span class="http h422">422</span></td><td class="src">AssignmentService.promover</td></tr>
+    <tr><td class="id">BR-PRM-08</td><td><b>Sem <code>positionId</code>:</b> o Lugar actual é <b>reclassificado</b> para a carreira/categoria de destino. Só um Lugar activo (estado ATIVO) pode ser reclassificado. A alteração ao Lugar fica na auditoria (Envers).</td><td><span class="http h409">409</span></td><td class="src">AssignmentService.promover · Position.reclassificarPara</td></tr>
+    <tr><td class="id">BR-PRM-09</td><td><b>Histórico (SCD Tipo 2):</b> encerra a afectação corrente na véspera da data de efeito e abre uma nova, tipo <code>PRINCIPAL</code>, origem <code>PROMOCAO</code>. A categoria antiga fica preservada através do escalão antigo, mesmo quando o Lugar é reclassificado.</td><td>—</td><td class="src">AssignmentService.promover</td></tr>
+    <tr><td class="id">BR-PRM-10</td><td><b>Despacho e concurso</b> são guardados como referência nas notas da afectação; não são validados.</td><td>—</td><td class="src">PromoverColaboradorCommandHandler</td></tr>
+  </table>
+
 
   <!-- ============ ESTADO ============ -->
   <h2 id="estado"><span class="n">4.</span>Ciclo de vida e mudança de estado</h2>

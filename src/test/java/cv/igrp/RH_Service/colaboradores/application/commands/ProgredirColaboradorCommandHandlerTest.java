@@ -24,7 +24,6 @@ import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -90,9 +89,11 @@ class ProgredirColaboradorCommandHandlerTest {
         var response = handler.handle(command(dataEfeito));
 
         assertEquals(201, response.getStatusCode().value());
-        Map<String, ?> body = response.getBody();
-        assertEquals("Escalão 1", body.get("escalaoAnterior"));
-        assertEquals("Escalão 2", body.get("escalaoNovo"));
+        var body = response.getBody();
+        assertEquals("Escalão 1", body.getEscalaoAnterior());
+        assertEquals("Escalão 2", body.getEscalaoNovo());
+        assertEquals(dataEfeito, body.getDataEfeito());
+        assertEquals(nova.getId().getStringValor(), body.getId());
         verify(assignmentService).progredir(funcionarioId, dataEfeito, "Progressão (despacho 12/2026)");
     }
 

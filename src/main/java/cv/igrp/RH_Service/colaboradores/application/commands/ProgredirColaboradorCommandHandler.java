@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
+import cv.igrp.RH_Service.colaboradores.application.dto.ProgressaoResponseDTO;
 import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
 import cv.igrp.RH_Service.colaboradores.application.services.VinculoLaboralService;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
@@ -14,8 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
-
 /**
  * Progressão do colaborador para o escalão imediatamente superior da mesma categoria.
  * Aqui valida-se quem pode progredir (colaborador activo, vínculo elegível); a mecânica
@@ -24,7 +23,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class ProgredirColaboradorCommandHandler
-        implements CommandHandler<ProgredirColaboradorCommand, ResponseEntity<Map<String, ?>>> {
+        implements CommandHandler<ProgredirColaboradorCommand, ResponseEntity<ProgressaoResponseDTO>> {
 
     private final FuncionarioRepository funcionarioRepository;
     private final VinculoLaboralService vinculoLaboralService;
@@ -32,7 +31,7 @@ public class ProgredirColaboradorCommandHandler
 
     @IgrpCommandHandler
     @Transactional
-    public ResponseEntity<Map<String, ?>> handle(ProgredirColaboradorCommand command) {
+    public ResponseEntity<ProgressaoResponseDTO> handle(ProgredirColaboradorCommand command) {
         var req = command.getRequest();
         if (req == null || req.getDataEfeito() == null)
             throw IgrpResponseStatusException.badRequest("A data de efeito (dataEfeito) é obrigatória.");
@@ -54,12 +53,15 @@ public class ProgredirColaboradorCommandHandler
         var progressao = assignmentService.progredir(
                 funcionarioId, req.getDataEfeito(), notas(req.getDespachoNumero(), req.getObservacoes()));
 
-        return ResponseEntity.status(201).body(Map.of(
-                "id", progressao.afectacao().getId().getStringValor(),
-                "escalaoAnterior", progressao.escalaoAnterior().getName(),
-                "escalaoNovo", progressao.escalaoNovo().getName(),
-                "dataEfeito", req.getDataEfeito().toString(),
-                "message", "Progressão registada com sucesso"));
+        return ResponseEntity.status(201).body(new ProgressaoResponseDTO(
+                progressao.afectacao().getId().getStringValor(),
+                funcionarioId.getStringValor(),
+                progressao.afectacao().getPositionId().toString(),
+                progressao.escalaoAnterior().getId().getStringValor(),
+                progressao.escalaoAnterior().getName(),
+                progressao.escalaoNovo().getId().getStringValor(),
+                progressao.escalaoNovo().getName(),
+                req.getDataEfeito()));
     }
 
     private static String notas(String despachoNumero, String observacoes) {

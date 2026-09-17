@@ -157,10 +157,49 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "map",
-                "objectType": "java",
+                "type": "ProgressaoResponseDTO",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "none"
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "promoverColaborador",
+      "method": "POST",
+      "path": "{funcionarioId}/promocao",
+      "summary": "Promove o colaborador para a categoria imediatamente superior da mesma carreira (origem PROMOCAO). Com positionId muda de Lugar; sem positionId o Lugar actual é reclassificado",
+      "pathVariables": [
+        {"name": "funcionarioId", "type": "string", "isRequired": true}
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "PromocaoRequestDTO",
+              "objectType": "dto",
+              "name": "data",
+              "collectionType": "none",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PromocaoResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
               }
             }
           }

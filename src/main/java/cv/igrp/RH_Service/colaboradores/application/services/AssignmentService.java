@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
 import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.AssignmentId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
+import cv.igrp.RH_Service.carreiras.domain.models.Category;
 import cv.igrp.RH_Service.carreiras.domain.models.Grade;
 import cv.igrp.RH_Service.carreiras.domain.repository.CategoryRepository;
 import cv.igrp.RH_Service.carreiras.domain.repository.GradeRepository;
@@ -127,6 +128,134 @@ public class AssignmentService {
 
     /** Resultado de uma progressão: a nova afectação e os escalões de partida e de chegada. */
     public record Progressao(Assignment afectacao, Grade escalaoAnterior, Grade escalaoNovo) {}
+
+    /**
+     * Resultado de uma promoção: a nova afectação, as categorias de partida e de chegada, o
+     * escalão atribuído e se o Lugar foi reclassificado (promoção na própria cadeira) ou se
+     * houve mudança de Lugar.
+     */
+    public record Promocao(Assignment afectacao, Category categoriaAnterior, Category categoriaNova,
+                           Grade escalao, boolean lugarReclassificado) {}
+
+    /**
+     * Promoção (evolução horizontal por mudança de categoria — Lei 20/X/2023, art. 140.º n.º 4).
+     * Duas formas, inferidas do pedido e nunca persistidas — deduzem-se do histórico comparando
+     * o Lugar da afectação anterior com o da nova:
+     * <ul>
+     *   <li>{@code positionIdDestino != null} — a pessoa muda para um Lugar vago da categoria de
+     *       destino; o Lugar antigo fica vago.</li>
+     *   <li>{@code positionIdDestino == null} — a pessoa fica na mesma cadeira e é o <b>Lugar que
+     *       sobe de categoria</b> (reclassificação), ficando nela depois de o ocupante sair.</li>
+     * </ul>
+     */
+    public Promocao promover(FuncionarioId funcionarioId, UUID categoryIdDestino, UUID positionIdDestino,
+                             UUID gradeIdEscolhido, LocalDate dataEfeito, String notes) {
+
+        Assignment atual = assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId)
+                .orElseThrow(() -> IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                        "O colaborador não tem afectação principal corrente — não é possível promover."));
+
+        if (!dataEfeito.isAfter(atual.getDataInicio()))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "A data de efeito tem de ser posterior ao início da afectação corrente ("
+                            + atual.getDataInicio() + ").");
+
+        Position lugarActual = positionRepository.findById(PositionId.from(atual.getPositionId()))
+                .orElseThrow(() -> IgrpResponseStatusException.notFound(
+                        "Lugar não encontrado: " + atual.getPositionId()));
+
+        if (lugarActual.isForaDeGrelha())
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "O Lugar '" + lugarActual.getNumeroLugar()
+                            + "' está fora da grelha (sem carreira/categoria) — não há categoria de onde promover.");
+
+        Category categoriaAtual = categoriaOuFalha(lugarActual.getCategoryId());
+        Category categoriaDestino = categoriaOuFalha(categoryIdDestino);
+
+        if (!Boolean.TRUE.equals(categoriaDestino.getIsActive()))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "A categoria de destino '" + categoriaDestino.getName() + "' está inactiva.");
+
+        if (!categoriaDestino.getCareerId().equals(categoriaAtual.getCareerId()))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "A categoria de destino pertence a outra carreira — a promoção é dentro da mesma carreira.");
+
+        if (categoriaAtual.getOrdemProgressao() == null || categoriaDestino.getOrdemProgressao() == null
+                || categoriaDestino.getOrdemProgressao() != categoriaAtual.getOrdemProgressao() + 1)
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "A promoção é para a categoria imediatamente superior: de '" + categoriaAtual.getName()
+                            + "' a seguinte é a de ordem " + (categoriaAtual.getOrdemProgressao() == null
+                            ? "(não definida)" : categoriaAtual.getOrdemProgressao() + 1) + ".");
+
+        Grade escalao = escalaoDaPromocao(gradeIdEscolhido, categoriaDestino);
+
+        boolean reclassificado = positionIdDestino == null;
+        UUID positionIdFinal;
+
+        if (reclassificado) {
+            lugarActual.reclassificarPara(categoriaDestino.getCareerId().getValor(), categoryIdDestino);
+            positionRepository.save(lugarActual);
+            positionIdFinal = lugarActual.getId().getValor();
+        } else {
+            Position destino = positionRepository.findById(PositionId.from(positionIdDestino))
+                    .orElseThrow(() -> IgrpResponseStatusException.notFound(
+                            "Lugar de destino não encontrado: " + positionIdDestino));
+
+            if (!destino.podeSerOcupado())
+                throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                        "O Lugar '" + destino.getNumeroLugar() + "' não está disponível (estado="
+                                + destino.getEstado() + ").");
+
+            if (assignmentRepository.isPositionOccupied(positionIdDestino))
+                throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                        "O Lugar '" + destino.getNumeroLugar() + "' já está ocupado.");
+
+            if (!categoryIdDestino.equals(destino.getCategoryId()))
+                throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                        "O Lugar '" + destino.getNumeroLugar() + "' não é da categoria de destino '"
+                                + categoriaDestino.getName() + "'.");
+
+            positionIdFinal = positionIdDestino;
+        }
+
+        atual.encerrar(dataEfeito.minusDays(1));
+        assignmentRepository.save(atual);
+
+        Assignment nova = assignmentRepository.save(Assignment.criar(
+                funcionarioId, positionIdFinal, escalao.getId().getValor(), atual.getFunctionId(),
+                Assignment.PRINCIPAL, Assignment.PROMOCAO, dataEfeito, null, notes));
+
+        return new Promocao(nova, categoriaAtual, categoriaDestino, escalao, reclassificado);
+    }
+
+    /** Escalão da promoção: o escolhido (tem de ser da categoria de destino) ou o primeiro activo. */
+    private Grade escalaoDaPromocao(UUID gradeIdEscolhido, Category categoriaDestino) {
+        CategoryId destinoId = categoriaDestino.getId();
+
+        if (gradeIdEscolhido != null) {
+            Grade escolhido = gradeRepository.findById(GradeId.from(gradeIdEscolhido))
+                    .orElseThrow(() -> IgrpResponseStatusException.notFound(
+                            "Escalão não encontrado: " + gradeIdEscolhido));
+            if (!escolhido.getCategoryId().equals(destinoId))
+                throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                        "O escalão '" + escolhido.getName() + "' não pertence à categoria de destino '"
+                                + categoriaDestino.getName() + "'.");
+            return escolhido;
+        }
+
+        return gradeRepository.findByCategoryIdOrderByGradeNumber(destinoId).stream()
+                .filter(g -> Boolean.TRUE.equals(g.getIsActive()))
+                .findFirst()
+                .orElseThrow(() -> IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                        "A categoria '" + categoriaDestino.getName() + "' não tem escalões activos."));
+    }
+
+    private Category categoriaOuFalha(UUID categoryId) {
+        if (categoryId == null)
+            throw IgrpResponseStatusException.badRequest("A categoria é obrigatória.");
+        return categoryRepository.findById(CategoryId.from(categoryId))
+                .orElseThrow(() -> IgrpResponseStatusException.notFound("Categoria não encontrada: " + categoryId));
+    }
 
     /**
      * Progressão (evolução horizontal dentro da mesma categoria — Lei 20/X/2023, art. 140.º):

@@ -1,0 +1,19 @@
+{
+  "type": "dto",
+  "name": "PromocaoResponseDTO",
+  "module": "colaboradores",
+  "template": "classic",
+  "attributes": [
+    {"name": "id", "type": "string", "objectType": "java", "required": false},
+    {"name": "funcionarioId", "type": "string", "objectType": "java", "required": false},
+    {"name": "positionId", "type": "string", "objectType": "java", "required": false},
+    {"name": "categoriaAnteriorId", "type": "string", "objectType": "java", "required": false},
+    {"name": "categoriaAnterior", "type": "string", "objectType": "java", "required": false},
+    {"name": "categoriaNovaId", "type": "string", "objectType": "java", "required": false},
+    {"name": "categoriaNova", "type": "string", "objectType": "java", "required": false},
+    {"name": "escalaoId", "type": "string", "objectType": "java", "required": false},
+    {"name": "escalao", "type": "string", "objectType": "java", "required": false},
+    {"name": "lugarReclassificado", "type": "boolean", "objectType": "java", "required": false},
+    {"name": "dataEfeito", "type": "date", "objectType": "java", "required": false}
+  ]
+}

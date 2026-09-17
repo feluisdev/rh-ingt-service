@@ -1,0 +1,15 @@
+{
+  "type": "dto",
+  "name": "PromocaoRequestDTO",
+  "module": "colaboradores",
+  "template": "classic",
+  "attributes": [
+    {"name": "categoryId", "type": "string", "objectType": "java", "required": true},
+    {"name": "positionId", "type": "string", "objectType": "java", "required": false},
+    {"name": "gradeId", "type": "string", "objectType": "java", "required": false},
+    {"name": "dataEfeito", "type": "date", "objectType": "java", "required": true},
+    {"name": "despachoNumero", "type": "string", "objectType": "java", "required": false},
+    {"name": "concursoRef", "type": "string", "objectType": "java", "required": false},
+    {"name": "observacoes", "type": "string", "objectType": "java", "required": false}
+  ]
+}
