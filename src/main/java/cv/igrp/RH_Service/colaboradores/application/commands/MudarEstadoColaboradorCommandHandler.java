@@ -3,7 +3,7 @@ package cv.igrp.RH_Service.colaboradores.application.commands;
 import cv.igrp.RH_Service.colaboradores.application.dto.EstadoColaboradorResponseDTO;
 import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
 import cv.igrp.RH_Service.colaboradores.application.services.CessacaoService;
-import cv.igrp.RH_Service.colaboradores.domain.models.Contrato;
+import cv.igrp.RH_Service.colaboradores.domain.models.EstadoContrato;
 import cv.igrp.RH_Service.colaboradores.domain.models.HistoricoEstadoColaborador;
 import cv.igrp.RH_Service.colaboradores.domain.repository.ContratoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
@@ -129,11 +129,11 @@ public class MudarEstadoColaboradorCommandHandler
         if (situacao == null) return contrato.getId().getValor();
 
         if (situacao.suspendeVinculo()) {
-            if (Contrato.ATIVO.equals(contrato.getStatus())) {
+            if (contrato.getStatus() == EstadoContrato.ATIVO) {
                 contrato.suspender();
                 contratoRepository.save(contrato);
             }
-        } else if (Contrato.SUSPENSO.equals(contrato.getStatus())) {
+        } else if (contrato.getStatus() == EstadoContrato.SUSPENSO) {
             contrato.reativar();
             contratoRepository.save(contrato);
         }

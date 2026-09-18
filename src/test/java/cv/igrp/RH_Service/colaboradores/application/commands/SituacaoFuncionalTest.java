@@ -18,6 +18,7 @@ import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
 import cv.igrp.RH_Service.colaboradores.application.services.CessacaoService;
 import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
 import cv.igrp.RH_Service.colaboradores.domain.models.Contrato;
+import cv.igrp.RH_Service.colaboradores.domain.models.EstadoContrato;
 import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
 import cv.igrp.RH_Service.colaboradores.domain.models.HistoricoEstadoColaborador;
 import cv.igrp.RH_Service.colaboradores.domain.repository.ContratoRepository;
@@ -151,7 +152,7 @@ class SituacaoFuncionalTest {
             when(workerStateRepository.findById(any())).thenReturn(Optional.of(novoEstado));
         }
 
-        private Contrato contrato(String status) {
+        private Contrato contrato(EstadoContrato status) {
             Contrato contrato = mock(Contrato.class);
             when(contrato.getStatus()).thenReturn(status);
             when(contrato.getId()).thenReturn(ContratoId.from(UUID.randomUUID()));
@@ -163,7 +164,7 @@ class SituacaoFuncionalTest {
         void inactividadeForaDoQuadroAbreVagaESuspendeOContrato() {
             WorkerState fora = estado("INACTIVE_OUTSIDE", SituacaoFuncional.INACTIVIDADE_FORA_QUADRO);
             cenario(fora);
-            Contrato contrato = contrato(Contrato.ATIVO);
+            Contrato contrato = contrato(EstadoContrato.ATIVO);
             Assignment afectacao = mock(Assignment.class);
             UUID afectacaoId = UUID.randomUUID();
             when(afectacao.getId()).thenReturn(AssignmentId.from(afectacaoId));
@@ -184,7 +185,7 @@ class SituacaoFuncionalTest {
         void inactividadeNoQuadroSuspendeOContratoSemAbrirVaga() {
             WorkerState suspenso = estado("SUSPENDED", SituacaoFuncional.INACTIVIDADE_NO_QUADRO);
             cenario(suspenso);
-            Contrato contrato = contrato(Contrato.ATIVO);
+            Contrato contrato = contrato(EstadoContrato.ATIVO);
 
             var response = handler.handle(command(suspenso));
 
@@ -198,7 +199,7 @@ class SituacaoFuncionalTest {
             // Art. 119.º: comissão de serviço, requisição, cargos políticos.
             WorkerState fora = estado("ACTIVE_OUTSIDE", SituacaoFuncional.ACTIVIDADE_FORA_QUADRO);
             cenario(fora);
-            Contrato contrato = contrato(Contrato.ATIVO);
+            Contrato contrato = contrato(EstadoContrato.ATIVO);
 
             handler.handle(command(fora));
 
@@ -210,7 +211,7 @@ class SituacaoFuncionalTest {
         void regressoAActividadeReactivaOContrato() {
             WorkerState activo = estado("ACTIVE", SituacaoFuncional.ACTIVIDADE_NO_QUADRO);
             cenario(activo);
-            Contrato contrato = contrato(Contrato.SUSPENSO);
+            Contrato contrato = contrato(EstadoContrato.SUSPENSO);
 
             handler.handle(command(activo));
 
@@ -223,7 +224,7 @@ class SituacaoFuncionalTest {
             // Art. 122.º n.º 2: na disponibilidade presta serviço e é abonado.
             WorkerState disponivel = estado("AVAILABLE", SituacaoFuncional.DISPONIBILIDADE);
             cenario(disponivel);
-            Contrato contrato = contrato(Contrato.SUSPENSO);
+            Contrato contrato = contrato(EstadoContrato.SUSPENSO);
 
             handler.handle(command(disponivel));
 

@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 import cv.igrp.RH_Service.colaboradores.application.dto.MudarEstadoColaboradorRequestDTO;
 import cv.igrp.RH_Service.colaboradores.application.services.CessacaoService;
 import cv.igrp.RH_Service.colaboradores.domain.models.Contrato;
+import cv.igrp.RH_Service.colaboradores.domain.models.EstadoContrato;
 import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
 import cv.igrp.RH_Service.colaboradores.domain.models.HistoricoEstadoColaborador;
 import cv.igrp.RH_Service.colaboradores.domain.repository.ContratoRepository;
@@ -117,7 +118,7 @@ class CessacaoPelosDoisCaminhosTest {
             WorkerState suspended = estado("SUSPENDED", false, SituacaoFuncional.INACTIVIDADE_NO_QUADRO);
             cenario(suspended, UUID.randomUUID());
             Contrato contrato = mock(Contrato.class);
-            when(contrato.getStatus()).thenReturn(Contrato.ATIVO);
+            when(contrato.getStatus()).thenReturn(EstadoContrato.ATIVO);
             when(contrato.getId()).thenReturn(ContratoId.from(UUID.randomUUID()));
             when(contratoRepository.findCurrentByFuncionarioId(FUNCIONARIO_ID)).thenReturn(Optional.of(contrato));
 

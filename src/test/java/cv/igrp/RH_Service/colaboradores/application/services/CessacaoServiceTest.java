@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
 import cv.igrp.RH_Service.colaboradores.domain.models.Contrato;
+import cv.igrp.RH_Service.colaboradores.domain.models.EstadoContrato;
 import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
 import cv.igrp.RH_Service.colaboradores.domain.models.HistoricoEstadoColaborador;
 import cv.igrp.RH_Service.colaboradores.domain.repository.ContratoRepository;
@@ -73,7 +74,7 @@ class CessacaoServiceTest {
 
         Contrato contrato = mock(Contrato.class);
         UUID contratoId = UUID.randomUUID();
-        when(contrato.getStatus()).thenReturn(Contrato.ATIVO);
+        when(contrato.getStatus()).thenReturn(EstadoContrato.ATIVO);
         when(contrato.getId()).thenReturn(ContratoId.from(contratoId));
         when(contratoRepository.findCurrentByFuncionarioId(funcionarioId)).thenReturn(Optional.of(contrato));
 
@@ -120,7 +121,7 @@ class CessacaoServiceTest {
         WorkerState inactive = estado("INACTIVE", true);
         funcionarioMock();
         Contrato contrato = mock(Contrato.class);
-        when(contrato.getStatus()).thenReturn(Contrato.CESSADO);
+        when(contrato.getStatus()).thenReturn(EstadoContrato.CESSADO);
         when(contrato.getId()).thenReturn(ContratoId.from(UUID.randomUUID()));
         when(contratoRepository.findCurrentByFuncionarioId(funcionarioId)).thenReturn(Optional.of(contrato));
         when(assignmentService.encerrarAfectacaoCorrente(funcionarioId, dataEfeito)).thenReturn(Optional.empty());

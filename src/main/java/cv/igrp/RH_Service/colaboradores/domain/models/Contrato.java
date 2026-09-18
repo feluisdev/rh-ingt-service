@@ -12,10 +12,6 @@ import java.util.UUID;
 @Getter
 public class Contrato {
 
-    public static final String ATIVO = "ATIVO";
-    public static final String SUSPENSO = "SUSPENSO";
-    public static final String CESSADO = "CESSADO";
-
     private ContratoId id;
     private FuncionarioId funcionarioId;
     private UUID contractTypeId;
@@ -24,7 +20,7 @@ public class Contrato {
     private LocalDate endDate;
     private String terminationReason;
     private Boolean isCurrent;
-    private String status;           // ATIVO | SUSPENSO | CESSADO
+    private EstadoContrato status;
     private Integer renewalCount;
     private String regimeTrabalho;   // TEMPO_COMPLETO | TEMPO_PARCIAL | ISENCAO_HORARIO | DEDICACAO_EXCLUSIVA
     private BigDecimal percentagemTempo; // preenchido apenas se regimeTrabalho = TEMPO_PARCIAL
@@ -46,7 +42,7 @@ public class Contrato {
         c.legalBase = legalBase;
         c.notes = notes;
         c.isCurrent = true;
-        c.status = "ATIVO";
+        c.status = EstadoContrato.ATIVO;
         c.renewalCount = renewalCount;
         c.regimeTrabalho = regimeTrabalho;
         c.percentagemTempo = percentagemTempo;
@@ -68,7 +64,7 @@ public class Contrato {
         c.endDate = endDate;
         c.terminationReason = terminationReason;
         c.isCurrent = isCurrent;
-        c.status = status;
+        c.status = EstadoContrato.de(status);
         c.renewalCount = renewalCount;
         c.regimeTrabalho = regimeTrabalho;
         c.percentagemTempo = percentagemTempo;
@@ -87,23 +83,28 @@ public class Contrato {
     }
 
     public void encerrar(LocalDate endDate, String terminationReason) {
-        if ("CESSADO".equals(this.status))
+        if (this.status == EstadoContrato.CESSADO)
             throw IgrpResponseStatusException.conflict("O contrato já está cessado.");
         this.endDate = endDate;
         this.terminationReason = terminationReason;
         this.isCurrent = false;
-        this.status = "CESSADO";
+        this.status = EstadoContrato.CESSADO;
     }
 
     public void suspender() {
-        if (!"ATIVO".equals(this.status))
+        if (this.status != EstadoContrato.ATIVO)
             throw IgrpResponseStatusException.conflict("Só é possível suspender um contrato ATIVO.");
-        this.status = "SUSPENSO";
+        this.status = EstadoContrato.SUSPENSO;
     }
 
     public void reativar() {
-        if (!"SUSPENSO".equals(this.status))
+        if (this.status != EstadoContrato.SUSPENSO)
             throw IgrpResponseStatusException.conflict("Só é possível reativar um contrato SUSPENSO.");
-        this.status = "ATIVO";
+        this.status = EstadoContrato.ATIVO;
+    }
+
+    /** Nome do estado, para persistência e respostas. */
+    public String getStatusTexto() {
+        return EstadoContrato.texto(this.status);
     }
 }

@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.application.services;
 
 import cv.igrp.RH_Service.colaboradores.domain.models.Contrato;
+import cv.igrp.RH_Service.colaboradores.domain.models.EstadoContrato;
 import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
 import cv.igrp.RH_Service.colaboradores.domain.models.HistoricoEstadoColaborador;
 import cv.igrp.RH_Service.colaboradores.domain.repository.ContratoRepository;
@@ -74,7 +75,7 @@ public class CessacaoService {
         // 1. Contrato corrente → CESSADO (se ainda não estiver)
         UUID contratoCessadoId = contratoRepository.findCurrentByFuncionarioId(funcionarioId)
                 .map(contrato -> {
-                    if (!Contrato.CESSADO.equals(contrato.getStatus())) {
+                    if (contrato.getStatus() != EstadoContrato.CESSADO) {
                         contrato.encerrar(dataEfeito, motivo != null ? motivo : estadoCessacao.getCode());
                         contratoRepository.save(contrato);
                     }

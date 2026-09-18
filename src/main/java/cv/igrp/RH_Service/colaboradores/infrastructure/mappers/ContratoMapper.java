@@ -45,7 +45,7 @@ public class ContratoMapper {
         e.setEndDate(c.getEndDate());
         e.setTerminationReason(c.getTerminationReason());
         e.setIsCurrent(c.getIsCurrent());
-        e.setStatus(c.getStatus());
+        e.setStatus(c.getStatusTexto());
         e.setRenewalCount(c.getRenewalCount());
         e.setRegimeTrabalho(c.getRegimeTrabalho());
         e.setPercentagemTempo(c.getPercentagemTempo());
@@ -65,7 +65,7 @@ public class ContratoMapper {
         r.setTerminationReason(c.getTerminationReason());
         r.setIsCurrent(c.getIsCurrent());
         r.setIsCurrentDesc(Boolean.TRUE.equals(c.getIsCurrent()) ? "Atual" : "Anterior");
-        r.setStatus(c.getStatus());
+        r.setStatus(c.getStatusTexto());
         r.setRenewalCount(c.getRenewalCount());
         r.setRegimeTrabalho(c.getRegimeTrabalho());
         r.setPercentagemTempo(c.getPercentagemTempo());
