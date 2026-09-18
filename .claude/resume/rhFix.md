@@ -10,7 +10,16 @@ negócio das **ausências (assiduidade)**.
 
 ## Current state
 
-Branch `dev`, 6 commits desta sessão (mais 2 de outra sessão pelo meio):
+**Branch `fix-alinhamento-legislacao`** (criado em 2026-09-18). O `dev` local voltou
+a coincidir com `origin/dev` e `origin_git_lab/dev`: todo este trabalho segue por
+este branch, porque traz **breaking changes** para o front-end (ver
+`docs/funcionarios/v5/breaking_change_frontend.md` §11). Nada foi enviado ainda.
+
+Commits desta sessão (mais os anteriores, ao todo 14 por enviar):
+- `0084d1f6` situações funcionais (V42) · `2c0d980c` estado do contrato como enum ·
+  `fa89174b` licenças que abrem vaga (V43) · `e9be40bd` ciclo do saldo de ausências.
+
+Histórico anterior:
 
 - `0b2d2fe6` progressão · `60e1c8ae` promoção + respostas tipadas ·
   `73dcb177` transferência · `86e0444e` cessação unificada ·
@@ -22,8 +31,9 @@ Branch `dev`, 6 commits desta sessão (mais 2 de outra sessão pelo meio):
   (colaboradores/application/services).
 - Migrações: **V40** `t_worker_state.ends_employment`, **V41** limites do subtipo
   (`max_duration_days`, `max_extensions`) + `t_leave_mobility.extensions_count`,
-  **V42** `t_worker_state.situacao_funcional` (por aplicar à BD).
-  Próxima livre: **V43**.
+  **V42** `t_worker_state.situacao_funcional`, **V43** efeito da licença no Lugar
+  (`position_effect`, `vacancy_after_days`, `return_effect`) + fim do `AMBOS`
+  (V42 e V43 por aplicar à BD). Próxima livre: **V44**.
 - **Situações funcionais (ponto 1) implementadas**, por commitar: enum
   `parametrizacoes/domain/models/SituacaoFuncional.java` com os efeitos que a lei
   fixa (abre vaga, conta antiguidade, suspende vínculo, cessa vínculo); o estado
@@ -129,7 +139,12 @@ Regras concretas a modelar:
 Sugestão: colunas parametrizadas em `t_worker_state` (`opens_vacancy`,
 `counts_seniority`, `situacao_funcional`), à imagem de `ends_employment` (V40).
 
-### 2. Licenças que abrem vaga + disponibilidade (DL n.º 3/2010)
+### ~~2. Licenças que abrem vaga + disponibilidade~~ — FEITO (V43, commit fa89174b)
+### ~~3. Subtipos — limpeza~~ — FEITO em parte: `AMBOS` removido, `name` mapeado,
+`LIC_PARENTAL` desactivado. **Fica por resolver:** `affects_pay` e
+`counts_for_seniority` continuam sem código que os use.
+
+### (histórico) 2. Licenças que abrem vaga + disponibilidade (DL n.º 3/2010)
 Hoje **nenhuma licença toca no Lugar**. A lei distingue:
 - sem vencimento até 90 dias (art. 46.º) e até 3 anos (art. 48.º): **mantém** o
   lugar; pode ser preenchido por contrato a prazo que caduca no regresso;
@@ -152,7 +167,10 @@ Sugestão: no subtipo, `position_effect` (MANTEM/ABRE_VAGA) +
 - Existe duplicação conceptual: `LIC_PARENTAL` (subtipo) vs `MATERNIDADE`/
   `PATERNIDADE` (tipos de ausência). Decidir onde vive a licença parental.
 
-### 4. Ausências / assiduidade — negócio por rever
+### ~~4. Ausências — saldo, cancelamento e transacções~~ — FEITO (commit e9be40bd)
+Fica por fazer só a parte de **férias**: marcação, acumulação e gozo proporcional.
+
+### (histórico) 4. Ausências / assiduidade — negócio por rever
 Estado actual (`PedidoAusencia`, `SaldoAusencia`, catálogo `LeaveType`), com
 problemas identificados e **ainda não corrigidos**:
 - **o saldo nunca passa a "gozados"**: aprovar só faz `incrementarPendentes`;
@@ -221,6 +239,19 @@ ids vêm do seed (`src/main/resources/db/seed/`).
   `jar tf target/*.jar | grep application.properties`; se faltar, correr
   `mvn package` outra vez **sem** `clean`.
 
+**Por verificar — licenças que abrem vaga (V43):**
+- L1. Criar licença com subtipo `LIC_LONGA_DURACAO` e aprovar → **200** com
+  `afectacaoEncerradaId`; em `t_assignment` a afectação fica fechada e o Lugar
+  vago; o colaborador continua activo, com estado `INACTIVE_OUTSIDE`.
+- L2. `LIC_FORMACAO` com 180 dias → **não** abre vaga; com 181 → abre.
+- L3. `LIC_SEM_VENCIMENTO` de 2 anos → mantém o Lugar.
+- L4. `close` de uma licença que abriu vaga → **200** com `estadoAtribuidoId`
+  (estado `AVAILABLE`); o colaborador **não** recupera o Lugar sozinho.
+- L5. Criar subtipo de mobilidade com `positionEffect=ABRE_VAGA` → **400**.
+- L6. Criar subtipo pela API (`POST /catalogs/leave-mobility-subtypes`) → **201**
+  (antes falhava por a coluna `name` ser NOT NULL e não estar mapeada).
+- L7. Subtipos novos do seed existem; `LIC_PARENTAL` fica inactivo.
+
 **Por verificar — situações funcionais (V42):**
 - S1. Arrancar depois da V42: `\d t_worker_state` tem `situacao_funcional`;
   `ACTIVE`/`SUSPENDED`/`RETIRED` classificados, `INACTIVE` a NULL.
@@ -279,6 +310,17 @@ ids vêm do seed (`src/main/resources/db/seed/`).
 
 ## Next step
 
-Modelar as **situações funcionais** (ponto 1): alinhar `t_worker_state` com as
-seis situações da lei e acrescentar, parametrizadas, `opens_vacancy` e
-`counts_seniority` — migração **V42**, defensiva, no molde da V40.
+Pontos 1 a 4 do plano estão feitos. **A seguir: ponto 5, a substituição**
+(Lei n.º 20/X/2023, art. 73.º al. a)–c) e art. 91.º n.º 1 al. a). Agora faz mais
+sentido do que antes, porque já há duas maneiras de um Lugar ficar sem titular
+temporariamente: a licença que abre vaga (V43) e a inactividade fora do quadro (V42).
+
+Implica tornar parcial o índice único `ux_assignment_position_current`
+(`assignment_type = 'PRINCIPAL'`) — migração **V44** — e converter os tipos de
+afectação (`PRINCIPAL`/`SUBSTITUICAO`/`ACUMULACAO`) para enum, como se fez com
+`EstadoContrato` e `EstadoPedidoAusencia`.
+
+**Antes disso, convém validar contra a aplicação a correr** o que já foi feito:
+a lista de verificação está na secção do plano de validação. A aplicação arrancou
+sem erros com a V42 e a V43 aplicadas (2026-09-18), mas a base de dados local
+está sem dados de seed, por isso nenhum caminho de negócio foi exercitado.
