@@ -16,9 +16,11 @@ INSERT INTO t_funcionario (id, numero_funcionario, nome_completo, data_nasciment
 ON CONFLICT (numero_funcionario) DO NOTHING;
 
 -- Contracts
-INSERT INTO t_contrato (id, funcionario_id, contract_type_id, start_date, contract_number, is_current, created_date, created_by) VALUES
-('a2e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ea01', '91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e901', 'b84e1b52-2c6c-4b5a-9b5a-7e1e1e1e1e1e', '2010-01-01', 'CONT-001', true, NOW(), 'system'),
-('a2e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ea02', '91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e902', 'b84e1b52-2c6c-4b5a-9b5a-7e1e1e1e1e20', '2015-06-01', 'CONT-002', true, NOW(), 'system')
+-- status é obrigatório (V44): um contrato sem estado nunca seria suspenso nem
+-- reactivado, porque as duas operações comparam o estado actual.
+INSERT INTO t_contrato (id, funcionario_id, contract_type_id, start_date, contract_number, is_current, status, created_date, created_by) VALUES
+('a2e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ea01', '91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e901', 'b84e1b52-2c6c-4b5a-9b5a-7e1e1e1e1e1e', '2010-01-01', 'CONT-001', true, 'ATIVO', NOW(), 'system'),
+('a2e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ea02', '91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e902', 'b84e1b52-2c6c-4b5a-9b5a-7e1e1e1e1e20', '2015-06-01', 'CONT-002', true, 'ATIVO', NOW(), 'system')
 ON CONFLICT (contract_number) DO NOTHING;
 
 -- Mapa de Pessoal (Lugar) + Afectacao

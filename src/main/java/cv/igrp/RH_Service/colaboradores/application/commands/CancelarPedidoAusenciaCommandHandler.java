@@ -29,10 +29,18 @@ public class CancelarPedidoAusenciaCommandHandler
         var pedido = pedidoRepository.findById(PedidoAusenciaId.from(command.getPedidoId()))
                 .orElseThrow(() -> IgrpResponseStatusException.notFound("Pedido não encontrado: " + command.getPedidoId()));
 
-        // Este é o caminho do RH: quem pode chegar aqui pode cancelar o pedido de
-        // qualquer colaborador. O caminho do próprio é o self-service, que só deixa
-        // cancelar o que é seu e ainda está pendente. Antes, esta verificação dava
-        // 403 ao RH e ninguém conseguia cancelar um pedido alheio.
+        // O pedido tem de pertencer ao colaborador do URL — caso contrário não existe
+        // neste recurso. Antes comparava-se com o "solicitante" e devolvia-se 403, o
+        // que impedia o RH de cancelar seja o que for: o controlador passa sempre o
+        // funcionário do URL como solicitante, logo a regra dizia outra coisa do que
+        // parecia. Quem pode cancelar decide-se por permissão, não por identidade: o
+        // caminho do próprio é o self-service, que só deixa cancelar o que é seu e
+        // ainda está pendente.
+        var funcionarioDoUrl = FuncionarioId.from(command.getFuncionarioId());
+        if (!funcionarioDoUrl.equals(pedido.getFuncionarioId()))
+            throw IgrpResponseStatusException.notFound(
+                    "Pedido de ausência não encontrado: " + command.getPedidoId());
+
         var solicitanteId = FuncionarioId.from(command.getSolicitanteId());
 
         boolean estavaAprovado = pedido.getEstado() != null && pedido.getEstado().isAprovado();
