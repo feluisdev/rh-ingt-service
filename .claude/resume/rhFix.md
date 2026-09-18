@@ -1,326 +1,342 @@
-> Updated: 2026-09-17 21:46
+> Updated: 2026-09-18 17:10
 
 ## Goal
 
 Alinhar o núcleo RH (não-sigdi) com a legislação cabo-verdiana, movimento a
-movimento, com regras documentadas e testadas. Movimentos de carreira estão
-fechados; falta **situação funcional do trabalhador**, **licenças que abrem
-vaga**, **substituição**, limpeza dos **subtipos de licença/mobilidade** e o
-negócio das **ausências (assiduidade)**.
+movimento, com regras documentadas, testadas e **exercitadas contra a base de
+dados**. O objectivo de fundo é a aplicação ser instalável em qualquer
+instituição: o que a lei fixa vive em código; o que varia com a instituição ou
+com o motivo vive em catálogo.
+
+Construção **tijolo a tijolo**: um ponto do plano por commit, com testes e
+documentação a par, sem avançar enquanto o anterior não estiver verde.
 
 ## Current state
 
-**Branch `fix-alinhamento-legislacao`** (criado em 2026-09-18). O `dev` local voltou
-a coincidir com `origin/dev` e `origin_git_lab/dev`: todo este trabalho segue por
-este branch, porque traz **breaking changes** para o front-end (ver
-`docs/funcionarios/v5/breaking_change_frontend.md` §11). Nada foi enviado ainda.
+**Branch `fix-alinhamento-legislacao`**, criado em 2026-09-18. O `dev` local
+coincide com `origin/dev` e `origin_git_lab/dev`; todo este trabalho segue por
+este branch porque traz **breaking changes** para o front-end
+(`docs/funcionarios/v5/breaking_change_frontend.md` §11). **Nada foi enviado**
+para nenhum dos remotos.
 
-Commits desta sessão (mais os anteriores, ao todo 14 por enviar):
-- `0084d1f6` situações funcionais (V42) · `2c0d980c` estado do contrato como enum ·
-  `fa89174b` licenças que abrem vaga (V43) · `e9be40bd` ciclo do saldo de ausências.
+Commits desta sessão (os 6 mais recentes; ao todo 20 por enviar):
 
-Histórico anterior:
+| Commit | O que fecha |
+|---|---|
+| `0084d1f6` | Situações funcionais do art. 117.º (V42) — ponto 1 |
+| `2c0d980c` | Estado do contrato passa a enum `EstadoContrato` |
+| `fa89174b` | Licenças que abrem vaga + disponibilidade (V43) — pontos 2 e 3 |
+| `e9be40bd` | Ciclo do saldo de ausências e quem pode cancelar — ponto 4 |
+| `27b9729d` | Handoff |
+| `1cfd6ecc` | Contrato sem estado (V44) + bateria de testes funcionais |
 
-- `0b2d2fe6` progressão · `60e1c8ae` promoção + respostas tipadas ·
-  `73dcb177` transferência · `86e0444e` cessação unificada ·
-  `876e484b` mobilidade transitória deixa de tirar o Lugar ·
-  `d0d31cd9` "onde exerce funções" + prorrogação.
-- Endpoints novos: `POST /funcionarios/{id}/progressao|promocao|transferencia`,
-  `PUT /licencas-mobilidade/{id}/prorrogar`.
-- Serviços novos: `CessacaoService`, `MobilidadeService`, `VinculoLaboralService`
-  (colaboradores/application/services).
-- Migrações: **V40** `t_worker_state.ends_employment`, **V41** limites do subtipo
-  (`max_duration_days`, `max_extensions`) + `t_leave_mobility.extensions_count`,
-  **V42** `t_worker_state.situacao_funcional`, **V43** efeito da licença no Lugar
-  (`position_effect`, `vacancy_after_days`, `return_effect`) + fim do `AMBOS`
-  (V42 e V43 por aplicar à BD). Próxima livre: **V44**.
-- **Situações funcionais (ponto 1) implementadas**, por commitar: enum
-  `parametrizacoes/domain/models/SituacaoFuncional.java` com os efeitos que a lei
-  fixa (abre vaga, conta antiguidade, suspende vínculo, cessa vínculo); o estado
-  do catálogo só guarda **qual** a situação. O `MudarEstadoColaboradorCommandHandler`
-  deixou de olhar para os códigos `SUSPENDED`/`ACTIVE`: os efeitos derivam da
-  situação, e a inactividade fora do quadro encerra a afectação (art. 121.º n.º 2).
-  Seed com três estados novos (`ACTIVE_OUTSIDE`, `INACTIVE_OUTSIDE`, `AVAILABLE`).
-  Testes: `SituacaoFuncionalTest` (14). Regras BR-SIT-01..08 em §4.1.
-- Regras documentadas: BR-PRG-01..09 (§3.1), BR-PRM-01..10 (§3.2),
-  BR-TRF-01..08 (§3.3), BR-EST-04..09 (§4), BR-MOB-01..11 (§6) em
-  `docs/funcionarios/v5/regras_negocio.html`; `api_guide.md` §5.3–5.6 e §7.
-- **Testes:** 709; **4 falhas pré-existentes e conhecidas** (2 de `Option`,
-  2 de `EnversAuditSchemaResolutionTest`). Nada mais falha.
-- Sem push. Sem produção — não há dados a migrar.
+**Migrações:** V40 `ends_employment` · V41 limites do subtipo · V42
+`situacao_funcional` · V43 efeito da licença no Lugar e fim do `AMBOS` · V44
+`t_contrato.status` obrigatório. **Próxima livre: V45.**
+
+**Testes unitários:** 744, com **4 falhas pré-existentes e conhecidas** (2 de
+`Option`, 2 de `EnversAuditSchemaResolutionTest`). Qualquer outra falha é
+regressão.
+
+**Testes funcionais contra a BD:** `scripts/testes_funcionais.ps1` — **78 passos,
+78 OK** (2026-09-18). Ver `scripts/testes_funcionais_README.md`.
+
+**Estado do ambiente local no fim da sessão:** a aplicação ficou **a correr** na
+porta 8099 e a base de dados `recursoshumanos_db` (contentor `postgres-ingt-rh`,
+porta 5436) ficou com os **dados alterados pela bateria** (A sem Lugar, B em
+disponibilidade, pedidos e licenças de teste). Para recomeçar limpo, correr o SQL
+de reposição que está no README dos testes.
+
+## O que foi feito, e porquê assim
+
+### Ponto 1 — situações funcionais (V42, `0084d1f6`)
+
+A Lei n.º 20/X/2023 (art. 117.º) fixa **seis** situações do funcionário perante o
+quadro e o catálogo só tinha quatro estados sem semântica legal.
+
+- `t_worker_state.situacao_funcional` diz **qual** a situação de cada estado. Só
+  isso é configurável.
+- Os **efeitos** vivem no enum `parametrizacoes/domain/models/SituacaoFuncional`:
+  abre vaga (art. 121.º n.º 2), conta antiguidade (art. 120.º n.º 2), suspende o
+  vínculo, cessa o vínculo (art. 93.º al. b). Não são colunas porque o legislador
+  já os fixou.
+- `MudarEstadoColaboradorCommandHandler` deixou de comparar códigos
+  `SUSPENDED`/`ACTIVE`: tudo deriva da situação. Estado sem situação → só
+  histórico, sem efeitos.
+- Coerência validada em `WorkerState`: um estado de cessação só aceita
+  `APOSENTACAO` ou nenhuma situação, e `APOSENTACAO` obriga a `ends_employment`.
+- Seed com três estados novos: `ACTIVE_OUTSIDE`, `INACTIVE_OUTSIDE`, `AVAILABLE`.
+- Regras **BR-SIT-01..08** (§4.1 do `regras_negocio.html`). Testes:
+  `SituacaoFuncionalTest` (14).
+
+### Pontos 2 e 3 — licenças que abrem vaga (V43, `fa89174b`)
+
+- Três colunas no subtipo: `position_effect` (MANTEM/ABRE_VAGA),
+  `vacancy_after_days`, `return_effect` (REGRESSA_LUGAR/DISPONIBILIDADE), com os
+  enums `EfeitoNoLugar` e `EfeitoNoRegresso`. O prazo é dado porque a lei o faz
+  variar com o motivo: cônjuge além de 1 ano (art. 56.º n.º 2), formação além de
+  6 meses (art. 67.º n.º 3).
+- `LicencaService`: ao entrar em vigor, a licença que abre vaga encerra a
+  afectação e põe o colaborador em inactividade fora do quadro; no regresso, quem
+  perdeu o Lugar fica em **disponibilidade** (art. 122.º). O estado é escolhido
+  **pela situação**, via `WorkerStateRepository.findBySituacao` — não por código.
+- `record_type = AMBOS` **removido**; a mobilidade fica proibida de abrir vaga
+  (art. 135.º n.º 7); `LIC_PARENTAL` desactivado (é ausência, não licença).
+- `LeaveMobilitySubtypeEntity` passa a mapear a coluna `name`, que a V6 declara
+  `NOT NULL` — criar um subtipo pela API rebentava.
+- Regras **BR-LIC-01..07** (§6.1). Testes: `LicencaAbreVagaTest` (11).
+
+### Ponto 4 — ausências (`e9be40bd`)
+
+- `SaldoAusencia` ganha o ciclo completo: **reservar** na submissão, **confirmar
+  o gozo** na aprovação, **libertar** na rejeição ou cancelamento pendente,
+  **devolver** no cancelamento depois de aprovado. Antes, `dias_gozados` ficava
+  sempre a zero.
+- `SaldoAusenciaService` concentra o movimento; os cinco caminhos usam-no.
+- Aprovar, rejeitar, cancelar e submeter passam a `@Transactional`.
+- `EstadoPedidoAusencia` — o estado do pedido passa a enum.
+- Filtros e soma anual **passam para JPQL**: já não se traz o histórico do
+  colaborador para filtrar em memória.
+- Regras **BR-AUS-05..11**. Testes: `SaldoAusenciaTest` (10).
+
+### Correcções encontradas ao exercitar a API (`1cfd6ecc`)
+
+1. **Contratos sem estado nunca eram suspensos** — o seed criava `status` nulo e
+   suspender/reactivar comparam o estado actual, por isso não faziam nada, em
+   silêncio. **V44** preenche (corrente → `ATIVO`, resto → `CESSADO`) e torna a
+   coluna obrigatória.
+2. **A grelha de carreira não tinha folga** — o seed punha o colaborador no
+   último escalão, e a progressão respondia sempre "já está no último escalão".
+   Cada categoria passa a ter dois escalões.
+3. **Cancelamento de pedido de ausência** — ao tirar o 403 que bloqueava o RH,
+   ficou a faltar a verificação de que o pedido pertence ao colaborador do URL.
+   Reposta como **404**, que é a semântica certa. O controlador passa sempre o
+   funcionário do URL como solicitante, por isso a regra antiga dizia 403 a toda
+   a gente.
 
 ## Decisions made — do not re-litigate
 
-- **Mobilidade transitória não toca na afectação** (Lei 20/X/2023 art. 135.º
-  n.º 7): o titular mantém o Lugar; encerrar é só fechar o registo.
+- **Mobilidade transitória não toca na afectação** (art. 135.º n.º 7): o titular
+  mantém o Lugar; encerrar é só fechar o registo.
 - **Mobilidade definitiva = transferência**; interna/externa muda só o campo do
   destino (`destinationUnitId` vs `entidadeDestino`).
 - **Promoção**: a modalidade infere-se do pedido (com `positionId` muda de Lugar;
-  sem ele o Lugar sobe de categoria) e **não se persiste** — deduz-se do
-  histórico.
+  sem ele o Lugar sobe de categoria) e **não se persiste**.
 - **Nada de respostas `Map`** nos endpoints novos: DTOs tipados.
 - **Motivos não se validam** (`motivoCkey`, `terminationReason`): são
   parametrizados pelo utilizador no catálogo `Option`.
 - **O que é derivável não se guarda** (provido/vago, vínculo laboral, "onde
-  exerce funções").
-- **Substituto adiado** para depois das ausências (a lei permite, não obriga).
-- **Percurso do colaborador (linha temporal única) adiado** para quando o negócio
-  estiver definido.
-- **O SIGDI fica de fora.** A avaliação e os créditos de desempenho (CDD) vivem no
-  SIGDI; é ele que chamará o RH depois da integração. O RH **regista** a progressão
-  e a promoção, não verifica elegibilidade. Confirmado pelo DL 4/2024, que remete
-  os limiares para o diploma da gestão de desempenho (art. 36.º).
-- **Parametrizar valores, não decisões.** Colunas de catálogo para o que a lei fixa
-  e pode mudar (dias, limites, situação); nada de interruptores para decisões que a
-  instituição ainda não tomou. O que é derivável da lei fica em código derivado
-  (enum), não em coluna.
-- **Licença parental é ausência, não licença** (art. 171.º n.º 2 vs art. 172.º):
-  `MATERNIDADE` 90 dias e `PATERNIDADE` 10 dias úteis; o subtipo `LIC_PARENTAL` sai.
-- **`record_type = AMBOS` sai**: licença e mobilidade têm efeitos opostos no vínculo
-  e nenhum subtipo do seed o usa.
+  exerce funções", efeitos da situação funcional).
+- **O SIGDI fica de fora.** A avaliação e os créditos de desempenho (CDD) vivem
+  no SIGDI, que chamará o RH depois da integração. O RH **regista** a progressão
+  e a promoção, não verifica elegibilidade. Confirmado: o DL 4/2024 remete os
+  limiares para o diploma da gestão de desempenho (art. 36.º).
+- **Parametrizar valores, não decisões.** Colunas para o que a lei fixa e pode
+  variar (dias, limites, situação); nada de interruptores para decisões que a
+  instituição ainda não tomou.
+- **Valores fechados viram enum, não constantes soltas**: já feito para
+  `EstadoContrato`, `EstadoPedidoAusencia`, `SituacaoFuncional`, `TipoRegisto`,
+  `EfeitoNoLugar`, `EfeitoNoRegresso`. **Falta**: tipo de afectação
+  (`PRINCIPAL`/`SUBSTITUICAO`/`ACUMULACAO`), origem da afectação, estado do Lugar
+  (`Position.ATIVO`) e estados de `LicencaMobilidade`
+  (`PENDING`/`ACTIVE`/`CLOSED`…).
+- **Licença parental é ausência** (art. 171.º n.º 2 vs art. 172.º): `MATERNIDADE`
+  90 dias, `PATERNIDADE` 10 dias úteis.
+- **Nada de filtrar em memória**: filtros e somas vão para a consulta.
+- **Substituto** e **percurso do colaborador** adiados (ver pendentes).
 
 ## Constraints
 
 - **Build exige JDK 26**: `export JAVA_HOME="/c/Program Files/Eclipse Adoptium/jdk-26.0.2.10-hotspot"`.
 - **Migrações Flyway sempre defensivas**: `to_regclass` para a tabela +
-  `information_schema.columns` para a coluna. Ver V40/V41 como modelo.
-- **Confirmar o número da migração livre** antes de criar (já houve colisão na V39).
-- Controladores em `interfaces/rest/` são gerados pelo IGRP: lógica nos handlers e
-  manifesto `.igrpstudio` actualizado a par do Java.
-- JPQL usa o **nome `@Entity`**, não o da classe (ex.: `ColabsLicencaMobilidadeEntity`).
-- Documentação em **pt-PT**; commits `feat|fix(<módulo>): …`.
+  `information_schema.columns` para a coluna. V40 a V44 são o modelo.
+- **Confirmar o número livre** antes de criar a migração (já houve colisão na V39).
+- Controladores em `interfaces/rest/` são gerados pelo IGRP: lógica nos handlers,
+  e **manifesto `.igrpstudio` actualizado a par do Java** (entity + DTOs).
+- JPQL usa o **nome `@Entity`**, não o da classe (ex.:
+  `ColabsPedidoAusenciaEntity`, `ColabsLicencaMobilidadeEntity`). Uma `@Query`
+  errada passa nos testes unitários e só rebenta no arranque real.
+- Para extrair o ano em JPQL: `year(campo)`, nunca `FUNCTION('YEAR', campo)`.
+- Documentação em **pt-PT**; commits `feat|fix|refactor(<módulo>): …`.
+- **Scripts PowerShell só com ASCII**: o PS 5.1 lê o ficheiro como ANSI e um
+  acento parte o script a meio, de forma difícil de diagnosticar.
+- **Nomes totalmente qualificados no meio do código não passam**: usar imports.
 
-## Blockers & risks
+## Armadilhas do ambiente (custaram tempo nesta sessão)
 
-- ~~Texto do DL n.º 4/2024 não acessível~~ — **resolvido (2026-09-18)**. Os PDFs
-  oficiais estão no site do Ministério das Finanças (mf.gov.cv/web/dnap): PCFR,
-  Lei 20/X/2023 e DL 3/2010. O PCFR **não** fixa o número de créditos (art. 36.º
-  remete para o diploma da gestão de desempenho, que é âmbito do SIGDI). Confirmado:
-  progressão sem concurso nem tempo de serviço (art. 33.º n.º 3 e 34.º n.º 1);
-  promoção com concurso interno (art. 32.º n.º 3, 34.º n.º 2); mudança de carreira
-  = evolução vertical, com concurso interno e perfil (art. 35.º). O DL 3/2010
-  mantém-se em vigor no que não contraria a lei nova (art. 213.º), com a maternidade
-  a passar de 60 para 90 dias.
-- **Por confirmar com o jurídico:** se algum diploma posterior substituiu o
-  DL 3/2010 (não encontrado) e qual o diploma da mobilidade.
-- **Falta decisão de negócio**: a promoção exige lugar vago na prática da
-  instituição? Não bloqueia (as duas formas estão suportadas).
-- `mvn compile` incremental **não apanha** assinaturas removidas do domínio — usar
-  `clean` quando se muda um modelo.
+1. **Jar sem recursos.** Com o VS Code aberto, um `mvn clean package` pode gerar
+   um jar **sem** os `application*.properties` nem as migrações: a app arranca na
+   8080, sem perfil, e cai no `issuer-uri`. Confirmar sempre:
+   `jar tf target/RH-Service-0.0.1-SNAPSHOT.jar | Select-String 'classes/application.properties'`.
+   Se faltar, correr `mvn package` outra vez **sem** `clean`.
+2. **Jar preso.** Se a app estiver a correr, o `repackage` falha com *"Unable to
+   rename ... to ...jar.original"*. Fechar o processo primeiro:
+   `Get-CimInstance Win32_Process -Filter "Name='java.exe'" | Where-Object { $_.CommandLine -match 'RH-Service' }`.
+3. **Arranque lento**: 3 a 5 minutos até ao *Started*. Não é bloqueio.
+4. **Porta 8099**, não 8091 (o `.env` local manda).
+5. **Erro esperado no log**: `AuthorizationSyncRunner` falha porque o URL do
+   Access Management está vazio no `.env`. Não impede o arranque.
 
 ## Relevant files
 
-- `colaboradores/application/services/AssignmentService.java` — afectar,
-  progredir, promover, transferir, encerrarAfectacaoCorrente.
-- `colaboradores/application/services/MobilidadeService.java` — validações da
-  mobilidade e `mobilidadeEmVigor` (onde exerce funções).
-- `colaboradores/application/services/CessacaoService.java` — caminho único da
-  cessação.
-- `colaboradores/domain/models/LicencaMobilidade.java` — estados, prorrogação.
-- `parametrizacoes/domain/models/{WorkerState,LeaveMobilitySubtype}.java` —
-  `endsEmployment`, `maxDurationDays`, `maxExtensions`, `isMobilidade()`.
-- `src/main/resources/db/migration/V40__*.sql`, `V41__*.sql` — modelo das
-  migrações defensivas.
-- `docs/funcionarios/v5/regras_negocio.html` — catálogo BR-*, fonte de verdade.
+**Domínio e regras**
+- `parametrizacoes/domain/models/SituacaoFuncional.java` — as seis situações e os
+  seus efeitos.
+- `parametrizacoes/domain/models/{EfeitoNoLugar,EfeitoNoRegresso,TipoRegisto}.java`
+- `parametrizacoes/domain/models/{WorkerState,LeaveMobilitySubtype}.java`
+- `colaboradores/domain/models/{EstadoContrato,EstadoPedidoAusencia}.java`
+- `colaboradores/domain/models/{Contrato,PedidoAusencia,SaldoAusencia,LicencaMobilidade,SubtipoLicencaMobilidade}.java`
+
+**Serviços de aplicação**
+- `AssignmentService` — afectar, progredir, promover, transferir,
+  `encerrarAfectacaoCorrente`.
+- `LicencaService` — efeitos da licença no Lugar e no regresso (novo).
+- `SaldoAusenciaService` — ciclo do saldo (novo).
+- `MobilidadeService` — validações da mobilidade, `mobilidadeEmVigor`,
+  `subtipoSeExistir`.
+- `CessacaoService` — caminho único da cessação.
+
+**Migrações e dados**
+- `db/migration/V40..V44` — modelo das migrações defensivas.
+- `db/seed/seed_parametrizacoes.sql`, `seed_carreiras.sql`,
+  `seed_colaboradores.sql`.
+
+**Documentação (pt-PT, fonte de verdade)**
+- `docs/funcionarios/v5/regras_negocio.html` — catálogo BR-*.
+- `docs/funcionarios/v5/modelo_relacional.html` — inclui §7.1 "onde vive cada
+  decisão".
+- `docs/funcionarios/v5/api_guide.md` — §5.3 efeitos do estado, §6.1 saldo,
+  §7.1 licenças que abrem vaga.
+- `docs/funcionarios/v5/breaking_change_frontend.md` — §11 para o front-end.
+- `scripts/testes_funcionais.ps1` + `README` — bateria contra a BD.
 
 ## Trabalho pendente (por ordem recomendada)
 
-### 1. Situações funcionais (art. 118.º–122.º) — destrava o resto
-A lei tem seis situações: actividade no quadro, actividade **fora** do quadro,
-inactividade no quadro, inactividade **fora** do quadro, **disponibilidade**,
-aposentação. Hoje só há 4 estados (ACTIVE/SUSPENDED/INACTIVE/RETIRED).
-Regras concretas a modelar:
-- inactividade **fora** do quadro **abre vaga** (art. 121.º n.º 2);
-- actividade no quadro para cônjuge diplomata > 1 ano e formação no exterior
-  > 6 meses **abrem vaga** (art. 118.º n.º 2);
-- **disponibilidade** = aguarda vaga, com direito a contagem de tempo e abonos
-  (art. 122.º); é por aqui que se regressa de licença longa;
-- inactividade no quadro **não conta para antiguidade** (art. 120.º n.º 2).
-Sugestão: colunas parametrizadas em `t_worker_state` (`opens_vacancy`,
-`counts_seniority`, `situacao_funcional`), à imagem de `ends_employment` (V40).
+### 1. Substituição (art. 73.º al. a)–c), art. 91.º n.º 1 al. a) — o próximo
+Contrato a termo para substituir funcionário **temporariamente impedido**, que
+caduca quando cessa a situação (art. 77.º n.º 2); e **nomeação em substituição**,
+para quem já é funcionário.
 
-### ~~2. Licenças que abrem vaga + disponibilidade~~ — FEITO (V43, commit fa89174b)
-### ~~3. Subtipos — limpeza~~ — FEITO em parte: `AMBOS` removido, `name` mapeado,
-`LIC_PARENTAL` desactivado. **Fica por resolver:** `affects_pay` e
-`counts_for_seniority` continuam sem código que os use.
+Faz mais sentido agora do que antes, porque já há duas maneiras de um Lugar ficar
+sem titular temporariamente: a **licença que abre vaga** (V43) e a
+**inactividade fora do quadro** (V42).
 
-### (histórico) 2. Licenças que abrem vaga + disponibilidade (DL n.º 3/2010)
-Hoje **nenhuma licença toca no Lugar**. A lei distingue:
-- sem vencimento até 90 dias (art. 46.º) e até 3 anos (art. 48.º): **mantém** o
-  lugar; pode ser preenchido por contrato a prazo que caduca no regresso;
-- **longa duração** (art. 50.º–53.º): **abre vaga**, suspende o vínculo; no
-  regresso, tem direito a uma vaga existente ou à primeira que ocorra;
-- acompanhamento de cônjuge no estrangeiro: abre vaga **> 1 ano** (art. 56.º n.º 2);
-- organismo internacional como funcionário do organismo: abre vaga (art. 62.º);
-- formação: abre vaga **> 6 meses** (art. 67.º n.º 3).
-Sugestão: no subtipo, `position_effect` (MANTEM/ABRE_VAGA) +
-`vacancy_after_days`, e `return_effect` (REGRESSA_LUGAR/DISPONIBILIDADE).
+Implica:
+- afectação `SUBSTITUICAO` ligada à afectação do titular e ao que a justifica;
+- **tornar parcial o índice único** `ux_assignment_position_current`, passando a
+  exigir `assignment_type = 'PRINCIPAL'` — migração **V45**;
+- converter o tipo de afectação para enum, no mesmo molde dos outros.
 
-### 3. Subtipos de licença/mobilidade — limpeza
-- `record_type = AMBOS` é ambíguo; hoje `isMobilidade()` trata-o como mobilidade
-  (antes era ignorado em silêncio). Decidir se se remove dos valores aceites.
-- `LeaveMobilitySubtypeEntity` **não mapeia a coluna `name`**, que a V6 declara
-  `NOT NULL` — qualquer INSERT tem de preencher `name` à mão (ver comentário no
-  `seed_parametrizacoes.sql`). Resolver: ou mapear, ou largar o NOT NULL.
-- `affects_pay` e `counts_for_seniority` existem no catálogo mas **nenhum código
-  os usa**.
-- Existe duplicação conceptual: `LIC_PARENTAL` (subtipo) vs `MATERNIDADE`/
-  `PATERNIDADE` (tipos de ausência). Decidir onde vive a licença parental.
-
-### ~~4. Ausências — saldo, cancelamento e transacções~~ — FEITO (commit e9be40bd)
-Fica por fazer só a parte de **férias**: marcação, acumulação e gozo proporcional.
-
-### (histórico) 4. Ausências / assiduidade — negócio por rever
-Estado actual (`PedidoAusencia`, `SaldoAusencia`, catálogo `LeaveType`), com
-problemas identificados e **ainda não corrigidos**:
-- **o saldo nunca passa a "gozados"**: aprovar só faz `incrementarPendentes`;
-  `diasGozados` fica sempre a 0 (`SaldoAusencia`);
-- **só o próprio pode cancelar** um pedido (403 para o RH) —
-  `CancelarPedidoAusenciaCommandHandler`;
-- aprovar/rejeitar não são `@Transactional`;
-- `MATERNIDADE`/`PATERNIDADE` como tipos de ausência, sobrepostos ao subtipo de
-  licença (ver ponto 3). A Lei 20/X/2023 art. 172.º fixa 90 dias (mãe) e 10 dias
-  úteis (pai);
-- férias: DL 3/2010 dá **22 dias úteis** (o seed já tem `max_days_per_year=22`),
-  mas não há regras de marcação, acumulação nem gozo proporcional.
-
-### 5. Substituição (depois das ausências)
-Lei 20/X/2023 art. 73.º al. a)–c): contrato a termo para substituir funcionário
-**temporariamente impedido** (lista aberta: doença prolongada, mobilidade,
-comissão de serviço, licença sem vencimento com direito a lugar). Caduca quando
-cessa a situação (art. 77.º n.º 2). Há ainda a **nomeação em substituição**
-(art. 91.º n.º 1 al. a), para quem já é funcionário.
-Implica: afectação `SUBSTITUICAO` ligada à afectação do titular e à ausência que
-a justifica, **e tornar parcial o índice único**:
-`ux_assignment_position_current` passa a exigir `assignment_type = 'PRINCIPAL'`.
 Fora do âmbito: férias e faltas curtas.
 
-### 6. Movimentos menores que faltam
+### 2. Férias (DL n.º 3/2010)
+O seed já dá 22 dias úteis, e o ciclo do saldo está fechado. Falta o negócio:
+marcação, acumulação e gozo proporcional ao tempo de serviço.
+
+### 3. Dívida conhecida do catálogo
+- `affects_pay` e `counts_for_seniority` (subtipo) e `counts_seniority`
+  (vínculo laboral) existem e **nenhum código os usa**.
+- `SituacaoFuncional.contaAntiguidade()` também ainda não tem consumidor: **não
+  há cálculo de antiguidade em lado nenhum**. Quando houver, é aí que estas três
+  coisas se ligam.
+
+### 4. Movimentos menores que faltam
 Consolidação da mobilidade (art. 132.º n.º 4) · mobilidade em acumulação
 (art. 134.º n.º 2 al. b; o tipo `ACUMULACAO` existe e nunca é usado) · permuta
 (troca recíproca e simultânea, tem de ser atómica) · **mudança de carreira /
-evolução vertical** (art. 139.º — hoje sem caminho: a promoção exige a mesma
-carreira e a transferência a mesma categoria) · regresso de comissão de serviço
-(art. 64.º n.º 2) · estágio probatório → nomeação definitiva (art. 57.º, 72.º) ·
-reintegração judicial (art. 97.º n.º 10 al. b).
+evolução vertical** (art. 139.º e art. 35.º do PCFR — hoje sem caminho: a
+promoção exige a mesma carreira e a transferência a mesma categoria) · regresso
+de comissão de serviço (art. 64.º n.º 2) · estágio probatório → nomeação
+definitiva (art. 57.º, 72.º) · reintegração judicial (art. 97.º n.º 10 al. b).
+
+### 5. Percurso do colaborador
+Endpoint que junte numa só linha temporal as afectações, as mobilidades, as
+licenças e as mudanças de estado. Adiado até o negócio estar definido.
+
+## Legislação — o que já está confirmado
+
+Os PDFs oficiais estão no site do Ministério das Finanças (`mf.gov.cv/web/dnap`)
+e foram lidos nesta sessão:
+
+- **PCFR (DL n.º 4/2024)**: progressão sem concurso nem tempo de serviço
+  (art. 33.º n.º 3, 34.º n.º 1); promoção com concurso interno (art. 32.º n.º 3,
+  34.º n.º 2); mudança de carreira = evolução vertical (art. 35.º). **Não fixa o
+  número de créditos** — remete para o diploma da gestão de desempenho (art. 36.º),
+  que é âmbito do SIGDI.
+- **DL n.º 3/2010** mantém-se em vigor no que não contraria a lei nova
+  (art. 213.º da Lei 20/X/2023), com a maternidade a passar de 60 para 90 dias.
+- **DL n.º 25/2025** é só a Tabela Única de Remuneração.
+
+**Por confirmar com o jurídico:** se algum diploma posterior substituiu o
+DL n.º 3/2010 (não encontrado) e qual o diploma da mobilidade.
+
+**Decisão de negócio pendente (RH):** a promoção, na prática da instituição,
+exige lugar vago da categoria superior? Não bloqueia — as duas formas estão
+suportadas.
 
 ## How to verify / resume
 
-```bash
-export JAVA_HOME="/c/Program Files/Eclipse Adoptium/jdk-26.0.2.10-hotspot"
-cd /c/Users/ivanick.santos/Nick-personal/ta-workspace/projects/Recursos_Humanos
-mvn -B test            # 709 testes, 4 falhas conhecidas (Option x2, Envers x2)
-git --no-pager log --oneline -8
+```powershell
+$env:JAVA_HOME='C:\Program Files\Eclipse Adoptium\jdk-26.0.2.10-hotspot'
+cd C:\Users\ivanick.santos\Nick-personal\ta-workspace\projects\Recursos_Humanos
+
+git switch fix-alinhamento-legislacao
+git log --oneline -6
+
+mvn -B test        # 744 testes, 4 falhas conhecidas (Option x2, Envers x2)
 ```
-Se aparecerem outras falhas, é regressão. Se o contexto Spring falhar com
-"Found more than one migration with version N", é colisão de número de migração.
-`mvn -B clean compile` quando se alterar assinaturas do domínio.
 
-Arranque real (nunca foi feito nesta sessão, **nenhum endpoint novo foi chamado
-contra a base de dados**): `docker-compose up` e depois
-`java -jar target/RH-Service-0.0.1-SNAPSHOT.jar`, Swagger em
-`http://localhost:8091/swagger-ui.html`.
+Arranque real e bateria funcional:
 
-## Test / validation plan
+```powershell
+mvn -B -DskipTests package
+# confirmar que o jar tem recursos (ver armadilha 1)
+java -jar target\RH-Service-0.0.1-SNAPSHOT.jar --spring.profiles.active=development
+# esperar pelo "Started RecursosHumanosApplication" (3-5 min)
 
-Por executar contra a aplicação a correr (perfil `development`, sem auth). Os
-ids vêm do seed (`src/main/resources/db/seed/`).
+# repor os dados de teste: SQL no scripts/testes_funcionais_README.md
+.\scripts\testes_funcionais.ps1     # esperado: 78/78
+```
 
-**Já verificado (2026-09-18):**
-- **V40/V41 aplicadas** e as quatro colunas existem em `recursoshumanos_db`
-  (contentor `postgres-ingt-rh`, porta 5436). O passo 1 abaixo está feito.
-- **A aplicação arranca** no perfil `development`, porta **8099** (não 8091),
-  e `GET /v3/api-docs` responde 200. Único erro no log: a sincronização de
-  permissões do IGRP (`AuthorizationSyncRunner`), por o URL do Access Management
-  estar vazio no `.env` — esperado em dev.
-- ⚠️ **Armadilha do empacotamento:** com o VS Code aberto, um `mvn clean package`
-  pode gerar um jar **sem** os `application*.properties` nem as migrações — a app
-  arranca na 8080, sem perfil, e cai no `issuer-uri`. Confirmar com
-  `jar tf target/*.jar | grep application.properties`; se faltar, correr
-  `mvn package` outra vez **sem** `clean`.
+Se o contexto Spring falhar com *"Found more than one migration with version N"*,
+é colisão de número de migração. `mvn -B clean compile` quando se alterar
+assinaturas do domínio.
 
-**Por verificar — licenças que abrem vaga (V43):**
-- L1. Criar licença com subtipo `LIC_LONGA_DURACAO` e aprovar → **200** com
-  `afectacaoEncerradaId`; em `t_assignment` a afectação fica fechada e o Lugar
-  vago; o colaborador continua activo, com estado `INACTIVE_OUTSIDE`.
-- L2. `LIC_FORMACAO` com 180 dias → **não** abre vaga; com 181 → abre.
-- L3. `LIC_SEM_VENCIMENTO` de 2 anos → mantém o Lugar.
-- L4. `close` de uma licença que abriu vaga → **200** com `estadoAtribuidoId`
-  (estado `AVAILABLE`); o colaborador **não** recupera o Lugar sozinho.
-- L5. Criar subtipo de mobilidade com `positionEffect=ABRE_VAGA` → **400**.
-- L6. Criar subtipo pela API (`POST /catalogs/leave-mobility-subtypes`) → **201**
-  (antes falhava por a coluna `name` ser NOT NULL e não estar mapeada).
-- L7. Subtipos novos do seed existem; `LIC_PARENTAL` fica inactivo.
+## Verificado contra a base de dados (2026-09-18)
 
-**Por verificar — situações funcionais (V42):**
-- S1. Arrancar depois da V42: `\d t_worker_state` tem `situacao_funcional`;
-  `ACTIVE`/`SUSPENDED`/`RETIRED` classificados, `INACTIVE` a NULL.
-- S2. `POST /worker-states` com `situacaoFuncional` inválido → **422**.
-- S3. `endsEmployment=true` com situação que não é `APOSENTACAO` → **422**.
-- S4. `PATCH /funcionarios/{id}/worker-state` para estado
-  `INACTIVIDADE_FORA_QUADRO` → **200**, contrato `SUSPENSO`, afectação encerrada
-  (Lugar vago), colaborador **continua activo**, `afectacaoEncerradaId` preenchido.
-- S5. Voltar a `ACTIVIDADE_NO_QUADRO` → contrato reactivado; **não** recupera o
-  Lugar sozinho (precisa de nova afectação).
-- S6. `ACTIVIDADE_FORA_QUADRO` → contrato e afectação intactos.
-- S7. Estado sem situação → só histórico.
-- S8. Novos estados do seed (`ACTIVE_OUTSIDE`, `INACTIVE_OUTSIDE`, `AVAILABLE`)
-  existem após o seed; em bases já semeadas têm de ser criados pela API.
+A bateria de 78 passos cobre, com caminho positivo **e** negativo:
 
-**Por verificar — o resto (nenhum endpoint novo foi ainda chamado contra a BD):**
+- **F0 navegação** — listas, detalhe, unidade actual e os três catálogos.
+- **F1 situações funcionais** — os quatro estados de origem vêm classificados;
+  situação fora da lei, cessação incoerente e `APOSENTACAO` sem cessação → 422.
+- **F1b movimentos** — progressão sobe um escalão (201); destino inexistente na
+  promoção e na transferência → 404; data anterior à afectação → 422.
+- **F2 estado que abre vaga** — encerra a afectação, suspende o contrato, **não**
+  cessa o vínculo; o regresso reactiva o contrato e **não** devolve o Lugar;
+  repetir o mesmo estado → 409; estado inexistente → 404.
+- **F3 licenças** — 180 dias mantém o Lugar, 200 abre vaga; o regresso põe em
+  disponibilidade; mobilidade a abrir vaga → 400; `AMBOS` → 422; criar subtipo
+  pela API → 201; aprovar duas vezes → 409.
+- **F4 ausências** — reserva, gozo, devolução e libertação, com o saldo lido a
+  cada passo; sobreposição → 409; sem saldo → 422; dupla decisão → 409; URL de
+  outro colaborador → 404; filtro por estado feito na BD.
+- **F5 efeitos cruzados** — quem perdeu o Lugar (por estado ou por licença) não
+  pode progredir → 422. É a prova de que a vaga abriu mesmo.
 
-1. **V40/V41 aplicam-se** — feito (ver acima).
-2. **Progressão** — `POST /api/v1/rh/funcionarios/{id}/progressao`
-   `{"dataEfeito":"2026-10-01"}` num colaborador com afectação num Lugar de
-   carreira → **201** com `escalaoAnterior`/`escalaoNovo`; confirmar em
-   `t_assignment` que há 2 linhas para o mesmo `position_id`, a antiga com
-   `data_fim = 2026-09-30` e `is_current=false`.
-3. **Promoção nas duas formas** — com `positionId` de Lugar vago da categoria
-   seguinte → **201** `lugarReclassificado=false`; sem `positionId` → **201**
-   `lugarReclassificado=true` e `t_position.category_id` do Lugar actualizado.
-4. **Transferência** — destino da mesma categoria → **201**; destino de outra
-   categoria → **422**; sem `functionId` e com função incompatível → **422**.
-5. **Cessação pelos dois caminhos** — (a) `PATCH /funcionarios/{id}/worker-state`
-   para `RETIRED`; (b) noutro colaborador, `PUT /funcionarios/{id}/contratos/{cid}/close`.
-   Em **ambos**: `t_funcionario.is_active=false`, contrato `CESSADO`, afectação
-   fechada, **uma linha nova em `t_historico_estado_colaborador`**. Era aqui que
-   o segundo caminho falhava antes.
-6. **Mobilidade transitória** — criar + `approve` com `destinationUnitId` →
-   **200**; confirmar que `t_assignment` **não mudou** (mesma linha corrente);
-   `GET /colaboradores/assignments/funcionario/{id}/unidade-atual` mostra
-   `emMobilidade=true` e `exerceFuncoesUnidadeNome` = unidade de destino;
-   `GET /funcionarios/{id}/details` traz `mobilidadeEmVigor`.
-7. **Mobilidade externa** — `approve` só com `entidadeDestino` → **200**.
-   Sem destino nenhum → **422**.
-8. **Duração** — `dataFim` a mais de 365 dias do início num subtipo de
-   mobilidade → **422** no `approve`.
-9. **Prorrogação** — `PUT /licencas-mobilidade/{id}/prorrogar` com `novaDataFim`
-   → **200** `prorrogacoes=1`; repetir → **422** (limite 1).
-10. **Encerrar** → **200**, e o colaborador continua no mesmo Lugar (`unidade-atual`
-    volta a `emMobilidade=false`, sem perda de afectação).
-
-## Open questions
-
-- A promoção, na prática da instituição, exige lugar vago da categoria superior?
-  (decide: RH/jurídico)
-- Licença parental: tipo de ausência ou subtipo de licença? (ponto 3)
-- `record_type = AMBOS` mantém-se ou desaparece?
-- Confirmar com o jurídico se o DL n.º 3/2010 continua a ser o diploma aplicável
-  às licenças e qual o diploma da mobilidade.
+**Ainda não exercitado contra a BD:** cessação pelos dois caminhos (estado
+`RETIRED` e `close` do contrato), mobilidade transitória de ponta a ponta
+(aprovar com destino interno e externo, duração, prorrogação, encerrar) e
+promoção nas duas formas com um Lugar vago real. O seed só tem dois Lugares,
+ambos ocupados — para a promoção com `positionId` é preciso criar um Lugar vago
+primeiro.
 
 ## Next step
 
-Pontos 1 a 4 do plano estão feitos. **A seguir: ponto 5, a substituição**
-(Lei n.º 20/X/2023, art. 73.º al. a)–c) e art. 91.º n.º 1 al. a). Agora faz mais
-sentido do que antes, porque já há duas maneiras de um Lugar ficar sem titular
-temporariamente: a licença que abre vaga (V43) e a inactividade fora do quadro (V42).
+**Ponto 1 dos pendentes: a substituição.** Começar por ler
+`AssignmentService.afectar` e o índice `ux_assignment_position_current`, decidir
+como se liga a afectação de substituição à do titular, e escrever a **V45** que
+torna o índice parcial. Converter o tipo de afectação para enum no mesmo commit,
+porque é o mesmo ficheiro.
 
-Implica tornar parcial o índice único `ux_assignment_position_current`
-(`assignment_type = 'PRINCIPAL'`) — migração **V44** — e converter os tipos de
-afectação (`PRINCIPAL`/`SUBSTITUICAO`/`ACUMULACAO`) para enum, como se fez com
-`EstadoContrato` e `EstadoPedidoAusencia`.
-
-**Antes disso, convém validar contra a aplicação a correr** o que já foi feito:
-a lista de verificação está na secção do plano de validação. A aplicação arrancou
-sem erros com a V42 e a V43 aplicadas (2026-09-18), mas a base de dados local
-está sem dados de seed, por isso nenhum caminho de negócio foi exercitado.
+Antes de mexer, correr `mvn -B test` para confirmar as 4 falhas conhecidas e
+nada mais.
