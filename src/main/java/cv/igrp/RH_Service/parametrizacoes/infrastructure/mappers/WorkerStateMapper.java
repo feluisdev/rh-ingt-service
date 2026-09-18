@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers;
 
 import cv.igrp.RH_Service.parametrizacoes.application.dto.WorkerStateResponseDTO;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.SituacaoFuncional;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.WorkerState;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.WorkerStateEntity;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.WorkerStateId;
@@ -18,6 +19,8 @@ public class WorkerStateMapper {
         entity.setIsCore(domain.isCore());
         entity.setIsActive(domain.isActive());
         entity.setEndsEmployment(domain.isEndsEmployment());
+        entity.setSituacaoFuncional(domain.getSituacaoFuncional() == null
+                ? null : domain.getSituacaoFuncional().name());
         return entity;
     }
 
@@ -29,7 +32,8 @@ public class WorkerStateMapper {
             entity.getDescription(),
             entity.getIsCore() != null && entity.getIsCore(),
             entity.getIsActive() != null && entity.getIsActive(),
-            entity.getEndsEmployment() != null && entity.getEndsEmployment()
+            entity.getEndsEmployment() != null && entity.getEndsEmployment(),
+            SituacaoFuncional.de(entity.getSituacaoFuncional())
         );
     }
 
@@ -41,6 +45,8 @@ public class WorkerStateMapper {
         dto.setDescription(domain.getDescription());
         dto.setIsCore(domain.isCore());
         dto.setEndsEmployment(domain.isEndsEmployment());
+        dto.setSituacaoFuncional(domain.getSituacaoFuncional() == null
+                ? null : domain.getSituacaoFuncional().name());
         dto.setIsActive(domain.isActive());
         dto.setEstadoDesc(Boolean.TRUE.equals(domain.isActive()) ? "Ativo" : "Inativo");
         return dto;

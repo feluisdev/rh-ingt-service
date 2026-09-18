@@ -195,6 +195,19 @@ Mudar para um **estado de cessação** (catálogo: `endsEmployment = true`) term
 
 > **Cessação tem um caminho único.** Este endpoint e `PUT /contratos/{id}/close` fazem exactamente o mesmo, e devolvem o mesmo DTO. Que estados cessam o vínculo é configuração (`endsEmployment` no catálogo de estados), não código.
 
+**Estados que não cessam o vínculo** produzem os efeitos da sua **situação funcional** (`situacaoFuncional` no catálogo de estados, Lei n.º 20/X/2023 art. 117.º):
+
+| Situação | Contrato | Lugar |
+|---|---|---|
+| `ACTIVIDADE_NO_QUADRO` (art. 118.º) | reactiva, se suspenso | mantém |
+| `ACTIVIDADE_FORA_QUADRO` (art. 119.º) | reactiva, se suspenso | mantém |
+| `INACTIVIDADE_NO_QUADRO` (art. 120.º) | suspende | mantém |
+| `INACTIVIDADE_FORA_QUADRO` (art. 121.º) | suspende | **encerra a afectação — abre vaga** (n.º 2) |
+| `DISPONIBILIDADE` (art. 122.º) | reactiva, se suspenso | mantém |
+| `APOSENTACAO` | cessa (caminho da cessação) | encerra |
+
+Um estado **sem situação** classificada só regista histórico. Quando a situação abre vaga, a resposta traz `afectacaoEncerradaId` preenchido e `cessouVinculo: false` — o colaborador continua activo, sem Lugar.
+
 ### 5.4 Progressão — `POST /funcionarios/{id}/progressao`
 Sobe o colaborador para o **escalão imediatamente superior da mesma categoria**. O Lugar e a função mantêm-se e não é precisa vaga. **O escalão é escolhido pelo sistema** (o próximo escalão activo da categoria do Lugar), não pelo cliente.
 

@@ -52,6 +52,12 @@
       "name": "endsEmployment",
       "objectType": "java",
       "required": false
+    },
+    {
+      "type": "string",
+      "name": "situacaoFuncional",
+      "objectType": "java",
+      "required": false
     }
   ],
   "id": "worker_state_res_dto_001"

@@ -217,11 +217,34 @@
     <tr><td class="id">BR-EST-02</td><td>Um estado <b>inactivo</b> (no catálogo) não pode ser atribuído a um colaborador.</td><td><span class="http h409">409</span></td><td class="src">MudarEstadoColaboradorCommandHandler</td></tr>
     <tr><td class="id">BR-EST-03</td><td>Não se pode mudar para o estado em que o colaborador <b>já se encontra</b>.</td><td><span class="http h409">409</span></td><td class="src">MudarEstadoColaboradorCommandHandler</td></tr>
     <tr><td class="id">BR-EST-04</td><td>Um estado com <code>ends_employment = true</code> <b>cessa a relação</b>: marca o colaborador como inactivo e encerra a afectação corrente (o Lugar fica vago). Que estados cessam é <b>configuração</b>, não código.</td><td>—</td><td class="src">MudarEstadoColaboradorCommandHandler → CessacaoService</td></tr>
-    <tr><td class="id">BR-EST-05</td><td><b>Efeitos no contrato corrente:</b> <code>SUSPENDED</code> → suspende (se ATIVO); <code>ACTIVE</code> → reactiva (se suspenso); estado de cessação → cessa o contrato (se não estiver já cessado).</td><td>—</td><td class="src">MudarEstadoColaboradorCommandHandler · CessacaoService</td></tr>
+    <tr><td class="id">BR-EST-05</td><td><b>Efeitos no contrato corrente:</b> derivam da <b>situação funcional</b> do estado de destino (ver §4.1), não do seu código: situação de <b>inactividade</b> → suspende (se ATIVO); <b>actividade</b> ou <b>disponibilidade</b> → reactiva (se suspenso); estado de cessação → cessa o contrato (se não estiver já cessado). Estado <b>sem situação classificada</b> → não toca no contrato.</td><td>—</td><td class="src">MudarEstadoColaboradorCommandHandler · CessacaoService</td></tr>
     <tr><td class="id">BR-EST-06</td><td>Toda a mudança de estado regista uma entrada no <b>histórico de estados</b> (estado anterior, novo, motivo, data de efectividade, observação). O <b>motivo é texto livre</b>, parametrizado pelo utilizador no catálogo <code>Option</code> (<code>WORKER_STATE_REASON</code>) — não é validado pelo sistema.</td><td>—</td><td class="src">HistoricoEstadoColaborador</td></tr>
     <tr><td class="id">BR-EST-07</td><td><b>Cessação — caminho único:</b> mudar para um estado de cessação e <code>PUT /contratos/{id}/close</code> executam os mesmos quatro efeitos, na mesma transacção: contrato cessado · afectação encerrada · estado do trabalhador mudado · histórico registado. O encerramento de contrato deixou de deixar o trabalhador ACTIVE sem contrato nem Lugar.</td><td>—</td><td class="src">CessacaoService</td></tr>
     <tr><td class="id">BR-EST-08</td><td>O encerramento de contrato usa o estado de cessação por omissão: <code>INACTIVE</code> se existir, senão o primeiro estado activo com <code>ends_employment</code>. Sem nenhum configurado, a operação é recusada.</td><td><span class="http h422">422</span></td><td class="src">CessacaoService.estadoDeCessacaoPorOmissao</td></tr>
     <tr><td class="id">BR-EST-09</td><td><b>Renovar/substituir contrato não é cessação:</b> criar um contrato novo encerra o anterior (motivo <code>SUBSTITUICAO</code>) <b>sem</b> tocar na afectação nem no estado.</td><td>—</td><td class="src">ContratoService.criarContrato</td></tr>
+  </table>
+
+  <h3 id="situacoes-funcionais">4.1 Situações funcionais (art. 117.º a 122.º)</h3>
+  <p>A Lei n.º 20/X/2023 fixa <b>seis</b> situações do funcionário perante o quadro. Cada estado do catálogo diz em qual se encontra (<code>t_worker_state.situacao_funcional</code>, V42); os <b>efeitos</b> não se guardam, porque a lei é que os fixa — derivam da situação.</p>
+  <table>
+    <tr><th>Situação</th><th>Artigo</th><th>Abre vaga</th><th>Conta antiguidade</th><th>Contrato</th></tr>
+    <tr><td><code>ACTIVIDADE_NO_QUADRO</code></td><td>118.º</td><td>não</td><td>sim</td><td>activo</td></tr>
+    <tr><td><code>ACTIVIDADE_FORA_QUADRO</code></td><td>119.º</td><td>não</td><td>sim</td><td>activo</td></tr>
+    <tr><td><code>INACTIVIDADE_NO_QUADRO</code></td><td>120.º</td><td>não</td><td><b>não</b> (n.º 2)</td><td>suspenso</td></tr>
+    <tr><td><code>INACTIVIDADE_FORA_QUADRO</code></td><td>121.º</td><td><b>sim</b> (n.º 2)</td><td>não</td><td>suspenso</td></tr>
+    <tr><td><code>DISPONIBILIDADE</code></td><td>122.º</td><td>não</td><td>sim (n.º 1)</td><td>activo</td></tr>
+    <tr><td><code>APOSENTACAO</code></td><td>117.º al. f</td><td>—</td><td>—</td><td>cessa (art. 93.º al. b)</td></tr>
+  </table>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-SIT-01</td><td>A situação funcional de um estado é <b>parametrizada</b> no catálogo e só aceita um dos seis valores da lei. Qualquer outro valor é recusado.</td><td><span class="http h422">422</span></td><td class="src">SituacaoFuncional.de</td></tr>
+    <tr><td class="id">BR-SIT-02</td><td>Um estado <b>sem situação classificada</b> é válido: só regista histórico, sem efeitos no contrato nem no Lugar. É o que acontece aos estados criados pela instituição enquanto o RH não os classifica.</td><td>—</td><td class="src">MudarEstadoColaboradorCommandHandler</td></tr>
+    <tr><td class="id">BR-SIT-03</td><td><b>A inactividade fora do quadro abre vaga</b> (art. 121.º n.º 2): passar a um estado com esta situação encerra a afectação corrente e o Lugar fica vago, <b>sem</b> cessar o vínculo.</td><td>—</td><td class="src">SituacaoFuncional.abreVaga · MudarEstadoColaboradorCommandHandler</td></tr>
+    <tr><td class="id">BR-SIT-04</td><td><b>A inactividade no quadro mantém o Lugar</b> (art. 120.º): suspende o contrato mas não abre vaga.</td><td>—</td><td class="src">SituacaoFuncional</td></tr>
+    <tr><td class="id">BR-SIT-05</td><td><b>A actividade fora do quadro mantém o Lugar e o contrato</b> (art. 119.º): comissão de serviço, requisição, cedência e cargos políticos não libertam o Lugar de origem.</td><td>—</td><td class="src">SituacaoFuncional</td></tr>
+    <tr><td class="id">BR-SIT-06</td><td><b>O tempo de inactividade não conta para a antiguidade</b> (art. 120.º n.º 2); a disponibilidade conta (art. 122.º n.º 1). A regra está no domínio; <b>ainda não há cálculo de antiguidade</b> que a consuma.</td><td>—</td><td class="src">SituacaoFuncional.contaAntiguidade</td></tr>
+    <tr><td class="id">BR-SIT-07</td><td><b>Coerência com a cessação:</b> um estado de cessação só pode ter a situação <code>APOSENTACAO</code> ou ficar sem situação; e <code>APOSENTACAO</code> obriga a <code>ends_employment = true</code> (art. 93.º al. b).</td><td><span class="http h422">422</span></td><td class="src">WorkerState</td></tr>
+    <tr><td class="id">BR-SIT-08</td><td>A abertura de vaga da <b>actividade no quadro</b> (art. 118.º n.º 2 — cônjuge diplomata além de um ano, formação no exterior além de seis meses) depende do motivo e da duração, por isso <b>não</b> vive no estado: pertence ao subtipo da licença.</td><td>—</td><td class="src">(por implementar — licenças que abrem vaga)</td></tr>
   </table>
 
   <!-- ============ AUSÊNCIAS ============ -->

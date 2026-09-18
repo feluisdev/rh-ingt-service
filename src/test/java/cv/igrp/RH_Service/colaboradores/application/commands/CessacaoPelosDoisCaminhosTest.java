@@ -22,6 +22,8 @@ import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.HistoricoEstadoColaboradorRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.ContratoId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
+import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.SituacaoFuncional;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.WorkerState;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.WorkerStateRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.WorkerStateId;
@@ -55,6 +57,10 @@ class CessacaoPelosDoisCaminhosTest {
         return WorkerState.reconstruir(WorkerStateId.gerarNovo(), code, code, false, true, cessa);
     }
 
+    private static WorkerState estado(String code, boolean cessa, SituacaoFuncional situacao) {
+        return WorkerState.reconstruir(WorkerStateId.gerarNovo(), code, code, false, true, cessa, situacao);
+    }
+
     private static CessacaoService.Cessacao resultado(UUID estadoAnteriorId) {
         return new CessacaoService.Cessacao(mock(Funcionario.class), estado("INACTIVE", true),
                 estadoAnteriorId, UUID.randomUUID(), UUID.randomUUID(), DATA);
@@ -69,6 +75,7 @@ class CessacaoPelosDoisCaminhosTest {
         @Mock private ContratoRepository contratoRepository;
         @Mock private HistoricoEstadoColaboradorRepository historicoRepository;
         @Mock private CessacaoService cessacaoService;
+        @Mock private AssignmentService assignmentService;
 
         @InjectMocks private MudarEstadoColaboradorCommandHandler handler;
 
@@ -107,7 +114,7 @@ class CessacaoPelosDoisCaminhosTest {
 
         @Test
         void estadoQueNaoCessaSuspendeOContratoENaoChamaOServico() {
-            WorkerState suspended = estado("SUSPENDED", false);
+            WorkerState suspended = estado("SUSPENDED", false, SituacaoFuncional.INACTIVIDADE_NO_QUADRO);
             cenario(suspended, UUID.randomUUID());
             Contrato contrato = mock(Contrato.class);
             when(contrato.getStatus()).thenReturn(Contrato.ATIVO);

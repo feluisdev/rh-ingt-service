@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
 import cv.igrp.RH_Service.colaboradores.application.dto.EstadoColaboradorResponseDTO;
+import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
 import cv.igrp.RH_Service.colaboradores.application.services.CessacaoService;
 import cv.igrp.RH_Service.colaboradores.domain.models.Contrato;
 import cv.igrp.RH_Service.colaboradores.domain.models.HistoricoEstadoColaborador;
@@ -8,6 +9,7 @@ import cv.igrp.RH_Service.colaboradores.domain.repository.ContratoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.HistoricoEstadoColaboradorRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.SituacaoFuncional;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.WorkerStateRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.WorkerStateId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
@@ -24,8 +26,14 @@ import java.util.UUID;
 /**
  * Mudança de estado do trabalhador. Quando o estado de destino é de <b>cessação</b>
  * ({@code ends_employment}), delega no {@link CessacaoService} — o único caminho que termina
- * o vínculo, partilhado com o encerramento de contrato. Nos restantes estados aplica apenas
- * os efeitos no contrato corrente (suspender/reactivar) e regista o histórico.
+ * o vínculo, partilhado com o encerramento de contrato.
+ *
+ * <p>Nos restantes estados os efeitos derivam da <b>situação administrativa</b> do estado de
+ * destino (Lei n.º 20/X/2023, art. 117.º), parametrizada em
+ * {@code t_worker_state.situacao_funcional} (V42) e não escrita no código:
+ * a inactividade suspende o contrato (art. 120.º e 121.º), a actividade e a disponibilidade
+ * reactivam-no, e a inactividade <b>fora</b> do quadro encerra ainda a afectação corrente,
+ * porque abre vaga (art. 121.º n.º 2). Um estado sem situação classificada só regista histórico.
  */
 @Component
 @RequiredArgsConstructor
@@ -37,6 +45,7 @@ public class MudarEstadoColaboradorCommandHandler
     private final ContratoRepository contratoRepository;
     private final HistoricoEstadoColaboradorRepository historicoRepository;
     private final CessacaoService cessacaoService;
+    private final AssignmentService assignmentService;
 
     @IgrpCommandHandler
     @Transactional
@@ -81,10 +90,16 @@ public class MudarEstadoColaboradorCommandHandler
                     texto(cessacao.afectacaoEncerradaId())));
         }
 
+        // O trabalhador continua activo enquanto não exercer funções: só a cessação o desactiva.
         funcionario.atualizarWorkerState(novoEstado.getId().getValor(), true);
         funcionarioRepository.save(funcionario);
 
-        UUID contratoAfectadoId = aplicarEfeitosContrato(funcionarioId, novoEstado.getCode());
+        var situacao = novoEstado.situacao();
+        UUID contratoAfectadoId = aplicarEfeitosContrato(funcionarioId, situacao.orElse(null));
+        UUID afectacaoEncerradaId = situacao.filter(SituacaoFuncional::abreVaga)
+                .flatMap(s -> assignmentService.encerrarAfectacaoCorrente(funcionarioId, dataEfectividade))
+                .map(a -> a.getId().getValor())
+                .orElse(null);
 
         historicoRepository.save(HistoricoEstadoColaborador.criar(
                 funcionarioId, estadoAnteriorId, novoEstado.getId().getValor(),
@@ -98,32 +113,29 @@ public class MudarEstadoColaboradorCommandHandler
                 dataEfectividade,
                 false,
                 texto(contratoAfectadoId),
-                null));
+                texto(afectacaoEncerradaId)));
     }
 
     /**
-     * Efeitos no contrato corrente dos estados que <b>não</b> cessam o vínculo: suspender e
-     * reactivar. A cessação do contrato vive no {@link CessacaoService}.
+     * Efeitos no contrato corrente dos estados que <b>não</b> cessam o vínculo: a inactividade
+     * suspende-o, a actividade e a disponibilidade reactivam-no. Um estado sem situação
+     * classificada não lhe toca. A cessação do contrato vive no {@link CessacaoService}.
      */
-    private UUID aplicarEfeitosContrato(FuncionarioId funcionarioId, String novoCode) {
+    private UUID aplicarEfeitosContrato(FuncionarioId funcionarioId, SituacaoFuncional situacao) {
         var contratoOpt = contratoRepository.findCurrentByFuncionarioId(funcionarioId);
         if (contratoOpt.isEmpty()) return null;
 
         var contrato = contratoOpt.get();
-        switch (novoCode) {
-            case "SUSPENDED" -> {
-                if (Contrato.ATIVO.equals(contrato.getStatus())) {
-                    contrato.suspender();
-                    contratoRepository.save(contrato);
-                }
+        if (situacao == null) return contrato.getId().getValor();
+
+        if (situacao.suspendeVinculo()) {
+            if (Contrato.ATIVO.equals(contrato.getStatus())) {
+                contrato.suspender();
+                contratoRepository.save(contrato);
             }
-            case "ACTIVE" -> {
-                if (Contrato.SUSPENSO.equals(contrato.getStatus())) {
-                    contrato.reativar();
-                    contratoRepository.save(contrato);
-                }
-            }
-            default -> { /* estados sem efeito no contrato */ }
+        } else if (Contrato.SUSPENSO.equals(contrato.getStatus())) {
+            contrato.reativar();
+            contratoRepository.save(contrato);
         }
         return contrato.getId().getValor();
     }

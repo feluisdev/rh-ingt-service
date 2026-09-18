@@ -34,7 +34,8 @@ public class UpdateWorkerStateCommandHandler implements CommandHandler<UpdateWor
                 "Não encontrado: " + command.getWorkerStateId()));
 
         workerState.atualizar(command.getWorkerStateRequest().getDescription(),
-                command.getWorkerStateRequest().getEndsEmployment());
+                command.getWorkerStateRequest().getEndsEmployment(),
+                command.getWorkerStateRequest().getSituacaoFuncional());
         WorkerState saved = workerStateRepository.save(workerState);
 
         return ResponseEntity.ok(workerStateMapper.toDTO(saved));

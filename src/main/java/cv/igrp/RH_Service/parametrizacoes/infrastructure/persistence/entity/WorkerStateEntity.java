@@ -39,4 +39,8 @@ public class WorkerStateEntity extends AuditEntity {
     /** Estado que termina a relação de emprego público (cessação) — ver V40. */
     @Column(name = "ends_employment")
     private Boolean endsEmployment;
+
+    /** Situação administrativa perante o quadro (Lei n.º 20/X/2023, art. 117.º) — ver V42. */
+    @Column(name = "situacao_funcional", length = 40)
+    private String situacaoFuncional;
 }

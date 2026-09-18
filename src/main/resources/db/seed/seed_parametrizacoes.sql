@@ -9,11 +9,21 @@
 -- ACTIVE e INACTIVE são estados núcleo (is_core=true) — bloqueiam DELETE/desactivação.
 -- =============================================================
 -- ends_employment=true → o estado cessa a relação de emprego público (V40)
-INSERT INTO t_worker_state (id, code, description, is_core, is_active, ends_employment, created_date, created_by) VALUES
-('c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1', 'ACTIVE',    'Ativo',      true,  true, false, NOW(), 'system'),
-('c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e2', 'INACTIVE',  'Inativo',    true,  true, true,  NOW(), 'system'),
-('c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e3', 'SUSPENDED', 'Suspenso',   false, true, false, NOW(), 'system'),
-('c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e4', 'RETIRED',   'Aposentado', false, true, true,  NOW(), 'system')
+-- situacao_funcional → situação perante o quadro (Lei 20/X/2023, art. 117.º; V42).
+-- Dela derivam os efeitos: abrir vaga, suspender o contrato e contar antiguidade.
+-- Fica NULL nos estados de cessação que não são aposentação — quem cessa deixa de
+-- ter situação perante o quadro.
+INSERT INTO t_worker_state (id, code, description, is_core, is_active, ends_employment, situacao_funcional, created_date, created_by) VALUES
+('c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1', 'ACTIVE',            'Ativo',                       true,  true, false, 'ACTIVIDADE_NO_QUADRO',     NOW(), 'system'),
+('c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e2', 'INACTIVE',          'Inativo',                     true,  true, true,  NULL,                       NOW(), 'system'),
+('c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e3', 'SUSPENDED',         'Suspenso',                    false, true, false, 'INACTIVIDADE_NO_QUADRO',   NOW(), 'system'),
+('c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e4', 'RETIRED',           'Aposentado',                  false, true, true,  'APOSENTACAO',              NOW(), 'system'),
+-- Art. 119.º — comissão de serviço, requisição, cedência, cargos políticos: mantém o Lugar.
+('c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e5', 'ACTIVE_OUTSIDE',    'Ativo fora do quadro',        false, true, false, 'ACTIVIDADE_FORA_QUADRO',   NOW(), 'system'),
+-- Art. 121.º — licença de longa duração, pena de inactividade, doença > 30 dias: abre vaga.
+('c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e6', 'INACTIVE_OUTSIDE',  'Inativo fora do quadro',      false, true, false, 'INACTIVIDADE_FORA_QUADRO', NOW(), 'system'),
+-- Art. 122.º — aguarda vaga na sua categoria, com contagem de tempo e abonos.
+('c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e7', 'AVAILABLE',         'Disponibilidade',             false, true, false, 'DISPONIBILIDADE',          NOW(), 'system')
 ON CONFLICT (code) DO NOTHING;
 
 -- =============================================================

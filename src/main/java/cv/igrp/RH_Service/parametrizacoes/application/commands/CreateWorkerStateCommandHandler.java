@@ -31,7 +31,8 @@ public class CreateWorkerStateCommandHandler implements CommandHandler<CreateWor
         }
 
         WorkerState saved = workerStateRepository.save(
-            WorkerState.criar(dto.getCode(), dto.getDescription(), dto.getIsCore(), dto.getEndsEmployment())
+            WorkerState.criar(dto.getCode(), dto.getDescription(), dto.getIsCore(), dto.getEndsEmployment(),
+                dto.getSituacaoFuncional())
         );
 
         return ResponseEntity.status(201).body(Map.of(
