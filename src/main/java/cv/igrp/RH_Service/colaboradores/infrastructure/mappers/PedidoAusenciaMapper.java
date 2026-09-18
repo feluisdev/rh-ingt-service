@@ -43,7 +43,7 @@ public class PedidoAusenciaMapper {
         e.setDataFim(p.getDataFim());
         e.setNumeroDias(p.getNumeroDias());
         e.setMotivo(p.getMotivo());
-        e.setEstado(p.getEstado());
+        e.setEstado(p.getEstadoTexto());
         e.setAprovadoPor(p.getAprovadoPor() != null ? p.getAprovadoPor().getValor() : null);
         e.setDataDecisao(p.getDataDecisao());
         e.setObservacoesDecisao(p.getObservacoesDecisao());
@@ -73,7 +73,7 @@ public class PedidoAusenciaMapper {
         r.setDataFim(p.getDataFim());
         r.setNumeroDias(p.getNumeroDias());
         r.setMotivo(p.getMotivo());
-        r.setEstado(p.getEstado());
+        r.setEstado(p.getEstadoTexto());
         r.setAprovadoPor(p.getAprovadoPor() != null ? p.getAprovadoPor().getStringValor() : null);
         r.setDataDecisao(p.getDataDecisao());
         r.setObservacoesDecisao(p.getObservacoesDecisao());

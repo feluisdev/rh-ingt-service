@@ -181,3 +181,39 @@ O bloco `enquadramento` **ainda aparece** em `GET /funcionarios/{id}/details` (m
 - [ ] Cabeçalho `Accept: application/json` em todas as chamadas.
 
 > Contrato completo: `api_guide.md` / `api_guide.html`. Modelo: `modelo_negocio.html`, `modelo_relacional.html`.
+
+---
+
+## 11. Alinhamento com a legislação (2026-09-18)
+
+Três mudanças que se notam no front-end.
+
+### 11.1 Estados do trabalhador ganham situação funcional
+
+O catálogo de estados (`/catalogs/worker-states`) passa a ter **`situacaoFuncional`**, com um dos seis valores do art. 117.º da Lei n.º 20/X/2023: `ACTIVIDADE_NO_QUADRO`, `ACTIVIDADE_FORA_QUADRO`, `INACTIVIDADE_NO_QUADRO`, `INACTIVIDADE_FORA_QUADRO`, `DISPONIBILIDADE`, `APOSENTACAO`. Pode vir **nulo**, nos estados ainda por classificar.
+
+- No ecrã de estados, é um select com estes seis valores, mais a opção vazia.
+- Um estado de cessação (`endsEmployment`) só aceita `APOSENTACAO` ou nenhuma situação — caso contrário, **422**.
+- `PATCH /funcionarios/{id}/worker-state` pode agora devolver `afectacaoEncerradaId` **sem** cessar o vínculo, quando a situação abre vaga. O colaborador fica activo e sem Lugar: o ecrã deve mostrá-lo assim, e não como cessado.
+
+### 11.2 Subtipos de licença/mobilidade
+
+- O valor **`AMBOS` de `recordType` desapareceu**: ficam `LICENCA` e `MOBILIDADE`. Se o front-end o oferecia num select, tem de o retirar.
+- Três campos novos: `positionEffect` (`MANTEM`/`ABRE_VAGA`), `vacancyAfterDays` e `returnEffect` (`REGRESSA_LUGAR`/`DISPONIBILIDADE`).
+- Marcar um subtipo de **mobilidade** como `ABRE_VAGA` devolve **400**.
+- `approve`/`ativar` de uma licença que abre vaga devolve `afectacaoEncerradaId`; `close` pode devolver `estadoAtribuidoId`.
+- A **licença parental** deixa de ser subtipo de licença: é ausência (`MATERNIDADE`, `PATERNIDADE`).
+
+### 11.3 Saldo de ausências
+
+- Os dias passam a ser **reservados na submissão**, e não na aprovação: criar um pedido sem saldo suficiente devolve **422** logo aí.
+- `diasGozados` passa a ter valores reais — antes ficava sempre a zero.
+- O `cancelar` do RH deixa de devolver **403** quando o pedido é de outro colaborador.
+
+### Checklist
+
+- [ ] Select de `situacaoFuncional` no catálogo de estados.
+- [ ] Tratar `afectacaoEncerradaId` com `cessouVinculo: false` (activo, sem Lugar).
+- [ ] Retirar `AMBOS` dos selects de `recordType`.
+- [ ] Campos de efeito no Lugar no ecrã de subtipos.
+- [ ] Mostrar `diasGozados` e tratar o **422** na criação do pedido de ausência.

@@ -343,9 +343,26 @@ Todos seguem o padrão CRUD + (quando aplicável) `documentos`:
 | Documentos | `/funcionarios/{id}/documentos` — upload/list/download/delete |
 | Recibos | `/funcionarios/{id}/recibos` — + `documentos` |
 | Processos disciplinares | `/funcionarios/{id}/processos-disciplinares` — + `documentos` |
-| Pedidos de ausência | `/funcionarios/{id}/pedidos-ausencia` — + `aprovar`/`rejeitar`/`cancelar` |
+| Pedidos de ausência | `/funcionarios/{id}/pedidos-ausencia` — + `aprovar`/`rejeitar`/`cancelar` (ver 6.1) |
 | Saldos de ausência | `/funcionarios/{id}/saldos-ausencia` |
 | Licenças/mobilidade | `/funcionarios/{id}/licencas-mobilidade` (ver 7) |
+
+### 6.1 Saldo de ausências — quando é que os dias saem
+
+O saldo tem três números: `diasDireito`, `diasPendentes` (reservados) e `diasGozados`. O percurso é:
+
+| Momento | Efeito no saldo |
+|---|---|
+| **Submeter** o pedido | **reserva** os dias; sem saldo suficiente, **422** já aqui |
+| **Aprovar** | os reservados passam a **gozados** |
+| **Rejeitar**, ou cancelar enquanto `PENDENTE` | **liberta** a reserva |
+| **Cancelar** depois de aprovado | **devolve** os dias gozados |
+
+Isto mudou: a reserva era feita só na aprovação, e `diasGozados` ficava sempre a zero. Se o teu front-end mostrava os dias gozados, passa agora a ter valores reais.
+
+**Quem cancela:** `PUT /funcionarios/{id}/pedidos-ausencia/{pedidoId}/cancelar` é o caminho do RH e serve para cancelar o pedido de qualquer colaborador — antes devolvia **403** a quem não fosse o próprio. O colaborador usa o self-service, que só o deixa cancelar o que é seu e enquanto estiver `PENDENTE`.
+
+Só os tipos com `deductsBalance` mexem no saldo; para os outros, nada disto se aplica.
 
 > **`PUT /funcionarios/{id}/contratos/{contratoId}/close` cessa o vínculo.** Cessa o contrato, encerra a afectação corrente (o Lugar fica vago), muda o estado do trabalhador para o estado de cessação por omissão e regista o histórico — os mesmos efeitos de `PATCH /funcionarios/{id}/worker-state` com um estado de cessação. Devolve `EstadoColaboradorResponseDTO`.
 >

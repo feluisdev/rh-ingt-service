@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
+import cv.igrp.RH_Service.colaboradores.application.services.LicencaService;
 import cv.igrp.RH_Service.colaboradores.application.services.MobilidadeService;
 import cv.igrp.RH_Service.colaboradores.domain.repository.LicencaMobilidadeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.LicencaMobilidadeId;
@@ -26,7 +27,7 @@ public class AtivarLicencaMobilidadeCommandHandler
 
     private final LicencaMobilidadeRepository licencaRepository;
     private final MobilidadeService mobilidadeService;
-    private final cv.igrp.RH_Service.colaboradores.application.services.LicencaService licencaService;
+    private final LicencaService licencaService;
 
     @IgrpCommandHandler
     @Transactional

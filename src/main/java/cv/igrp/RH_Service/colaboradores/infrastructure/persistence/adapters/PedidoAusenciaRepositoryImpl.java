@@ -5,6 +5,7 @@ import cv.igrp.RH_Service.colaboradores.domain.models.PedidoAusencia;
 import cv.igrp.RH_Service.colaboradores.domain.repository.PedidoAusenciaRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.PedidoAusenciaId;
+import cv.igrp.RH_Service.colaboradores.domain.valueobject.TipoAusenciaId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.mappers.PedidoAusenciaMapper;
 import cv.igrp.RH_Service.colaboradores.infrastructure.persistence.repository.ColabsPedidoAusenciaEntityRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,15 +39,18 @@ public class PedidoAusenciaRepositoryImpl implements PedidoAusenciaRepository {
     @Transactional(readOnly = true)
     @Override
     public List<PedidoAusencia> findAllByFuncionarioId(FuncionarioId funcionarioId, PedidoAusenciaFilter filter) {
-        Stream<PedidoAusencia> stream = entityRepository.findAllByFuncionario_Id(funcionarioId.getValor())
-                .stream().map(mapper::toDomain);
-        if (filter.getEstado() != null)
-            stream = stream.filter(p -> filter.getEstado().equals(p.getEstado()));
-        if (filter.getTipoAusenciaId() != null)
-            stream = stream.filter(p -> filter.getTipoAusenciaId().equals(p.getTipoAusenciaId().getValor()));
-        if (filter.getAno() != null)
-            stream = stream.filter(p -> p.getDataInicio().getYear() == filter.getAno());
-        return stream.toList();
+        return entityRepository.findAllByFuncionarioFiltrado(
+                        funcionarioId.getValor(),
+                        filter.getEstado(),
+                        filter.getTipoAusenciaId(),
+                        filter.getAno())
+                .stream().map(mapper::toDomain).toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public int somarDiasNoAno(FuncionarioId funcionarioId, TipoAusenciaId tipoAusenciaId, int ano) {
+        return entityRepository.somarDiasNoAno(funcionarioId.getValor(), tipoAusenciaId.getValor(), ano);
     }
 
     @Transactional(readOnly = true)

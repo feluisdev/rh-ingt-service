@@ -14,4 +14,12 @@ public interface PedidoAusenciaRepository {
     Optional<PedidoAusencia> findById(PedidoAusenciaId id);
     List<PedidoAusencia> findAllByFuncionarioId(FuncionarioId funcionarioId, PedidoAusenciaFilter filter);
     boolean existsOverlapForFuncionario(FuncionarioId funcionarioId, LocalDate dataInicio, LocalDate dataFim);
+
+    /**
+     * Dias já pedidos no ano para um tipo, ignorando os rejeitados e cancelados.
+     * Somado na base de dados — não se traz o histórico para contar dias.
+     */
+    int somarDiasNoAno(FuncionarioId funcionarioId,
+                       cv.igrp.RH_Service.colaboradores.domain.valueobject.TipoAusenciaId tipoAusenciaId,
+                       int ano);
 }

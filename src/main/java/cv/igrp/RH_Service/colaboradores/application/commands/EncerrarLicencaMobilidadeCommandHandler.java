@@ -1,5 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
+import cv.igrp.RH_Service.colaboradores.application.services.LicencaService;
+import cv.igrp.RH_Service.colaboradores.application.services.MobilidadeService;
 import cv.igrp.RH_Service.colaboradores.domain.repository.LicencaMobilidadeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.LicencaMobilidadeId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
@@ -26,8 +28,8 @@ public class EncerrarLicencaMobilidadeCommandHandler
         implements CommandHandler<EncerrarLicencaMobilidadeCommand, ResponseEntity<Map<String, ?>>> {
 
     private final LicencaMobilidadeRepository licencaRepository;
-    private final cv.igrp.RH_Service.colaboradores.application.services.MobilidadeService mobilidadeService;
-    private final cv.igrp.RH_Service.colaboradores.application.services.LicencaService licencaService;
+    private final MobilidadeService mobilidadeService;
+    private final LicencaService licencaService;
 
     @IgrpCommandHandler
     @Transactional

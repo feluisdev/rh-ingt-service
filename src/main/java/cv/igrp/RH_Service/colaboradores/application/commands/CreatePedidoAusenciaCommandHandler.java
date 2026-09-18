@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
+import cv.igrp.RH_Service.colaboradores.application.services.SaldoAusenciaService;
 import cv.igrp.RH_Service.colaboradores.domain.models.PedidoAusencia;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FeriadoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -29,8 +31,10 @@ public class CreatePedidoAusenciaCommandHandler
     private final TipoAusenciaRepository tipoAusenciaRepository;
     private final FeriadoRepository feriadoRepository;
     private final DiasUteisCalculator diasUteisCalculator;
+    private final SaldoAusenciaService saldoAusenciaService;
 
     @IgrpCommandHandler
+    @Transactional
     public ResponseEntity<Map<String, ?>> handle(CreatePedidoAusenciaCommand command) {
         var funcionarioId = FuncionarioId.from(command.getFuncionarioId());
         funcionarioRepository.findById(funcionarioId)
@@ -51,25 +55,25 @@ public class CreatePedidoAusenciaCommandHandler
 
         if (tipo.getMaxDaysPerYear() != null) {
             int ano = dto.getDataInicio().getYear();
-            var filter = new cv.igrp.RH_Service.colaboradores.domain.filter.PedidoAusenciaFilter();
-            filter.setAno(ano);
-            int diasUsados = pedidoRepository.findAllByFuncionarioId(funcionarioId, filter).stream()
-                    .filter(p -> tipoId.equals(p.getTipoAusenciaId()))
-                    .filter(p -> !PedidoAusencia.REJEITADO.equals(p.getEstado()) && !PedidoAusencia.CANCELADO.equals(p.getEstado()))
-                    .mapToInt(PedidoAusencia::getNumeroDias)
-                    .sum();
+            int diasUsados = pedidoRepository.somarDiasNoAno(funcionarioId, tipoId, ano);
             if (diasUsados + numeroDias > tipo.getMaxDaysPerYear())
                 throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
                         "Limite anual de dias excedido. Disponíveis: " + (tipo.getMaxDaysPerYear() - diasUsados) + ", solicitados: " + numeroDias);
         }
 
-        var saved = pedidoRepository.save(PedidoAusencia.criar(
-                funcionarioId, tipoId, dto.getDataInicio(), dto.getDataFim(), numeroDias, dto.getMotivo()));
+        var pedido = PedidoAusencia.criar(
+                funcionarioId, tipoId, dto.getDataInicio(), dto.getDataFim(), numeroDias, dto.getMotivo());
+
+        // Os dias ficam reservados desde a submissão: dois pedidos em simultâneo já não
+        // podem esgotar duas vezes o mesmo saldo. Sem saldo suficiente, é 422 já aqui.
+        saldoAusenciaService.reservar(pedido);
+
+        var saved = pedidoRepository.save(pedido);
 
         return ResponseEntity.status(201).body(Map.of(
                 "id", saved.getId().getStringValor(),
                 "numeroDias", saved.getNumeroDias(),
-                "estado", saved.getEstado(),
+                "estado", saved.getEstadoTexto(),
                 "message", "Criado com sucesso"));
     }
 }

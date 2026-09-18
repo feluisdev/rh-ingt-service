@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
+import cv.igrp.RH_Service.colaboradores.application.services.SaldoAusenciaService;
 import cv.igrp.RH_Service.colaboradores.domain.models.PedidoAusencia;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.PedidoAusenciaRepository;
@@ -25,6 +26,7 @@ public class SelfServiceCriarPedidoAusenciaCommandHandler
     private final CurrentEmployeeResolver currentEmployeeResolver;
     private final FuncionarioRepository funcionarioRepository;
     private final PedidoAusenciaRepository pedidoAusenciaRepository;
+    private final SaldoAusenciaService saldoAusenciaService;
 
     @IgrpCommandHandler
     @Transactional
@@ -54,6 +56,10 @@ public class SelfServiceCriarPedidoAusenciaCommandHandler
 
         var pedido = PedidoAusencia.criar(funcionarioId, tipoAusenciaId, startDate, endDate,
                 numeroDias, dto.getNotes());
+
+        // Reserva os dias já na submissão, como no caminho do RH.
+        saldoAusenciaService.reservar(pedido);
+
         var saved = pedidoAusenciaRepository.save(pedido);
 
         return ResponseEntity.status(201).body(Map.of(

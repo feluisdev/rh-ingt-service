@@ -3,7 +3,9 @@ package cv.igrp.RH_Service.colaboradores.domain.models;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.SaldoAusenciaId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.TipoAusenciaId;
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 public class SaldoAusencia {
@@ -49,13 +51,38 @@ public class SaldoAusencia {
         return diasDireito - diasGozados - diasPendentes;
     }
 
-    public void incrementarPendentes(int dias) {
+    /**
+     * Reserva os dias de um pedido submetido. Fica em <b>pendentes</b> até haver
+     * decisão: já não estão disponíveis, mas também ainda não foram gozados.
+     */
+    public void reservar(int dias) {
+        if (dias <= 0) return;
+        if (saldoDisponivel() < dias)
+            throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Saldo insuficiente. Disponível: " + saldoDisponivel() + ", necessário: " + dias + ".");
         this.diasPendentes += dias;
     }
 
-    public void decrementarPendentes(int dias) {
+    /** Devolve ao saldo uma reserva que não chegou a ser gozada (rejeição, cancelamento). */
+    public void libertarReserva(int dias) {
         this.diasPendentes = Math.max(0, this.diasPendentes - dias);
     }
+
+    /**
+     * Aprovação: os dias reservados passam a <b>gozados</b>. Era isto que faltava —
+     * o saldo contava sempre 0 dias gozados, por muitos pedidos que fossem deferidos.
+     */
+    public void confirmarGozo(int dias) {
+        if (dias <= 0) return;
+        libertarReserva(dias);
+        this.diasGozados += dias;
+    }
+
+    /** Cancelamento depois de aprovado: os dias gozados voltam ao saldo. */
+    public void devolverGozo(int dias) {
+        this.diasGozados = Math.max(0, this.diasGozados - dias);
+    }
+
 
     public void atualizarDiasDireito(int novosDiasDireito) {
         this.diasDireito = novosDiasDireito;

@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
+import cv.igrp.RH_Service.colaboradores.application.services.SaldoAusenciaService;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.PedidoAusenciaRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.PedidoAusenciaId;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Map;
 
 @Component("colabsSelfServiceCancelarPedidoAusenciaCommandHandler")
@@ -23,6 +25,7 @@ public class SelfServiceCancelarPedidoAusenciaCommandHandler
     private final CurrentEmployeeResolver currentEmployeeResolver;
     private final FuncionarioRepository funcionarioRepository;
     private final PedidoAusenciaRepository pedidoAusenciaRepository;
+    private final SaldoAusenciaService saldoAusenciaService;
 
     @IgrpCommandHandler
     @Transactional
@@ -43,11 +46,15 @@ public class SelfServiceCancelarPedidoAusenciaCommandHandler
         if (!pedido.getFuncionarioId().equals(funcionarioId))
             throw IgrpResponseStatusException.notFound("Pedido de ausência não encontrado: " + command.getPedidoId());
 
-        if (!"PENDENTE".equals(pedido.getEstado()))
+        if (pedido.getEstado() == null || !pedido.getEstado().isPendente())
             throw IgrpResponseStatusException.badRequest(
                     "Apenas pedidos em estado PENDENTE podem ser cancelados.");
 
-        pedido.cancelar();
+        pedido.cancelar(funcionarioId, LocalDate.now(), null);
+
+        // Retirado antes da decisão: os dias reservados voltam ao saldo.
+        saldoAusenciaService.libertarReserva(pedido);
+
         pedidoAusenciaRepository.save(pedido);
 
         return ResponseEntity.ok(Map.of("message", "Pedido de ausência cancelado com sucesso"));
