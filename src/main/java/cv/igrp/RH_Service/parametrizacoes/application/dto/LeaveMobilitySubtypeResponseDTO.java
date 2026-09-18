@@ -31,6 +31,14 @@ public class LeaveMobilitySubtypeResponseDTO {
 
     private Integer maxExtensions;
 
+    /** MANTEM | ABRE_VAGA. */
+    private String positionEffect;
+
+    private Integer vacancyAfterDays;
+
+    /** REGRESSA_LUGAR | DISPONIBILIDADE. */
+    private String returnEffect;
+
     private Boolean isActive;
     private String estadoDesc;
 }

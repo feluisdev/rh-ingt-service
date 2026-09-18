@@ -10,8 +10,6 @@ import java.util.Set;
 @Getter
 public class LeaveMobilitySubtype {
 
-    private static final Set<String> VALID_RECORD_TYPES = Set.of("LICENCA", "MOBILIDADE", "AMBOS");
-
     private LeaveMobilitySubtypeId id;
     private String code;
     private String description;
@@ -24,13 +22,24 @@ public class LeaveMobilitySubtype {
     private Integer maxDurationDays;
     /** Prorrogações permitidas (em regra, uma). Nulo = sem limite. */
     private Integer maxExtensions;
+    /** O que a licença faz ao Lugar enquanto dura (V43). */
+    private EfeitoNoLugar positionEffect;
+    /** Abre vaga só além deste número de dias; nulo = abre logo (V43). */
+    private Integer vacancyAfterDays;
+    /** O que acontece ao funcionário no regresso (V43). */
+    private EfeitoNoRegresso returnEffect;
 
     private LeaveMobilitySubtype() {}
 
     private LeaveMobilitySubtype(LeaveMobilitySubtypeId id, String code, String description, String recordType,
                                   boolean affectsPay, boolean countsForSeniority,
                                   boolean canSelfSubmit, boolean active,
-                                  Integer maxDurationDays, Integer maxExtensions) {
+                                  Integer maxDurationDays, Integer maxExtensions,
+                                  EfeitoNoLugar positionEffect, Integer vacancyAfterDays,
+                                  EfeitoNoRegresso returnEffect) {
+        this.positionEffect = positionEffect;
+        this.vacancyAfterDays = vacancyAfterDays;
+        this.returnEffect = returnEffect;
         this.id = id;
         this.code = code;
         this.description = description;
@@ -53,17 +62,38 @@ public class LeaveMobilitySubtype {
                                               boolean affectsPay, boolean countsForSeniority,
                                               boolean canSelfSubmit, Integer maxDurationDays,
                                               Integer maxExtensions) {
+        return criar(code, description, recordType, affectsPay, countsForSeniority, canSelfSubmit,
+                maxDurationDays, maxExtensions, null, null, null);
+    }
+
+    public static LeaveMobilitySubtype criar(String code, String description, String recordType,
+                                              boolean affectsPay, boolean countsForSeniority,
+                                              boolean canSelfSubmit, Integer maxDurationDays,
+                                              Integer maxExtensions, String positionEffect,
+                                              Integer vacancyAfterDays, String returnEffect) {
         Objects.requireNonNull(code, "code não pode ser nulo");
-        if (recordType == null || !VALID_RECORD_TYPES.contains(recordType)) {
+        TipoRegisto tipo = TipoRegisto.de(recordType);
+        if (tipo == null)
             throw IgrpResponseStatusException.badRequest(
-                "recordType inválido: '" + recordType + "'. Valores aceites: " + VALID_RECORD_TYPES);
-        }
+                "recordType é obrigatório. Valores aceites: LICENCA, MOBILIDADE.");
         if (maxDurationDays != null && maxDurationDays <= 0)
             throw IgrpResponseStatusException.badRequest("maxDurationDays tem de ser positivo.");
         if (maxExtensions != null && maxExtensions < 0)
             throw IgrpResponseStatusException.badRequest("maxExtensions não pode ser negativo.");
-        return new LeaveMobilitySubtype(LeaveMobilitySubtypeId.gerarNovo(), code, description, recordType,
-                affectsPay, countsForSeniority, canSelfSubmit, true, maxDurationDays, maxExtensions);
+        if (vacancyAfterDays != null && vacancyAfterDays < 0)
+            throw IgrpResponseStatusException.badRequest("vacancyAfterDays não pode ser negativo.");
+
+        EfeitoNoLugar efeitoLugar = EfeitoNoLugar.de(positionEffect);
+        EfeitoNoRegresso efeitoRegresso = EfeitoNoRegresso.de(returnEffect);
+
+        // A mobilidade nunca liberta o Lugar de origem (art. 135.º n.º 7).
+        if (tipo == TipoRegisto.MOBILIDADE && efeitoLugar == EfeitoNoLugar.ABRE_VAGA)
+            throw IgrpResponseStatusException.badRequest(
+                "A mobilidade não abre vaga: o funcionário mantém o Lugar de origem (art. 135.º n.º 7).");
+
+        return new LeaveMobilitySubtype(LeaveMobilitySubtypeId.gerarNovo(), code, description, tipo.name(),
+                affectsPay, countsForSeniority, canSelfSubmit, true, maxDurationDays, maxExtensions,
+                efeitoLugar, vacancyAfterDays, efeitoRegresso);
     }
 
     public static LeaveMobilitySubtype reconstruir(LeaveMobilitySubtypeId id, String code, String description,
@@ -79,13 +109,32 @@ public class LeaveMobilitySubtype {
                                                     boolean countsForSeniority, boolean canSelfSubmit,
                                                     boolean active, Integer maxDurationDays,
                                                     Integer maxExtensions) {
+        return reconstruir(id, code, description, recordType, affectsPay, countsForSeniority,
+                canSelfSubmit, active, maxDurationDays, maxExtensions, null, null, null);
+    }
+
+    public static LeaveMobilitySubtype reconstruir(LeaveMobilitySubtypeId id, String code, String description,
+                                                    String recordType, boolean affectsPay,
+                                                    boolean countsForSeniority, boolean canSelfSubmit,
+                                                    boolean active, Integer maxDurationDays,
+                                                    Integer maxExtensions, String positionEffect,
+                                                    Integer vacancyAfterDays, String returnEffect) {
         return new LeaveMobilitySubtype(id, code, description, recordType,
-                affectsPay, countsForSeniority, canSelfSubmit, active, maxDurationDays, maxExtensions);
+                affectsPay, countsForSeniority, canSelfSubmit, active, maxDurationDays, maxExtensions,
+                EfeitoNoLugar.de(positionEffect), vacancyAfterDays, EfeitoNoRegresso.de(returnEffect));
     }
 
     /** É um subtipo de mobilidade (a pessoa vai exercer funções noutro sítio)? */
     public boolean isMobilidade() {
-        return "MOBILIDADE".equals(this.recordType) || "AMBOS".equals(this.recordType);
+        return TipoRegisto.de(this.recordType) == TipoRegisto.MOBILIDADE;
+    }
+
+    public EfeitoNoLugar efeitoNoLugar() {
+        return positionEffect != null ? positionEffect : EfeitoNoLugar.MANTEM;
+    }
+
+    public EfeitoNoRegresso efeitoNoRegresso() {
+        return returnEffect != null ? returnEffect : EfeitoNoRegresso.REGRESSA_LUGAR;
     }
 
     public void atualizar(String description, boolean affectsPay,
@@ -101,6 +150,21 @@ public class LeaveMobilitySubtype {
         atualizar(description, affectsPay, countsForSeniority, canSelfSubmit);
         this.maxDurationDays = maxDurationDays;
         this.maxExtensions = maxExtensions;
+    }
+
+    public void atualizar(String description, boolean affectsPay, boolean countsForSeniority,
+                          boolean canSelfSubmit, Integer maxDurationDays, Integer maxExtensions,
+                          String positionEffect, Integer vacancyAfterDays, String returnEffect) {
+        atualizar(description, affectsPay, countsForSeniority, canSelfSubmit, maxDurationDays, maxExtensions);
+
+        EfeitoNoLugar efeitoLugar = positionEffect == null ? efeitoNoLugar() : EfeitoNoLugar.de(positionEffect);
+        if (isMobilidade() && efeitoLugar == EfeitoNoLugar.ABRE_VAGA)
+            throw IgrpResponseStatusException.badRequest(
+                "A mobilidade não abre vaga: o funcionário mantém o Lugar de origem (art. 135.º n.º 7).");
+
+        this.positionEffect = efeitoLugar;
+        this.vacancyAfterDays = vacancyAfterDays;
+        if (returnEffect != null) this.returnEffect = EfeitoNoRegresso.de(returnEffect);
     }
 
     public void desativar() {

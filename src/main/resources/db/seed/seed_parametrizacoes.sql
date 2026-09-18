@@ -82,21 +82,35 @@ ON CONFLICT (code) DO NOTHING;
 
 -- =============================================================
 -- 6. Subtipos de Licença e Mobilidade (t_leave_mobility_subtype)
--- record_type: LICENCA | MOBILIDADE | AMBOS
+-- record_type: LICENCA | MOBILIDADE (o valor AMBOS foi removido na V43 —
+--   a licença suspende o vínculo e a mobilidade não, art. 171.º n.º 2)
 -- affects_pay=true    → processamento salarial afectado
 -- counts_for_seniority=false → período não conta para antiguidade PCFR
+-- position_effect: MANTEM | ABRE_VAGA · vacancy_after_days: abre vaga só além
+--   de N dias · return_effect: REGRESSA_LUGAR | DISPONIBILIDADE (V43)
+-- A licença parental não vive aqui: é uma ausência (t_leave_type MATERNIDADE /
+--   PATERNIDADE), porque não suspende o vínculo (Lei 20/X/2023, art. 171.º n.º 2
+--   vs art. 172.º).
 -- =============================================================
 -- name repeats the label held in description because V6 declares name NOT NULL while
 -- LeaveMobilitySubtypeEntity maps no such field -- the entity only knows code/description.
 -- Until that mismatch is settled (V6 even carries an orphan "Remover NOT NULL indevidos"
 -- comment with no matching statement), any insert has to fill name by hand.
-INSERT INTO t_leave_mobility_subtype (id, code, name, description, record_type, affects_pay, counts_for_seniority, can_self_submit, is_active, created_date, created_by) VALUES
-('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1', 'LIC_SEM_VENCIMENTO', 'Licença sem Vencimento', 'Licença sem Vencimento', 'LICENCA',    true,  false, false, true, NOW(), 'system'),
-('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e2', 'LIC_PARENTAL',       'Licença Parental',       'Licença Parental',       'LICENCA',    false, true,  false, true, NOW(), 'system'),
-('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e3', 'LIC_FORMACAO',       'Licença para Formação',  'Licença para Formação',  'LICENCA',    false, true,  true,  true, NOW(), 'system'),
-('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e4', 'MOB_COMISSAO',       'Comissão de Serviço',    'Comissão de Serviço',    'MOBILIDADE', false, true,  false, true, NOW(), 'system'),
-('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e5', 'MOB_REQUISICAO',     'Requisição',             'Requisição',             'MOBILIDADE', false, true,  false, true, NOW(), 'system'),
-('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e6', 'MOB_DESTACAMENTO',   'Destacamento',           'Destacamento',           'MOBILIDADE', false, true,  false, true, NOW(), 'system')
+INSERT INTO t_leave_mobility_subtype (id, code, name, description, record_type, affects_pay, counts_for_seniority, can_self_submit, is_active, position_effect, vacancy_after_days, return_effect, max_duration_days, max_extensions, created_date, created_by) VALUES
+-- Licença sem vencimento até 3 anos (DL 3/2010, art. 46.º e 48.º): mantém o lugar.
+('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1', 'LIC_SEM_VENCIMENTO',   'Licença sem Vencimento',          'Licença sem Vencimento',          'LICENCA',    true,  false, false, true, 'MANTEM',    NULL, 'REGRESSA_LUGAR',  1095, NULL, NOW(), 'system'),
+-- Formação (art. 67.º n.º 3 e Lei 20/X/2023 art. 118.º n.º 2): abre vaga além de 6 meses.
+('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e3', 'LIC_FORMACAO',         'Licença para Formação',           'Licença para Formação',           'LICENCA',    false, true,  true,  true, 'ABRE_VAGA', 180,  'DISPONIBILIDADE', NULL, NULL, NOW(), 'system'),
+-- Longa duração (art. 50.º a 53.º): abre vaga e o regresso é pela disponibilidade.
+('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e7', 'LIC_LONGA_DURACAO',    'Licença de Longa Duração',        'Licença de Longa Duração',        'LICENCA',    true,  false, false, true, 'ABRE_VAGA', NULL, 'DISPONIBILIDADE', NULL, NULL, NOW(), 'system'),
+-- Acompanhamento de cônjuge no estrangeiro (art. 56.º n.º 2): abre vaga além de 1 ano.
+('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e8', 'LIC_ACOMP_CONJUGE',    'Acompanhamento de Cônjuge',       'Acompanhamento de Cônjuge',       'LICENCA',    true,  false, false, true, 'ABRE_VAGA', 365,  'DISPONIBILIDADE', NULL, NULL, NOW(), 'system'),
+-- Organismo internacional, como funcionário do organismo (art. 62.º): abre vaga.
+('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e9', 'LIC_ORG_INTERNACIONAL','Organismo Internacional',         'Organismo Internacional',         'LICENCA',    true,  false, false, true, 'ABRE_VAGA', NULL, 'DISPONIBILIDADE', NULL, NULL, NOW(), 'system'),
+-- Mobilidade: mantém sempre o Lugar (art. 135.º n.º 7); um ano, prorrogável uma vez (art. 132.º n.º 5).
+('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e4', 'MOB_COMISSAO',         'Comissão de Serviço',             'Comissão de Serviço',             'MOBILIDADE', false, true,  false, true, 'MANTEM',    NULL, 'REGRESSA_LUGAR',  365,  1,    NOW(), 'system'),
+('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e5', 'MOB_REQUISICAO',       'Requisição',                      'Requisição',                      'MOBILIDADE', false, true,  false, true, 'MANTEM',    NULL, 'REGRESSA_LUGAR',  365,  1,    NOW(), 'system'),
+('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e6', 'MOB_DESTACAMENTO',     'Destacamento',                    'Destacamento',                    'MOBILIDADE', false, true,  false, true, 'MANTEM',    NULL, 'REGRESSA_LUGAR',  365,  1,    NOW(), 'system')
 ON CONFLICT (code) DO NOTHING;
 
 -- =============================================================

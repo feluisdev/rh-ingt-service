@@ -24,13 +24,15 @@ public class SubtipoLicencaMobilidadeRepositoryImpl implements SubtipoLicencaMob
                 SubtipoLicencaMobilidadeId.from(e.getId()),
                 e.getDescription(), e.getCode(), e.getRecordType(),
                 e.getAffectsPay(), e.getCountsForSeniority(), e.getCanSelfSubmit(),
-                e.getIsActive(), e.getMaxDurationDays(), e.getMaxExtensions());
+                e.getIsActive(), e.getMaxDurationDays(), e.getMaxExtensions(),
+                e.getPositionEffect(), e.getVacancyAfterDays(), e.getReturnEffect());
     }
 
     private LeaveMobilitySubtypeEntity toEntity(SubtipoLicencaMobilidade s) {
         LeaveMobilitySubtypeEntity e = new LeaveMobilitySubtypeEntity();
         e.setId(s.getId().getValor());
         e.setDescription(s.getNome());
+        e.setName(s.getNome());
         e.setCode(s.getCodigo());
         e.setRecordType(s.getRecordType());
         e.setAffectsPay(s.getAffectsPay());
@@ -39,6 +41,9 @@ public class SubtipoLicencaMobilidadeRepositoryImpl implements SubtipoLicencaMob
         e.setIsActive(s.getIsActive());
         e.setMaxDurationDays(s.getMaxDurationDays());
         e.setMaxExtensions(s.getMaxExtensions());
+        e.setPositionEffect(s.efeitoNoLugar().name());
+        e.setVacancyAfterDays(s.getVacancyAfterDays());
+        e.setReturnEffect(s.efeitoNoRegresso().name());
         return e;
     }
 

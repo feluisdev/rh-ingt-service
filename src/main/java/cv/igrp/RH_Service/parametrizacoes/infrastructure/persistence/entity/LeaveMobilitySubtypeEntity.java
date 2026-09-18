@@ -52,4 +52,23 @@ public class LeaveMobilitySubtypeEntity extends AuditEntity {
     /** Prorrogações permitidas (em regra, uma) — ver V41. */
     @Column(name = "max_extensions")
     private Integer maxExtensions;
+
+    /** MANTEM | ABRE_VAGA — o que faz ao Lugar enquanto dura (ver V43). */
+    @Column(name = "position_effect", length = 20)
+    private String positionEffect;
+
+    /** Abre vaga só além deste número de dias; nulo = abre logo (ver V43). */
+    @Column(name = "vacancy_after_days")
+    private Integer vacancyAfterDays;
+
+    /** REGRESSA_LUGAR | DISPONIBILIDADE — o que acontece no regresso (ver V43). */
+    @Column(name = "return_effect", length = 20)
+    private String returnEffect;
+
+    /**
+     * Rótulo do subtipo. A V6 declara a coluna NOT NULL e a entity não a mapeava,
+     * obrigando todo o INSERT a preenchê-la à mão fora da aplicação.
+     */
+    @Column(name = "name")
+    private String name;
 }

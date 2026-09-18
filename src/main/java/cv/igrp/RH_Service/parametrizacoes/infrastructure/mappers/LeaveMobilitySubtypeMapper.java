@@ -22,6 +22,11 @@ public class LeaveMobilitySubtypeMapper {
         entity.setIsActive(domain.isActive());
         entity.setMaxDurationDays(domain.getMaxDurationDays());
         entity.setMaxExtensions(domain.getMaxExtensions());
+        entity.setPositionEffect(domain.efeitoNoLugar().name());
+        entity.setVacancyAfterDays(domain.getVacancyAfterDays());
+        entity.setReturnEffect(domain.efeitoNoRegresso().name());
+        // A V6 declara name NOT NULL; sem isto, criar um subtipo pela API falha.
+        entity.setName(domain.getDescription() != null ? domain.getDescription() : domain.getCode());
         return entity;
     }
 
@@ -37,7 +42,10 @@ public class LeaveMobilitySubtypeMapper {
             entity.getCanSelfSubmit() != null && entity.getCanSelfSubmit(),
             entity.getIsActive() != null && entity.getIsActive(),
             entity.getMaxDurationDays(),
-            entity.getMaxExtensions()
+            entity.getMaxExtensions(),
+            entity.getPositionEffect(),
+            entity.getVacancyAfterDays(),
+            entity.getReturnEffect()
         );
     }
 
@@ -54,6 +62,9 @@ public class LeaveMobilitySubtypeMapper {
         dto.setCanSelfSubmit(domain.isCanSelfSubmit());
         dto.setMaxDurationDays(domain.getMaxDurationDays());
         dto.setMaxExtensions(domain.getMaxExtensions());
+        dto.setPositionEffect(domain.efeitoNoLugar().name());
+        dto.setVacancyAfterDays(domain.getVacancyAfterDays());
+        dto.setReturnEffect(domain.efeitoNoRegresso().name());
         dto.setIsActive(domain.isActive());
         dto.setEstadoDesc(Boolean.TRUE.equals(domain.isActive()) ? "Ativo" : "Inativo");
         return dto;

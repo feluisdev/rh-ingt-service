@@ -26,6 +26,8 @@ public class EncerrarLicencaMobilidadeCommandHandler
         implements CommandHandler<EncerrarLicencaMobilidadeCommand, ResponseEntity<Map<String, ?>>> {
 
     private final LicencaMobilidadeRepository licencaRepository;
+    private final cv.igrp.RH_Service.colaboradores.application.services.MobilidadeService mobilidadeService;
+    private final cv.igrp.RH_Service.colaboradores.application.services.LicencaService licencaService;
 
     @IgrpCommandHandler
     @Transactional
@@ -41,6 +43,17 @@ public class EncerrarLicencaMobilidadeCommandHandler
 
         licenca.encerrar(dataFim);
         licencaRepository.save(licenca);
+
+        // Quem perdeu o Lugar não regressa a ele: fica na disponibilidade, a aguardar
+        // vaga (art. 122.º). Quem o manteve não precisa de nada. Se o subtipo já não
+        // existir no catálogo, encerra à mesma — fechar um registo não depende de
+        // configuração.
+        var estadoAtribuido = mobilidadeService.subtipoSeExistir(licenca)
+                .flatMap(subtipo -> licencaService.aplicarRegresso(licenca, subtipo, dataFim));
+        if (estadoAtribuido.isPresent())
+            return ResponseEntity.ok(Map.of(
+                    "message", "Encerrado com sucesso",
+                    "estadoAtribuidoId", estadoAtribuido.get().toString()));
 
         return ResponseEntity.ok(Map.of("message", "Encerrado com sucesso"));
     }

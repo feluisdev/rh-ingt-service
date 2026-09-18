@@ -244,16 +244,29 @@ erDiagram
   <h2 id="catalogos"><span class="n">7.</span>Catálogos (parametrizações)</h2>
   <table>
     <tr><th>Tabela</th><th>Papel</th><th>Notas</th></tr>
-    <tr><td><code>t_worker_state</code></td><td>Estados do trabalhador (ACTIVE, INACTIVE, RETIRED…).</td><td><code>is_core=true</code> bloqueia desativação.</td></tr>
+    <tr><td><code>t_worker_state</code></td><td>Estados do trabalhador (ACTIVE, INACTIVE, RETIRED…).</td><td><code>is_core=true</code> bloqueia desativação; <code>ends_employment</code> marca os estados de cessação (V40); <code>situacao_funcional</code> diz em qual das seis situações do art. 117.º se encontra (V42) — dela derivam abrir vaga, suspender o contrato e contar antiguidade.</td></tr>
     <tr><td><code>t_contract_type</code></td><td>Tipos de contrato (DL 4/2024).</td><td><code>vinculo_laboral_id</code>→<code>t_vinculo_laboral</code>.</td></tr>
     <tr><td><code>t_vinculo_laboral</code></td><td>Vínculo laboral (categoria macro do contrato).</td><td>—</td></tr>
     <tr><td><code>t_leave_type</code></td><td>Tipos de ausência.</td><td><code>deducts_balance</code>, <code>requires_approval</code>, <code>max_days_per_year</code>, <code>category</code> (String).</td></tr>
-    <tr><td><code>t_leave_mobility_subtype</code></td><td>Subtipos de licença/mobilidade.</td><td><code>record_type</code> ∈ LICENCA · MOBILIDADE · AMBOS; <code>affects_pay</code>, <code>counts_for_seniority</code>, <code>can_self_submit</code>.</td></tr>
+    <tr><td><code>t_leave_mobility_subtype</code></td><td>Subtipos de licença/mobilidade.</td><td><code>record_type</code> ∈ LICENCA · MOBILIDADE (o valor <code>AMBOS</code> foi removido na V43); <code>affects_pay</code>, <code>counts_for_seniority</code>, <code>can_self_submit</code>; <code>max_duration_days</code>, <code>max_extensions</code> (V41); <code>position_effect</code> ∈ MANTEM · ABRE_VAGA, <code>vacancy_after_days</code>, <code>return_effect</code> ∈ REGRESSA_LUGAR · DISPONIBILIDADE (V43).</td></tr>
     <tr><td><code>t_tipo_documento</code></td><td>Tipos de documento.</td><td><code>allowed_extensions</code>, <code>category</code> (String).</td></tr>
     <tr><td><code>t_public_holiday</code></td><td>Feriados nacionais/municipais.</td><td>Índice único parcial <code>(holiday_date) WHERE is_national AND is_active</code>.</td></tr>
     <tr><td><code>t_option_entity</code></td><td>Catálogo genérico de rótulos (<code>ccode/ckey/cvalue/locale</code>).</td><td><code>@Cacheable</code> na leitura (Caffeine, TTL 60 s).</td></tr>
   </table>
   <div class="callout warn"><b>Nota de estado real:</b> <code>t_leave_type</code> e <code>t_tipo_documento</code> guardam a categoria como <b>String</b> (<code>category</code>), e não como FK para <code>t_option_entity</code>. (O CLAUDE.md descreve um <code>categoryOptionId</code> que o código atual não implementa.)</div>
+
+  <h3 id="situacao-e-vaga">7.1 Onde vive cada decisão</h3>
+  <p>O que a <b>lei fixa</b> vive em código, como enum; o que <b>varia com o motivo ou com a instituição</b> vive no catálogo, em colunas:</p>
+  <table>
+    <tr><th>Decisão</th><th>Onde vive</th><th>Porquê</th></tr>
+    <tr><td>Situação do estado perante o quadro</td><td><code>t_worker_state.situacao_funcional</code></td><td>É a instituição que decide que estados usa; as seis situações são da lei (art. 117.º).</td></tr>
+    <tr><td>Abrir vaga, contar antiguidade, suspender o contrato</td><td>enum <code>SituacaoFuncional</code></td><td>São efeitos que a lei fixa para cada situação (art. 120.º n.º 2, 121.º n.º 2), não configuração.</td></tr>
+    <tr><td>Que licença liberta o Lugar</td><td><code>t_leave_mobility_subtype.position_effect</code></td><td>A lei distingue por motivo (DL 3/2010, art. 46.º/48.º contra 50.º a 53.º).</td></tr>
+    <tr><td>A partir de quantos dias abre vaga</td><td><code>vacancy_after_days</code></td><td>O prazo varia: um ano para cônjuge (art. 56.º n.º 2), seis meses para formação (art. 67.º n.º 3).</td></tr>
+    <tr><td>O que acontece no regresso</td><td><code>return_effect</code></td><td>Quem manteve o Lugar volta a ele; quem o perdeu aguarda vaga (art. 122.º).</td></tr>
+    <tr><td>Estados do contrato</td><td>enum <code>EstadoContrato</code></td><td>São três e não variam; o que varia é o motivo, livre no catálogo <code>Option</code>.</td></tr>
+  </table>
+  <div class="callout warn"><b>A mobilidade nunca abre vaga</b> (art. 135.º n.º 7): marcar um subtipo de mobilidade com <code>position_effect = ABRE_VAGA</code> é recusado pelo catálogo.</div>
 
   <h2 id="ref"><span class="n">8.</span>Referência completa de tabelas (não-sigdi)</h2>
   <table>

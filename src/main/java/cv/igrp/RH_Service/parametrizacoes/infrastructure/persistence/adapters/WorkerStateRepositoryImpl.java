@@ -49,6 +49,16 @@ public class WorkerStateRepositoryImpl implements WorkerStateRepository {
 
     @Transactional(readOnly = true)
     @Override
+    public Optional<WorkerState> findBySituacao(
+            cv.igrp.RH_Service.parametrizacoes.domain.models.SituacaoFuncional situacao) {
+        if (situacao == null) return Optional.empty();
+        return workerStateEntityRepository
+            .findBySituacaoFuncionalAndIsActiveTrueOrderByCode(situacao.name())
+            .stream().findFirst().map(workerStateMapper::toDomain);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public boolean existsByCode(String code) {
         return workerStateEntityRepository.existsByCode(code);
     }

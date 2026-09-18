@@ -34,7 +34,8 @@ public class UpdateLeaveMobilitySubtypeCommandHandler implements CommandHandler<
 
         leaveMobilitySubtype.atualizar(dto.getDescription(), dto.isAffectsPay(),
                 dto.isCountsForSeniority(), dto.isCanSelfSubmit(),
-                dto.getMaxDurationDays(), dto.getMaxExtensions());
+                dto.getMaxDurationDays(), dto.getMaxExtensions(),
+                dto.getPositionEffect(), dto.getVacancyAfterDays(), dto.getReturnEffect());
 
         LeaveMobilitySubtype updated = leaveMobilitySubtypeRepository.save(leaveMobilitySubtype);
 

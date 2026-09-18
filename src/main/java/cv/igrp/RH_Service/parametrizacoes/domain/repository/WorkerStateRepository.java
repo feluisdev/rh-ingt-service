@@ -17,4 +17,11 @@ public interface WorkerStateRepository {
 
     /** Estados activos que terminam a relação de emprego público (ends_employment). */
     List<WorkerState> findAllEndingEmployment();
+
+    /**
+     * Primeiro estado activo classificado nesta situação funcional, se a instituição
+     * tiver algum. É assim que se passa alguém a uma situação da lei sem escrever
+     * códigos de estado no código.
+     */
+    Optional<WorkerState> findBySituacao(cv.igrp.RH_Service.parametrizacoes.domain.models.SituacaoFuncional situacao);
 }

@@ -58,6 +58,24 @@
       "type": "integer",
       "objectType": "java",
       "required": false
+    },
+    {
+      "name": "positionEffect",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "vacancyAfterDays",
+      "type": "integer",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "returnEffect",
+      "type": "string",
+      "objectType": "java",
+      "required": false
     }
   ],
   "id": "leave_mobility_subtype_req_dto_001"

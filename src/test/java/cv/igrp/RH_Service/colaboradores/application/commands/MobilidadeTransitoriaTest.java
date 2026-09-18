@@ -7,11 +7,16 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
+import cv.igrp.RH_Service.colaboradores.application.services.LicencaService;
 import cv.igrp.RH_Service.colaboradores.application.services.MobilidadeService;
 import cv.igrp.RH_Service.colaboradores.domain.models.LicencaMobilidade;
 import cv.igrp.RH_Service.colaboradores.domain.models.SubtipoLicencaMobilidade;
+import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
+import cv.igrp.RH_Service.colaboradores.domain.repository.HistoricoEstadoColaboradorRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.LicencaMobilidadeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.SubtipoLicencaMobilidadeRepository;
+import cv.igrp.RH_Service.parametrizacoes.domain.repository.WorkerStateRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.SubtipoLicencaMobilidadeId;
 import cv.igrp.RH_Service.estrutura.domain.models.OrganizationalUnit;
@@ -53,8 +58,12 @@ class MobilidadeTransitoriaTest {
 
     private void servicos() {
         mobilidadeService = new MobilidadeService(subtipoRepository, unidadeRepository, licencaRepository);
-        aprovar = new AprovarLicencaMobilidadeCommandHandler(licencaRepository, mobilidadeService);
-        encerrar = new EncerrarLicencaMobilidadeCommandHandler(licencaRepository);
+        // A mobilidade nunca abre vaga, por isso o serviço da licença nunca faz nada aqui.
+        var licencaService = new LicencaService(Mockito.mock(AssignmentService.class),
+                Mockito.mock(FuncionarioRepository.class), Mockito.mock(WorkerStateRepository.class),
+                Mockito.mock(HistoricoEstadoColaboradorRepository.class));
+        aprovar = new AprovarLicencaMobilidadeCommandHandler(licencaRepository, mobilidadeService, licencaService);
+        encerrar = new EncerrarLicencaMobilidadeCommandHandler(licencaRepository, mobilidadeService, licencaService);
         cancelar = new CancelarLicencaMobilidadeCommandHandler(licencaRepository);
     }
 

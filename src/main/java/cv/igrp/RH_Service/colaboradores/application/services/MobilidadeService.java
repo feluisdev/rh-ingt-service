@@ -56,6 +56,14 @@ public class MobilidadeService {
                 .findFirst();
     }
 
+    /**
+     * O subtipo, se ainda existir no catálogo. Para operações que não podem ser recusadas
+     * por causa da configuração — encerrar um registo é uma delas.
+     */
+    public Optional<SubtipoLicencaMobilidade> subtipoSeExistir(LicencaMobilidade licenca) {
+        return subtipoRepository.findById(SubtipoLicencaMobilidadeId.from(licenca.getSubtipoId().getValor()));
+    }
+
     public SubtipoLicencaMobilidade subtipoDe(LicencaMobilidade licenca) {
         return subtipoRepository.findById(
                         SubtipoLicencaMobilidadeId.from(licenca.getSubtipoId().getValor()))

@@ -365,6 +365,8 @@ DELETE .../{ownerId}/documentos/{docId}
 ## 7. Licenças e mobilidade — `/funcionarios/{id}/licencas-mobilidade`
 
 > **A mobilidade transitória não tira o Lugar ao titular** (Lei n.º 20/X/2023, art. 135.º n.º 7). Este processo **não mexe na afectação**: regista onde a pessoa exerce funções e até quando. Para mudar mesmo de Lugar, usar a **transferência** (5.6).
+>
+> **A licença pode tirar** (DL n.º 3/2010) — ver 7.1. O `record_type` do subtipo é `LICENCA` ou `MOBILIDADE`; o valor `AMBOS` foi removido.
 
 | Método | Path | Descrição |
 |---|---|---|
@@ -401,6 +403,26 @@ DELETE .../{ownerId}/documentos/{docId}
 | **Externa** — entidade de fora (autarquia, empresa pública, privado, organismo internacional) | `entidadeDestino` |
 
 Sem nenhum dos dois, o `approve` devolve **422**. O `destinationPositionId` deixou de ser exigido: a mobilidade transitória não ocupa Lugar no destino.
+
+### 7.1 Licenças que abrem vaga
+Três campos do subtipo dizem o que a licença faz ao Lugar:
+
+| Campo | Valores | O que faz |
+|---|---|---|
+| `positionEffect` | `MANTEM` · `ABRE_VAGA` | Se o Lugar fica ocupado ou vago enquanto a licença dura |
+| `vacancyAfterDays` | inteiro ou nulo | Abre vaga só se a duração exceder este número de dias; nulo abre logo |
+| `returnEffect` | `REGRESSA_LUGAR` · `DISPONIBILIDADE` | O que acontece ao funcionário quando a licença termina |
+
+No `approve` (ou `ativar`), se o subtipo abrir vaga para aquela duração:
+- a **afectação corrente é encerrada** na data de início e o Lugar fica vago;
+- o colaborador passa ao estado com situação `INACTIVIDADE_FORA_QUADRO`, se existir no catálogo;
+- **o vínculo não cessa** — a resposta traz `afectacaoEncerradaId` e o colaborador continua activo.
+
+No `close`, se o `returnEffect` for `DISPONIBILIDADE`, o colaborador passa ao estado com essa situação (art. 122.º) e a resposta traz `estadoAtribuidoId`. A nova afectação é um acto do RH: depende de haver Lugar livre.
+
+Um período **sem data de fim** ultrapassa qualquer prazo, logo abre vaga. A **mobilidade nunca abre vaga**: marcar um subtipo de mobilidade como `ABRE_VAGA` devolve **400**.
+
+Valores do seed: `LIC_SEM_VENCIMENTO` mantém; `LIC_LONGA_DURACAO` e `LIC_ORG_INTERNACIONAL` abrem logo; `LIC_ACOMP_CONJUGE` além de 365 dias; `LIC_FORMACAO` além de 180.
 
 ### Duração e prorrogação
 A duração máxima e o número de prorrogações são **parametrizados no subtipo** (`maxDurationDays`, `maxExtensions`). Por omissão, os subtipos de mobilidade ficam com 365 dias e 1 prorrogação (art. 132.º n.º 5). Se o subtipo tiver duração máxima, a `dataFim` é obrigatória e a duração é validada no `approve` (**422** se exceder).

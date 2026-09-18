@@ -10,4 +10,5 @@ public interface WorkerStateEntityRepository extends JpaRepository<WorkerStateEn
     boolean existsByCode(String code);
     java.util.Optional<WorkerStateEntity> findByCodeIgnoreCase(String code);
     java.util.List<WorkerStateEntity> findByEndsEmploymentTrueAndIsActiveTrueOrderByCode();
+    java.util.List<WorkerStateEntity> findBySituacaoFuncionalAndIsActiveTrueOrderByCode(String situacaoFuncional);
 }

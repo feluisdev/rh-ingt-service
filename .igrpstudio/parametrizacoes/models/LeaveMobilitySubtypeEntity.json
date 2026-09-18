@@ -84,6 +84,63 @@
       "primaryKey": false,
       "skipFieldRevision": false,
       "objectType": "java"
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "length": 255,
+      "nullable": false,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false
+    },
+    {
+      "name": "maxDurationDays",
+      "type": "integer",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "maxExtensions",
+      "type": "integer",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "positionEffect",
+      "type": "string",
+      "length": 20,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false
+    },
+    {
+      "name": "vacancyAfterDays",
+      "type": "integer",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "returnEffect",
+      "type": "string",
+      "length": 20,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false
     }
   ],
   "id": "leave_mobility_subtype_entity_001",

@@ -26,6 +26,7 @@ public class AtivarLicencaMobilidadeCommandHandler
 
     private final LicencaMobilidadeRepository licencaRepository;
     private final MobilidadeService mobilidadeService;
+    private final cv.igrp.RH_Service.colaboradores.application.services.LicencaService licencaService;
 
     @IgrpCommandHandler
     @Transactional
@@ -47,6 +48,13 @@ public class AtivarLicencaMobilidadeCommandHandler
 
         licenca.aprovar();
         licencaRepository.save(licenca);
+
+        // A licença pode abrir vaga; a mobilidade nunca o faz. Quem decide é o subtipo.
+        var efeito = licencaService.aplicarEntradaEmVigor(licenca, subtipo);
+        if (efeito.afectacaoEncerradaId() != null)
+            return ResponseEntity.ok(Map.of(
+                    "message", "Activado com sucesso",
+                    "afectacaoEncerradaId", efeito.afectacaoEncerradaId().toString()));
 
         return ResponseEntity.ok(Map.of("message", "Activado com sucesso"));
     }
