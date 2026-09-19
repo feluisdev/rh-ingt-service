@@ -218,40 +218,68 @@ quadro e o catálogo só tinha quatro estados sem semântica legal.
 
 ## Trabalho pendente (por ordem recomendada)
 
-### 1. Substituição (art. 73.º al. a)–c), art. 91.º n.º 1 al. a) — o próximo
-Contrato a termo para substituir funcionário **temporariamente impedido**, que
-caduca quando cessa a situação (art. 77.º n.º 2); e **nomeação em substituição**,
-para quem já é funcionário.
+### ~~1. Substituição~~ — FEITO (2026-09-19, `d4ded55b`)
 
-Faz mais sentido agora do que antes, porque já há duas maneiras de um Lugar ficar
-sem titular temporariamente: a **licença que abre vaga** (V43) e a
-**inactividade fora do quadro** (V42).
+V45 (índice do Lugar parcial em `PRINCIPAL`) + V46 (`titular_assignment_id`) +
+`SubstituicaoService` + `POST /funcionarios/{id}/substituicao`. Caduca sozinha
+quando o titular regressa. Enum `TipoAfectacao` feito. **Não exercitado contra
+a BD** — ver secção "Antes da bateria".
 
-Implica:
-- afectação `SUBSTITUICAO` ligada à afectação do titular e ao que a justifica;
-- **tornar parcial o índice único** `ux_assignment_position_current`, passando a
-  exigir `assignment_type = 'PRINCIPAL'` — migração **V45**;
-- converter o tipo de afectação para enum, no mesmo molde dos outros.
+### ~~2. Respostas tipadas~~ — FEITO (2026-09-19, `9ecfc207`, `cadfb788`)
 
-Fora do âmbito: férias e faltas curtas.
+`SuccessResponseDTO` em `shared` (id, sucesso, alertas) para 85 operações, mais
+sete DTOs próprios para as respostas ricas. **Nenhum handler e nenhum controlador
+não-sigdi devolve `Map`**, e as 237 operações do contrato têm esquema declarado.
+`origin_assignment_id` largado na V47.
 
-### 2. Respostas tipadas: acabar com os `Map`
+## Antes da bateria — o que falta (plano de 2026-09-19)
 
-109 pontos do código não-sigdi devolvem `Map.of(...)` em vez de um DTO. Isso
-tem três custos: o `openapi.json` gerado fica **sem esquema de resposta** nessas
-operações, quem consome a API tem de adivinhar as chaves, e nada impede que duas
-operações irmãs devolvam nomes diferentes para a mesma coisa.
+A bateria actual (78 passos) **não ficou partida** pela conversão dos `Map`: lê
+`id`, `estado`, `numeroDias`, `afectacaoEncerradaId` e `estadoAtribuidoId`, e
+todos sobrevivem nos DTOs novos. O que falta é outra coisa.
 
-Decidido com o cliente (2026-09-19):
+### A. Bloqueadores — sem isto a bateria não prova nada de novo
 
-- **`SuccessResponseDTO` genérico em `shared`** para os casos simples — os que
-  hoje devolvem só um id e/ou uma mensagem. Campos: **`id`**, um **booleano**
-  (o resultado da operação) e **`alertas`**, um **array** para o que a operação
-  queira avisar sem ser erro.
-- **DTO próprio** para os casos com mais do que isso (o registo composto, os
-  movimentos, a mudança de estado) — nada de enfiar tudo no genérico.
+**A1. A base está gasta.** 2 colaboradores, 3 afectações, **nenhuma corrente**:
+a execução anterior deixou o A sem Lugar e o B em disponibilidade. O SQL de
+reposição do `testes_funcionais_README.md` §"Repor o estado inicial" resolve
+isso, mas **não limpa o que esta sessão criou**: as etiquetas `ccode='TESTE_MAP'`
+e o estado `TESTE_DISP`. Juntar ao SQL.
 
-Depois disto, regenerar o `openapi.json`.
+**A2. O seed não chega para o que falta exercitar.** Há **2 Lugares**, e ambos
+são precisos como ocupados. Não dá para:
+- promoção **com `positionId`** — precisa de um Lugar vago da categoria de cima;
+- transferência com destino real;
+- substituição — precisa de titular impedido **e** de um terceiro colaborador
+  para substituir.
+
+Mínimo: **5 a 6 Lugares** (dois ocupados, um vago da categoria superior, um vago
+da mesma categoria, um fora de grelha) e **um terceiro colaborador**.
+
+**A3. Decidir o `INACTIVE`.** É o único estado do catálogo **sem situação
+funcional**, por isso não produz efeito nenhum. Ou é intencional (o caso de
+demonstração do "estado sem situação") ou é um buraco do seed. Se for para
+classificar, é `INACTIVIDADE_NO_QUADRO`.
+
+### B. Alargar a bateria
+
+| Bloco | O que prova | Passos (estimativa) |
+|---|---|---|
+| **F6 substituição** | entra sem desalojar o titular · titular não impedido → 422 · Lugar vago → 422 · estado sem situação → 422 · a si próprio → 422 · segundo substituto → 409 · o regresso do titular **fecha sozinho** a substituição | ~10 |
+| **F7 cessação** | os dois caminhos (estado `RETIRED` e `close` do contrato) dão o mesmo resultado · encerram também a substituição | ~6 |
+| **F8 mobilidade** | ponta a ponta: aprovar com destino interno e externo · **não** mexe na afectação · prorrogar · encerrar | ~8 |
+| **F9 promoção** | as duas formas, com Lugar vago real: com `positionId` muda de Lugar; sem ele o Lugar sobe de categoria | ~6 |
+| **F10 contrato das respostas** | `sucesso`/`alertas` · 2.ª desactivação idempotente · `assignmentType` inválido → 422 · `downloadUrl` passou a `url` | ~6 |
+
+Total estimado: **78 → ~114 passos**.
+
+### C. Decisões que não são minhas
+
+1. **Limite de substituições por pessoa.** Hoje não há: a mesma pessoa pode
+   cobrir três Lugares ao mesmo tempo. Validar com o RH.
+2. **A promoção exige lugar vago da categoria superior?** As duas formas estão
+   suportadas; a prática da instituição decide qual se usa.
+3. **`INACTIVE`** — ver A3.
 
 ### 3. Férias (DL n.º 3/2010)
 O seed já dá 22 dias úteis, e o ciclo do saldo está fechado. Falta o negócio:
@@ -356,11 +384,12 @@ primeiro.
 
 ## Next step
 
-**Ponto 1 dos pendentes: a substituição.** Começar por ler
-`AssignmentService.afectar` e o índice `ux_assignment_position_current`, decidir
-como se liga a afectação de substituição à do titular, e escrever a **V45** que
-torna o índice parcial. Converter o tipo de afectação para enum no mesmo commit,
-porque é o mesmo ficheiro.
+**A1 + A2: preparar os dados, e só depois alargar a bateria.** Sem um terceiro
+colaborador e sem Lugares vagos, os blocos F6 a F9 não têm como correr.
 
-Antes de mexer, correr `mvn -B test` para confirmar as 4 falhas conhecidas e
-nada mais.
+Ordem: seed (A1, A2, A3) -> bateria F6 a F10 -> corrigir o que ela apanhar ->
+depois as funcionalidades que faltam (ferias, divida do catalogo, movimentos
+menores, percurso).
+
+Antes de mexer, `mvn -B clean test` (com `clean`, ver armadilha 3b): esperado
+**763 testes, 0 falhas**.
