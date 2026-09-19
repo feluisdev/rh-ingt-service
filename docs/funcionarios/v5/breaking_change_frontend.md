@@ -180,7 +180,7 @@ O bloco `enquadramento` **ainda aparece** em `GET /funcionarios/{id}/details` (m
 - [ ] Usar as novas queries (unidade-atual, chefe, responsavel, vagas) onde antes se lia colocação/enquadramento.
 - [ ] Cabeçalho `Accept: application/json` em todas as chamadas.
 
-> Contrato completo: `api_guide.md` / `api_guide.html`. Modelo: `modelo_negocio.html`, `modelo_relacional.html`.
+> Contrato completo: `api_guide.md`. Modelo: `modelo_negocio.html`, `modelo_relacional.html`.
 
 ---
 

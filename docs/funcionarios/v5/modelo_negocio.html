@@ -213,53 +213,60 @@ flowchart LR
     <pre class="mermaid">
 stateDiagram-v2
   [*] --> Registado: registar (funcionário + contrato + afectação a Lugar vago)
-  Registado --> Ativo: worker-state ACTIVE
-  Ativo --> Ativo: progressão / promoção / mobilidade (nova afectação)
-  Ativo --> Ausente: pedido de ausência / licença aprovada
-  Ausente --> Ativo: regresso
-  Ativo --> Inativo: worker-state INACTIVE (fecha afectação → Lugar vago)
-  Ativo --> Reformado: worker-state RETIRED (fecha afectação → Lugar vago)
-  Inativo --> [*]
-  Reformado --> [*]
+  Registado --> ActividadeNoQuadro: estado com situação ACTIVIDADE_NO_QUADRO
+  ActividadeNoQuadro --> ActividadeNoQuadro: progressão / promoção / transferência
+  ActividadeNoQuadro --> ActividadeForaQuadro: mobilidade / comissão (mantém o Lugar)
+  ActividadeForaQuadro --> ActividadeNoQuadro: regresso
+  ActividadeNoQuadro --> InactividadeNoQuadro: licença que MANTÉM o Lugar
+  InactividadeNoQuadro --> ActividadeNoQuadro: regresso ao mesmo Lugar
+  ActividadeNoQuadro --> InactividadeForaQuadro: licença que ABRE VAGA (fecha afectação)
+  InactividadeForaQuadro --> Disponibilidade: regresso sem Lugar (art. 122.º)
+  Disponibilidade --> ActividadeNoQuadro: nova afectação quando houver vaga
+  ActividadeNoQuadro --> Aposentacao: estado de cessação (fecha afectação)
+  Aposentacao --> [*]
     </pre>
   </div>
-  <p>Ao mudar o estado para <b>INACTIVE</b> ou <b>RETIRED</b>, a afectação corrente é encerrada automaticamente e o Lugar volta a estar <b>vago</b>, ficando disponível no Mapa de Pessoal.</p>
+  <p>Os efeitos deixaram de depender do <b>código</b> do estado (<code>ACTIVE</code>, <code>INACTIVE</code>…) e passaram a depender da sua <b>situação funcional</b> — uma das seis do art. 117.º da Lei n.º 20/X/2023, declarada em <code>t_worker_state.situacao_funcional</code>. É a situação que diz se o estado <b>abre vaga</b> (art. 121.º n.º 2), se <b>conta antiguidade</b> (art. 120.º n.º 2), se <b>suspende</b> ou se <b>cessa</b> o vínculo. Um estado sem situação atribuída entra no histórico e não produz efeitos.</p>
+  <div class="callout rule"><b>Inactividade fora do quadro não é cessação.</b> Encerra a afectação e liberta o Lugar, mas o vínculo mantém-se: a pessoa continua activa e sem Lugar. Quem regressa e já não tem Lugar fica em <b>disponibilidade</b>, a aguardar vaga na sua categoria, com contagem de tempo e abonos (art. 122.º).</div>
 
   <h2 id="movimentos"><span class="n">7.</span>Movimentos: admissão, progressão, mobilidade, cessação</h2>
   <table>
     <tr><th>Movimento</th><th>O que acontece</th><th>Origem registada</th></tr>
     <tr><td><b>Admissão</b></td><td>Regista o funcionário e afecta-o a um Lugar <b>vago</b> (a unidade/cargo/carreira derivam do Lugar; escolhe-se só o escalão).</td><td><code>ADMISSAO</code></td></tr>
     <tr><td><b>Progressão</b></td><td>Nova afectação, <b>mesmo Lugar</b>, muda o escalão.</td><td><code>PROGRESSAO</code></td></tr>
-    <tr><td><b>Promoção</b></td><td>Nova afectação num <b>novo Lugar</b> (categoria/carreira superior).</td><td><code>PROMOCAO</code></td></tr>
-    <tr><td><b>Mobilidade</b></td><td>Fecha a afectação corrente e abre nova no Lugar de destino (herda o escalão). Guarda o Lugar de origem para permitir o <b>regresso</b>.</td><td><code>MOBILIDADE</code></td></tr>
-    <tr><td><b>Transferência</b></td><td>Mudança definitiva de Lugar/unidade.</td><td><code>TRANSFERENCIA</code></td></tr>
-    <tr><td><b>Cessação / Reforma</b></td><td>Encerra a afectação corrente; o Lugar volta a vago.</td><td>—</td></tr>
+    <tr><td><b>Promoção</b></td><td>Sobe uma categoria, <b>duas formas</b>: com <code>positionId</code> muda para um Lugar vago dessa categoria; sem ele é o <b>próprio Lugar que sobe</b> (reclassificação). A modalidade infere-se do pedido e <b>não se guarda</b>.</td><td><code>PROMOCAO</code></td></tr>
+    <tr><td><b>Mobilidade transitória</b></td><td><b>Não toca na afectação.</b> O titular <b>mantém o Lugar</b> (art. 135.º n.º 7); regista-se apenas onde exerce funções e até quando. Encerrar é só fechar o registo.</td><td>—</td></tr>
+    <tr><td><b>Transferência</b></td><td>Mudança <b>definitiva</b> de Lugar, mantendo carreira, categoria e escalão (se a categoria mudasse seria promoção). É também a forma da mobilidade definitiva.</td><td><code>TRANSFERENCIA</code></td></tr>
+    <tr><td><b>Licença que abre vaga</b></td><td>Encerra a afectação e liberta o Lugar, <b>sem cessar o vínculo</b>. Quais e a partir de quantos dias vem do <b>subtipo</b>, não do código.</td><td>—</td></tr>
+    <tr><td><b>Substituição</b></td><td>Ocupa o Lugar de um titular <b>temporariamente impedido</b>, sem o desalojar (art. 73.º al. a) a c)). Não exige Lugar vago e não torna o Lugar provido.</td><td><code>SUBSTITUICAO</code></td></tr>
+    <tr><td><b>Cessação / Reforma</b></td><td>Encerra a afectação corrente; o Lugar volta a vago. Dois caminhos equivalentes: estado de cessação ou <code>close</code> do contrato.</td><td>—</td></tr>
   </table>
+  <div class="callout warn"><b>A mobilidade transitória deixou de criar afectação no destino.</b> Antes fechava a afectação de origem e abria outra no Lugar de destino, o que dava o Lugar de origem por vago e contradizia o art. 135.º n.º 7. Para mudar mesmo de Lugar existe a <b>transferência</b>.</div>
 
   <div class="diagram">
-    <p class="cap">Mobilidade temporária com regresso ao Lugar de origem</p>
+    <p class="cap">Licença que abre vaga — e porque o regresso não devolve o Lugar</p>
     <pre class="mermaid">
 sequenceDiagram
   participant U as Utilizador (RH)
-  participant S as AssignmentService
-  participant DB as Afectações
-  U->>S: aprovar mobilidade (destino = Lugar B)
-  S->>DB: fecha afectação corrente (Lugar A) e guarda origem
-  S->>DB: abre afectação MOBILIDADE (Lugar B, escalão herdado)
-  Note over DB: pessoa agora na unidade de B · Lugar A fica vago
-  U->>S: encerrar / cancelar mobilidade
-  S->>DB: fecha afectação (Lugar B)
-  S->>DB: reabre o Lugar de origem A (se ainda vago)
-  Note over DB: regresso concluído · pessoa de volta ao Lugar A
+  participant S as LicencaService
+  participant DB as Afectações / Estado
+  U->>S: aprovar licença (subtipo ABRE_VAGA, duração acima do prazo)
+  S->>DB: encerra a afectação corrente (Lugar A)
+  S->>DB: estado com situação INACTIVIDADE_FORA_QUADRO
+  Note over DB: Lugar A fica vago · vínculo mantém-se · contrato suspenso
+  U->>S: encerrar a licença (regresso)
+  S->>DB: estado com situação DISPONIBILIDADE
+  Note over DB: a pessoa NÃO recupera o Lugar · aguarda vaga (art. 122.º)
     </pre>
   </div>
 
   <h2 id="ausencias"><span class="n">8.</span>Ausências, licenças e mobilidade</h2>
-  <p>O trabalhador tem <b>saldos</b> por tipo de ausência e submete <b>pedidos</b> que seguem um fluxo de aprovação. As mobilidades e licenças especiais partilham um catálogo de <b>subtipos</b> (com <code>record_type</code> ∈ LICENCA · MOBILIDADE · AMBOS) que controla se afetam vencimento, contam para antiguidade e se podem ser auto-submetidas.</p>
+  <p>O trabalhador tem <b>saldos</b> por tipo de ausência e submete <b>pedidos</b> que seguem um fluxo de aprovação. As mobilidades e licenças especiais partilham um catálogo de <b>subtipos</b> (com <code>record_type</code> ∈ LICENCA · MOBILIDADE — o valor <code>AMBOS</code> foi removido) que controla se afectam vencimento, contam para antiguidade, se podem ser auto-submetidas e, desde a V43, <b>o que fazem ao Lugar</b>.</p>
+  <div class="callout rule"><b>A licença parental é ausência, não licença</b> (art. 171.º n.º 2 contra art. 172.º): <code>MATERNIDADE</code> 90 dias, <code>PATERNIDADE</code> 10 dias úteis.</div>
   <div class="grid c3">
-    <div class="card"><b>Pedido de ausência</b><p class="lead" style="font-size:13.5px">submeter → aprovar / rejeitar / cancelar. Deduz saldo conforme o tipo.</p></div>
-    <div class="card"><b>Licença / mobilidade</b><p class="lead" style="font-size:13.5px">criar → aprovar → (encerrar / cancelar). MOBILIDADE aprovada gera afectação no destino.</p></div>
-    <div class="card"><b>Saldos</b><p class="lead" style="font-size:13.5px">por funcionário e tipo; base para validar os pedidos.</p></div>
+    <div class="card"><b>Pedido de ausência</b><p class="lead" style="font-size:13.5px">submeter → aprovar / rejeitar / cancelar. Os dias são <b>reservados na submissão</b> e só passam a gozados na aprovação.</p></div>
+    <div class="card"><b>Licença / mobilidade</b><p class="lead" style="font-size:13.5px">criar → aprovar → (encerrar / cancelar). A <b>mobilidade não mexe na afectação</b>; a licença só mexe se o subtipo disser que abre vaga.</p></div>
+    <div class="card"><b>Saldos</b><p class="lead" style="font-size:13.5px">três números: dias de direito, <b>pendentes</b> (reservados) e <b>gozados</b>. Sem saldo, o pedido é recusado logo na submissão.</p></div>
   </div>
 
   <h2 id="glossario"><span class="n">9.</span>Glossário</h2>

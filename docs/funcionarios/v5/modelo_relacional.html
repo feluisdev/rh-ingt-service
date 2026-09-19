@@ -139,7 +139,7 @@ erDiagram
   }
     </pre>
   </div>
-  <div class="callout key"><b>Índice único parcial:</b> <code>(position_id) WHERE is_current</code> garante um ocupante por Lugar; <code>(funcionario_id) WHERE is_current AND assignment_type='PRINCIPAL'</code> garante uma afectação principal por pessoa.</div>
+  <div class="callout key"><b>Índice único parcial:</b> <code>(position_id) WHERE is_current AND assignment_type='PRINCIPAL'</code> (<code>ux_assignment_position_titular</code>, V45) garante um <b>titular</b> por Lugar; <code>(funcionario_id) WHERE is_current AND assignment_type='PRINCIPAL'</code> garante uma afectação principal por pessoa. Até à V45 o primeiro índice cobria qualquer afectação corrente, o que impedia a <b>substituição</b> do funcionário temporariamente impedido (art. 73.º al. a) a c)): quem substitui não desaloja o titular, logo tem de poder coexistir com ele no mesmo Lugar. Um Lugar com substituto e <b>sem</b> titular conta como <b>vago</b>.</div>
 
   <h2 id="estrutura"><span class="n">3.</span>Estrutura + Carreiras (Mapa de Pessoal)</h2>
   <div class="diagram">
@@ -264,7 +264,9 @@ erDiagram
     <tr><td>Que licença liberta o Lugar</td><td><code>t_leave_mobility_subtype.position_effect</code></td><td>A lei distingue por motivo (DL 3/2010, art. 46.º/48.º contra 50.º a 53.º).</td></tr>
     <tr><td>A partir de quantos dias abre vaga</td><td><code>vacancy_after_days</code></td><td>O prazo varia: um ano para cônjuge (art. 56.º n.º 2), seis meses para formação (art. 67.º n.º 3).</td></tr>
     <tr><td>O que acontece no regresso</td><td><code>return_effect</code></td><td>Quem manteve o Lugar volta a ele; quem o perdeu aguarda vaga (art. 122.º).</td></tr>
-    <tr><td>Estados do contrato</td><td>enum <code>EstadoContrato</code></td><td>São três e não variam; o que varia é o motivo, livre no catálogo <code>Option</code>.</td></tr>
+    <tr><td>Estados do contrato</td><td>enum <code>EstadoContrato</code></td><td>São três e não variam; o que varia é o motivo, livre no catálogo <code>Option</code>. Obrigatório desde a V44: um contrato sem estado não era suspenso nem reactivado, em silêncio.</td></tr>
+    <tr><td>Título com que se ocupa um Lugar</td><td>enum <code>TipoAfectacao</code></td><td>A lei fixa as formas de ocupar um Lugar do quadro: titular, substituição (art. 73.º), acumulação (art. 134.º n.º 2 al. b)). O motivo é que é livre.</td></tr>
+    <tr><td>Provido / vago</td><td>derivado do <b>titular</b> corrente</td><td>Nunca se guarda: um Lugar está provido quando tem afectação corrente <code>PRINCIPAL</code>. Um substituto não o provê (V45).</td></tr>
   </table>
   <div class="callout warn"><b>A mobilidade nunca abre vaga</b> (art. 135.º n.º 7): marcar um subtipo de mobilidade com <code>position_effect = ABRE_VAGA</code> é recusado pelo catálogo.</div>
 

@@ -229,18 +229,36 @@ Implica:
 
 Fora do âmbito: férias e faltas curtas.
 
-### 2. Férias (DL n.º 3/2010)
+### 2. Respostas tipadas: acabar com os `Map`
+
+109 pontos do código não-sigdi devolvem `Map.of(...)` em vez de um DTO. Isso
+tem três custos: o `openapi.json` gerado fica **sem esquema de resposta** nessas
+operações, quem consome a API tem de adivinhar as chaves, e nada impede que duas
+operações irmãs devolvam nomes diferentes para a mesma coisa.
+
+Decidido com o cliente (2026-09-19):
+
+- **`SuccessResponseDTO` genérico em `shared`** para os casos simples — os que
+  hoje devolvem só um id e/ou uma mensagem. Campos: **`id`**, um **booleano**
+  (o resultado da operação) e **`alertas`**, um **array** para o que a operação
+  queira avisar sem ser erro.
+- **DTO próprio** para os casos com mais do que isso (o registo composto, os
+  movimentos, a mudança de estado) — nada de enfiar tudo no genérico.
+
+Depois disto, regenerar o `openapi.json`.
+
+### 3. Férias (DL n.º 3/2010)
 O seed já dá 22 dias úteis, e o ciclo do saldo está fechado. Falta o negócio:
 marcação, acumulação e gozo proporcional ao tempo de serviço.
 
-### 3. Dívida conhecida do catálogo
+### 4. Dívida conhecida do catálogo
 - `affects_pay` e `counts_for_seniority` (subtipo) e `counts_seniority`
   (vínculo laboral) existem e **nenhum código os usa**.
 - `SituacaoFuncional.contaAntiguidade()` também ainda não tem consumidor: **não
   há cálculo de antiguidade em lado nenhum**. Quando houver, é aí que estas três
   coisas se ligam.
 
-### 4. Movimentos menores que faltam
+### 5. Movimentos menores que faltam
 Consolidação da mobilidade (art. 132.º n.º 4) · mobilidade em acumulação
 (art. 134.º n.º 2 al. b; o tipo `ACUMULACAO` existe e nunca é usado) · permuta
 (troca recíproca e simultânea, tem de ser atómica) · **mudança de carreira /
@@ -249,7 +267,7 @@ promoção exige a mesma carreira e a transferência a mesma categoria) · regre
 de comissão de serviço (art. 64.º n.º 2) · estágio probatório → nomeação
 definitiva (art. 57.º, 72.º) · reintegração judicial (art. 97.º n.º 10 al. b).
 
-### 5. Percurso do colaborador
+### 6. Percurso do colaborador
 Endpoint que junte numa só linha temporal as afectações, as mobilidades, as
 licenças e as mudanças de estado. Adiado até o negócio estar definido.
 

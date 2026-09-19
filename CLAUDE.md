@@ -185,7 +185,10 @@ tree was removed on 2026-09-05; do not reintroduce it or cite it as a plan.
 - `modelo_relacional.html` — ER model, table-by-table reference, conventions
 - `modelo_negocio.html` — business model
 - `regras_negocio.html` — numbered business-rule catalogue (BR-*, non-sigdi scope)
-- `api_guide.md` / `api_guide.html` — REST API guide
+- `api_guide.md` — REST API guide (only the Markdown; the HTML twin was removed on 2026-09-19 because it kept drifting)
+- `openapi.json` — the OpenAPI contract **generated from the code** by springdoc. Regenerate after adding or changing an endpoint:
+  `curl -s -o docs/funcionarios/v5/openapi.json http://localhost:8099/v3/api-docs` (app running, dev profile).
+  It carries paths, params and schemas; it does *not* carry the business rules or the 422s — those live in `api_guide.md` and `regras_negocio.html`.
 - `guia_configuracao_registo.html` — configuration and registration walkthrough
 - `apresentacao_aplicacao.html` — application walkthrough
 - `breaking_change_frontend.md` — front-end breaking changes

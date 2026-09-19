@@ -176,7 +176,7 @@ flowchart LR
   <p>A partir do Mapa de Pessoal, a aplicação responde a perguntas de gestão de forma imediata:</p>
   <table>
     <tr><th>Pergunta de gestão</th><th>Resposta</th></tr>
-    <tr><td>Quantas vagas tem o Departamento X?</td><td>Total de lugares menos os que estão ocupados.</td></tr>
+    <tr><td>Quantas vagas tem o Departamento X?</td><td>Total de lugares menos os que <b>têm titular</b>. Um lugar cujo titular está impedido e tem substituto continua a ser do titular, e não conta como vaga.</td></tr>
     <tr><td>Quem dirige a unidade Y?</td><td>A pessoa que ocupa o lugar de chefia dessa unidade.</td></tr>
     <tr><td>A quem reporta este trabalhador?</td><td>Ao ocupante do lugar-chefe do lugar dele.</td></tr>
     <tr><td>Este lugar está livre?</td><td>Está livre se não tiver ocupante atual — calculado, nunca esquecido.</td></tr>
@@ -212,16 +212,20 @@ flowchart LR
 stateDiagram-v2
   [*] --> Registado: admissão (pessoa + contrato + colocação num lugar livre)
   Registado --> Activo
-  Activo --> Activo: progressão / promoção / mobilidade
-  Activo --> Ausente: ausência ou licença aprovada
+  Activo --> Activo: progressão / promoção / transferência
+  Activo --> ForaDoQuadro: mobilidade ou comissão (mantém o lugar)
+  ForaDoQuadro --> Activo: regresso ao seu lugar
+  Activo --> Ausente: ausência ou licença que mantém o lugar
   Ausente --> Activo: regresso
-  Activo --> Inactivo: passa a inactivo (liberta o lugar)
+  Activo --> SemLugar: licença longa que liberta o lugar
+  SemLugar --> Disponibilidade: regressa mas já não tem lugar
+  Disponibilidade --> Activo: nova colocação quando houver lugar livre
   Activo --> Reformado: reforma (liberta o lugar)
-  Inactivo --> [*]
   Reformado --> [*]
     </pre>
   </div>
-  <p>Quando alguém passa a <b>inactivo</b> ou <b>reformado</b>, a sua colocação é encerrada automaticamente e o <b>lugar volta a ficar livre</b> no Mapa de Pessoal, pronto para nova admissão.</p>
+  <p>Nem toda a ausência liberta o lugar. A lei distingue: umas licenças <b>guardam o lugar</b> para o trabalhador; outras, mais longas, <b>libertam-no</b> — e nesse caso, quando a pessoa regressa, <b>não recupera o lugar</b>: fica em <b>disponibilidade</b>, a aguardar que abra vaga na sua categoria, continuando a contar tempo de serviço e a receber. Quem decide o que cada licença faz não é o programa: é o catálogo de subtipos, onde o RH declara o efeito e o prazo.</p>
+  <p>O mesmo vale para os estados do trabalhador. Cada estado do catálogo declara a sua <b>situação funcional</b> — uma das seis da lei — e é dela que decorre libertar o lugar, suspender o contrato, contar antiguidade ou cessar o vínculo. Um estado a que não se atribua situação fica registado no histórico sem produzir efeitos.</p>
 
   <!-- 8 -->
   <h2 id="movimentos"><span class="n">8.</span>Os movimentos, um a um</h2>
@@ -232,28 +236,29 @@ stateDiagram-v2
   <div class="step"><div class="num">2</div><div class="body"><h4>Progressão</h4>
     <p>A pessoa sobe de escalão <b>no mesmo lugar</b>. Abre-se uma nova colocação com o escalão superior; a anterior fica no histórico.</p></div></div>
   <div class="step"><div class="num">3</div><div class="body"><h4>Promoção</h4>
-    <p>A pessoa passa para um <b>lugar novo</b> de categoria/carreira superior.</p></div></div>
+    <p>A pessoa sobe uma categoria. Há duas maneiras, e a aplicação percebe qual é pelo que o RH envia: ou a pessoa <b>muda para um lugar livre</b> da categoria de cima, ou é o <b>próprio lugar que sobe de categoria</b> e a pessoa fica onde está.</p></div></div>
   <div class="step"><div class="num">4</div><div class="body"><h4>Mobilidade</h4>
-    <p>A pessoa vai temporariamente para um <b>lugar de outra unidade</b>, mantendo o seu escalão. A aplicação guarda o lugar de origem para permitir o <b>regresso</b> no fim da mobilidade.</p></div></div>
+    <p>A pessoa vai exercer funções noutro sítio durante um período, mas <b>não perde o seu lugar</b> — a lei é expressa nisso. A aplicação regista onde está e até quando; a colocação não se toca. No fim, é só fechar o registo.</p></div></div>
   <div class="step"><div class="num">5</div><div class="body"><h4>Transferência</h4>
-    <p>Mudança <b>definitiva</b> de lugar/unidade.</p></div></div>
-  <div class="step"><div class="num">6</div><div class="body"><h4>Cessação / Reforma</h4>
-    <p>Encerra-se a colocação; o lugar volta a livre.</p></div></div>
+    <p>Mudança <b>definitiva</b> de lugar/unidade, mantendo carreira, categoria e escalão. É esta, e não a mobilidade, que muda mesmo a pessoa de lugar.</p></div></div>
+  <div class="step"><div class="num">6</div><div class="body"><h4>Substituição</h4>
+    <p>Quando o titular de um lugar está <b>temporariamente impedido</b>, pode entrar alguém a substituí-lo. O substituto <b>não desaloja o titular</b>: ocupam o mesmo lugar a títulos diferentes, e o lugar continua a contar como sendo do titular.</p></div></div>
+  <div class="step"><div class="num">7</div><div class="body"><h4>Cessação / Reforma</h4>
+    <p>Encerra-se a colocação; o lugar volta a livre. Há dois caminhos com o mesmo efeito: mudar o estado do trabalhador para um estado de cessação, ou encerrar o contrato.</p></div></div>
 
   <div class="diagram">
-    <p class="cap">Mobilidade temporária com regresso — o caso mais "vivo" do modelo</p>
+    <p class="cap">Uma licença que liberta o lugar — e porque o regresso não o devolve</p>
     <pre class="mermaid">
 sequenceDiagram
   participant RH as RH
   participant App as Aplicação
-  RH->>App: aprovar mobilidade da Ana (destino: lugar na Direção B)
-  App-->>App: encerra a colocação atual (lugar na Unidade A) e guarda a origem
-  App-->>App: abre colocação de mobilidade (lugar B, mesmo escalão)
-  Note over App: Ana passa a contar na Direção B · o lugar A fica livre
-  RH->>App: terminar a mobilidade da Ana
-  App-->>App: encerra a colocação no lugar B
-  App-->>App: reabre o lugar de origem A (se ainda estiver livre)
-  Note over App: Ana regressa ao lugar A · percurso todo no histórico
+  RH->>App: aprovar licença longa da Ana (subtipo que liberta o lugar)
+  App-->>App: encerra a colocação da Ana (o lugar A fica livre)
+  App-->>App: passa a Ana a "inactiva fora do quadro" e suspende o contrato
+  Note over App: a Ana continua funcionária · o lugar A já pode ser dado a outra pessoa
+  RH->>App: terminar a licença da Ana (regresso)
+  App-->>App: passa a Ana a "disponibilidade"
+  Note over App: a Ana NÃO recupera o lugar A · aguarda vaga na sua categoria
     </pre>
   </div>
 
@@ -277,7 +282,7 @@ flowchart LR
   </div>
   <div class="grid c3">
     <div class="card"><b>Pedido de ausência</b><p class="lead" style="font-size:13.5px">submeter → aprovar / rejeitar / cancelar. Desconta saldo conforme o tipo.</p></div>
-    <div class="card"><b>Licença / mobilidade</b><p class="lead" style="font-size:13.5px">criar → aprovar → (terminar / cancelar). Uma mobilidade aprovada gera a colocação no destino.</p></div>
+    <div class="card"><b>Licença / mobilidade</b><p class="lead" style="font-size:13.5px">criar → aprovar → (terminar / cancelar). A mobilidade <b>não mexe na colocação</b>; a licença só mexe se o subtipo disser que liberta o lugar.</p></div>
     <div class="card"><b>Saldos</b><p class="lead" style="font-size:13.5px">por pessoa e por tipo; servem de base para validar os pedidos.</p></div>
   </div>
 
@@ -322,7 +327,9 @@ flowchart LR
     <tr><td><b>Escalão</b></td><td>O degrau salarial da pessoa na sua carreira.</td></tr>
     <tr><td><b>Fora de grelha</b></td><td>Um lugar sem carreira nem escalão (ex.: tarefeiro).</td></tr>
     <tr><td><b>Provido / Vago</b></td><td>Lugar ocupado / livre.</td></tr>
-    <tr><td><b>Mobilidade</b></td><td>Ir trabalhar temporariamente para outra unidade, com direito a regresso.</td></tr>
+    <tr><td><b>Mobilidade</b></td><td>Ir exercer funções noutro sítio durante um período, <b>sem perder o seu lugar</b>.</td></tr>
+    <tr><td><b>Disponibilidade</b></td><td>Situação de quem ficou sem lugar e aguarda vaga na sua categoria, continuando a contar tempo e a receber.</td></tr>
+    <tr><td><b>Titular</b></td><td>Quem ocupa um lugar a título principal. É o titular que torna o lugar "provido"; um substituto não.</td></tr>
     <tr><td><b>Histórico</b></td><td>Todas as versões anteriores, guardadas com datas — nada se perde.</td></tr>
   </table>
 

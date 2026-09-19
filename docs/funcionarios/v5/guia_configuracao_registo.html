@@ -293,7 +293,7 @@ flowchart LR
       <tr><td><b>Mobilidade</b></td><td><b>Sim</b>, com bilhete de volta</td>
           <td>Não se chama <code>/assignments</code> à mão: <span class="pill p-put">PUT</span><code>/licencas-mobilidade/{id}/approve</code> faz tudo (ver abaixo).</td></tr>
       <tr><td><b>Cessação / Reforma</b></td><td>Liberta o Lugar</td>
-          <td><span class="pill p-patch">PATCH</span><code>/funcionarios/{id}/worker-state</code> → <code>RETIRED</code>/<code>INACTIVE</code>. Encerra a afectação corrente; a cadeira volta a vaga.</td></tr>
+          <td><span class="pill p-patch">PATCH</span><code>/funcionarios/{id}/worker-state</code> com um estado cuja <b>situação funcional</b> liberte o Lugar. Encerra a afectação corrente; a cadeira volta a vaga.</td></tr>
     </table>
     <div class="callout rule">
       <b>O que acontece à cadeira antiga:</b> nada é preciso fazer. Em <code>AssignmentService.afectar</code>, quando a nova afectação é <code>PRINCIPAL</code>, a corrente é encerrada em <code>dataInicio − 1 dia</code> (SCD Type 2) — e o Lugar antigo passa automaticamente a <b>vago</b>, porque "ocupado" é derivado de <code>is_current</code>.
@@ -382,6 +382,22 @@ flowchart TD
     <p class="req">Normalmente já vem carregado por migração/seed. Confirme antes de tudo — se faltar o estado <code>ACTIVE</code>, o registo falha com <i>"Estado 'ACTIVE' não configurado no sistema."</i></p>
 
     <p><span class="pill p-get">GET</span><code>/api/v1/rh/catalogs/worker-states/combobox</code> — tem de existir <code>ACTIVE</code>.</p>
+
+    <p><b>Classifique cada estado com a sua situação funcional.</b> É o passo de configuração mais importante do catálogo: os efeitos de uma mudança de estado — libertar o Lugar, suspender o contrato, contar antiguidade, cessar o vínculo — <b>não vêm do código do estado</b> (<code>ACTIVE</code>, <code>INACTIVE</code>…), vêm da situação que lhe atribuir, uma das seis do art. 117.º da Lei n.º 20/X/2023. Um estado sem situação é registado no histórico e <b>não produz efeito nenhum</b>.</p>
+<pre class="code"><span class="k">PUT</span> /api/v1/rh/catalogs/worker-states/{id}
+{
+  <span class="k">"situacaoFuncional"</span>: <span class="s">"INACTIVIDADE_FORA_QUADRO"</span>
+}</pre>
+    <table>
+      <tr><th style="width:250px">Situação</th><th>O que a lei lhe manda fazer</th></tr>
+      <tr><td><code>ACTIVIDADE_NO_QUADRO</code></td><td>O caso normal: em funções no seu Lugar.</td></tr>
+      <tr><td><code>ACTIVIDADE_FORA_QUADRO</code></td><td>Em funções noutro sítio (mobilidade, comissão), mantendo o Lugar.</td></tr>
+      <tr><td><code>INACTIVIDADE_NO_QUADRO</code></td><td>Suspende o vínculo e <b>guarda</b> o Lugar (art. 120.º).</td></tr>
+      <tr><td><code>INACTIVIDADE_FORA_QUADRO</code></td><td>Suspende o vínculo e <b>liberta</b> o Lugar (art. 121.º n.º 2).</td></tr>
+      <tr><td><code>DISPONIBILIDADE</code></td><td>Sem Lugar, a aguardar vaga na sua categoria, com contagem de tempo e abonos (art. 122.º).</td></tr>
+      <tr><td><code>APOSENTACAO</code></td><td><b>Cessa</b> o vínculo. Só esta pode andar com <code>endsEmployment</code>; atribuí-la sem ele, ou atribuir outra a um estado de cessação, devolve <b>422</b>.</td></tr>
+    </table>
+    <p class="req">Sem estados classificados como <code>INACTIVIDADE_FORA_QUADRO</code> e <code>DISPONIBILIDADE</code>, as licenças que libertam o Lugar encerram a afectação mas não conseguem mudar o trabalhador de estado — a aplicação não inventa estados no seu catálogo.</p>
 
     <p><b>Vínculo laboral</b> (categoria macro do contrato):</p>
 <pre class="code"><span class="k">POST</span> /api/v1/rh/catalogs/vinculos-laborais
@@ -709,10 +725,13 @@ flowchart TD
     <b>Depois da admissão — os movimentos usam a mesma afectação</b>
     <table>
       <tr><th style="width:190px">Movimento</th><th>Como se faz</th><th>Efeito no Lugar</th></tr>
-      <tr><td><b>Progressão / Promoção</b></td><td><span class="pill p-post">POST</span><code>/assignments</code> com <code>origem: PROGRESSAO</code> e novo <code>gradeId</code></td><td>Fecha a afectação anterior (SCD2) e abre nova. Mesma cadeira, escalão novo.</td></tr>
-      <tr><td><b>Mobilidade</b></td><td><span class="pill p-put">PUT</span><code>/licencas-mobilidade/{id}/approve</code> (exige <code>destinationPositionId</code>)</td><td>Ocupa o Lugar de destino <b>herdando o escalão</b>; guarda <code>origin_assignment_id</code> para o regresso.</td></tr>
-      <tr><td><b>Regresso de mobilidade</b></td><td><span class="pill p-put">PUT</span><code>/licencas-mobilidade/{id}/close</code></td><td>Reabre o Lugar de origem — <b>só se ainda estiver vago</b>.</td></tr>
-      <tr><td><b>Cessação / Reforma</b></td><td><span class="pill p-patch">PATCH</span><code>/funcionarios/{id}/worker-state</code> → <code>RETIRED</code>/<code>INACTIVE</code></td><td>Encerra a afectação corrente; o Lugar volta a <b>vago</b>.</td></tr>
+      <tr><td><b>Progressão</b></td><td><span class="pill p-post">POST</span><code>/funcionarios/{id}/progressao</code> com <code>dataEfeito</code></td><td>Fecha a afectação anterior (SCD2) e abre nova. Mesma cadeira, escalão seguinte.</td></tr>
+      <tr><td><b>Promoção</b></td><td><span class="pill p-post">POST</span><code>/funcionarios/{id}/promocao</code> — com <code>positionId</code> muda de Lugar; sem ele o Lugar sobe de categoria</td><td>Fecha a afectação anterior e abre nova na categoria de destino.</td></tr>
+      <tr><td><b>Transferência</b></td><td><span class="pill p-post">POST</span><code>/funcionarios/{id}/transferencia</code> com <code>positionId</code> de destino</td><td>Muda de Lugar mantendo carreira, categoria e escalão. O Lugar de origem fica vago.</td></tr>
+      <tr><td><b>Mobilidade</b></td><td><span class="pill p-put">PUT</span><code>/licencas-mobilidade/{id}/approve</code> (destino: <code>destinationUnitId</code> ou <code>entidadeDestino</code>)</td><td><b>Nenhum.</b> O titular mantém o Lugar (art. 135.º n.º 7); regista-se só onde exerce funções e até quando.</td></tr>
+      <tr><td><b>Licença que liberta o Lugar</b></td><td><span class="pill p-put">PUT</span><code>/licencas-mobilidade/{id}/approve</code> de um subtipo com <code>positionEffect: ABRE_VAGA</code></td><td>Encerra a afectação e passa o trabalhador a inactividade fora do quadro. <b>Não cessa o vínculo.</b></td></tr>
+      <tr><td><b>Regresso dessa licença</b></td><td><span class="pill p-put">PUT</span><code>/licencas-mobilidade/{id}/close</code></td><td>Passa a <b>disponibilidade</b>: quem perdeu o Lugar <b>não o recupera</b>. A nova afectação é um acto do RH.</td></tr>
+      <tr><td><b>Cessação / Reforma</b></td><td><span class="pill p-patch">PATCH</span><code>/funcionarios/{id}/worker-state</code> com um estado de situação <code>APOSENTACAO</code>, ou <span class="pill p-put">PUT</span><code>/contratos/{id}/close</code></td><td>Encerra a afectação corrente; o Lugar volta a <b>vago</b>. Os dois caminhos têm o mesmo efeito.</td></tr>
     </table>
   </div>
 

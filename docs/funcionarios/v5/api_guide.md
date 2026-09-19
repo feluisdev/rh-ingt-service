@@ -15,6 +15,21 @@
 
 > **Nota:** sem `Accept: application/json`, alguns clientes recebem XML. Enviar sempre o header.
 
+### Contrato legível por máquina
+
+`openapi.json` (nesta pasta) é o contrato **gerado a partir do código** pelo springdoc: caminhos, parâmetros e esquemas dos pedidos e das respostas. Foi extraído com a aplicação a correr:
+
+```bash
+curl -s -o docs/funcionarios/v5/openapi.json http://localhost:8099/v3/api-docs
+```
+
+Quem implementa um cliente deve **ler o `openapi.json` para as formas** e este guia para o resto, porque há duas coisas que o gerado ainda não diz:
+
+1. **Os erros.** Só 6 das 328 operações declaram respostas 4xx. As regras de negócio e os **422** vivem aqui e no `regras_negocio.html`.
+2. **Algumas respostas.** Os handlers que devolvem `Map` aparecem sem esquema. Está em plano substituí-los por DTOs tipados.
+
+Regenerar o `openapi.json` sempre que se acrescente ou mude um endpoint.
+
 ## 2. Convenções transversais
 
 ### Paginação e listagem
@@ -32,7 +47,7 @@ Endpoints de lista aceitam `pagina` (0-based) e `tamanho` (default 20) e devolve
 }
 ```
 
-> **Variações do wrapper:** a maioria dos wrappers inclui `first`/`last`; o de **funcionários** omite-os (só `pageNumber`/`pageSize`/`totalPages`); o de **Lugares** (`WrapperListaPositionDTO`) substitui-os por `dotacao`/`ocupados`/`vagas`; o de **auditoria** traz apenas `content`/`totalElements`.
+> **Variações do wrapper:** a maioria dos wrappers inclui `first`/`last`; o de **funcionários** omite-os (só `pageNumber`/`pageSize`/`totalPages`); o de **Lugares** (`WrapperListaPositionDTO`) substitui-os por `dotacao`/`ocupados`/`vagas` (**`ocupados` conta titulares**); o de **auditoria** traz apenas `content`/`totalElements`.
 
 ### Padrões de recurso
 | Padrão | Descrição |
@@ -52,7 +67,7 @@ Endpoints de lista aceitam `pagina` (0-based) e `tamanho` (default 20) e devolve
 | `200` / `201` | OK / criado. |
 | `400` | Pedido inválido (ex.: catálogo de auditoria desconhecido). |
 | `404` | Recurso não encontrado. |
-| `422` | **Violação de regra de negócio** (Lugar ocupado, escalão obrigatório/proibido, mobilidade sem Lugar de destino, estado não permitido…). |
+| `422` | **Violação de regra de negócio** (Lugar já com titular, escalão obrigatório/proibido, mobilidade sem Lugar de destino, estado não permitido…). |
 
 ---
 
@@ -129,7 +144,9 @@ Cada um: `GET` (lista), `GET/{id}`, `POST`, `PUT/{id}`, `DELETE/{id}/deactivate`
 }
 ```
 
-**Regras (422):** Lugar não disponível (CONGELADO/EXTINTO) · Lugar já ocupado · Lugar de carreira sem `gradeId` · Lugar fora de grelha com `gradeId`.
+**Regras (422):** Lugar não disponível (CONGELADO/EXTINTO) · Lugar já **tem titular** · Lugar de carreira sem `gradeId` · Lugar fora de grelha com `gradeId` · `assignmentType` fora da lista.
+
+**Uma cadeira, um titular.** A regra do Lugar ocupado só se aplica a `assignmentType = PRINCIPAL`. Quem entra em `SUBSTITUICAO` ou `ACUMULACAO` **não exige que o Lugar esteja vago** e não desaloja o titular — é o que autoriza a substituição do funcionário temporariamente impedido (art. 73.º al. a) a c)). Em consequência, um Lugar com substituto e **sem** titular continua a contar como **vago** em `/unidade/{id}/vagas` e na lista do picker.
 
 ---
 
@@ -241,7 +258,7 @@ Sobe o colaborador para o **escalão imediatamente superior da mesma categoria**
 
 No histórico, a afectação corrente fecha na véspera de `dataEfeito` e abre-se uma nova com `origem = PROGRESSAO`. Regras completas: `regras_negocio.html`, secção 3.1 (BR-PRG-01 a 09).
 
-> Não usar `POST /assignments` com `origem=PROGRESSAO`: falha sempre, porque o Lugar já está ocupado pelo próprio colaborador.
+> Não usar `POST /assignments` com `origem=PROGRESSAO`: falha sempre, porque o Lugar já tem titular — o próprio colaborador.
 
 ### 5.5 Promoção — `POST /funcionarios/{id}/promocao`
 Passa o colaborador à **categoria imediatamente superior da mesma carreira**. Há duas formas e **não se indica qual**: infere-se do pedido.
@@ -284,7 +301,7 @@ Passa o colaborador à **categoria imediatamente superior da mesma carreira**. H
 |---|---|
 | `400` | `categoryId` ou `dataEfeito` em falta; UUID inválido. |
 | `404` | Funcionário, categoria, Lugar ou escalão não existem. |
-| `422` | Colaborador inactivo · vínculo não permite · sem afectação corrente · `dataEfeito` não posterior ao início da afectação · Lugar actual fora de grelha · categoria de destino inactiva, de outra carreira ou que não é a imediatamente superior · escalão que não pertence à categoria de destino · Lugar de destino ocupado, não ATIVO ou de outra categoria. |
+| `422` | Colaborador inactivo · vínculo não permite · sem afectação corrente · `dataEfeito` não posterior ao início da afectação · Lugar actual fora de grelha · categoria de destino inactiva, de outra carreira ou que não é a imediatamente superior · escalão que não pertence à categoria de destino · Lugar de destino com titular, não ATIVO ou de outra categoria. |
 
 A modalidade **não é guardada**: deduz-se do histórico comparando o Lugar da afectação anterior com o da nova. Regras completas: `regras_negocio.html`, secção 3.2 (BR-PRM-01 a 10).
 
@@ -321,7 +338,7 @@ Mudança **definitiva** de Lugar **sem subir na grelha**: mantém carreira, cate
 |---|---|
 | `400` | `positionId` ou `dataEfeito` em falta; UUID inválido. |
 | `404` | Funcionário, Lugar ou função não existem. |
-| `422` | Colaborador inactivo · sem afectação corrente · `dataEfeito` não posterior ao início da afectação · Lugar de destino igual ao actual, ocupado ou não ATIVO · Lugar de destino de outra carreira/categoria (use a promoção) · função incompatível com o cargo do destino. |
+| `422` | Colaborador inactivo · sem afectação corrente · `dataEfeito` não posterior ao início da afectação · Lugar de destino igual ao actual, com titular ou não ATIVO · Lugar de destino de outra carreira/categoria (use a promoção) · função incompatível com o cargo do destino. |
 
 **Sobre a função:** se não enviar `functionId`, mantém-se a função actual quando é compatível com o cargo do Lugar de destino; quando não é, devolve `422` a pedir que a indique — nunca se perde em silêncio. Regras completas: `regras_negocio.html`, secção 3.3 (BR-TRF-01 a 08).
 
@@ -335,7 +352,7 @@ Todos seguem o padrão CRUD + (quando aplicável) `documentos`:
 
 | Recurso | Base |
 |---|---|
-| Contratos | `/funcionarios/{id}/contratos` — + `close`, `suspend`, `activate`, `documentos`. **`close` = cessação do vínculo** (ver nota abaixo) |
+| Contratos | `/funcionarios/{id}/contratos` — + `close`, `suspend`, `activate`, `documentos` (**todos `PUT`**). **`close` = cessação do vínculo** (ver nota abaixo) |
 | Dados bancários | `/funcionarios/{id}/dados-bancarios` |
 | Dependentes | `/funcionarios/{id}/dependentes` |
 | Qualificações | `/funcionarios/{id}/qualificacoes` — + `documentos` |
@@ -343,7 +360,7 @@ Todos seguem o padrão CRUD + (quando aplicável) `documentos`:
 | Documentos | `/funcionarios/{id}/documentos` — upload/list/download/delete |
 | Recibos | `/funcionarios/{id}/recibos` — + `documentos` |
 | Processos disciplinares | `/funcionarios/{id}/processos-disciplinares` — + `documentos` |
-| Pedidos de ausência | `/funcionarios/{id}/pedidos-ausencia` — + `aprovar`/`rejeitar`/`cancelar` (ver 6.1) |
+| Pedidos de ausência | `/funcionarios/{id}/pedidos-ausencia` — + `aprovar`/`rejeitar`/`cancelar` (**todos `PATCH`**, ver 6.1) |
 | Saldos de ausência | `/funcionarios/{id}/saldos-ausencia` |
 | Licenças/mobilidade | `/funcionarios/{id}/licencas-mobilidade` (ver 7) |
 
@@ -360,7 +377,16 @@ O saldo tem três números: `diasDireito`, `diasPendentes` (reservados) e `diasG
 
 Isto mudou: a reserva era feita só na aprovação, e `diasGozados` ficava sempre a zero. Se o teu front-end mostrava os dias gozados, passa agora a ter valores reais.
 
-**Quem cancela:** `PUT /funcionarios/{id}/pedidos-ausencia/{pedidoId}/cancelar` é o caminho do RH e serve para cancelar o pedido de qualquer colaborador — antes devolvia **403** a quem não fosse o próprio. O colaborador usa o self-service, que só o deixa cancelar o que é seu e enquanto estiver `PENDENTE`.
+As transições do pedido são todas `PATCH`, e não `PUT` — ao contrário das do contrato e das da licença, que são `PUT`:
+
+| Verbo | Path | Quem |
+|---|---|---|
+| `POST` | `/funcionarios/{id}/pedidos-ausencia` | submeter (reserva os dias) |
+| `PATCH` | `/funcionarios/{id}/pedidos-ausencia/{pedidoId}/aprovar` | RH |
+| `PATCH` | `/funcionarios/{id}/pedidos-ausencia/{pedidoId}/rejeitar` | RH |
+| `PATCH` | `/funcionarios/{id}/pedidos-ausencia/{pedidoId}/cancelar` | RH (qualquer colaborador) ou o próprio via self-service |
+
+**Quem cancela:** `PATCH /funcionarios/{id}/pedidos-ausencia/{pedidoId}/cancelar` é o caminho do RH e serve para cancelar o pedido de qualquer colaborador — antes devolvia **403** a quem não fosse o próprio. O colaborador usa o self-service, que só o deixa cancelar o que é seu e enquanto estiver `PENDENTE`.
 
 Só os tipos com `deductsBalance` mexem no saldo; para os outros, nada disto se aplica.
 
@@ -525,12 +551,19 @@ Cada módulo expõe um controller de auditoria (Envers):
 
 ## 12. Enumerações
 
-| Enum | Valores |
-|---|---|
-| `origem` (afectação) | `ADMISSAO`, `PROGRESSAO`, `PROMOCAO`, `MOBILIDADE`, `TRANSFERENCIA` |
-| `assignmentType` | `PRINCIPAL`, `ACUMULACAO`, `SUBSTITUICAO` |
-| `estado` (Lugar) | `ATIVO`, `CONGELADO`, `EXTINTO` (provido/vago é **derivado**) |
-| `record_type` (subtipo mobilidade) | `LICENCA`, `MOBILIDADE`, `AMBOS` |
+Os que estão marcados **validado** são enums fechados no domínio: um valor fora da lista devolve **422**, em vez de ser gravado tal e qual.
+
+| Enum | Valores | |
+|---|---|---|
+| `origem` (afectação) | `ADMISSAO`, `PROGRESSAO`, `PROMOCAO`, `MOBILIDADE`, `TRANSFERENCIA`, `SUBSTITUICAO` | |
+| `assignmentType` | `PRINCIPAL`, `SUBSTITUICAO`, `ACUMULACAO` — omisso vale `PRINCIPAL` | **validado** |
+| `estado` (Lugar) | `ATIVO`, `CONGELADO`, `EXTINTO` (provido/vago é **derivado do titular**) | |
+| `recordType` (subtipo licença/mobilidade) | `LICENCA`, `MOBILIDADE` — o valor **`AMBOS` foi removido na V43** | **validado** |
+| `situacaoFuncional` (estado do trabalhador) | `ACTIVIDADE_NO_QUADRO`, `ACTIVIDADE_FORA_QUADRO`, `INACTIVIDADE_NO_QUADRO`, `INACTIVIDADE_FORA_QUADRO`, `DISPONIBILIDADE`, `APOSENTACAO` — pode ser nulo | **validado** |
+| `positionEffect` (subtipo) | `MANTEM`, `ABRE_VAGA` | **validado** |
+| `returnEffect` (subtipo) | `REGRESSA_LUGAR`, `DISPONIBILIDADE` | **validado** |
+| `status` (contrato) | `ATIVO`, `SUSPENSO`, `CESSADO` — obrigatório desde a V44 | **validado** |
+| `estado` (pedido de ausência) | `PENDENTE`, `APROVADO`, `REJEITADO`, `CANCELADO` | **validado** |
 
 ---
 
