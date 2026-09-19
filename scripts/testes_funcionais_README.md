@@ -128,9 +128,36 @@ Confirmado na base no fim: a colaboradora manteve **uma so** afectacao PRINCIPAL
 corrente, com duas mobilidades a passar por ela sem criarem nem fecharem
 afectacao nenhuma.
 
+### F9 - promocao nas duas formas (2026-09-19)
+
+A aplicacao deduz a modalidade do pedido e nao a persiste. O bloco prova as
+duas: com `positionId` a pessoa muda para o Lugar vago da categoria de cima
+(`lugarReclassificado=false`, e o Lugar que deixou fica vago); sem `positionId`
+e o **proprio Lugar** que sobe de categoria (`lugarReclassificado=true`, a pessoa
+fica onde esta e o `GET /estrutura/positions/{id}` mostra a categoria nova).
+
+Negativos: mesma categoria, Lugar de outra categoria, data anterior a afectacao,
+categoria inexistente.
+
+Depende de `ordem_progressao` estar definida nas categorias -- sem ela a
+promocao recusa sempre. Esta no seed (ASS_TEC=1, TEC_SUP=2).
+
+### F10 - contrato das respostas (2026-09-19)
+
+Le as respostas como um cliente as le, e nao so o codigo HTTP: `{id, sucesso,
+alertas}` nas operacoes simples, `alertas` vazio e nunca nulo, **`message` ja nao
+existe**, o `assignmentType` fora da lista da 422, e os erros continuam com o
+corpo de problema (`title`) e **sem** `sucesso`.
+
+**A bateria passou a enviar `Accept: application/json`.** Sem esse cabecalho o
+servidor negoceia e devolve os **erros em XML** (ProblemDetail) enquanto os
+sucessos vem em JSON -- dois formatos na mesma API. Foi o F10.12 que o expos: o
+`ConvertFrom-Json` falhava no corpo do 404. O `api_guide` ja avisava; agora a
+bateria comporta-se como um cliente correcto.
+
 ## Resultado da última execução
 
-**172 passos, 172 OK** (2026-09-19), contra a base local com a V47 aplicada.
+**207 passos, 207 OK** (2026-09-19), contra a base local com a V47 aplicada.
 
 Encontrou dois problemas reais, já corrigidos:
 

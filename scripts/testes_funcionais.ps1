@@ -7,7 +7,11 @@ $script:resultados = @()
 
 function Chamar {
     param([string]$Nome, [string]$Metodo, [string]$Rota, $Corpo = $null, [int]$Esperado = 200)
-    $params = @{ Method = $Metodo; Uri = "$base$Rota"; UseBasicParsing = $true; TimeoutSec = 90 }
+    # Accept explicito: sem ele o servidor negoceia e devolve os erros em XML
+    # (ProblemDetail), enquanto os sucessos vem em JSON. Um cliente que esqueca o
+    # cabecalho fica com dois formatos na mesma API -- e o api_guide avisa disso.
+    $params = @{ Method = $Metodo; Uri = "$base$Rota"; UseBasicParsing = $true; TimeoutSec = 90
+                 Headers = @{ Accept = 'application/json' } }
     if ($null -ne $Corpo) {
         $params.Body = ($Corpo | ConvertTo-Json -Depth 8 -Compress)
         $params.ContentType = 'application/json'
@@ -451,6 +455,87 @@ Chamar 'F8.35 NEG aprovar mobilidade sem destino' PUT ('/funcionarios/' + $colab
 
 $codMob = 'MOB_TST_' + (Get-Date -Format 'HHmmss')
 Chamar 'F8.36 NEG subtipo de mobilidade a abrir vaga' POST '/catalogs/leave-mobility-subtypes' @{ code=$codMob; name='Mobilidade que abre vaga'; description='nao permitido'; recordType='MOBILIDADE'; positionEffect='ABRE_VAGA'; returnEffect='REGRESSA_LUGAR' } 400 | Out-Null
+
+Write-Host ''
+Write-Host '=========== F9 - PROMOCAO NAS DUAS FORMAS ==========='
+
+# A promocao tem duas modalidades e a aplicacao deduz qual pelo pedido:
+#   com positionId  -> a pessoa muda para um Lugar vago da categoria de cima
+#   sem positionId  -> e o proprio Lugar que sobe de categoria (reclassificacao)
+# A modalidade nao se persiste: deduz-se do historico. Este bloco prova as duas.
+#
+# Contexto herdado: no fim do F8 so o B esta activo, e esta num Lugar TEC_SUP --
+# que e a categoria de topo. Nao ha para onde promover. Comeca-se por o colocar
+# na categoria de baixo, que e de onde se promove.
+
+$rCats = Chamar 'F9.1 catalogo de categorias' GET '/categories?pagina=0&tamanho=50'
+$cats = @(Linhas $rCats)
+$catBaixo = ($cats | Where-Object { $_.ordemProgressao -eq 1 } | Select-Object -First 1)
+$catCima  = ($cats | Where-Object { $_.ordemProgressao -eq 2 } | Select-Object -First 1)
+Verificar 'F9.2 a grelha tem ordem de progressao definida' (($null -ne $catBaixo) -and ($null -ne $catCima)) ('(' + $catBaixo.code + ' -> ' + $catCima.code + ')')
+
+$rVagas9 = Chamar 'F9.3 Lugares vagos da unidade' GET ('/colaboradores/assignments/unidade/' + $unidadeB + '/vagas/lista')
+$vagos9 = @(Linhas $rVagas9)
+$lugarBaixo = ($vagos9 | Where-Object { $_.categoryId -eq $catBaixo.id -and $_.estado -eq 'ATIVO' } | Select-Object -First 1)
+$lugarCima  = ($vagos9 | Where-Object { $_.categoryId -eq $catCima.id  -and $_.estado -eq 'ATIVO' } | Select-Object -First 1)
+Verificar 'F9.4 ha Lugar vago em cada categoria' (($null -ne $lugarBaixo) -and ($null -ne $lugarCima)) ('(' + $lugarBaixo.numeroLugar + ' / ' + $lugarCima.numeroLugar + ')')
+
+$rGr9 = Chamar 'F9.5 escaloes da categoria de baixo' GET ('/categories/' + $catBaixo.id + '/grades')
+$escBaixo = (@(Linhas $rGr9) | Where-Object { $_.isActive -ne $false } | Select-Object -First 1).id
+$dAfect9 = $hoje.AddDays(-20).ToString('yyyy-MM-dd')
+$dPromo  = $hoje.AddDays(-1).ToString('yyyy-MM-dd')
+Chamar 'F9.6 colocar B na categoria de baixo' POST '/colaboradores/assignments' @{ funcionarioId=$colabB; positionId=$lugarBaixo.id; gradeId=$escBaixo; origem='ADMISSAO'; dataInicio=$dAfect9 } 201 | Out-Null
+
+# --- negativos, antes de gastar o cenario ---
+Chamar 'F9.7 NEG promover para a mesma categoria' POST ('/funcionarios/' + $colabB + '/promocao') @{ categoryId=$catBaixo.id; dataEfeito=$dPromo } 422 | Out-Null
+Chamar 'F9.8 NEG promover para Lugar de outra categoria' POST ('/funcionarios/' + $colabB + '/promocao') @{ categoryId=$catCima.id; positionId=$lugarBaixo.id; dataEfeito=$dPromo } 422 | Out-Null
+Chamar 'F9.9 NEG data de efeito anterior a afectacao' POST ('/funcionarios/' + $colabB + '/promocao') @{ categoryId=$catCima.id; dataEfeito=$hoje.AddDays(-60).ToString('yyyy-MM-dd') } 422 | Out-Null
+Chamar 'F9.10 NEG categoria inexistente' POST ('/funcionarios/' + $colabB + '/promocao') @{ categoryId='00000000-0000-4000-8000-000000000999'; dataEfeito=$dPromo } 404 | Out-Null
+
+# --- forma 1: muda de Lugar ---
+$rProm1 = Chamar 'F9.11 promover COM positionId (muda de Lugar)' POST ('/funcionarios/' + $colabB + '/promocao') @{ categoryId=$catCima.id; positionId=$lugarCima.id; dataEfeito=$dPromo; despachoNumero='DESP-2026/90'; concursoRef='CI-2026/3' } 201
+Verificar 'F9.12 a aplicacao deduziu "mudanca de Lugar"' ($rProm1.Dados.lugarReclassificado -eq $false) ''
+Verificar 'F9.13 subiu da categoria de baixo para a de cima' (($rProm1.Dados.categoriaAnteriorId -eq $catBaixo.id) -and ($rProm1.Dados.categoriaNovaId -eq $catCima.id)) ('(' + $rProm1.Dados.categoriaAnterior + ' -> ' + $rProm1.Dados.categoriaNova + ')')
+
+$rUni9 = Chamar 'F9.14 onde esta o B depois da promocao' GET ('/colaboradores/assignments/funcionario/' + $colabB + '/unidade-atual')
+Verificar 'F9.15 esta no Lugar de destino' ($rUni9.Dados.positionId -eq $lugarCima.id) ('(' + $rUni9.Dados.numeroLugar + ')')
+$rVagas9b = Chamar 'F9.16 vagas depois' GET ('/colaboradores/assignments/unidade/' + $unidadeB + '/vagas/lista')
+Verificar 'F9.17 o Lugar que deixou ficou vago' (@(@(Linhas $rVagas9b) | Where-Object { $_.id -eq $lugarBaixo.id }).Count -eq 1) ''
+
+# --- forma 2: o Lugar e que sobe ---
+Chamar 'F9.18 voltar a colocar B na categoria de baixo' POST '/colaboradores/assignments' @{ funcionarioId=$colabB; positionId=$lugarBaixo.id; gradeId=$escBaixo; origem='ADMISSAO'; dataInicio=$dAfect9 } 201 | Out-Null
+$rProm2 = Chamar 'F9.19 promover SEM positionId (o Lugar sobe)' POST ('/funcionarios/' + $colabB + '/promocao') @{ categoryId=$catCima.id; dataEfeito=$dPromo; despachoNumero='DESP-2026/91' } 201
+Verificar 'F9.20 a aplicacao deduziu "reclassificacao"' ($rProm2.Dados.lugarReclassificado -eq $true) ''
+Verificar 'F9.21 ficou no MESMO Lugar' ($rProm2.Dados.positionId -eq $lugarBaixo.id) ''
+
+$rPos9 = Chamar 'F9.22 detalhe do Lugar reclassificado' GET ('/estrutura/positions/' + $lugarBaixo.id)
+Verificar 'F9.23 foi o Lugar que mudou de categoria' ($rPos9.Dados.categoryId -eq $catCima.id) ('(' + $rPos9.Dados.categoryNome + ')')
+
+Write-Host ''
+Write-Host '=========== F10 - CONTRATO DAS RESPOSTAS ==========='
+
+# O front-end passou a ler {id, sucesso, alertas} em vez de {message}. Este bloco
+# le as respostas como um cliente as leria, e nao so o codigo HTTP.
+
+$codOpt = 'TESTE_F10_' + (Get-Date -Format 'HHmmss')
+$rOpt = Chamar 'F10.1 criar etiqueta de catalogo' POST '/reference/options' @{ ccode=$codOpt; ckey='K1'; cvalue='Valor 1'; locale='pt-CV'; sortOrder=1 } 201
+Verificar 'F10.2 a resposta traz id e sucesso' (($null -ne $rOpt.Dados.id) -and ($rOpt.Dados.sucesso -eq $true)) ''
+Verificar 'F10.3 e alertas vem vazio, nunca nulo' ($null -ne $rOpt.Dados.alertas) ('(n=' + @($rOpt.Dados.alertas).Count + ')')
+Verificar 'F10.4 o campo message desapareceu' ($null -eq $rOpt.Dados.message) ''
+
+$optId = $rOpt.Dados.id
+$rDes = Chamar 'F10.5 desactivar' DELETE ('/reference/options/' + $optId) $null 200
+Verificar 'F10.6 desactivar devolve o id do que foi afectado' ($rDes.Dados.id -eq $optId) ''
+Chamar 'F10.7 NEG desactivar duas vezes' DELETE ('/reference/options/' + $optId) $null 409 | Out-Null
+$rAct = Chamar 'F10.8 reactivar' PATCH ('/reference/options/' + $optId + '/activate') $null 200
+Verificar 'F10.9 reactivar devolve sucesso' ($rAct.Dados.sucesso -eq $true) ''
+
+# O tipo de afectacao passou a ser validado (enum TipoAfectacao).
+Chamar 'F10.10 NEG assignmentType fora da lista' POST '/colaboradores/assignments' @{ funcionarioId=$colabB; positionId=$lugarBaixo.id; gradeId=$escBaixo; assignmentType='INTERINO'; origem='ADMISSAO'; dataInicio=$dPromo } 422 | Out-Null
+
+# Erros continuam com o corpo de problema, nao com o DTO de sucesso.
+$rErr = Chamar 'F10.11 NEG etiqueta inexistente' DELETE '/reference/options/00000000-0000-4000-8000-000000000999' $null 404
+Verificar 'F10.12 o erro traz title, nao sucesso' (($null -ne $rErr.Dados.title) -and ($null -eq $rErr.Dados.sucesso)) ''
 
 Write-Host ''
 Write-Host '=========== RESUMO ==========='
