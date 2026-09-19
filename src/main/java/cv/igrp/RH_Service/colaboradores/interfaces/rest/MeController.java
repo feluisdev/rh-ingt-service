@@ -17,8 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
+import cv.igrp.RH_Service.shared.application.dto.FileUrlDTO;
 
 @IgrpController
 @RestController("colabsMeController")
@@ -138,9 +138,9 @@ public class MeController {
 
     @GetMapping("payroll-slips/{id}/download")
     @Operation(summary = "Obter URL de download do PDF do recibo próprio (valida ownership)")
-    public ResponseEntity<Map<String, ?>> getMyPayrollSlipDownloadUrl(@PathVariable String id) {
+    public ResponseEntity<FileUrlDTO> getMyPayrollSlipDownloadUrl(@PathVariable String id) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = queryBus.handle(new GetMePayrollSlipDownloadQuery(id));
+        ResponseEntity<FileUrlDTO> response = queryBus.handle(new GetMePayrollSlipDownloadQuery(id));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
@@ -159,9 +159,9 @@ public class MeController {
 
     @GetMapping("documents/{id}/download")
     @Operation(summary = "Obter URL de download de documento próprio (valida ownership)")
-    public ResponseEntity<Map<String, ?>> getMyDocumentDownloadUrl(@PathVariable String id) {
+    public ResponseEntity<FileUrlDTO> getMyDocumentDownloadUrl(@PathVariable String id) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = queryBus.handle(new GetMeDocumentDownloadUrlQuery(id));
+        ResponseEntity<FileUrlDTO> response = queryBus.handle(new GetMeDocumentDownloadUrlQuery(id));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

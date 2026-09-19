@@ -22,7 +22,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "WrapperListaDependente",
+                "type": "WrapperListaDependenteDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -96,7 +96,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "DependenteResponse",
+                "type": "DependenteResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -142,7 +142,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "DependenteResponse",
+                "type": "DependenteResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",

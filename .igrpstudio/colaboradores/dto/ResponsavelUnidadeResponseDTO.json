@@ -1,0 +1,50 @@
+{
+  "type": "dto",
+  "name": "ResponsavelUnidadeResponseDTO",
+  "module": "colaboradores",
+  "template": "classic",
+  "attributes": [
+    {
+      "name": "unidadeId",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "unidadeNome",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "positionId",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "numeroLugar",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "responsavelFuncionarioId",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "responsavelNome",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "estado",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

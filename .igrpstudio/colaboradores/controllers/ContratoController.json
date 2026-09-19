@@ -22,7 +22,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "WrapperListaContrato",
+                "type": "WrapperListaContratoDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -84,7 +84,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "ContratoResponse",
+                "type": "ContratoResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -125,7 +125,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "ContratoResponse",
+                "type": "ContratoResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -153,10 +153,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "map",
-                "objectType": "java",
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "none"
+                "collectionType": "none",
+                "module": "shared"
               }
             }
           }
@@ -293,7 +294,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "DocumentoUploadResponse",
+                "type": "DocumentoUploadResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -333,7 +334,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "WrapperListaDocumento",
+                "type": "WrapperListaDocumentoDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -366,7 +367,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "DocumentoResponse",
+                "type": "DocumentoResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -399,7 +400,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "DocumentoDownloadResponse",
+                "type": "DocumentoDownloadResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",

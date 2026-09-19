@@ -48,9 +48,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "string",
+                "type": "UnidadeAtualResponseDTO",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "map"
+                "collectionType": "none",
+                "module": "colaboradores"
               }
             }
           }
@@ -74,9 +76,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "string",
+                "type": "ChefeFuncionarioResponseDTO",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "map"
+                "collectionType": "none",
+                "module": "colaboradores"
               }
             }
           }
@@ -100,9 +104,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "string",
+                "type": "ResponsavelUnidadeResponseDTO",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "map"
+                "collectionType": "none",
+                "module": "colaboradores"
               }
             }
           }
@@ -126,9 +132,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "string",
+                "type": "VagasUnidadeResponseDTO",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "map"
+                "collectionType": "none",
+                "module": "colaboradores"
               }
             }
           }

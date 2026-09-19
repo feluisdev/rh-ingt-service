@@ -15,12 +15,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
+import cv.igrp.RH_Service.shared.application.dto.FileUrlDTO;
 
 @Component("colabsGetMePayrollSlipDownloadQueryHandler")
 @RequiredArgsConstructor
 public class GetMePayrollSlipDownloadQueryHandler
-        implements QueryHandler<GetMePayrollSlipDownloadQuery, ResponseEntity<Map<String, ?>>> {
+        implements QueryHandler<GetMePayrollSlipDownloadQuery, ResponseEntity<FileUrlDTO>> {
 
     private final CurrentEmployeeResolver currentEmployeeResolver;
     private final FuncionarioRepository funcionarioRepository;
@@ -29,7 +29,7 @@ public class GetMePayrollSlipDownloadQueryHandler
     private final DocumentoService documentoService;
 
     @IgrpQueryHandler
-    public ResponseEntity<Map<String, ?>> handle(GetMePayrollSlipDownloadQuery query) {
+    public ResponseEntity<FileUrlDTO> handle(GetMePayrollSlipDownloadQuery query) {
         var funcionarioId = currentEmployeeResolver.resolve();
 
         var funcionario = funcionarioRepository.findById(funcionarioId)
@@ -52,6 +52,6 @@ public class GetMePayrollSlipDownloadQueryHandler
 
         var presignedResponse = documentoService.getPresignedLink(documento.getFileKey());
         var downloadUrl = presignedResponse.getBody() != null ? presignedResponse.getBody().getUrl() : "";
-        return ResponseEntity.ok(Map.of("downloadUrl", downloadUrl != null ? downloadUrl : ""));
+        return ResponseEntity.ok(new FileUrlDTO(downloadUrl != null ? downloadUrl : ""));
     }
 }

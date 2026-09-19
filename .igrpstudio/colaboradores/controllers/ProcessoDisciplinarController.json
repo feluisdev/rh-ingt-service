@@ -13,7 +13,23 @@
           "name": "funcionarioId",
           "type": "string"
         }
-      ]
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaProcessoDisciplinarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "getProcessoById",
@@ -28,7 +44,23 @@
           "name": "processoId",
           "type": "string"
         }
-      ]
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessoDisciplinarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "criarProcesso",
@@ -103,7 +135,23 @@
           "type": "string"
         }
       ],
-      "requestBody": true
+      "requestBody": true,
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "DocumentoUploadResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "listarDocumentos",
@@ -130,7 +178,23 @@
           "type": "boolean",
           "required": false
         }
-      ]
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaDocumentoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "getDocumentoById",
@@ -149,7 +213,23 @@
           "name": "docId",
           "type": "string"
         }
-      ]
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "DocumentoResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "downloadDocumento",
@@ -168,7 +248,23 @@
           "name": "docId",
           "type": "string"
         }
-      ]
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "DocumentoDownloadResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "desativarDocumento",

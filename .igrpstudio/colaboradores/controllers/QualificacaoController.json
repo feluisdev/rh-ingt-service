@@ -22,7 +22,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "WrapperListaQualificacao",
+                "type": "WrapperListaQualificacaoDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -96,7 +96,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "QualificacaoResponse",
+                "type": "QualificacaoResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -142,7 +142,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "QualificacaoResponse",
+                "type": "QualificacaoResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -254,7 +254,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "DocumentoUploadResponse",
+                "type": "DocumentoUploadResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -299,7 +299,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "WrapperListaDocumento",
+                "type": "WrapperListaDocumentoDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -337,7 +337,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "DocumentoResponse",
+                "type": "DocumentoResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -375,7 +375,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "DocumentoDownloadResponse",
+                "type": "DocumentoDownloadResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",

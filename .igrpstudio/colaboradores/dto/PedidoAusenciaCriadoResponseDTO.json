@@ -1,0 +1,26 @@
+{
+  "type": "dto",
+  "name": "PedidoAusenciaCriadoResponseDTO",
+  "module": "colaboradores",
+  "template": "classic",
+  "attributes": [
+    {
+      "name": "id",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "numeroDias",
+      "type": "integer",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "estado",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

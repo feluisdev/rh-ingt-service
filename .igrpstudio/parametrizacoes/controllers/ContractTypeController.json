@@ -14,7 +14,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "WrapperListaContractType",
+                "type": "WrapperListaContractTypeDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -64,7 +64,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "ContractTypeResponse",
+                "type": "ContractTypeResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -138,7 +138,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "ContractTypeResponse",
+                "type": "ContractTypeResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -229,8 +229,9 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "ComboboxItem",
+                "type": "ComboboxItemDTO",
                 "objectType": "dto",
+                "name": "data",
                 "collectionType": "list",
                 "module": "shared"
               }

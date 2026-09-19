@@ -1,0 +1,20 @@
+{
+  "type": "dto",
+  "name": "FuncionarioCriadoResponseDTO",
+  "module": "colaboradores",
+  "template": "classic",
+  "attributes": [
+    {
+      "name": "id",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "numeroFuncionario",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

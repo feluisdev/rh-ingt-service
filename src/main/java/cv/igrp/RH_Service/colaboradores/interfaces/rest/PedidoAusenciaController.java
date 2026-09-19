@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 import java.util.UUID;
 import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.PedidoAusenciaCriadoResponseDTO;
 
 @IgrpController
 @RestController("colabsPedidoAusenciaController")
@@ -38,11 +38,11 @@ public class PedidoAusenciaController {
 
     @PostMapping
     @Operation(summary = "Criar pedido de ausência")
-    public ResponseEntity<Map<String, ?>> create(
+    public ResponseEntity<PedidoAusenciaCriadoResponseDTO> create(
             @PathVariable String funcionarioId,
             @Valid @RequestBody PedidoAusenciaRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new CreatePedidoAusenciaCommand(funcionarioId, request));
+        ResponseEntity<PedidoAusenciaCriadoResponseDTO> response = commandBus.send(new CreatePedidoAusenciaCommand(funcionarioId, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

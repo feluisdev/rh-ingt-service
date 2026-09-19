@@ -6,14 +6,14 @@ import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @Component("colabsDesativarContratoCommandHandler")
 public class DesativarContratoCommandHandler
-        implements CommandHandler<DesativarContratoCommand, ResponseEntity<Map<String, ?>>> {
+        implements CommandHandler<DesativarContratoCommand, ResponseEntity<SuccessResponseDTO>> {
 
     @IgrpCommandHandler
-    public ResponseEntity<Map<String, ?>> handle(DesativarContratoCommand command) {
+    public ResponseEntity<SuccessResponseDTO> handle(DesativarContratoCommand command) {
         throw IgrpResponseStatusException.badRequest(
             "Operação não suportada. Para encerrar um contrato use PUT /employees/{id}/contracts/{id}/close.");
     }

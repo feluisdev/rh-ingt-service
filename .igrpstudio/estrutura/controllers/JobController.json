@@ -64,7 +64,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "JobResponse",
+                "type": "JobResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -138,7 +138,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "JobResponse",
+                "type": "JobResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",

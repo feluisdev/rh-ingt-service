@@ -17,7 +17,6 @@ import cv.igrp.RH_Service.colaboradores.application.commands.*;
 import cv.igrp.RH_Service.colaboradores.application.queries.*;
 import cv.igrp.RH_Service.colaboradores.application.dto.*;
 
-import java.util.Map;
 import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
@@ -75,9 +74,9 @@ public class ContratoController {
 
     @DeleteMapping("{contratoId}")
     @Operation(summary = "Desactivar contrato (soft delete)")
-    public ResponseEntity<Map<String, ?>> deactivateContrato(@PathVariable String contratoId) {
+    public ResponseEntity<SuccessResponseDTO> deactivateContrato(@PathVariable String contratoId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new DesativarContratoCommand(contratoId));
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new DesativarContratoCommand(contratoId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

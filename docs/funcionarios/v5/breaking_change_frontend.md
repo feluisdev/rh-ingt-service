@@ -245,7 +245,23 @@ São os `POST` de criação, os `PUT` de actualização, as desactivações (`DE
 - **`alertas` é sempre um array**, vazio quando não há nada a avisar. Nunca nulo.
 - Os erros **não** mudaram: continuam em `400`/`404`/`409`/`422` com o corpo de problema.
 
-As operações com mais a dizer mantêm o DTO próprio que já tinham: registo composto, progressão, promoção, transferência, substituição, mudança de estado.
+### 11.7 As restantes respostas também deixaram de ser objectos livres
+
+Não sobrou nenhuma. O que não cabia no `SuccessResponseDTO` ganhou DTO próprio:
+
+| Endpoint | Antes | Agora | O que muda para o ecrã |
+|---|---|---|---|
+| `POST /funcionarios` | `{id, numeroFuncionario, message}` | `FuncionarioCriadoResponseDTO` | sai o `message` |
+| `POST .../pedidos-ausencia` | `{id, numeroDias, estado, message}` | `PedidoAusenciaCriadoResponseDTO` | sai o `message` |
+| `approve` · `ativar` · `close` da licença | `{message}` ou `{message, afectacaoEncerradaId}` | `LicencaEfeitoResponseDTO` | os campos de efeito **vêm sempre**, a nulo quando não houve efeito — antes só apareciam quando havia |
+| `GET .../unidade-atual` | mapa livre | `UnidadeAtualResponseDTO` | os campos de mobilidade **vêm sempre**, a nulo fora de mobilidade |
+| `GET .../chefe` · `.../responsavel` | mapa livre | DTO próprio | campos sempre presentes, a nulo |
+| `GET .../vagas` | mapa livre | `VagasUnidadeResponseDTO` | sem alteração de nomes |
+| `GET /me/**/download-url` | `{downloadUrl}` | `FileUrlDTO` | a chave passa a **`url`** |
+
+> **Atenção à diferença subtil:** um mapa **omitia** as chaves sem valor; um DTO envia-as a `null`. Um ecrã que use "a chave existe?" para decidir tem de passar a testar o valor.
+
+As operações que já tinham DTO próprio não mudaram: registo composto, progressão, promoção, transferência, substituição, mudança de estado.
 
 ### Checklist
 
@@ -259,3 +275,5 @@ As operações com mais a dizer mantêm o DTO próprio que já tinham: registo c
 - [ ] Ficha do colaborador a aguentar duas afectações correntes (a sua e a que substitui).
 - [ ] Substituir a leitura de `response.message` por texto do próprio ecrã.
 - [ ] Tratar `sucesso: false` como "nada a fazer" e mostrar os `alertas`.
+- [ ] `downloadUrl` passa a `url` nos dois endpoints de download do self-service.
+- [ ] Deixar de testar "a chave existe" — os DTOs enviam os campos a `null`.

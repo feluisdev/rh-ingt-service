@@ -7,21 +7,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
+import cv.igrp.RH_Service.colaboradores.application.dto.FuncionarioCriadoResponseDTO;
 
 @Component("colabsCreateFuncionarioCommandHandler")
 @RequiredArgsConstructor
 public class CreateFuncionarioCommandHandler
-        implements CommandHandler<CreateFuncionarioCommand, ResponseEntity<Map<String, ?>>> {
+        implements CommandHandler<CreateFuncionarioCommand, ResponseEntity<FuncionarioCriadoResponseDTO>> {
 
     private final FuncionarioService funcionarioService;
 
     @IgrpCommandHandler
-    public ResponseEntity<Map<String, ?>> handle(CreateFuncionarioCommand command) {
+    public ResponseEntity<FuncionarioCriadoResponseDTO> handle(CreateFuncionarioCommand command) {
         var saved = funcionarioService.criarFuncionario(command.getRequest());
-        return ResponseEntity.status(201).body(Map.of(
-                "id", saved.getId().getStringValor(),
-                "numeroFuncionario", saved.getNumeroFuncionario(),
-                "message", "Criado com sucesso"));
+        return ResponseEntity.status(201).body(new FuncionarioCriadoResponseDTO(
+                saved.getId().getStringValor(),
+                saved.getNumeroFuncionario()));
     }
 }

@@ -1,0 +1,38 @@
+{
+  "type": "dto",
+  "name": "LicencaEfeitoResponseDTO",
+  "module": "colaboradores",
+  "template": "classic",
+  "attributes": [
+    {
+      "name": "id",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "estado",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "sucesso",
+      "type": "boolean",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "afectacaoEncerradaId",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "estadoAtribuidoId",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

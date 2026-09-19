@@ -1,0 +1,32 @@
+{
+  "type": "dto",
+  "name": "VagasUnidadeResponseDTO",
+  "module": "colaboradores",
+  "template": "classic",
+  "attributes": [
+    {
+      "name": "unidadeId",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "dotacao",
+      "type": "long",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "ocupados",
+      "type": "long",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "vagas",
+      "type": "long",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

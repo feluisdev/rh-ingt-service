@@ -8,7 +8,23 @@
     {
       "actionName": "getMyProfile",
       "method": "GET",
-      "path": "profile"
+      "path": "profile",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "MeProfileResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "getMyLeaveRequests",
@@ -30,12 +46,44 @@
           "type": "integer",
           "required": false
         }
-      ]
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaPedidoAusenciaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "getMyLeaveBalances",
       "method": "GET",
-      "path": "leave-balances"
+      "path": "leave-balances",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaSaldoAusenciaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "createMyLeaveRequest",
@@ -89,7 +137,23 @@
     {
       "actionName": "getMyLeavesMobilities",
       "method": "GET",
-      "path": "leaves-mobilities"
+      "path": "leaves-mobilities",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaLicencaMobilidadeDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "getMyLeaveMobilityById",
@@ -100,7 +164,23 @@
           "name": "id",
           "type": "string"
         }
-      ]
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "LicencaMobilidadeResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "createMyLeaveMobility",
@@ -139,7 +219,23 @@
           "type": "integer",
           "required": false
         }
-      ]
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaReciboDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "getMyPayrollSlipDownloadUrl",
@@ -150,7 +246,23 @@
           "name": "id",
           "type": "string"
         }
-      ]
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "FileUrlDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "getMyDocuments",
@@ -162,7 +274,23 @@
           "type": "string",
           "required": false
         }
-      ]
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaDocumentoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "getMyDocumentDownloadUrl",
@@ -173,7 +301,23 @@
           "name": "id",
           "type": "string"
         }
-      ]
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "FileUrlDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

@@ -14,8 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
+import cv.igrp.RH_Service.colaboradores.application.dto.ChefeFuncionarioResponseDTO;
 
 /**
  * Chefe do funcionário = ocupante corrente do parent_position_id do Lugar corrente do funcionário.
@@ -23,18 +22,18 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class GetChefeFuncionarioQueryHandler
-        implements QueryHandler<GetChefeFuncionarioQuery, ResponseEntity<Map<String, Object>>> {
+        implements QueryHandler<GetChefeFuncionarioQuery, ResponseEntity<ChefeFuncionarioResponseDTO>> {
 
     private final AssignmentRepository assignmentRepository;
     private final PositionRepository positionRepository;
     private final FuncionarioRepository funcionarioRepository;
 
     @IgrpQueryHandler
-    public ResponseEntity<Map<String, Object>> handle(GetChefeFuncionarioQuery query) {
+    public ResponseEntity<ChefeFuncionarioResponseDTO> handle(GetChefeFuncionarioQuery query) {
         FuncionarioId funcionarioId = FuncionarioId.from(query.getFuncionarioId());
-        Map<String, Object> body = new HashMap<>();
-        body.put("funcionarioId", funcionarioId.getStringValor());
-        body.put("funcionarioNome", nome(funcionarioId));
+        var body = new ChefeFuncionarioResponseDTO();
+        body.setFuncionarioId(funcionarioId.getStringValor());
+        body.setFuncionarioNome(nome(funcionarioId));
 
         Assignment atual = assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId)
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
@@ -44,23 +43,23 @@ public class GetChefeFuncionarioQueryHandler
                 .orElseThrow(() -> IgrpResponseStatusException.notFound("Lugar não encontrado."));
 
         if (position.getParentPositionId() == null) {
-            body.put("chefeFuncionarioId", null);
-            body.put("chefeNome", null);
-            body.put("estado", "SEM_CHEFIA_DEFINIDA");
+            body.setChefeFuncionarioId(null);
+            body.setChefeNome(null);
+            body.setEstado("SEM_CHEFIA_DEFINIDA");
             return ResponseEntity.ok(body);
         }
 
-        body.put("chefePositionId", position.getParentPositionId().toString());
+        body.setChefePositionId(position.getParentPositionId().toString());
         var chefe = assignmentRepository.findTitularByPosition(position.getParentPositionId());
         if (chefe.isEmpty()) {
-            body.put("chefeFuncionarioId", null);
-            body.put("chefeNome", null);
-            body.put("estado", "CHEFIA_VAGA");
+            body.setChefeFuncionarioId(null);
+            body.setChefeNome(null);
+            body.setEstado("CHEFIA_VAGA");
         } else {
             FuncionarioId chefeId = chefe.get().getFuncionarioId();
-            body.put("chefeFuncionarioId", chefeId.getStringValor());
-            body.put("chefeNome", nome(chefeId));
-            body.put("estado", "PROVIDO");
+            body.setChefeFuncionarioId(chefeId.getStringValor());
+            body.setChefeNome(nome(chefeId));
+            body.setEstado("PROVIDO");
         }
         return ResponseEntity.ok(body);
     }

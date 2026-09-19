@@ -34,7 +34,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "WrapperListaRecibo",
+                "type": "WrapperListaReciboDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -67,7 +67,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "ReciboVencimento",
+                "type": "ReciboVencimentoDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -154,7 +154,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "DocumentoUploadResponse",
+                "type": "DocumentoUploadResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -199,7 +199,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "WrapperListaDocumento",
+                "type": "WrapperListaDocumentoDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -237,7 +237,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "DocumentoResponse",
+                "type": "DocumentoResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -275,7 +275,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "DocumentoDownloadResponse",
+                "type": "DocumentoDownloadResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",

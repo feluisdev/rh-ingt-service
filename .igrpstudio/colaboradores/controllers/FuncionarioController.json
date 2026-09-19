@@ -49,7 +49,23 @@
           "type": "string",
           "required": false
         }
-      ]
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaFuncionarioDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "getFuncionarioById",
@@ -60,7 +76,23 @@
           "name": "funcionarioId",
           "type": "string"
         }
-      ]
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "FuncionarioResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "getColaboradorDetails",
@@ -93,7 +125,23 @@
     {
       "actionName": "createFuncionario",
       "method": "POST",
-      "requestBody": true
+      "requestBody": true,
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "FuncionarioCriadoResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "updateFuncionario",
@@ -451,7 +499,10 @@
             "application/json": {
               "schema": {
                 "type": "RegistarColaboradorResponseDTO",
-                "objectType": "dto"
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
               }
             }
           }
@@ -485,8 +536,9 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "ComboboxItem",
+                "type": "ComboboxItemDTO",
                 "objectType": "dto",
+                "name": "data",
                 "collectionType": "list",
                 "module": "shared"
               }

@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
+import cv.igrp.RH_Service.colaboradores.application.dto.LicencaEfeitoResponseDTO;
 
 /**
  * Activar é o mesmo que aprovar — mantido por compatibilidade do endpoint
@@ -23,7 +23,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class AtivarLicencaMobilidadeCommandHandler
-        implements CommandHandler<AtivarLicencaMobilidadeCommand, ResponseEntity<Map<String, ?>>> {
+        implements CommandHandler<AtivarLicencaMobilidadeCommand, ResponseEntity<LicencaEfeitoResponseDTO>> {
 
     private final LicencaMobilidadeRepository licencaRepository;
     private final MobilidadeService mobilidadeService;
@@ -31,13 +31,14 @@ public class AtivarLicencaMobilidadeCommandHandler
 
     @IgrpCommandHandler
     @Transactional
-    public ResponseEntity<Map<String, ?>> handle(AtivarLicencaMobilidadeCommand command) {
+    public ResponseEntity<LicencaEfeitoResponseDTO> handle(AtivarLicencaMobilidadeCommand command) {
         var licenca = licencaRepository.findById(LicencaMobilidadeId.from(command.getLicencaId()))
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Licença/mobilidade não encontrada: " + command.getLicencaId()));
 
         if (licenca.isApproved())
-            return ResponseEntity.ok(Map.of("message", "Já se encontra activo"));
+            return ResponseEntity.ok(new LicencaEfeitoResponseDTO(
+                    licenca.getId().getStringValor(), licenca.getStatus(), false, null, null));
 
         // Estado primeiro: um registo já decidido não chega sequer às validações do destino.
         if (!licenca.isPending())
@@ -53,10 +54,11 @@ public class AtivarLicencaMobilidadeCommandHandler
         // A licença pode abrir vaga; a mobilidade nunca o faz. Quem decide é o subtipo.
         var efeito = licencaService.aplicarEntradaEmVigor(licenca, subtipo);
         if (efeito.afectacaoEncerradaId() != null)
-            return ResponseEntity.ok(Map.of(
-                    "message", "Activado com sucesso",
-                    "afectacaoEncerradaId", efeito.afectacaoEncerradaId().toString()));
+            return ResponseEntity.ok(new LicencaEfeitoResponseDTO(
+                    licenca.getId().getStringValor(), licenca.getStatus(), true,
+                    efeito.afectacaoEncerradaId().toString(), null));
 
-        return ResponseEntity.ok(Map.of("message", "Activado com sucesso"));
+        return ResponseEntity.ok(new LicencaEfeitoResponseDTO(
+                licenca.getId().getStringValor(), licenca.getStatus(), true, null, null));
     }
 }

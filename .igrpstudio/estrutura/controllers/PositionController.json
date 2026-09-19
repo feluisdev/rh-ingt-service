@@ -42,7 +42,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "PositionResponse",
+                "type": "PositionResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -116,7 +116,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "PositionResponse",
+                "type": "PositionResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",

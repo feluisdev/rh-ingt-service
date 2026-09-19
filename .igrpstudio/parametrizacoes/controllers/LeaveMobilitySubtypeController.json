@@ -14,7 +14,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "WrapperListaLeaveMobilitySubtype",
+                "type": "WrapperListaLeaveMobilitySubtypeDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -69,7 +69,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "LeaveMobilitySubtypeResponse",
+                "type": "LeaveMobilitySubtypeResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -143,7 +143,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "LeaveMobilitySubtypeResponse",
+                "type": "LeaveMobilitySubtypeResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -227,8 +227,9 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "ComboboxItem",
+                "type": "ComboboxItemDTO",
                 "objectType": "dto",
+                "name": "data",
                 "collectionType": "list",
                 "module": "shared"
               }

@@ -1,0 +1,44 @@
+{
+  "type": "dto",
+  "name": "ChefeFuncionarioResponseDTO",
+  "module": "colaboradores",
+  "template": "classic",
+  "attributes": [
+    {
+      "name": "funcionarioId",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "funcionarioNome",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "chefePositionId",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "chefeFuncionarioId",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "chefeNome",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "estado",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

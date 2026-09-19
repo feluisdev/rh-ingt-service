@@ -9,10 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
+import cv.igrp.RH_Service.colaboradores.application.dto.VagasUnidadeResponseDTO;
 
 /**
  * Vagas de uma unidade = dotação (Lugares ocupáveis) − ocupados (com afectação corrente).
@@ -20,13 +19,13 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 public class GetVagasUnidadeQueryHandler
-        implements QueryHandler<GetVagasUnidadeQuery, ResponseEntity<Map<String, Object>>> {
+        implements QueryHandler<GetVagasUnidadeQuery, ResponseEntity<VagasUnidadeResponseDTO>> {
 
     private final AssignmentRepository assignmentRepository;
     private final PositionRepository positionRepository;
 
     @IgrpQueryHandler
-    public ResponseEntity<Map<String, Object>> handle(GetVagasUnidadeQuery query) {
+    public ResponseEntity<VagasUnidadeResponseDTO> handle(GetVagasUnidadeQuery query) {
         UUID unidadeId = UUID.fromString(query.getUnidadeId());
         List<Position> lugares = positionRepository.findByUnidade(unidadeId);
 
@@ -36,11 +35,7 @@ public class GetVagasUnidadeQueryHandler
                 .filter(p -> assignmentRepository.temTitular(p.getId().getValor()))
                 .count();
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("unidadeId", query.getUnidadeId());
-        body.put("dotacao", dotacao);
-        body.put("ocupados", ocupados);
-        body.put("vagas", dotacao - ocupados);
-        return ResponseEntity.ok(body);
+        return ResponseEntity.ok(new VagasUnidadeResponseDTO(
+                query.getUnidadeId(), dotacao, ocupados, dotacao - ocupados));
     }
 }

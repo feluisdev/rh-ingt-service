@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -20,10 +21,10 @@ import cv.igrp.RH_Service.colaboradores.application.commands.*;
 import cv.igrp.RH_Service.colaboradores.application.queries.*;
 import cv.igrp.RH_Service.colaboradores.application.dto.*;
 
-import java.util.Map;
 import java.util.List;
 import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
 import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.FuncionarioCriadoResponseDTO;
 
 @IgrpController
 @RestController("colabsFuncionarioController")
@@ -72,11 +73,11 @@ public class FuncionarioController {
 
     @PostMapping
     @Operation(summary = "Criar funcionário")
-    public ResponseEntity<Map<String, ?>> createFuncionario(
+    public ResponseEntity<FuncionarioCriadoResponseDTO> createFuncionario(
             @Valid @RequestBody FuncionarioRequestDTO request) {
         LOGGER.debug("Operation started");
         final var command = new CreateFuncionarioCommand(request);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<FuncionarioCriadoResponseDTO> response = commandBus.send(command);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
@@ -193,7 +194,7 @@ public class FuncionarioController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ComboboxItemDTO.class)))
             )
         }
     )

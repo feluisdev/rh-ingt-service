@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 import java.util.UUID;
 import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.LicencaEfeitoResponseDTO;
 
 @IgrpController
 @RestController("colabsLicencaMobilidadeController")
@@ -89,11 +89,11 @@ public class LicencaMobilidadeController {
 
     @PutMapping("{licencaId}/approve")
     @Operation(summary = "Aprovar licença/mobilidade (PENDING → ACTIVE; mobilidades criam nova colocação)")
-    public ResponseEntity<Map<String, ?>> approve(
+    public ResponseEntity<LicencaEfeitoResponseDTO> approve(
             @PathVariable String funcionarioId,
             @PathVariable String licencaId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new AprovarLicencaMobilidadeCommand(licencaId));
+        ResponseEntity<LicencaEfeitoResponseDTO> response = commandBus.send(new AprovarLicencaMobilidadeCommand(licencaId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
@@ -113,11 +113,11 @@ public class LicencaMobilidadeController {
 
     @PutMapping("{licencaId}/close")
     @Operation(summary = "Encerrar licença/mobilidade (ACTIVE → CLOSED; mobilidades restauram colocação anterior)")
-    public ResponseEntity<Map<String, ?>> close(
+    public ResponseEntity<LicencaEfeitoResponseDTO> close(
             @PathVariable String funcionarioId,
             @PathVariable String licencaId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new EncerrarLicencaMobilidadeCommand(licencaId));
+        ResponseEntity<LicencaEfeitoResponseDTO> response = commandBus.send(new EncerrarLicencaMobilidadeCommand(licencaId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
@@ -150,11 +150,11 @@ public class LicencaMobilidadeController {
 
     @PatchMapping("{licencaId}/ativar")
     @Operation(summary = "Activar licença/mobilidade (alias de /approve, mantido por compatibilidade)")
-    public ResponseEntity<Map<String, ?>> ativar(
+    public ResponseEntity<LicencaEfeitoResponseDTO> ativar(
             @PathVariable String funcionarioId,
             @PathVariable String licencaId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new AtivarLicencaMobilidadeCommand(licencaId));
+        ResponseEntity<LicencaEfeitoResponseDTO> response = commandBus.send(new AtivarLicencaMobilidadeCommand(licencaId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

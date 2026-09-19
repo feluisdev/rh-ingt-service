@@ -26,7 +26,7 @@ curl -s -o docs/funcionarios/v5/openapi.json http://localhost:8099/v3/api-docs
 Quem implementa um cliente deve **ler o `openapi.json` para as formas** e este guia para o resto, porque há duas coisas que o gerado ainda não diz:
 
 1. **Os erros.** Só 6 das 328 operações declaram respostas 4xx. As regras de negócio e os **422** vivem aqui e no `regras_negocio.html`.
-2. **Algumas respostas.** Restam 19 operações sem esquema: os `combobox` (devolvem `ComboboxItemDTO[]`, mas a anotação apaga-o) e cinco consultas de afectação que ainda devolvem `Map` e esperam DTO próprio.
+2. **Algumas respostas.** *(resolvido)* As 237 operações não-sigdi têm hoje esquema de resposta declarado.
 
 Regenerar o `openapi.json` sempre que se acrescente ou mude um endpoint.
 
@@ -62,6 +62,18 @@ As operações que só têm a dizer **o que foi afectado e se correu bem** devol
 ```
 
 Cobre os `POST` de criação, os `PUT` de actualização, as desactivações (`DELETE`) e as reactivações (`activate`) — 85 operações ao todo.
+
+As operações com mais a dizer têm **DTO próprio**. Nenhuma operação devolve já um objecto livre:
+
+| Resposta | Onde |
+|---|---|
+| `FuncionarioCriadoResponseDTO` | `POST /funcionarios` — traz o `numeroFuncionario` atribuído pela aplicação |
+| `PedidoAusenciaCriadoResponseDTO` | `POST /funcionarios/{id}/pedidos-ausencia` — `numeroDias` contados pelo servidor e `estado` inicial |
+| `LicencaEfeitoResponseDTO` | `approve` · `ativar` · `close` da licença — `afectacaoEncerradaId` e `estadoAtribuidoId`, nulos quando não houve efeito |
+| `UnidadeAtualResponseDTO` | `GET .../unidade-atual` — separa o Lugar de que é titular de onde exerce funções |
+| `ChefeFuncionarioResponseDTO` · `ResponsavelUnidadeResponseDTO` | `GET .../chefe` · `.../responsavel` — com `estado` PROVIDO / CHEFIA_VAGA / SEM_… |
+| `VagasUnidadeResponseDTO` | `GET .../vagas` — `ocupados` conta **titulares** |
+| `FileUrlDTO` | os dois `download-url` do self-service |
 
 **`sucesso: false` não é erro.** É uma operação idempotente a dizer que não teve nada a fazer, com o motivo em `alertas`. Por exemplo, reactivar algo que já estava activo:
 

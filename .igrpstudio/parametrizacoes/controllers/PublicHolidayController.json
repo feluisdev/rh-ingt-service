@@ -14,7 +14,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "WrapperListaPublicHoliday",
+                "type": "WrapperListaPublicHolidayDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -79,7 +79,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "PublicHolidayResponse",
+                "type": "PublicHolidayResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -153,7 +153,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "PublicHolidayResponse",
+                "type": "PublicHolidayResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",

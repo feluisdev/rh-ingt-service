@@ -20,8 +20,12 @@ import cv.igrp.RH_Service.colaboradores.application.commands.*;
 import cv.igrp.RH_Service.colaboradores.application.queries.*;
 import cv.igrp.RH_Service.colaboradores.application.dto.AfectacaoRequestDTO;
 
-import java.util.Map;
 import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.UnidadeAtualResponseDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.ChefeFuncionarioResponseDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.ResponsavelUnidadeResponseDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.VagasUnidadeResponseDTO;
+import cv.igrp.RH_Service.estrutura.application.dto.WrapperListaPositionDTO;
 
 @IgrpController
 @RestController
@@ -58,14 +62,14 @@ public class AssignmentController {
     @GetMapping("funcionario/{funcionarioId}/unidade-atual")
     @Operation(
         summary = "Unidade atual do colaborador",
-        responses = { @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json")) }
+        responses = { @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UnidadeAtualResponseDTO.class))) }
     )
-    public ResponseEntity<Map<String, Object>> getUnidadeAtual(
+    public ResponseEntity<UnidadeAtualResponseDTO> getUnidadeAtual(
         @PathVariable(value = "funcionarioId") String funcionarioId) {
 
         LOGGER.debug("Operation started");
         final var query = new GetUnidadeAtualQuery(funcionarioId);
-        ResponseEntity<Map<String, Object>> response = queryBus.handle(query);
+        ResponseEntity<UnidadeAtualResponseDTO> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())
             .headers(response.getHeaders()).body(response.getBody());
@@ -74,14 +78,14 @@ public class AssignmentController {
     @GetMapping("funcionario/{funcionarioId}/chefe")
     @Operation(
         summary = "Chefe do colaborador",
-        responses = { @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json")) }
+        responses = { @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ChefeFuncionarioResponseDTO.class))) }
     )
-    public ResponseEntity<Map<String, Object>> getChefe(
+    public ResponseEntity<ChefeFuncionarioResponseDTO> getChefe(
         @PathVariable(value = "funcionarioId") String funcionarioId) {
 
         LOGGER.debug("Operation started");
         final var query = new GetChefeFuncionarioQuery(funcionarioId);
-        ResponseEntity<Map<String, Object>> response = queryBus.handle(query);
+        ResponseEntity<ChefeFuncionarioResponseDTO> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())
             .headers(response.getHeaders()).body(response.getBody());
@@ -90,14 +94,14 @@ public class AssignmentController {
     @GetMapping("unidade/{unidadeId}/responsavel")
     @Operation(
         summary = "Responsável da unidade",
-        responses = { @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json")) }
+        responses = { @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponsavelUnidadeResponseDTO.class))) }
     )
-    public ResponseEntity<Map<String, Object>> getResponsavel(
+    public ResponseEntity<ResponsavelUnidadeResponseDTO> getResponsavel(
         @PathVariable(value = "unidadeId") String unidadeId) {
 
         LOGGER.debug("Operation started");
         final var query = new GetResponsavelUnidadeQuery(unidadeId);
-        ResponseEntity<Map<String, Object>> response = queryBus.handle(query);
+        ResponseEntity<ResponsavelUnidadeResponseDTO> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())
             .headers(response.getHeaders()).body(response.getBody());
@@ -106,14 +110,14 @@ public class AssignmentController {
     @GetMapping("unidade/{unidadeId}/vagas")
     @Operation(
         summary = "Vagas da unidade",
-        responses = { @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json")) }
+        responses = { @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = VagasUnidadeResponseDTO.class))) }
     )
-    public ResponseEntity<Map<String, Object>> getVagas(
+    public ResponseEntity<VagasUnidadeResponseDTO> getVagas(
         @PathVariable(value = "unidadeId") String unidadeId) {
 
         LOGGER.debug("Operation started");
         final var query = new GetVagasUnidadeQuery(unidadeId);
-        ResponseEntity<Map<String, Object>> response = queryBus.handle(query);
+        ResponseEntity<VagasUnidadeResponseDTO> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())
             .headers(response.getHeaders()).body(response.getBody());
@@ -122,14 +126,15 @@ public class AssignmentController {
     @GetMapping("unidade/{unidadeId}/vagas/lista")
     @Operation(
         summary = "Lista de Lugares vagos da unidade (picker de admissão)",
-        responses = { @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json")) }
+        responses = { @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = WrapperListaPositionDTO.class))) }
     )
-    public ResponseEntity<cv.igrp.RH_Service.estrutura.application.dto.WrapperListaPositionDTO> getVagasLista(
+    public ResponseEntity<WrapperListaPositionDTO> getVagasLista(
         @PathVariable(value = "unidadeId") String unidadeId) {
 
         LOGGER.debug("Operation started");
         final var query = new GetVagasListaUnidadeQuery(unidadeId);
-        ResponseEntity<cv.igrp.RH_Service.estrutura.application.dto.WrapperListaPositionDTO> response = queryBus.handle(query);
+        ResponseEntity<WrapperListaPositionDTO> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())
             .headers(response.getHeaders()).body(response.getBody());

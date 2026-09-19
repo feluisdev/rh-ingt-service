@@ -19,13 +19,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
+import cv.igrp.RH_Service.colaboradores.application.dto.UnidadeAtualResponseDTO;
 
 @Component
 @RequiredArgsConstructor
 public class GetUnidadeAtualQueryHandler
-        implements QueryHandler<GetUnidadeAtualQuery, ResponseEntity<Map<String, Object>>> {
+        implements QueryHandler<GetUnidadeAtualQuery, ResponseEntity<UnidadeAtualResponseDTO>> {
 
     private final AssignmentRepository assignmentRepository;
     private final PositionRepository positionRepository;
@@ -35,7 +34,7 @@ public class GetUnidadeAtualQueryHandler
     private final MobilidadeService mobilidadeService;
 
     @IgrpQueryHandler
-    public ResponseEntity<Map<String, Object>> handle(GetUnidadeAtualQuery query) {
+    public ResponseEntity<UnidadeAtualResponseDTO> handle(GetUnidadeAtualQuery query) {
         FuncionarioId funcionarioId = FuncionarioId.from(query.getFuncionarioId());
 
         Assignment atual = assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId)
@@ -46,35 +45,34 @@ public class GetUnidadeAtualQueryHandler
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Lugar da afectação não encontrado."));
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("funcionarioId", funcionarioId.getStringValor());
-        body.put("funcionarioNome", funcionarioNome(funcionarioId));
+        var resposta = new UnidadeAtualResponseDTO();
+        resposta.setFuncionarioId(funcionarioId.getStringValor());
+        resposta.setFuncionarioNome(funcionarioNome(funcionarioId));
         // Titularidade: o Lugar continua a ser do colaborador mesmo durante a mobilidade
         // (Lei n.º 20/X/2023, art. 135.º n.º 7).
-        body.put("positionId", position.getId().getStringValor());
-        body.put("numeroLugar", position.getNumeroLugar());
-        body.put("unidadeOrganicaId", str(position.getUnidadeOrganicaId()));
-        body.put("unidadeNome", unidadeNome(position.getUnidadeOrganicaId()));
-        body.put("jobId", str(position.getJobId()));
-        body.put("jobNome", jobNome(position.getJobId()));
+        resposta.setPositionId(position.getId().getStringValor());
+        resposta.setNumeroLugar(position.getNumeroLugar());
+        resposta.setUnidadeOrganicaId(str(position.getUnidadeOrganicaId()));
+        resposta.setUnidadeNome(unidadeNome(position.getUnidadeOrganicaId()));
+        resposta.setJobId(str(position.getJobId()));
+        resposta.setJobNome(jobNome(position.getJobId()));
 
         // Onde exerce funções hoje: durante uma mobilidade é o destino, não o Lugar de origem.
         var mobilidade = mobilidadeService.mobilidadeEmVigor(funcionarioId);
-        body.put("emMobilidade", mobilidade.isPresent());
-        mobilidade.ifPresent(m -> {
-            body.put("mobilidadeId", m.getId().getStringValor());
-            body.put("mobilidadeInicio", m.getDataInicio());
-            body.put("mobilidadeFim", m.getDataFim());
-            body.put("mobilidadeDestinoTipo", m.isDestinoInterno() ? "INTERNO" : "EXTERNO");
-            body.put("exerceFuncoesUnidadeId", str(m.getDestinationUnitId()));
-            body.put("exerceFuncoesUnidadeNome", m.isDestinoInterno()
+        resposta.setEmMobilidade(mobilidade.isPresent());
+        mobilidade.ifPresentOrElse(m -> {
+            resposta.setMobilidadeId(m.getId().getStringValor());
+            resposta.setMobilidadeInicio(m.getDataInicio());
+            resposta.setMobilidadeFim(m.getDataFim());
+            resposta.setMobilidadeDestinoTipo(m.isDestinoInterno() ? "INTERNO" : "EXTERNO");
+            resposta.setExerceFuncoesUnidadeId(str(m.getDestinationUnitId()));
+            resposta.setExerceFuncoesUnidadeNome(m.isDestinoInterno()
                     ? unidadeNome(m.getDestinationUnitId()) : m.getEntidadeDestino());
+        }, () -> {
+            resposta.setExerceFuncoesUnidadeId(str(position.getUnidadeOrganicaId()));
+            resposta.setExerceFuncoesUnidadeNome(unidadeNome(position.getUnidadeOrganicaId()));
         });
-        if (mobilidade.isEmpty()) {
-            body.put("exerceFuncoesUnidadeId", str(position.getUnidadeOrganicaId()));
-            body.put("exerceFuncoesUnidadeNome", unidadeNome(position.getUnidadeOrganicaId()));
-        }
-        return ResponseEntity.ok(body);
+        return ResponseEntity.ok(resposta);
     }
 
     private String funcionarioNome(FuncionarioId id) {

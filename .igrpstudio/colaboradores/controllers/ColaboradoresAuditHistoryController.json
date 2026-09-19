@@ -10,9 +10,31 @@
       "method": "GET",
       "path": "{catalog}/{entityId}",
       "pathVariables": [
-        {"name": "catalog", "type": "string"},
-        {"name": "entityId", "type": "string"}
-      ]
+        {
+          "name": "catalog",
+          "type": "string"
+        },
+        {
+          "name": "entityId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaAuditHistoryDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

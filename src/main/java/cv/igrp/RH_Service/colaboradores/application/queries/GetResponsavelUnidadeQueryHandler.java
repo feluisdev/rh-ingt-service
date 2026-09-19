@@ -13,9 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
+import cv.igrp.RH_Service.colaboradores.application.dto.ResponsavelUnidadeResponseDTO;
 
 /**
  * Responsável de uma unidade = ocupante corrente do Lugar cujo manages_unit_id = unidade.
@@ -23,7 +22,7 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 public class GetResponsavelUnidadeQueryHandler
-        implements QueryHandler<GetResponsavelUnidadeQuery, ResponseEntity<Map<String, Object>>> {
+        implements QueryHandler<GetResponsavelUnidadeQuery, ResponseEntity<ResponsavelUnidadeResponseDTO>> {
 
     private final AssignmentRepository assignmentRepository;
     private final PositionRepository positionRepository;
@@ -31,35 +30,35 @@ public class GetResponsavelUnidadeQueryHandler
     private final OrganizationalUnitRepository unidadeRepository;
 
     @IgrpQueryHandler
-    public ResponseEntity<Map<String, Object>> handle(GetResponsavelUnidadeQuery query) {
+    public ResponseEntity<ResponsavelUnidadeResponseDTO> handle(GetResponsavelUnidadeQuery query) {
         UUID unidadeId = UUID.fromString(query.getUnidadeId());
-        Map<String, Object> body = new HashMap<>();
-        body.put("unidadeId", query.getUnidadeId());
-        body.put("unidadeNome", unidadeRepository.findById(OrganizationalUnitId.from(unidadeId))
+        var body = new ResponsavelUnidadeResponseDTO();
+        body.setUnidadeId(query.getUnidadeId());
+        body.setUnidadeNome(unidadeRepository.findById(OrganizationalUnitId.from(unidadeId))
                 .map(u -> u.getName()).orElse(null));
 
         Position chefia = positionRepository.findResponsavelDeUnidade(unidadeId).orElse(null);
         if (chefia == null) {
-            body.put("responsavelFuncionarioId", null);
-            body.put("responsavelNome", null);
-            body.put("estado", "SEM_LUGAR_DE_CHEFIA");
+            body.setResponsavelFuncionarioId(null);
+            body.setResponsavelNome(null);
+            body.setEstado("SEM_LUGAR_DE_CHEFIA");
             return ResponseEntity.ok(body);
         }
 
-        body.put("positionId", chefia.getId().getStringValor());
-        body.put("numeroLugar", chefia.getNumeroLugar());
+        body.setPositionId(chefia.getId().getStringValor());
+        body.setNumeroLugar(chefia.getNumeroLugar());
 
         var ocupante = assignmentRepository.findTitularByPosition(chefia.getId().getValor());
         if (ocupante.isEmpty()) {
-            body.put("responsavelFuncionarioId", null);
-            body.put("responsavelNome", null);
-            body.put("estado", "CHEFIA_VAGA");
+            body.setResponsavelFuncionarioId(null);
+            body.setResponsavelNome(null);
+            body.setEstado("CHEFIA_VAGA");
         } else {
             FuncionarioId respId = ocupante.get().getFuncionarioId();
-            body.put("responsavelFuncionarioId", respId.getStringValor());
-            body.put("responsavelNome", funcionarioRepository.findById(respId)
+            body.setResponsavelFuncionarioId(respId.getStringValor());
+            body.setResponsavelNome(funcionarioRepository.findById(respId)
                     .map(f -> f.getNomeCompleto()).orElse(null));
-            body.put("estado", "PROVIDO");
+            body.setEstado("PROVIDO");
         }
         return ResponseEntity.ok(body);
     }

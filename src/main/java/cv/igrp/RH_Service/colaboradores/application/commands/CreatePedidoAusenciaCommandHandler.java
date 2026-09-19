@@ -19,12 +19,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
-import java.util.Map;
+import cv.igrp.RH_Service.colaboradores.application.dto.PedidoAusenciaCriadoResponseDTO;
 
 @Component("colabsCreatePedidoAusenciaCommandHandler")
 @RequiredArgsConstructor
 public class CreatePedidoAusenciaCommandHandler
-        implements CommandHandler<CreatePedidoAusenciaCommand, ResponseEntity<Map<String, ?>>> {
+        implements CommandHandler<CreatePedidoAusenciaCommand, ResponseEntity<PedidoAusenciaCriadoResponseDTO>> {
 
     private final PedidoAusenciaRepository pedidoRepository;
     private final FuncionarioRepository funcionarioRepository;
@@ -35,7 +35,7 @@ public class CreatePedidoAusenciaCommandHandler
 
     @IgrpCommandHandler
     @Transactional
-    public ResponseEntity<Map<String, ?>> handle(CreatePedidoAusenciaCommand command) {
+    public ResponseEntity<PedidoAusenciaCriadoResponseDTO> handle(CreatePedidoAusenciaCommand command) {
         var funcionarioId = FuncionarioId.from(command.getFuncionarioId());
         funcionarioRepository.findById(funcionarioId)
                 .orElseThrow(() -> IgrpResponseStatusException.notFound("Funcionário não encontrado: " + command.getFuncionarioId()));
@@ -70,10 +70,9 @@ public class CreatePedidoAusenciaCommandHandler
 
         var saved = pedidoRepository.save(pedido);
 
-        return ResponseEntity.status(201).body(Map.of(
-                "id", saved.getId().getStringValor(),
-                "numeroDias", saved.getNumeroDias(),
-                "estado", saved.getEstadoTexto(),
-                "message", "Criado com sucesso"));
+        return ResponseEntity.status(201).body(new PedidoAusenciaCriadoResponseDTO(
+                saved.getId().getStringValor(),
+                saved.getNumeroDias(),
+                saved.getEstadoTexto()));
     }
 }

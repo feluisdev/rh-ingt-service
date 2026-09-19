@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Map;
+import cv.igrp.RH_Service.colaboradores.application.dto.LicencaEfeitoResponseDTO;
 
 /**
  * Encerrar a licença ou a mobilidade (fim do período, ou regresso antecipado).
@@ -26,7 +26,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class EncerrarLicencaMobilidadeCommandHandler
-        implements CommandHandler<EncerrarLicencaMobilidadeCommand, ResponseEntity<Map<String, ?>>> {
+        implements CommandHandler<EncerrarLicencaMobilidadeCommand, ResponseEntity<LicencaEfeitoResponseDTO>> {
 
     private final LicencaMobilidadeRepository licencaRepository;
     private final MobilidadeService mobilidadeService;
@@ -35,7 +35,7 @@ public class EncerrarLicencaMobilidadeCommandHandler
 
     @IgrpCommandHandler
     @Transactional
-    public ResponseEntity<Map<String, ?>> handle(EncerrarLicencaMobilidadeCommand command) {
+    public ResponseEntity<LicencaEfeitoResponseDTO> handle(EncerrarLicencaMobilidadeCommand command) {
         var licenca = licencaRepository.findById(LicencaMobilidadeId.from(command.getLicencaId()))
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Licença/mobilidade não encontrada: " + command.getLicencaId()));
@@ -60,10 +60,11 @@ public class EncerrarLicencaMobilidadeCommandHandler
         var estadoAtribuido = mobilidadeService.subtipoSeExistir(licenca)
                 .flatMap(subtipo -> licencaService.aplicarRegresso(licenca, subtipo, dataFim));
         if (estadoAtribuido.isPresent())
-            return ResponseEntity.ok(Map.of(
-                    "message", "Encerrado com sucesso",
-                    "estadoAtribuidoId", estadoAtribuido.get().toString()));
+            return ResponseEntity.ok(new LicencaEfeitoResponseDTO(
+                    licenca.getId().getStringValor(), licenca.getStatus(), true,
+                    null, estadoAtribuido.get().toString()));
 
-        return ResponseEntity.ok(Map.of("message", "Encerrado com sucesso"));
+        return ResponseEntity.ok(new LicencaEfeitoResponseDTO(
+                licenca.getId().getStringValor(), licenca.getStatus(), true, null, null));
     }
 }

@@ -22,7 +22,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "WrapperListaDadosBancarios",
+                "type": "WrapperListaDadosBancariosDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -84,7 +84,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "DadosBancariosResponse",
+                "type": "DadosBancariosResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -125,7 +125,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "DadosBancariosResponse",
+                "type": "DadosBancariosResponseDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",

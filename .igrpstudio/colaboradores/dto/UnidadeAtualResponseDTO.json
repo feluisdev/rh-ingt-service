@@ -1,0 +1,98 @@
+{
+  "type": "dto",
+  "name": "UnidadeAtualResponseDTO",
+  "module": "colaboradores",
+  "template": "classic",
+  "attributes": [
+    {
+      "name": "funcionarioId",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "funcionarioNome",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "positionId",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "numeroLugar",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "unidadeOrganicaId",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "unidadeNome",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "jobId",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "jobNome",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "emMobilidade",
+      "type": "boolean",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "mobilidadeId",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "mobilidadeInicio",
+      "type": "date",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "mobilidadeFim",
+      "type": "date",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "mobilidadeDestinoTipo",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "exerceFuncoesUnidadeId",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "exerceFuncoesUnidadeNome",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}
