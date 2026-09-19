@@ -1,0 +1,11 @@
+{
+  "type": "dto",
+  "module": "shared",
+  "name": "SuccessResponseDTO",
+  "template": "classic",
+  "attributes": [
+    { "name": "id", "type": "string" },
+    { "name": "sucesso", "type": "boolean" },
+    { "name": "alertas", "type": "string", "collectionType": "list" }
+  ]
+}

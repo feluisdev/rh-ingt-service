@@ -22,6 +22,13 @@ public interface ColabsAssignmentEntityRepository extends JpaRepository<Assignme
     Optional<AssignmentEntity> findByPosition_IdAndIsCurrentTrueAndAssignmentType(UUID positionId, String assignmentType);
     boolean existsByPosition_IdAndIsCurrentTrueAndAssignmentType(UUID positionId, String assignmentType);
 
+    // Substituicoes de um titular impedido (V46). O tipo entra no nome derivado para que a
+    // consulta nao dependa de a coluna titular_assignment_id so aparecer em substituicoes.
+    Optional<AssignmentEntity> findByTitularAssignment_IdAndIsCurrentTrueAndAssignmentType(
+            UUID titularAssignmentId, String assignmentType);
+    List<AssignmentEntity> findAllByTitularAssignment_IdAndIsCurrentTrueAndAssignmentType(
+            UUID titularAssignmentId, String assignmentType);
+
     // Predicado temporal de sobreposicao de intervalo: uma afectacao cobre o intervalo
     // [startOfYear, endOfYear] se comecar antes ou no fim do intervalo (dataInicio <= endOfYear)
     // e terminar depois ou no inicio do intervalo, ou nunca terminar (dataFim IS NULL OR

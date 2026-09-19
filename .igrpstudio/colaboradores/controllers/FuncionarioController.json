@@ -304,6 +304,48 @@
       }
     },
     {
+      "actionName": "substituirColaborador",
+      "method": "POST",
+      "path": "{funcionarioId}/substituicao",
+      "summary": "Poe o colaborador a substituir o titular de um Lugar temporariamente impedido (art. 73. al. a) a c) e art. 91. n.1 al. a))",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string",
+          "isRequired": true
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "SubstituicaoRequestDTO",
+              "objectType": "dto",
+              "name": "data",
+              "collectionType": "none",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SubstituicaoResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "actionName": "getHistoricoEstadoColaborador",
       "method": "GET",
       "path": "{funcionarioId}/worker-state/historico",

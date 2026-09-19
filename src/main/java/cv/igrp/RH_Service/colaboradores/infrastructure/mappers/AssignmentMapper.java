@@ -29,6 +29,7 @@ public class AssignmentMapper {
                 e.getAssignmentType(),
                 e.getOrigem(),
                 refs.idOf(e.getOriginAssignment(), AssignmentEntity::getId),
+                refs.idOf(e.getTitularAssignment(), AssignmentEntity::getId),
                 e.getDataInicio(),
                 e.getDataFim(),
                 e.getIsCurrent(),
@@ -48,6 +49,7 @@ public class AssignmentMapper {
         entity.setAssignmentType(a.getAssignmentTypeTexto());
         entity.setOrigem(a.getOrigem());
         entity.setOriginAssignment(refs.ref(AssignmentEntity.class, a.getOriginAssignmentId()));
+        entity.setTitularAssignment(refs.ref(AssignmentEntity.class, a.getTitularAssignmentId()));
         entity.setDataInicio(a.getDataInicio());
         entity.setDataFim(a.getDataFim());
         entity.setIsCurrent(a.getIsCurrent());

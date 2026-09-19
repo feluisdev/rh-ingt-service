@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.colaboradores.application.commands;
 import cv.igrp.RH_Service.colaboradores.application.dto.EstadoColaboradorResponseDTO;
 import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
 import cv.igrp.RH_Service.colaboradores.application.services.CessacaoService;
+import cv.igrp.RH_Service.colaboradores.application.services.SubstituicaoService;
 import cv.igrp.RH_Service.colaboradores.domain.models.EstadoContrato;
 import cv.igrp.RH_Service.colaboradores.domain.models.HistoricoEstadoColaborador;
 import cv.igrp.RH_Service.colaboradores.domain.repository.ContratoRepository;
@@ -46,6 +47,7 @@ public class MudarEstadoColaboradorCommandHandler
     private final HistoricoEstadoColaboradorRepository historicoRepository;
     private final CessacaoService cessacaoService;
     private final AssignmentService assignmentService;
+    private final SubstituicaoService substituicaoService;
 
     @IgrpCommandHandler
     @Transactional
@@ -96,6 +98,15 @@ public class MudarEstadoColaboradorCommandHandler
 
         var situacao = novoEstado.situacao();
         UUID contratoAfectadoId = aplicarEfeitosContrato(funcionarioId, situacao.orElse(null));
+
+        // Quem deixa de estar impedido retoma o seu Lugar, e a substituição que o cobria
+        // caduca (art. 77.º n.º 2) -- não é preciso ninguém a ir fechá-la à mão. Vale para
+        // qualquer saída do impedimento, e não só para o regresso à actividade no quadro:
+        // se o titular passar a uma situação que abre vaga, a afectação dele é encerrada
+        // logo a seguir, e uma substituição sem titular não tem o que substituir.
+        if (situacao.filter(SituacaoFuncional::permiteSubstituicao).isEmpty())
+            substituicaoService.encerrarPorRegressoDoTitular(funcionarioId, dataEfectividade);
+
         UUID afectacaoEncerradaId = situacao.filter(SituacaoFuncional::abreVaga)
                 .flatMap(s -> assignmentService.encerrarAfectacaoCorrente(funcionarioId, dataEfectividade))
                 .map(a -> a.getId().getValor())

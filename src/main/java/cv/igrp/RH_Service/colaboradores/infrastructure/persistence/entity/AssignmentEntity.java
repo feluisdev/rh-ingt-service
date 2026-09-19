@@ -52,6 +52,10 @@ public class AssignmentEntity extends AuditEntity {
     @JoinColumn(name = "origin_assignment_id")
     private AssignmentEntity originAssignment;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "titular_assignment_id")
+    private AssignmentEntity titularAssignment;
+
     @Column(name = "data_inicio", nullable = false)
     private LocalDate dataInicio;
 

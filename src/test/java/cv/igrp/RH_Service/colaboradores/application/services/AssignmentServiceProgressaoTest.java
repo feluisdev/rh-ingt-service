@@ -69,7 +69,7 @@ class AssignmentServiceProgressaoTest {
 
     private Assignment afectacao(UUID gradeId) {
         return Assignment.reconstituir(AssignmentId.gerarNovo(), funcionarioId, positionId, gradeId,
-                functionId, TipoAfectacao.PRINCIPAL.name(), Assignment.ADMISSAO, null, inicio, null, true, true, null);
+                functionId, TipoAfectacao.PRINCIPAL.name(), Assignment.ADMISSAO, null, null, inicio, null, true, true, null);
     }
 
     private Position lugar(UUID careerId, UUID catId) {

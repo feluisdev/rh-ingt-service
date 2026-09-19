@@ -80,6 +80,24 @@ public class AssignmentRepositoryImpl implements AssignmentRepository {
 
     @Transactional(readOnly = true)
     @Override
+    public Optional<Assignment> findSubstitutoCorrente(AssignmentId titularAssignmentId) {
+        return entityRepository
+                .findByTitularAssignment_IdAndIsCurrentTrueAndAssignmentType(
+                        titularAssignmentId.getValor(), TipoAfectacao.SUBSTITUICAO.name())
+                .map(mapper::toDomain);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Assignment> findSubstituicoesCorrentes(AssignmentId titularAssignmentId) {
+        return entityRepository
+                .findAllByTitularAssignment_IdAndIsCurrentTrueAndAssignmentType(
+                        titularAssignmentId.getValor(), TipoAfectacao.SUBSTITUICAO.name())
+                .stream().map(mapper::toDomain).toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public Set<UUID> findPositionIdsComTitular(Collection<UUID> positionIds) {
         if (positionIds == null || positionIds.isEmpty()) return Set.of();
         return Set.copyOf(entityRepository.findPositionIdsComTitular(positionIds, TipoAfectacao.PRINCIPAL.name()));

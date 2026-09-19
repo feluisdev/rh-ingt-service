@@ -50,6 +50,7 @@ class CessacaoServiceTest {
     @Mock private WorkerStateRepository workerStateRepository;
     @Mock private HistoricoEstadoColaboradorRepository historicoRepository;
     @Mock private AssignmentService assignmentService;
+    @Mock private SubstituicaoService substituicaoService;
 
     @InjectMocks private CessacaoService service;
 

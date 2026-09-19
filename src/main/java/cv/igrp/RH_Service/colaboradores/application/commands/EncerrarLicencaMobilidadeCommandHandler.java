@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
 import cv.igrp.RH_Service.colaboradores.application.services.LicencaService;
+import cv.igrp.RH_Service.colaboradores.application.services.SubstituicaoService;
 import cv.igrp.RH_Service.colaboradores.application.services.MobilidadeService;
 import cv.igrp.RH_Service.colaboradores.domain.repository.LicencaMobilidadeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.LicencaMobilidadeId;
@@ -30,6 +31,7 @@ public class EncerrarLicencaMobilidadeCommandHandler
     private final LicencaMobilidadeRepository licencaRepository;
     private final MobilidadeService mobilidadeService;
     private final LicencaService licencaService;
+    private final SubstituicaoService substituicaoService;
 
     @IgrpCommandHandler
     @Transactional
@@ -50,6 +52,11 @@ public class EncerrarLicencaMobilidadeCommandHandler
         // vaga (art. 122.º). Quem o manteve não precisa de nada. Se o subtipo já não
         // existir no catálogo, encerra à mesma — fechar um registo não depende de
         // configuração.
+        // Acabada a licença, acabou o impedimento: quem estava a substituir o titular sai
+        // (art. 77.º n.º 2). Nada a fazer quando a licença abriu vaga -- aí o titular já não
+        // tem afectação, logo não há substituição ligada a ela.
+        substituicaoService.encerrarPorRegressoDoTitular(licenca.getFuncionarioId(), dataFim);
+
         var estadoAtribuido = mobilidadeService.subtipoSeExistir(licenca)
                 .flatMap(subtipo -> licencaService.aplicarRegresso(licenca, subtipo, dataFim));
         if (estadoAtribuido.isPresent())

@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import cv.igrp.RH_Service.colaboradores.application.dto.MudarEstadoColaboradorRequestDTO;
 import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
+import cv.igrp.RH_Service.colaboradores.application.services.SubstituicaoService;
 import cv.igrp.RH_Service.colaboradores.application.services.CessacaoService;
 import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
 import cv.igrp.RH_Service.colaboradores.domain.models.Contrato;
@@ -131,6 +132,7 @@ class SituacaoFuncionalTest {
         @Mock private HistoricoEstadoColaboradorRepository historicoRepository;
         @Mock private CessacaoService cessacaoService;
         @Mock private AssignmentService assignmentService;
+        @Mock private SubstituicaoService substituicaoService;
 
         @InjectMocks private MudarEstadoColaboradorCommandHandler handler;
 

@@ -1,0 +1,19 @@
+{
+  "type": "dto",
+  "name": "SubstituicaoResponseDTO",
+  "module": "colaboradores",
+  "template": "classic",
+  "attributes": [
+    {"name": "id", "type": "string", "objectType": "java", "required": false},
+    {"name": "funcionarioId", "type": "string", "objectType": "java", "required": false},
+    {"name": "positionId", "type": "string", "objectType": "java", "required": false},
+    {"name": "numeroLugar", "type": "string", "objectType": "java", "required": false},
+    {"name": "unidadeOrganicaId", "type": "string", "objectType": "java", "required": false},
+    {"name": "gradeId", "type": "string", "objectType": "java", "required": false},
+    {"name": "functionId", "type": "string", "objectType": "java", "required": false},
+    {"name": "dataInicio", "type": "date", "objectType": "java", "required": false},
+    {"name": "titularId", "type": "string", "objectType": "java", "required": false},
+    {"name": "titularNome", "type": "string", "objectType": "java", "required": false},
+    {"name": "titularAssignmentId", "type": "string", "objectType": "java", "required": false}
+  ]
+}

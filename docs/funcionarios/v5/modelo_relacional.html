@@ -107,6 +107,7 @@ erDiagram
   t_assignment  }o--o| t_grade      : "escalão (grade_id)"
   t_assignment  }o--o| t_funcao     : "função (function_id)"
   t_assignment  }o--o| t_assignment : "origem (origin_assignment_id)"
+  t_assignment  }o--o| t_assignment : "titular substituído (titular_assignment_id)"
   t_position    }o--|| t_job        : "cargo (job_id)"
   t_position    }o--|| t_unidade_organica : "unidade"
   t_position    }o--o| t_career     : "carreira"
@@ -139,7 +140,7 @@ erDiagram
   }
     </pre>
   </div>
-  <div class="callout key"><b>Índice único parcial:</b> <code>(position_id) WHERE is_current AND assignment_type='PRINCIPAL'</code> (<code>ux_assignment_position_titular</code>, V45) garante um <b>titular</b> por Lugar; <code>(funcionario_id) WHERE is_current AND assignment_type='PRINCIPAL'</code> garante uma afectação principal por pessoa. Até à V45 o primeiro índice cobria qualquer afectação corrente, o que impedia a <b>substituição</b> do funcionário temporariamente impedido (art. 73.º al. a) a c)): quem substitui não desaloja o titular, logo tem de poder coexistir com ele no mesmo Lugar. Um Lugar com substituto e <b>sem</b> titular conta como <b>vago</b>.</div>
+  <div class="callout key"><b>Índice único parcial:</b> <code>(position_id) WHERE is_current AND assignment_type='PRINCIPAL'</code> (<code>ux_assignment_position_titular</code>, V45) garante um <b>titular</b> por Lugar; <code>(funcionario_id) WHERE is_current AND assignment_type='PRINCIPAL'</code> garante uma afectação principal por pessoa. Até à V45 o primeiro índice cobria qualquer afectação corrente, o que impedia a <b>substituição</b> do funcionário temporariamente impedido (art. 73.º al. a) a c)): quem substitui não desaloja o titular, logo tem de poder coexistir com ele no mesmo Lugar. Um Lugar com substituto e <b>sem</b> titular conta como <b>vago</b>. A substituição liga-se ao titular por <code>titular_assignment_id</code> (V46), com índice único parcial <code>(titular_assignment_id) WHERE is_current AND assignment_type='SUBSTITUICAO'</code>: um substituto de cada vez por titular impedido.</div>
 
   <h2 id="estrutura"><span class="n">3.</span>Estrutura + Carreiras (Mapa de Pessoal)</h2>
   <div class="diagram">
@@ -266,6 +267,7 @@ erDiagram
     <tr><td>O que acontece no regresso</td><td><code>return_effect</code></td><td>Quem manteve o Lugar volta a ele; quem o perdeu aguarda vaga (art. 122.º).</td></tr>
     <tr><td>Estados do contrato</td><td>enum <code>EstadoContrato</code></td><td>São três e não variam; o que varia é o motivo, livre no catálogo <code>Option</code>. Obrigatório desde a V44: um contrato sem estado não era suspenso nem reactivado, em silêncio.</td></tr>
     <tr><td>Título com que se ocupa um Lugar</td><td>enum <code>TipoAfectacao</code></td><td>A lei fixa as formas de ocupar um Lugar do quadro: titular, substituição (art. 73.º), acumulação (art. 134.º n.º 2 al. b)). O motivo é que é livre.</td></tr>
+    <tr><td>Quem um substituto substitui</td><td><code>t_assignment.titular_assignment_id</code></td><td>Não se deduz do Lugar: o titular pode mudar. E é esta ligação que diz quando a substituição caduca (art. 77.º n.º 2). O <code>origin_assignment_id</code> não serve — foi feito para a mobilidade restaurar a afectação de origem, e hoje ninguém o lê.</td></tr>
     <tr><td>Provido / vago</td><td>derivado do <b>titular</b> corrente</td><td>Nunca se guarda: um Lugar está provido quando tem afectação corrente <code>PRINCIPAL</code>. Um substituto não o provê (V45).</td></tr>
   </table>
   <div class="callout warn"><b>A mobilidade nunca abre vaga</b> (art. 135.º n.º 7): marcar um subtipo de mobilidade com <code>position_effect = ABRE_VAGA</code> é recusado pelo catálogo.</div>
@@ -274,7 +276,7 @@ erDiagram
   <table>
     <tr><th>#</th><th>Tabela</th><th>Módulo</th><th>Entidade JPA</th><th>FKs (colunas <code>*_id</code>)</th></tr>
     <tr><td>1</td><td><code>t_funcionario</code></td><td><span class="mod m-col">col</span></td><td>FuncionarioEntity</td><td>worker_state_id, document_type_id</td></tr>
-    <tr><td>2</td><td><code>t_assignment</code></td><td><span class="mod m-col">col</span></td><td>AssignmentEntity</td><td>funcionario_id, position_id, grade_id, function_id, origin_assignment_id</td></tr>
+    <tr><td>2</td><td><code>t_assignment</code></td><td><span class="mod m-col">col</span></td><td>AssignmentEntity</td><td>funcionario_id, position_id, grade_id, function_id, origin_assignment_id, titular_assignment_id</td></tr>
     <tr><td>3</td><td><code>t_contrato</code></td><td><span class="mod m-col">col</span></td><td>ContratoEntity</td><td>funcionario_id, contract_type_id</td></tr>
     <tr><td>4</td><td><code>t_dados_bancarios</code></td><td><span class="mod m-col">col</span></td><td>DadosBancariosEntity</td><td>funcionario_id</td></tr>
     <tr><td>5</td><td><code>t_dependente</code></td><td><span class="mod m-col">col</span></td><td>DependenteEntity</td><td>funcionario_id</td></tr>

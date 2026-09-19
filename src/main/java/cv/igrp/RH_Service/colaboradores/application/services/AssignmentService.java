@@ -53,6 +53,57 @@ public class AssignmentService {
 
         TipoAfectacao tipo = assignmentType != null ? assignmentType : TipoAfectacao.PRINCIPAL;
 
+        Position position = validarLugarParaAfectacao(positionId, gradeId, functionId);
+
+        // Uma cadeira, um titular corrente. Quem entra a outro título (substituição,
+        // acumulação) não desaloja o titular nem exige que o Lugar esteja vago -- é para
+        // isso que o índice do Lugar é parcial (V45).
+        if (tipo.isPrincipal() && assignmentRepository.temTitular(positionId))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "O Lugar '" + position.getNumeroLugar() + "' já tem titular.");
+
+        // SCD Type 2: encerrar a afectação PRINCIPAL corrente antes de abrir a nova
+        if (tipo.isPrincipal()) {
+            Optional<Assignment> atual = assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId);
+            atual.ifPresent(a -> {
+                a.encerrar(dataInicio.minusDays(1));
+                assignmentRepository.save(a);
+            });
+        }
+
+        return assignmentRepository.save(Assignment.criar(
+                funcionarioId, positionId, gradeId, functionId, tipo, origem,
+                dataInicio, originAssignmentId, notes));
+    }
+
+    /**
+     * Afectação em substituição de um titular impedido. Passa pelas mesmas validações de
+     * Lugar que a {@link #afectar} — Lugar ocupável, coerência de grelha, função compatível
+     * com o cargo — e só não passa pela do titular, porque o Lugar <b>tem</b> titular: é
+     * essa a razão de existir da substituição.
+     *
+     * <p>Quem decide se o titular pode ser substituído é o {@code SubstituicaoService};
+     * aqui trata-se só da mecânica da afectação.
+     */
+    public Assignment afectarSubstituicao(FuncionarioId funcionarioId, UUID positionId, UUID gradeId,
+                                          UUID functionId, AssignmentId titularAssignmentId,
+                                          LocalDate dataInicio, String notes) {
+
+        Position position = validarLugarParaAfectacao(positionId, gradeId, functionId);
+
+        // A afectação PRINCIPAL do substituto não se toca: quem vai substituir mantém o seu
+        // próprio Lugar, se o tiver (art. 91.º n.º 1 al. a), nomeação em substituição).
+        return assignmentRepository.save(Assignment.criarSubstituicao(
+                funcionarioId, position.getId().getValor(), gradeId, functionId,
+                titularAssignmentId, dataInicio, notes));
+    }
+
+    /**
+     * Validações do Lugar que valem para qualquer título de ocupação: o Lugar existe e está
+     * ocupável, a grelha é coerente com ele, e a função pertence ao seu cargo. O que <b>não</b>
+     * está aqui é a regra do titular único, porque essa depende do título — ver {@link #afectar}.
+     */
+    private Position validarLugarParaAfectacao(UUID positionId, UUID gradeId, UUID functionId) {
         Position position = positionRepository.findById(PositionId.from(positionId))
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Lugar não encontrado: " + positionId));
@@ -61,13 +112,6 @@ public class AssignmentService {
             throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
                     "O Lugar '" + position.getNumeroLugar() + "' não está disponível (estado="
                             + position.getEstado() + ").");
-
-        // Uma cadeira, um titular corrente. Quem entra a outro título (substituição,
-        // acumulação) não desaloja o titular nem exige que o Lugar esteja vago -- é para
-        // isso que o índice do Lugar é parcial (V45).
-        if (tipo.isPrincipal() && assignmentRepository.temTitular(positionId))
-            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
-                    "O Lugar '" + position.getNumeroLugar() + "' já tem titular.");
 
         // Coerência com a grelha PCFR
         if (position.isForaDeGrelha() && gradeId != null)
@@ -94,8 +138,7 @@ public class AssignmentService {
 
         // Coerência cargo↔função (BR-FUN-02): a função escolhida tem de pertencer ao
         // cargo do Lugar. Funções genéricas (jobId nulo) servem qualquer cargo -- essa
-        // decisão vive em OrgFunction.validarCompatibilidadeComCargo, que até aqui
-        // existia sem nenhum chamador.
+        // decisão vive em OrgFunction.validarCompatibilidadeComCargo.
         if (functionId != null) {
             functionRepository.findById(FunctionId.from(functionId))
                     .orElseThrow(() -> IgrpResponseStatusException.notFound(
@@ -103,18 +146,7 @@ public class AssignmentService {
                     .validarCompatibilidadeComCargo(position.getJobId());
         }
 
-        // SCD Type 2: encerrar a afectação PRINCIPAL corrente antes de abrir a nova
-        if (tipo.isPrincipal()) {
-            Optional<Assignment> atual = assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId);
-            atual.ifPresent(a -> {
-                a.encerrar(dataInicio.minusDays(1));
-                assignmentRepository.save(a);
-            });
-        }
-
-        return assignmentRepository.save(Assignment.criar(
-                funcionarioId, positionId, gradeId, functionId, tipo, origem,
-                dataInicio, originAssignmentId, notes));
+        return position;
     }
 
     /** Resultado de uma progressão: a nova afectação e os escalões de partida e de chegada. */

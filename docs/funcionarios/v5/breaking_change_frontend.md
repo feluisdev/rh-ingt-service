@@ -219,6 +219,16 @@ Preparação da substituição do funcionário temporariamente impedido (art. 73
 - A mensagem de erro do Lugar ocupado mudou de *"já está ocupado"* para *"já tem titular"*. Quem a compare por texto tem de a actualizar.
 - **Vagas e provimento passam a contar apenas titulares**: um Lugar com substituto e sem titular conta como **vago** nas contagens da unidade e na lista de Lugares.
 
+### 11.5 Substituição de titular impedido (novo)
+
+Endpoint novo: `POST /funcionarios/{funcionarioId}/substituicao`, onde o `{funcionarioId}` é **o substituto**.
+
+- Novo ecrã/acção a partir do **Lugar**: "pôr alguém a substituir". Só faz sentido quando o Lugar tem titular e o titular está impedido.
+- **Não há campo de data de fim** e **não há acção de terminar**: a substituição fecha-se sozinha quando o titular regressa. Um ecrã que peça data de fim está a prometer o que a API não faz.
+- O `201` traz `titularId`, `titularNome` e `titularAssignmentId` — é o que o ecrã deve mostrar ("a substituir Fulano").
+- **422** quando o titular não está impedido ou o estado dele não tem situação funcional; **409** quando já há substituto.
+- Na ficha do colaborador, quem está a substituir pode ter **duas afectações correntes**: o seu Lugar e o que está a cobrir. Um ecrã que assuma uma só afectação corrente tem de ser revisto.
+
 ### Checklist
 
 - [ ] Select de `situacaoFuncional` no catálogo de estados.
@@ -227,3 +237,5 @@ Preparação da substituição do funcionário temporariamente impedido (art. 73
 - [ ] Campos de efeito no Lugar no ecrã de subtipos.
 - [ ] Mostrar `diasGozados` e tratar o **422** na criação do pedido de ausência.
 - [ ] Tratar o **422** de `assignmentType` inválido e rever comparações pela mensagem "já está ocupado".
+- [ ] Acção de substituição a partir do Lugar, sem data de fim nem botão de terminar.
+- [ ] Ficha do colaborador a aguentar duas afectações correntes (a sua e a que substitui).

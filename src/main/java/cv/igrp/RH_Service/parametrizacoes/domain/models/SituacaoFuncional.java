@@ -75,6 +75,25 @@ public enum SituacaoFuncional {
         return this == INACTIVIDADE_NO_QUADRO || this == INACTIVIDADE_FORA_QUADRO;
     }
 
+    /**
+     * O titular nesta situação pode ser <b>substituído</b> no seu Lugar?
+     *
+     * <p>São as duas situações em que o funcionário <b>mantém o Lugar mas não
+     * exerce</b>: a actividade fora do quadro (art. 119.º — comissão, requisição,
+     * cedência) e a inactividade no quadro (art. 120.º — licença até três anos,
+     * incapacidade temporária, suspensão disciplinar). É exactamente o
+     * "temporariamente impedido" do art. 73.º al. a) a c).
+     *
+     * <p>Quem está em actividade no quadro exerce, e não há nada a substituir. Nas
+     * restantes situações o funcionário já <b>não tem</b> Lugar — a inactividade
+     * fora do quadro abre vaga, a disponibilidade é estar sem Lugar, e a
+     * aposentação cessa o vínculo —, e um Lugar vago provê-se com titular, não
+     * com substituto.
+     */
+    public boolean permiteSubstituicao() {
+        return this == ACTIVIDADE_FORA_QUADRO || this == INACTIVIDADE_NO_QUADRO;
+    }
+
     /** A situação termina a relação de emprego público? Só a aposentação. */
     public boolean cessaVinculo() {
         return this == APOSENTACAO;

@@ -165,6 +165,7 @@ Cada um: `GET` (lista), `GET/{id}`, `POST`, `PUT/{id}`, `DELETE/{id}/deactivate`
 | `POST` | `/funcionarios/{id}/progressao` | **Progressão** para o escalão seguinte (ver 5.4). |
 | `POST` | `/funcionarios/{id}/promocao` | **Promoção** para a categoria seguinte (ver 5.5). |
 | `POST` | `/funcionarios/{id}/transferencia` | **Transferência** para outro Lugar (ver 5.6). |
+| `POST` | `/funcionarios/{id}/substituicao` | **Substituição** de um titular impedido (ver 5.7). |
 | `GET` | `/funcionarios/{id}/details` | Detalhe agregado (inclui bloco `enquadramento` derivado do Lugar, por compat). O bloco `contrato` traz `vinculoLaboralId`, `vinculoLaboralCode` e `vinculoLaboralDesc`, **derivados** do tipo de contrato. |
 | `GET` | `/funcionarios/combobox` | Combobox. |
 
@@ -343,6 +344,56 @@ Mudança **definitiva** de Lugar **sem subir na grelha**: mantém carreira, cate
 **Sobre a função:** se não enviar `functionId`, mantém-se a função actual quando é compatível com o cargo do Lugar de destino; quando não é, devolve `422` a pedir que a indique — nunca se perde em silêncio. Regras completas: `regras_negocio.html`, secção 3.3 (BR-TRF-01 a 08).
 
 > Uma mudança **temporária** de Lugar, com regresso, não é transferência: é **mobilidade** (secção 7).
+
+---
+
+### 5.7 Substituição — `POST /funcionarios/{funcionarioId}/substituicao`
+
+Põe um colaborador a substituir o **titular** de um Lugar que está temporariamente impedido: contrato a termo do art. 73.º al. a) a c), ou nomeação em substituição do art. 91.º n.º 1 al. a).
+
+O `{funcionarioId}` do path é **quem vai substituir**, não o titular. O titular deduz-se do Lugar.
+
+```json
+POST /api/v1/rh/funcionarios/{funcionarioId}/substituicao
+{
+  "positionId": "uuid",            // obrigatório — o Lugar a cobrir, que tem de ter titular
+  "gradeId": "uuid | null",        // obrigatório em Lugar de carreira, proibido fora de grelha
+  "functionId": "uuid | null",     // tem de pertencer ao cargo do Lugar
+  "dataInicio": "YYYY-MM-DD",      // obrigatório
+  "despachoNumero": "string | null",
+  "observacoes": "string | null"
+}
+```
+
+`201` com `SubstituicaoResponseDTO`:
+
+```json
+{
+  "id": "uuid",                    // a afectação de substituição criada
+  "funcionarioId": "uuid",         // o substituto
+  "positionId": "uuid",
+  "numeroLugar": "L-01",
+  "unidadeOrganicaId": "uuid",
+  "gradeId": "uuid | null",
+  "functionId": "uuid | null",
+  "dataInicio": "YYYY-MM-DD",
+  "titularId": "uuid",             // quem está a ser substituído
+  "titularNome": "string",
+  "titularAssignmentId": "uuid"    // a afectação do titular; é o que faz a substituição caducar
+}
+```
+
+**Não se envia data de fim.** A substituição caduca quando cessa o impedimento (art. 77.º n.º 2) e **fecha-se sozinha** quando o titular regressa: ao mudar para um estado cuja situação já não permite substituição, ao encerrar-se a licença dele, ou ao cessar. Não há endpoint para a terminar à mão.
+
+| Código | Quando |
+|---|---|
+| `404` | Funcionário, Lugar, escalão ou função inexistentes. |
+| `409` | O titular **já está a ser substituído** — um de cada vez. |
+| `422` | Substituto inactivo · o Lugar **não tem titular** (está vago: nomeie titular) · o titular **não está impedido** (`ACTIVIDADE_NO_QUADRO`, ou já sem Lugar) · o estado do titular **não tem situação funcional** atribuída · o colaborador é o próprio titular · `dataInicio` anterior à afectação do titular · as regras de Lugar da afectação normal (ocupável, escalão, função). |
+
+> **Só se substitui quem mantém o Lugar sem o exercer.** Isso lê-se da situação funcional do estado do titular — `ACTIVIDADE_FORA_QUADRO` (art. 119.º) ou `INACTIVIDADE_NO_QUADRO` (art. 120.º) — e não de uma lista de códigos. Se a instituição não classificou o estado, a substituição é recusada em vez de se adivinhar.
+
+> **O substituto mantém o seu próprio Lugar**, se tiver: ao contrário dos movimentos de carreira, a substituição **não encerra** a afectação principal de quem substitui.
 
 ---
 
@@ -556,7 +607,7 @@ Os que estão marcados **validado** são enums fechados no domínio: um valor fo
 | Enum | Valores | |
 |---|---|---|
 | `origem` (afectação) | `ADMISSAO`, `PROGRESSAO`, `PROMOCAO`, `MOBILIDADE`, `TRANSFERENCIA`, `SUBSTITUICAO` | |
-| `assignmentType` | `PRINCIPAL`, `SUBSTITUICAO`, `ACUMULACAO` — omisso vale `PRINCIPAL` | **validado** |
+| `assignmentType` | `PRINCIPAL`, `SUBSTITUICAO`, `ACUMULACAO` — omisso vale `PRINCIPAL`. A `SUBSTITUICAO` cria-se pelo endpoint de substituição (5.7), não por `POST /assignments`. | **validado** |
 | `estado` (Lugar) | `ATIVO`, `CONGELADO`, `EXTINTO` (provido/vago é **derivado do titular**) | |
 | `recordType` (subtipo licença/mobilidade) | `LICENCA`, `MOBILIDADE` — o valor **`AMBOS` foi removido na V43** | **validado** |
 | `situacaoFuncional` (estado do trabalhador) | `ACTIVIDADE_NO_QUADRO`, `ACTIVIDADE_FORA_QUADRO`, `INACTIVIDADE_NO_QUADRO`, `INACTIVIDADE_FORA_QUADRO`, `DISPONIBILIDADE`, `APOSENTACAO` — pode ser nulo | **validado** |

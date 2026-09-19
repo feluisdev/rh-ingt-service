@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
+import cv.igrp.RH_Service.colaboradores.application.services.SubstituicaoService;
 import cv.igrp.RH_Service.colaboradores.application.services.LicencaService;
 import cv.igrp.RH_Service.colaboradores.application.services.MobilidadeService;
 import cv.igrp.RH_Service.colaboradores.domain.models.LicencaMobilidade;
@@ -63,7 +64,8 @@ class MobilidadeTransitoriaTest {
                 Mockito.mock(FuncionarioRepository.class), Mockito.mock(WorkerStateRepository.class),
                 Mockito.mock(HistoricoEstadoColaboradorRepository.class));
         aprovar = new AprovarLicencaMobilidadeCommandHandler(licencaRepository, mobilidadeService, licencaService);
-        encerrar = new EncerrarLicencaMobilidadeCommandHandler(licencaRepository, mobilidadeService, licencaService);
+        encerrar = new EncerrarLicencaMobilidadeCommandHandler(licencaRepository, mobilidadeService, licencaService,
+                Mockito.mock(SubstituicaoService.class));
         cancelar = new CancelarLicencaMobilidadeCommandHandler(licencaRepository);
     }
 

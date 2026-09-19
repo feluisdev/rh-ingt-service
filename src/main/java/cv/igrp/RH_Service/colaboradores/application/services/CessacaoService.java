@@ -43,6 +43,7 @@ public class CessacaoService {
     private final WorkerStateRepository workerStateRepository;
     private final HistoricoEstadoColaboradorRepository historicoRepository;
     private final AssignmentService assignmentService;
+    private final SubstituicaoService substituicaoService;
 
     /**
      * Resultado da cessação: o estado atribuído, o contrato cessado (se havia) e se a afectação
@@ -83,16 +84,21 @@ public class CessacaoService {
                 })
                 .orElse(null);
 
-        // 2. Afectação corrente encerrada — o Lugar volta a vago (derivado)
+        // 2. Substituições do seu Lugar encerradas, antes de o Lugar ficar vago: quem cessa
+        // deixa de ter impedimento a cobrir (art. 77.º n.º 2). Tem de ser por esta ordem —
+        // depois de a afectação do titular fechar, já não há por onde as encontrar.
+        substituicaoService.encerrarPorRegressoDoTitular(funcionarioId, dataEfeito);
+
+        // 3. Afectação corrente encerrada — o Lugar volta a vago (derivado)
         UUID afectacaoEncerradaId = assignmentService.encerrarAfectacaoCorrente(funcionarioId, dataEfeito)
                 .map(a -> a.getId().getValor())
                 .orElse(null);
 
-        // 3. Estado do trabalhador
+        // 4. Estado do trabalhador
         funcionario.atualizarWorkerState(estadoCessacao.getId().getValor(), false);
         funcionarioRepository.save(funcionario);
 
-        // 4. Histórico — a cessação fica sempre registada, venha de onde vier
+        // 5. Histórico — a cessação fica sempre registada, venha de onde vier
         historicoRepository.save(HistoricoEstadoColaborador.criar(
                 funcionarioId, estadoAnteriorId, estadoCessacao.getId().getValor(),
                 motivo, dataEfeito, observacao));

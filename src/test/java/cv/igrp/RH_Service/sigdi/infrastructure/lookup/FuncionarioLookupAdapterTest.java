@@ -66,6 +66,7 @@ class FuncionarioLookupAdapterTest {
                 TipoAfectacao.PRINCIPAL.name(),
                 "NOMEACAO",
                 null,
+                null,
                 LocalDate.of(YEAR, 1, 1),
                 null,
                 true,

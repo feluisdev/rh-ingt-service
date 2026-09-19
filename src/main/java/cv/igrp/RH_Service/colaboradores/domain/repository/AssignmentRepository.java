@@ -28,6 +28,19 @@ public interface AssignmentRepository {
     boolean temTitular(UUID positionId);
 
     /**
+     * Quem substitui, neste momento, o titular desta afectacao. No maximo um -- garantido
+     * por indice unico parcial (V46).
+     */
+    Optional<Assignment> findSubstitutoCorrente(AssignmentId titularAssignmentId);
+
+    /**
+     * Todas as substituicoes correntes desta afectacao de titular. O indice garante que e'
+     * uma so; a lista existe para o encerramento nao depender dessa garantia e conseguir
+     * fechar o que encontrar.
+     */
+    List<Assignment> findSubstituicoesCorrentes(AssignmentId titularAssignmentId);
+
+    /**
      * Quais dos {@code positionIds} tem titular. Existe para que uma listagem de Lugares
      * resolva o provimento numa consulta so, em vez de um {@link #temTitular} por linha.
      * Os ids ausentes do resultado estao vagos.
