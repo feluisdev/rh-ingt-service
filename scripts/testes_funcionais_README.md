@@ -23,6 +23,15 @@ java -jar target\RH-Service-0.0.1-SNAPSHOT.jar --spring.profiles.active=developm
 > O script **altera dados**: só serve para ambiente local. Para repetir do zero,
 > repor o estado inicial com o SQL do fim deste ficheiro.
 
+## Repor antes de correr
+
+A bateria muda dados de proposito. Ha um ficheiro pronto:
+
+```bash
+docker cp scripts/repor_estado.sql postgres-ingt-rh:/tmp/repor.sql
+docker exec postgres-ingt-rh sh -c "psql -U postgres -d recursoshumanos_db -q -f /tmp/repor.sql"
+```
+
 ## O que cobre
 
 | Grupo | O que prova |
@@ -37,18 +46,66 @@ java -jar target\RH-Service-0.0.1-SNAPSHOT.jar --spring.profiles.active=developm
 
 ## Repor o estado inicial
 
+Corre isto **antes de cada execucao**. A bateria muda dados de proposito (abre
+vagas, suspende contratos, gasta saldos), e uma segunda execucao sobre o estado
+deixado pela primeira falha por motivos que nada tem a ver com o codigo.
+
 ```sql
-delete from t_assignment where id not in ('e6e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ee01'::uuid,'e6e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ee02'::uuid);
-update t_assignment set data_fim=null, is_current=true, grade_id='81e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e801'::uuid where funcionario_id='91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e901'::uuid;
-update t_assignment set data_fim=null, is_current=true, grade_id='81e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e803'::uuid where funcionario_id='91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e902'::uuid;
+-- 1. Afectacoes: fica so a do seed, com o escalao de partida.
+--    A clausula 'not in' apanha tambem as substituicoes e o que os movimentos criaram.
+delete from t_assignment where id not in (
+  'e6e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ee01'::uuid,
+  'e6e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ee02'::uuid,
+  'e6e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ee03'::uuid);
+update t_assignment set data_fim=null, is_current=true, assignment_type='PRINCIPAL', titular_assignment_id=null,
+       position_id='d5e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ed01'::uuid, grade_id='81e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e801'::uuid
+ where funcionario_id='91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e901'::uuid;
+update t_assignment set data_fim=null, is_current=true, assignment_type='PRINCIPAL', titular_assignment_id=null,
+       position_id='d5e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ed02'::uuid, grade_id='81e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e803'::uuid
+ where funcionario_id='91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e902'::uuid;
+update t_assignment set data_fim=null, is_current=true, assignment_type='PRINCIPAL', titular_assignment_id=null,
+       position_id='d5e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ed03'::uuid, grade_id='81e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e803'::uuid
+ where funcionario_id='91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e903'::uuid;
+
+-- 2. Lugares: o LUG-0006 e congelado de proposito; os outros voltam a ATIVO.
+update t_position set estado='ATIVO', is_active=true where numero_lugar <> 'LUG-0006';
+update t_position set estado='CONGELADO', is_active=true where numero_lugar = 'LUG-0006';
+--    A promocao sem positionId reclassifica o Lugar: repor a categoria de origem.
+update t_position set category_id='71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e701'::uuid where numero_lugar in ('LUG-0001','LUG-0004');
+update t_position set category_id='71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e702'::uuid where numero_lugar in ('LUG-0002','LUG-0003','LUG-0005','LUG-0006');
+
+-- 3. Estado e contratos.
 update t_funcionario set worker_state_id=(select id from t_worker_state where code='ACTIVE'), is_active=true;
 update t_contrato set status='ATIVO', is_current=true, end_date=null;
-delete from t_leave_mobility; delete from t_leave_request; delete from t_leave_balance; delete from t_historico_estado_colaborador;
+
+-- 4. Registos que a bateria cria.
+delete from t_leave_mobility; delete from t_leave_request; delete from t_leave_balance;
+delete from t_historico_estado_colaborador;
+
+-- 5. Lixo de catalogo deixado por execucoes anteriores.
+delete from t_option_entity where ccode like 'TESTE%';
+delete from t_worker_state where code like 'TESTE%';
+delete from t_leave_mobility_subtype where code like 'TESTE%';
 ```
+
+### F6 - substituicao de titular impedido (2026-09-19)
+
+Prova o que os testes unitarios nao alcancam, porque depende de um indice
+parcial na base: **duas afectacoes correntes no mesmo Lugar**, a do titular
+(`PRINCIPAL`) e a de quem o substitui (`SUBSTITUICAO`).
+
+- so se substitui quem esta impedido -- titular em actividade da 422
+- Lugar vago da 422 (nomeia-se titular, nao substituto), a si proprio da 422
+- quem substitui **mantem o seu proprio Lugar** (art. 91.o n.o 1 al. a))
+- o Lugar do titular **continua provido**: nao aparece na lista de vagas
+- segundo substituto da 409
+- o **regresso do titular fecha a substituicao sozinho** (art. 77.o n.o 2),
+  provado sem endpoint de leitura: uma segunda substituicao passa a ser aceite,
+  quando antes dava 409
 
 ## Resultado da última execução
 
-**78 passos, 78 OK** (2026-09-18), contra a base de dados local com a V44 aplicada.
+**111 passos, 111 OK** (2026-09-19), contra a base local com a V47 aplicada.
 
 Encontrou dois problemas reais, já corrigidos:
 

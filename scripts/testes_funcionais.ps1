@@ -61,7 +61,10 @@ $colabs = Linhas $rFunc
 Write-Host ('      colaboradores: ' + $colabs.Count)
 $colabA = $colabs[0].id
 $colabB = $colabs[1].id
-Write-Host ('      A=' + $colabA + '  B=' + $colabB)
+# C existe para a substituicao: e preciso alguem impedido que mantenha o Lugar e
+# alguem que o substitua. Com dois colaboradores nao ha como montar o cenario.
+$colabC = $colabs[2].id
+Write-Host ('      A=' + $colabA + '  B=' + $colabB + '  C=' + $colabC)
 
 Chamar 'F0.2 detalhe do colaborador A' GET ('/funcionarios/' + $colabA + '/details') | Out-Null
 Chamar 'F0.3 unidade atual de A' GET ('/colaboradores/assignments/funcionario/' + $colabA + '/unidade-atual') | Out-Null
@@ -226,6 +229,76 @@ Write-Host '=========== F5 - EFEITOS CRUZADOS ==========='
 # mesmo, e nao so no papel.
 Chamar 'F5.1 NEG progressao de A (sem Lugar, por estado)' POST ('/funcionarios/' + $colabA + '/progressao') @{ dataEfeito='2026-12-05' } 422 | Out-Null
 Chamar 'F5.2 NEG progressao de B (sem Lugar, por licenca)' POST ('/funcionarios/' + $colabB + '/progressao') @{ dataEfeito='2026-12-05' } 422 | Out-Null
+
+Write-Host ''
+Write-Host '=========== F6 - SUBSTITUICAO DE TITULAR IMPEDIDO ==========='
+
+# Percurso do RH, como no ecra: ve onde o titular esta, ve a categoria do Lugar,
+# ve os escaloes dessa categoria, ve as vagas da unidade -- e so entao age.
+
+$rUniC = Chamar 'F6.1 onde esta o C' GET ('/colaboradores/assignments/funcionario/' + $colabC + '/unidade-atual')
+$lugarC = $rUniC.Dados.positionId
+$unidade = $rUniC.Dados.unidadeOrganicaId
+Verificar 'F6.2 C tem Lugar e unidade' (($null -ne $lugarC) -and ($null -ne $unidade)) ('(lugar=' + $rUniC.Dados.numeroLugar + ')')
+
+$rPosC = Chamar 'F6.3 detalhe do Lugar do C' GET ('/estrutura/positions/' + $lugarC)
+$catC = $rPosC.Dados.categoryId
+$rGradesC = Chamar 'F6.4 escaloes da categoria desse Lugar' GET ('/categories/' + $catC + '/grades')
+$escalaoC = (@(Linhas $rGradesC) | Where-Object { $_.isActive -ne $false } | Select-Object -First 1).id
+Verificar 'F6.5 ha escalao para usar' ($null -ne $escalaoC) ''
+
+# A chegou aqui sem Lugar (F2 abriu-lhe a vaga). Volta a ter um, porque so assim
+# se prova que quem substitui NAO perde o seu (BR-SUB-07).
+$rVagas = Chamar 'F6.6 Lugares vagos da unidade' GET ('/colaboradores/assignments/unidade/' + $unidade + '/vagas/lista')
+$vagos = @(Linhas $rVagas)
+Verificar 'F6.7 ha Lugares vagos para escolher' ($vagos.Count -ge 1) ('(n=' + $vagos.Count + ')')
+$lugarLivre = ($vagos | Where-Object { $_.foraDeGrelha -ne $true -and $_.estado -eq 'ATIVO' } | Select-Object -First 1)
+$rGradesL = Chamar 'F6.8 escaloes da categoria do Lugar vago' GET ('/categories/' + $lugarLivre.categoryId + '/grades')
+$escalaoL = (@(Linhas $rGradesL) | Where-Object { $_.isActive -ne $false } | Select-Object -First 1).id
+Chamar 'F6.9 reafectar A a um Lugar vago' POST '/colaboradores/assignments' @{ funcionarioId=$colabA; positionId=$lugarLivre.id; gradeId=$escalaoL; origem='ADMISSAO'; dataInicio='2026-11-01' } 201 | Out-Null
+
+# Quem esta em funcoes nao se substitui.
+Chamar 'F6.10 NEG substituir titular em actividade' POST ('/funcionarios/' + $colabA + '/substituicao') @{ positionId=$lugarC; gradeId=$escalaoC; dataInicio='2026-11-02' } 422 | Out-Null
+
+# Inactividade NO quadro: suspende o vinculo mas mantem o Lugar (art. 120.o).
+Chamar 'F6.11 C passa a SUSPENDED' PATCH ('/funcionarios/' + $colabC + '/worker-state') @{ workerStateId=$ws['SUSPENDED'].id; dataEfectividade='2026-11-02'; motivoCkey='DOENCA'; observacao='incapacidade temporaria' } 200 | Out-Null
+$rUniC2 = Chamar 'F6.12 C continua no seu Lugar' GET ('/colaboradores/assignments/funcionario/' + $colabC + '/unidade-atual')
+Verificar 'F6.13 a inactividade no quadro NAO abriu vaga' ($rUniC2.Dados.positionId -eq $lugarC) ('(lugar=' + $rUniC2.Dados.numeroLugar + ')')
+
+# Negativos que o ecra tem de tratar.
+$rVagas2 = Chamar 'F6.14 relista vagas' GET ('/colaboradores/assignments/unidade/' + $unidade + '/vagas/lista')
+$vago2 = (@(Linhas $rVagas2) | Where-Object { $_.estado -eq 'ATIVO' } | Select-Object -First 1)
+if ($null -ne $vago2) {
+    Chamar 'F6.15 NEG substituir num Lugar VAGO' POST ('/funcionarios/' + $colabB + '/substituicao') @{ positionId=$vago2.id; dataInicio='2026-11-03' } 422 | Out-Null
+}
+Chamar 'F6.16 NEG C substitui-se a si proprio' POST ('/funcionarios/' + $colabC + '/substituicao') @{ positionId=$lugarC; gradeId=$escalaoC; dataInicio='2026-11-03' } 422 | Out-Null
+Chamar 'F6.17 NEG Lugar inexistente' POST ('/funcionarios/' + $colabA + '/substituicao') @{ positionId='00000000-0000-4000-8000-000000000999'; dataInicio='2026-11-03' } 404 | Out-Null
+Chamar 'F6.18 NEG sem dataInicio' POST ('/funcionarios/' + $colabA + '/substituicao') @{ positionId=$lugarC } 400 | Out-Null
+
+# O caminho positivo.
+$rSub = Chamar 'F6.19 A substitui C' POST ('/funcionarios/' + $colabA + '/substituicao') @{ positionId=$lugarC; gradeId=$escalaoC; dataInicio='2026-11-03'; despachoNumero='DESP-2026/77'; observacoes='substituicao por doenca' } 201
+Verificar 'F6.20 a resposta diz quem esta a ser substituido' ($rSub.Dados.titularId -eq $colabC -and $null -ne $rSub.Dados.titularNome) ('(titular=' + $rSub.Dados.titularNome + ')')
+Verificar 'F6.21 e traz a afectacao que a faz caducar' ($null -ne $rSub.Dados.titularAssignmentId) ''
+
+# O que a substituicao NAO faz.
+$rUniA = Chamar 'F6.22 A mantem o seu proprio Lugar' GET ('/colaboradores/assignments/funcionario/' + $colabA + '/unidade-atual')
+Verificar 'F6.23 substituir nao desaloja quem substitui' ($rUniA.Dados.positionId -eq $lugarLivre.id) ('(A esta em ' + $rUniA.Dados.numeroLugar + ')')
+$rUniC3 = Chamar 'F6.24 C continua titular' GET ('/colaboradores/assignments/funcionario/' + $colabC + '/unidade-atual')
+Verificar 'F6.25 substituir nao desaloja o titular' ($rUniC3.Dados.positionId -eq $lugarC) ''
+
+# O Lugar do titular continua PROVIDO: um substituto nao o torna vago nem o prove.
+$rVagas3 = Chamar 'F6.26 vagas da unidade com substituicao em curso' GET ('/colaboradores/assignments/unidade/' + $unidade + '/vagas')
+$semTitular = @(Linhas (Chamar 'F6.27 lista de vagas' GET ('/colaboradores/assignments/unidade/' + $unidade + '/vagas/lista')))
+Verificar 'F6.28 o Lugar do titular nao aparece como vago' (($semTitular | Where-Object { $_.id -eq $lugarC }).Count -eq 0) ''
+
+Chamar 'F6.29 NEG segundo substituto para o mesmo titular' POST ('/funcionarios/' + $colabB + '/substituicao') @{ positionId=$lugarC; gradeId=$escalaoC; dataInicio='2026-11-04' } 409 | Out-Null
+
+# O regresso do titular fecha a substituicao sozinho (art. 77.o n.o 2). Prova-se
+# sem endpoint de leitura: se NAO tivesse fechado, a proxima daria 409.
+Chamar 'F6.30 C regressa a actividade' PATCH ('/funcionarios/' + $colabC + '/worker-state') @{ workerStateId=$ws['ACTIVE'].id; dataEfectividade='2026-11-20'; motivoCkey='ALTA'; observacao='fim da incapacidade' } 200 | Out-Null
+Chamar 'F6.31 C volta a ficar impedido' PATCH ('/funcionarios/' + $colabC + '/worker-state') @{ workerStateId=$ws['SUSPENDED'].id; dataEfectividade='2026-11-21'; motivoCkey='DOENCA' } 200 | Out-Null
+$rSub2 = Chamar 'F6.32 nova substituicao e aceite' POST ('/funcionarios/' + $colabB + '/substituicao') @{ positionId=$lugarC; gradeId=$escalaoC; dataInicio='2026-11-22' } 201
+Verificar 'F6.33 o regresso do titular fechou mesmo a 1a substituicao' $rSub2.OK '(senao teria dado 409)'
 
 Write-Host ''
 Write-Host '=========== RESUMO ==========='

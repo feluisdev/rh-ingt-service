@@ -12,7 +12,12 @@
 -- Employees
 INSERT INTO t_funcionario (id, numero_funcionario, nome_completo, data_nascimento, genero, estado_civil, nif, numero_documento, data_validade_doc, nacionalidade, email, telefone, worker_state_id, data_admissao, is_active, created_date, created_by) VALUES
 ('91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e901', '0000001', 'Francisco Bastos', '1985-05-15', 'MASCULINO', 'SOLTEIRO', '123456789', 'BI001', '2030-01-01', 'CV', 'francisco.bastos@mffe.gov.cv', '+238900001', 'c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1', '2010-01-01', true, NOW(), 'system'),
-('91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e902', '0000002', 'Maria Santos', '1990-10-20', 'FEMININO', 'CASADO', '987654321', 'BI002', '2030-06-01', 'CV', 'maria.santos@mffe.gov.cv', '+238900002', 'c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1', '2015-06-01', true, NOW(), 'system')
+('91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e902', '0000002', 'Maria Santos', '1990-10-20', 'FEMININO', 'CASADO', '987654321', 'BI002', '2030-06-01', 'CV', 'maria.santos@mffe.gov.cv', '+238900002', 'c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1', '2015-06-01', true, NOW(), 'system'),
+-- Terceiro colaborador: existe para a substituicao ter quem substitua. Tem Lugar
+-- proprio de proposito -- e o caso da nomeacao em substituicao (art. 91.o n.o 1
+-- al. a)), em que quem substitui e ja funcionario e MANTEM o seu Lugar. Sem ele,
+-- BR-SUB-07 fica por provar.
+('91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e903', '0000003', 'Joana Tavares', '1988-03-08', 'FEMININO', 'SOLTEIRO', '456789123', 'BI003', '2031-03-01', 'CV', 'joana.tavares@mffe.gov.cv', '+238900003', 'c1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1', '2018-09-01', true, NOW(), 'system')
 ON CONFLICT (numero_funcionario) DO NOTHING;
 
 -- Contracts
@@ -20,7 +25,8 @@ ON CONFLICT (numero_funcionario) DO NOTHING;
 -- reactivado, porque as duas operações comparam o estado actual.
 INSERT INTO t_contrato (id, funcionario_id, contract_type_id, start_date, contract_number, is_current, status, created_date, created_by) VALUES
 ('a2e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ea01', '91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e901', 'b84e1b52-2c6c-4b5a-9b5a-7e1e1e1e1e1e', '2010-01-01', 'CONT-001', true, 'ATIVO', NOW(), 'system'),
-('a2e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ea02', '91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e902', 'b84e1b52-2c6c-4b5a-9b5a-7e1e1e1e1e20', '2015-06-01', 'CONT-002', true, 'ATIVO', NOW(), 'system')
+('a2e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ea02', '91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e902', 'b84e1b52-2c6c-4b5a-9b5a-7e1e1e1e1e20', '2015-06-01', 'CONT-002', true, 'ATIVO', NOW(), 'system'),
+('a2e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ea03', '91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e903', 'b84e1b52-2c6c-4b5a-9b5a-7e1e1e1e1e1e', '2018-09-01', 'CONT-003', true, 'ATIVO', NOW(), 'system')
 ON CONFLICT (contract_number) DO NOTHING;
 
 -- Mapa de Pessoal (Lugar) + Afectacao
@@ -41,12 +47,22 @@ ON CONFLICT (contract_number) DO NOTHING;
 -- enquadramento, um periodo de 2015 nao encontraria a Maria.
 INSERT INTO t_position (id, numero_lugar, job_id, unidade_organica_id, career_id, category_id, estado, is_active, created_date, created_by) VALUES
 ('d5e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ed01', 'LUG-0001', '51e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e501', '31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e303', '61e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e601', '71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e701', 'ATIVO', true, NOW(), 'system'),
-('d5e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ed02', 'LUG-0002', '51e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e502', '31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e303', '61e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e601', '71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e702', 'ATIVO', true, NOW(), 'system')
+('d5e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ed02', 'LUG-0002', '51e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e502', '31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e303', '61e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e601', '71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e702', 'ATIVO', true, NOW(), 'system'),
+-- Lugares 3 a 6: sem eles a bateria nao consegue exercitar metade dos movimentos.
+-- LUG-0003 da Lugar proprio a Joana, para a substituicao provar que quem substitui
+-- nao perde o seu. LUG-0004 esta VAGO na categoria de cima (Tecnico Superior), que e
+-- o que a promocao com positionId exige. LUG-0005 esta vago na mesma categoria da
+-- Maria, para a transferencia. LUG-0006 esta CONGELADO, para provar o 422.
+('d5e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ed03', 'LUG-0003', '51e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e502', '31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e303', '61e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e601', '71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e702', 'ATIVO', true, NOW(), 'system'),
+('d5e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ed04', 'LUG-0004', '51e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e501', '31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e303', '61e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e601', '71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e701', 'ATIVO', true, NOW(), 'system'),
+('d5e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ed05', 'LUG-0005', '51e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e502', '31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e303', '61e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e601', '71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e702', 'ATIVO', true, NOW(), 'system'),
+('d5e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ed06', 'LUG-0006', '51e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e502', '31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e303', '61e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e601', '71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e702', 'CONGELADO', true, NOW(), 'system')
 ON CONFLICT (numero_lugar) DO NOTHING;
 
 INSERT INTO t_assignment (id, funcionario_id, position_id, grade_id, assignment_type, origem, data_inicio, is_current, is_active, created_date, created_by) VALUES
 ('e6e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ee01', '91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e901', 'd5e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ed01', '81e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e802', 'PRINCIPAL', 'ADMISSAO', '2010-01-01', true, true, NOW(), 'system'),
-('e6e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ee02', '91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e902', 'd5e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ed02', '81e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e803', 'PRINCIPAL', 'ADMISSAO', '2015-06-01', true, true, NOW(), 'system')
+('e6e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ee02', '91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e902', 'd5e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ed02', '81e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e803', 'PRINCIPAL', 'ADMISSAO', '2015-06-01', true, true, NOW(), 'system'),
+('e6e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ee03', '91e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e903', 'd5e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ed03', '81e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e803', 'PRINCIPAL', 'ADMISSAO', '2018-09-01', true, true, NOW(), 'system')
 ON CONFLICT (id) DO NOTHING;
 
 -- Documents (referencing funcionario via reference_entity/reference_id)
