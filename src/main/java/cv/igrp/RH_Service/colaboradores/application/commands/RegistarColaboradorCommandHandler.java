@@ -74,7 +74,6 @@ public class RegistarColaboradorCommandHandler
                     origem,
                     TipoAfectacao.de(af.getAssignmentType()),
                     inicio,
-                    null,
                     af.getNotes());
             afectacaoId = afectacao.getId().getStringValor();
         }

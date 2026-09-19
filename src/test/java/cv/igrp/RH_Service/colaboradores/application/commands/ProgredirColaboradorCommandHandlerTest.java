@@ -83,7 +83,7 @@ class ProgredirColaboradorCommandHandlerTest {
         funcionarioActivo(true);
         vinculoElegivel(true);
         Assignment nova = Assignment.criar(funcionarioId, UUID.randomUUID(), UUID.randomUUID(), null,
-                TipoAfectacao.PRINCIPAL, Assignment.PROGRESSAO, dataEfeito, null, null);
+                TipoAfectacao.PRINCIPAL, Assignment.PROGRESSAO, dataEfeito, null);
         when(assignmentService.progredir(eq(funcionarioId), eq(dataEfeito), any()))
                 .thenReturn(new AssignmentService.Progressao(nova, escalao(1), escalao(2)));
 

@@ -49,7 +49,7 @@ public class AssignmentService {
      */
     public Assignment afectar(FuncionarioId funcionarioId, UUID positionId, UUID gradeId, UUID functionId,
                               String origem, TipoAfectacao assignmentType, LocalDate dataInicio,
-                              UUID originAssignmentId, String notes) {
+                              String notes) {
 
         TipoAfectacao tipo = assignmentType != null ? assignmentType : TipoAfectacao.PRINCIPAL;
 
@@ -73,7 +73,7 @@ public class AssignmentService {
 
         return assignmentRepository.save(Assignment.criar(
                 funcionarioId, positionId, gradeId, functionId, tipo, origem,
-                dataInicio, originAssignmentId, notes));
+                dataInicio, notes));
     }
 
     /**
@@ -246,7 +246,7 @@ public class AssignmentService {
 
         Assignment nova = assignmentRepository.save(Assignment.criar(
                 funcionarioId, positionIdFinal, escalao.getId().getValor(), atual.getFunctionId(),
-                TipoAfectacao.PRINCIPAL, Assignment.PROMOCAO, dataEfeito, null, notes));
+                TipoAfectacao.PRINCIPAL, Assignment.PROMOCAO, dataEfeito, notes));
 
         return new Promocao(nova, categoriaAtual, categoriaDestino, escalao, reclassificado);
     }
@@ -310,7 +310,7 @@ public class AssignmentService {
 
         Assignment nova = assignmentRepository.save(Assignment.criar(
                 funcionarioId, positionIdDestino, atual.getGradeId(), functionId,
-                TipoAfectacao.PRINCIPAL, Assignment.TRANSFERENCIA, dataEfeito, null, notes));
+                TipoAfectacao.PRINCIPAL, Assignment.TRANSFERENCIA, dataEfeito, notes));
 
         return new Transferencia(nova, origem, destino);
     }
@@ -418,7 +418,7 @@ public class AssignmentService {
         Assignment nova = assignmentRepository.save(Assignment.criar(
                 funcionarioId, atual.getPositionId(), escalaoSeguinte.getId().getValor(),
                 atual.getFunctionId(), TipoAfectacao.PRINCIPAL, Assignment.PROGRESSAO,
-                dataEfeito, null, notes));
+                dataEfeito, notes));
 
         return new Progressao(nova, escalaoAtual, escalaoSeguinte);
     }

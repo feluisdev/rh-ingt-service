@@ -81,7 +81,7 @@ class CessacaoServiceTest {
         when(contratoRepository.findCurrentByFuncionarioId(funcionarioId)).thenReturn(Optional.of(contrato));
 
         Assignment afectacao = Assignment.criar(funcionarioId, UUID.randomUUID(), null, null,
-                TipoAfectacao.PRINCIPAL, Assignment.ADMISSAO, LocalDate.of(2020, 1, 1), null, null);
+                TipoAfectacao.PRINCIPAL, Assignment.ADMISSAO, LocalDate.of(2020, 1, 1), null);
         when(assignmentService.encerrarAfectacaoCorrente(funcionarioId, dataEfeito))
                 .thenReturn(Optional.of(afectacao));
 

@@ -49,10 +49,6 @@ public class AssignmentEntity extends AuditEntity {
     private String origem;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "origin_assignment_id")
-    private AssignmentEntity originAssignment;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "titular_assignment_id")
     private AssignmentEntity titularAssignment;
 

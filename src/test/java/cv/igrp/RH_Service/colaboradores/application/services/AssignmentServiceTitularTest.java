@@ -68,7 +68,7 @@ class AssignmentServiceTitularTest {
 
     private Assignment afectar(TipoAfectacao tipo) {
         return service.afectar(funcionarioId, positionId, null, null,
-                Assignment.ADMISSAO, tipo, inicio, null, null);
+                Assignment.ADMISSAO, tipo, inicio, null);
     }
 
     @Nested

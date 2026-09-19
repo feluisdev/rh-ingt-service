@@ -69,7 +69,7 @@ class AssignmentServiceProgressaoTest {
 
     private Assignment afectacao(UUID gradeId) {
         return Assignment.reconstituir(AssignmentId.gerarNovo(), funcionarioId, positionId, gradeId,
-                functionId, TipoAfectacao.PRINCIPAL.name(), Assignment.ADMISSAO, null, null, inicio, null, true, true, null);
+                functionId, TipoAfectacao.PRINCIPAL.name(), Assignment.ADMISSAO, null, inicio, null, true, true, null);
     }
 
     private Position lugar(UUID careerId, UUID catId) {
@@ -108,7 +108,6 @@ class AssignmentServiceProgressaoTest {
         assertEquals(Assignment.PROGRESSAO, nova.getOrigem());
         assertEquals(TipoAfectacao.PRINCIPAL, nova.getAssignmentType());
         assertEquals(dataEfeito, nova.getDataInicio());
-        assertNull(nova.getOriginAssignmentId());
 
         assertEquals(e1, resultado.escalaoAnterior());
         assertEquals(e3, resultado.escalaoNovo());

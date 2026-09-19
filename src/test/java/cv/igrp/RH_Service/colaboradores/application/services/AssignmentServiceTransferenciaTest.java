@@ -63,7 +63,7 @@ class AssignmentServiceTransferenciaTest {
 
     private Assignment afectacaoActual(UUID functionId) {
         return Assignment.reconstituir(AssignmentId.gerarNovo(), funcionarioId, origemId, gradeId,
-                functionId, TipoAfectacao.PRINCIPAL.name(), Assignment.ADMISSAO, null, null, inicio, null, true, true, null);
+                functionId, TipoAfectacao.PRINCIPAL.name(), Assignment.ADMISSAO, null, inicio, null, true, true, null);
     }
 
     private Position lugar(UUID id, UUID jobId, UUID career, UUID category, String estado) {

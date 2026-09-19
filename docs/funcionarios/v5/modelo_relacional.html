@@ -106,7 +106,6 @@ erDiagram
   t_position    ||--o{ t_assignment : "é ocupado por"
   t_assignment  }o--o| t_grade      : "escalão (grade_id)"
   t_assignment  }o--o| t_funcao     : "função (function_id)"
-  t_assignment  }o--o| t_assignment : "origem - morta (origin_assignment_id)"
   t_assignment  }o--o| t_assignment : "titular substituído (titular_assignment_id)"
   t_position    }o--|| t_job        : "cargo (job_id)"
   t_position    }o--|| t_unidade_organica : "unidade"
@@ -267,7 +266,7 @@ erDiagram
     <tr><td>O que acontece no regresso</td><td><code>return_effect</code></td><td>Quem manteve o Lugar volta a ele; quem o perdeu aguarda vaga (art. 122.º).</td></tr>
     <tr><td>Estados do contrato</td><td>enum <code>EstadoContrato</code></td><td>São três e não variam; o que varia é o motivo, livre no catálogo <code>Option</code>. Obrigatório desde a V44: um contrato sem estado não era suspenso nem reactivado, em silêncio.</td></tr>
     <tr><td>Título com que se ocupa um Lugar</td><td>enum <code>TipoAfectacao</code></td><td>A lei fixa as formas de ocupar um Lugar do quadro: titular, substituição (art. 73.º), acumulação (art. 134.º n.º 2 al. b)). O motivo é que é livre.</td></tr>
-    <tr><td>Quem um substituto substitui</td><td><code>t_assignment.titular_assignment_id</code></td><td>Não se deduz do Lugar: o titular pode mudar. E é esta ligação que diz quando a substituição caduca (art. 77.º n.º 2). O <code>origin_assignment_id</code> não serve — foi feito para a mobilidade restaurar a afectação de origem, e está <b>morto</b>: desde que a mobilidade transitória deixou de mexer na afectação, nada o escreve (todos os caminhos passam <code>null</code>) e nada o lê. Fica para remoção.</td></tr>
+    <tr><td>Quem um substituto substitui</td><td><code>t_assignment.titular_assignment_id</code></td><td>Não se deduz do Lugar: o titular pode mudar. E é esta ligação que diz quando a substituição caduca (art. 77.º n.º 2). Não se reaproveitou o antigo <code>origin_assignment_id</code> — tinha outro sentido ("afectação a restaurar") e ficou sem dono quando a mobilidade transitória deixou de mexer na afectação; foi <b>largado na V47</b>.</td></tr>
     <tr><td>Provido / vago</td><td>derivado do <b>titular</b> corrente</td><td>Nunca se guarda: um Lugar está provido quando tem afectação corrente <code>PRINCIPAL</code>. Um substituto não o provê (V45).</td></tr>
   </table>
   <div class="callout warn"><b>A mobilidade nunca abre vaga</b> (art. 135.º n.º 7): marcar um subtipo de mobilidade com <code>position_effect = ABRE_VAGA</code> é recusado pelo catálogo.</div>
@@ -276,7 +275,7 @@ erDiagram
   <table>
     <tr><th>#</th><th>Tabela</th><th>Módulo</th><th>Entidade JPA</th><th>FKs (colunas <code>*_id</code>)</th></tr>
     <tr><td>1</td><td><code>t_funcionario</code></td><td><span class="mod m-col">col</span></td><td>FuncionarioEntity</td><td>worker_state_id, document_type_id</td></tr>
-    <tr><td>2</td><td><code>t_assignment</code></td><td><span class="mod m-col">col</span></td><td>AssignmentEntity</td><td>funcionario_id, position_id, grade_id, function_id, origin_assignment_id, titular_assignment_id</td></tr>
+    <tr><td>2</td><td><code>t_assignment</code></td><td><span class="mod m-col">col</span></td><td>AssignmentEntity</td><td>funcionario_id, position_id, grade_id, function_id, titular_assignment_id</td></tr>
     <tr><td>3</td><td><code>t_contrato</code></td><td><span class="mod m-col">col</span></td><td>ContratoEntity</td><td>funcionario_id, contract_type_id</td></tr>
     <tr><td>4</td><td><code>t_dados_bancarios</code></td><td><span class="mod m-col">col</span></td><td>DadosBancariosEntity</td><td>funcionario_id</td></tr>
     <tr><td>5</td><td><code>t_dependente</code></td><td><span class="mod m-col">col</span></td><td>DependenteEntity</td><td>funcionario_id</td></tr>

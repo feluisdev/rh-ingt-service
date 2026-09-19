@@ -31,7 +31,6 @@ public class Assignment {
     private UUID functionId;          // opcional
     private TipoAfectacao assignmentType;
     private String origem;
-    private UUID originAssignmentId;  // legado: nada o lê desde que a mobilidade deixou de criar afectações
     private UUID titularAssignmentId; // substituição: a afectação do titular impedido que esta cobre
     private LocalDate dataInicio;
     private LocalDate dataFim;
@@ -43,7 +42,7 @@ public class Assignment {
 
     public static Assignment criar(FuncionarioId funcionarioId, UUID positionId, UUID gradeId,
                                    UUID functionId, TipoAfectacao assignmentType, String origem,
-                                   LocalDate dataInicio, UUID originAssignmentId, String notes) {
+                                   LocalDate dataInicio, String notes) {
         Assignment a = new Assignment();
         a.id = AssignmentId.gerarNovo();
         a.funcionarioId = funcionarioId;
@@ -52,7 +51,6 @@ public class Assignment {
         a.functionId = functionId;
         a.assignmentType = assignmentType != null ? assignmentType : TipoAfectacao.PRINCIPAL;
         a.origem = origem;
-        a.originAssignmentId = originAssignmentId;
         a.dataInicio = dataInicio;
         a.dataFim = null;
         a.isCurrent = true;
@@ -73,14 +71,14 @@ public class Assignment {
                                                UUID functionId, AssignmentId titularAssignmentId,
                                                LocalDate dataInicio, String notes) {
         Assignment a = criar(funcionarioId, positionId, gradeId, functionId,
-                TipoAfectacao.SUBSTITUICAO, SUBSTITUICAO, dataInicio, null, notes);
+                TipoAfectacao.SUBSTITUICAO, SUBSTITUICAO, dataInicio, notes);
         a.titularAssignmentId = titularAssignmentId.getValor();
         return a;
     }
 
     public static Assignment reconstituir(AssignmentId id, FuncionarioId funcionarioId, UUID positionId,
                                           UUID gradeId, UUID functionId, String assignmentType,
-                                          String origem, UUID originAssignmentId, UUID titularAssignmentId,
+                                          String origem, UUID titularAssignmentId,
                                           LocalDate dataInicio, LocalDate dataFim, Boolean isCurrent,
                                           Boolean isActive, String notes) {
         Assignment a = new Assignment();
@@ -91,7 +89,6 @@ public class Assignment {
         a.functionId = functionId;
         a.assignmentType = TipoAfectacao.de(assignmentType);
         a.origem = origem;
-        a.originAssignmentId = originAssignmentId;
         a.titularAssignmentId = titularAssignmentId;
         a.dataInicio = dataInicio;
         a.dataFim = dataFim;

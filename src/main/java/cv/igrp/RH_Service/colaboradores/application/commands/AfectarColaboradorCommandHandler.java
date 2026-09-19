@@ -50,7 +50,6 @@ public class AfectarColaboradorCommandHandler
                 origem,
                 TipoAfectacao.de(dto.getAssignmentType()),
                 dataInicio,
-                null,
                 dto.getNotes());
 
         return ResponseEntity.status(201).body(Map.of(

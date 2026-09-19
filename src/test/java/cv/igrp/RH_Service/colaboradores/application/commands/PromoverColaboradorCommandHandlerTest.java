@@ -88,7 +88,7 @@ class PromoverColaboradorCommandHandlerTest {
 
     private AssignmentService.Promocao resultado(UUID positionIdFinal, boolean reclassificado) {
         Assignment nova = Assignment.criar(funcionarioId, positionIdFinal, UUID.randomUUID(), null,
-                TipoAfectacao.PRINCIPAL, Assignment.PROMOCAO, dataEfeito, null, null);
+                TipoAfectacao.PRINCIPAL, Assignment.PROMOCAO, dataEfeito, null);
         Grade escalao = Grade.reconstituir(GradeId.gerarNovo(), CategoryId.from(categoryId), 1, "E1",
                 "Escalão 1", BigDecimal.TEN, null, true);
         return new AssignmentService.Promocao(nova, categoria("Técnico", 1),

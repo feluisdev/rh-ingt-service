@@ -126,7 +126,6 @@ class AssignmentRepositoryCoveringYearTest {
                 TipoAfectacao.PRINCIPAL.name(),
                 "NOMEACAO",
                 null,
-                null,
                 LocalDate.of(2027, 1, 1),
                 null,
                 true,

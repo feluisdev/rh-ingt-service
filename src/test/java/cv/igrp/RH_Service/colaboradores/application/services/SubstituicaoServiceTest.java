@@ -74,7 +74,7 @@ class SubstituicaoServiceTest {
 
     private Assignment afectacaoDoTitular() {
         return Assignment.reconstituir(AssignmentId.gerarNovo(), titularId, positionId, null, null,
-                TipoAfectacao.PRINCIPAL.name(), Assignment.ADMISSAO, null, null,
+                TipoAfectacao.PRINCIPAL.name(), Assignment.ADMISSAO, null,
                 inicioTitular, null, true, true, null);
     }
 
@@ -175,7 +175,7 @@ class SubstituicaoServiceTest {
         @Test
         void ninguemSeSubstituiASiProprio() {
             Assignment doProprio = Assignment.reconstituir(AssignmentId.gerarNovo(), substitutoId, positionId,
-                    null, null, TipoAfectacao.PRINCIPAL.name(), Assignment.ADMISSAO, null, null,
+                    null, null, TipoAfectacao.PRINCIPAL.name(), Assignment.ADMISSAO, null,
                     inicioTitular, null, true, true, null);
             when(positionRepository.findById(PositionId.from(positionId))).thenReturn(Optional.of(lugar()));
             when(assignmentRepository.findTitularByPosition(positionId)).thenReturn(Optional.of(doProprio));

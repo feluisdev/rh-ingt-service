@@ -74,7 +74,7 @@ class TransferirColaboradorCommandHandlerTest {
     void transfereEDevolve201ComOsLugares() {
         funcionarioActivo(true);
         Assignment nova = Assignment.criar(funcionarioId, destinoId, UUID.randomUUID(), null,
-                TipoAfectacao.PRINCIPAL, Assignment.TRANSFERENCIA, dataEfeito, null, null);
+                TipoAfectacao.PRINCIPAL, Assignment.TRANSFERENCIA, dataEfeito, null);
         when(assignmentService.transferir(eq(funcionarioId), eq(destinoId), isNull(), eq(dataEfeito), any()))
                 .thenReturn(new AssignmentService.Transferencia(nova,
                         lugar(origemId, UUID.randomUUID(), "L-001"),

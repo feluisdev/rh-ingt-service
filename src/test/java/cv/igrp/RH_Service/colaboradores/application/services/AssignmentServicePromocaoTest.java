@@ -77,7 +77,7 @@ class AssignmentServicePromocaoTest {
     private Assignment afectacaoActual() {
         return Assignment.reconstituir(AssignmentId.gerarNovo(), funcionarioId, positionActualId,
                 escalao(catActual.getId(), 2, true).getId().getValor(), UUID.randomUUID(),
-                TipoAfectacao.PRINCIPAL.name(), Assignment.ADMISSAO, null, null, inicio, null, true, true, null);
+                TipoAfectacao.PRINCIPAL.name(), Assignment.ADMISSAO, null, inicio, null, true, true, null);
     }
 
     private Position lugar(UUID id, CategoryId categoryId, String estado) {
