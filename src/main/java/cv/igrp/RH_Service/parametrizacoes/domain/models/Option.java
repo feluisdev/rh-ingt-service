@@ -37,10 +37,9 @@ public class Option {
         Objects.requireNonNull(ccode, "ccode não pode ser nulo");
         Objects.requireNonNull(ckey, "ckey não pode ser nulo");
         Objects.requireNonNull(cvalue, "cvalue não pode ser nulo");
-        /*if (OptionCcode.fromCode(ccode).isEmpty()) {
-            throw IgrpResponseStatusException.badRequest(
-                "ccode inválido: '" + ccode + "'. Valores aceites: " + OptionCcode.codigosValidos());
-        }*/
+        // O ccode não é validado contra OptionCcode de propósito: o catálogo é
+        // parametrizado pela instituição, que pode criar famílias de etiquetas
+        // próprias. OptionCcode fixa apenas os códigos que o código consome.
         String effectiveLocale = (locale == null || locale.isBlank()) ? "pt-CV" : locale;
         int effectiveSortOrder = (sortOrder == null) ? 0 : sortOrder;
         return new Option(OptionId.gerarNovo(), ccode, ckey, cvalue,

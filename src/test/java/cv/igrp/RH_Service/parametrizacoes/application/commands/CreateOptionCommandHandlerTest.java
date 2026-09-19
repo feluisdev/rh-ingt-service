@@ -45,13 +45,21 @@ class CreateOptionCommandHandlerTest {
     }
 
     @Test
-    void handle_comCcodeInvalido_deveLancarBadRequest() {
-        var dto = new OptionRequestDTO("INVALID_CODE", "KEY", "Value", "pt-CV", 1, null);
+    void handle_comCcodeForaDoEnum_deveCriar() {
+        // Ver OptionTest: o ccode não é validado contra OptionCcode.
+        var dto = new OptionRequestDTO("MOTIVO_CESSACAO_INTERNO", "REFORMA_ANTECIPADA",
+            "Reforma antecipada", "pt-CV", 1, null);
         var command = new CreateOptionCommand(dto);
 
         when(optionRepository.existsByCcodeAndCkeyAndLocale(any(), any(), any())).thenReturn(false);
+        when(optionRepository.save(any(Option.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        assertThrows(IgrpResponseStatusException.class, () -> handler.handle(command));
+        var response = handler.handle(command);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        ArgumentCaptor<Option> captor = ArgumentCaptor.forClass(Option.class);
+        verify(optionRepository).save(captor.capture());
+        assertEquals("MOTIVO_CESSACAO_INTERNO", captor.getValue().getCcode());
     }
 
     @Test

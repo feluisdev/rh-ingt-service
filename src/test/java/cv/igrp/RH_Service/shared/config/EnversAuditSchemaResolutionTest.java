@@ -8,18 +8,20 @@ import org.springframework.core.env.StandardEnvironment;
 
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Answers Open Question 2 of {@code 109-RESEARCH.md} (assumption A1): does
  * {@code spring.jpa.properties.org.hibernate.envers.default_schema=audit_schema},
  * set in the base {@code application.properties} (line 13), survive into the
  * {@code staging} and {@code production} profiles even though the same key is
- * present but <em>commented out</em> in {@code application-staging.properties}
- * (line 34) and {@code application-production.properties} (line 29)?
+ * absent from {@code application-staging.properties} and
+ * {@code application-production.properties}?
  *
- * <p>A commented-out line defines no key at all, so under normal Spring Boot
- * property-source precedence it cannot override the base file's value — the
+ * <p>A key the profile file never declares cannot, under normal Spring Boot
+ * property-source precedence, override the base file's value — the
  * base value must resolve in every profile. That is the claim under test.
  * This is what authorizes {@code V32} to create the Envers shadow table only
  * in {@code audit_schema}, with no schema hedge (decision D-07 of
@@ -47,8 +49,7 @@ class EnversAuditSchemaResolutionTest {
 
     private static final String ENVERS_SCHEMA_KEY =
         "spring.jpa.properties.org.hibernate.envers.default_schema";
-    private static final String DDL_AUTO_KEY = "spring.jpa.hibernate.ddl-auto";
-    private static final String FLYWAY_ENABLED_KEY = "spring.flyway.enabled";
+    private static final String REPAIR_ON_MIGRATE_KEY = "spring.flyway.repair-on-migrate";
 
     /**
      * Resolves the {@link StandardEnvironment} for the given Spring profile by
@@ -103,25 +104,28 @@ class EnversAuditSchemaResolutionTest {
         assertEquals("audit_schema", environment.getProperty(ENVERS_SCHEMA_KEY));
     }
 
-    // --- Control group: keys the profiles genuinely do override, proving per-profile
-    // resolution is actually alive and not an inert Environment that would make the
-    // thesis assertions above pass vacuously. ---
+    // --- Grupo de controlo: prova que a resolução por perfil está mesmo viva e que
+    // as asserções da tese não passam por vacuidade. Os três ficheiros de perfil
+    // estão hoje quase vazios -- o único override real é o repair-on-migrate do
+    // development --, por isso o controlo assenta nisso e no perfil activo, e não em
+    // ddl-auto nem em flyway.enabled, que vivem no application.properties base e são
+    // dados por variável de ambiente (HIBERNATE_DDL, ENABLE_FLYWAY). ---
 
     @Test
-    void ddlAuto_controlo_difereEntreDevelopmentEProduction() {
-        StandardEnvironment production = resolveEnvironmentForProfile("production");
-        StandardEnvironment development = resolveEnvironmentForProfile("development");
-
-        assertEquals("validate", production.getProperty(DDL_AUTO_KEY));
-        assertEquals("update", development.getProperty(DDL_AUTO_KEY));
+    void perfilActivo_controlo_resolveOPerfilPedido() {
+        assertArrayEquals(new String[]{"development"},
+            resolveEnvironmentForProfile("development").getActiveProfiles());
+        assertArrayEquals(new String[]{"staging"},
+            resolveEnvironmentForProfile("staging").getActiveProfiles());
+        assertArrayEquals(new String[]{"production"},
+            resolveEnvironmentForProfile("production").getActiveProfiles());
     }
 
     @Test
-    void flywayEnabled_controlo_difereEntreStagingEProduction() {
-        StandardEnvironment staging = resolveEnvironmentForProfile("staging");
-        StandardEnvironment production = resolveEnvironmentForProfile("production");
-
-        assertEquals("false", staging.getProperty(FLYWAY_ENABLED_KEY));
-        assertEquals("true", production.getProperty(FLYWAY_ENABLED_KEY));
+    void repairOnMigrate_controlo_soExisteEmDevelopment() {
+        assertEquals("true",
+            resolveEnvironmentForProfile("development").getProperty(REPAIR_ON_MIGRATE_KEY));
+        assertNull(resolveEnvironmentForProfile("staging").getProperty(REPAIR_ON_MIGRATE_KEY));
+        assertNull(resolveEnvironmentForProfile("production").getProperty(REPAIR_ON_MIGRATE_KEY));
     }
 }

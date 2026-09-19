@@ -28,9 +28,14 @@ class OptionTest {
     }
 
     @Test
-    void criar_comCcodeInvalido_deveLancarBadRequest() {
-        assertThrows(IgrpResponseStatusException.class, () ->
-            Option.criar("INVALID_CODE", "KEY", "Value", "pt-CV", 1, null));
+    void criar_comCcodeForaDoEnum_deveAceitar() {
+        // O catálogo é parametrizado pela instituição: um ccode que o código não
+        // conhece é uma família de etiquetas nova, não um erro.
+        Option option = Option.criar("MOTIVO_CESSACAO_INTERNO", "REFORMA_ANTECIPADA",
+            "Reforma antecipada", "pt-CV", 1, null);
+
+        assertEquals("MOTIVO_CESSACAO_INTERNO", option.getCcode());
+        assertTrue(option.isActive());
     }
 
     @Test
