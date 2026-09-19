@@ -59,11 +59,19 @@ Write-Host '=========== F0 - NAVEGACAO INICIAL (o que o front-end carrega) =====
 $rFunc = Chamar 'F0.1 listar colaboradores' GET '/funcionarios?pagina=0&tamanho=10'
 $colabs = Linhas $rFunc
 Write-Host ('      colaboradores: ' + $colabs.Count)
-$colabA = $colabs[0].id
-$colabB = $colabs[1].id
+# Os papeis fixam-se pelo numero de funcionario, e nao pela posicao na lista: a
+# ordem muda com os dados e os papeis trocavam entre execucoes -- numa execucao o
+# "A" era o Francisco, na seguinte era a Joana, e os passos seguintes liam
+# resultados de outra pessoa sem que nada falhasse.
+function PorNumero($lista, [string]$numero) {
+    return ($lista | Where-Object { $_.numeroFuncionario -eq $numero } | Select-Object -First 1).id
+}
+$colabA = PorNumero $colabs '0000001'   # Francisco Bastos
+$colabB = PorNumero $colabs '0000002'   # Maria Santos
 # C existe para a substituicao: e preciso alguem impedido que mantenha o Lugar e
 # alguem que o substitua. Com dois colaboradores nao ha como montar o cenario.
-$colabC = $colabs[2].id
+$colabC = PorNumero $colabs '0000003'   # Joana Tavares
+Verificar 'F0.1b os tres colaboradores do seed existem' (($null -ne $colabA) -and ($null -ne $colabB) -and ($null -ne $colabC)) ''
 Write-Host ('      A=' + $colabA + '  B=' + $colabB + '  C=' + $colabC)
 
 Chamar 'F0.2 detalhe do colaborador A' GET ('/funcionarios/' + $colabA + '/details') | Out-Null
@@ -289,7 +297,7 @@ Verificar 'F6.25 substituir nao desaloja o titular' ($rUniC3.Dados.positionId -e
 # O Lugar do titular continua PROVIDO: um substituto nao o torna vago nem o prove.
 $rVagas3 = Chamar 'F6.26 vagas da unidade com substituicao em curso' GET ('/colaboradores/assignments/unidade/' + $unidade + '/vagas')
 $semTitular = @(Linhas (Chamar 'F6.27 lista de vagas' GET ('/colaboradores/assignments/unidade/' + $unidade + '/vagas/lista')))
-Verificar 'F6.28 o Lugar do titular nao aparece como vago' (($semTitular | Where-Object { $_.id -eq $lugarC }).Count -eq 0) ''
+Verificar 'F6.28 o Lugar do titular nao aparece como vago' (@($semTitular | Where-Object { $_.id -eq $lugarC }).Count -eq 0) ''
 
 Chamar 'F6.29 NEG segundo substituto para o mesmo titular' POST ('/funcionarios/' + $colabB + '/substituicao') @{ positionId=$lugarC; gradeId=$escalaoC; dataInicio='2026-11-04' } 409 | Out-Null
 
@@ -299,6 +307,150 @@ Chamar 'F6.30 C regressa a actividade' PATCH ('/funcionarios/' + $colabC + '/wor
 Chamar 'F6.31 C volta a ficar impedido' PATCH ('/funcionarios/' + $colabC + '/worker-state') @{ workerStateId=$ws['SUSPENDED'].id; dataEfectividade='2026-11-21'; motivoCkey='DOENCA' } 200 | Out-Null
 $rSub2 = Chamar 'F6.32 nova substituicao e aceite' POST ('/funcionarios/' + $colabB + '/substituicao') @{ positionId=$lugarC; gradeId=$escalaoC; dataInicio='2026-11-22' } 201
 Verificar 'F6.33 o regresso do titular fechou mesmo a 1a substituicao' $rSub2.OK '(senao teria dado 409)'
+
+Write-Host ''
+Write-Host '=========== F7 - CESSACAO PELOS DOIS CAMINHOS ==========='
+
+# A cessacao tem dois caminhos que a aplicacao promete equivalentes: mudar o
+# estado para um estado de cessacao, ou encerrar o contrato. Ambos tem de cessar
+# o contrato, encerrar a afectacao e mudar o estado. O bloco prova que sim.
+#
+# Contexto herdado: o C esta impedido (SUSPENDED) e a ser substituido pelo B.
+# Cessar o C tem tambem de fechar essa substituicao (art. 77.o n.o 2).
+
+# --- caminho 1: pelo estado do trabalhador ---
+$rUniC7 = Chamar 'F7.1 onde esta o C antes de cessar' GET ('/colaboradores/assignments/funcionario/' + $colabC + '/unidade-atual')
+$lugarC7 = $rUniC7.Dados.positionId
+$unidade7 = $rUniC7.Dados.unidadeOrganicaId
+
+$rVagasAntes = Chamar 'F7.2 vagas da unidade antes' GET ('/colaboradores/assignments/unidade/' + $unidade7 + '/vagas')
+$vagasAntes = $rVagasAntes.Dados.vagas
+
+$rCess1 = Chamar 'F7.3 cessar o C pelo estado (RETIRED)' PATCH ('/funcionarios/' + $colabC + '/worker-state') @{ workerStateId=$ws['RETIRED'].id; dataEfectividade='2026-12-01'; motivoCkey='AGE_RETIREMENT'; observacao='limite de idade' } 200
+Verificar 'F7.4 a resposta diz que cessou o vinculo' ($rCess1.Dados.cessouVinculo -eq $true) ''
+Verificar 'F7.5 encerrou a afectacao' ($null -ne $rCess1.Dados.afectacaoEncerradaId) ''
+Verificar 'F7.6 e cessou o contrato' ($null -ne $rCess1.Dados.contratoId) ''
+
+$rVagasDepois = Chamar 'F7.7 vagas da unidade depois' GET ('/colaboradores/assignments/unidade/' + $unidade7 + '/vagas')
+Verificar 'F7.8 o Lugar do cessado passou a vago' ($rVagasDepois.Dados.vagas -gt $vagasAntes) ('(' + $vagasAntes + ' -> ' + $rVagasDepois.Dados.vagas + ')')
+
+$rListaV = Chamar 'F7.9 lista de vagas' GET ('/colaboradores/assignments/unidade/' + $unidade7 + '/vagas/lista')
+Verificar 'F7.10 o Lugar dele aparece mesmo na lista' (@(@(Linhas $rListaV) | Where-Object { $_.id -eq $lugarC7 }).Count -eq 1) ''
+
+Chamar 'F7.11 NEG progressao de quem cessou' POST ('/funcionarios/' + $colabC + '/progressao') @{ dataEfeito='2026-12-10' } 422 | Out-Null
+
+# A substituicao que o cobria tem de ter caducado: se nao tivesse, substituir
+# de novo o mesmo titular daria 409. Aqui da 422, porque o Lugar ficou VAGO --
+# e um Lugar vago prove-se com titular, nao com substituto.
+Chamar 'F7.12 o Lugar cessado ja nao aceita substituto' POST ('/funcionarios/' + $colabA + '/substituicao') @{ positionId=$lugarC7; dataInicio='2026-12-02' } 422 | Out-Null
+
+# --- caminho 2: pelo encerramento do contrato ---
+$rContA = Chamar 'F7.13 contratos do A' GET ('/funcionarios/' + $colabA + '/contratos')
+$contA = (@(Linhas $rContA) | Where-Object { $_.isCurrent -eq $true } | Select-Object -First 1)
+Verificar 'F7.14 A tem contrato corrente' ($null -ne $contA) ('(' + $contA.contractNumber + ')')
+
+$rUniA7 = Chamar 'F7.15 A tem Lugar antes de cessar' GET ('/colaboradores/assignments/funcionario/' + $colabA + '/unidade-atual')
+Verificar 'F7.16 A esta afectado' ($null -ne $rUniA7.Dados.positionId) ('(lugar=' + $rUniA7.Dados.numeroLugar + ')')
+
+$rCess2 = Chamar 'F7.17 cessar o A pelo contrato (close)' PUT ('/funcionarios/' + $colabA + '/contratos/' + $contA.id + '/close') @{ endDate='2026-12-05'; terminationReason='MUTUO_ACORDO' } 200
+Verificar 'F7.18 o close cessa o vinculo, como o estado' ($rCess2.Dados.cessouVinculo -eq $true) ''
+Verificar 'F7.19 e encerra a afectacao tambem' ($null -ne $rCess2.Dados.afectacaoEncerradaId) ''
+
+Chamar 'F7.20 A ja nao tem afectacao corrente' GET ('/colaboradores/assignments/funcionario/' + $colabA + '/unidade-atual') $null 404 | Out-Null
+# Encerrar duas vezes NAO da erro: o CessacaoService salta o contrato que ja esta
+# cessado. O que tem de se garantir e que o segundo close nao sobrepoe o primeiro.
+Chamar 'F7.21 encerrar o mesmo contrato outra vez e idempotente' PUT ('/funcionarios/' + $colabA + '/contratos/' + $contA.id + '/close') @{ endDate='2026-12-30'; terminationReason='OUTRO_MOTIVO' } 200 | Out-Null
+$rContA2 = Chamar 'F7.22 reler os contratos do A' GET ('/funcionarios/' + $colabA + '/contratos')
+$contA2 = (@(Linhas $rContA2) | Where-Object { $_.id -eq $contA.id } | Select-Object -First 1)
+Verificar 'F7.23 o 2o close nao sobrepos a data nem o motivo' (($contA2.endDate -like '2026-12-05*') -and ($contA2.terminationReason -eq 'MUTUO_ACORDO')) ('(fim=' + $contA2.endDate + ' motivo=' + $contA2.terminationReason + ')')
+Verificar 'F7.24 e o contrato continua CESSADO' ($contA2.status -eq 'CESSADO') ('(' + $contA2.status + ')')
+
+Write-Host ''
+Write-Host '=========== F8 - MOBILIDADE TRANSITORIA PONTA A PONTA ==========='
+
+# O que este bloco existe para provar: a mobilidade transitoria NAO mexe na
+# afectacao (art. 135.o n.o 7). O titular mantem o Lugar; muda so onde exerce
+# funcoes. Se o positionId mudar em algum passo, e bug.
+#
+# Contexto herdado: depois do F7 o A e o C estao cessados e o B esta em
+# disponibilidade, sem Lugar. Comeca-se por lhe dar um -- que e exactamente o que
+# o art. 122.o preve para quem aguarda vaga.
+
+# As datas ancoram-se no dia corrente, e nao em 2027: "em vigor" quer dizer que a
+# licenca cobre HOJE (MobilidadeService.mobilidadeEmVigor). Uma mobilidade marcada
+# para o ano que vem existe, mas nao esta em vigor -- e o ecra mostraria a pessoa
+# no seu Lugar, correctamente.
+$hoje = Get-Date
+$dOntem   = $hoje.AddDays(-30).ToString('yyyy-MM-dd')
+$dInicio  = $hoje.AddDays(-5).ToString('yyyy-MM-dd')
+$dFim     = $hoje.AddMonths(3).ToString('yyyy-MM-dd')
+$dProrrog = $hoje.AddMonths(6).ToString('yyyy-MM-dd')
+$dHoje    = $hoje.ToString('yyyy-MM-dd')
+$dFimExt  = $hoje.AddMonths(2).ToString('yyyy-MM-dd')
+
+Chamar 'F8.1 B regressa a actividade' PATCH ('/funcionarios/' + $colabB + '/worker-state') @{ workerStateId=$ws['ACTIVE'].id; dataEfectividade=$dOntem; motivoCkey='VAGA_DISPONIVEL' } 200 | Out-Null
+
+$rUnidades = Chamar 'F8.2 unidades organicas' GET '/estrutura/organizational-units?pagina=0&tamanho=20'
+$unidades = @(Linhas $rUnidades)
+Verificar 'F8.3 ha pelo menos duas unidades' ($unidades.Count -ge 2) ('(n=' + $unidades.Count + ')')
+
+$rVagas8 = Chamar 'F8.4 Lugares vagos' GET ('/colaboradores/assignments/unidade/' + $unidade7 + '/vagas/lista')
+$lugar8 = (@(Linhas $rVagas8) | Where-Object { $_.foraDeGrelha -ne $true -and $_.estado -eq 'ATIVO' } | Select-Object -First 1)
+$rGrades8 = Chamar 'F8.5 escaloes da categoria' GET ('/categories/' + $lugar8.categoryId + '/grades')
+$escalao8 = (@(Linhas $rGrades8) | Where-Object { $_.isActive -ne $false } | Select-Object -First 1).id
+Chamar 'F8.6 afectar B ao Lugar vago' POST '/colaboradores/assignments' @{ funcionarioId=$colabB; positionId=$lugar8.id; gradeId=$escalao8; origem='ADMISSAO'; dataInicio=$dOntem } 201 | Out-Null
+
+$rUniB = Chamar 'F8.7 onde esta o B' GET ('/colaboradores/assignments/funcionario/' + $colabB + '/unidade-atual')
+$lugarB = $rUniB.Dados.positionId
+$unidadeB = $rUniB.Dados.unidadeOrganicaId
+Verificar 'F8.8 B tem Lugar e nao esta em mobilidade' (($null -ne $lugarB) -and ($rUniB.Dados.emMobilidade -eq $false)) ('(lugar=' + $rUniB.Dados.numeroLugar + ')')
+
+# --- mobilidade INTERNA ---
+$subMob = ($subtipos | Where-Object { $_.recordType -eq 'MOBILIDADE' -and $_.isActive -ne $false } | Select-Object -First 1)
+Verificar 'F8.9 ha subtipo de mobilidade no catalogo' ($null -ne $subMob) ('(' + $subMob.code + ')')
+$destino = ($unidades | Where-Object { $_.id -ne $unidadeB } | Select-Object -First 1)
+
+$rMob = Chamar 'F8.10 criar mobilidade interna' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade') @{ subtipoId=$subMob.id; dataInicio=$dInicio; dataFim=$dFim; destinationUnitId=$destino.id; justification='requisicao' } 201
+$mobId = $rMob.Dados.id
+
+$rApr = Chamar 'F8.11 aprovar a mobilidade' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mobId + '/approve') $null 200
+Verificar 'F8.12 aprovar NAO encerrou afectacao nenhuma' ($null -eq $rApr.Dados.afectacaoEncerradaId) '(art. 135.o n.o 7)'
+
+$rUniB2 = Chamar 'F8.13 onde esta o B durante a mobilidade' GET ('/colaboradores/assignments/funcionario/' + $colabB + '/unidade-atual')
+Verificar 'F8.14 o Lugar NAO mudou' ($rUniB2.Dados.positionId -eq $lugarB) ('(lugar=' + $rUniB2.Dados.numeroLugar + ')')
+Verificar 'F8.15 mas esta em mobilidade' ($rUniB2.Dados.emMobilidade -eq $true) ''
+Verificar 'F8.16 e exerce funcoes na unidade de destino' ($rUniB2.Dados.exerceFuncoesUnidadeId -eq $destino.id) ('(' + $rUniB2.Dados.exerceFuncoesUnidadeNome + ')')
+Verificar 'F8.17 destino classificado como INTERNO' ($rUniB2.Dados.mobilidadeDestinoTipo -eq 'INTERNO') ''
+
+$rVagasMob = Chamar 'F8.18 vagas da unidade de origem' GET ('/colaboradores/assignments/unidade/' + $unidadeB + '/vagas/lista')
+Verificar 'F8.19 o Lugar dele NAO ficou vago' (@(@(Linhas $rVagasMob) | Where-Object { $_.id -eq $lugarB }).Count -eq 0) ''
+
+# Prorrogacao: o limite vem do subtipo, nao do codigo.
+Chamar 'F8.20 prorrogar dentro do limite' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mobId + '/prorrogar') @{ novaDataFim=$dProrrog; justificacao='necessidade do servico' } 200 | Out-Null
+Chamar 'F8.21 NEG prorrogar alem do maximo de prorrogacoes' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mobId + '/prorrogar') @{ novaDataFim=$hoje.AddMonths(9).ToString('yyyy-MM-dd'); justificacao='outra vez' } 422 | Out-Null
+
+$rClose = Chamar 'F8.22 encerrar a mobilidade' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mobId + '/close') $null 200
+$rUniB3 = Chamar 'F8.23 onde esta o B depois' GET ('/colaboradores/assignments/funcionario/' + $colabB + '/unidade-atual')
+Verificar 'F8.24 continua no mesmo Lugar (nunca saiu)' ($rUniB3.Dados.positionId -eq $lugarB) ''
+Verificar 'F8.25 e ja nao esta em mobilidade' ($rUniB3.Dados.emMobilidade -eq $false) ''
+Verificar 'F8.26 volta a exercer na sua unidade' ($rUniB3.Dados.exerceFuncoesUnidadeId -eq $unidadeB) ''
+Chamar 'F8.27 NEG encerrar duas vezes' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mobId + '/close') $null 409 | Out-Null
+
+# --- mobilidade EXTERNA ---
+$rMobE = Chamar 'F8.28 criar mobilidade externa' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade') @{ subtipoId=$subMob.id; dataInicio=$dHoje; dataFim=$dFimExt; entidadeDestino='Camara Municipal da Praia'; justification='cedencia' } 201
+$mobE = $rMobE.Dados.id
+Chamar 'F8.29 aprovar a externa' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mobE + '/approve') $null 200 | Out-Null
+$rUniB4 = Chamar 'F8.30 onde exerce funcoes agora' GET ('/colaboradores/assignments/funcionario/' + $colabB + '/unidade-atual')
+Verificar 'F8.31 destino classificado como EXTERNO' ($rUniB4.Dados.mobilidadeDestinoTipo -eq 'EXTERNO') ('(' + $rUniB4.Dados.exerceFuncoesUnidadeNome + ')')
+Verificar 'F8.32 e o Lugar continua a ser dele' ($rUniB4.Dados.positionId -eq $lugarB) ''
+Chamar 'F8.33 encerrar a externa' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mobE + '/close') $null 200 | Out-Null
+
+# --- negativos ---
+$rMobSemDestino = Chamar 'F8.34 criar mobilidade sem destino nenhum' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade') @{ subtipoId=$subMob.id; dataInicio=$dHoje; dataFim=$dFimExt; justification='sem destino' } 201
+Chamar 'F8.35 NEG aprovar mobilidade sem destino' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $rMobSemDestino.Dados.id + '/approve') $null 422 | Out-Null
+
+$codMob = 'MOB_TST_' + (Get-Date -Format 'HHmmss')
+Chamar 'F8.36 NEG subtipo de mobilidade a abrir vaga' POST '/catalogs/leave-mobility-subtypes' @{ code=$codMob; name='Mobilidade que abre vaga'; description='nao permitido'; recordType='MOBILIDADE'; positionEffect='ABRE_VAGA'; returnEffect='REGRESSA_LUGAR' } 400 | Out-Null
 
 Write-Host ''
 Write-Host '=========== RESUMO ==========='

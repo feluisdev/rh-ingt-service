@@ -85,7 +85,7 @@ delete from t_historico_estado_colaborador;
 -- 5. Lixo de catalogo deixado por execucoes anteriores.
 delete from t_option_entity where ccode like 'TESTE%';
 delete from t_worker_state where code like 'TESTE%';
-delete from t_leave_mobility_subtype where code like 'TESTE%';
+delete from t_leave_mobility_subtype where code like 'TESTE%' or code like 'LIC_TST_%' or code like 'MOB_TST_%';
 ```
 
 ### F6 - substituicao de titular impedido (2026-09-19)
@@ -103,9 +103,34 @@ parcial na base: **duas afectacoes correntes no mesmo Lugar**, a do titular
   provado sem endpoint de leitura: uma segunda substituicao passa a ser aceite,
   quando antes dava 409
 
+### F7 - cessacao pelos dois caminhos (2026-09-19)
+
+Prova que o estado de cessacao e o `close` do contrato sao **equivalentes**:
+ambos cessam o contrato, encerram a afectacao e mudam o estado. Cobre tambem o
+efeito na substituicao: cessar o titular liberta o Lugar, e o Lugar passa a
+aparecer nas vagas.
+
+O `close` repetido **nao e erro**: e idempotente, e o 2.o nao sobrepoe a data nem
+o motivo do 1.o -- e isso que o bloco verifica.
+
+### F8 - mobilidade transitoria ponta a ponta (2026-09-19)
+
+O bloco existe para provar o art. 135.o n.o 7: **a mobilidade nao mexe na
+afectacao**. Interna e externa, prorrogacao dentro e fora do limite do subtipo,
+encerramento, e os negativos (sem destino, subtipo de mobilidade a abrir vaga).
+
+**As datas ancoram-se no dia corrente.** "Em vigor" quer dizer que a licenca
+cobre HOJE: uma mobilidade marcada para o ano que vem existe mas nao poe ninguem
+em mobilidade, e o ecra mostra a pessoa no seu Lugar. Foi assim que os primeiros
+passos falharam -- expectativa errada do teste, nao do codigo.
+
+Confirmado na base no fim: a colaboradora manteve **uma so** afectacao PRINCIPAL
+corrente, com duas mobilidades a passar por ela sem criarem nem fecharem
+afectacao nenhuma.
+
 ## Resultado da última execução
 
-**111 passos, 111 OK** (2026-09-19), contra a base local com a V47 aplicada.
+**172 passos, 172 OK** (2026-09-19), contra a base local com a V47 aplicada.
 
 Encontrou dois problemas reais, já corrigidos:
 
