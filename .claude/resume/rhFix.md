@@ -1,4 +1,4 @@
-> Updated: 2026-09-19 13:25
+> Updated: 2026-09-19 13:35
 
 ## Goal
 
@@ -130,6 +130,25 @@ Commits desta sessão (mais recente primeiro):
   ficheiro a meio.
 - Documentação em **pt-PT**; commits `feat|fix|refactor|test|docs(<módulo>): …`.
 - **Regenerar `openapi.json`** sempre que se acrescente ou mude um endpoint.
+
+### Escrever blocos da bateria — lições já pagas
+
+- **Navegar antes de agir.** Cada bloco obtém os ids da própria API (unidades,
+  vagas, categorias, escalões, catálogos). Nenhum id é escrito à mão.
+- **Papéis pelo `numeroFuncionario`, nunca pela posição na lista.** A ordem de
+  `/funcionarios` muda com os dados: numa execução o "A" era o Francisco, na
+  seguinte era a Joana, e os passos seguintes liam a pessoa errada **sem falhar**.
+  Há um helper `PorNumero` no topo do script.
+- **Datas ancoradas em `Get-Date`.** "Em vigor" (mobilidade, licença) quer dizer
+  que o registo **cobre hoje** — `mobilidadeEmVigor` usa `LocalDate.now()`. Datas
+  fixas em anos futuros fazem o teste falhar sem haver bug.
+- **`.Count` precisa de `@()` a envolver o pipeline todo** no PS 5.1:
+  `@(@(Linhas $r) | Where-Object {...}).Count`. Sem isso, um único resultado não
+  conta como 1.
+- **O `close` do contrato é idempotente** (200, não 409) e não sobrepõe a data
+  nem o motivo do primeiro. O mesmo vale para desactivações repetidas de
+  catálogo, que devolvem 409 — confirmar caso a caso em vez de assumir.
+- **Repor a BD antes de cada execução** (`scripts/repor_estado.sql`).
 
 ## Blockers & risks
 
@@ -344,11 +363,20 @@ Pré: um colaborador em Lugar de **ASS_TEC** (ordem 1) e **LUG-0004** vago em
    `assignmentType=ACUMULACAO` cria uma segunda afectação **sem validação
    nenhuma**. Decidir: fechar com 422 até haver regras, implementar como
    modalidade de mobilidade (art. 134.º n.º 2 al. b), ou como título próprio.
-5. **Produção**: `ddl-auto` vem de `${HIBERNATE_DDL:update}` e os
+5. **Licença que acaba antes de começar** — `LicencaMobilidade.encerrar()` fixa a
+   data de fim em **hoje** sem verificar se hoje é anterior ao **início**. Quem
+   aprova uma licença futura e a encerra logo fica com um período incoerente.
+   Visto na BD a 2026-09-19: `LIC_FORMACAO, início 2026-10-01, fim 2026-09-19`.
+   Não bloqueia nada, mas **falseia qualquer contagem de dias** — e a contagem de
+   dias é a base das férias (ponto 1) e da antiguidade (ponto 2), por isso convém
+   decidir **antes** desses. Opções: (a) recusar o encerramento antes do início
+   com 422; (b) `dataFim = max(hoje, dataInicio)`; (c) permitir e tratar o
+   período como nulo nas contagens. **Decide o RH/produto.**
+6. **Produção**: `ddl-auto` vem de `${HIBERNATE_DDL:update}` e os
    `application-<perfil>.properties` estão vazios. Sem `HIBERNATE_DDL` definida, o
    Hibernate altera o esquema por baixo do Flyway. **Adiado — ainda não há
    produção** (confirmado pelo utilizador).
-6. **Jurídico**: confirmar se algum diploma substituiu o DL 3/2010 e qual é o
+7. **Jurídico**: confirmar se algum diploma substituiu o DL 3/2010 e qual é o
    diploma da mobilidade.
 
 ## Next step
