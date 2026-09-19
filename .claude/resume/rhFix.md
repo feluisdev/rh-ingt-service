@@ -1,4 +1,4 @@
-> Updated: 2026-09-19 12:55
+> Updated: 2026-09-19 13:25
 
 ## Goal
 
@@ -17,7 +17,7 @@ par, sem avançar enquanto o anterior não estiver verde.
 `origin_git_lab/dev`). **Nada foi enviado para nenhum remoto.**
 
 - **Testes unitários: 763, 0 falhas.** Correr sempre com `clean` (ver Blockers).
-- **Bateria funcional: 111 passos, 111 OK** (2026-09-19), contra a BD local.
+- **Bateria funcional: 172 passos, 172 OK** (2026-09-19), contra a BD local. Cobre F0 a F8.
 - **Migrações V40 a V47 aplicadas e verificadas na BD.** Próxima livre: **V48**.
 - **`openapi.json` regenerado**: 225 caminhos, 238 esquemas, **0 operações
   não-sigdi sem esquema de resposta**.
@@ -26,6 +26,8 @@ Commits desta sessão (mais recente primeiro):
 
 | Commit | O que fecha |
 |---|---|
+| `e8fd22f1` | **F7 cessação + F8 mobilidade** (135 → 172 passos) |
+| `7b46b044` | Este handoff |
 | `82c0f998` | F6 da bateria + seed (78 → 111 passos) |
 | `c93274fe` | Plano do que falta antes da bateria |
 | `d034c31e` | Últimos resíduos de `Map` + docs v5 desalinhados |
@@ -148,6 +150,15 @@ Commits desta sessão (mais recente primeiro):
 - **Risco por verificar**: cessação, mobilidade ponta a ponta e promoção nas duas
   formas **nunca correram contra a BD** — são o F7, F8 e F9.
 
+### Achado por decidir: licença que acaba antes de começar
+
+`LicencaMobilidade.encerrar()` põe a data de fim em **hoje** quando a licença
+ainda não terminou, sem verificar se hoje é anterior ao **início**. Quem aprova
+uma licença futura e a encerra logo fica com um período incoerente — visto na BD:
+`LIC_FORMACAO, inicio 2026-10-01, fim 2026-09-19`. Não bloqueia nada hoje, mas
+falseia qualquer contagem de dias. **Decidir**: recusar o encerramento antes do
+início, ou fixar `dataFim = max(hoje, dataInicio)`.
+
 ### Lacuna conhecida: não há como ler as substituições
 
 `POST /funcionarios/{id}/substituicao` devolve o id, mas **nada o lista depois**.
@@ -241,7 +252,7 @@ esc. 1). Vagos: **LUG-0004** (TEC_SUP, para a promoção com `positionId`),
 
 ## Test / validation plan
 
-A bateria cobre hoje F0 a F6 (111 passos). **Falta escrever F7 a F10.** Escrever
+A bateria cobre hoje **F0 a F8 (172 passos)**. **Falta escrever F9 e F10.** Escrever
 sempre como um ecrã: navegar (GET) para obter ids reais antes de agir; nunca
 adivinhar um id. Cada bloco entra **antes** do `=========== RESUMO ===========`.
 
@@ -250,7 +261,11 @@ Contexto que os blocos novos herdam: no fim do F5, **A e B estão sem Lugar**
 reafecta o A** a um Lugar vago e deixa o **C impedido (`SUSPENDED`) com a Maria a
 substituí-lo**. Quem escrever o F7 tem de contar com isso, ou repor o cenário.
 
-### F7 — cessação pelos dois caminhos
+### ~~F7 — cessação~~ e ~~F8 — mobilidade~~ — FEITOS (`e8fd22f1`)
+
+O que ficou provado está no `scripts/testes_funcionais_README.md`. Abaixo fica só o que falta.
+
+<details><summary>F7 — cessação pelos dois caminhos (feito)</summary>
 
 | # | Acção | Esperado |
 |---|---|---|
@@ -266,7 +281,9 @@ substituí-lo**. Quem escrever o F7 tem de contar com isso, ou repor o cenário.
 Evidência: guardar o `afectacaoEncerradaId` dos dois caminhos e confirmar que
 **ambos** encerram contrato + afectação + estado (é o ponto: são equivalentes).
 
-### F8 — mobilidade transitória ponta a ponta
+</details>
+
+<details><summary>F8 — mobilidade ponta a ponta (feito)</summary>
 
 Pré: um colaborador **com** Lugar e **activo**. Se nenhum estiver nessas
 condições nesta altura, reafectar primeiro (como o F6.9 faz).
@@ -286,6 +303,8 @@ condições nesta altura, reafectar primeiro (como o F6.9 faz).
 
 O ponto do bloco é provar o art. 135.º n.º 7: **a mobilidade não mexe na
 afectação**. Se o `positionId` mudar, é bug.
+
+</details>
 
 ### F9 — promoção nas duas formas
 
@@ -334,7 +353,14 @@ Pré: um colaborador em Lugar de **ASS_TEC** (ordem 1) e **LUG-0004** vago em
 
 ## Next step
 
-**Escrever o bloco F7 (cessação pelos dois caminhos) em
+**Escrever o bloco F9 (promoção nas duas formas) em
 `scripts/testes_funcionais.ps1`**, seguindo a tabela do Test/validation plan e o
-estilo do F6 (navegar antes de agir, só ASCII, entra antes do `RESUMO`). Depois o
-F8. Antes de começar: `mvn -B clean test` (763, 0 falhas) e repor a BD.
+estilo do F6/F7/F8: navegar antes de agir, datas ancoradas em `Get-Date`, só
+ASCII, papéis pelo número de funcionário, entra antes do `RESUMO`. Depois o F10.
+
+Atenção ao contexto herdado no fim do F8: **A e C estão cessados** e **B está em
+LUG-0001 (TEC_SUP)**. O F9 precisa de alguém em ASS_TEC (ordem 1) com LUG-0004
+vago em TEC_SUP (ordem 2) — provavelmente tem de reafectar primeiro, como o F6.9
+e o F8.6 fazem.
+
+Antes de começar: `mvn -B clean test` (763, 0 falhas) e repor a BD.
