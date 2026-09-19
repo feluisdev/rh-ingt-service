@@ -23,7 +23,6 @@ import cv.igrp.RH_Service.parametrizacoes.application.dto.WrapperListaVinculoLab
 import cv.igrp.RH_Service.parametrizacoes.application.dto.VinculoLaboralResponseDTO;
 import cv.igrp.RH_Service.parametrizacoes.application.dto.VinculoLaboralRequestDTO;
 
-import java.util.Map;
 import java.util.List;
 import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
 import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;

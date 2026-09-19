@@ -173,6 +173,12 @@ quadro e o catálogo só tinha quatro estados sem semântica legal.
    rename ... to ...jar.original"*. Fechar o processo primeiro:
    `Get-CimInstance Win32_Process -Filter "Name='java.exe'" | Where-Object { $_.CommandLine -match 'RH-Service' }`.
 3. **Arranque lento**: 3 a 5 minutos até ao *Started*. Não é bloqueio.
+3b. **O compilador incremental mente.** Depois de mexer em muitos controladores,
+   um `mvn test` sem `clean` falha com `NoClassDefFoundError: CareerRequestDTO`
+   (ou outra classe qualquer) embora o import esteja lá e a classe exista em
+   `target/classes`. Também diz *"Nothing to compile"* quando há muito que
+   compilar, escondendo erros reais. Ao mexer em assinaturas ou em lotes de
+   ficheiros, usar sempre **`mvn -B clean test`**.
 4. **Porta 8099**, não 8091 (o `.env` local manda).
 5. **Erro esperado no log**: `AuthorizationSyncRunner` falha porque o URL do
    Access Management está vazio no `.env`. Não impede o arranque.

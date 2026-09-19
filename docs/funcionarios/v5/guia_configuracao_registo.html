@@ -157,7 +157,7 @@ flowchart LR
       <tr><td>2</td><td>Perdia-se o histórico por pessoa</td>
           <td><code>t_assignment</code> é SCD2 (<code>is_current</code>, <code>data_inicio</code>, <code>data_fim</code>). É por isso que a progressão é só <code>POST /assignments</code> com <code>origem: PROGRESSAO</code> e novo <code>gradeId</code>: fecha o período anterior, abre outro. No Lugar, a linha do tempo do escalão ficaria misturada entre ocupantes sucessivos.</td></tr>
       <tr><td>3</td><td>A mobilidade deixaria de funcionar</td>
-          <td><code>AssignmentService.afectarMobilidade</code> <b>herda o escalão da afectação corrente</b> e leva-o para o Lugar de destino: a pessoa muda de cadeira mas mantém a posição na grelha. Só é possível porque o escalão viaja com a pessoa.</td></tr>
+          <td>A <b>transferência</b> (<code>AssignmentService.transferir</code>) leva o escalão consigo: a pessoa muda de cadeira mas mantém a posição na grelha. A <b>mobilidade</b> não precisa disto, porque não muda ninguém de Lugar.</td></tr>
     </table>
   </div>
 
@@ -256,7 +256,7 @@ flowchart LR
       <tr><th style="width:34%"></th><th><code>GET /estrutura/positions?unidadeId=</code></th><th><code>GET /assignments/unidade/{id}/vagas/lista</code></th></tr>
       <tr><td>Filtro base</td><td>unidade + <code>is_active</code></td><td>unidade + <code>is_active</code></td></tr>
       <tr><td>Exclui CONGELADO / EXTINTO</td><td><b>não</b></td><td>sim (<code>podeSerOcupado()</code>)</td></tr>
-      <tr><td>Exclui os já ocupados</td><td><b>não</b></td><td>sim (<code>!isPositionOccupied()</code>)</td></tr>
+      <tr><td>Exclui os que já têm titular</td><td><b>não</b></td><td>sim (<code>!temTitular()</code>)</td></tr>
       <tr><td>Campo <code>ocupado</code> de cada item</td><td><b><code>null</code></b> — o <code>PositionMapper</code> nunca o preenche</td><td><code>false</code>, posto explicitamente</td></tr>
       <tr><td><code>dotacao</code> / <code>ocupados</code> / <code>vagas</code></td><td>só <code>dotacao</code> (= nº de linhas); os outros ficam a <b>0</b></td><td>os três calculados</td></tr>
     </table>
@@ -710,7 +710,7 @@ flowchart TD
     <table>
       <tr><th style="width:38%">Mensagem</th><th>Causa</th><th>Correcção</th></tr>
       <tr><td>O Lugar 'X' não está disponível (estado=CONGELADO).</td><td>Lugar congelado, extinto ou com <code>isActive=false</code>.</td><td>Descongelar ou escolher outro Lugar.</td></tr>
-      <tr><td>O Lugar 'X' já está ocupado.</td><td>Já existe afectação com <code>is_current=true</code> nesse Lugar. <b>Uma cadeira, um ocupante.</b></td><td>Usar <code>/vagas/lista</code> e escolher um Lugar vago.</td></tr>
+      <tr><td>O Lugar 'X' já tem titular.</td><td>Já existe afectação corrente <code>PRINCIPAL</code> nesse Lugar. <b>Uma cadeira, um titular</b> — um substituto não conta.</td><td>Usar <code>/vagas/lista</code> e escolher um Lugar vago.</td></tr>
       <tr><td>O Lugar é de carreira — o escalão (gradeId) é obrigatório.</td><td>Lugar com carreira+categoria e <code>gradeId: null</code>.</td><td>Enviar um escalão da categoria do Lugar.</td></tr>
       <tr><td>O Lugar está fora da grelha (sem carreira/categoria) — não pode ter escalão.</td><td>Lugar sem carreira/categoria mas com <code>gradeId</code> preenchido.</td><td>Enviar <code>gradeId: null</code>.</td></tr>
       <tr><td>O escalão 'E1' pertence à categoria 'A', mas o Lugar 'DRH-002' exige um escalão da categoria 'Técnico Superior'.</td><td>Escalão de outra categoria.</td><td><code>GET /categories/{categoryIdDoLugar}/grades</code> e escolher daí.</td></tr>
@@ -718,7 +718,7 @@ flowchart TD
     <div class="callout rule">
       <b>Regra para o UI:</b> o combo de escalões deve ser preenchido <b>depois</b> de escolher o Lugar, filtrado pela categoria desse Lugar — e deve desaparecer quando o Lugar tem <code>foraDeGrelha: true</code> (o <code>PositionResponseDTO</code> traz esse flag pronto a usar).
     </div>
-    <p><b>Índices que garantem as regras na base de dados:</b> índice único parcial <code>(position_id) WHERE is_current</code> (um ocupante por Lugar) e <code>(funcionario_id) WHERE is_current AND assignment_type='PRINCIPAL'</code> (uma afectação principal por pessoa).</p>
+    <p><b>Índices que garantem as regras na base de dados:</b> índice único parcial <code>(position_id) WHERE is_current AND assignment_type='PRINCIPAL'</code> (um <b>titular</b> por Lugar, V45), <code>(funcionario_id) WHERE is_current AND assignment_type='PRINCIPAL'</code> (uma afectação principal por pessoa) e <code>(titular_assignment_id) WHERE is_current AND assignment_type='SUBSTITUICAO'</code> (um substituto por titular impedido, V46).</p>
   </div>
 
   <div class="card">
@@ -731,6 +731,7 @@ flowchart TD
       <tr><td><b>Mobilidade</b></td><td><span class="pill p-put">PUT</span><code>/licencas-mobilidade/{id}/approve</code> (destino: <code>destinationUnitId</code> ou <code>entidadeDestino</code>)</td><td><b>Nenhum.</b> O titular mantém o Lugar (art. 135.º n.º 7); regista-se só onde exerce funções e até quando.</td></tr>
       <tr><td><b>Licença que liberta o Lugar</b></td><td><span class="pill p-put">PUT</span><code>/licencas-mobilidade/{id}/approve</code> de um subtipo com <code>positionEffect: ABRE_VAGA</code></td><td>Encerra a afectação e passa o trabalhador a inactividade fora do quadro. <b>Não cessa o vínculo.</b></td></tr>
       <tr><td><b>Regresso dessa licença</b></td><td><span class="pill p-put">PUT</span><code>/licencas-mobilidade/{id}/close</code></td><td>Passa a <b>disponibilidade</b>: quem perdeu o Lugar <b>não o recupera</b>. A nova afectação é um acto do RH.</td></tr>
+      <tr><td><b>Substituição</b></td><td><span class="pill p-post">POST</span><code>/funcionarios/{substitutoId}/substituicao</code> com o <code>positionId</code> do Lugar a cobrir</td><td>Cria uma afectação <code>SUBSTITUICAO</code> <b>sem desalojar o titular</b>. Só funciona se o titular estiver temporariamente impedido (situação <code>ACTIVIDADE_FORA_QUADRO</code> ou <code>INACTIVIDADE_NO_QUADRO</code>). Não se marca fim: caduca quando o titular regressa.</td></tr>
       <tr><td><b>Cessação / Reforma</b></td><td><span class="pill p-patch">PATCH</span><code>/funcionarios/{id}/worker-state</code> com um estado de situação <code>APOSENTACAO</code>, ou <span class="pill p-put">PUT</span><code>/contratos/{id}/close</code></td><td>Encerra a afectação corrente; o Lugar volta a <b>vago</b>. Os dois caminhos têm o mesmo efeito.</td></tr>
     </table>
   </div>

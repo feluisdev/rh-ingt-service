@@ -143,11 +143,11 @@ flowchart TB
   <table>
     <tr><th>Conceito</th><th>O que representa</th><th>Regra-chave</th></tr>
     <tr><td><b>Funcionário</b></td><td>A pessoa (identidade, NIF, estado do trabalhador).</td><td>Não guarda unidade/cargo/carreira — derivam da Afectação corrente.</td></tr>
-    <tr><td><b>Lugar</b> <span class="tag p">estrutura</span></td><td>Uma "cadeira" no quadro de pessoal de uma unidade, com cargo e (opcionalmente) carreira/categoria.</td><td><b>1 Lugar = 1 ocupante corrente.</b> Estado ∈ ATIVO · CONGELADO · EXTINTO.</td></tr>
+    <tr><td><b>Lugar</b> <span class="tag p">estrutura</span></td><td>Uma "cadeira" no quadro de pessoal de uma unidade, com cargo e (opcionalmente) carreira/categoria.</td><td><b>1 Lugar = 1 titular corrente</b> (um substituto não conta). Estado ∈ ATIVO · CONGELADO · EXTINTO.</td></tr>
     <tr><td><b>Afectação</b> <span class="tag">colaboradores</span></td><td>Liga um funcionário a um Lugar durante um período (histórico versionado — SCD Tipo 2).</td><td>Guarda o que é <i>da pessoa</i>: escalão, função, origem do movimento, datas.</td></tr>
     <tr><td><b>Contrato</b></td><td>O vínculo jurídico-laboral (tipo, datas, regime, base legal).</td><td>Um contrato corrente por funcionário; pode encerrar/suspender/reactivar.</td></tr>
     <tr><td><b>Carreira / Categoria / Escalão</b> <span class="tag g">carreiras</span></td><td>A grelha PCFR: carreira → categoria → escalão salarial.</td><td>O escalão vive na <b>Afectação</b> (é por-pessoa), não no Lugar.</td></tr>
-    <tr><td><b>Provido / Vago</b></td><td>Se um Lugar tem ou não ocupante corrente.</td><td><b>Derivado</b> — nunca guardado; calculado a partir das Afectações correntes.</td></tr>
+    <tr><td><b>Provido / Vago</b></td><td>Se um Lugar tem ou não <b>titular</b> corrente.</td><td><b>Derivado</b> — nunca guardado; calculado a partir da afectação corrente <code>PRINCIPAL</code>.</td></tr>
   </table>
 
   <h2 id="position"><span class="n">4.</span>Mapa de Pessoal (Position Management)</h2>
@@ -164,7 +164,7 @@ flowchart TB
       <li>É <b>versionada no tempo</b>: fechar a corrente antes de abrir a nova (histórico completo).</li>
     </ul></div>
   </div>
-  <div class="callout rule"><b>Uma cadeira, um ocupante.</b> A base de dados garante, por índice único parcial, que cada Lugar tem no máximo uma afectação corrente. Tentar afectar a um Lugar já ocupado devolve <code>422</code>.</div>
+  <div class="callout rule"><b>Uma cadeira, um titular.</b> A base de dados garante, por índice único parcial, que cada Lugar tem no máximo uma afectação corrente <code>PRINCIPAL</code> (V45). Tentar dar titular a um Lugar que já o tem devolve <code>422</code>. Quem entra a outro título — substituição, acumulação — não disputa a titularidade e não exige que o Lugar esteja vago.</div>
 
   <div class="diagram">
     <p class="cap">Um Lugar ao longo do tempo — afectações sucessivas (SCD Tipo 2)</p>
@@ -275,7 +275,7 @@ sequenceDiagram
     <tr><td>Lugar</td><td>Cadeira do quadro de pessoal.</td><td><code>t_position</code> / <code>Position</code></td></tr>
     <tr><td>Afectação</td><td>Ligação pessoa↔Lugar no tempo (funde enquadramento + colocação).</td><td><code>t_assignment</code> / <code>Assignment</code></td></tr>
     <tr><td>Escalão</td><td>Posição salarial na grelha PCFR.</td><td><code>t_grade</code> / <code>grade_id</code></td></tr>
-    <tr><td>Provido / Vago</td><td>Lugar com / sem ocupante corrente (derivado).</td><td>campo <code>ocupado</code> nas respostas</td></tr>
+    <tr><td>Provido / Vago</td><td>Lugar com / sem <b>titular</b> corrente (derivado).</td><td>campo <code>ocupado</code> nas respostas</td></tr>
     <tr><td>SCD Tipo 2</td><td>Historização: fecha-se a versão corrente antes de abrir a nova.</td><td><code>is_current</code>, <code>data_fim</code></td></tr>
     <tr><td>Fora de grelha</td><td>Lugar sem carreira/categoria (sem escalão).</td><td><code>career_id = null</code></td></tr>
   </table>

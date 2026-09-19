@@ -23,7 +23,6 @@ import cv.igrp.RH_Service.estrutura.application.dto.WrapperListaJobDTO;
 import cv.igrp.RH_Service.estrutura.application.dto.JobResponseDTO;
 import cv.igrp.RH_Service.estrutura.application.dto.JobRequestDTO;
 
-import java.util.Map;
 import java.util.List;
 import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
 import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;

@@ -9,7 +9,7 @@
 2. **Enquadramento e Colocação desaparecem.** São substituídos por uma única **Afectação** (`assignment`).
 3. **Novos ecrãs:** gestão do Mapa de Pessoal (criar/editar Lugares, chefias) e **picker de Lugar vago** na admissão.
 4. **Novas queries** para chefia, responsável de unidade, unidade atual e vagas.
-5. **Mobilidade** passa a exigir `destinationPositionId`.
+5. **Mobilidade** identifica o destino por `destinationUnitId` (interna) ou `entidadeDestino` (externa) — e **não toca na afectação**.
 
 ---
 
@@ -119,23 +119,31 @@ A afectação anterior é fechada automaticamente (histórico).
 
 ---
 
-## 6. Mobilidade (BREAKING — campo novo)
+## 6. Mobilidade (BREAKING — o destino mudou de forma)
 
-`LicencaMobilidadeRequestDTO` ganha **`destinationPositionId`** (o Lugar de destino):
+> **Esta secção foi reescrita.** Uma versão anterior deste documento dizia que a mobilidade
+> passava a exigir `destinationPositionId` e que a aprovação criava uma afectação no Lugar de
+> destino. Isso contradizia o art. 135.º n.º 7 da Lei n.º 20/X/2023 — na mobilidade transitória
+> **o titular mantém o Lugar** — e foi revertido. O que vale é o que está aqui.
+
+O destino identifica-se pela **unidade** ou pela **entidade**, e nunca por um Lugar:
 
 ```jsonc
 {
   "subtipoId": "uuid",
-  "destinationUnitId": "uuid",
-  "destinationPositionId": "uuid",  // ← OBRIGATÓRIO para MOBILIDADE
+  "destinationUnitId": "uuid | null",   // mobilidade INTERNA — outra unidade nossa
+  "entidadeDestino": "string | null",   // mobilidade EXTERNA — autarquia, empresa pública…
   "dataInicio": "YYYY-MM-DD",
+  "dataFim": "YYYY-MM-DD | null",
   "justification": "…"
 }
 ```
 
-- `PUT .../licencas-mobilidade/{id}/approve` → cria a afectação no Lugar de destino.
-- `PUT .../{id}/close` (mobilidade temporária) → **regressa ao Lugar de origem**.
-- Aprovar/ativar MOBILIDADE **sem** `destinationPositionId` → `422`.
+- `PUT .../licencas-mobilidade/{id}/approve` → **não mexe na afectação**. Regista onde a pessoa exerce funções e até quando.
+- `PUT .../{id}/close` → fecha o registo. **Não há regresso a restaurar**, porque nunca se saiu do Lugar.
+- Aprovar MOBILIDADE **sem nenhum dos dois destinos** → `422`.
+- **`destinationPositionId` é legado** e já não é usado. Um ecrã que ainda o envie não causa erro, mas não produz efeito.
+- Para mudar **mesmo** de Lugar existe a **transferência** (secção 5).
 
 ---
 

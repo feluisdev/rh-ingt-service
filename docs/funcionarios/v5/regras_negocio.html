@@ -180,7 +180,7 @@
     <tr><td class="id">BR-PRG-05</td><td>A data de efeito tem de ser <b>posterior ao início</b> da afectação corrente.</td><td><span class="http h422">422</span></td><td class="src">AssignmentService.progredir</td></tr>
     <tr><td class="id">BR-PRG-06</td><td>O Lugar tem de ser <b>de carreira</b>: um Lugar fora de grelha (sem carreira/categoria) não tem escalões.</td><td><span class="http h422">422</span></td><td class="src">AssignmentService.progredir</td></tr>
     <tr><td class="id">BR-PRG-07</td><td><b>O sistema escolhe o escalão</b>: o escalão <b>activo</b> seguinte (por <code>grade_number</code>) da categoria do Lugar. Escalões inactivos são saltados. Se não houver escalão acima, a progressão é recusada ("já está no último escalão").</td><td><span class="http h422">422</span></td><td class="src">AssignmentService.progredir</td></tr>
-    <tr><td class="id">BR-PRG-08</td><td><b>Mantém o Lugar e a função</b> e <b>não exige vaga</b>: a regra "uma cadeira, um ocupante" (BR-AF-03) não se aplica, porque o ocupante é o próprio colaborador.</td><td>—</td><td class="src">AssignmentService.progredir</td></tr>
+    <tr><td class="id">BR-PRG-08</td><td><b>Mantém o Lugar e a função</b> e <b>não exige vaga</b>: a regra "uma cadeira, um titular" (BR-AF-03) não se aplica, porque o titular é o próprio colaborador.</td><td>—</td><td class="src">AssignmentService.progredir</td></tr>
     <tr><td class="id">BR-PRG-09</td><td><b>Histórico (SCD Tipo 2):</b> encerra a afectação corrente na véspera da data de efeito e abre uma nova no mesmo Lugar, tipo <code>PRINCIPAL</code>, origem <code>PROGRESSAO</code>. O número do despacho e as observações ficam nas notas da afectação.</td><td>—</td><td class="src">AssignmentService.progredir</td></tr>
   </table>
 

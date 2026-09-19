@@ -24,7 +24,6 @@ import cv.igrp.RH_Service.carreiras.application.dto.WrapperListaGradeDTO;
 import cv.igrp.RH_Service.carreiras.application.dto.CategoryResponseDTO;
 import cv.igrp.RH_Service.carreiras.application.dto.CategoryRequestDTO;
 
-import java.util.Map;
 import java.util.List;
 import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
 import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;

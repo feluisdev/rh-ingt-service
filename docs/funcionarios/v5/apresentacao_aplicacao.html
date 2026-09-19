@@ -146,7 +146,7 @@
     <div class="card"><h3 style="margin-top:0">👤 Pessoa (Funcionário)</h3>
       <p>Quem é o trabalhador: identidade, NIF, estado. <b>Não guarda</b> a unidade nem o cargo — isso vem do lugar onde está colocado.</p></div>
     <div class="card"><h3 style="margin-top:0">🪑 Lugar</h3>
-      <p>Uma "cadeira" no quadro de pessoal de uma unidade, com um cargo associado. <b>Uma cadeira = um ocupante de cada vez.</b></p></div>
+      <p>Uma "cadeira" no quadro de pessoal de uma unidade, com um cargo associado. <b>Uma cadeira = um titular de cada vez.</b></p></div>
     <div class="card"><h3 style="margin-top:0">🔗 Afectação (colocação)</h3>
       <p>A ligação entre uma pessoa e um lugar, durante um período. É aqui que fica o <b>escalão</b> e o <b>motivo</b> do movimento. Guarda-se com data de início e fim.</p></div>
     <div class="card"><h3 style="margin-top:0">📄 Contrato</h3>
@@ -181,7 +181,7 @@ flowchart LR
     <tr><td>A quem reporta este trabalhador?</td><td>Ao ocupante do lugar-chefe do lugar dele.</td></tr>
     <tr><td>Este lugar está livre?</td><td>Está livre se não tiver ocupante atual — calculado, nunca esquecido.</td></tr>
   </table>
-  <div class="callout rule"><b>Uma cadeira, um ocupante.</b> A aplicação impede que duas pessoas sejam colocadas no mesmo lugar ao mesmo tempo. Se se tentar, a operação é recusada com uma mensagem clara.</div>
+  <div class="callout rule"><b>Uma cadeira, um titular.</b> A aplicação impede que duas pessoas sejam <b>titulares</b> do mesmo lugar ao mesmo tempo. Se se tentar, a operação é recusada com uma mensagem clara. A excepção é a <b>substituição</b>: quem substitui um titular impedido entra no mesmo lugar sem o desalojar, e o lugar continua a contar como sendo do titular.</div>
   <p class="term">Termo técnico opcional: o lugar chama-se <code>position</code> e a colocação chama-se <code>assignment</code> nos documentos técnicos.</p>
 
   <!-- 6 -->
