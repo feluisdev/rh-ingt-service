@@ -1,4 +1,4 @@
-> Updated: 2026-09-19 13:35
+> Updated: 2026-09-19 13:55
 
 ## Goal
 
@@ -17,7 +17,7 @@ par, sem avançar enquanto o anterior não estiver verde.
 `origin_git_lab/dev`). **Nada foi enviado para nenhum remoto.**
 
 - **Testes unitários: 763, 0 falhas.** Correr sempre com `clean` (ver Blockers).
-- **Bateria funcional: 172 passos, 172 OK** (2026-09-19), contra a BD local. Cobre F0 a F8.
+- **Bateria funcional: 207 passos, 207 OK** (2026-09-19), contra a BD local. **Cobre F0 a F10 — o plano de validação está completo.**
 - **Migrações V40 a V47 aplicadas e verificadas na BD.** Próxima livre: **V48**.
 - **`openapi.json` regenerado**: 225 caminhos, 238 esquemas, **0 operações
   não-sigdi sem esquema de resposta**.
@@ -26,6 +26,7 @@ Commits desta sessão (mais recente primeiro):
 
 | Commit | O que fecha |
 |---|---|
+| `6fe7b778` | **F9 promoção + F10 contrato das respostas** (172 → 207 passos) |
 | `e8fd22f1` | **F7 cessação + F8 mobilidade** (135 → 172 passos) |
 | `7b46b044` | Este handoff |
 | `82c0f998` | F6 da bateria + seed (78 → 111 passos) |
@@ -148,6 +149,9 @@ Commits desta sessão (mais recente primeiro):
 - **O `close` do contrato é idempotente** (200, não 409) e não sobrepõe a data
   nem o motivo do primeiro. O mesmo vale para desactivações repetidas de
   catálogo, que devolvem 409 — confirmar caso a caso em vez de assumir.
+- **Enviar sempre `Accept: application/json`.** Sem o cabeçalho o servidor
+  negoceia e devolve os **erros em XML** (ProblemDetail) enquanto os sucessos vêm
+  em JSON — dois formatos na mesma API. A função `Chamar` já o envia.
 - **Repor a BD antes de cada execução** (`scripts/repor_estado.sql`).
 
 ## Blockers & risks
@@ -271,7 +275,7 @@ esc. 1). Vagos: **LUG-0004** (TEC_SUP, para a promoção com `positionId`),
 
 ## Test / validation plan
 
-A bateria cobre hoje **F0 a F8 (172 passos)**. **Falta escrever F9 e F10.** Escrever
+**A bateria cobre F0 a F10 (207 passos, todos OK).** O que cada bloco prova está em `scripts/testes_funcionais_README.md`. **Nada aqui está por fazer** — esta secção fica como referência para quem acrescentar blocos novos. Escrever
 sempre como um ecrã: navegar (GET) para obter ids reais antes de agir; nunca
 adivinhar um id. Cada bloco entra **antes** do `=========== RESUMO ===========`.
 
@@ -325,7 +329,7 @@ afectação**. Se o `positionId` mudar, é bug.
 
 </details>
 
-### F9 — promoção nas duas formas
+<details><summary>F9 — promoção nas duas formas (feito)</summary>
 
 Pré: um colaborador em Lugar de **ASS_TEC** (ordem 1) e **LUG-0004** vago em
 **TEC_SUP** (ordem 2). Sem `ordem_progressao` a promoção recusa sempre.
@@ -339,7 +343,9 @@ Pré: um colaborador em Lugar de **ASS_TEC** (ordem 1) e **LUG-0004** vago em
 | 5 | Promover para Lugar de outra categoria | **422** |
 | 6 | Promover para Lugar **com titular** | **422** |
 
-### F10 — contrato das respostas
+</details>
+
+<details><summary>F10 — contrato das respostas (feito)</summary>
 
 | # | Acção | Esperado |
 |---|---|---|
@@ -349,6 +355,8 @@ Pré: um colaborador em Lugar de **ASS_TEC** (ordem 1) e **LUG-0004** vago em
 | 4 | `PATCH .../activate` | 200, `sucesso:true` |
 | 5 | `POST /colaboradores/assignments` com `assignmentType='INTERINO'` | **422** |
 | 6 | `GET /me/documentos/{id}/download-url` | 200 com a chave **`url`** (já não `downloadUrl`) |
+
+</details>
 
 ## Open questions
 
@@ -381,14 +389,15 @@ Pré: um colaborador em Lugar de **ASS_TEC** (ordem 1) e **LUG-0004** vago em
 
 ## Next step
 
-**Escrever o bloco F9 (promoção nas duas formas) em
-`scripts/testes_funcionais.ps1`**, seguindo a tabela do Test/validation plan e o
-estilo do F6/F7/F8: navegar antes de agir, datas ancoradas em `Get-Date`, só
-ASCII, papéis pelo número de funcionário, entra antes do `RESUMO`. Depois o F10.
+A bateria está completa e verde. O próximo passo é **funcionalidade**, e a ordem
+depende da decisão 5 (licença que acaba antes de começar), porque falseia
+contagens de dias:
 
-Atenção ao contexto herdado no fim do F8: **A e C estão cessados** e **B está em
-LUG-0001 (TEC_SUP)**. O F9 precisa de alguém em ASS_TEC (ordem 1) com LUG-0004
-vago em TEC_SUP (ordem 2) — provavelmente tem de reafectar primeiro, como o F6.9
-e o F8.6 fazem.
+1. **Decidir a questão 5** — é barata de resolver e desbloqueia as duas seguintes.
+2. **Férias (DL 3/2010)** — marcação, acumulação e gozo proporcional. O saldo já
+   funciona e o F4 cobre-o.
+3. **Dívida do catálogo** — as três colunas que ninguém lê, quando houver cálculo
+   de antiguidade.
 
-Antes de começar: `mvn -B clean test` (763, 0 falhas) e repor a BD.
+Antes de mexer: `mvn -B clean test` (763, 0 falhas), repor a BD e correr a
+bateria (207/207) para confirmar que se parte de verde.
