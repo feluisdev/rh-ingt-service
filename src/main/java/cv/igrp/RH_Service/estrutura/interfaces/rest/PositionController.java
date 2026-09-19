@@ -23,6 +23,7 @@ import cv.igrp.RH_Service.estrutura.application.dto.PositionResponseDTO;
 import cv.igrp.RH_Service.estrutura.application.dto.PositionRequestDTO;
 
 import java.util.Map;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController
@@ -103,17 +104,17 @@ public class PositionController {
         responses = {
             @ApiResponse(
                 responseCode = "201",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> createPosition(
+    public ResponseEntity<SuccessResponseDTO> createPosition(
         @Valid @RequestBody PositionRequestDTO createPositionRequest) {
 
         LOGGER.debug("Operation started");
 
         final var command = new CreatePositionCommand(createPositionRequest);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -157,17 +158,17 @@ public class PositionController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> freezePosition(
+    public ResponseEntity<SuccessResponseDTO> freezePosition(
         @PathVariable(value = "positionId") String positionId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new CongelarPositionCommand(positionId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -182,17 +183,17 @@ public class PositionController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> extinguishPosition(
+    public ResponseEntity<SuccessResponseDTO> extinguishPosition(
         @PathVariable(value = "positionId") String positionId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new ExtinguirPositionCommand(positionId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 

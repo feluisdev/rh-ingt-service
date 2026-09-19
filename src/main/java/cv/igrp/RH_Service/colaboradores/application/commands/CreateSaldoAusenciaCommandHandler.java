@@ -7,25 +7,25 @@ import cv.igrp.RH_Service.colaboradores.domain.repository.TipoAusenciaRepository
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.TipoAusenciaId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
 
 @Component("colabsCreateSaldoAusenciaCommandHandler")
 @RequiredArgsConstructor
 public class CreateSaldoAusenciaCommandHandler
-        implements CommandHandler<CreateSaldoAusenciaCommand, ResponseEntity<Map<String, ?>>> {
+        implements CommandHandler<CreateSaldoAusenciaCommand, ResponseEntity<SuccessResponseDTO>> {
 
     private final SaldoAusenciaRepository saldoRepository;
     private final FuncionarioRepository funcionarioRepository;
     private final TipoAusenciaRepository tipoAusenciaRepository;
 
     @IgrpCommandHandler
-    public ResponseEntity<Map<String, ?>> handle(CreateSaldoAusenciaCommand command) {
+    public ResponseEntity<SuccessResponseDTO> handle(CreateSaldoAusenciaCommand command) {
         var funcionarioId = FuncionarioId.from(command.getFuncionarioId());
         funcionarioRepository.findById(funcionarioId)
                 .orElseThrow(() -> IgrpResponseStatusException.notFound("Funcionário não encontrado: " + command.getFuncionarioId()));
@@ -42,8 +42,6 @@ public class CreateSaldoAusenciaCommandHandler
         var saved = saldoRepository.save(
                 SaldoAusencia.criar(funcionarioId, tipoId, dto.getAno(), dto.getDiasDireito()));
 
-        return ResponseEntity.status(201).body(Map.of(
-                "id", saved.getId().getStringValor(),
-                "message", "Saldo criado com sucesso"));
+        return ResponseEntity.status(201).body(SuccessResponseDTO.de(saved.getId().getStringValor()));
     }
 }

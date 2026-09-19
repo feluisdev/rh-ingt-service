@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.UUID;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController("colabsLicencaMobilidadeController")
@@ -37,11 +38,11 @@ public class LicencaMobilidadeController {
 
     @PostMapping
     @Operation(summary = "Registar licença ou mobilidade")
-    public ResponseEntity<Map<String, ?>> create(
+    public ResponseEntity<SuccessResponseDTO> create(
             @PathVariable String funcionarioId,
             @Valid @RequestBody LicencaMobilidadeRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateLicencaMobilidadeCommand(funcionarioId, request));
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new CreateLicencaMobilidadeCommand(funcionarioId, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
@@ -73,12 +74,12 @@ public class LicencaMobilidadeController {
 
     @PutMapping("{licencaId}")
     @Operation(summary = "Actualizar licença/mobilidade")
-    public ResponseEntity<Map<String, ?>> update(
+    public ResponseEntity<SuccessResponseDTO> update(
             @PathVariable String funcionarioId,
             @PathVariable String licencaId,
             @Valid @RequestBody LicencaMobilidadeRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(
                 new UpdateLicencaMobilidadeCommand(funcionarioId, licencaId, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
@@ -99,12 +100,12 @@ public class LicencaMobilidadeController {
 
     @PutMapping("{licencaId}/reject")
     @Operation(summary = "Rejeitar licença/mobilidade (PENDING → REJECTED)")
-    public ResponseEntity<Map<String, ?>> reject(
+    public ResponseEntity<SuccessResponseDTO> reject(
             @PathVariable String funcionarioId,
             @PathVariable String licencaId,
             @Valid @RequestBody RejeitarLicencaMobilidadeRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(
                 new RejeitarLicencaMobilidadeCommand(licencaId, request.getRejectionReason()));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
@@ -123,11 +124,11 @@ public class LicencaMobilidadeController {
 
     @PutMapping("{licencaId}/cancel")
     @Operation(summary = "Cancelar licença/mobilidade (PENDING ou ACTIVE → CANCELLED)")
-    public ResponseEntity<Map<String, ?>> cancel(
+    public ResponseEntity<SuccessResponseDTO> cancel(
             @PathVariable String funcionarioId,
             @PathVariable String licencaId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new CancelarLicencaMobilidadeCommand(licencaId));
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new CancelarLicencaMobilidadeCommand(licencaId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
@@ -160,11 +161,11 @@ public class LicencaMobilidadeController {
 
     @DeleteMapping("{licencaId}/desativar")
     @Operation(summary = "Desactivar licença/mobilidade (alias de /cancel, mantido por compatibilidade)")
-    public ResponseEntity<Map<String, ?>> desativar(
+    public ResponseEntity<SuccessResponseDTO> desativar(
             @PathVariable String funcionarioId,
             @PathVariable String licencaId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new DesativarLicencaMobilidadeCommand(licencaId));
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new DesativarLicencaMobilidadeCommand(licencaId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
@@ -226,12 +227,12 @@ public class LicencaMobilidadeController {
 
     @DeleteMapping("{licencaId}/documentos/{docId}")
     @Operation(summary = "Desactivar documento de uma licença/mobilidade")
-    public ResponseEntity<Map<String, ?>> desativarDocumento(
+    public ResponseEntity<SuccessResponseDTO> desativarDocumento(
             @PathVariable String funcionarioId,
             @PathVariable String licencaId,
             @PathVariable String docId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new DesativarDocumentoCommand(funcionarioId, docId));
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new DesativarDocumentoCommand(funcionarioId, docId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

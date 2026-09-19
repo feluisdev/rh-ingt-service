@@ -25,6 +25,7 @@ import cv.igrp.RH_Service.parametrizacoes.application.dto.VinculoLaboralRequestD
 import java.util.Map;
 import java.util.List;
 import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController("paramVinculoLaboralController")
@@ -109,17 +110,17 @@ public class VinculoLaboralController {
         responses = {
             @ApiResponse(
                 responseCode = "201",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> createVinculoLaboral(
+    public ResponseEntity<SuccessResponseDTO> createVinculoLaboral(
         @Valid @RequestBody VinculoLaboralRequestDTO createVinculoLaboralRequest) {
 
         LOGGER.debug("Operation started");
 
         final var command = new CreateVinculoLaboralCommand(createVinculoLaboralRequest);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -163,17 +164,17 @@ public class VinculoLaboralController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> desativarVinculoLaboral(
+    public ResponseEntity<SuccessResponseDTO> desativarVinculoLaboral(
         @PathVariable(value = "vinculoLaboralId") String vinculoLaboralId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new DesativarVinculoLaboralCommand(vinculoLaboralId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -188,17 +189,17 @@ public class VinculoLaboralController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> activateVinculoLaboral(
+    public ResponseEntity<SuccessResponseDTO> activateVinculoLaboral(
         @PathVariable(value = "vinculoLaboralId") String vinculoLaboralId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new AtivarVinculoLaboralCommand(vinculoLaboralId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 

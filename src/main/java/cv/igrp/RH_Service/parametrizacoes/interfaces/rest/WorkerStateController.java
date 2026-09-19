@@ -25,6 +25,7 @@ import cv.igrp.RH_Service.parametrizacoes.application.dto.WorkerStateRequestDTO;
 import java.util.Map;
 import java.util.List;
 import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController
@@ -109,17 +110,17 @@ public class WorkerStateController {
         responses = {
             @ApiResponse(
                 responseCode = "201",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> createWorkerState(
+    public ResponseEntity<SuccessResponseDTO> createWorkerState(
         @Valid @RequestBody WorkerStateRequestDTO createWorkerStateRequest) {
 
         LOGGER.debug("Operation started");
 
         final var command = new CreateWorkerStateCommand(createWorkerStateRequest);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -163,17 +164,17 @@ public class WorkerStateController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> desativarWorkerState(
+    public ResponseEntity<SuccessResponseDTO> desativarWorkerState(
         @PathVariable(value = "workerStateId") String workerStateId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new DesativarWorkerStateCommand(workerStateId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -188,17 +189,17 @@ public class WorkerStateController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> activateWorkerState(
+    public ResponseEntity<SuccessResponseDTO> activateWorkerState(
         @PathVariable(value = "workerStateId") String workerStateId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new AtivarWorkerStateCommand(workerStateId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 

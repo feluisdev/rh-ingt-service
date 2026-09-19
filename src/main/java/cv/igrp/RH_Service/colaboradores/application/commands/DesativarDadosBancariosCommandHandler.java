@@ -3,23 +3,23 @@ package cv.igrp.RH_Service.colaboradores.application.commands;
 import cv.igrp.RH_Service.colaboradores.domain.repository.DadosBancariosRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.DadosBancariosId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
 
 @Component("colabsDesativarDadosBancariosCommandHandler")
 @RequiredArgsConstructor
 public class DesativarDadosBancariosCommandHandler
-        implements CommandHandler<DesativarDadosBancariosCommand, ResponseEntity<Map<String, ?>>> {
+        implements CommandHandler<DesativarDadosBancariosCommand, ResponseEntity<SuccessResponseDTO>> {
 
     private final DadosBancariosRepository dadosBancariosRepository;
 
     @IgrpCommandHandler
-    public ResponseEntity<Map<String, ?>> handle(DesativarDadosBancariosCommand command) {
+    public ResponseEntity<SuccessResponseDTO> handle(DesativarDadosBancariosCommand command) {
         var id = DadosBancariosId.from(command.getDadosBancariosId());
         var dados = dadosBancariosRepository.findById(id)
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
@@ -30,6 +30,6 @@ public class DesativarDadosBancariosCommandHandler
 
         dados.desativar();
         dadosBancariosRepository.save(dados);
-        return ResponseEntity.ok(Map.of("message", "Desactivado com sucesso"));
+        return ResponseEntity.ok(SuccessResponseDTO.de(command.getDadosBancariosId()));
     }
 }

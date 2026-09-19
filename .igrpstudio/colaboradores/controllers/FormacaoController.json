@@ -9,10 +9,17 @@
       "actionName": "listarFormacoes",
       "method": "GET",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
       ],
       "requestParams": [
-        {"name": "year", "type": "integer", "required": false}
+        {
+          "name": "year",
+          "type": "integer",
+          "required": false
+        }
       ]
     },
     {
@@ -20,44 +27,119 @@
       "method": "GET",
       "path": "{formacaoId}",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "formacaoId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "formacaoId",
+          "type": "string"
+        }
       ]
     },
     {
       "actionName": "criarFormacao",
       "method": "POST",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
       ],
-      "requestBody": true
+      "requestBody": true,
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "atualizarFormacao",
       "method": "PUT",
       "path": "{formacaoId}",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "formacaoId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "formacaoId",
+          "type": "string"
+        }
       ],
-      "requestBody": true
+      "requestBody": true,
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "removerFormacao",
       "method": "DELETE",
       "path": "{formacaoId}",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "formacaoId", "type": "string"}
-      ]
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "formacaoId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "registarDocumento",
       "method": "POST",
       "path": "{formacaoId}/documentos",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "formacaoId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "formacaoId",
+          "type": "string"
+        }
       ],
       "requestBody": true
     },
@@ -66,12 +148,26 @@
       "method": "GET",
       "path": "{formacaoId}/documentos",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "formacaoId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "formacaoId",
+          "type": "string"
+        }
       ],
       "requestParams": [
-        {"name": "documentTypeId", "type": "string", "required": false},
-        {"name": "active", "type": "boolean", "required": false}
+        {
+          "name": "documentTypeId",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "required": false
+        }
       ]
     },
     {
@@ -79,9 +175,18 @@
       "method": "GET",
       "path": "{formacaoId}/documentos/{docId}",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "formacaoId", "type": "string"},
-        {"name": "docId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "formacaoId",
+          "type": "string"
+        },
+        {
+          "name": "docId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -89,9 +194,18 @@
       "method": "GET",
       "path": "{formacaoId}/documentos/{docId}/download",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "formacaoId", "type": "string"},
-        {"name": "docId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "formacaoId",
+          "type": "string"
+        },
+        {
+          "name": "docId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -99,10 +213,35 @@
       "method": "DELETE",
       "path": "{formacaoId}/documentos/{docId}",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "formacaoId", "type": "string"},
-        {"name": "docId", "type": "string"}
-      ]
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "formacaoId",
+          "type": "string"
+        },
+        {
+          "name": "docId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

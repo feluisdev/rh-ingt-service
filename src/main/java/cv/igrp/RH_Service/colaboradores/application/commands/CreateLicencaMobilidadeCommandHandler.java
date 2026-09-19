@@ -7,25 +7,25 @@ import cv.igrp.RH_Service.colaboradores.domain.repository.SubtipoLicencaMobilida
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.SubtipoLicencaMobilidadeId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
 
 @Component("colabsCreateLicencaMobilidadeCommandHandler")
 @RequiredArgsConstructor
 public class CreateLicencaMobilidadeCommandHandler
-        implements CommandHandler<CreateLicencaMobilidadeCommand, ResponseEntity<Map<String, ?>>> {
+        implements CommandHandler<CreateLicencaMobilidadeCommand, ResponseEntity<SuccessResponseDTO>> {
 
     private final LicencaMobilidadeRepository licencaRepository;
     private final FuncionarioRepository funcionarioRepository;
     private final SubtipoLicencaMobilidadeRepository subtipoRepository;
 
     @IgrpCommandHandler
-    public ResponseEntity<Map<String, ?>> handle(CreateLicencaMobilidadeCommand command) {
+    public ResponseEntity<SuccessResponseDTO> handle(CreateLicencaMobilidadeCommand command) {
         var funcionarioId = FuncionarioId.from(command.getFuncionarioId());
         funcionarioRepository.findById(funcionarioId)
                 .orElseThrow(() -> IgrpResponseStatusException.notFound("Funcionário não encontrado: " + command.getFuncionarioId()));
@@ -44,8 +44,6 @@ public class CreateLicencaMobilidadeCommandHandler
                 dto.getEntidadeDestino(), dto.getDespachoNumero(), dto.getObservacoes(),
                 dto.getJustification(), dto.getDestinationUnitId(), dto.getDestinationPositionId(), null));
 
-        return ResponseEntity.status(201).body(Map.of(
-                "id", saved.getId().getStringValor(),
-                "message", "Criado com sucesso"));
+        return ResponseEntity.status(201).body(SuccessResponseDTO.de(saved.getId().getStringValor()));
     }
 }

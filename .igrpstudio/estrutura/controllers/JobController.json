@@ -25,11 +25,33 @@
         }
       },
       "requestParams": [
-        { "type": "boolean", "name": "active", "isRequired": false },
-        { "type": "string",  "name": "code", "isRequired": false },
-        { "type": "string",  "name": "nome", "isRequired": false },
-        { "type": "string",  "name": "pagina",  "value": "0",  "isRequired": true },
-        { "type": "string",  "name": "tamanho", "value": "20", "isRequired": true }
+        {
+          "type": "boolean",
+          "name": "active",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "code",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "nome",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "pagina",
+          "value": "0",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "tamanho",
+          "value": "20",
+          "isRequired": true
+        }
       ]
     },
     {
@@ -53,7 +75,11 @@
         }
       },
       "pathVariables": [
-        { "name": "jobId", "type": "string", "isRequired": true }
+        {
+          "name": "jobId",
+          "type": "string",
+          "isRequired": true
+        }
       ]
     },
     {
@@ -77,7 +103,13 @@
           "name": "Created",
           "content": {
             "application/json": {
-              "schema": { "type": "string", "name": "data", "collectionType": "map" }
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
             }
           }
         }
@@ -117,7 +149,11 @@
         }
       },
       "pathVariables": [
-        { "name": "jobId", "type": "string", "isRequired": true }
+        {
+          "name": "jobId",
+          "type": "string",
+          "isRequired": true
+        }
       ]
     },
     {
@@ -129,13 +165,23 @@
           "name": "OK",
           "content": {
             "application/json": {
-              "schema": { "type": "string", "name": "data", "collectionType": "map" }
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
             }
           }
         }
       },
       "pathVariables": [
-        { "name": "jobId", "type": "string", "isRequired": true }
+        {
+          "name": "jobId",
+          "type": "string",
+          "isRequired": true
+        }
       ]
     },
     {
@@ -147,13 +193,23 @@
           "name": "OK",
           "content": {
             "application/json": {
-              "schema": { "type": "string", "name": "data", "collectionType": "map" }
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
             }
           }
         }
       },
       "pathVariables": [
-        { "name": "jobId", "type": "string", "isRequired": true }
+        {
+          "name": "jobId",
+          "type": "string",
+          "isRequired": true
+        }
       ]
     }
   ],

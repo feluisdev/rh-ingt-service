@@ -23,11 +23,11 @@ import cv.igrp.RH_Service.parametrizacoes.application.commands.*;
 import cv.igrp.RH_Service.parametrizacoes.application.queries.*;
 
 import cv.igrp.RH_Service.parametrizacoes.application.dto.WrapperListaOptionDTO;
-import java.util.Map;
 import java.util.List;
 import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
 import cv.igrp.RH_Service.parametrizacoes.application.dto.OptionResponseDTO;
 import cv.igrp.RH_Service.parametrizacoes.application.dto.OptionRequestDTO;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController
@@ -139,15 +139,13 @@ public class ReferenceOptionsController {
           description = "",
           content = @Content(
               mediaType = "application/json",
-              schema = @Schema(
-                  implementation = String.class,
-                  type = "String")
+              schema = @Schema(implementation = SuccessResponseDTO.class)
           )
       )
     }
   )
 
-  public ResponseEntity<Map<String, ?>> createOption(@Valid @RequestBody OptionRequestDTO createOptionRequest
+  public ResponseEntity<SuccessResponseDTO> createOption(@Valid @RequestBody OptionRequestDTO createOptionRequest
     )
   {
 
@@ -155,7 +153,7 @@ public class ReferenceOptionsController {
 
       final var command = new CreateOptionCommand(createOptionRequest);
 
-       ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+       ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
        LOGGER.debug("Operation finished");
 
@@ -213,15 +211,13 @@ public class ReferenceOptionsController {
           description = "",
           content = @Content(
               mediaType = "application/json",
-              schema = @Schema(
-                  implementation = String.class,
-                  type = "String")
+              schema = @Schema(implementation = SuccessResponseDTO.class)
           )
       )
     }
   )
 
-  public ResponseEntity<Map<String, ?>> desativarOption(
+  public ResponseEntity<SuccessResponseDTO> desativarOption(
     @PathVariable(value = "optionId") String optionId)
   {
 
@@ -229,7 +225,7 @@ public class ReferenceOptionsController {
 
       final var command = new DesativarOptionCommand(optionId);
 
-       ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+       ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
        LOGGER.debug("Operation finished");
 
@@ -250,15 +246,13 @@ public class ReferenceOptionsController {
           description = "",
           content = @Content(
               mediaType = "application/json",
-              schema = @Schema(
-                  implementation = String.class,
-                  type = "String")
+              schema = @Schema(implementation = SuccessResponseDTO.class)
           )
       )
     }
   )
 
-  public ResponseEntity<Map<String, ?>> activateOption(
+  public ResponseEntity<SuccessResponseDTO> activateOption(
     @PathVariable(value = "optionId") String optionId)
   {
 
@@ -266,7 +260,7 @@ public class ReferenceOptionsController {
 
       final var command = new AtivarOptionCommand(optionId);
 
-       ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+       ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
        LOGGER.debug("Operation finished");
 

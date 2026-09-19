@@ -13,13 +13,23 @@
           "name": "OK",
           "content": {
             "application/json": {
-              "schema": {"type": "WrapperListaPositionDTO", "objectType": "dto", "name": "data", "collectionType": "none", "module": "estrutura"}
+              "schema": {
+                "type": "WrapperListaPositionDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "estrutura"
+              }
             }
           }
         }
       },
       "requestParams": [
-        {"type": "string", "name": "unidadeId", "isRequired": true}
+        {
+          "type": "string",
+          "name": "unidadeId",
+          "isRequired": true
+        }
       ]
     },
     {
@@ -31,12 +41,24 @@
           "name": "OK",
           "content": {
             "application/json": {
-              "schema": {"type": "PositionResponse", "objectType": "dto", "name": "data", "collectionType": "none", "module": "estrutura"}
+              "schema": {
+                "type": "PositionResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "estrutura"
+              }
             }
           }
         }
       },
-      "pathVariables": [{"name": "positionId", "type": "string", "isRequired": true}]
+      "pathVariables": [
+        {
+          "name": "positionId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     },
     {
       "actionName": "createPosition",
@@ -44,12 +66,31 @@
       "requestBody": {
         "content": {
           "application/json": {
-            "schema": {"type": "PositionRequest", "collectionType": "none", "name": "data", "objectType": "dto", "module": "estrutura"}
+            "schema": {
+              "type": "PositionRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "estrutura"
+            }
           }
         }
       },
       "responses": {
-        "201": {"name": "Created", "content": {"application/json": {"schema": {"type": "string", "name": "data", "collectionType": "map"}}}}
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
       }
     },
     {
@@ -59,32 +100,95 @@
       "requestBody": {
         "content": {
           "application/json": {
-            "schema": {"type": "PositionRequest", "collectionType": "none", "name": "data", "objectType": "dto", "module": "estrutura"}
+            "schema": {
+              "type": "PositionRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "estrutura"
+            }
           }
         }
       },
       "responses": {
-        "200": {"name": "OK", "content": {"application/json": {"schema": {"type": "PositionResponse", "objectType": "dto", "name": "data", "collectionType": "none", "module": "estrutura"}}}}
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PositionResponse",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "estrutura"
+              }
+            }
+          }
+        }
       },
-      "pathVariables": [{"name": "positionId", "type": "string", "isRequired": true}]
+      "pathVariables": [
+        {
+          "name": "positionId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     },
     {
       "actionName": "freezePosition",
       "path": "{positionId}/freeze",
       "method": "PATCH",
       "responses": {
-        "200": {"name": "OK", "content": {"application/json": {"schema": {"type": "string", "name": "data", "collectionType": "map"}}}}
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
       },
-      "pathVariables": [{"name": "positionId", "type": "string", "isRequired": true}]
+      "pathVariables": [
+        {
+          "name": "positionId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     },
     {
       "actionName": "extinguishPosition",
       "path": "{positionId}",
       "method": "DELETE",
       "responses": {
-        "200": {"name": "OK", "content": {"application/json": {"schema": {"type": "string", "name": "data", "collectionType": "map"}}}}
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
       },
-      "pathVariables": [{"name": "positionId", "type": "string", "isRequired": true}]
+      "pathVariables": [
+        {
+          "name": "positionId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     }
   ],
   "id": "position_ctrl_001"

@@ -9,7 +9,10 @@
       "actionName": "listarProcessos",
       "method": "GET",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -17,35 +20,88 @@
       "method": "GET",
       "path": "{processoId}",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "processoId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
       ]
     },
     {
       "actionName": "criarProcesso",
       "method": "POST",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
       ],
-      "requestBody": true
+      "requestBody": true,
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "atualizarProcesso",
       "method": "PUT",
       "path": "{processoId}",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "processoId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
       ],
-      "requestBody": true
+      "requestBody": true,
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "registarDocumento",
       "method": "POST",
       "path": "{processoId}/documentos",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "processoId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
       ],
       "requestBody": true
     },
@@ -54,12 +110,26 @@
       "method": "GET",
       "path": "{processoId}/documentos",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "processoId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
       ],
       "requestParams": [
-        {"name": "documentTypeId", "type": "string", "required": false},
-        {"name": "active", "type": "boolean", "required": false}
+        {
+          "name": "documentTypeId",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "required": false
+        }
       ]
     },
     {
@@ -67,9 +137,18 @@
       "method": "GET",
       "path": "{processoId}/documentos/{docId}",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "processoId", "type": "string"},
-        {"name": "docId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        },
+        {
+          "name": "docId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -77,9 +156,18 @@
       "method": "GET",
       "path": "{processoId}/documentos/{docId}/download",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "processoId", "type": "string"},
-        {"name": "docId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        },
+        {
+          "name": "docId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -87,10 +175,35 @@
       "method": "DELETE",
       "path": "{processoId}/documentos/{docId}",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "processoId", "type": "string"},
-        {"name": "docId", "type": "string"}
-      ]
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        },
+        {
+          "name": "docId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

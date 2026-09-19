@@ -3,32 +3,32 @@ package cv.igrp.RH_Service.colaboradores.application.commands;
 import cv.igrp.RH_Service.colaboradores.domain.repository.QualificacaoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.QualificacaoId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
 
 @Component("colabsAtivarQualificacaoCommandHandler")
 @RequiredArgsConstructor
 public class AtivarQualificacaoCommandHandler
-        implements CommandHandler<AtivarQualificacaoCommand, ResponseEntity<Map<String, ?>>> {
+        implements CommandHandler<AtivarQualificacaoCommand, ResponseEntity<SuccessResponseDTO>> {
 
     private final QualificacaoRepository qualificacaoRepository;
 
     @IgrpCommandHandler
-    public ResponseEntity<Map<String, ?>> handle(AtivarQualificacaoCommand command) {
+    public ResponseEntity<SuccessResponseDTO> handle(AtivarQualificacaoCommand command) {
         var id = QualificacaoId.from(command.getQualificacaoId());
         var qualificacao = qualificacaoRepository.findById(id)
                 .orElseThrow(() -> IgrpResponseStatusException.notFound("Qualificação não encontrada: " + command.getQualificacaoId()));
 
         if (Boolean.TRUE.equals(qualificacao.getIsActive()))
-            return ResponseEntity.ok(Map.of("message", "Qualificação já está activa."));
+            return ResponseEntity.ok(SuccessResponseDTO.semEfeito(command.getQualificacaoId(), "Qualificação já está activa."));
 
         qualificacao.ativar();
         qualificacaoRepository.save(qualificacao);
-        return ResponseEntity.ok(Map.of("message", "Activado com sucesso"));
+        return ResponseEntity.ok(SuccessResponseDTO.de(command.getQualificacaoId()));
     }
 }

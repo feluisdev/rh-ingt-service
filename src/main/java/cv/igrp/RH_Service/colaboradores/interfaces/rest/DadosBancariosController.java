@@ -18,6 +18,7 @@ import cv.igrp.RH_Service.colaboradores.application.queries.*;
 import cv.igrp.RH_Service.colaboradores.application.dto.*;
 
 import java.util.Map;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController("colabsDadosBancariosController")
@@ -36,11 +37,11 @@ public class DadosBancariosController {
 
     @PostMapping
     @Operation(summary = "Registar dados bancários")
-    public ResponseEntity<Map<String, ?>> createDadosBancarios(
+    public ResponseEntity<SuccessResponseDTO> createDadosBancarios(
             @PathVariable String funcionarioId,
             @Valid @RequestBody DadosBancariosRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateDadosBancariosCommand(funcionarioId, request));
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new CreateDadosBancariosCommand(funcionarioId, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
@@ -79,22 +80,22 @@ public class DadosBancariosController {
 
     @DeleteMapping("{dadosBancariosId}")
     @Operation(summary = "Desactivar dados bancários (soft delete)")
-    public ResponseEntity<Map<String, ?>> desativarDadosBancarios(
+    public ResponseEntity<SuccessResponseDTO> desativarDadosBancarios(
             @PathVariable String funcionarioId,
             @PathVariable String dadosBancariosId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new DesativarDadosBancariosCommand(dadosBancariosId));
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new DesativarDadosBancariosCommand(dadosBancariosId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
     @PutMapping("{dadosBancariosId}/activate")
     @Operation(summary = "Reactivar dados bancários")
-    public ResponseEntity<Map<String, ?>> activateDadosBancarios(
+    public ResponseEntity<SuccessResponseDTO> activateDadosBancarios(
             @PathVariable String funcionarioId,
             @PathVariable String dadosBancariosId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new AtivarDadosBancariosCommand(dadosBancariosId));
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new AtivarDadosBancariosCommand(dadosBancariosId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

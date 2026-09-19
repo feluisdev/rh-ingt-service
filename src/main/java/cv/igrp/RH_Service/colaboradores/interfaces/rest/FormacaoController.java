@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController("colabsFormacaoController")
@@ -60,11 +61,11 @@ public class FormacaoController {
 
     @PostMapping
     @Operation(summary = "Registar nova formação profissional")
-    public ResponseEntity<Map<String, ?>> criarFormacao(
+    public ResponseEntity<SuccessResponseDTO> criarFormacao(
             @PathVariable String funcionarioId,
             @Valid @RequestBody CriarFormacaoRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(
                 new CriarFormacaoCommand(funcionarioId, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
@@ -72,12 +73,12 @@ public class FormacaoController {
 
     @PutMapping("{formacaoId}")
     @Operation(summary = "Actualizar formação profissional")
-    public ResponseEntity<Map<String, ?>> atualizarFormacao(
+    public ResponseEntity<SuccessResponseDTO> atualizarFormacao(
             @PathVariable String funcionarioId,
             @PathVariable String formacaoId,
             @Valid @RequestBody AtualizarFormacaoRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(
                 new AtualizarFormacaoCommand(funcionarioId, formacaoId, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
@@ -85,11 +86,11 @@ public class FormacaoController {
 
     @DeleteMapping("{formacaoId}")
     @Operation(summary = "Remover formação profissional")
-    public ResponseEntity<Map<String, ?>> removerFormacao(
+    public ResponseEntity<SuccessResponseDTO> removerFormacao(
             @PathVariable String funcionarioId,
             @PathVariable String formacaoId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(
                 new RemoverFormacaoCommand(funcionarioId, formacaoId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
@@ -156,12 +157,12 @@ public class FormacaoController {
 
     @DeleteMapping("{formacaoId}/documentos/{docId}")
     @Operation(summary = "Desactivar documento de uma formação")
-    public ResponseEntity<Map<String, ?>> desativarDocumento(
+    public ResponseEntity<SuccessResponseDTO> desativarDocumento(
             @PathVariable String funcionarioId,
             @PathVariable String formacaoId,
             @PathVariable String docId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(
                 new DesativarDocumentoCommand(funcionarioId, docId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());

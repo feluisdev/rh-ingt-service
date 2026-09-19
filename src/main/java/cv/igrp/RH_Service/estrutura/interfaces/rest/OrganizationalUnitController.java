@@ -25,6 +25,7 @@ import cv.igrp.RH_Service.estrutura.application.dto.OrganizationalUnitRequestDTO
 import java.util.Map;
 import java.util.List;
 import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController
@@ -110,17 +111,17 @@ public class OrganizationalUnitController {
         responses = {
             @ApiResponse(
                 responseCode = "201",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> createOrganizationalUnit(
+    public ResponseEntity<SuccessResponseDTO> createOrganizationalUnit(
         @Valid @RequestBody OrganizationalUnitRequestDTO createOrganizationalUnitRequest) {
 
         LOGGER.debug("Operation started");
 
         final var command = new CreateOrganizationalUnitCommand(createOrganizationalUnitRequest);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -164,17 +165,17 @@ public class OrganizationalUnitController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> deactivateOrganizationalUnit(
+    public ResponseEntity<SuccessResponseDTO> deactivateOrganizationalUnit(
         @PathVariable(value = "unitId") String unitId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new DesativarOrganizationalUnitCommand(unitId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -189,17 +190,17 @@ public class OrganizationalUnitController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> activateOrganizationalUnit(
+    public ResponseEntity<SuccessResponseDTO> activateOrganizationalUnit(
         @PathVariable(value = "unitId") String unitId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new AtivarOrganizationalUnitCommand(unitId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 

@@ -5,6 +5,7 @@ import cv.igrp.RH_Service.carreiras.domain.repository.CategoryRepository;
 import cv.igrp.RH_Service.carreiras.domain.repository.GradeRepository;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CategoryId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -13,12 +14,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class CreateGradeCommandHandler
-        implements CommandHandler<CreateGradeCommand, ResponseEntity<Map<String, ?>>> {
+        implements CommandHandler<CreateGradeCommand, ResponseEntity<SuccessResponseDTO>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateGradeCommandHandler.class);
 
@@ -26,7 +26,7 @@ public class CreateGradeCommandHandler
     private final CategoryRepository categoryRepository;
 
     @IgrpCommandHandler
-    public ResponseEntity<Map<String, ?>> handle(CreateGradeCommand command) {
+    public ResponseEntity<SuccessResponseDTO> handle(CreateGradeCommand command) {
         var dto = command.getRequest();
         if (dto.getCategoryId() == null || dto.getCategoryId().isBlank()) {
             throw IgrpResponseStatusException.badRequest("O campo categoryId é obrigatório.");
@@ -50,8 +50,6 @@ public class CreateGradeCommandHandler
                 Grade.criar(categoryId, dto.getGradeNumber(), dto.getCodigo(),
                         dto.getName(), dto.getSalaryIndex(), dto.getSalaryBase()));
 
-        return ResponseEntity.status(201).body(Map.of(
-                "id", saved.getId().getStringValor(),
-                "message", "Criado com sucesso"));
+        return ResponseEntity.status(201).body(SuccessResponseDTO.de(saved.getId().getStringValor()));
     }
 }

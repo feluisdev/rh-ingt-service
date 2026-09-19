@@ -25,6 +25,7 @@ import cv.igrp.RH_Service.estrutura.application.dto.JobRequestDTO;
 import java.util.Map;
 import java.util.List;
 import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController
@@ -109,17 +110,17 @@ public class JobController {
         responses = {
             @ApiResponse(
                 responseCode = "201",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> createJob(
+    public ResponseEntity<SuccessResponseDTO> createJob(
         @Valid @RequestBody JobRequestDTO createJobRequest) {
 
         LOGGER.debug("Operation started");
 
         final var command = new CreateJobCommand(createJobRequest);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -163,17 +164,17 @@ public class JobController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> deactivateJob(
+    public ResponseEntity<SuccessResponseDTO> deactivateJob(
         @PathVariable(value = "jobId") String jobId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new DesativarJobCommand(jobId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -188,17 +189,17 @@ public class JobController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> activateJob(
+    public ResponseEntity<SuccessResponseDTO> activateJob(
         @PathVariable(value = "jobId") String jobId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new AtivarJobCommand(jobId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 

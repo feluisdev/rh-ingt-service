@@ -18,6 +18,7 @@ import cv.igrp.RH_Service.colaboradores.application.queries.*;
 import cv.igrp.RH_Service.colaboradores.application.dto.*;
 
 import java.util.Map;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController("colabsDependenteController")
@@ -45,11 +46,11 @@ public class DependenteController {
 
     @PostMapping
     @Operation(summary = "Criar dependente")
-    public ResponseEntity<Map<String, ?>> createDependente(
+    public ResponseEntity<SuccessResponseDTO> createDependente(
             @PathVariable String funcionarioId,
             @Valid @RequestBody DependenteRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateDependenteCommand(funcionarioId, request));
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new CreateDependenteCommand(funcionarioId, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
@@ -79,22 +80,22 @@ public class DependenteController {
 
     @DeleteMapping("{dependenteId}")
     @Operation(summary = "Desactivar dependente (soft delete)")
-    public ResponseEntity<Map<String, ?>> desativarDependente(
+    public ResponseEntity<SuccessResponseDTO> desativarDependente(
             @PathVariable String funcionarioId,
             @PathVariable String dependenteId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new DesativarDependenteCommand(dependenteId));
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new DesativarDependenteCommand(dependenteId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
     @PutMapping("{dependenteId}/activate")
     @Operation(summary = "Reactivar dependente")
-    public ResponseEntity<Map<String, ?>> activateDependente(
+    public ResponseEntity<SuccessResponseDTO> activateDependente(
             @PathVariable String funcionarioId,
             @PathVariable String dependenteId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new AtivarDependenteCommand(dependenteId));
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new AtivarDependenteCommand(dependenteId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

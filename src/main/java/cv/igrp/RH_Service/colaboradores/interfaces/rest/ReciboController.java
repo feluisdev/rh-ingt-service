@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController("colabsReciboController")
@@ -60,11 +61,11 @@ public class ReciboController {
 
     @PostMapping
     @Operation(summary = "Emitir recibo de vencimento")
-    public ResponseEntity<Map<String, ?>> criarRecibo(
+    public ResponseEntity<SuccessResponseDTO> criarRecibo(
             @PathVariable String funcionarioId,
             @Valid @RequestBody CriarReciboRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(
                 new CriarReciboVencimentoCommand(funcionarioId, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
@@ -127,12 +128,12 @@ public class ReciboController {
 
     @DeleteMapping("{reciboId}/documentos/{docId}")
     @Operation(summary = "Desactivar documento de um recibo de vencimento")
-    public ResponseEntity<Map<String, ?>> desativarDocumento(
+    public ResponseEntity<SuccessResponseDTO> desativarDocumento(
             @PathVariable String funcionarioId,
             @PathVariable String reciboId,
             @PathVariable String docId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new DesativarDocumentoCommand(funcionarioId, docId));
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new DesativarDocumentoCommand(funcionarioId, docId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

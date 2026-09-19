@@ -5,6 +5,7 @@ import cv.igrp.RH_Service.estrutura.domain.models.OrganizationalUnit;
 import cv.igrp.RH_Service.estrutura.domain.repository.OrganizationalUnitRepository;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.OrganizationalUnitId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -13,13 +14,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
 import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 public class CreateOrganizationalUnitCommandHandler
-        implements CommandHandler<CreateOrganizationalUnitCommand, ResponseEntity<Map<String, ?>>> {
+        implements CommandHandler<CreateOrganizationalUnitCommand, ResponseEntity<SuccessResponseDTO>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateOrganizationalUnitCommandHandler.class);
 
@@ -27,7 +27,7 @@ public class CreateOrganizationalUnitCommandHandler
     private final FuncionarioLookupPort funcionarioLookupPort;
 
     @IgrpCommandHandler
-    public ResponseEntity<Map<String, ?>> handle(CreateOrganizationalUnitCommand command) {
+    public ResponseEntity<SuccessResponseDTO> handle(CreateOrganizationalUnitCommand command) {
         var dto = command.getRequest();
 
         if (unitRepository.existsByCode(dto.getCode())) {
@@ -46,9 +46,7 @@ public class CreateOrganizationalUnitCommandHandler
                 OrganizationalUnit.criar(dto.getCode(), dto.getName(), dto.getAcronym(),
                         dto.getUnitType(), dto.getDescricao(), parentId, responsibleEmployeeId));
 
-        return ResponseEntity.status(201).body(Map.of(
-                "id", saved.getId().getStringValor(),
-                "message", "Criado com sucesso"));
+        return ResponseEntity.status(201).body(SuccessResponseDTO.de(saved.getId().getStringValor()));
     }
 
     private OrganizationalUnitId validateAndGetParentId(String parentUnitIdStr) {

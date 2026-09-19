@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.carreiras.application.commands;
 import cv.igrp.RH_Service.carreiras.domain.models.Career;
 import cv.igrp.RH_Service.carreiras.domain.repository.CareerRepository;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -11,19 +12,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class CreateCareerCommandHandler
-        implements CommandHandler<CreateCareerCommand, ResponseEntity<Map<String, ?>>> {
+        implements CommandHandler<CreateCareerCommand, ResponseEntity<SuccessResponseDTO>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateCareerCommandHandler.class);
 
     private final CareerRepository careerRepository;
 
     @IgrpCommandHandler
-    public ResponseEntity<Map<String, ?>> handle(CreateCareerCommand command) {
+    public ResponseEntity<SuccessResponseDTO> handle(CreateCareerCommand command) {
         var dto = command.getRequest();
 
         if (careerRepository.existsByCode(dto.getCode())) {
@@ -34,8 +34,6 @@ public class CreateCareerCommandHandler
         Career saved = careerRepository.save(
                 Career.criar(dto.getCode(), dto.getName(), dto.getDescription(), dto.getRegime()));
 
-        return ResponseEntity.status(201).body(Map.of(
-                "id", saved.getId().getStringValor(),
-                "message", "Criado com sucesso"));
+        return ResponseEntity.status(201).body(SuccessResponseDTO.de(saved.getId().getStringValor()));
     }
 }

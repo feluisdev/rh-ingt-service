@@ -25,6 +25,7 @@ import cv.igrp.RH_Service.carreiras.application.dto.GradeRequestDTO;
 import java.util.Map;
 import java.util.List;
 import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController
@@ -110,17 +111,17 @@ public class GradeController {
         responses = {
             @ApiResponse(
                 responseCode = "201",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> createGrade(
+    public ResponseEntity<SuccessResponseDTO> createGrade(
         @Valid @RequestBody GradeRequestDTO createGradeRequest) {
 
         LOGGER.debug("Operation started");
 
         final var command = new CreateGradeCommand(createGradeRequest);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -164,17 +165,17 @@ public class GradeController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> desativarGrade(
+    public ResponseEntity<SuccessResponseDTO> desativarGrade(
         @PathVariable(value = "gradeId") String gradeId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new DesativarGradeCommand(gradeId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -189,17 +190,17 @@ public class GradeController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> activateGrade(
+    public ResponseEntity<SuccessResponseDTO> activateGrade(
         @PathVariable(value = "gradeId") String gradeId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new AtivarGradeCommand(gradeId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 

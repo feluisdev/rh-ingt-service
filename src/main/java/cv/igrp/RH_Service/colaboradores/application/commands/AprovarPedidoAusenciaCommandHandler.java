@@ -5,6 +5,7 @@ import cv.igrp.RH_Service.colaboradores.domain.repository.PedidoAusenciaReposito
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.PedidoAusenciaId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -13,19 +14,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Map;
 
 @Component("colabsAprovarPedidoAusenciaCommandHandler")
 @RequiredArgsConstructor
 public class AprovarPedidoAusenciaCommandHandler
-        implements CommandHandler<AprovarPedidoAusenciaCommand, ResponseEntity<Map<String, ?>>> {
+        implements CommandHandler<AprovarPedidoAusenciaCommand, ResponseEntity<SuccessResponseDTO>> {
 
     private final PedidoAusenciaRepository pedidoRepository;
     private final SaldoAusenciaService saldoAusenciaService;
 
     @IgrpCommandHandler
     @Transactional
-    public ResponseEntity<Map<String, ?>> handle(AprovarPedidoAusenciaCommand command) {
+    public ResponseEntity<SuccessResponseDTO> handle(AprovarPedidoAusenciaCommand command) {
         var pedido = pedidoRepository.findById(PedidoAusenciaId.from(command.getPedidoId()))
                 .orElseThrow(() -> IgrpResponseStatusException.notFound("Pedido não encontrado: " + command.getPedidoId()));
 
@@ -38,6 +38,6 @@ public class AprovarPedidoAusenciaCommandHandler
         saldoAusenciaService.confirmarGozo(pedido);
 
         pedidoRepository.save(pedido);
-        return ResponseEntity.ok(Map.of("message", "Aprovado com sucesso"));
+        return ResponseEntity.ok(SuccessResponseDTO.de(command.getPedidoId()));
     }
 }

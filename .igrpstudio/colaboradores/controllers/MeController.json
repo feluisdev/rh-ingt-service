@@ -15,9 +15,21 @@
       "method": "GET",
       "path": "leave-requests",
       "requestParams": [
-        {"name": "status", "type": "string", "required": false},
-        {"name": "leaveTypeId", "type": "string", "required": false},
-        {"name": "year", "type": "integer", "required": false}
+        {
+          "name": "status",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "leaveTypeId",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "year",
+          "type": "integer",
+          "required": false
+        }
       ]
     },
     {
@@ -29,15 +41,50 @@
       "actionName": "createMyLeaveRequest",
       "method": "POST",
       "path": "leave-requests",
-      "requestBody": true
+      "requestBody": true,
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "cancelMyLeaveRequest",
       "method": "PUT",
       "path": "leave-requests/{id}/cancel",
       "pathVariables": [
-        {"name": "id", "type": "string"}
-      ]
+        {
+          "name": "id",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "getMyLeavesMobilities",
@@ -49,22 +96,49 @@
       "method": "GET",
       "path": "leaves-mobilities/{id}",
       "pathVariables": [
-        {"name": "id", "type": "string"}
+        {
+          "name": "id",
+          "type": "string"
+        }
       ]
     },
     {
       "actionName": "createMyLeaveMobility",
       "method": "POST",
       "path": "leaves-mobilities",
-      "requestBody": true
+      "requestBody": true,
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "getMyPayrollSlips",
       "method": "GET",
       "path": "payroll-slips",
       "requestParams": [
-        {"name": "periodYear", "type": "integer", "required": false},
-        {"name": "periodMonth", "type": "integer", "required": false}
+        {
+          "name": "periodYear",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "periodMonth",
+          "type": "integer",
+          "required": false
+        }
       ]
     },
     {
@@ -72,7 +146,10 @@
       "method": "GET",
       "path": "payroll-slips/{id}/download",
       "pathVariables": [
-        {"name": "id", "type": "string"}
+        {
+          "name": "id",
+          "type": "string"
+        }
       ]
     },
     {
@@ -80,7 +157,11 @@
       "method": "GET",
       "path": "documents",
       "requestParams": [
-        {"name": "documentTypeId", "type": "string", "required": false}
+        {
+          "name": "documentTypeId",
+          "type": "string",
+          "required": false
+        }
       ]
     },
     {
@@ -88,7 +169,10 @@
       "method": "GET",
       "path": "documents/{id}/download",
       "pathVariables": [
-        {"name": "id", "type": "string"}
+        {
+          "name": "id",
+          "type": "string"
+        }
       ]
     }
   ]

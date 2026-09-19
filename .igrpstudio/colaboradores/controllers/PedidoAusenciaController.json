@@ -9,7 +9,10 @@
       "actionName": "create",
       "method": "POST",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
       ],
       "requestBody": true
     },
@@ -17,12 +20,27 @@
       "actionName": "getAll",
       "method": "GET",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
       ],
       "requestParams": [
-        {"name": "estado", "type": "string", "required": false},
-        {"name": "tipoAusenciaId", "type": "string", "required": false},
-        {"name": "ano", "type": "integer", "required": false}
+        {
+          "name": "estado",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "tipoAusenciaId",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "ano",
+          "type": "integer",
+          "required": false
+        }
       ]
     },
     {
@@ -30,8 +48,14 @@
       "method": "GET",
       "path": "{pedidoId}",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "pedidoId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "pedidoId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -39,29 +63,95 @@
       "method": "PATCH",
       "path": "{pedidoId}/aprovar",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "pedidoId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "pedidoId",
+          "type": "string"
+        }
       ],
-      "requestBody": true
+      "requestBody": true,
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "rejeitar",
       "method": "PATCH",
       "path": "{pedidoId}/rejeitar",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "pedidoId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "pedidoId",
+          "type": "string"
+        }
       ],
-      "requestBody": true
+      "requestBody": true,
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "cancelar",
       "method": "PATCH",
       "path": "{pedidoId}/cancelar",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "pedidoId", "type": "string"}
-      ]
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "pedidoId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

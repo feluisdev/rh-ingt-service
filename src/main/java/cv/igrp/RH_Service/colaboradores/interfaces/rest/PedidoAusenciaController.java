@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.UUID;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController("colabsPedidoAusenciaController")
@@ -74,12 +75,12 @@ public class PedidoAusenciaController {
 
     @PatchMapping("{pedidoId}/aprovar")
     @Operation(summary = "Aprovar pedido de ausência")
-    public ResponseEntity<Map<String, ?>> aprovar(
+    public ResponseEntity<SuccessResponseDTO> aprovar(
             @PathVariable String funcionarioId,
             @PathVariable String pedidoId,
             @Valid @RequestBody AprovarPedidoRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(
                 new AprovarPedidoAusenciaCommand(funcionarioId, pedidoId, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
@@ -87,12 +88,12 @@ public class PedidoAusenciaController {
 
     @PatchMapping("{pedidoId}/rejeitar")
     @Operation(summary = "Rejeitar pedido de ausência")
-    public ResponseEntity<Map<String, ?>> rejeitar(
+    public ResponseEntity<SuccessResponseDTO> rejeitar(
             @PathVariable String funcionarioId,
             @PathVariable String pedidoId,
             @Valid @RequestBody RejeitarPedidoRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(
                 new RejeitarPedidoAusenciaCommand(funcionarioId, pedidoId, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
@@ -100,11 +101,11 @@ public class PedidoAusenciaController {
 
     @PatchMapping("{pedidoId}/cancelar")
     @Operation(summary = "Cancelar pedido de ausência (apenas o próprio funcionário)")
-    public ResponseEntity<Map<String, ?>> cancelar(
+    public ResponseEntity<SuccessResponseDTO> cancelar(
             @PathVariable String funcionarioId,
             @PathVariable String pedidoId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(
                 new CancelarPedidoAusenciaCommand(funcionarioId, pedidoId, funcionarioId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());

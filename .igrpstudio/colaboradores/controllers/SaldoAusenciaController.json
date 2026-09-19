@@ -9,19 +9,49 @@
       "actionName": "create",
       "method": "POST",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
       ],
-      "requestBody": true
+      "requestBody": true,
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     },
     {
       "actionName": "getAll",
       "method": "GET",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
       ],
       "requestParams": [
-        {"name": "ano", "type": "integer", "required": false},
-        {"name": "tipoAusenciaId", "type": "string", "required": false}
+        {
+          "name": "ano",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "tipoAusenciaId",
+          "type": "string",
+          "required": false
+        }
       ]
     },
     {
@@ -29,8 +59,14 @@
       "method": "GET",
       "path": "{saldoId}",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "saldoId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "saldoId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -38,12 +74,38 @@
       "method": "PUT",
       "path": "{saldoId}",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "saldoId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "saldoId",
+          "type": "string"
+        }
       ],
       "requestParams": [
-        {"name": "diasDireito", "type": "integer", "required": true}
-      ]
+        {
+          "name": "diasDireito",
+          "type": "integer",
+          "required": true
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

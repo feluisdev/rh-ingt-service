@@ -5,24 +5,24 @@ import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FormacaoId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
 
 @Component("colabsAtualizarFormacaoCommandHandler")
 @RequiredArgsConstructor
 public class AtualizarFormacaoCommandHandler
-        implements CommandHandler<AtualizarFormacaoCommand, ResponseEntity<Map<String, ?>>> {
+        implements CommandHandler<AtualizarFormacaoCommand, ResponseEntity<SuccessResponseDTO>> {
 
     private final FuncionarioRepository funcionarioRepository;
     private final FormacaoRepository formacaoRepository;
 
     @IgrpCommandHandler
-    public ResponseEntity<Map<String, ?>> handle(AtualizarFormacaoCommand command) {
+    public ResponseEntity<SuccessResponseDTO> handle(AtualizarFormacaoCommand command) {
         var dto = command.getRequest();
         var funcionarioId = FuncionarioId.from(command.getFuncionarioId());
 
@@ -45,6 +45,6 @@ public class AtualizarFormacaoCommandHandler
                 dto.getStartDate(), dto.getEndDate(), dto.getDurationHours());
 
         formacaoRepository.save(formacao);
-        return ResponseEntity.ok(Map.of("message", "Formação actualizada com sucesso"));
+        return ResponseEntity.ok(SuccessResponseDTO.de(command.getFuncionarioId()));
     }
 }

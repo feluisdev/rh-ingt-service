@@ -25,6 +25,7 @@ import cv.igrp.RH_Service.parametrizacoes.application.dto.LeaveTypeRequestDTO;
 import java.util.Map;
 import java.util.List;
 import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController
@@ -105,16 +106,16 @@ public class LeaveTypeController {
                 responseCode = "201",
                 description = "Tipo de licença criado com sucesso",
                 content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = String.class))
+                    schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> createLeaveType(
+    public ResponseEntity<SuccessResponseDTO> createLeaveType(
         @Valid @RequestBody LeaveTypeRequestDTO createLeaveTypeRequest) {
 
         LOGGER.debug("Operation started");
         final var command = new CreateLeaveTypeCommand(createLeaveTypeRequest);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())
             .headers(response.getHeaders())
@@ -156,16 +157,16 @@ public class LeaveTypeController {
                 responseCode = "200",
                 description = "Tipo de licença desactivado com sucesso",
                 content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = String.class))
+                    schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> desativarLeaveType(
+    public ResponseEntity<SuccessResponseDTO> desativarLeaveType(
         @PathVariable(value = "leaveTypeId") String leaveTypeId) {
 
         LOGGER.debug("Operation started");
         final var command = new DesativarLeaveTypeCommand(leaveTypeId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())
             .headers(response.getHeaders())
@@ -181,16 +182,16 @@ public class LeaveTypeController {
                 responseCode = "200",
                 description = "Tipo de licença activado com sucesso",
                 content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = String.class))
+                    schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> activateLeaveType(
+    public ResponseEntity<SuccessResponseDTO> activateLeaveType(
         @PathVariable(value = "leaveTypeId") String leaveTypeId) {
 
         LOGGER.debug("Operation started");
         final var command = new AtivarLeaveTypeCommand(leaveTypeId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())
             .headers(response.getHeaders())

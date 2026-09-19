@@ -56,10 +56,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "map",
-                "objectType": "java",
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "none"
+                "collectionType": "none",
+                "module": "shared"
               }
             }
           }
@@ -222,10 +223,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "map",
-                "objectType": "java",
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "none"
+                "collectionType": "none",
+                "module": "shared"
               }
             }
           }
@@ -250,10 +252,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "map",
-                "objectType": "java",
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "none"
+                "collectionType": "none",
+                "module": "shared"
               }
             }
           }
@@ -429,10 +432,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "map",
-                "objectType": "java",
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "none"
+                "collectionType": "none",
+                "module": "shared"
               }
             }
           }

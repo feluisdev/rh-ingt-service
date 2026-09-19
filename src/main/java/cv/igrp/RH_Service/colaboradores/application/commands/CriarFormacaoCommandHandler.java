@@ -5,24 +5,24 @@ import cv.igrp.RH_Service.colaboradores.domain.repository.FormacaoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
 
 @Component("colabsCriarFormacaoCommandHandler")
 @RequiredArgsConstructor
 public class CriarFormacaoCommandHandler
-        implements CommandHandler<CriarFormacaoCommand, ResponseEntity<Map<String, ?>>> {
+        implements CommandHandler<CriarFormacaoCommand, ResponseEntity<SuccessResponseDTO>> {
 
     private final FuncionarioRepository funcionarioRepository;
     private final FormacaoRepository formacaoRepository;
 
     @IgrpCommandHandler
-    public ResponseEntity<Map<String, ?>> handle(CriarFormacaoCommand command) {
+    public ResponseEntity<SuccessResponseDTO> handle(CriarFormacaoCommand command) {
         var dto = command.getRequest();
         var funcionarioId = FuncionarioId.from(command.getFuncionarioId());
 
@@ -39,6 +39,6 @@ public class CriarFormacaoCommandHandler
                 dto.getTrainingType(), dto.getStartDate(), dto.getEndDate(),
                 dto.getDurationHours()));
 
-        return ResponseEntity.status(201).body(Map.of("id", saved.getId().getStringValor()));
+        return ResponseEntity.status(201).body(SuccessResponseDTO.de(saved.getId().getStringValor()));
     }
 }

@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.UUID;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController("colabsDocumentoController")
@@ -101,11 +102,11 @@ public class DocumentoController {
 
     @DeleteMapping("{documentoId}")
     @Operation(summary = "Desactivar documento (soft delete)")
-    public ResponseEntity<Map<String, ?>> desativar(
+    public ResponseEntity<SuccessResponseDTO> desativar(
             @PathVariable String funcionarioId,
             @PathVariable String documentoId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(
                 new DesativarDocumentoCommand(funcionarioId, documentoId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());

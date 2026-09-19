@@ -26,6 +26,7 @@ import cv.igrp.RH_Service.carreiras.application.dto.CategoryRequestDTO;
 import java.util.Map;
 import java.util.List;
 import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController
@@ -111,17 +112,17 @@ public class CategoryController {
         responses = {
             @ApiResponse(
                 responseCode = "201",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> createCategory(
+    public ResponseEntity<SuccessResponseDTO> createCategory(
         @Valid @RequestBody CategoryRequestDTO createCategoryRequest) {
 
         LOGGER.debug("Operation started");
 
         final var command = new CreateCategoryCommand(createCategoryRequest);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -165,17 +166,17 @@ public class CategoryController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> desativarCategory(
+    public ResponseEntity<SuccessResponseDTO> desativarCategory(
         @PathVariable(value = "categoryId") String categoryId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new DesativarCategoryCommand(categoryId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -218,17 +219,17 @@ public class CategoryController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> activateCategory(
+    public ResponseEntity<SuccessResponseDTO> activateCategory(
         @PathVariable(value = "categoryId") String categoryId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new AtivarCategoryCommand(categoryId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 

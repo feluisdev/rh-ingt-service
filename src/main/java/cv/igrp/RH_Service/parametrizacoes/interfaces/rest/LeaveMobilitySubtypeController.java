@@ -25,6 +25,7 @@ import cv.igrp.RH_Service.parametrizacoes.application.dto.LeaveMobilitySubtypeRe
 import java.util.Map;
 import java.util.List;
 import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController
@@ -106,16 +107,16 @@ public class LeaveMobilitySubtypeController {
                 responseCode = "201",
                 description = "Subtipo criado com sucesso",
                 content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = String.class))
+                    schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> createLeaveMobilitySubtype(
+    public ResponseEntity<SuccessResponseDTO> createLeaveMobilitySubtype(
         @Valid @RequestBody LeaveMobilitySubtypeRequestDTO createLeaveMobilitySubtypeRequest) {
 
         LOGGER.debug("Operation started");
         final var command = new CreateLeaveMobilitySubtypeCommand(createLeaveMobilitySubtypeRequest);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())
             .headers(response.getHeaders())
@@ -157,16 +158,16 @@ public class LeaveMobilitySubtypeController {
                 responseCode = "200",
                 description = "Subtipo desactivado com sucesso",
                 content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = String.class))
+                    schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> desativarLeaveMobilitySubtype(
+    public ResponseEntity<SuccessResponseDTO> desativarLeaveMobilitySubtype(
         @PathVariable(value = "leaveMobilitySubtypeId") String leaveMobilitySubtypeId) {
 
         LOGGER.debug("Operation started");
         final var command = new DesativarLeaveMobilitySubtypeCommand(leaveMobilitySubtypeId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())
             .headers(response.getHeaders())
@@ -182,16 +183,16 @@ public class LeaveMobilitySubtypeController {
                 responseCode = "200",
                 description = "Subtipo activado com sucesso",
                 content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = String.class))
+                    schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> activateLeaveMobilitySubtype(
+    public ResponseEntity<SuccessResponseDTO> activateLeaveMobilitySubtype(
         @PathVariable(value = "leaveMobilitySubtypeId") String leaveMobilitySubtypeId) {
 
         LOGGER.debug("Operation started");
         final var command = new AtivarLeaveMobilitySubtypeCommand(leaveMobilitySubtypeId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())
             .headers(response.getHeaders())

@@ -23,6 +23,7 @@ import cv.igrp.RH_Service.colaboradores.application.dto.*;
 import java.util.Map;
 import java.util.List;
 import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController("colabsFuncionarioController")
@@ -82,12 +83,12 @@ public class FuncionarioController {
 
     @PutMapping("{funcionarioId}")
     @Operation(summary = "Actualizar dados pessoais e bancários do funcionário")
-    public ResponseEntity<Map<String, ?>> updateFuncionario(
+    public ResponseEntity<SuccessResponseDTO> updateFuncionario(
             @Valid @RequestBody AtualizarFuncionarioRequestDTO request,
             @PathVariable(value = "funcionarioId") String funcionarioId) {
         LOGGER.debug("Operation started");
         final var command = new UpdateFuncionarioCommand(request, funcionarioId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

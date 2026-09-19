@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.colaboradores.application.services.DadosBancariosServi
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -11,19 +12,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
 
 @Component("colabsUpdateFuncionarioCommandHandler")
 @RequiredArgsConstructor
 public class UpdateFuncionarioCommandHandler
-        implements CommandHandler<UpdateFuncionarioCommand, ResponseEntity<Map<String, String>>> {
+        implements CommandHandler<UpdateFuncionarioCommand, ResponseEntity<SuccessResponseDTO>> {
 
     private final FuncionarioRepository funcionarioRepository;
     private final DadosBancariosService dadosBancariosService;
 
     @IgrpCommandHandler
     @Transactional
-    public ResponseEntity<Map<String, String>> handle(UpdateFuncionarioCommand command) {
+    public ResponseEntity<SuccessResponseDTO> handle(UpdateFuncionarioCommand command) {
         var dp = command.getRequest().getDadosPessoais();
         var id = FuncionarioId.from(command.getFuncionarioId());
 
@@ -66,6 +66,6 @@ public class UpdateFuncionarioCommandHandler
             dadosBancariosService.upsertDadosBancarios(id, dbReq);
         }
 
-        return ResponseEntity.ok(Map.of("id", id.getStringValor()));
+        return ResponseEntity.ok(SuccessResponseDTO.de(id.getStringValor()));
     }
 }

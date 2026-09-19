@@ -26,7 +26,7 @@ curl -s -o docs/funcionarios/v5/openapi.json http://localhost:8099/v3/api-docs
 Quem implementa um cliente deve **ler o `openapi.json` para as formas** e este guia para o resto, porque há duas coisas que o gerado ainda não diz:
 
 1. **Os erros.** Só 6 das 328 operações declaram respostas 4xx. As regras de negócio e os **422** vivem aqui e no `regras_negocio.html`.
-2. **Algumas respostas.** Os handlers que devolvem `Map` aparecem sem esquema. Está em plano substituí-los por DTOs tipados.
+2. **Algumas respostas.** Restam 19 operações sem esquema: os `combobox` (devolvem `ComboboxItemDTO[]`, mas a anotação apaga-o) e cinco consultas de afectação que ainda devolvem `Map` e esperam DTO próprio.
 
 Regenerar o `openapi.json` sempre que se acrescente ou mude um endpoint.
 
@@ -48,6 +48,30 @@ Endpoints de lista aceitam `pagina` (0-based) e `tamanho` (default 20) e devolve
 ```
 
 > **Variações do wrapper:** a maioria dos wrappers inclui `first`/`last`; o de **funcionários** omite-os (só `pageNumber`/`pageSize`/`totalPages`); o de **Lugares** (`WrapperListaPositionDTO`) substitui-os por `dotacao`/`ocupados`/`vagas` (**`ocupados` conta titulares**); o de **auditoria** traz apenas `content`/`totalElements`.
+
+### Resposta das operações simples
+
+As operações que só têm a dizer **o que foi afectado e se correu bem** devolvem `SuccessResponseDTO`, e não um objecto livre:
+
+```json
+{
+  "id": "uuid | null",     // o que foi criado ou alterado
+  "sucesso": true,         // a operação produziu efeito
+  "alertas": []            // avisos que não impedem a operação; vazio, nunca nulo
+}
+```
+
+Cobre os `POST` de criação, os `PUT` de actualização, as desactivações (`DELETE`) e as reactivações (`activate`) — 85 operações ao todo.
+
+**`sucesso: false` não é erro.** É uma operação idempotente a dizer que não teve nada a fazer, com o motivo em `alertas`. Por exemplo, reactivar algo que já estava activo:
+
+```json
+{ "id": "uuid", "sucesso": false, "alertas": ["Dependente já está activo."] }
+```
+
+> **Breaking change:** estas operações devolviam antes `{"message": "..."}`. O campo `message` **desapareceu** — o texto de sucesso pertence ao ecrã, não à API. O que era informação a sério (o "já estava assim") passou a `sucesso: false` + `alertas`.
+
+As operações com mais a dizer — o registo composto, os movimentos de carreira, a mudança de estado, a substituição — mantêm **DTO próprio**, e não este com campos a mais.
 
 ### Padrões de recurso
 | Padrão | Descrição |

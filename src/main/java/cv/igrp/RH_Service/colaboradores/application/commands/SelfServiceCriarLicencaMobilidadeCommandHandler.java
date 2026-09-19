@@ -7,6 +7,7 @@ import cv.igrp.RH_Service.colaboradores.domain.repository.SubtipoLicencaMobilida
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.SubtipoLicencaMobilidadeId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -15,12 +16,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
 
 @Component("colabsSelfServiceCriarLicencaMobilidadeCommandHandler")
 @RequiredArgsConstructor
 public class SelfServiceCriarLicencaMobilidadeCommandHandler
-        implements CommandHandler<SelfServiceCriarLicencaMobilidadeCommand, ResponseEntity<Map<String, ?>>> {
+        implements CommandHandler<SelfServiceCriarLicencaMobilidadeCommand, ResponseEntity<SuccessResponseDTO>> {
 
     private final CurrentEmployeeResolver currentEmployeeResolver;
     private final FuncionarioRepository funcionarioRepository;
@@ -29,7 +29,7 @@ public class SelfServiceCriarLicencaMobilidadeCommandHandler
 
     @IgrpCommandHandler
     @Transactional
-    public ResponseEntity<Map<String, ?>> handle(SelfServiceCriarLicencaMobilidadeCommand command) {
+    public ResponseEntity<SuccessResponseDTO> handle(SelfServiceCriarLicencaMobilidadeCommand command) {
         var dto = command.getRequest();
         var funcionarioId = currentEmployeeResolver.resolve();
 
@@ -55,8 +55,6 @@ public class SelfServiceCriarLicencaMobilidadeCommandHandler
                 dto.getJustification(), null, null, null);
         var saved = licencaRepository.save(licenca);
 
-        return ResponseEntity.status(201).body(Map.of(
-                "id", saved.getId().getStringValor(),
-                "message", "Licença/mobilidade submetida com sucesso"));
+        return ResponseEntity.status(201).body(SuccessResponseDTO.de(saved.getId().getStringValor()));
     }
 }

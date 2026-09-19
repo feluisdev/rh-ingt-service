@@ -9,7 +9,10 @@
       "actionName": "registar",
       "method": "POST",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
       ],
       "requestBody": true
     },
@@ -17,11 +20,22 @@
       "actionName": "listar",
       "method": "GET",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
       ],
       "requestParams": [
-        {"name": "documentTypeId", "type": "string", "required": false},
-        {"name": "active", "type": "boolean", "required": false}
+        {
+          "name": "documentTypeId",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "required": false
+        }
       ]
     },
     {
@@ -29,8 +43,14 @@
       "method": "GET",
       "path": "{documentoId}",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "documentoId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "documentoId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -38,8 +58,14 @@
       "method": "GET",
       "path": "{documentoId}/download",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "documentoId", "type": "string"}
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "documentoId",
+          "type": "string"
+        }
       ]
     },
     {
@@ -47,9 +73,31 @@
       "method": "DELETE",
       "path": "{documentoId}",
       "pathVariables": [
-        {"name": "funcionarioId", "type": "string"},
-        {"name": "documentoId", "type": "string"}
-      ]
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "documentoId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

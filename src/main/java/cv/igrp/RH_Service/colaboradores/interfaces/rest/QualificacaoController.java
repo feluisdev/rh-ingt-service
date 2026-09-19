@@ -18,6 +18,7 @@ import cv.igrp.RH_Service.colaboradores.application.queries.*;
 import cv.igrp.RH_Service.colaboradores.application.dto.*;
 
 import java.util.Map;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController("colabsQualificacaoController")
@@ -45,11 +46,11 @@ public class QualificacaoController {
 
     @PostMapping
     @Operation(summary = "Criar qualificação")
-    public ResponseEntity<Map<String, ?>> createQualificacao(
+    public ResponseEntity<SuccessResponseDTO> createQualificacao(
             @PathVariable String funcionarioId,
             @Valid @RequestBody QualificacaoRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateQualificacaoCommand(funcionarioId, request));
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new CreateQualificacaoCommand(funcionarioId, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
@@ -74,18 +75,18 @@ public class QualificacaoController {
 
     @DeleteMapping("{qualificacaoId}")
     @Operation(summary = "Desactivar qualificação (soft delete)")
-    public ResponseEntity<Map<String, ?>> desativarQualificacao(@PathVariable String qualificacaoId) {
+    public ResponseEntity<SuccessResponseDTO> desativarQualificacao(@PathVariable String qualificacaoId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new DesativarQualificacaoCommand(qualificacaoId));
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new DesativarQualificacaoCommand(qualificacaoId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
     @PutMapping("{qualificacaoId}/activate")
     @Operation(summary = "Reactivar qualificação")
-    public ResponseEntity<Map<String, ?>> activateQualificacao(@PathVariable String qualificacaoId) {
+    public ResponseEntity<SuccessResponseDTO> activateQualificacao(@PathVariable String qualificacaoId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new AtivarQualificacaoCommand(qualificacaoId));
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new AtivarQualificacaoCommand(qualificacaoId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
@@ -145,11 +146,11 @@ public class QualificacaoController {
 
     @DeleteMapping("{qualificacaoId}/documentos/{docId}")
     @Operation(summary = "Desactivar documento de uma qualificação")
-    public ResponseEntity<Map<String, ?>> desativarDocumento(
+    public ResponseEntity<SuccessResponseDTO> desativarDocumento(
             @PathVariable String qualificacaoId,
             @PathVariable String docId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(
                 new DesativarDocumentoSubRecursoCommand("QUALIFICACAO", java.util.UUID.fromString(qualificacaoId), docId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());

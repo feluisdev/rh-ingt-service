@@ -114,9 +114,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "string",
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "map"
+                "collectionType": "none",
+                "module": "shared"
               }
             }
           }
@@ -174,9 +176,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "string",
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "map"
+                "collectionType": "none",
+                "module": "shared"
               }
             }
           }
@@ -200,9 +204,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "string",
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "map"
+                "collectionType": "none",
+                "module": "shared"
               }
             }
           }
@@ -215,14 +221,17 @@
           "isRequired": true
         }
       ]
-    }
-  ,
+    },
     {
       "actionName": "getCombobox",
       "path": "combobox",
       "method": "GET",
       "requestParams": [
-        { "type": "string", "name": "ccode", "isRequired": false }
+        {
+          "type": "string",
+          "name": "ccode",
+          "isRequired": false
+        }
       ],
       "responses": {
         "200": {

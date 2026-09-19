@@ -23,6 +23,7 @@ import cv.igrp.RH_Service.parametrizacoes.application.dto.PublicHolidayResponseD
 import cv.igrp.RH_Service.parametrizacoes.application.dto.PublicHolidayRequestDTO;
 
 import java.util.Map;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController
@@ -110,17 +111,17 @@ public class PublicHolidayController {
         responses = {
             @ApiResponse(
                 responseCode = "201",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> createPublicHoliday(
+    public ResponseEntity<SuccessResponseDTO> createPublicHoliday(
         @Valid @RequestBody PublicHolidayRequestDTO createPublicHolidayRequest) {
 
         LOGGER.debug("Operation started");
 
         final var command = new CreatePublicHolidayCommand(createPublicHolidayRequest);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -164,17 +165,17 @@ public class PublicHolidayController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> desativarPublicHoliday(
+    public ResponseEntity<SuccessResponseDTO> desativarPublicHoliday(
         @PathVariable(value = "publicHolidayId") String publicHolidayId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new DesativarPublicHolidayCommand(publicHolidayId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -189,17 +190,17 @@ public class PublicHolidayController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> activatePublicHoliday(
+    public ResponseEntity<SuccessResponseDTO> activatePublicHoliday(
         @PathVariable(value = "publicHolidayId") String publicHolidayId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new AtivarPublicHolidayCommand(publicHolidayId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 

@@ -5,24 +5,24 @@ import cv.igrp.RH_Service.colaboradores.domain.repository.ProcessoDisciplinarRep
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.ProcessoDisciplinarId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
 
 @Component("colabsAtualizarProcessoDisciplinarCommandHandler")
 @RequiredArgsConstructor
 public class AtualizarProcessoDisciplinarCommandHandler
-        implements CommandHandler<AtualizarProcessoDisciplinarCommand, ResponseEntity<Map<String, ?>>> {
+        implements CommandHandler<AtualizarProcessoDisciplinarCommand, ResponseEntity<SuccessResponseDTO>> {
 
     private final FuncionarioRepository funcionarioRepository;
     private final ProcessoDisciplinarRepository processoDisciplinarRepository;
 
     @IgrpCommandHandler
-    public ResponseEntity<Map<String, ?>> handle(AtualizarProcessoDisciplinarCommand command) {
+    public ResponseEntity<SuccessResponseDTO> handle(AtualizarProcessoDisciplinarCommand command) {
         var dto = command.getRequest();
         var funcionarioId = FuncionarioId.from(command.getFuncionarioId());
 
@@ -47,6 +47,6 @@ public class AtualizarProcessoDisciplinarCommandHandler
                 dto.getOfficialBulletin(), dto.getNotes());
 
         processoDisciplinarRepository.save(processo);
-        return ResponseEntity.ok(Map.of("message", "Processo disciplinar actualizado com sucesso"));
+        return ResponseEntity.ok(SuccessResponseDTO.de(command.getFuncionarioId()));
     }
 }

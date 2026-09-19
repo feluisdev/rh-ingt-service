@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.parametrizacoes.domain.models.Option;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.OptionRepository;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.OptionId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -13,11 +14,10 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class AtivarOptionCommandHandler implements CommandHandler<AtivarOptionCommand, ResponseEntity<Map<String, ?>>> {
+public class AtivarOptionCommandHandler implements CommandHandler<AtivarOptionCommand, ResponseEntity<SuccessResponseDTO>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AtivarOptionCommandHandler.class);
 
@@ -25,7 +25,7 @@ public class AtivarOptionCommandHandler implements CommandHandler<AtivarOptionCo
 
     @CacheEvict(value = "reference-options", allEntries = true)
     @IgrpCommandHandler
-    public ResponseEntity<Map<String, ?>> handle(AtivarOptionCommand command) {
+    public ResponseEntity<SuccessResponseDTO> handle(AtivarOptionCommand command) {
         var id = OptionId.from(command.getOptionId());
 
         Option option = optionRepository.findById(id)
@@ -35,6 +35,6 @@ public class AtivarOptionCommandHandler implements CommandHandler<AtivarOptionCo
         option.reativar();
         optionRepository.save(option);
 
-        return ResponseEntity.ok(Map.of("message", "Etiqueta activada com sucesso"));
+        return ResponseEntity.ok(SuccessResponseDTO.de(command.getOptionId()));
     }
 }

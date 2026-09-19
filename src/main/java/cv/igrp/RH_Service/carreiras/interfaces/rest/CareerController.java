@@ -26,6 +26,7 @@ import cv.igrp.RH_Service.carreiras.application.dto.CareerRequestDTO;
 import java.util.Map;
 import java.util.List;
 import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController
@@ -110,17 +111,17 @@ public class CareerController {
         responses = {
             @ApiResponse(
                 responseCode = "201",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> createCareer(
+    public ResponseEntity<SuccessResponseDTO> createCareer(
         @Valid @RequestBody CareerRequestDTO createCareerRequestDTO) {
 
         LOGGER.debug("Operation started");
 
         final var command = new CreateCareerCommand(createCareerRequestDTO);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -164,17 +165,17 @@ public class CareerController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> desativarCareer(
+    public ResponseEntity<SuccessResponseDTO> desativarCareer(
         @PathVariable(value = "careerId") String careerId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new DesativarCareerCommand(careerId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -217,17 +218,17 @@ public class CareerController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> activateCareer(
+    public ResponseEntity<SuccessResponseDTO> activateCareer(
         @PathVariable(value = "careerId") String careerId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new AtivarCareerCommand(careerId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 

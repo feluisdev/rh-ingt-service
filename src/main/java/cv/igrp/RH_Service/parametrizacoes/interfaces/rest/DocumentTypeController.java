@@ -25,6 +25,7 @@ import cv.igrp.RH_Service.parametrizacoes.application.dto.DocumentTypeRequestDTO
 import java.util.Map;
 import java.util.List;
 import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController
@@ -105,16 +106,16 @@ public class DocumentTypeController {
                 responseCode = "201",
                 description = "Tipo de documento criado com sucesso",
                 content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = String.class))
+                    schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> createDocumentType(
+    public ResponseEntity<SuccessResponseDTO> createDocumentType(
         @Valid @RequestBody DocumentTypeRequestDTO createDocumentTypeRequest) {
 
         LOGGER.debug("Operation started");
         final var command = new CreateDocumentTypeCommand(createDocumentTypeRequest);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())
             .headers(response.getHeaders())
@@ -156,16 +157,16 @@ public class DocumentTypeController {
                 responseCode = "200",
                 description = "Tipo de documento desactivado com sucesso",
                 content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = String.class))
+                    schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> desativarDocumentType(
+    public ResponseEntity<SuccessResponseDTO> desativarDocumentType(
         @PathVariable(value = "documentTypeId") String documentTypeId) {
 
         LOGGER.debug("Operation started");
         final var command = new DesativarDocumentTypeCommand(documentTypeId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())
             .headers(response.getHeaders())
@@ -181,16 +182,16 @@ public class DocumentTypeController {
                 responseCode = "200",
                 description = "Tipo de documento activado com sucesso",
                 content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = String.class))
+                    schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> activateDocumentType(
+    public ResponseEntity<SuccessResponseDTO> activateDocumentType(
         @PathVariable(value = "documentTypeId") String documentTypeId) {
 
         LOGGER.debug("Operation started");
         final var command = new AtivarDocumentTypeCommand(documentTypeId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())
             .headers(response.getHeaders())

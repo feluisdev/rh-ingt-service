@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.parametrizacoes.domain.models.LeaveMobilitySubtype;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.LeaveMobilitySubtypeRepository;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.LeaveMobilitySubtypeId;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -12,18 +13,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class DesativarLeaveMobilitySubtypeCommandHandler implements CommandHandler<DesativarLeaveMobilitySubtypeCommand, ResponseEntity<Map<String, ?>>> {
+public class DesativarLeaveMobilitySubtypeCommandHandler implements CommandHandler<DesativarLeaveMobilitySubtypeCommand, ResponseEntity<SuccessResponseDTO>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DesativarLeaveMobilitySubtypeCommandHandler.class);
 
     private final LeaveMobilitySubtypeRepository leaveMobilitySubtypeRepository;
 
     @IgrpCommandHandler
-    public ResponseEntity<Map<String, ?>> handle(DesativarLeaveMobilitySubtypeCommand command) {
+    public ResponseEntity<SuccessResponseDTO> handle(DesativarLeaveMobilitySubtypeCommand command) {
         var id = LeaveMobilitySubtypeId.from(java.util.UUID.fromString(command.getLeaveMobilitySubtypeId()));
 
         LeaveMobilitySubtype leaveMobilitySubtype = leaveMobilitySubtypeRepository.findById(id)
@@ -33,6 +33,6 @@ public class DesativarLeaveMobilitySubtypeCommandHandler implements CommandHandl
         leaveMobilitySubtype.desativar();
         leaveMobilitySubtypeRepository.save(leaveMobilitySubtype);
 
-        return ResponseEntity.ok(Map.of("message", "Subtipo de licença/mobilidade desactivado com sucesso"));
+        return ResponseEntity.ok(SuccessResponseDTO.de(command.getLeaveMobilitySubtypeId()));
     }
 }

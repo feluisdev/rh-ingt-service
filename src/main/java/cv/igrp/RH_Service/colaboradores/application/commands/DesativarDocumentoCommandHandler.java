@@ -4,23 +4,23 @@ import cv.igrp.RH_Service.colaboradores.domain.repository.DocumentoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.DocumentoId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
 
 @Component("colabsDesativarDocumentoCommandHandler")
 @RequiredArgsConstructor
 public class DesativarDocumentoCommandHandler
-        implements CommandHandler<DesativarDocumentoCommand, ResponseEntity<Map<String, ?>>> {
+        implements CommandHandler<DesativarDocumentoCommand, ResponseEntity<SuccessResponseDTO>> {
 
     private final DocumentoRepository documentoRepository;
 
     @IgrpCommandHandler
-    public ResponseEntity<Map<String, ?>> handle(DesativarDocumentoCommand command) {
+    public ResponseEntity<SuccessResponseDTO> handle(DesativarDocumentoCommand command) {
         var docId = DocumentoId.from(command.getDocumentoId());
         var funcionarioId = FuncionarioId.from(command.getFuncionarioId());
 
@@ -39,6 +39,6 @@ public class DesativarDocumentoCommandHandler
             documentoRepository.save(documento);
         }
 
-        return ResponseEntity.ok(Map.of("message", "Documento desactivado com sucesso"));
+        return ResponseEntity.ok(SuccessResponseDTO.de(command.getDocumentoId()));
     }
 }

@@ -25,6 +25,7 @@ import cv.igrp.RH_Service.parametrizacoes.application.dto.ContractTypeRequestDTO
 import java.util.Map;
 import java.util.List;
 import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController
@@ -109,17 +110,17 @@ public class ContractTypeController {
         responses = {
             @ApiResponse(
                 responseCode = "201",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> createContractType(
+    public ResponseEntity<SuccessResponseDTO> createContractType(
         @Valid @RequestBody ContractTypeRequestDTO createContractTypeRequest) {
 
         LOGGER.debug("Operation started");
 
         final var command = new CreateContractTypeCommand(createContractTypeRequest);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -163,17 +164,17 @@ public class ContractTypeController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> desativarContractType(
+    public ResponseEntity<SuccessResponseDTO> desativarContractType(
         @PathVariable(value = "contractTypeId") String contractTypeId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new DesativarContractTypeCommand(contractTypeId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -188,17 +189,17 @@ public class ContractTypeController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> activateContractType(
+    public ResponseEntity<SuccessResponseDTO> activateContractType(
         @PathVariable(value = "contractTypeId") String contractTypeId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new AtivarContractTypeCommand(contractTypeId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 

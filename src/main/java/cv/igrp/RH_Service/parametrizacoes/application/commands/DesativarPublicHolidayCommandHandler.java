@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.parametrizacoes.domain.models.PublicHoliday;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.PublicHolidayRepository;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.PublicHolidayId;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -12,19 +13,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
 import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class DesativarPublicHolidayCommandHandler implements CommandHandler<DesativarPublicHolidayCommand, ResponseEntity<Map<String, ?>>> {
+public class DesativarPublicHolidayCommandHandler implements CommandHandler<DesativarPublicHolidayCommand, ResponseEntity<SuccessResponseDTO>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DesativarPublicHolidayCommandHandler.class);
 
     private final PublicHolidayRepository publicHolidayRepository;
 
     @IgrpCommandHandler
-    public ResponseEntity<Map<String, ?>> handle(DesativarPublicHolidayCommand command) {
+    public ResponseEntity<SuccessResponseDTO> handle(DesativarPublicHolidayCommand command) {
         var id = PublicHolidayId.from(UUID.fromString(command.getPublicHolidayId()));
 
         PublicHoliday holiday = publicHolidayRepository.findById(id)
@@ -34,6 +34,6 @@ public class DesativarPublicHolidayCommandHandler implements CommandHandler<Desa
         holiday.desativar();
         publicHolidayRepository.save(holiday);
 
-        return ResponseEntity.ok(Map.of("message", "Desativado com sucesso"));
+        return ResponseEntity.ok(SuccessResponseDTO.de(command.getPublicHolidayId()));
     }
 }

@@ -11,12 +11,31 @@
       "requestBody": {
         "content": {
           "application/json": {
-            "schema": {"type": "AfectacaoRequest", "collectionType": "none", "name": "data", "objectType": "dto", "module": "colaboradores"}
+            "schema": {
+              "type": "AfectacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
           }
         }
       },
       "responses": {
-        "201": {"name": "Created", "content": {"application/json": {"schema": {"type": "string", "name": "data", "collectionType": "map"}}}}
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
       }
     },
     {
@@ -24,36 +43,104 @@
       "path": "funcionario/{funcionarioId}/unidade-atual",
       "method": "GET",
       "responses": {
-        "200": {"name": "OK", "content": {"application/json": {"schema": {"type": "string", "name": "data", "collectionType": "map"}}}}
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
       },
-      "pathVariables": [{"name": "funcionarioId", "type": "string", "isRequired": true}]
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     },
     {
       "actionName": "getChefe",
       "path": "funcionario/{funcionarioId}/chefe",
       "method": "GET",
       "responses": {
-        "200": {"name": "OK", "content": {"application/json": {"schema": {"type": "string", "name": "data", "collectionType": "map"}}}}
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
       },
-      "pathVariables": [{"name": "funcionarioId", "type": "string", "isRequired": true}]
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     },
     {
       "actionName": "getResponsavel",
       "path": "unidade/{unidadeId}/responsavel",
       "method": "GET",
       "responses": {
-        "200": {"name": "OK", "content": {"application/json": {"schema": {"type": "string", "name": "data", "collectionType": "map"}}}}
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
       },
-      "pathVariables": [{"name": "unidadeId", "type": "string", "isRequired": true}]
+      "pathVariables": [
+        {
+          "name": "unidadeId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     },
     {
       "actionName": "getVagas",
       "path": "unidade/{unidadeId}/vagas",
       "method": "GET",
       "responses": {
-        "200": {"name": "OK", "content": {"application/json": {"schema": {"type": "string", "name": "data", "collectionType": "map"}}}}
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "map"
+              }
+            }
+          }
+        }
       },
-      "pathVariables": [{"name": "unidadeId", "type": "string", "isRequired": true}]
+      "pathVariables": [
+        {
+          "name": "unidadeId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     }
   ],
   "id": "assignment_ctrl_001"

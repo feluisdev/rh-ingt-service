@@ -10,7 +10,11 @@
       "method": "GET",
       "path": "",
       "pathVariables": [
-        { "type": "string", "name": "funcionarioId", "isRequired": true }
+        {
+          "type": "string",
+          "name": "funcionarioId",
+          "isRequired": true
+        }
       ],
       "responses": {
         "200": {
@@ -52,10 +56,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "map",
-                "objectType": "java",
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "none"
+                "collectionType": "none",
+                "module": "shared"
               }
             }
           }
@@ -67,7 +72,11 @@
       "method": "GET",
       "path": "{dadosBancariosId}",
       "pathVariables": [
-        { "type": "string", "name": "dadosBancariosId", "isRequired": true }
+        {
+          "type": "string",
+          "name": "dadosBancariosId",
+          "isRequired": true
+        }
       ],
       "responses": {
         "200": {
@@ -91,7 +100,11 @@
       "method": "PUT",
       "path": "{dadosBancariosId}",
       "pathVariables": [
-        { "type": "string", "name": "dadosBancariosId", "isRequired": true }
+        {
+          "type": "string",
+          "name": "dadosBancariosId",
+          "isRequired": true
+        }
       ],
       "requestBody": {
         "content": {
@@ -128,7 +141,11 @@
       "method": "DELETE",
       "path": "{dadosBancariosId}",
       "pathVariables": [
-        { "type": "string", "name": "dadosBancariosId", "isRequired": true }
+        {
+          "type": "string",
+          "name": "dadosBancariosId",
+          "isRequired": true
+        }
       ],
       "responses": {
         "200": {
@@ -136,10 +153,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "map",
-                "objectType": "java",
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "none"
+                "collectionType": "none",
+                "module": "shared"
               }
             }
           }
@@ -151,7 +169,11 @@
       "method": "PUT",
       "path": "{dadosBancariosId}/activate",
       "pathVariables": [
-        { "type": "string", "name": "dadosBancariosId", "isRequired": true }
+        {
+          "type": "string",
+          "name": "dadosBancariosId",
+          "isRequired": true
+        }
       ],
       "responses": {
         "200": {
@@ -159,10 +181,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "map",
-                "objectType": "java",
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "none"
+                "collectionType": "none",
+                "module": "shared"
               }
             }
           }

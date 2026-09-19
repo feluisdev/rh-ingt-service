@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController("colabsMeController")
@@ -71,10 +72,10 @@ public class MeController {
 
     @PostMapping("leave-requests")
     @Operation(summary = "Submeter pedido de ausência (self-service)")
-    public ResponseEntity<Map<String, ?>> createMyLeaveRequest(
+    public ResponseEntity<SuccessResponseDTO> createMyLeaveRequest(
             @Valid @RequestBody SelfServiceCriarPedidoAusenciaRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(
                 new SelfServiceCriarPedidoAusenciaCommand(null, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
@@ -82,9 +83,9 @@ public class MeController {
 
     @PutMapping("leave-requests/{id}/cancel")
     @Operation(summary = "Cancelar pedido de ausência próprio (apenas PENDING)")
-    public ResponseEntity<Map<String, ?>> cancelMyLeaveRequest(@PathVariable String id) {
+    public ResponseEntity<SuccessResponseDTO> cancelMyLeaveRequest(@PathVariable String id) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(
                 new SelfServiceCancelarPedidoAusenciaCommand(null, id));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
@@ -112,10 +113,10 @@ public class MeController {
 
     @PostMapping("leaves-mobilities")
     @Operation(summary = "Auto-submeter licença/mobilidade (apenas quando canSelfSubmit=true no subtipo)")
-    public ResponseEntity<Map<String, ?>> createMyLeaveMobility(
+    public ResponseEntity<SuccessResponseDTO> createMyLeaveMobility(
             @Valid @RequestBody SelfServiceCriarLicencaMobilidadeRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(
                 new SelfServiceCriarLicencaMobilidadeCommand(null, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());

@@ -37,7 +37,8 @@ class CreateOptionCommandHandlerTest {
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertTrue(response.getBody().containsKey("optionId"));
+        assertNotNull(response.getBody().getId());
+        assertTrue(response.getBody().isSucesso());
 
         ArgumentCaptor<Option> captor = ArgumentCaptor.forClass(Option.class);
         verify(optionRepository).save(captor.capture());

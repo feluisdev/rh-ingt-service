@@ -7,6 +7,7 @@ import cv.igrp.RH_Service.colaboradores.domain.repository.PedidoAusenciaReposito
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.TipoAusenciaId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -16,12 +17,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.temporal.ChronoUnit;
-import java.util.Map;
 
 @Component("colabsSelfServiceCriarPedidoAusenciaCommandHandler")
 @RequiredArgsConstructor
 public class SelfServiceCriarPedidoAusenciaCommandHandler
-        implements CommandHandler<SelfServiceCriarPedidoAusenciaCommand, ResponseEntity<Map<String, ?>>> {
+        implements CommandHandler<SelfServiceCriarPedidoAusenciaCommand, ResponseEntity<SuccessResponseDTO>> {
 
     private final CurrentEmployeeResolver currentEmployeeResolver;
     private final FuncionarioRepository funcionarioRepository;
@@ -30,7 +30,7 @@ public class SelfServiceCriarPedidoAusenciaCommandHandler
 
     @IgrpCommandHandler
     @Transactional
-    public ResponseEntity<Map<String, ?>> handle(SelfServiceCriarPedidoAusenciaCommand command) {
+    public ResponseEntity<SuccessResponseDTO> handle(SelfServiceCriarPedidoAusenciaCommand command) {
         var dto = command.getRequest();
         var funcionarioId = currentEmployeeResolver.resolve();
 
@@ -62,8 +62,6 @@ public class SelfServiceCriarPedidoAusenciaCommandHandler
 
         var saved = pedidoAusenciaRepository.save(pedido);
 
-        return ResponseEntity.status(201).body(Map.of(
-                "id", saved.getId().getStringValor(),
-                "message", "Pedido de ausência submetido com sucesso"));
+        return ResponseEntity.status(201).body(SuccessResponseDTO.de(saved.getId().getStringValor()));
     }
 }

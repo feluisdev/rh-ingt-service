@@ -25,6 +25,7 @@ import cv.igrp.RH_Service.estrutura.application.dto.FunctionRequestDTO;
 import java.util.Map;
 import java.util.List;
 import cv.igrp.RH_Service.shared.application.dto.ComboboxItemDTO;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController
@@ -110,17 +111,17 @@ public class FunctionController {
         responses = {
             @ApiResponse(
                 responseCode = "201",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> createFunction(
+    public ResponseEntity<SuccessResponseDTO> createFunction(
         @Valid @RequestBody FunctionRequestDTO createFunctionRequestDTO) {
 
         LOGGER.debug("Operation started");
 
         final var command = new CreateFunctionCommand(createFunctionRequestDTO);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -164,17 +165,17 @@ public class FunctionController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> deactivateFunction(
+    public ResponseEntity<SuccessResponseDTO> deactivateFunction(
         @PathVariable(value = "functionId") String functionId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new DesativarFunctionCommand(functionId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 
@@ -189,17 +190,17 @@ public class FunctionController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                content = @Content(mediaType = "application/json")
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
             )
         }
     )
-    public ResponseEntity<Map<String, ?>> activateFunction(
+    public ResponseEntity<SuccessResponseDTO> activateFunction(
         @PathVariable(value = "functionId") String functionId) {
 
         LOGGER.debug("Operation started");
 
         final var command = new AtivarFunctionCommand(functionId);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
 

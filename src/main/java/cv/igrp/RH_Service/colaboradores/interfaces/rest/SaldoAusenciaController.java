@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.UUID;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController("colabsSaldoAusenciaController")
@@ -37,11 +38,11 @@ public class SaldoAusenciaController {
 
     @PostMapping
     @Operation(summary = "Criar saldo de ausência")
-    public ResponseEntity<Map<String, ?>> create(
+    public ResponseEntity<SuccessResponseDTO> create(
             @PathVariable String funcionarioId,
             @Valid @RequestBody SaldoAusenciaRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateSaldoAusenciaCommand(funcionarioId, request));
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new CreateSaldoAusenciaCommand(funcionarioId, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
@@ -73,12 +74,12 @@ public class SaldoAusenciaController {
 
     @PutMapping("{saldoId}")
     @Operation(summary = "Actualizar dias de direito do saldo")
-    public ResponseEntity<Map<String, ?>> update(
+    public ResponseEntity<SuccessResponseDTO> update(
             @PathVariable String funcionarioId,
             @PathVariable String saldoId,
             @RequestParam Integer diasDireito) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(
                 new UpdateSaldoAusenciaCommand(funcionarioId, saldoId, diasDireito));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());

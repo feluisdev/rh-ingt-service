@@ -6,6 +6,7 @@ import cv.igrp.RH_Service.colaboradores.domain.repository.PedidoAusenciaReposito
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.PedidoAusenciaId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -15,12 +16,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Map;
 
 @Component("colabsSelfServiceCancelarPedidoAusenciaCommandHandler")
 @RequiredArgsConstructor
 public class SelfServiceCancelarPedidoAusenciaCommandHandler
-        implements CommandHandler<SelfServiceCancelarPedidoAusenciaCommand, ResponseEntity<Map<String, ?>>> {
+        implements CommandHandler<SelfServiceCancelarPedidoAusenciaCommand, ResponseEntity<SuccessResponseDTO>> {
 
     private final CurrentEmployeeResolver currentEmployeeResolver;
     private final FuncionarioRepository funcionarioRepository;
@@ -29,7 +29,7 @@ public class SelfServiceCancelarPedidoAusenciaCommandHandler
 
     @IgrpCommandHandler
     @Transactional
-    public ResponseEntity<Map<String, ?>> handle(SelfServiceCancelarPedidoAusenciaCommand command) {
+    public ResponseEntity<SuccessResponseDTO> handle(SelfServiceCancelarPedidoAusenciaCommand command) {
         var funcionarioId = currentEmployeeResolver.resolve();
 
         var funcionario = funcionarioRepository.findById(funcionarioId)
@@ -57,6 +57,6 @@ public class SelfServiceCancelarPedidoAusenciaCommandHandler
 
         pedidoAusenciaRepository.save(pedido);
 
-        return ResponseEntity.ok(Map.of("message", "Pedido de ausência cancelado com sucesso"));
+        return ResponseEntity.ok(SuccessResponseDTO.de(command.getPedidoId()));
     }
 }

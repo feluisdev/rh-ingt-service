@@ -6,6 +6,7 @@ import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
 import cv.igrp.RH_Service.colaboradores.domain.models.TipoAfectacao;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -16,13 +17,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Map;
 import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 public class AfectarColaboradorCommandHandler
-        implements CommandHandler<AfectarColaboradorCommand, ResponseEntity<Map<String, ?>>> {
+        implements CommandHandler<AfectarColaboradorCommand, ResponseEntity<SuccessResponseDTO>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfectarColaboradorCommandHandler.class);
 
@@ -30,7 +30,7 @@ public class AfectarColaboradorCommandHandler
 
     @IgrpCommandHandler
     @Transactional
-    public ResponseEntity<Map<String, ?>> handle(AfectarColaboradorCommand command) {
+    public ResponseEntity<SuccessResponseDTO> handle(AfectarColaboradorCommand command) {
         AfectacaoRequestDTO dto = command.getRequest();
 
         if (dto.getFuncionarioId() == null || dto.getFuncionarioId().isBlank())
@@ -52,9 +52,7 @@ public class AfectarColaboradorCommandHandler
                 dataInicio,
                 dto.getNotes());
 
-        return ResponseEntity.status(201).body(Map.of(
-                "id", saved.getId().getStringValor(),
-                "message", "Colaborador afectado ao Lugar com sucesso"));
+        return ResponseEntity.status(201).body(SuccessResponseDTO.de(saved.getId().getStringValor()));
     }
 
     private static UUID parse(String v) {

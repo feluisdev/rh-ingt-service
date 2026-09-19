@@ -18,6 +18,7 @@ import cv.igrp.RH_Service.colaboradores.application.queries.*;
 import cv.igrp.RH_Service.colaboradores.application.dto.*;
 
 import java.util.Map;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController("colabsContratoController")
@@ -45,11 +46,11 @@ public class ContratoController {
 
     @PostMapping
     @Operation(summary = "Criar contrato")
-    public ResponseEntity<Map<String, ?>> createContrato(
+    public ResponseEntity<SuccessResponseDTO> createContrato(
             @PathVariable String funcionarioId,
             @Valid @RequestBody ContratoRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new CreateContratoCommand(funcionarioId, request));
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new CreateContratoCommand(funcionarioId, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
@@ -95,18 +96,18 @@ public class ContratoController {
 
     @PutMapping("{contratoId}/suspend")
     @Operation(summary = "Suspender contrato")
-    public ResponseEntity<Map<String, ?>> suspendContrato(@PathVariable String contratoId) {
+    public ResponseEntity<SuccessResponseDTO> suspendContrato(@PathVariable String contratoId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new SuspenderContratoCommand(contratoId));
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new SuspenderContratoCommand(contratoId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
     @PutMapping("{contratoId}/activate")
     @Operation(summary = "Reactivar contrato suspenso")
-    public ResponseEntity<Map<String, ?>> activateContrato(@PathVariable String contratoId) {
+    public ResponseEntity<SuccessResponseDTO> activateContrato(@PathVariable String contratoId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new ReativarContratoCommand(contratoId));
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new ReativarContratoCommand(contratoId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
@@ -166,11 +167,11 @@ public class ContratoController {
 
     @DeleteMapping("{contratoId}/documentos/{docId}")
     @Operation(summary = "Desactivar documento de um contrato")
-    public ResponseEntity<Map<String, ?>> desativarDocumento(
+    public ResponseEntity<SuccessResponseDTO> desativarDocumento(
             @PathVariable String contratoId,
             @PathVariable String docId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(
                 new DesativarDocumentoSubRecursoCommand("CONTRATO", java.util.UUID.fromString(contratoId), docId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());

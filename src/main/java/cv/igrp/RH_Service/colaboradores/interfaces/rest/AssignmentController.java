@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import cv.igrp.RH_Service.colaboradores.application.queries.*;
 import cv.igrp.RH_Service.colaboradores.application.dto.AfectacaoRequestDTO;
 
 import java.util.Map;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController
@@ -40,14 +42,14 @@ public class AssignmentController {
     @PostMapping
     @Operation(
         summary = "Afectar colaborador a um Lugar",
-        responses = { @ApiResponse(responseCode = "201", content = @Content(mediaType = "application/json")) }
+        responses = { @ApiResponse(responseCode = "201", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))) }
     )
-    public ResponseEntity<Map<String, ?>> afectar(
+    public ResponseEntity<SuccessResponseDTO> afectar(
         @Valid @RequestBody AfectacaoRequestDTO request) {
 
         LOGGER.debug("Operation started");
         final var command = new AfectarColaboradorCommand(request);
-        ResponseEntity<Map<String, ?>> response = commandBus.send(command);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode())
             .headers(response.getHeaders()).body(response.getBody());

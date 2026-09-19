@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
 @IgrpController
 @RestController("colabsProcessoDisciplinarController")
@@ -59,11 +60,11 @@ public class ProcessoDisciplinarController {
 
     @PostMapping
     @Operation(summary = "Registar novo processo disciplinar")
-    public ResponseEntity<Map<String, ?>> criarProcesso(
+    public ResponseEntity<SuccessResponseDTO> criarProcesso(
             @PathVariable String funcionarioId,
             @Valid @RequestBody CriarProcessoDisciplinarRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(
                 new CriarProcessoDisciplinarCommand(funcionarioId, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
@@ -71,12 +72,12 @@ public class ProcessoDisciplinarController {
 
     @PutMapping("{processoId}")
     @Operation(summary = "Actualizar processo disciplinar")
-    public ResponseEntity<Map<String, ?>> atualizarProcesso(
+    public ResponseEntity<SuccessResponseDTO> atualizarProcesso(
             @PathVariable String funcionarioId,
             @PathVariable String processoId,
             @Valid @RequestBody AtualizarProcessoDisciplinarRequestDTO request) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(
                 new AtualizarProcessoDisciplinarCommand(funcionarioId, processoId, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
@@ -139,12 +140,12 @@ public class ProcessoDisciplinarController {
 
     @DeleteMapping("{processoId}/documentos/{docId}")
     @Operation(summary = "Desactivar documento de um processo disciplinar")
-    public ResponseEntity<Map<String, ?>> desativarDocumento(
+    public ResponseEntity<SuccessResponseDTO> desativarDocumento(
             @PathVariable String funcionarioId,
             @PathVariable String processoId,
             @PathVariable String docId) {
         LOGGER.debug("Operation started");
-        ResponseEntity<Map<String, ?>> response = commandBus.send(new DesativarDocumentoCommand(funcionarioId, docId));
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new DesativarDocumentoCommand(funcionarioId, docId));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

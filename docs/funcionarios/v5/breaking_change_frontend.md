@@ -229,6 +229,24 @@ Endpoint novo: `POST /funcionarios/{funcionarioId}/substituicao`, onde o `{funci
 - **422** quando o titular não está impedido ou o estado dele não tem situação funcional; **409** quando já há substituto.
 - Na ficha do colaborador, quem está a substituir pode ter **duas afectações correntes**: o seu Lugar e o que está a cobrir. Um ecrã que assuma uma só afectação corrente tem de ser revisto.
 
+### 11.6 Respostas tipadas — o `message` desapareceu (BREAKING)
+
+**85 operações** deixaram de devolver um objecto livre e passam a devolver `SuccessResponseDTO`:
+
+```json
+{ "id": "uuid | null", "sucesso": true, "alertas": [] }
+```
+
+São os `POST` de criação, os `PUT` de actualização, as desactivações (`DELETE`) e as reactivações (`activate`) de **todos** os catálogos, da estrutura, das carreiras e dos sub-recursos do colaborador.
+
+- **O campo `message` já não existe.** Um ecrã que mostrasse `response.message` passa a mostrar vazio. O texto de sucesso pertence ao ecrã.
+- **O `id` passa a vir sempre**, também nas desactivações e reactivações, onde antes só havia texto.
+- **`sucesso: false` não é erro** — é a operação a dizer que não teve nada a fazer porque o alvo já estava no estado pedido, com o motivo em `alertas`. Antes isto vinha como `{"message": "X já está activo"}` com `200`, indistinguível de uma alteração real.
+- **`alertas` é sempre um array**, vazio quando não há nada a avisar. Nunca nulo.
+- Os erros **não** mudaram: continuam em `400`/`404`/`409`/`422` com o corpo de problema.
+
+As operações com mais a dizer mantêm o DTO próprio que já tinham: registo composto, progressão, promoção, transferência, substituição, mudança de estado.
+
 ### Checklist
 
 - [ ] Select de `situacaoFuncional` no catálogo de estados.
@@ -239,3 +257,5 @@ Endpoint novo: `POST /funcionarios/{funcionarioId}/substituicao`, onde o `{funci
 - [ ] Tratar o **422** de `assignmentType` inválido e rever comparações pela mensagem "já está ocupado".
 - [ ] Acção de substituição a partir do Lugar, sem data de fim nem botão de terminar.
 - [ ] Ficha do colaborador a aguentar duas afectações correntes (a sua e a que substitui).
+- [ ] Substituir a leitura de `response.message` por texto do próprio ecrã.
+- [ ] Tratar `sucesso: false` como "nada a fazer" e mostrar os `alertas`.
