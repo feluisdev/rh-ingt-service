@@ -1,4 +1,4 @@
-> Updated: 2026-09-19 13:55
+> Updated: 2026-09-19 14:10
 
 ## Goal
 
@@ -13,7 +13,7 @@ par, sem avançar enquanto o anterior não estiver verde.
 
 ## Current state
 
-**Branch `fix-alinhamento-legislacao`**, 28 commits por enviar (`origin/dev` e
+**Branch `fix-alinhamento-legislacao`**, 34 commits por enviar (`origin/dev` e
 `origin_git_lab/dev`). **Nada foi enviado para nenhum remoto.**
 
 - **Testes unitários: 763, 0 falhas.** Correr sempre com `clean` (ver Blockers).
@@ -26,9 +26,9 @@ Commits desta sessão (mais recente primeiro):
 
 | Commit | O que fecha |
 |---|---|
+| `df71e027` · `d8b33e24` · `9a632376` · `7b46b044` | Este handoff, em quatro passos |
 | `6fe7b778` | **F9 promoção + F10 contrato das respostas** (172 → 207 passos) |
 | `e8fd22f1` | **F7 cessação + F8 mobilidade** (135 → 172 passos) |
-| `7b46b044` | Este handoff |
 | `82c0f998` | F6 da bateria + seed (78 → 111 passos) |
 | `c93274fe` | Plano do que falta antes da bateria |
 | `d034c31e` | Últimos resíduos de `Map` + docs v5 desalinhados |
@@ -203,8 +203,9 @@ colaborador). **Decisão por tomar.**
 - `colaboradores/application/services/SubstituicaoService.java` — regras da
   substituição; `encerrarPorRegressoDoTitular` tem duas assinaturas (por
   `AssignmentId` e por `FuncionarioId`).
-- `colaboradores/application/services/AssignmentService.java:~120`
-  `validarLugarParaAfectacao` — validações partilhadas entre afectar e substituir.
+- `colaboradores/application/services/AssignmentService.java:106`
+  `validarLugarParaAfectacao` — validações de Lugar partilhadas entre afectar e
+  substituir. **Não** inclui a regra do titular único, que depende do título.
 - `parametrizacoes/domain/models/SituacaoFuncional.java` — as seis situações e
   `permiteSubstituicao()`.
 - `colaboradores/domain/models/TipoAfectacao.java` — PRINCIPAL/SUBSTITUICAO/ACUMULACAO.
@@ -212,7 +213,7 @@ colaborador). **Decisão por tomar.**
 - `db/migration/V45`, `V46`, `V47` — índice parcial, ligação ao titular, limpeza.
 - `db/seed/seed_carreiras.sql` — `ordem_progressao` (1=ASS_TEC, 2=TEC_SUP).
 - `db/seed/seed_colaboradores.sql` — 3 colaboradores, 6 Lugares.
-- `scripts/testes_funcionais.ps1` — bateria (F0 a F6).
+- `scripts/testes_funcionais.ps1` — bateria completa (F0 a F10, 207 passos).
 - `scripts/repor_estado.sql` — reposição, **correr antes de cada execução**.
 - `scripts/testes_funcionais_README.md` — o que cada bloco cobre.
 - `docs/funcionarios/v5/openapi.json` — contrato gerado; **fonte para as formas**.
@@ -275,88 +276,38 @@ esc. 1). Vagos: **LUG-0004** (TEC_SUP, para a promoção com `positionId`),
 
 ## Test / validation plan
 
-**A bateria cobre F0 a F10 (207 passos, todos OK).** O que cada bloco prova está em `scripts/testes_funcionais_README.md`. **Nada aqui está por fazer** — esta secção fica como referência para quem acrescentar blocos novos. Escrever
-sempre como um ecrã: navegar (GET) para obter ids reais antes de agir; nunca
-adivinhar um id. Cada bloco entra **antes** do `=========== RESUMO ===========`.
+**A bateria cobre F0 a F10 — 207 passos, todos OK.** Não há blocos por escrever.
 
-Contexto que os blocos novos herdam: no fim do F5, **A e B estão sem Lugar**
-(o A perdeu-o por mudança de estado no F2, o B por licença no F3); o **F6
-reafecta o A** a um Lugar vago e deixa o **C impedido (`SUSPENDED`) com a Maria a
-substituí-lo**. Quem escrever o F7 tem de contar com isso, ou repor o cenário.
+**O que cada bloco prova está em `scripts/testes_funcionais_README.md`**, e é lá
+que deve ser actualizado. Não se repete aqui de propósito: duas cópias da mesma
+coisa divergem sempre — foi o que aconteceu com os `.html` gémeos dos documentos
+v5, que andaram meses a contradizer o código.
 
-### ~~F7 — cessação~~ e ~~F8 — mobilidade~~ — FEITOS (`e8fd22f1`)
+### Como correr
 
-O que ficou provado está no `scripts/testes_funcionais_README.md`. Abaixo fica só o que falta.
+Ver "How to verify / resume" acima. Em resumo: app a correr na 8099, **repor a BD
+com `scripts/repor_estado.sql`**, e `powershell -File scripts/testes_funcionais.ps1`.
+Esperado: `PASSOS: 207   OK: 207   FALHAS: 0`.
 
-<details><summary>F7 — cessação pelos dois caminhos (feito)</summary>
+### Se acrescentares um bloco novo
 
-| # | Acção | Esperado |
-|---|---|---|
-| 1 | `GET /colaboradores/assignments/funcionario/{C}/unidade-atual` | 200, guarda `positionId` |
-| 2 | `PATCH /funcionarios/{C}/worker-state` com o estado `RETIRED` | 200, `cessouVinculo=true`, `afectacaoEncerradaId` não nulo |
-| 3 | `GET .../unidade/{unidade}/vagas/lista` | o Lugar do C **passa a aparecer** como vago |
-| 4 | Verificar na BD que **a substituição da Maria fechou** | `data_fim` preenchido |
-| 5 | `POST /funcionarios/{C}/progressao` | **422** (sem afectação corrente) |
-| 6 | `GET /funcionarios/{A}/contratos` → `PUT .../{contratoId}/close` | 200; devolve `EstadoColaboradorResponseDTO` com `cessouVinculo=true` |
-| 7 | `GET .../funcionario/{A}/unidade-atual` | **404** (perdeu a afectação) |
-| 8 | `PUT .../close` outra vez | **409** ou **422** — registar o que der |
+- Entra **antes** do `=========== RESUMO ===========`.
+- Segue as "lições já pagas" em Constraints (navegar antes de agir, papéis pelo
+  `numeroFuncionario`, datas em `Get-Date`, `@()` no `.Count`, só ASCII).
+- **Os blocos são encadeados**: cada um herda o estado que o anterior deixou. No
+  fim do F10 a base fica assim (confirmado a 2026-09-19):
 
-Evidência: guardar o `afectacaoEncerradaId` dos dois caminhos e confirmar que
-**ambos** encerram contrato + afectação + estado (é o ponto: são equivalentes).
+  | Colaborador | Estado | Lugar |
+  |---|---|---|
+  | 0000001 Francisco Bastos | `INACTIVE` (cessado no F7) | sem Lugar |
+  | 0000002 Maria Santos | `ACTIVE` | um Lugar de TEC_SUP |
+  | 0000003 Joana Tavares | `RETIRED` (cessada no F7) | sem Lugar |
 
-</details>
-
-<details><summary>F8 — mobilidade ponta a ponta (feito)</summary>
-
-Pré: um colaborador **com** Lugar e **activo**. Se nenhum estiver nessas
-condições nesta altura, reafectar primeiro (como o F6.9 faz).
-
-| # | Acção | Esperado |
-|---|---|---|
-| 1 | `GET /catalogs/leave-mobility-subtypes` | escolher um com `recordType=MOBILIDADE` |
-| 2 | `POST .../licencas-mobilidade` com `destinationUnitId` | 201 |
-| 3 | `PUT .../{id}/approve` | 200; **`afectacaoEncerradaId` nulo** |
-| 4 | `GET .../funcionario/{X}/unidade-atual` | `positionId` **inalterado**, `emMobilidade=true`, `exerceFuncoesUnidadeId` = destino |
-| 5 | `GET .../unidade/{origem}/vagas/lista` | o Lugar **não** aparece como vago |
-| 6 | `PUT .../{id}/prorrogar` | 200 dentro do limite do subtipo; **422** acima |
-| 7 | `PUT .../{id}/close` | 200; `unidade-atual` volta a `emMobilidade=false` |
-| 8 | Repetir com `entidadeDestino` (externa) | igual, `mobilidadeDestinoTipo=EXTERNO` |
-| 9 | `approve` sem nenhum dos dois destinos | **422** |
-| 10 | Subtipo de mobilidade com `positionEffect=ABRE_VAGA` | **400** ao criar/actualizar o subtipo |
-
-O ponto do bloco é provar o art. 135.º n.º 7: **a mobilidade não mexe na
-afectação**. Se o `positionId` mudar, é bug.
-
-</details>
-
-<details><summary>F9 — promoção nas duas formas (feito)</summary>
-
-Pré: um colaborador em Lugar de **ASS_TEC** (ordem 1) e **LUG-0004** vago em
-**TEC_SUP** (ordem 2). Sem `ordem_progressao` a promoção recusa sempre.
-
-| # | Acção | Esperado |
-|---|---|---|
-| 1 | `POST /funcionarios/{X}/promocao` com `categoryId` de TEC_SUP **e** `positionId` de LUG-0004 | 201; `lugarReclassificado=false`; o Lugar antigo fica vago |
-| 2 | `GET .../unidade-atual` | `positionId` = LUG-0004 |
-| 3 | Repor, e promover **sem** `positionId` | 201; `lugarReclassificado=true`; o **Lugar** muda de categoria |
-| 4 | Promover para categoria que não é a seguinte | **422** |
-| 5 | Promover para Lugar de outra categoria | **422** |
-| 6 | Promover para Lugar **com titular** | **422** |
-
-</details>
-
-<details><summary>F10 — contrato das respostas (feito)</summary>
-
-| # | Acção | Esperado |
-|---|---|---|
-| 1 | `POST /reference/options` | 201 `{id, sucesso:true, alertas:[]}` |
-| 2 | `DELETE /reference/options/{id}` | 200, `sucesso:true` |
-| 3 | `DELETE` outra vez | **409** |
-| 4 | `PATCH .../activate` | 200, `sucesso:true` |
-| 5 | `POST /colaboradores/assignments` com `assignmentType='INTERINO'` | **422** |
-| 6 | `GET /me/documentos/{id}/download-url` | 200 com a chave **`url`** (já não `downloadUrl`) |
-
-</details>
+  Um bloco novo que precise de alguém activo **com** Lugar tem de usar a Maria, ou
+  reafectar alguém primeiro — é o que o F6.9, o F8.6 e o F9.6 fazem.
+- **O F9 reclassifica um Lugar** (a promoção sem `positionId` faz o Lugar subir de
+  categoria). O `repor_estado.sql` repõe as categorias dos seis Lugares; se
+  acrescentares Lugares ao seed, acrescenta-os lá também.
 
 ## Open questions
 
