@@ -16,24 +16,20 @@ import java.util.UUID;
 @Getter
 public class Assignment {
 
-    // assignment_type
-    public static final String PRINCIPAL = "PRINCIPAL";
-    public static final String ACUMULACAO = "ACUMULACAO";
-    public static final String SUBSTITUICAO = "SUBSTITUICAO";
-
     // origem
     public static final String ADMISSAO = "ADMISSAO";
     public static final String PROGRESSAO = "PROGRESSAO";
     public static final String PROMOCAO = "PROMOCAO";
     public static final String MOBILIDADE = "MOBILIDADE";
     public static final String TRANSFERENCIA = "TRANSFERENCIA";
+    public static final String SUBSTITUICAO = "SUBSTITUICAO";
 
     private AssignmentId id;
     private FuncionarioId funcionarioId;
     private UUID positionId;
     private UUID gradeId;              // null = fora de grelha
     private UUID functionId;          // opcional
-    private String assignmentType;
+    private TipoAfectacao assignmentType;
     private String origem;
     private UUID originAssignmentId;  // mobilidade temporária: afectação a restaurar
     private LocalDate dataInicio;
@@ -45,7 +41,7 @@ public class Assignment {
     private Assignment() {}
 
     public static Assignment criar(FuncionarioId funcionarioId, UUID positionId, UUID gradeId,
-                                   UUID functionId, String assignmentType, String origem,
+                                   UUID functionId, TipoAfectacao assignmentType, String origem,
                                    LocalDate dataInicio, UUID originAssignmentId, String notes) {
         Assignment a = new Assignment();
         a.id = AssignmentId.gerarNovo();
@@ -53,7 +49,7 @@ public class Assignment {
         a.positionId = positionId;
         a.gradeId = gradeId;
         a.functionId = functionId;
-        a.assignmentType = assignmentType != null ? assignmentType : PRINCIPAL;
+        a.assignmentType = assignmentType != null ? assignmentType : TipoAfectacao.PRINCIPAL;
         a.origem = origem;
         a.originAssignmentId = originAssignmentId;
         a.dataInicio = dataInicio;
@@ -75,7 +71,7 @@ public class Assignment {
         a.positionId = positionId;
         a.gradeId = gradeId;
         a.functionId = functionId;
-        a.assignmentType = assignmentType;
+        a.assignmentType = TipoAfectacao.de(assignmentType);
         a.origem = origem;
         a.originAssignmentId = originAssignmentId;
         a.dataInicio = dataInicio;
@@ -84,6 +80,16 @@ public class Assignment {
         a.isActive = isActive;
         a.notes = notes;
         return a;
+    }
+
+    /** Nome a guardar na coluna {@code assignment_type}. */
+    public String getAssignmentTypeTexto() {
+        return TipoAfectacao.texto(this.assignmentType);
+    }
+
+    /** Titular do Lugar — o que a regra "uma cadeira, um ocupante" conta. */
+    public boolean isPrincipal() {
+        return assignmentType != null && assignmentType.isPrincipal();
     }
 
     /** Fecha a versão corrente (SCD Type 2). */

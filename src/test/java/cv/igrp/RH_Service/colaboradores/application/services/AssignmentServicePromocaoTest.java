@@ -18,6 +18,7 @@ import cv.igrp.RH_Service.carreiras.domain.valueobject.CareerId;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CategoryId;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.GradeId;
 import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
+import cv.igrp.RH_Service.colaboradores.domain.models.TipoAfectacao;
 import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.AssignmentId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
@@ -76,7 +77,7 @@ class AssignmentServicePromocaoTest {
     private Assignment afectacaoActual() {
         return Assignment.reconstituir(AssignmentId.gerarNovo(), funcionarioId, positionActualId,
                 escalao(catActual.getId(), 2, true).getId().getValor(), UUID.randomUUID(),
-                Assignment.PRINCIPAL, Assignment.ADMISSAO, null, inicio, null, true, true, null);
+                TipoAfectacao.PRINCIPAL.name(), Assignment.ADMISSAO, null, inicio, null, true, true, null);
     }
 
     private Position lugar(UUID id, CategoryId categoryId, String estado) {
@@ -135,7 +136,7 @@ class AssignmentServicePromocaoTest {
         when(gradeRepository.findById(escolhido.getId())).thenReturn(Optional.of(escolhido));
         when(positionRepository.findById(PositionId.from(positionDestinoId)))
                 .thenReturn(Optional.of(lugar(positionDestinoId, catDestino.getId(), Position.ATIVO)));
-        when(assignmentRepository.isPositionOccupied(positionDestinoId)).thenReturn(false);
+        when(assignmentRepository.temTitular(positionDestinoId)).thenReturn(false);
 
         var resultado = service.promover(funcionarioId, catDestino.getId().getValor(), positionDestinoId,
                 escolhido.getId().getValor(), dataEfeito, "Promoção");
@@ -154,7 +155,7 @@ class AssignmentServicePromocaoTest {
         cenarioBase();
         when(positionRepository.findById(PositionId.from(positionDestinoId)))
                 .thenReturn(Optional.of(lugar(positionDestinoId, catDestino.getId(), Position.ATIVO)));
-        when(assignmentRepository.isPositionOccupied(positionDestinoId)).thenReturn(true);
+        when(assignmentRepository.temTitular(positionDestinoId)).thenReturn(true);
         Grade escolhido = escalao(catDestino.getId(), 1, true);
         when(gradeRepository.findById(escolhido.getId())).thenReturn(Optional.of(escolhido));
 
@@ -171,7 +172,7 @@ class AssignmentServicePromocaoTest {
         cenarioBase();
         when(positionRepository.findById(PositionId.from(positionDestinoId)))
                 .thenReturn(Optional.of(lugar(positionDestinoId, catActual.getId(), Position.ATIVO)));
-        when(assignmentRepository.isPositionOccupied(positionDestinoId)).thenReturn(false);
+        when(assignmentRepository.temTitular(positionDestinoId)).thenReturn(false);
         Grade escolhido = escalao(catDestino.getId(), 1, true);
         when(gradeRepository.findById(escolhido.getId())).thenReturn(Optional.of(escolhido));
 

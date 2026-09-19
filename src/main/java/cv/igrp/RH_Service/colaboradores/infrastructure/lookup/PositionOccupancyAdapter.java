@@ -22,6 +22,6 @@ public class PositionOccupancyAdapter implements PositionOccupancyPort {
 
     @Override
     public Set<UUID> ocupados(Collection<UUID> positionIds) {
-        return assignmentRepository.findOccupiedPositionIds(positionIds);
+        return assignmentRepository.findPositionIdsComTitular(positionIds);
     }
 }

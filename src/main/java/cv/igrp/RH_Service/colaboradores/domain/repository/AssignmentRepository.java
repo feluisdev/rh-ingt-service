@@ -16,15 +16,23 @@ public interface AssignmentRepository {
     Optional<Assignment> findCurrentPrincipalByFuncionario(FuncionarioId funcionarioId);
     List<Assignment> findCurrentByFuncionario(FuncionarioId funcionarioId);
     List<Assignment> findAllByFuncionarioOrderByDataInicioDesc(FuncionarioId funcionarioId);
-    Optional<Assignment> findCurrentByPosition(UUID positionId);
-    boolean isPositionOccupied(UUID positionId);
+    /**
+     * O titular corrente do Lugar, se o houver. Titular e' quem ocupa o Lugar a titulo
+     * PRINCIPAL: um Lugar tem no maximo um, mas pode ter ao mesmo tempo quem la esteja em
+     * substituicao ou em acumulacao -- por isso a pergunta e' pelo titular, e nao por
+     * "afectacao corrente", que ja nao e' unica.
+     */
+    Optional<Assignment> findTitularByPosition(UUID positionId);
+
+    /** O Lugar esta provido, isto e', tem titular corrente. Uma substituicao nao o provê. */
+    boolean temTitular(UUID positionId);
 
     /**
-     * Quais dos {@code positionIds} tem afectacao corrente. Existe para que uma listagem de
-     * Lugares resolva a ocupacao numa consulta so, em vez de um {@link #isPositionOccupied}
-     * por linha. Os ids ausentes do resultado estao vagos.
+     * Quais dos {@code positionIds} tem titular. Existe para que uma listagem de Lugares
+     * resolva o provimento numa consulta so, em vez de um {@link #temTitular} por linha.
+     * Os ids ausentes do resultado estao vagos.
      */
-    Set<UUID> findOccupiedPositionIds(Collection<UUID> positionIds);
+    Set<UUID> findPositionIdsComTitular(Collection<UUID> positionIds);
 
     /**
      * Quem esteve afectado a um Lugar da unidade orgânica {@code unidadeOrganicaId} durante

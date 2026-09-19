@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import cv.igrp.RH_Service.colaboradores.application.dto.TransferenciaRequestDTO;
 import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
 import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
+import cv.igrp.RH_Service.colaboradores.domain.models.TipoAfectacao;
 import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
@@ -73,7 +74,7 @@ class TransferirColaboradorCommandHandlerTest {
     void transfereEDevolve201ComOsLugares() {
         funcionarioActivo(true);
         Assignment nova = Assignment.criar(funcionarioId, destinoId, UUID.randomUUID(), null,
-                Assignment.PRINCIPAL, Assignment.TRANSFERENCIA, dataEfeito, null, null);
+                TipoAfectacao.PRINCIPAL, Assignment.TRANSFERENCIA, dataEfeito, null, null);
         when(assignmentService.transferir(eq(funcionarioId), eq(destinoId), isNull(), eq(dataEfeito), any()))
                 .thenReturn(new AssignmentService.Transferencia(nova,
                         lugar(origemId, UUID.randomUUID(), "L-001"),

@@ -210,6 +210,15 @@ O catálogo de estados (`/catalogs/worker-states`) passa a ter **`situacaoFuncio
 - `diasGozados` passa a ter valores reais — antes ficava sempre a zero.
 - O `cancelar` do RH deixa de devolver **403** quando o pedido é de outro colaborador.
 
+### 11.4 O Lugar passa a contar titulares, não ocupantes
+
+Preparação da substituição do funcionário temporariamente impedido (art. 73.º al. a) a c)).
+
+- `assignmentType` passa a ser **validado**: um valor fora de `PRINCIPAL`, `SUBSTITUICAO`, `ACUMULACAO` devolve **422** (antes era gravado tal e qual). Vazio continua a valer `PRINCIPAL`.
+- A afectação com `assignmentType` diferente de `PRINCIPAL` **deixa de exigir que o Lugar esteja vago**.
+- A mensagem de erro do Lugar ocupado mudou de *"já está ocupado"* para *"já tem titular"*. Quem a compare por texto tem de a actualizar.
+- **Vagas e provimento passam a contar apenas titulares**: um Lugar com substituto e sem titular conta como **vago** nas contagens da unidade e na lista de Lugares.
+
 ### Checklist
 
 - [ ] Select de `situacaoFuncional` no catálogo de estados.
@@ -217,3 +226,4 @@ O catálogo de estados (`/catalogs/worker-states`) passa a ter **`situacaoFuncio
 - [ ] Retirar `AMBOS` dos selects de `recordType`.
 - [ ] Campos de efeito no Lugar no ecrã de subtipos.
 - [ ] Mostrar `diasGozados` e tratar o **422** na criação do pedido de ausência.
+- [ ] Tratar o **422** de `assignmentType` inválido e rever comparações pela mensagem "já está ocupado".

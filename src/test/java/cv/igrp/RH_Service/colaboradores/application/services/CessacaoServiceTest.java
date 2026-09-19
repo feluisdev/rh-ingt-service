@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
+import cv.igrp.RH_Service.colaboradores.domain.models.TipoAfectacao;
 import cv.igrp.RH_Service.colaboradores.domain.models.Contrato;
 import cv.igrp.RH_Service.colaboradores.domain.models.EstadoContrato;
 import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
@@ -79,7 +80,7 @@ class CessacaoServiceTest {
         when(contratoRepository.findCurrentByFuncionarioId(funcionarioId)).thenReturn(Optional.of(contrato));
 
         Assignment afectacao = Assignment.criar(funcionarioId, UUID.randomUUID(), null, null,
-                Assignment.PRINCIPAL, Assignment.ADMISSAO, LocalDate.of(2020, 1, 1), null, null);
+                TipoAfectacao.PRINCIPAL, Assignment.ADMISSAO, LocalDate.of(2020, 1, 1), null, null);
         when(assignmentService.encerrarAfectacaoCorrente(funcionarioId, dataEfeito))
                 .thenReturn(Optional.of(afectacao));
 

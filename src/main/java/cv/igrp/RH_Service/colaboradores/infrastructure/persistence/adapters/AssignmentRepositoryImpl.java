@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.persistence.adapters;
 
 import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
+import cv.igrp.RH_Service.colaboradores.domain.models.TipoAfectacao;
 import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.AssignmentId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
@@ -43,7 +44,8 @@ public class AssignmentRepositoryImpl implements AssignmentRepository {
     @Override
     public Optional<Assignment> findCurrentPrincipalByFuncionario(FuncionarioId funcionarioId) {
         return entityRepository
-                .findByFuncionario_IdAndIsCurrentTrueAndAssignmentType(funcionarioId.getValor(), Assignment.PRINCIPAL)
+                .findByFuncionario_IdAndIsCurrentTrueAndAssignmentType(
+                        funcionarioId.getValor(), TipoAfectacao.PRINCIPAL.name())
                 .map(mapper::toDomain);
     }
 
@@ -63,21 +65,24 @@ public class AssignmentRepositoryImpl implements AssignmentRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<Assignment> findCurrentByPosition(UUID positionId) {
-        return entityRepository.findByPosition_IdAndIsCurrentTrue(positionId).map(mapper::toDomain);
+    public Optional<Assignment> findTitularByPosition(UUID positionId) {
+        return entityRepository
+                .findByPosition_IdAndIsCurrentTrueAndAssignmentType(positionId, TipoAfectacao.PRINCIPAL.name())
+                .map(mapper::toDomain);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public boolean isPositionOccupied(UUID positionId) {
-        return entityRepository.existsByPosition_IdAndIsCurrentTrue(positionId);
+    public boolean temTitular(UUID positionId) {
+        return entityRepository
+                .existsByPosition_IdAndIsCurrentTrueAndAssignmentType(positionId, TipoAfectacao.PRINCIPAL.name());
     }
 
     @Transactional(readOnly = true)
     @Override
-    public Set<UUID> findOccupiedPositionIds(Collection<UUID> positionIds) {
+    public Set<UUID> findPositionIdsComTitular(Collection<UUID> positionIds) {
         if (positionIds == null || positionIds.isEmpty()) return Set.of();
-        return Set.copyOf(entityRepository.findOccupiedPositionIds(positionIds));
+        return Set.copyOf(entityRepository.findPositionIdsComTitular(positionIds, TipoAfectacao.PRINCIPAL.name()));
     }
 
     @Transactional(readOnly = true)

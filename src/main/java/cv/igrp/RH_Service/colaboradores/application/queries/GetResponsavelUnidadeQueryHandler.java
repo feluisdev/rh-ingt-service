@@ -49,7 +49,7 @@ public class GetResponsavelUnidadeQueryHandler
         body.put("positionId", chefia.getId().getStringValor());
         body.put("numeroLugar", chefia.getNumeroLugar());
 
-        var ocupante = assignmentRepository.findCurrentByPosition(chefia.getId().getValor());
+        var ocupante = assignmentRepository.findTitularByPosition(chefia.getId().getValor());
         if (ocupante.isEmpty()) {
             body.put("responsavelFuncionarioId", null);
             body.put("responsavelNome", null);

@@ -7,6 +7,7 @@ import cv.igrp.RH_Service.colaboradores.application.services.DadosBancariosServi
 import cv.igrp.RH_Service.colaboradores.application.services.ColaboradorDocumentoService;
 import cv.igrp.RH_Service.colaboradores.application.services.FuncionarioService;
 import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
+import cv.igrp.RH_Service.colaboradores.domain.models.TipoAfectacao;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
@@ -71,7 +72,7 @@ public class RegistarColaboradorCommandHandler
                     parseUuid(af.getGradeId()),
                     parseUuid(af.getFunctionId()),
                     origem,
-                    af.getAssignmentType(),
+                    TipoAfectacao.de(af.getAssignmentType()),
                     inicio,
                     null,
                     af.getNotes());

@@ -51,7 +51,7 @@ public class GetChefeFuncionarioQueryHandler
         }
 
         body.put("chefePositionId", position.getParentPositionId().toString());
-        var chefe = assignmentRepository.findCurrentByPosition(position.getParentPositionId());
+        var chefe = assignmentRepository.findTitularByPosition(position.getParentPositionId());
         if (chefe.isEmpty()) {
             body.put("chefeFuncionarioId", null);
             body.put("chefeNome", null);

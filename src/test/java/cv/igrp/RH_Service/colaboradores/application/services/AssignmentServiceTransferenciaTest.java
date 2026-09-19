@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import cv.igrp.RH_Service.carreiras.domain.repository.CategoryRepository;
 import cv.igrp.RH_Service.carreiras.domain.repository.GradeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
+import cv.igrp.RH_Service.colaboradores.domain.models.TipoAfectacao;
 import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.AssignmentId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
@@ -62,7 +63,7 @@ class AssignmentServiceTransferenciaTest {
 
     private Assignment afectacaoActual(UUID functionId) {
         return Assignment.reconstituir(AssignmentId.gerarNovo(), funcionarioId, origemId, gradeId,
-                functionId, Assignment.PRINCIPAL, Assignment.ADMISSAO, null, inicio, null, true, true, null);
+                functionId, TipoAfectacao.PRINCIPAL.name(), Assignment.ADMISSAO, null, inicio, null, true, true, null);
     }
 
     private Position lugar(UUID id, UUID jobId, UUID career, UUID category, String estado) {
@@ -82,7 +83,7 @@ class AssignmentServiceTransferenciaTest {
         when(assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId))
                 .thenReturn(Optional.of(afectacaoActual(functionId)));
         origemEDestino(lugar(destinoId, jobDestino, careerId, categoryId, Position.ATIVO));
-        when(assignmentRepository.isPositionOccupied(destinoId)).thenReturn(false);
+        when(assignmentRepository.temTitular(destinoId)).thenReturn(false);
         // Função genérica (jobId nulo) serve qualquer cargo.
         when(functionRepository.findById(FunctionId.from(functionId)))
                 .thenReturn(Optional.of(OrgFunction.reconstruir(FunctionId.from(functionId), "F1",
@@ -112,7 +113,7 @@ class AssignmentServiceTransferenciaTest {
         when(assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId))
                 .thenReturn(Optional.of(afectacaoActual(functionId)));
         origemEDestino(lugar(destinoId, jobDestino, careerId, categoryId, Position.ATIVO));
-        when(assignmentRepository.isPositionOccupied(destinoId)).thenReturn(false);
+        when(assignmentRepository.temTitular(destinoId)).thenReturn(false);
         when(functionRepository.findById(FunctionId.from(functionId)))
                 .thenReturn(Optional.of(OrgFunction.reconstruir(FunctionId.from(functionId), "F1",
                         "Função do cargo de origem", null, jobOrigem, true)));
@@ -131,7 +132,7 @@ class AssignmentServiceTransferenciaTest {
         when(assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId))
                 .thenReturn(Optional.of(afectacaoActual(functionActual)));
         origemEDestino(lugar(destinoId, jobDestino, careerId, categoryId, Position.ATIVO));
-        when(assignmentRepository.isPositionOccupied(destinoId)).thenReturn(false);
+        when(assignmentRepository.temTitular(destinoId)).thenReturn(false);
         when(functionRepository.findById(FunctionId.from(functionNova)))
                 .thenReturn(Optional.of(OrgFunction.reconstruir(FunctionId.from(functionNova), "F2",
                         "Função do destino", null, jobDestino, true)));
@@ -149,7 +150,7 @@ class AssignmentServiceTransferenciaTest {
         when(assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId))
                 .thenReturn(Optional.of(afectacaoActual(null)));
         origemEDestino(lugar(destinoId, jobDestino, careerId, UUID.randomUUID(), Position.ATIVO));
-        when(assignmentRepository.isPositionOccupied(destinoId)).thenReturn(false);
+        when(assignmentRepository.temTitular(destinoId)).thenReturn(false);
 
         var ex = assertThrows(IgrpResponseStatusException.class,
                 () -> service.transferir(funcionarioId, destinoId, null, dataEfeito, null));
@@ -163,7 +164,7 @@ class AssignmentServiceTransferenciaTest {
         when(assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId))
                 .thenReturn(Optional.of(afectacaoActual(null)));
         origemEDestino(lugar(destinoId, jobDestino, careerId, categoryId, Position.ATIVO));
-        when(assignmentRepository.isPositionOccupied(destinoId)).thenReturn(true);
+        when(assignmentRepository.temTitular(destinoId)).thenReturn(true);
 
         var ex = assertThrows(IgrpResponseStatusException.class,
                 () -> service.transferir(funcionarioId, destinoId, null, dataEfeito, null));

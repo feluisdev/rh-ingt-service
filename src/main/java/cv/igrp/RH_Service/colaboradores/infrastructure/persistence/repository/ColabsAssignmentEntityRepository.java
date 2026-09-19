@@ -16,8 +16,11 @@ public interface ColabsAssignmentEntityRepository extends JpaRepository<Assignme
     Optional<AssignmentEntity> findByFuncionario_IdAndIsCurrentTrueAndAssignmentType(UUID funcionarioId, String assignmentType);
     List<AssignmentEntity> findByFuncionario_IdAndIsCurrentTrue(UUID funcionarioId);
     List<AssignmentEntity> findByFuncionario_IdOrderByDataInicioDesc(UUID funcionarioId);
-    Optional<AssignmentEntity> findByPosition_IdAndIsCurrentTrue(UUID positionId);
-    boolean existsByPosition_IdAndIsCurrentTrue(UUID positionId);
+    // Por Lugar filtra-se sempre tambem pelo tipo: desde a V45 um Lugar pode ter mais do
+    // que uma afectacao corrente (o titular e quem o substitui), e um Optional sobre
+    // "corrente" passaria a rebentar com NonUniqueResultException.
+    Optional<AssignmentEntity> findByPosition_IdAndIsCurrentTrueAndAssignmentType(UUID positionId, String assignmentType);
+    boolean existsByPosition_IdAndIsCurrentTrueAndAssignmentType(UUID positionId, String assignmentType);
 
     // Predicado temporal de sobreposicao de intervalo: uma afectacao cobre o intervalo
     // [startOfYear, endOfYear] se comecar antes ou no fim do intervalo (dataInicio <= endOfYear)
@@ -41,11 +44,13 @@ public interface ColabsAssignmentEntityRepository extends JpaRepository<Assignme
             @Param("startOfYear") LocalDate startOfYear,
             @Param("endOfYear") LocalDate endOfYear);
 
-    // Ocupacao em bloco: um unico SELECT para todos os Lugares de uma listagem, em vez de
-    // um existsByPosition_IdAndIsCurrentTrue por linha (N+1). Devolve apenas os ids dos
-    // Lugares com afectacao corrente; os restantes estao vagos por ausencia.
+    // Provimento em bloco: um unico SELECT para todos os Lugares de uma listagem, em vez de
+    // um exists por linha (N+1). Devolve apenas os ids dos Lugares com titular; os restantes
+    // estao vagos por ausencia. O tipo entra por parametro para nao escrever 'PRINCIPAL' em
+    // JPQL, que e' onde o enum deixaria de ser verificado.
     // Ver nota acima sobre o nome JPA da entidade ("ColabsAssignmentEntity").
     @Query("SELECT p.id FROM ColabsAssignmentEntity a JOIN a.position p "
-            + "WHERE a.isCurrent = true AND p.id IN :positionIds")
-    List<UUID> findOccupiedPositionIds(@Param("positionIds") Collection<UUID> positionIds);
+            + "WHERE a.isCurrent = true AND a.assignmentType = :assignmentType AND p.id IN :positionIds")
+    List<UUID> findPositionIdsComTitular(@Param("positionIds") Collection<UUID> positionIds,
+                                         @Param("assignmentType") String assignmentType);
 }

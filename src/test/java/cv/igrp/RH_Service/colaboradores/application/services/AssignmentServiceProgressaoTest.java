@@ -17,6 +17,7 @@ import cv.igrp.RH_Service.carreiras.domain.repository.GradeRepository;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CategoryId;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.GradeId;
 import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
+import cv.igrp.RH_Service.colaboradores.domain.models.TipoAfectacao;
 import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.AssignmentId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
@@ -68,7 +69,7 @@ class AssignmentServiceProgressaoTest {
 
     private Assignment afectacao(UUID gradeId) {
         return Assignment.reconstituir(AssignmentId.gerarNovo(), funcionarioId, positionId, gradeId,
-                functionId, Assignment.PRINCIPAL, Assignment.ADMISSAO, null, inicio, null, true, true, null);
+                functionId, TipoAfectacao.PRINCIPAL.name(), Assignment.ADMISSAO, null, inicio, null, true, true, null);
     }
 
     private Position lugar(UUID careerId, UUID catId) {
@@ -105,7 +106,7 @@ class AssignmentServiceProgressaoTest {
         assertEquals(functionId, nova.getFunctionId());
         assertEquals(e3.getId().getValor(), nova.getGradeId());
         assertEquals(Assignment.PROGRESSAO, nova.getOrigem());
-        assertEquals(Assignment.PRINCIPAL, nova.getAssignmentType());
+        assertEquals(TipoAfectacao.PRINCIPAL, nova.getAssignmentType());
         assertEquals(dataEfeito, nova.getDataInicio());
         assertNull(nova.getOriginAssignmentId());
 

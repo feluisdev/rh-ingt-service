@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.application.services;
 
 import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
+import cv.igrp.RH_Service.colaboradores.domain.models.TipoAfectacao;
 import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.AssignmentId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
@@ -47,11 +48,10 @@ public class AssignmentService {
      * também for PRINCIPAL, a corrente é encerrada (SCD Type 2) antes de abrir a nova.
      */
     public Assignment afectar(FuncionarioId funcionarioId, UUID positionId, UUID gradeId, UUID functionId,
-                              String origem, String assignmentType, LocalDate dataInicio,
+                              String origem, TipoAfectacao assignmentType, LocalDate dataInicio,
                               UUID originAssignmentId, String notes) {
 
-        String tipo = (assignmentType == null || assignmentType.isBlank())
-                ? Assignment.PRINCIPAL : assignmentType;
+        TipoAfectacao tipo = assignmentType != null ? assignmentType : TipoAfectacao.PRINCIPAL;
 
         Position position = positionRepository.findById(PositionId.from(positionId))
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
@@ -62,10 +62,12 @@ public class AssignmentService {
                     "O Lugar '" + position.getNumeroLugar() + "' não está disponível (estado="
                             + position.getEstado() + ").");
 
-        // Uma cadeira, um ocupante corrente
-        if (assignmentRepository.isPositionOccupied(positionId))
+        // Uma cadeira, um titular corrente. Quem entra a outro título (substituição,
+        // acumulação) não desaloja o titular nem exige que o Lugar esteja vago -- é para
+        // isso que o índice do Lugar é parcial (V45).
+        if (tipo.isPrincipal() && assignmentRepository.temTitular(positionId))
             throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
-                    "O Lugar '" + position.getNumeroLugar() + "' já está ocupado.");
+                    "O Lugar '" + position.getNumeroLugar() + "' já tem titular.");
 
         // Coerência com a grelha PCFR
         if (position.isForaDeGrelha() && gradeId != null)
@@ -102,7 +104,7 @@ public class AssignmentService {
         }
 
         // SCD Type 2: encerrar a afectação PRINCIPAL corrente antes de abrir a nova
-        if (Assignment.PRINCIPAL.equals(tipo)) {
+        if (tipo.isPrincipal()) {
             Optional<Assignment> atual = assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId);
             atual.ifPresent(a -> {
                 a.encerrar(dataInicio.minusDays(1));
@@ -195,9 +197,9 @@ public class AssignmentService {
                         "O Lugar '" + destino.getNumeroLugar() + "' não está disponível (estado="
                                 + destino.getEstado() + ").");
 
-            if (assignmentRepository.isPositionOccupied(positionIdDestino))
+            if (assignmentRepository.temTitular(positionIdDestino))
                 throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
-                        "O Lugar '" + destino.getNumeroLugar() + "' já está ocupado.");
+                        "O Lugar '" + destino.getNumeroLugar() + "' já tem titular.");
 
             if (!categoryIdDestino.equals(destino.getCategoryId()))
                 throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
@@ -212,7 +214,7 @@ public class AssignmentService {
 
         Assignment nova = assignmentRepository.save(Assignment.criar(
                 funcionarioId, positionIdFinal, escalao.getId().getValor(), atual.getFunctionId(),
-                Assignment.PRINCIPAL, Assignment.PROMOCAO, dataEfeito, null, notes));
+                TipoAfectacao.PRINCIPAL, Assignment.PROMOCAO, dataEfeito, null, notes));
 
         return new Promocao(nova, categoriaAtual, categoriaDestino, escalao, reclassificado);
     }
@@ -257,9 +259,9 @@ public class AssignmentService {
                     "O Lugar '" + destino.getNumeroLugar() + "' não está disponível (estado="
                             + destino.getEstado() + ").");
 
-        if (assignmentRepository.isPositionOccupied(positionIdDestino))
+        if (assignmentRepository.temTitular(positionIdDestino))
             throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
-                    "O Lugar '" + destino.getNumeroLugar() + "' já está ocupado.");
+                    "O Lugar '" + destino.getNumeroLugar() + "' já tem titular.");
 
         // A transferência não mexe na grelha: mesma carreira, mesma categoria, mesmo escalão.
         if (origem.isForaDeGrelha() != destino.isForaDeGrelha()
@@ -276,7 +278,7 @@ public class AssignmentService {
 
         Assignment nova = assignmentRepository.save(Assignment.criar(
                 funcionarioId, positionIdDestino, atual.getGradeId(), functionId,
-                Assignment.PRINCIPAL, Assignment.TRANSFERENCIA, dataEfeito, null, notes));
+                TipoAfectacao.PRINCIPAL, Assignment.TRANSFERENCIA, dataEfeito, null, notes));
 
         return new Transferencia(nova, origem, destino);
     }
@@ -383,7 +385,7 @@ public class AssignmentService {
 
         Assignment nova = assignmentRepository.save(Assignment.criar(
                 funcionarioId, atual.getPositionId(), escalaoSeguinte.getId().getValor(),
-                atual.getFunctionId(), Assignment.PRINCIPAL, Assignment.PROGRESSAO,
+                atual.getFunctionId(), TipoAfectacao.PRINCIPAL, Assignment.PROGRESSAO,
                 dataEfeito, null, notes));
 
         return new Progressao(nova, escalaoAtual, escalaoSeguinte);

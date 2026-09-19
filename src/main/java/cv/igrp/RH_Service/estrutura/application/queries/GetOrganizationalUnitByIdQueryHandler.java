@@ -37,7 +37,7 @@ public class GetOrganizationalUnitByIdQueryHandler
         var dto = mapper.toDTO(unit);
         // nColaboradores = ocupantes correntes = Lugares da unidade com afectação corrente (novo modelo)
         long ocupados = positionRepository.findByUnidade(unit.getId().getValor()).stream()
-                .filter(p -> assignmentRepository.isPositionOccupied(p.getId().getValor()))
+                .filter(p -> assignmentRepository.temTitular(p.getId().getValor()))
                 .count();
         dto.setNColaboradores(ocupados);
 

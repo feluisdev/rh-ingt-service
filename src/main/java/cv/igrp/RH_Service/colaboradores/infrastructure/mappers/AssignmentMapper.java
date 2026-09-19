@@ -45,7 +45,7 @@ public class AssignmentMapper {
         entity.setPosition(refs.ref(PositionEntity.class, a.getPositionId()));
         entity.setGrade(refs.ref(GradeEntity.class, a.getGradeId()));
         entity.setFunction(refs.ref(FunctionEntity.class, a.getFunctionId()));
-        entity.setAssignmentType(a.getAssignmentType());
+        entity.setAssignmentType(a.getAssignmentTypeTexto());
         entity.setOrigem(a.getOrigem());
         entity.setOriginAssignment(refs.ref(AssignmentEntity.class, a.getOriginAssignmentId()));
         entity.setDataInicio(a.getDataInicio());

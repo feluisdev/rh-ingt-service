@@ -16,6 +16,7 @@ import cv.igrp.RH_Service.colaboradores.application.dto.ProgressaoRequestDTO;
 import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
 import cv.igrp.RH_Service.colaboradores.application.services.VinculoLaboralService;
 import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
+import cv.igrp.RH_Service.colaboradores.domain.models.TipoAfectacao;
 import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
@@ -82,7 +83,7 @@ class ProgredirColaboradorCommandHandlerTest {
         funcionarioActivo(true);
         vinculoElegivel(true);
         Assignment nova = Assignment.criar(funcionarioId, UUID.randomUUID(), UUID.randomUUID(), null,
-                Assignment.PRINCIPAL, Assignment.PROGRESSAO, dataEfeito, null, null);
+                TipoAfectacao.PRINCIPAL, Assignment.PROGRESSAO, dataEfeito, null, null);
         when(assignmentService.progredir(eq(funcionarioId), eq(dataEfeito), any()))
                 .thenReturn(new AssignmentService.Progressao(nova, escalao(1), escalao(2)));
 

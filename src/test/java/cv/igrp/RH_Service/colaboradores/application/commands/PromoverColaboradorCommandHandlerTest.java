@@ -20,6 +20,7 @@ import cv.igrp.RH_Service.colaboradores.application.dto.PromocaoRequestDTO;
 import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
 import cv.igrp.RH_Service.colaboradores.application.services.VinculoLaboralService;
 import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
+import cv.igrp.RH_Service.colaboradores.domain.models.TipoAfectacao;
 import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
@@ -87,7 +88,7 @@ class PromoverColaboradorCommandHandlerTest {
 
     private AssignmentService.Promocao resultado(UUID positionIdFinal, boolean reclassificado) {
         Assignment nova = Assignment.criar(funcionarioId, positionIdFinal, UUID.randomUUID(), null,
-                Assignment.PRINCIPAL, Assignment.PROMOCAO, dataEfeito, null, null);
+                TipoAfectacao.PRINCIPAL, Assignment.PROMOCAO, dataEfeito, null, null);
         Grade escalao = Grade.reconstituir(GradeId.gerarNovo(), CategoryId.from(categoryId), 1, "E1",
                 "Escalão 1", BigDecimal.TEN, null, true);
         return new AssignmentService.Promocao(nova, categoria("Técnico", 1),

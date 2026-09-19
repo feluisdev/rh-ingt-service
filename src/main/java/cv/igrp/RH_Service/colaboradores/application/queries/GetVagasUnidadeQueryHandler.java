@@ -33,7 +33,7 @@ public class GetVagasUnidadeQueryHandler
         long dotacao = lugares.stream().filter(Position::podeSerOcupado).count();
         long ocupados = lugares.stream()
                 .filter(Position::podeSerOcupado)
-                .filter(p -> assignmentRepository.isPositionOccupied(p.getId().getValor()))
+                .filter(p -> assignmentRepository.temTitular(p.getId().getValor()))
                 .count();
 
         Map<String, Object> body = new HashMap<>();

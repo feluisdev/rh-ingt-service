@@ -70,7 +70,7 @@ public class GetOrganizationalUnitsQueryHandler
         var content = pageResult.getData().stream().map(unit -> {
             var dto = mapper.toDTO(unit);
             long ocupados = positionRepository.findByUnidade(unit.getId().getValor()).stream()
-                    .filter(p -> assignmentRepository.isPositionOccupied(p.getId().getValor()))
+                    .filter(p -> assignmentRepository.temTitular(p.getId().getValor()))
                     .count();
             dto.setNColaboradores(ocupados);
             if (unit.getUnitType() != null) {

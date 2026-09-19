@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
+import cv.igrp.RH_Service.colaboradores.domain.models.TipoAfectacao;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.AssignmentId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.infrastructure.mappers.AssignmentMapper;
@@ -122,7 +123,7 @@ class AssignmentRepositoryCoveringYearTest {
                 FuncionarioId.from(UUID.randomUUID()),
                 UUID.randomUUID(),
                 null, null,
-                Assignment.PRINCIPAL,
+                TipoAfectacao.PRINCIPAL.name(),
                 "NOMEACAO",
                 null,
                 LocalDate.of(2027, 1, 1),

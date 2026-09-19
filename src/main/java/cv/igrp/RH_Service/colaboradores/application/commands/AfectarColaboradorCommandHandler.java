@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.colaboradores.application.commands;
 import cv.igrp.RH_Service.colaboradores.application.dto.AfectacaoRequestDTO;
 import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
 import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
+import cv.igrp.RH_Service.colaboradores.domain.models.TipoAfectacao;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.framework.core.domain.CommandHandler;
@@ -47,7 +48,7 @@ public class AfectarColaboradorCommandHandler
                 parse(dto.getGradeId()),
                 parse(dto.getFunctionId()),
                 origem,
-                dto.getAssignmentType(),
+                TipoAfectacao.de(dto.getAssignmentType()),
                 dataInicio,
                 null,
                 dto.getNotes());

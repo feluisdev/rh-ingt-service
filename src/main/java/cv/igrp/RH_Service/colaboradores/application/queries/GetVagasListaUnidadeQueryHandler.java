@@ -42,7 +42,7 @@ public class GetVagasListaUnidadeQueryHandler
         long dotacao = lugares.stream().filter(Position::podeSerOcupado).count();
 
         // Uma consulta para toda a unidade, em vez de um isPositionOccupied por Lugar (N+1).
-        Set<UUID> ocupados = assignmentRepository.findOccupiedPositionIds(
+        Set<UUID> ocupados = assignmentRepository.findPositionIdsComTitular(
                 lugares.stream().map(p -> p.getId().getValor()).toList());
 
         List<PositionResponseDTO> vagos = lugares.stream()
