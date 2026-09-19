@@ -318,7 +318,7 @@ flowchart LR
     <table>
       <tr><th style="width:170px">Passo</th><th>O que acontece</th></tr>
       <tr><td><span class="pill p-put">PUT</span><code>/approve</code></td>
-          <td>Se o subtipo tem <code>record_type = MOBILIDADE</code>, exige <code>destinationPositionId</code> (senão <code>422</code>) e chama <code>afectarMobilidade</code>: encerra a afectação corrente, abre uma nova no Lugar de destino <b>herdando o <code>gradeId</code></b>, e guarda o id da afectação anterior em <code>origin_assignment_id</code>.</td></tr>
+          <td>Se o subtipo tem <code>record_type = MOBILIDADE</code>, exige um destino — <code>destinationUnitId</code> (interna) ou <code>entidadeDestino</code> (externa), senão <code>422</code> — e <b>não mexe na afectação</b>: o titular mantém o Lugar (art. 135.º n.º 7). Regista-se apenas onde exerce funções e até quando.</td></tr>
       <tr><td><span class="pill p-put">PUT</span><code>/close</code></td>
           <td>Encerra a afectação de mobilidade e <b>reabre</b> a de origem, no mesmo Lugar, com o mesmo escalão e função. <b>Só se o Lugar de origem ainda estiver vago</b> — se entretanto foi ocupado ou extinto, limita-se a fechar a corrente.</td></tr>
       <tr><td><span class="pill p-put">PUT</span><code>/cancel</code></td>
@@ -328,7 +328,7 @@ flowchart LR
       <b>O escalão viaja com a pessoa.</b> É por isto que ele vive na afectação e não no Lugar: a mobilidade muda a cadeira mas mantém a posição-na-grelha. Se o escalão estivesse no Lugar, ao regressar a pessoa herdaria o escalão de quem ocupou a cadeira entretanto.
     </div>
     <div class="callout warn">
-      <b>Nota:</b> só a mobilidade preenche <code>origin_assignment_id</code>. O <code>POST /assignments</code> passa sempre <code>null</code> nesse campo — uma transferência normal é definitiva e não tem regresso automático.
+      <b>Nota:</b> a coluna <code>origin_assignment_id</code> está <b>morta</b>. Existia para a mobilidade restaurar a afectação de origem; desde que a mobilidade transitória deixou de mexer na afectação, nada a escreve nem a lê. Para mudar mesmo de Lugar usa-se a <b>transferência</b>, que é definitiva e não tem regresso automático.
     </div>
   </div>
 
@@ -342,7 +342,7 @@ sequenceDiagram
   P->>O: afectação corrente · Escalão 2
   Note over P,D: PUT /licencas-mobilidade/{id}/approve
   O-->>P: afectação encerrada (Lugar volta a VAGO)
-  P->>D: nova afectação MOBILIDADE<br/>escalão herdado · origin_assignment_id guardado
+  P->>D: regista onde exerce funções e até quando<br/>a afectação NÃO é tocada
   Note over P,D: PUT /licencas-mobilidade/{id}/close
   D-->>P: afectação encerrada
   P->>O: reabre a afectação de origem<br/>(só se o Lugar ainda estiver vago)
