@@ -451,7 +451,21 @@ Todos seguem o padrão CRUD + (quando aplicável) `documentos`:
 | Saldos de ausência | `/funcionarios/{id}/saldos-ausencia` |
 | Licenças/mobilidade | `/funcionarios/{id}/licencas-mobilidade` (ver 7) |
 
-### 6.1 Saldo de ausências — quando é que os dias saem
+### 6.1 Ausências ou licença? — qual dos dois usar
+
+Há dois recursos para uma pessoa se ausentar, e a escolha **não é de gosto**: segue a divisão do Decreto-Lei n.º 3/2010.
+
+| Usar | Quando | Recurso |
+|---|---|---|
+| **Ausências** | Férias (cap. II) e **faltas** — ausência de um dia ou parte dele (art. 13.º) | `/funcionarios/{id}/pedidos-ausencia` + `/saldos-ausencia` |
+| **Licenças** | **Ausência prolongada, mediante autorização** (art. 44.º); as sete modalidades do art. 45.º | `/funcionarios/{id}/licencas-mobilidade` com subtipo de `recordType=LICENCA` |
+| **Mobilidade** | A pessoa **não se ausenta** — vai exercer funções noutro sítio (Lei 20/X/2023, art. 132.º a 135.º) | o mesmo recurso, com subtipo de `recordType=MOBILIDADE` |
+
+O eixo é **curto contra prolongado**: a ausência conta-se em dias e desconta de um saldo anual; a licença tem início e fim, é autorizada caso a caso e **pode tirar o Lugar** ao funcionário.
+
+> **Isto não é gestão de assiduidade.** Não há horário, registo de ponto, atrasos nem horas em débito. O pedido de ausência guarda datas e um **número inteiro de dias** — meio dia é inexprimível, e o art. 13.º n.º 4 exige meios períodos. O tipo `FALTA_INJUSTIFICADA` existe no catálogo, mas os efeitos que o art. 43.º n.º 2 lhe manda (não contar antiguidade, perda de remuneração ou desconto nas férias) **não têm campo** onde viver.
+
+### 6.2 Saldo de ausências — quando é que os dias saem
 
 O saldo tem três números: `diasDireito`, `diasPendentes` (reservados) e `diasGozados`. O percurso é:
 

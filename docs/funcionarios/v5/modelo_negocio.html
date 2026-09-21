@@ -84,6 +84,8 @@
       <a href="#ciclo">6. Ciclo de vida do colaborador</a><br>
       <a href="#movimentos">7. Movimentos: admissão, progressão, mobilidade, cessação</a><br>
       <a href="#ausencias">8. Ausências, licenças e mobilidade</a><br>
+      <a href="#dois-sitios">8.1 Porque há dois sítios para faltar</a><br>
+      <a href="#assiduidade">8.2 O que isto não é: assiduidade</a><br>
       <a href="#glossario">9. Glossário</a>
     </div>
   </div>
@@ -262,6 +264,30 @@ sequenceDiagram
 
   <h2 id="ausencias"><span class="n">8.</span>Ausências, licenças e mobilidade</h2>
   <p>O trabalhador tem <b>saldos</b> por tipo de ausência e submete <b>pedidos</b> que seguem um fluxo de aprovação. As mobilidades e licenças especiais partilham um catálogo de <b>subtipos</b> (com <code>record_type</code> ∈ LICENCA · MOBILIDADE — o valor <code>AMBOS</code> foi removido) que controla se afectam vencimento, contam para antiguidade, se podem ser auto-submetidas e, desde a V43, <b>o que fazem ao Lugar</b>.</p>
+
+  <h3 id="dois-sitios">8.1 Porque há dois sítios para uma pessoa faltar</h3>
+  <p>É a pergunta que toda a gente faz ao ver a aplicação pela primeira vez. A resposta é que <b>a divisão é a da lei</b>, não uma escolha de arquitectura. O Decreto-Lei n.º 3/2010 separa as duas matérias em capítulos diferentes, e separa-as por um critério explícito — a <b>duração</b>:</p>
+  <table>
+    <tr><th>Na lei</th><th>O que é</th><th>Onde vive na aplicação</th></tr>
+    <tr><td><b>Férias</b> (cap. II)</td><td>Direito anual.</td><td rowspan="2"><b>Ausências</b> — <code>t_leave_request</code> + <code>t_leave_balance</code>, com saldo anual e contagem de dias úteis.</td></tr>
+    <tr><td><b>Faltas</b> (cap. III)</td><td>Ausência de <b>um dia ou parte dele</b> (art. 13.º n.º 1). Justificadas ou injustificadas.</td></tr>
+    <tr><td><b>Licenças</b> (cap. IV)</td><td>«Ausência <b>prolongada</b> do serviço, mediante autorização» (art. 44.º). Sete modalidades no art. 45.º.</td><td rowspan="2"><b>Licenças e mobilidade</b> — <code>t_leave_mobility</code> + subtipo, com efeito no Lugar e no estado do trabalhador.</td></tr>
+    <tr><td><b>Mobilidade</b> (Lei 20/X/2023, art. 132.º a 135.º)</td><td><b>Não é ausência.</b> A pessoa trabalha — noutro sítio.</td></tr>
+  </table>
+  <div class="callout rule"><b>O eixo é curto contra prolongado.</b> Uma falta conta-se em dias e desconta de um saldo anual; uma licença tem início e fim, é autorizada caso a caso e pode <b>tirar o Lugar</b> ao funcionário. São mecânicas diferentes porque a lei lhes dá efeitos diferentes.</div>
+  <div class="callout warn"><b>A mobilidade está na tabela das licenças mas não é uma delas.</b> Vem de outro diploma e a pessoa não está ausente. Partilham a tabela e o catálogo por conveniência; o <code>record_type</code> é que as separa, e as regras divergem — a mobilidade nunca abre vaga (art. 135.º n.º 7).</div>
+
+  <h3 id="assiduidade">8.2 O que isto <i>não</i> é: assiduidade</h3>
+  <p>Gestão de ausências e gestão de assiduidade não são a mesma coisa, e a aplicação só tem a primeira.</p>
+  <p><b>Ausências</b> é a parte <b>pedida e aprovada</b>: alguém submete, o RH decide, o saldo mexe-se. <b>Assiduidade</b> é a parte <b>medida</b>: horário, registo de entrada e saída, atrasos, horas em débito, trabalho suplementar. Disso <b>não há nada</b>.</p>
+  <p>Não é um detalhe de nomenclatura — é o que impede a aplicação de cumprir a própria definição legal de falta:</p>
+  <ul>
+    <li><b>Art. 13.º n.º 1</b> — falta é a ausência de <b>parte</b> do período diário de presença obrigatória. Sem horário registado, não existe «parte».</li>
+    <li><b>Art. 13.º n.º 4</b> — as ausências curtas <b>somam-se</b>: menos de meio período conta meio, mais de meio conta um período inteiro. O pedido guarda datas e um número inteiro de dias: <b>meio dia é inexprimível</b>.</li>
+    <li><b>Art. 13.º n.º 2</b> — em horário flexível, o <b>débito de tempo</b> no fim do período de aferição é falta. Exige saldo de horas.</li>
+  </ul>
+  <p>E os efeitos legais das faltas também não têm onde viver: o <b>art. 16.º n.º 2</b> manda perder parte da remuneração em certos motivos, e o <b>art. 43.º n.º 2</b> manda que as injustificadas não contem para antiguidade e impliquem perda de remuneração <i>ou</i> desconto nas férias. O catálogo <code>LeaveType</code> tem <code>deducts_balance</code>, <code>requires_approval</code> e <code>max_days_per_year</code> — e mais nada.</p>
+  <div class="callout warn"><b>Configura-se o catálogo de motivos, não o regime.</b> Pode criar-se o tipo «falta por casamento» com o limite de 6 dias do art. 15.º al. a). Não se pode dizer o que ele faz ao vencimento nem à antiguidade.</div>
   <div class="callout rule"><b>A licença parental é ausência, não licença</b> (art. 171.º n.º 2 contra art. 172.º): <code>MATERNIDADE</code> 90 dias, <code>PATERNIDADE</code> 10 dias úteis.</div>
   <div class="grid c3">
     <div class="card"><b>Pedido de ausência</b><p class="lead" style="font-size:13.5px">submeter → aprovar / rejeitar / cancelar. Os dias são <b>reservados na submissão</b> e só passam a gozados na aprovação.</p></div>
