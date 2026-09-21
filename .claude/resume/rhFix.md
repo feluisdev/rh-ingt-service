@@ -1,4 +1,4 @@
-> Updated: 2026-09-21 10:00
+> Updated: 2026-09-21 10:20
 
 ## Goal
 
@@ -17,7 +17,10 @@ par, sem avançar enquanto o anterior não estiver verde.
 (`origin_git_lab/fix-alinhamento-legislacao`). **1 commit local por enviar** a
 2026-09-21. O GitLab é o repo da equipa; merge para `master` é deploy.
 
-- **Testes unitários: 763, 0 falhas.** Correr **sempre com `clean`** (ver Blockers).
+- **Testes: 763, 0 falhas — mas só com a base de dados de pé.** 762 são unitários
+  puros; o `RecursosHumanosApplicationTests.contextLoads` carrega o contexto Spring
+  completo e o Flyway liga-se ao Postgres. **Sem o contentor a correr dá 1 erro, e
+  não é regressão.** Correr **sempre com `clean`** (ver Blockers).
 - **Bateria funcional: 207 passos, 207 OK**, cobre **F0 a F10**.
 - **Migrações V40 a V47** aplicadas e verificadas na BD. Próxima livre: **V48**.
 - **`openapi.json`**: 225 caminhos, 238 esquemas, **0 operações não-sigdi sem
@@ -189,8 +192,11 @@ completa F0–F10**.
   runtime — aconteceu (`ClassCastException` no `ReferenceOptionsController`). **Só
   a bateria os apanha.**
 - **A bateria deixa a BD alterada.** Repor antes de cada execução.
-- **Docker pode não estar a correr** ao retomar. `postgres-ingt-rh` tem de estar
-  de pé antes de qualquer coisa.
+- **Docker pode não estar a correr** ao retomar — foi o caso a 2026-09-21, com o
+  Docker Desktop em baixo. `postgres-ingt-rh` tem de estar de pé **antes dos
+  testes**, não só antes da bateria: o `contextLoads` falha sem ele com
+  `Connection to localhost:5436 refused`. Sintoma enganador — parece regressão e
+  é ambiente.
 
 ### Ausências não é assiduidade — e o modelo não a consegue exprimir
 
@@ -275,8 +281,10 @@ export JAVA_HOME="/c/Program Files/Eclipse Adoptium/jdk-26.0.2.10-hotspot"
 cd /c/Users/ivanick.santos/Nick-personal/ta-workspace/projects/Recursos_Humanos
 git switch fix-alinhamento-legislacao
 
-docker start postgres-ingt-rh      # pode estar parado ao retomar
+# A BD tem de estar de pe ANTES dos testes: o contextLoads liga-se-lhe.
+docker start postgres-ingt-rh      # se falhar, o Docker Desktop esta em baixo
 mvn -B clean test                  # esperado: 763 testes, 0 falhas (COM clean)
+                                   # sem a BD: 1 erro em contextLoads, nao e regressao
 ```
 
 Arranque real e bateria:
