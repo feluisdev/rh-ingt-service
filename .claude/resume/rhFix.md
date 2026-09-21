@@ -1,4 +1,4 @@
-> Updated: 2026-09-19 14:10
+> Updated: 2026-09-21 09:30
 
 ## Goal
 
@@ -13,8 +13,9 @@ par, sem avançar enquanto o anterior não estiver verde.
 
 ## Current state
 
-**Branch `fix-alinhamento-legislacao`**, 34 commits por enviar (`origin/dev` e
-`origin_git_lab/dev`). **Nada foi enviado para nenhum remoto.**
+**Branch `fix-alinhamento-legislacao`**, **já enviado para o GitLab**
+(`origin_git_lab/fix-alinhamento-legislacao`), **0 commits pendentes** a
+2026-09-21. O GitLab é o repo da equipa; merge para `master` é deploy.
 
 - **Testes unitários: 763, 0 falhas.** Correr sempre com `clean` (ver Blockers).
 - **Bateria funcional: 207 passos, 207 OK** (2026-09-19), contra a BD local. **Cobre F0 a F10 — o plano de validação está completo.**
@@ -65,6 +66,34 @@ Commits desta sessão (mais recente primeiro):
    al. b).
 4. **Percurso do colaborador** — linha temporal única. Adiado até o negócio estar
    definido.
+
+### Âmbito — o que a aplicação faz sobre o funcionário
+
+Levantado do contrato a 2026-09-21. **17 sub-recursos** sob `/funcionarios/{id}`:
+
+| Área | Acções |
+|---|---|
+| **Movimentos** | afectação · progressão · promoção · transferência · substituição · mudança de estado · cessação |
+| **Ausências** | pedidos (criar, aprovar, rejeitar, cancelar) e saldos |
+| **Licenças/mobilidade** | criar → approve/reject → prorrogar → close/cancel |
+| **Dossier** | contratos · qualificações · formações · dependentes · dados bancários · documentos · recibos · processos disciplinares |
+| **Self-service** | `/me`: perfil, pedidos, saldos, mobilidades, recibos, documentos |
+| **Auditoria** | histórico por entidade (Envers) |
+
+### O que NÃO existe de todo (fora dos três tópicos)
+
+Nenhum destes tem tabela, endpoint ou regra. **Não são dívida técnica — é âmbito
+por decidir:**
+
+| Área | Nota |
+|---|---|
+| **Assiduidade efectiva** | ponto, faltas injustificadas, horário, trabalho suplementar — ver secção própria abaixo |
+| **Antiguidade / tempo de serviço** | **não se calcula em lado nenhum**; é a raiz das três colunas mortas |
+| **Remuneração** | há recibos como *documento*, não há cálculo. O DL 25/2025 (Tabela Única) não está ligado ao escalão |
+| **Efeito disciplinar no vínculo** | há o registo do processo; a pena de inactividade (art. 121.º) não tem caminho |
+| **Aposentação** | existe como estado final, não como processo |
+| **Concursos e recrutamento** | a promoção por concurso interno (art. 32.º n.º 3) regista-se sem o concurso existir |
+| **Avaliação de desempenho** | é o SIGDI — fora do âmbito por decisão |
 
 ## Decisions made — do not re-litigate
 
@@ -172,6 +201,51 @@ Commits desta sessão (mais recente primeiro):
 - **A bateria deixa a BD alterada.** Repor antes de cada execução.
 - **Risco por verificar**: cessação, mobilidade ponta a ponta e promoção nas duas
   formas **nunca correram contra a BD** — são o F7, F8 e F9.
+
+### Ausências não é assiduidade — e o modelo actual não a consegue exprimir
+
+Verificado contra o **DL n.º 3/2010** (texto obtido em `mf.gov.cv`) e contra o
+esquema, a 2026-09-21. Não é questão de nomes: há coisas que **nenhuma
+configuração do catálogo consegue representar**.
+
+O que a lei chama falta (**art. 13.º**):
+- falta é a ausência durante a **totalidade *ou parte*** do período diário de
+  presença obrigatória — logo assenta num **horário**, que não temos;
+- em **horário flexível**, o *débito de tempo* apurado no fim do período de
+  aferição é falta — exige saldo de horas, que não temos;
+- **n.º 4**: ausências inferiores ao período normal **acumulam-se** — menos de
+  meio período conta meio, mais de meio conta um período inteiro.
+
+O que o nosso modelo guarda: `t_leave_request` tem `data_inicio`/`data_fim`
+(**DATE**) e `numero_dias` (**int**). **Meio dia é inexprimível**, quanto mais
+horas. E toda a linha é um *pedido* com estado — não há como registar uma falta
+que ninguém pediu.
+
+Efeitos que a lei manda e o catálogo não tem campo para exprimir:
+- **art. 16.º n.º 2** — as faltas das al. d), e), i), j), t) implicam **perda
+  parcial** da remuneração (diferença entre o líquido e o subsídio da
+  previdência). `t_leave_type` **não tem `affects_pay`** (esse campo existe só no
+  subtipo de licença/mobilidade).
+- **art. 43.º n.º 2** — as injustificadas **não contam para antiguidade** e
+  implicam **perda de remuneração *ou* desconto nas férias**. O `deducts_balance`
+  só desconta no saldo do próprio tipo; descontar no saldo de *outro* tipo
+  (férias) não é exprimível.
+- **art. 16.º n.º 4** — a greve perde remuneração mas **não** desconta
+  antiguidade. Duas dimensões independentes; não temos nenhuma.
+
+O que o catálogo **consegue** configurar: o motivo (`code`), se exige aprovação,
+o limite anual, e se desconta do saldo do próprio tipo. Ou seja: **configura-se o
+catálogo de motivos, não o regime**.
+
+Bug concreto encontrado pelo caminho: `CreatePedidoAusenciaCommandHandler:50` usa
+`findAllNacionaisActivosByAno` — **os feriados municipais são ignorados** na
+contagem de dias úteis, embora `t_public_holiday.is_national` exista para os
+distinguir.
+
+**Decidir**: (a) assiduidade fica fora do âmbito e diz-se isso nos documentos;
+(b) entra, e então precisa de horário, registo diário e saldo de horas — é um
+módulo, não um campo. Ver também a questão da antiguidade, que é pré-requisito
+dos efeitos.
 
 ### Achado por decidir: licença que acaba antes de começar
 
@@ -335,7 +409,14 @@ Esperado: `PASSOS: 207   OK: 207   FALHAS: 0`.
    `application-<perfil>.properties` estão vazios. Sem `HIBERNATE_DDL` definida, o
    Hibernate altera o esquema por baixo do Flyway. **Adiado — ainda não há
    produção** (confirmado pelo utilizador).
-7. **Jurídico**: confirmar se algum diploma substituiu o DL 3/2010 e qual é o
+7. **Assiduidade entra no âmbito?** Ver a secção própria em Blockers. Se entrar,
+   é um módulo (horário + registo diário + saldo de horas), não um campo no
+   catálogo de ausências. **Decide o cliente.**
+8. **Feriados municipais** — são ignorados na contagem de dias úteis
+   (`CreatePedidoAusenciaCommandHandler:50`). Corrigir é pequeno; a pergunta é
+   se a contagem deve usar o município do colaborador, e essa informação não
+   está na afectação. **Decide o RH.**
+9. **Jurídico**: confirmar se algum diploma substituiu o DL 3/2010 e qual é o
    diploma da mobilidade.
 
 ## Next step
