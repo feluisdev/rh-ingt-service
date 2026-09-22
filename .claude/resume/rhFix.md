@@ -13,13 +13,10 @@ par, sem avançar enquanto o anterior não estiver verde.
 
 ## Current state
 
-**Branch `fix-alinhamento-legislacao`**. O commit que a versão anterior deste
-documento dava como pendente **já foi enviado**; há **1 commit local por enviar**
-a 2026-09-22 (`204f29af` a V48, `f0a135b2` o handoff, `9d0e353b` a V49, o da
-acumulação/V50, o da suspensão/V51, a leitura das substituições e a
-**antiguidade**). O
-GitLab é o repo da equipa; merge para `master` é deploy. **Ainda não foi feito
-push** — por indicação do utilizador.
+**Branch `fix-alinhamento-legislacao`**, com **8 commits locais por enviar**
+(`71103f99..HEAD`, todos de 2026-09-22 — ver a tabela abaixo). O GitLab é o repo
+da equipa; merge para `master` é deploy. **O push não foi feito por indicação
+expressa do utilizador: não o fazer sem lhe perguntar.**
 
 - **Testes: 840, 0 falhas — mas só com a base de dados de pé.** 839 são unitários
   puros; o `RecursosHumanosApplicationTests.contextLoads` carrega o contexto Spring
@@ -27,11 +24,29 @@ push** — por indicação do utilizador.
   não é regressão.** Correr **sempre com `clean`** (ver Blockers).
 - **Bateria funcional: 305 passos, 305 OK**, cobre **F0 a F14**.
 - **Migrações V40 a V51** aplicadas e verificadas na BD. Próxima livre: **V52**.
-- **`openapi.json`**: 225 caminhos, 238 esquemas, **0 operações não-sigdi sem
-  esquema de resposta**.
+- **`openapi.json`**: 229 caminhos, 246 esquemas, **0 operações não-sigdi sem
+  esquema de resposta**. Regenerado a 2026-09-22; **regenerar sempre** que se
+  mexa num endpoint.
+- **Sete jobs `@Scheduled`**: cinco do `sigdi`, mais o dos efeitos das licenças
+  (`rh.licencas.efeitos.cron`, 00:15) e o do vencimento de férias
+  (`rh.ferias.vencimento.cron`, 00:05). Nenhum tem lock distribuído — ver
+  questão 13.
 - **Nenhum handler ou controlador não-sigdi devolve `Map`.**
 
-### O que esta sessão fez (19 commits, `ee61e15e..HEAD`)
+### O que a sessão de 2026-09-22 fez (7 commits, `71103f99..HEAD`)
+
+| Commit | O que fecha |
+|---|---|
+| `204f29af` | **V48 — a decisão separa-se do período** na licença: `status` guarda só o despacho, o período deriva das datas, os efeitos passam a um job diário |
+| `f0a135b2` | Handoff a par da V48; a questão aberta 3 fecha-se |
+| `9d0e353b` | **V49 — o direito a férias vence-se sozinho** (art. 2.º n.º 4), proporcional no ano de ingresso (art. 3.º); coluna `regime` classifica o catálogo |
+| `159fc1e4` | **V50 — acumulação** para o ano seguinte (art. 7.º n.º 1), acto com motivo obrigatório |
+| `786e5bf9` | **V51 — suspensão de férias** pelas causas do art. 8.º; os dias voltam ao saldo |
+| `4912ac75` | **Ler as substituições**, nos dois papéis — fecha a dívida D2 |
+| `69a2b013` | Auditoria à documentação: F11–F13 nunca tinham entrado no README da bateria |
+| `616c0f0e` | **Antiguidade** — derivada, não guardada; dá consumidor a três colunas mortas |
+
+### O que a sessão anterior fez (19 commits, `ee61e15e..71103f99`)
 
 | Commit | O que fecha |
 |---|---|
@@ -366,6 +381,67 @@ quando o framework entrar — a lógica de negócio não muda, só passa de
   dias, `PATERNIDADE` 10 dias úteis.
 - **Nada de filtrar em memória.**
 
+### Decisões tomadas a 2026-09-22 — também não se voltam a discutir
+
+**Sobre a licença (V48)**
+
+- **A decisão e o período são dois eixos.** O art. 44.º trata-os em números
+  seguidos: o n.º 2 é o despacho (um acto), o n.º 1 é a ausência (um período).
+  O `status` guarda só a decisão — `PENDING`, `APPROVED`, `REJECTED`,
+  `CANCELLED`; o período deriva das datas. **`ACTIVE` e `CLOSED` não voltam.**
+- **Deferir não é pôr em vigor.** Os efeitos no Lugar pertencem ao período:
+  aplicam-se na data de início, na própria transacção se for hoje, pelo job se
+  for mais tarde.
+- **«A partir de» inclui o próprio dia.** Vale no regresso antecipado (art. 46.º
+  n.º 4) e na suspensão de férias (art. 8.º n.º 3): o último dia de ausência é a
+  **véspera**. Quem parte e regressa no mesmo dia fica com um dia.
+- **Os efeitos marcam-se, para o job poder repetir.** `efeito_entrada_aplicado_em`
+  e `efeito_regresso_aplicado_em`: a pergunta é sobre o estado actual, não sobre
+  um intervalo desde a última execução. Um dia falhado não perde nada.
+
+**Sobre as férias (V49, V50, V51)**
+
+- **O saldo de férias nasce sozinho** (art. 2.º n.º 4). Não se cria à mão: nasce
+  na admissão e é mantido por um job diário. `POST /saldos-ausencia` fica para os
+  outros tipos.
+- **Os dias vêm do catálogo, com a lei por recurso.** `max_days_per_year` do tipo
+  classificado como férias; na falta dele, os 22 do art. 2.º n.º 3. A instituição
+  pode ter outro número por diploma próprio — não pode decidir que as férias não
+  se vencem.
+- **Os «6 ou 5 dias» do art. 3.º não se escrevem no código.** São 22 repartidos
+  por quatro trimestres (5,5 de cada vez); arredondando o acumulado saem 6, 11,
+  17 e 22. Continua certo com um direito anual diferente de 22.
+- **Qual linha do catálogo são férias lê-se do `regime`**, nunca do código. O
+  catálogo é da instituição; o regime é da lei (`FERIAS`/`FALTA`). Mesmo padrão da
+  situação funcional e do efeito da licença no Lugar.
+- **A acumulação não é automática.** O art. 7.º n.º 1 só a permite «por motivo de
+  serviço»: é um acto do RH com **motivo obrigatório**, não um job a arrastar
+  dias. O conteúdo do motivo não se valida.
+- **Os dias acumulados não se voltam a acumular.** O horizonte da lei é de um ano
+  (art. 7.º n.º 1 e art. 8.º n.º 4). O gozo imputa-se primeiro ao direito do
+  próprio ano.
+- **A suspensão não inventou transporte novo.** Os dias recuperados voltam ao
+  saldo do próprio ano; passá-los ao seguinte é a acumulação — que é o que o
+  art. 9.º n.º 1, remetendo para o art. 8.º n.º 4, autoriza.
+- **Meios-dias ficam de fora por decisão do utilizador** («por agora não teremos
+  pedido de meio dia»). Não é assiduidade — é uma mudança de contrato.
+
+**Sobre a antiguidade**
+
+- **Não se guarda: deriva-se.** Recalculada a cada leitura, como provido/vago e
+  como o vínculo laboral.
+- **Os períodos excluídos unem-se, não se somam.** A mesma ausência chega pela
+  situação funcional e pelo subtipo da licença; somá-las descontaria o dobro.
+- **Não se desconta o que a lei manda contar**, nem se adivinha configuração em
+  falta: mobilidade (art. 137.º), estado sem situação classificada, licença por
+  decidir, férias não gozadas (art. 12.º n.º 3) e greve (art. 16.º n.º 4).
+
+**Sobre as substituições**
+
+- **Lêem-se nos dois papéis na mesma consulta.** A pergunta de um ecrã é «em que
+  substituições está esta pessoa metida», e isso inclui os dois lados.
+- **Endpoint próprio, sem esperar pelo percurso do colaborador.** Não o impede.
+
 ## Constraints
 
 - **Build exige JDK 26**: `export JAVA_HOME="/c/Program Files/Eclipse Adoptium/jdk-26.0.2.10-hotspot"`.
@@ -414,6 +490,27 @@ quando o framework entrar — a lógica de negócio não muda, só passa de
   runtime — aconteceu (`ClassCastException` no `ReferenceOptionsController`). **Só
   a bateria os apanha.**
 - **A bateria deixa a BD alterada.** Repor antes de cada execução.
+- **O servidor Java do VS Code compila para o mesmo `target/`.** A extensão
+  `redhat.java` recompila a cada ficheiro guardado e escreve em `target/classes`,
+  colidindo com o Maven da consola: dá *"error while writing ...class"* ou
+  *"package ... does not exist"* em pacotes que existem. **Não é regressão.**
+  Repetir o comando resolve; se insistir, fechar o VS Code ou suspender a
+  extensão. Custou duas corridas nesta sessão, e o sintoma engana.
+- **Um script de edição que não verifica a âncora dá confirmação falsa.** Os
+  blocos F11–F13 do README da bateria **nunca entraram** porque apontavam para uma
+  tabela que acaba no F5 — do F6 em diante o documento usa secções `###`. O script
+  gravou o ficheiro à mesma e imprimiu "ok". **Verificar sempre se a marca existe
+  antes de substituir, e confirmar no ficheiro depois.**
+- **Editar uma migração já aplicada parte o arranque.** O `contextLoads` dos
+  testes corre o Flyway, por isso **correr os testes aplica as migrações**. Mudar
+  o ficheiro depois disso dá *checksum mismatch*. Em desenvolvimento: desfazer à
+  mão os efeitos e apagar a linha de `flyway_schema_history` para ser reaplicada.
+- **`ADD COLUMN ... DEFAULT` preenche já as linhas existentes.** Uma migração que
+  acrescente a coluna com omissão e só depois classifique `WHERE ... IS NULL`
+  nunca classifica nada — e **não falha**, nem nos testes nem no arranque. A ordem
+  certa é: coluna sem omissão → classificar → `NOT NULL` → `SET DEFAULT`. Custou
+  uma classificação inteira errada na V49 (7 linhas em `FALTA`, férias incluídas),
+  só visível ao consultar a base.
 - **Docker pode não estar a correr** ao retomar — foi o caso a 2026-09-21, com o
   Docker Desktop em baixo. `postgres-ingt-rh` tem de estar de pé **antes dos
   testes**, não só antes da bateria: o `contextLoads` falha sem ele com
@@ -447,26 +544,45 @@ Efeitos que a lei manda e o catálogo não tem campo para exprimir:
 
 **Configura-se o catálogo de motivos, não o regime.**
 
-### Lacuna: não há como ler as substituições
+### ~~Lacuna: não há como ler as substituições~~ — RESOLVIDA (2026-09-22)
 
-`POST /funcionarios/{id}/substituicao` devolve o id, mas **nada o lista depois**.
-`GET .../unidade-atual` só devolve a `PRINCIPAL`. Um ecrã de RH **não consegue
-mostrar** quem substitui quem. Na bateria, o fecho automático teve de ser provado
-**indirectamente** (F6.30-33): põe-se o titular impedido outra vez e tenta-se nova
-substituição — se a anterior não tivesse fechado daria `409`, e dá `201`.
+`GET /funcionarios/{id}/substituicoes` devolve-as nos **dois papéis** — `SUBSTITUTO`
+e `TITULAR` —, com a contraparte, o Lugar e o período; `apenasCorrentes` separa o
+que está em vigor do histórico. Enquanto durar, a `dataFim` vem **nula**: caduca
+com o regresso do titular (art. 77.º n.º 2), não numa data combinada.
 
-### Achado: licença que acaba antes de começar
+Decidiu-se o endpoint próprio em vez de esperar pelo percurso do colaborador —
+não o impede, e a lacuna custava caro: o fecho automático da substituição
+provava-se **por via indirecta**. Agora prova-se directamente (F6.30b: já não há
+nenhuma em vigor; F6.30d: o histórico guarda-a, encerrada e com data de fim), e a
+prova antiga fica como confirmação.
 
-`LicencaMobilidade.encerrar()` fixa a data de fim em **hoje** sem verificar se hoje
-é anterior ao **início**. Visto na BD: `LIC_FORMACAO, início 2026-10-01, fim
-2026-09-19`. Não bloqueia nada, mas **falseia contagens de dias** — e a contagem de
-dias é a base das férias e da antiguidade.
+Uma substituição anterior à V46 não tem ligação ao titular: aparece na mesma, sem
+contraparte. O registo existiu, e escondê-lo seria pior do que mostrá-lo
+incompleto.
 
-### Bug: feriados municipais ignorados
+### ~~Achado: licença que acaba antes de começar~~ — RESOLVIDO na V48 (2026-09-22)
 
-`CreatePedidoAusenciaCommandHandler:50` usa `findAllNacionaisActivosByAno`. Um
-pedido que atravesse um feriado municipal conta um dia a mais, embora
-`t_public_holiday.is_national` exista para os distinguir.
+Era o `encerrar()` a fixar o fim em hoje sem olhar ao início. Não se corrigiu com
+uma guarda: **separou-se a decisão do período**, e o caso deixou de ter caminho.
+Encerrar o que não começou é 409 e remete para o cancelamento (art. 44.º n.º 1:
+não houve ausência); `ck_leave_mobility_periodo` impede-o também no esquema; e a
+linha estragada na BD foi normalizada pela própria migração.
+
+### Bug: feriados municipais ignorados — POR FAZER, decisão adiada pelo utilizador
+
+`CreatePedidoAusenciaCommandHandler:50` usa `findAllNacionaisActivosByAno`, e o
+`DiasUteisCalculator` desconta só os **nacionais**. Um pedido que atravesse um
+feriado municipal conta um dia a mais, embora `t_public_holiday.is_national`
+exista precisamente para os distinguir.
+
+**Estado (2026-09-22):** o utilizador disse «decido depois». Corrigir a chamada é
+trivial; o que falta decidir é **de que município** se contam, e essa informação
+não existe na afectação nem no funcionário. Escolher por ele seria inventar um
+modelo de dados.
+
+**Importa agora** porque a contagem de dias úteis é a base das férias — e as
+férias já estão construídas por cima dela.
 
 ## Relevant files
 
@@ -481,7 +597,31 @@ pedido que atravesse um feriado municipal conta um dia a mais, embora
 - `shared/application/dto/SuccessResponseDTO.java` — `de()`, `semEfeito()`.
 - `colaboradores/domain/service/DiasUteisCalculator.java` — Seg-Sex menos feriados
   **nacionais**; é aqui que o bug dos municipais vive.
-- `db/migration/V45`, `V46`, `V47`.
+- `db/migration/V45`, `V46`, `V47`, **`V48`** (licença: decisão vs. período),
+  **`V49`** (`t_leave_type.regime`), **`V50`** (acumulação de férias),
+  **`V51`** (suspensão de férias). A antiguidade **não tem migração**: é derivada.
+- **Férias (DL 3/2010, cap. II):**
+  - `colaboradores/application/services/FeriasService.java` — vencimento
+    (art. 2.º), proporcionalidade do ano de ingresso (art. 3.º) e **acumulação**
+    (art. 7.º n.º 1).
+  - `colaboradores/infrastructure/scheduler/VencimentoFeriasScheduler.java` —
+    diário, `rh.ferias.vencimento.cron`, 00:05.
+  - `colaboradores/application/commands/SuspenderFeriasCommandHandler.java` —
+    suspensão (art. 8.º).
+  - `parametrizacoes/domain/models/RegimeAusencia.java` — `FERIAS`/`FALTA`; é por
+    aqui, e **nunca pelo código**, que se sabe quais linhas do catálogo são férias.
+- **Licença/mobilidade (V48):**
+  - `colaboradores/domain/models/EstadoPeriodoLicenca.java` — o eixo temporal.
+  - `colaboradores/application/services/LicencaEfeitoService.java` — efeitos na
+    data devida, idempotentes.
+  - `colaboradores/infrastructure/scheduler/LicencaEfeitoScheduler.java` —
+    `rh.licencas.efeitos.cron`, 00:15.
+- **Antiguidade:**
+  - `colaboradores/domain/service/CalculadoraAntiguidade.java` — a conta pura
+    (recorta, **une**, subtrai). É aqui que vive a regra de não somar períodos.
+  - `colaboradores/application/services/AntiguidadeService.java` — as três fontes.
+- `colaboradores/application/queries/ListarSubstituicoesQueryHandler.java` — a
+  leitura das substituições, nos dois papéis.
 - `db/seed/seed_carreiras.sql` — `ordem_progressao` (1=ASS_TEC, 2=TEC_SUP); **sem
   ela a promoção recusa sempre**.
 - `db/seed/seed_colaboradores.sql` — 3 colaboradores, 6 Lugares.
@@ -489,12 +629,15 @@ pedido que atravesse um feriado municipal conta um dia a mais, embora
 - `scripts/repor_estado.sql` — **correr antes de cada execução**.
 - `scripts/testes_funcionais_README.md` — o que cada bloco prova.
 - `docs/funcionarios/v5/openapi.json` — contrato gerado; **fonte para as formas**.
-- `docs/funcionarios/v5/api_guide.md` — §5.7 substituição, §6.1 ausências vs
-  licença, §12 enums, §2 respostas.
+- `docs/funcionarios/v5/api_guide.md` — §5.7 substituição (criar **e ler**),
+  **§5.8 antiguidade**, §6.1 ausências vs licença, **§6.3 vencimento de férias**,
+  **§6.4 acumulação**, **§6.5 suspensão**, **§7.0 os dois eixos da licença**,
+  §12 enums, §2 respostas.
 - `docs/funcionarios/v5/modelo_negocio.html` — §8.1 porquê dois sítios, §8.2
   porque não é assiduidade.
-- `docs/funcionarios/v5/regras_negocio.html` — BR-*, incluindo BR-SUB-01..09.
-- `docs/funcionarios/v5/breaking_change_frontend.md` — §11.4 a §11.7.
+- `docs/funcionarios/v5/regras_negocio.html` — BR-*, incluindo BR-SUB-01..**10**,
+  **BR-FER-01..12** (férias) e **BR-ANT-01..06** (antiguidade).
+- `docs/funcionarios/v5/breaking_change_frontend.md` — §11.4 a **§11.13**.
 
 ## How to verify / resume
 
@@ -508,6 +651,11 @@ docker start postgres-ingt-rh      # se falhar, o Docker Desktop esta em baixo
 mvn -B clean test                  # esperado: 840 testes, 0 falhas (COM clean)
                                    # sem a BD: 1 erro em contextLoads, nao e regressao
 ```
+
+> **Se o Maven se queixar de "error while writing ...class" ou de um pacote que
+> claramente existe:** e o servidor Java do VS Code a compilar para o mesmo
+> `target/`. Nao e regressao — repetir o comando resolve. Se insistir, fechar o
+> VS Code.
 
 Arranque real e bateria:
 
@@ -527,7 +675,7 @@ docker exec postgres-ingt-rh sh -c "psql -U postgres -d recursoshumanos_db -q -f
 
 # 3. bateria
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/testes_funcionais.ps1
-# esperado: PASSOS: 207   OK: 207   FALHAS: 0
+# esperado: PASSOS: 305   OK: 305   FALHAS: 0
 
 # 4. regenerar o contrato depois de mexer em endpoints
 curl -s -o docs/funcionarios/v5/openapi.json http://localhost:8099/v3/api-docs
@@ -586,8 +734,10 @@ contradizer o código.
    diário + saldo de horas), não um campo no catálogo. Pré-requisito: a
    antiguidade. Se não entrar, dizê-lo nos documentos para ninguém instalar isto a
    pensar que tem controlo de assiduidade. **Decide o cliente.**
-2. **Ler as substituições** — não há endpoint. Endpoint próprio ou dentro do
-   percurso do colaborador? **Decide o RH/produto.**
+2. ~~**Ler as substituições**~~ — **RESOLVIDA (2026-09-22).** Fez-se o endpoint
+   próprio, `GET /funcionarios/{id}/substituicoes`. Não impede o percurso do
+   colaborador mais tarde; quando existir, agrega isto com mobilidades, licenças e
+   estados.
 3. ~~**Licença que acaba antes de começar**~~ — **RESOLVIDA na V48 (2026-09-22).**
    Não se recusou com 422 nem se colou a data: separou-se a decisão do período, e
    o caso deixou de ter caminho. Encerrar o que não começou é 409 e remete para o
@@ -595,7 +745,8 @@ contradizer o código.
    `ck_leave_mobility_periodo` impede-o também no esquema.
 4. **Feriados municipais** — corrigir é pequeno; a pergunta é se a contagem deve
    usar o município do colaborador, e essa informação não está na afectação.
-   **Decide o RH.**
+   **ADIADA pelo utilizador a 2026-09-22 («decido depois»).** Continua a valer o
+   aviso: a contagem de dias úteis é a base das férias, que já estão construídas.
 5. **Limite de substituições por pessoa** — hoje não há nenhum. **Validar com o RH.**
 6. **A promoção exige lugar vago da categoria superior?** As duas formas estão
    suportadas; a prática da instituição decide. **Cliente.**
@@ -613,14 +764,58 @@ contradizer o código.
    produção** (confirmado pelo utilizador).
 10. **Jurídico**: confirmar se algum diploma substituiu o DL 3/2010 e qual é o
     diploma da mobilidade.
+11. **Faltas injustificadas e antiguidade** — o art. 43.º n.º 2 diz que não
+    contam, mas `t_leave_type` não tem coluna que diga quais o são. **Não se
+    adivinhou** a partir do código `FALTA_INJUSTIFICADA`. Para fechar: acrescentar
+    `counts_seniority` a `t_leave_type` (ou um terceiro valor ao `regime` da V49) e
+    uma quarta fonte ao `AntiguidadeService`. **Decide o RH** se as quer descontar.
+12. **Marcação de férias** (art. 5.º e 6.º) — mapa até 31 de Março, preferência até
+    31 de Janeiro, mínimo de 11 dias num dos períodos, fixação pelo dirigente entre
+    Maio e Outubro na falta de acordo. **Por decidir com o RH/produto: quem aprova
+    o mapa, e o que acontece a quem não indica preferência.** É a única parte do
+    cap. II que falta além dos meios-dias.
+13. **Lock distribuído para os jobs** — há agora **sete** `@Scheduled` (cinco do
+    `sigdi`, mais o dos efeitos das licenças e o do vencimento de férias) e nenhum
+    tem lock. Com réplicas, correm em todas. As marcas de idempotência limitam o
+    estrago mas não substituem um lock. Entra no mesmo saco de produção que o
+    `HIBERNATE_DDL` (questão 9), e é o que o framework de jobs do
+    `inss_core_service` resolveria.
 
 ## Next step
 
-**Push por fazer** (`git push origin_git_lab fix-alinhamento-legislacao`) — o
-utilizador pediu para não o fazer ainda.
+**Push por fazer** — há **8 commits locais** por enviar
+(`git push origin_git_lab fix-alinhamento-legislacao`). O utilizador pediu para
+não o fazer ainda; **não enviar sem lhe perguntar**.
 
-**Vencimento, acumulação e suspensão de férias estão feitos.** Do ponto 1
-sobram duas partes, e **ambas esperam por decisões que não são de código**:
+### O que pode avançar já, sem esperar por ninguém
+
+Por ordem do plano, e ambos independentes:
+
+1. **Movimentos menores** (ponto 3) — sete, sem caminho nenhum. A **mudança de
+   carreira** é a mais grave: hoje é *impossível*, porque a promoção exige a mesma
+   carreira e a transferência exige a mesma categoria. Art. 139.º e art. 35.º do
+   PCFR.
+2. **Percurso do colaborador** (ponto 4) — linha temporal única. Já não precisa de
+   resolver a leitura das substituições (feita), mas continua a valer como
+   agregador de afectações, mobilidades, licenças e estados.
+
+### O que está à espera de decisão (não avançar sem)
+
+| Assunto | Quem decide | Onde está |
+|---|---|---|
+| Marcação de férias — quem aprova o mapa; quem não indica preferência | RH/produto | questão 12 |
+| Feriados municipais — de que município | RH | questão 4, adiada pelo utilizador |
+| Faltas injustificadas descontam antiguidade? | RH | questão 11 |
+| Meios-dias | **já decidido: não, por agora** | abaixo |
+| Assiduidade entra no âmbito? | cliente | questão 1 |
+
+### Do capítulo II das férias, o que falta
+
+- **Marcação** (art. 5.º e 6.º) — mapa de férias até 31 de Março, indicação de
+  preferência até 31 de Janeiro, mínimo de 11 dias num dos períodos em gozo
+  interpolado, fixação pelo dirigente entre Maio e Outubro na falta de acordo.
+  **Por decidir com o RH/produto:** quem aprova o mapa, e o que acontece a quem
+  não indica preferência.
 
 - **Marcação** (art. 5.º e 6.º) — mapa de férias até 31 de Março, indicação de
   preferência até 31 de Janeiro, mínimo de 11 dias num dos períodos em gozo
@@ -637,10 +832,8 @@ sobram duas partes, e **ambas esperam por decisões que não são de código**:
   Não confundir com o art. 13.º n.º 4 (meios períodos nas faltas), que depende do
   horário e é mesmo assiduidade.
 
-Ao atacar a marcação, decidir primeiro com o RH/produto: quem aprova o mapa de
-férias e o que acontece a quem não indica preferência até 31 de Janeiro. São
-decisões de processo, não de código — foi por isso que se fez a acumulação
-primeiro.
+Foi por serem decisões de processo, e não de código, que se fez primeiro a
+acumulação, a suspensão e a antiguidade.
 
 A questão que bloqueava as férias — a licença que acabava antes de começar — está
 resolvida: as contagens de dias já assentam em períodos válidos.
@@ -652,13 +845,16 @@ O caminho das férias:
 2. Acumulação entre anos.
 3. Marcação (o pedido já existe; falta o que distingue férias de uma falta comum).
 
-Ao chegar à antiguidade, lembrar que o art. 47.º n.º 1 manda descontar os dias de
-licença sem vencimento, e os n.os 2 e 3 fazem as férias do ano seguinte
-proporcionais ao tempo de serviço — é para isso que a V48 preparou o terreno.
-
-Antes de começar: `docker start postgres-ingt-rh`, `mvn -B clean test` (784, 0
-falhas), repor a BD e correr a bateria (221/221) para confirmar que se parte de
+Antes de começar: `docker start postgres-ingt-rh`, `mvn -B clean test` (**840**, 0
+falhas), repor a BD e correr a bateria (**305/305**) para confirmar que se parte de
 verde.
+
+> A antiguidade já está feita e **já lê** o art. 47.º n.º 1 (a licença sem
+> vencimento desconta). O que os n.os 2 e 3 desse artigo mandam — férias do ano
+> seguinte proporcionais ao tempo de serviço, depois de uma licença — **ainda não
+> está**: é um caso particular do vencimento que a V49 não cobre, porque ela
+> proporciona apenas no **ano de ingresso** (art. 3.º). Fica assinalado aqui para
+> não se perder.
 
 **Migração já aplicada não se edita.** O `contextLoads` dos testes corre o Flyway,
 por isso **correr os testes aplica as migrações**. Editar o ficheiro depois disso
