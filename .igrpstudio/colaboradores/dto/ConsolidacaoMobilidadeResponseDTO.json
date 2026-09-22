@@ -1,0 +1,74 @@
+{
+  "type": "dto",
+  "name": "ConsolidacaoMobilidadeResponseDTO",
+  "module": "colaboradores",
+  "template": "classic",
+  "attributes": [
+    {
+      "name": "id",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "funcionarioId",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "mobilidadeId",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "positionAnteriorId",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "numeroLugarAnterior",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "unidadeOrganicaAnteriorId",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "positionId",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "numeroLugar",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "unidadeOrganicaId",
+      "type": "string",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "mobilidadeDataFim",
+      "type": "date",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "name": "dataEfeito",
+      "type": "date",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

@@ -478,6 +478,92 @@ public class AssignmentService {
                 .orElseThrow(() -> IgrpResponseStatusException.notFound("Carreira não encontrada: " + careerId));
     }
 
+    /** Resultado de uma consolidação: a nova afectação e os Lugares de partida e de chegada. */
+    public record Consolidacao(Assignment afectacao, Position lugarAnterior, Position lugarNovo) {}
+
+    /**
+     * <b>Consolidação da mobilidade</b> (Lei n.º 20/X/2023, art. 132.º n.º 4): a mobilidade
+     * transitória torna-se definitiva e a pessoa passa a ser titular de um Lugar no serviço de
+     * destino. É a mesma mecânica da transferência — e é-o por construção, não por parecença: o
+     * art. 135.º n.º 8 define a mobilidade definitiva como a que é feita <i>«com ocupação do lugar
+     * do quadro»</i>, ao contrário da transitória (n.º 7), que não ocupa Lugar nenhum.
+     *
+     * <p><b>Na mesma função e categoria</b>, que é o que o art. 132.º n.º 4 exige para esta via.
+     * Consolidar mudando de categoria ou de função é outro caminho: o art. 135.º n.º 6 exige aí
+     * habilitação adequada e <b>aprovação em concurso comum interno</b>, que esta aplicação não
+     * modela. Por isso só se consolida para um Lugar do <b>mesmo cargo e da mesma categoria</b>, e
+     * o escalão mantém-se — não há evolução na grelha numa consolidação.
+     *
+     * <p><b>Lugar vago</b>, porque o art. 134.º n.º 1 al. a) fala em mudança <i>«para outro lugar
+     * vago do quadro de outro serviço»</i>.
+     *
+     * <p><b>O que aqui não está, e não é esquecimento:</b> nenhum tempo mínimo de mobilidade. O
+     * art. 132.º n.º 4 acaba com <i>«nos termos regulados por diploma de desenvolvimento»</i> — a
+     * condição existe, vive noutro diploma, e inventar um prazo aqui seria pôr no código uma regra
+     * que ninguém escreveu.
+     */
+    public Consolidacao consolidarMobilidade(FuncionarioId funcionarioId, UUID positionIdDestino,
+                                             UUID unidadeDestinoMobilidade, LocalDate dataEfeito,
+                                             String notes) {
+
+        Assignment atual = assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId)
+                .orElseThrow(() -> IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                        "O colaborador não tem afectação principal corrente — não há lugar de origem a consolidar."));
+
+        if (!dataEfeito.isAfter(atual.getDataInicio()))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "A data de efeito tem de ser posterior ao início da afectação corrente ("
+                            + atual.getDataInicio() + ").");
+
+        Position origem = positionRepository.findById(PositionId.from(atual.getPositionId()))
+                .orElseThrow(() -> IgrpResponseStatusException.notFound(
+                        "Lugar não encontrado: " + atual.getPositionId()));
+
+        if (positionIdDestino.equals(atual.getPositionId()))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "O Lugar de destino é o mesmo em que o colaborador já está.");
+
+        Position destino = positionRepository.findById(PositionId.from(positionIdDestino))
+                .orElseThrow(() -> IgrpResponseStatusException.notFound(
+                        "Lugar de destino não encontrado: " + positionIdDestino));
+
+        if (!destino.podeSerOcupado())
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "O Lugar '" + destino.getNumeroLugar() + "' não está disponível (estado="
+                            + destino.getEstado() + ").");
+
+        if (assignmentRepository.temTitular(positionIdDestino))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "O Lugar '" + destino.getNumeroLugar() + "' já tem titular.");
+
+        // Consolida-se no serviço onde a pessoa esteve em mobilidade, e não noutro qualquer: é o
+        // exercício de funções ali que a consolidação torna definitivo.
+        if (unidadeDestinoMobilidade != null
+                && !unidadeDestinoMobilidade.equals(destino.getUnidadeOrganicaId()))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "O Lugar '" + destino.getNumeroLugar() + "' não pertence à unidade de destino da "
+                            + "mobilidade. A consolidação torna definitivo o exercício de funções nesse serviço.");
+
+        // Art. 132.º n.º 4: "na mesma função e categoria".
+        if (!java.util.Objects.equals(origem.getJobId(), destino.getJobId())
+                || !java.util.Objects.equals(origem.getCategoryId(), destino.getCategoryId()))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "A consolidação é na mesma função e categoria (art. 132.º n.º 4): o Lugar '"
+                            + destino.getNumeroLugar() + "' tem cargo ou categoria diferentes do Lugar actual. "
+                            + "Mudar de categoria ou de função na mobilidade definitiva exige concurso comum "
+                            + "interno (art. 135.º n.º 6), que esta aplicação não modela.");
+
+        // Mesma categoria, logo o escalão serve; mesmo cargo, logo a função também.
+        atual.encerrar(dataEfeito.minusDays(1));
+        assignmentRepository.save(atual);
+
+        Assignment nova = assignmentRepository.save(Assignment.criar(
+                funcionarioId, positionIdDestino, atual.getGradeId(), atual.getFunctionId(),
+                TipoAfectacao.PRINCIPAL, Assignment.CONSOLIDACAO, dataEfeito, notes));
+
+        return new Consolidacao(nova, origem, destino);
+    }
+
     /** Escalão da promoção: o escolhido (tem de ser da categoria de destino) ou o primeiro activo. */
     private Grade escalaoDaPromocao(UUID gradeIdEscolhido, Category categoriaDestino) {
         CategoryId destinoId = categoriaDestino.getId();

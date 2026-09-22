@@ -1,6 +1,36 @@
 -- Gerado a partir de testes_funcionais_README.md (seccao 'Repor o estado inicial').
 -- Correr antes de cada execucao da bateria.
 
+-- 0. Colaboradores que a bateria cria (F11 admite gente a cada execucao, para provar o
+--    vencimento de ferias). Nunca eram apagados: ao fim de algumas corridas havia dezenas, e
+--    como o F0.1 le a PRIMEIRA PAGINA de /funcionarios, o trio do seed saia dela -- a bateria
+--    falhava do F0 em diante por dados acumulados, nao por codigo. Apaga-se antes de tudo o
+--    resto, pela ordem das chaves estrangeiras.
+DO $$
+DECLARE extras uuid[];
+BEGIN
+  SELECT coalesce(array_agg(id), '{}') INTO extras FROM t_funcionario
+   WHERE numero_funcionario NOT IN ('0000001','0000002','0000003');
+  IF array_length(extras, 1) IS NULL THEN RETURN; END IF;
+
+  UPDATE t_unidade_organica SET responsible_employee_id = NULL
+   WHERE responsible_employee_id = ANY(extras);
+
+  DELETE FROM t_leave_request  WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_leave_balance  WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_leave_mobility WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_assignment     WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_contrato       WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_dados_bancarios WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_dependente     WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_disciplinary_process WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_historico_estado_colaborador WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_payroll_slip   WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_qualificacao   WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_training       WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_funcionario    WHERE id = ANY(extras);
+END $$;
+
 -- 1. Afectacoes: fica so a do seed, com o escalao de partida.
 --    A clausula 'not in' apanha tambem as substituicoes e o que os movimentos criaram.
 delete from t_assignment where id not in (
@@ -27,6 +57,10 @@ update t_position set category_id='71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e702'::uuid w
 --    ocupa-o, e sem repor carreira E categoria a execucao seguinte nao tem destino.
 update t_position set career_id='61e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e602'::uuid,
        category_id='71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e703'::uuid where numero_lugar = 'LUG-0007';
+--    O LUG-0008 vive noutra unidade (DGP) e e o destino da consolidacao da mobilidade.
+update t_position set unidade_organica_id='31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e302'::uuid,
+       career_id='61e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e601'::uuid,
+       category_id='71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e702'::uuid where numero_lugar = 'LUG-0008';
 
 -- 3. Estado e contratos.
 update t_funcionario set worker_state_id=(select id from t_worker_state where code='ACTIVE'), is_active=true;

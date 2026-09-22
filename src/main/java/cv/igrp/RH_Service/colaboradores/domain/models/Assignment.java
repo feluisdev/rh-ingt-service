@@ -24,6 +24,8 @@ public class Assignment {
     public static final String TRANSFERENCIA = "TRANSFERENCIA";
     public static final String SUBSTITUICAO = "SUBSTITUICAO";
     public static final String MUDANCA_CARREIRA = "MUDANCA_CARREIRA";
+    /** Mobilidade transitória que se tornou definitiva (art. 132.º n.º 4). */
+    public static final String CONSOLIDACAO = "CONSOLIDACAO";
 
     private AssignmentId id;
     private FuncionarioId funcionarioId;

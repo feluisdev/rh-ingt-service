@@ -840,6 +840,53 @@ funções em serviço nenhum.
 
 ---
 
+### 7.0c Consolidar a mobilidade — `POST .../licencas-mobilidade/{licencaId}/consolidar`
+
+Art. 132.º n.º 4: «A mobilidade definitiva ocorre nos casos de **consolidação da mobilidade
+transitória, na mesma função e categoria**.» A pessoa deixa de estar em mobilidade e passa a ser
+**titular de um Lugar vago do serviço de destino**.
+
+É a única via pela qual uma mobilidade toca na afectação, e não contradiz o art. 135.º n.º 7:
+esse diz que a *transitória* não ocupa Lugar; o n.º 8 define a definitiva como a que é feita
+«com ocupação do lugar do quadro».
+
+```json
+{
+  "positionId": "uuid do Lugar vago do serviço de destino",
+  "dataEfeito": "YYYY-MM-DD",
+  "despachoNumero": "string | null",
+  "observacoes": "string | null"
+}
+```
+
+**Resposta `201`** (`ConsolidacaoMobilidadeResponseDTO`): traz a nova afectação, a mobilidade que
+se consolidou, o `mobilidadeDataFim` (a **véspera** da data de efeito) e os Lugares de partida e
+de chegada.
+
+| Código | Quando |
+|---|---|
+| `400` | `positionId` ou `dataEfeito` em falta; UUID inválido; data de efeito anterior ao início da mobilidade. |
+| `404` | Funcionário, mobilidade ou Lugar não existem — ou a mobilidade não é desse funcionário. |
+| `409` | A mobilidade não está deferida, ou **ainda não começou** (não há período transitório para consolidar). |
+| `422` | Subtipo de licença (só mobilidade se consolida) · mobilidade **externa** · Lugar que não é da unidade de destino · Lugar com titular, não ATIVO ou igual ao actual · **cargo ou categoria diferentes** · sem afectação corrente · data de efeito não posterior ao início da afectação. |
+
+**Mesma função e categoria, e o escalão mantém-se** — não há evolução na grelha numa
+consolidação. Consolidar mudando de categoria ou de função exige habilitação adequada e
+aprovação em **concurso comum interno** (art. 135.º n.º 6), que esta aplicação não modela.
+
+**Só a mobilidade interna se consolida.** Numa externa o destino é outra entidade e não há
+Lugar do nosso quadro onde pôr a pessoa — o que a lei prevê aí é a saída do quadro, que é uma
+cessação.
+
+> **Não se exige tempo mínimo de mobilidade.** O art. 132.º n.º 4 acaba com «nos termos regulados
+> por diploma de desenvolvimento»: a condição existe, vive noutro diploma, e pôr aqui um prazo
+> seria escrever no código uma regra que ninguém escreveu.
+
+> A mobilidade fica **`APPROVED`** com o período encurtado. Não há regresso: quem consolida não
+> volta ao Lugar de origem, e por isso o efeito de regresso marca-se logo como aplicado.
+
+---
+
 ### 7.1 Licenças que abrem vaga
 Três campos do subtipo dizem o que a licença faz ao Lugar:
 

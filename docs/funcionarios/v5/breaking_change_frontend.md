@@ -468,6 +468,28 @@ a nao criar afectacao nenhuma**: o Lugar de origem nao muda, e o `positionId` em
 So se define enquanto o processo esta `PENDING`; depois do despacho da **409**. Num subtipo de
 licenca da **422**.
 
+### 11.17 Consolidar a mobilidade (2026-09-22)
+
+Endpoint novo, **nao breaking**:
+
+```
+POST /api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade/{licencaId}/consolidar
+```
+
+Torna definitiva uma mobilidade transitoria (art. 132.o n.o 4). A pessoa deixa de estar em
+mobilidade e passa a ser **titular de um Lugar vago do servico de destino**.
+
+**O que o ecra tem de fazer:**
+
+- Oferecer a accao **so em mobilidades internas ja comecadas** e deferidas. Externa da 422; por
+  iniciar da 409 (para desistir dela e o cancelamento).
+- **Filtrar os Lugares vagos por unidade de destino da mobilidade E pelo mesmo cargo e categoria
+  do Lugar actual.** Qualquer outra coisa da 422 -- mudar de categoria ou funcao exigiria
+  concurso comum interno (art. 135.o n.o 6).
+- Nao oferecer escolha de escalao: mantem-se, porque a categoria e a mesma.
+- Depois da consolidacao, `/unidade-atual` passa a dar o **Lugar novo** e `emMobilidade` fica
+  `false`. A mobilidade fica `APPROVED` com `dataFim` na **vespera** da data de efeito.
+
 ### Checklist
 
 - [ ] Select de `situacaoFuncional` no catálogo de estados.
@@ -487,3 +509,4 @@ licenca da **422**.
 - [ ] Retirar `ACUMULACAO` dos selects de `assignmentType`.
 - [ ] Deixar de criar substituições por `POST /assignments` — passa a dar 422.
 - [ ] Campo `formaPrestacao` no formulário de mobilidade (omisso = `TEMPO_INTEIRO`).
+- [ ] Acção de consolidar na mobilidade interna, com os Lugares filtrados por unidade de destino, cargo e categoria.

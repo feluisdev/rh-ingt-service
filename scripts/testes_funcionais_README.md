@@ -51,6 +51,36 @@ vagas, suspende contratos, gasta saldos), e uma segunda execucao sobre o estado
 deixado pela primeira falha por motivos que nada tem a ver com o codigo.
 
 ```sql
+-- 0. Colaboradores que a bateria cria (F11 admite gente a cada execucao, para provar o
+--    vencimento de ferias). Nunca eram apagados: ao fim de algumas corridas havia dezenas, e
+--    como o F0.1 le a PRIMEIRA PAGINA de /funcionarios, o trio do seed saia dela -- a bateria
+--    falhava do F0 em diante por dados acumulados, nao por codigo. Apaga-se antes de tudo o
+--    resto, pela ordem das chaves estrangeiras.
+DO $$
+DECLARE extras uuid[];
+BEGIN
+  SELECT coalesce(array_agg(id), '{}') INTO extras FROM t_funcionario
+   WHERE numero_funcionario NOT IN ('0000001','0000002','0000003');
+  IF array_length(extras, 1) IS NULL THEN RETURN; END IF;
+
+  UPDATE t_unidade_organica SET responsible_employee_id = NULL
+   WHERE responsible_employee_id = ANY(extras);
+
+  DELETE FROM t_leave_request  WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_leave_balance  WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_leave_mobility WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_assignment     WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_contrato       WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_dados_bancarios WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_dependente     WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_disciplinary_process WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_historico_estado_colaborador WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_payroll_slip   WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_qualificacao   WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_training       WHERE funcionario_id = ANY(extras);
+  DELETE FROM t_funcionario    WHERE id = ANY(extras);
+END $$;
+
 -- 1. Afectacoes: fica so a do seed, com o escalao de partida.
 --    A clausula 'not in' apanha tambem as substituicoes e o que os movimentos criaram.
 delete from t_assignment where id not in (
@@ -77,6 +107,10 @@ update t_position set category_id='71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e702'::uuid w
 --    ocupa-o, e sem repor carreira E categoria a execucao seguinte nao tem destino.
 update t_position set career_id='61e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e602'::uuid,
        category_id='71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e703'::uuid where numero_lugar = 'LUG-0007';
+--    O LUG-0008 vive noutra unidade (DGP) e e o destino da consolidacao da mobilidade.
+update t_position set unidade_organica_id='31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e302'::uuid,
+       career_id='61e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e601'::uuid,
+       category_id='71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e702'::uuid where numero_lugar = 'LUG-0008';
 
 -- 3. Estado e contratos.
 update t_funcionario set worker_state_id=(select id from t_worker_state where code='ACTIVE'), is_active=true;
@@ -249,11 +283,39 @@ O seed ganhou o que faltava para isto ser exercitavel: a carreira REG_ESP existi
 categoria, sem escaloes e sem Lugar -- ou seja, nao era utilizavel. Passou a ter a categoria
 TEC_ESP, dois escaloes e o LUG-0007.
 
+### F16 - consolidacao da mobilidade (2026-09-22)
+
+Prova o art. 132.o n.o 4: a mobilidade definitiva ocorre por **consolidacao da transitoria, na
+mesma funcao e categoria**. E a unica via pela qual uma mobilidade toca na afectacao -- e nao
+contradiz o art. 135.o n.o 7, que diz que a TRANSITORIA nao ocupa Lugar: o n.o 8 define a
+definitiva como a que e feita "com ocupacao do lugar do quadro".
+
+O bloco **navega para encontrar o cenario**, em vez de o escrever a mao: junta as vagas de todas
+as unidades e procura um PAR de Lugares vagos do mesmo cargo e da mesma categoria em unidades
+diferentes. Se o seed mudar de numeracao, continua a servir.
+
+- Lugar de destino **inexistente** da 404; sem `positionId` da 400
+- Lugar que **nao e da unidade de destino** da 422: consolida-se onde se esteve em mobilidade
+- mobilidade de **outro colaborador** pelo URL deste da 404
+- consolidada, a pessoa e **titular do Lugar de destino**, mudou de unidade organica, o Lugar
+  que deixou ficou **vago** e o de destino **deixou de o estar**
+- o **despacho nao se desfaz**: fica `APPROVED`, com o periodo `TERMINADA` e o ultimo dia em
+  mobilidade na **vespera** da data de efeito
+- **consolidar duas vezes** da 409
+
+Nao se afirma que `emMobilidade` passa a falso: esse campo responde por QUALQUER mobilidade em
+vigor, e os blocos anteriores deixam uma que cobre hoje -- comecou e foi encerrada no mesmo dia,
+ficando com um dia, que e o comportamento deliberado da BR-MOB-14.
+
+O seed ganhou o **LUG-0008**, vago noutra unidade (DGP) com o mesmo cargo e categoria do
+LUG-0002. Sem ele nao ha destino possivel: todos os outros Lugares vivem no SERV_RH.
+
 ## Resultado da última execução
 
-**330 passos, 330 OK** (2026-09-22), contra a base local com a V51 aplicada.
+**369 passos, 369 OK** (2026-09-22), contra a base local com a V52 aplicada.
 
-O F15 (mudanca de carreira) entrou nesta data e trouxe 25 passos. Nao tem migracao: a
+O F15 (mudanca de carreira) e o F16 (consolidacao da mobilidade) entraram nesta data,
+mais os passos da forma de prestacao no F8 e os da porta generica no F10. Nao tem migracao: a
 `origem` da afectacao e `VARCHAR(20)` sem restricao, e `MUDANCA_CARREIRA` cabe la.
 
 Encontrou dois problemas reais, já corrigidos:

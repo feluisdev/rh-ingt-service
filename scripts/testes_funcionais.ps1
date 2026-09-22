@@ -873,6 +873,86 @@ Verificar 'F15.24 e o de destino deixou de estar vago' (@($vagos15b | Where-Obje
 # Agora que ja esta na outra carreira, o antigo Lugar passou a ser "outra carreira" para ela.
 Chamar 'F15.25 NEG colaborador inexistente' POST '/funcionarios/00000000-0000-4000-8000-000000000999/mudanca-carreira' @{ positionId=$lugarActual15; dataEfeito=$dMud15 } 404 | Out-Null
 
+Write-Host ''
+Write-Host '=========== F16 - CONSOLIDACAO DA MOBILIDADE ==========='
+
+# Art. 132.o n.o 4: a mobilidade definitiva ocorre por consolidacao da transitoria, "na mesma
+# funcao e categoria". E a UNICA via pela qual uma mobilidade toca na afectacao -- e nao
+# contradiz o art. 135.o n.o 7, que diz que a TRANSITORIA nao ocupa Lugar: o n.o 8 define a
+# definitiva como a que e feita "com ocupacao do lugar do quadro".
+#
+# Contexto herdado: no fim do F15 o B esta no LUG-0007, de outra carreira. Comeca-se por o pOr
+# num Lugar que case com o LUG-0008 -- o unico Lugar vago noutra unidade, e por isso o unico
+# destino possivel de uma consolidacao.
+
+$rUnid16 = Chamar 'F16.1 unidades organicas' GET '/estrutura/organizational-units?pagina=0&tamanho=20'
+$unidades16 = @(Linhas $rUnid16)
+
+# Junta-se o mapa de vagas de todas as unidades e procura-se o PAR que a consolidacao exige:
+# um Lugar vago numa unidade e outro, do MESMO cargo e da MESMA categoria, noutra. Nada de
+# numeros de Lugar escritos a mao -- se o seed mudar a numeracao, o bloco continua a servir.
+$vagasPorUnidade16 = @()
+foreach ($u in $unidades16) {
+    $r = Chamar ('F16.2 vagas de ' + $u.code) GET ('/colaboradores/assignments/unidade/' + $u.id + '/vagas/lista')
+    foreach ($v in @(Linhas $r)) {
+        if ($v.estado -eq 'ATIVO' -and $v.foraDeGrelha -ne $true) { $vagasPorUnidade16 += $v }
+    }
+}
+
+$lugarOrigem16 = $null
+$lugarDestino16 = $null
+foreach ($a in $vagasPorUnidade16) {
+    $par = ($vagasPorUnidade16 | Where-Object { $_.unidadeOrganicaId -ne $a.unidadeOrganicaId -and $_.jobId -eq $a.jobId -and $_.categoryId -eq $a.categoryId } | Select-Object -First 1)
+    if ($null -ne $par) { $lugarOrigem16 = $a; $lugarDestino16 = $par; break }
+}
+Verificar 'F16.3 ha dois Lugares vagos do mesmo cargo e categoria em unidades diferentes' (($null -ne $lugarOrigem16) -and ($null -ne $lugarDestino16)) ('(' + $lugarOrigem16.numeroLugar + ' -> ' + $lugarDestino16.numeroLugar + ')')
+$unidadeDestino16 = $lugarDestino16.unidadeOrganicaId
+$unidadeOrigem16 = $lugarOrigem16.unidadeOrganicaId
+Verificar 'F16.4 e sao mesmo de unidades diferentes' ($unidadeOrigem16 -ne $unidadeDestino16) ('(' + $lugarOrigem16.unidadeNome + ' -> ' + $lugarDestino16.unidadeNome + ')')
+
+$rGr16 = Chamar 'F16.5 escaloes dessa categoria' GET ('/categories/' + $lugarDestino16.categoryId + '/grades')
+$esc16 = (@(Linhas $rGr16) | Where-Object { $_.isActive -ne $false } | Select-Object -First 1).id
+$dAfect16 = $hoje.AddDays(-40).ToString('yyyy-MM-dd')
+Chamar 'F16.6 colocar B no Lugar de partida' POST '/colaboradores/assignments' @{ funcionarioId=$colabB; positionId=$lugarOrigem16.id; gradeId=$esc16; origem='ADMISSAO'; dataInicio=$dAfect16 } 201 | Out-Null
+
+$dIni16 = $hoje.AddDays(-20).ToString('yyyy-MM-dd')
+$dFim16 = $hoje.AddMonths(6).ToString('yyyy-MM-dd')
+$dCons16 = $hoje.ToString('yyyy-MM-dd')
+$rMob16 = Chamar 'F16.7 mobilidade para a unidade de destino' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade') @{ subtipoId=$subMob.id; dataInicio=$dIni16; dataFim=$dFim16; destinationUnitId=$unidadeDestino16; justification='mobilidade a consolidar' } 201
+$mob16 = $rMob16.Dados.id
+Chamar 'F16.8 aprovar a mobilidade' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mob16 + '/approve') $null 200 | Out-Null
+
+# --- negativos, antes de gastar o cenario ---
+Chamar 'F16.9 NEG consolidar sem Lugar de destino' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mob16 + '/consolidar') @{ dataEfeito=$dCons16 } 400 | Out-Null
+Chamar 'F16.10 NEG Lugar de destino inexistente' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mob16 + '/consolidar') @{ positionId='00000000-0000-4000-8000-000000000999'; dataEfeito=$dCons16 } 404 | Out-Null
+# O Lugar tem de ser do servico onde se esteve em mobilidade: e esse exercicio que se torna definitivo.
+$lugarOutraUnidade16 = ($vagasPorUnidade16 | Where-Object { $_.unidadeOrganicaId -ne $unidadeDestino16 -and $_.id -ne $lugarOrigem16.id } | Select-Object -First 1)
+if ($null -ne $lugarOutraUnidade16) {
+    Chamar 'F16.11 NEG Lugar que nao e da unidade de destino' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mob16 + '/consolidar') @{ positionId=$lugarOutraUnidade16.id; dataEfeito=$dCons16 } 422 | Out-Null
+}
+Chamar 'F16.12 NEG mobilidade de outro colaborador pelo URL deste' POST ('/funcionarios/' + $colabFA + '/licencas-mobilidade/' + $mob16 + '/consolidar') @{ positionId=$lugarDestino16.id; dataEfeito=$dCons16 } 404 | Out-Null
+
+# --- o movimento ---
+$rCons16 = Chamar 'F16.13 consolidar a mobilidade' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mob16 + '/consolidar') @{ positionId=$lugarDestino16.id; dataEfeito=$dCons16; despachoNumero='DESP-2026/93' } 201
+Verificar 'F16.14 saiu do Lugar de origem para o de destino' (($rCons16.Dados.positionAnteriorId -eq $lugarOrigem16.id) -and ($rCons16.Dados.positionId -eq $lugarDestino16.id)) ('(' + $rCons16.Dados.numeroLugarAnterior + ' -> ' + $rCons16.Dados.numeroLugar + ')')
+Verificar 'F16.15 e mudou de unidade organica' ($rCons16.Dados.unidadeOrganicaId -eq $unidadeDestino16) ''
+Verificar 'F16.16 o ultimo dia em mobilidade e a vespera' ($rCons16.Dados.mobilidadeDataFim -like ($hoje.AddDays(-1).ToString('yyyy-MM-dd') + '*')) ('(' + $rCons16.Dados.mobilidadeDataFim + ')')
+
+$rUni16 = Chamar 'F16.17 onde esta o B depois' GET ('/colaboradores/assignments/funcionario/' + $colabB + '/unidade-atual')
+Verificar 'F16.18 e titular do Lugar de destino' ($rUni16.Dados.positionId -eq $lugarDestino16.id) ('(' + $rUni16.Dados.numeroLugar + ')')
+$rVagasDest16 = Chamar 'F16.19 vagas da unidade de destino depois' GET ('/colaboradores/assignments/unidade/' + $unidadeDestino16 + '/vagas/lista')
+Verificar 'F16.19b o Lugar de destino deixou de estar vago' (@(@(Linhas $rVagasDest16) | Where-Object { $_.id -eq $lugarDestino16.id }).Count -eq 0) ''
+
+$rMobLida16 = Chamar 'F16.20 ler a mobilidade consolidada' GET ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mob16)
+Verificar 'F16.21 o despacho nao se desfez -- continua APPROVED' ($rMobLida16.Dados.status -eq 'APPROVED') ('(' + $rMobLida16.Dados.status + ')')
+Verificar 'F16.22 e o periodo esta TERMINADA' ($rMobLida16.Dados.estadoPeriodo -eq 'TERMINADA') ('(' + $rMobLida16.Dados.estadoPeriodo + ')')
+
+$rVagas16b = Chamar 'F16.23 vagas da unidade de origem depois' GET ('/colaboradores/assignments/unidade/' + $unidadeOrigem16 + '/vagas/lista')
+Verificar 'F16.24 o Lugar que deixou ficou vago' (@(@(Linhas $rVagas16b) | Where-Object { $_.id -eq $lugarOrigem16.id }).Count -eq 1) ''
+
+# Consolidada uma vez, o periodo transitorio acabou: nao ha segundo a consolidar.
+Chamar 'F16.25 NEG consolidar duas vezes' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mob16 + '/consolidar') @{ positionId=$lugarOrigem16.id; dataEfeito=$dCons16 } 409 | Out-Null
+
 Write-Host '=========== RESUMO ==========='
 $ok = ($script:resultados | Where-Object { $_.OK }).Count
 $total = $script:resultados.Count

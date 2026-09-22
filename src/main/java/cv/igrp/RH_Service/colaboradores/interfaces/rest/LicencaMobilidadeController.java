@@ -122,6 +122,19 @@ public class LicencaMobilidadeController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
+    @PostMapping("{licencaId}/consolidar")
+    @Operation(summary = "Consolidar a mobilidade transitória (art. 132.º n.º 4): torna-a definitiva num Lugar vago do serviço de destino, na mesma função e categoria")
+    public ResponseEntity<ConsolidacaoMobilidadeResponseDTO> consolidar(
+            @PathVariable String funcionarioId,
+            @PathVariable String licencaId,
+            @Valid @RequestBody ConsolidacaoMobilidadeRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<ConsolidacaoMobilidadeResponseDTO> response =
+                commandBus.send(new ConsolidarMobilidadeCommand(funcionarioId, licencaId, request));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
     @PutMapping("{licencaId}/cancel")
     @Operation(summary = "Cancelar licença/mobilidade (PENDING, ou APPROVED que ainda não começou → CANCELLED)")
     public ResponseEntity<SuccessResponseDTO> cancel(

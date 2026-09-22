@@ -261,6 +261,49 @@ public class LicencaMobilidade {
     }
 
     /**
+     * <b>Consolidação</b> (art. 132.º n.º 4): a mobilidade transitória transforma-se em
+     * definitiva e a pessoa fica no destino. Não é um regresso — ninguém volta a lado nenhum —,
+     * e por isso não passa pelo {@link #registarRegressoAntecipado}.
+     *
+     * <p>O que acontece aqui é só o fim do <b>período transitório</b>: a partir da data de efeito
+     * a pessoa já não está em mobilidade, está no seu Lugar. Logo o último dia de mobilidade é a
+     * <b>véspera</b>, pela mesma razão de sempre: fazer coincidir os dois mostrava a pessoa em
+     * mobilidade no dia em que já era titular do Lugar de destino.
+     *
+     * <p>O despacho não se desfaz: o estado continua {@code APPROVED}. E marca-se o efeito de
+     * regresso como aplicado, porque regresso não há — sem isso o job noturno tentaria devolver
+     * ao Lugar de origem quem acabou de deixar de o ter.
+     */
+    public void consolidar(LocalDate dataEfeito, LocalDate hoje) {
+        if (!isApproved())
+            throw IgrpResponseStatusException.conflict(
+                    "Só uma mobilidade deferida (APPROVED) se consolida. Estado actual: " + this.status);
+
+        EstadoPeriodoLicenca periodo = estadoEm(hoje);
+        if (periodo == EstadoPeriodoLicenca.POR_INICIAR)
+            throw IgrpResponseStatusException.conflict(
+                    "Esta mobilidade ainda não começou (início a " + this.dataInicio
+                            + "): não há mobilidade transitória para consolidar.");
+        if (periodo == EstadoPeriodoLicenca.TERMINADA)
+            throw IgrpResponseStatusException.conflict(
+                    "Esta mobilidade já terminou a " + this.dataFim
+                            + ": não há período transitório a consolidar. Uma mobilidade já consolidada "
+                            + "cai aqui, e é o que impede consolidar duas vezes.");
+
+        if (dataEfeito == null)
+            throw IgrpResponseStatusException.badRequest("A data de efeito é obrigatória.");
+        if (dataEfeito.isBefore(this.dataInicio))
+            throw IgrpResponseStatusException.badRequest(
+                    "A data de efeito (" + dataEfeito + ") não pode ser anterior ao início da mobilidade ("
+                            + this.dataInicio + ").");
+
+        LocalDate ultimoDiaEmMobilidade = dataEfeito.minusDays(1);
+        this.dataFim = ultimoDiaEmMobilidade.isBefore(this.dataInicio)
+                ? this.dataInicio : ultimoDiaEmMobilidade;
+        this.efeitoRegressoAplicadoEm = LocalDateTime.now();
+    }
+
+    /**
      * Desistir. Vale para um pedido ainda por decidir e para uma licença deferida que
      * <b>ainda não começou</b> — aí o despacho revoga-se e não fica ausência nenhuma. Depois de
      * começar já há ausência gozada, e a saída é o regresso antecipado (art. 46.º n.º 4).

@@ -228,6 +228,53 @@
       }
     },
     {
+      "actionName": "consolidar",
+      "method": "POST",
+      "path": "{licencaId}/consolidar",
+      "summary": "Consolida a mobilidade transitória num Lugar vago do serviço de destino, na mesma função e categoria (art. 132.º n.º 4)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string",
+          "isRequired": true
+        },
+        {
+          "name": "licencaId",
+          "type": "string",
+          "isRequired": true
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ConsolidacaoMobilidadeRequestDTO",
+              "objectType": "dto",
+              "name": "data",
+              "collectionType": "none",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ConsolidacaoMobilidadeResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "actionName": "cancel",
       "method": "PUT",
       "path": "{licencaId}/cancel",

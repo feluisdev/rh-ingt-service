@@ -60,7 +60,12 @@ INSERT INTO t_position (id, numero_lugar, job_id, unidade_organica_id, career_id
 -- LUG-0007 esta vago na OUTRA carreira (Regime Especial). E o unico Lugar do seed
 -- fora da REG_GERAL, e e ele que torna a mudanca de carreira exercitavel: sem um
 -- destino de carreira diferente, o movimento nao tem para onde ir.
-('d5e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ed07', 'LUG-0007', '51e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e501', '31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e303', '61e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e602', '71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e703', 'ATIVO', true, NOW(), 'system')
+('d5e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ed07', 'LUG-0007', '51e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e501', '31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e303', '61e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e602', '71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e703', 'ATIVO', true, NOW(), 'system'),
+-- LUG-0008 esta vago NOUTRA unidade (DGP), com o MESMO cargo e a MESMA categoria do
+-- LUG-0002. E o destino da consolidacao da mobilidade: o art. 132.o n.o 4 exige a mesma
+-- funcao e categoria, e o Lugar tem de pertencer ao servico onde se esteve em mobilidade.
+-- Sem ele, o caminho fica por exercitar -- todos os outros Lugares do seed estao no SERV_RH.
+('d5e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1ed08', 'LUG-0008', '51e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e502', '31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e302', '61e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e601', '71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e702', 'ATIVO', true, NOW(), 'system')
 ON CONFLICT (numero_lugar) DO NOTHING;
 
 INSERT INTO t_assignment (id, funcionario_id, position_id, grade_id, assignment_type, origem, data_inicio, is_current, is_active, created_date, created_by) VALUES
