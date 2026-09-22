@@ -171,7 +171,7 @@ O bloco `enquadramento` **ainda aparece** em `GET /funcionarios/{id}/details` (m
 | Enum | Valores |
 |---|---|
 | `origem` | ADMISSAO · PROGRESSAO · PROMOCAO · MOBILIDADE · TRANSFERENCIA |
-| `assignmentType` | PRINCIPAL · ACUMULACAO · SUBSTITUICAO |
+| `assignmentType` | PRINCIPAL · SUBSTITUICAO |
 | `estado` (Lugar) | ATIVO · CONGELADO · EXTINTO |
 
 **Provido/Vago** não é enum — usar o campo booleano `ocupado` das respostas de Lugar.
@@ -222,7 +222,7 @@ O catálogo de estados (`/catalogs/worker-states`) passa a ter **`situacaoFuncio
 
 Preparação da substituição do funcionário temporariamente impedido (art. 73.º al. a) a c)).
 
-- `assignmentType` passa a ser **validado**: um valor fora de `PRINCIPAL`, `SUBSTITUICAO`, `ACUMULACAO` devolve **422** (antes era gravado tal e qual). Vazio continua a valer `PRINCIPAL`.
+- `assignmentType` passa a ser **validado**: um valor fora de `PRINCIPAL`, `SUBSTITUICAO` devolve **422** (antes era gravado tal e qual). Vazio continua a valer `PRINCIPAL`. Desde 2026-09-22, em `POST /assignments` **só `PRINCIPAL` passa**, e `ACUMULACAO` deixou de existir — ver 11.15.
 - A afectação com `assignmentType` diferente de `PRINCIPAL` **deixa de exigir que o Lugar esteja vago**.
 - A mensagem de erro do Lugar ocupado mudou de *"já está ocupado"* para *"já tem titular"*. Quem a compare por texto tem de a actualizar.
 - **Vagas e provimento passam a contar apenas titulares**: um Lugar com substituto e sem titular conta como **vago** nas contagens da unidade e na lista de Lugares.
@@ -433,6 +433,25 @@ traz as **duas pontas da grelha** -- `carreiraAnterior`/`carreiraNova`,
   requisito. Como o concurso na promocao, `despachoNumero` e `concursoRef` sao registo, nao
   verificacao.
 
+### 11.15 A `ACUMULACAO` saiu, e o `POST /assignments` só aceita `PRINCIPAL` (BREAKING, 2026-09-22)
+
+**Duas mudanças, na mesma porta.**
+
+**1. `ACUMULACAO` deixou de existir** como valor de `assignmentType`. Fundava-se no art. 134.º
+n.º 2 al. b) da Lei n.º 20/X/2023, mas esse artigo trata da *forma de prestação da mobilidade*
+-- «em regime de acumulação, quando o funcionário passa a exercer funções noutro serviço, em
+acumulação com as do serviço de origem» -- e não de um título para ocupar um segundo Lugar.
+Como a mobilidade transitória é *sem ocupação do lugar do quadro* (art. 135.º n.º 7), uma
+mobilidade em acumulação **não cria afectação nenhuma**. **Retire `ACUMULACAO` dos selects.**
+
+**2. `POST /assignments` só aceita `PRINCIPAL`.** Enviar `SUBSTITUICAO` passa a dar **422**, a
+remeter para `POST /funcionarios/{id}/substituicao`. Se algum ecra criava substituições pela
+porta genérica, **mude-o**: as criadas por aí ficavam sem ligação ao titular e sem nenhuma das
+regras da substituição.
+
+Nada a migrar: confirmou-se na base que não existe nenhuma afectação com `ACUMULACAO`, nem
+corrente nem em auditoria.
+
 ### Checklist
 
 - [ ] Select de `situacaoFuncional` no catálogo de estados.
@@ -449,3 +468,5 @@ traz as **duas pontas da grelha** -- `carreiraAnterior`/`carreiraNova`,
 - [ ] Deixar de testar "a chave existe" — os DTOs enviam os campos a `null`.
 - [ ] Mudança de carreira pelo endpoint próprio, com os Lugares vagos filtrados por **outra** carreira.
 - [ ] Escalão escolhido na **categoria de destino** — na mudança de carreira não se herda.
+- [ ] Retirar `ACUMULACAO` dos selects de `assignmentType`.
+- [ ] Deixar de criar substituições por `POST /assignments` — passa a dar 422.

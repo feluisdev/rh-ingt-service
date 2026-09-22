@@ -174,7 +174,7 @@ Cada um: `GET` (lista), `GET/{id}`, `POST`, `PUT/{id}`, `DELETE/{id}/deactivate`
   "gradeId": "uuid | null",        // obrigatório em Lugar de carreira; proibido fora de grelha
   "functionId": "uuid | null",
   "origem": "ADMISSAO|PROGRESSAO|PROMOCAO|MOBILIDADE|TRANSFERENCIA",
-  "assignmentType": "PRINCIPAL|ACUMULACAO|SUBSTITUICAO",  // default PRINCIPAL
+  "assignmentType": "PRINCIPAL",                          // único valor aceite aqui; default PRINCIPAL
   "dataInicio": "YYYY-MM-DD",
   "notes": "string | null"
 }
@@ -182,7 +182,11 @@ Cada um: `GET` (lista), `GET/{id}`, `POST`, `PUT/{id}`, `DELETE/{id}/deactivate`
 
 **Regras (422):** Lugar não disponível (CONGELADO/EXTINTO) · Lugar já **tem titular** · Lugar de carreira sem `gradeId` · Lugar fora de grelha com `gradeId` · `assignmentType` fora da lista.
 
-**Uma cadeira, um titular.** A regra do Lugar ocupado só se aplica a `assignmentType = PRINCIPAL`. Quem entra em `SUBSTITUICAO` ou `ACUMULACAO` **não exige que o Lugar esteja vago** e não desaloja o titular — é o que autoriza a substituição do funcionário temporariamente impedido (art. 73.º al. a) a c)). Em consequência, um Lugar com substituto e **sem** titular continua a contar como **vago** em `/unidade/{id}/vagas` e na lista do picker.
+**Uma cadeira, um titular.** A regra do Lugar ocupado só se aplica a `assignmentType = PRINCIPAL`. Quem entra em `SUBSTITUICAO` **não exige que o Lugar esteja vago** e não desaloja o titular — é o que autoriza a substituição do funcionário temporariamente impedido (art. 73.º al. a) a c)). Em consequência, um Lugar com substituto e **sem** titular continua a contar como **vago** em `/unidade/{id}/vagas` e na lista do picker.
+
+> **Este endpoint é só para a titularidade.** `assignmentType = SUBSTITUICAO` é recusado com **422**: a substituição cria-se em 5.7, que verifica se o titular pode ser substituído e liga as duas afectações. E `ACUMULACAO` **deixou de existir** como título — ver a nota abaixo.
+
+> **A `ACUMULACAO` saiu (2026-09-22).** Fundava-se no art. 134.º n.º 2 al. b) da Lei n.º 20/X/2023, mas esse artigo trata da *forma de prestação da mobilidade* — «*em regime de acumulação, quando o funcionário passa a exercer funções noutro serviço, em acumulação com as do serviço de origem*» — e não de um título para ocupar um segundo Lugar. Como a mobilidade transitória é *sem ocupação do lugar do quadro* (art. 135.º n.º 7), uma mobilidade em acumulação **não cria afectação nenhuma**: vive no registo da mobilidade (secção 7).
 
 ---
 
@@ -916,7 +920,7 @@ Os que estão marcados **validado** são enums fechados no domínio: um valor fo
 | Enum | Valores | |
 |---|---|---|
 | `origem` (afectação) | `ADMISSAO`, `PROGRESSAO`, `PROMOCAO`, `MOBILIDADE`, `TRANSFERENCIA`, `SUBSTITUICAO` | |
-| `assignmentType` | `PRINCIPAL`, `SUBSTITUICAO`, `ACUMULACAO` — omisso vale `PRINCIPAL`. A `SUBSTITUICAO` cria-se pelo endpoint de substituição (5.7), não por `POST /assignments`. | **validado** |
+| `assignmentType` | `PRINCIPAL`, `SUBSTITUICAO` — omisso vale `PRINCIPAL`. Em `POST /assignments` **só `PRINCIPAL` passa**: a `SUBSTITUICAO` cria-se pelo endpoint próprio (5.7) e dá 422 aqui. `ACUMULACAO` deixou de existir (art. 134.º n.º 2 al. b) é forma de prestação da mobilidade, não título). | **validado** |
 | `estado` (Lugar) | `ATIVO`, `CONGELADO`, `EXTINTO` (provido/vago é **derivado do titular**) | |
 | `recordType` (subtipo licença/mobilidade) | `LICENCA`, `MOBILIDADE` — o valor **`AMBOS` foi removido na V43** | **validado** |
 | `situacaoFuncional` (estado do trabalhador) | `ACTIVIDADE_NO_QUADRO`, `ACTIVIDADE_FORA_QUADRO`, `INACTIVIDADE_NO_QUADRO`, `INACTIVIDADE_FORA_QUADRO`, `DISPONIBILIDADE`, `APOSENTACAO` — pode ser nulo | **validado** |

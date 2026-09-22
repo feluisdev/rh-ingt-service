@@ -48,14 +48,27 @@ public class AssignmentService {
     private final FunctionRepository functionRepository;
 
     /**
-     * Afecta um colaborador a um Lugar. Se já houver afectação PRINCIPAL corrente e a nova
-     * também for PRINCIPAL, a corrente é encerrada (SCD Type 2) antes de abrir a nova.
+     * Afecta um colaborador a um Lugar <b>como titular</b>. Se já houver afectação PRINCIPAL
+     * corrente, é encerrada (SCD Type 2) antes de abrir a nova.
+     *
+     * <p><b>Só aceita {@link TipoAfectacao#PRINCIPAL}.</b> A substituição tem caminho próprio
+     * ({@link #afectarSubstituicao}, atrás do {@code SubstituicaoService}) e a acumulação ainda
+     * não tem nenhum — ambas são recusadas com 422 em vez de nascerem sem as suas regras.
      */
     public Assignment afectar(FuncionarioId funcionarioId, UUID positionId, UUID gradeId, UUID functionId,
                               String origem, TipoAfectacao assignmentType, LocalDate dataInicio,
                               String notes) {
 
         TipoAfectacao tipo = assignmentType != null ? assignmentType : TipoAfectacao.PRINCIPAL;
+
+        // Esta porta é só para a titularidade. A substituição tem regras que não vivem aqui — quem é
+        // o titular impedido, se pode ser substituído — e deixá-la passar por cá era criá-la sem
+        // nenhuma delas. Até à V45 o índice único do Lugar tapava isto por acidente; ao torná-lo
+        // parcial, o acidente acabou e a guarda passou a ter de ser explícita.
+        if (tipo == TipoAfectacao.SUBSTITUICAO)
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "A substituição não se cria por aqui: use POST /funcionarios/{funcionarioId}/substituicao, "
+                            + "que verifica se o titular pode ser substituído e liga as duas afectações.");
 
         Position position = validarLugarParaAfectacao(positionId, gradeId, functionId);
 

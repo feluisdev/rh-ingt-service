@@ -12,6 +12,7 @@ import cv.igrp.RH_Service.carreiras.domain.repository.GradeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
 import cv.igrp.RH_Service.colaboradores.domain.models.TipoAfectacao;
 import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
+import cv.igrp.RH_Service.colaboradores.domain.valueobject.AssignmentId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.estrutura.domain.models.Position;
 import cv.igrp.RH_Service.estrutura.domain.repository.FunctionRepository;
@@ -86,26 +87,34 @@ class AssignmentServiceTitularTest {
             verify(assignmentRepository, never()).save(any());
         }
 
+        /**
+         * Estes dois testes afirmavam o contrário até 2026-09-22: davam por boa a criação de
+         * uma afectação a outro título por esta porta. Não era uma funcionalidade — era um
+         * buraco. Quem entra em substituição por aqui fica sem ligação ao titular e sem
+         * nenhuma das regras do {@code SubstituicaoService}; quem entra em acumulação fica sem
+         * regra nenhuma, porque ainda não há nenhuma.
+         */
         @Test
-        void aceitaQuemLaEntraEmSubstituicao() {
-            lugarExiste();
-            when(assignmentRepository.save(any(Assignment.class))).thenAnswer(i -> i.getArgument(0));
+        void recusaQuemTentaEntrarEmSubstituicaoPorEstaPorta() {
+            var erro = assertThrows(IgrpResponseStatusException.class,
+                    () -> afectar(TipoAfectacao.SUBSTITUICAO));
 
-            afectar(TipoAfectacao.SUBSTITUICAO);
-
-            // Nem sequer se pergunta pelo titular: o substituto não disputa a titularidade.
-            verify(assignmentRepository, never()).temTitular(any());
-            verify(assignmentRepository, never()).findCurrentPrincipalByFuncionario(any());
+            assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, erro.getStatusCode());
+            verify(assignmentRepository, never()).save(any());
         }
 
+        /**
+         * A {@code ACUMULACAO} deixou de existir como título: o art. 134.º n.º 2 al. b) que a
+         * fundamentava trata da forma de prestação da <i>mobilidade</i>, não de ocupar um
+         * segundo Lugar. Quem a enviar recebe o 422 de valor fora da lista.
+         */
         @Test
-        void aceitaQuemLaEntraEmAcumulacao() {
-            lugarExiste();
-            when(assignmentRepository.save(any(Assignment.class))).thenAnswer(i -> i.getArgument(0));
+        void aAcumulacaoJaNaoEUmTituloDeOcuparUmLugar() {
+            var erro = assertThrows(IgrpResponseStatusException.class,
+                    () -> TipoAfectacao.de("ACUMULACAO"));
 
-            afectar(TipoAfectacao.ACUMULACAO);
-
-            verify(assignmentRepository, never()).temTitular(any());
+            assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, erro.getStatusCode());
+            assertEquals("PRINCIPAL, SUBSTITUICAO", TipoAfectacao.codigosValidos());
         }
     }
 
@@ -127,15 +136,22 @@ class AssignmentServiceTitularTest {
             assertEquals(TipoAfectacao.PRINCIPAL, captor.getValue().getAssignmentType());
         }
 
+        /**
+         * A invariante é a mesma de sempre; mudou a porta por onde se prova. Provava-se com
+         * {@code afectar(SUBSTITUICAO)}, que deixou de ser caminho — passa a provar-se onde a
+         * substituição de facto nasce.
+         */
         @Test
-        void soAPrincipalEncerraAAfectacaoAnteriorDoFuncionario() {
+        void aSubstituicaoNaoEncerraAAfectacaoDeQuemVaiSubstituir() {
             lugarExiste();
             when(assignmentRepository.save(any(Assignment.class))).thenAnswer(i -> i.getArgument(0));
 
-            afectar(TipoAfectacao.SUBSTITUICAO);
+            service.afectarSubstituicao(funcionarioId, positionId, null, null,
+                    AssignmentId.gerarNovo(), inicio, null);
 
             // Quem vai substituir mantém o seu próprio Lugar -- o SCD Type 2 não se aplica.
             verify(assignmentRepository, never()).findCurrentPrincipalByFuncionario(any());
+            verify(assignmentRepository, never()).temTitular(any());
         }
     }
 

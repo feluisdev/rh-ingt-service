@@ -14,6 +14,14 @@ import java.util.stream.Collectors;
  * <p>Não é parametrizável: a lei fixa as formas de ocupar um Lugar do quadro. O que
  * varia com a instituição é o <b>motivo</b>, e esse é livre.
  *
+ * <p><b>A acumulação não está aqui, e não é esquecimento.</b> Havia um valor
+ * {@code ACUMULACAO} que se dizia fundado no art. 134.º n.º 2 al. b), mas esse artigo
+ * trata da <i>forma de prestação da mobilidade</i> — «<i>em regime de acumulação, quando o
+ * funcionário passa a exercer funções noutro serviço, em acumulação com as do serviço de
+ * origem</i>» — e não de um título para ocupar um segundo Lugar. Como a mobilidade
+ * transitória é <i>sem ocupação do lugar do quadro</i> (art. 135.º n.º 7), uma mobilidade
+ * em acumulação não cria afectação nenhuma: vive no registo da mobilidade.
+ *
  * <p>A distinção manda na regra "uma cadeira, um ocupante": um Lugar tem no máximo um
  * <b>titular</b> ({@link #PRINCIPAL}), mas pode ter ao mesmo tempo quem o ocupa a outro
  * título — daí o índice único do Lugar ser parcial (V45).
@@ -29,10 +37,7 @@ public enum TipoAfectacao {
      * Substitui o titular temporariamente impedido, sem o desalojar
      * (Lei n.º 20/X/2023, art. 73.º al. a)–c) e art. 91.º n.º 1 al. a)).
      */
-    SUBSTITUICAO,
-
-    /** Exercício cumulativo de outro Lugar (art. 134.º n.º 2 al. b)). */
-    ACUMULACAO;
+    SUBSTITUICAO;
 
     /** Converte o valor guardado; nulo ou vazio devolve {@link #PRINCIPAL}, que é o caso comum. */
     public static TipoAfectacao de(String valor) {

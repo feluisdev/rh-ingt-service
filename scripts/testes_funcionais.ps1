@@ -590,6 +590,12 @@ Verificar 'F10.9 reactivar devolve sucesso' ($rAct.Dados.sucesso -eq $true) ''
 
 # O tipo de afectacao passou a ser validado (enum TipoAfectacao).
 Chamar 'F10.10 NEG assignmentType fora da lista' POST '/colaboradores/assignments' @{ funcionarioId=$colabB; positionId=$lugarBaixo.id; gradeId=$escBaixo; assignmentType='INTERINO'; origem='ADMISSAO'; dataInicio=$dPromo } 422 | Out-Null
+# A porta generica e so da titularidade. A substituicao tem endpoint proprio, e criar uma por
+# aqui deixava-a sem ligacao ao titular e sem nenhuma das regras do SubstituicaoService.
+Chamar 'F10.10b NEG substituicao pela porta generica' POST '/colaboradores/assignments' @{ funcionarioId=$colabB; positionId=$lugarBaixo.id; gradeId=$escBaixo; assignmentType='SUBSTITUICAO'; origem='ADMISSAO'; dataInicio=$dPromo } 422 | Out-Null
+# A ACUMULACAO saiu do enum: o art. 134.o n.o 2 al. b) e forma de prestacao da MOBILIDADE, nao
+# um titulo para ocupar um segundo Lugar.
+Chamar 'F10.10c NEG acumulacao ja nao e um titulo' POST '/colaboradores/assignments' @{ funcionarioId=$colabB; positionId=$lugarBaixo.id; gradeId=$escBaixo; assignmentType='ACUMULACAO'; origem='ADMISSAO'; dataInicio=$dPromo } 422 | Out-Null
 
 # Erros continuam com o corpo de problema, nao com o DTO de sucesso.
 $rErr = Chamar 'F10.11 NEG etiqueta inexistente' DELETE '/reference/options/00000000-0000-4000-8000-000000000999' $null 404

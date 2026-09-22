@@ -15,7 +15,8 @@ public class AfectacaoRequestDTO {
     private String gradeId;
     private String functionId;
     private String origem;         // ADMISSAO|PROGRESSAO|PROMOCAO|MOBILIDADE|TRANSFERENCIA
-    private String assignmentType; // PRINCIPAL|ACUMULACAO|SUBSTITUICAO
+    /** Só {@code PRINCIPAL}; a substituição tem endpoint próprio. Omisso vale PRINCIPAL. */
+    private String assignmentType;
     private LocalDate dataInicio;
     private String notes;
 }
