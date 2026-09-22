@@ -18,6 +18,13 @@ public class TipoAusenciaResponseDTO {
     private Integer maxDaysPerOccurrence;
     /** Limite por mes civil (V53): art. 15.o n.o 1 al. o) e al. q). Nulo e sem limite. */
     private Integer maxDaysPerMonth;
+    /** Regime legal: FERIAS · FALTA · FALTA_INJUSTIFICADA (V49, V54). */
+    private String regime;
+    /**
+     * O que a ausencia faz a remuneracao (art. 16.o; V54). A aplicacao nao calcula remuneracao:
+     * a classificacao existe para o sistema que a processa.
+     */
+    private String efeitoRemuneracao;
     private String categoryOptionCkey;
     private Boolean isActive;
     private String estadoDesc;

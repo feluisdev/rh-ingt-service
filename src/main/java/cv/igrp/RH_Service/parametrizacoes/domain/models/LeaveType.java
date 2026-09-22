@@ -31,13 +31,19 @@ public class LeaveType {
      * Por omissao FALTA, que e o regime que nao produz efeitos automaticos.
      */
     private RegimeAusencia regime;
+    /**
+     * O que a ausencia faz a remuneracao (art. 16.o; V54). Nao se calcula nada com isto: e
+     * informacao para o sistema que processa vencimentos. Por omissao SEM_PERDA, que e a
+     * direccao segura -- afirma que nao ha perda em vez de a provocar.
+     */
+    private EfeitoNaRemuneracao efeitoRemuneracao;
 
     private LeaveType() {}
 
     private LeaveType(LeaveTypeId id, String code, String description, boolean deductsBalance,
                       boolean requiresApproval, Integer maxDaysPerYear, Integer maxDaysPerOccurrence,
                       Integer maxDaysPerMonth, String category, boolean active,
-                      RegimeAusencia regime) {
+                      RegimeAusencia regime, EfeitoNaRemuneracao efeitoRemuneracao) {
         this.id = id;
         this.code = code;
         this.description = description;
@@ -49,19 +55,22 @@ public class LeaveType {
         this.category = category;
         this.active = active;
         this.regime = regime != null ? regime : RegimeAusencia.FALTA;
+        this.efeitoRemuneracao = efeitoRemuneracao != null
+                ? efeitoRemuneracao : EfeitoNaRemuneracao.SEM_PERDA;
     }
 
     public static LeaveType criar(String code, String description, boolean deductsBalance,
                                   boolean requiresApproval, Integer maxDaysPerYear,
                                   Integer maxDaysPerOccurrence, Integer maxDaysPerMonth,
-                                  String category, RegimeAusencia regime) {
+                                  String category, RegimeAusencia regime,
+                                  EfeitoNaRemuneracao efeitoRemuneracao) {
         Objects.requireNonNull(code, "code não pode ser nulo");
         validarLimite("maxDaysPerYear", maxDaysPerYear);
         validarLimite("maxDaysPerOccurrence", maxDaysPerOccurrence);
         validarLimite("maxDaysPerMonth", maxDaysPerMonth);
         return new LeaveType(LeaveTypeId.gerarNovo(), code, description, deductsBalance,
                 requiresApproval, maxDaysPerYear, maxDaysPerOccurrence, maxDaysPerMonth,
-                category, true, regime);
+                category, true, regime, efeitoRemuneracao);
     }
 
     /**
@@ -77,14 +86,17 @@ public class LeaveType {
     public static LeaveType reconstruir(LeaveTypeId id, String code, String description, boolean deductsBalance,
                                         boolean requiresApproval, Integer maxDaysPerYear,
                                         Integer maxDaysPerOccurrence, Integer maxDaysPerMonth,
-                                        String category, boolean active, RegimeAusencia regime) {
+                                        String category, boolean active, RegimeAusencia regime,
+                                        EfeitoNaRemuneracao efeitoRemuneracao) {
         return new LeaveType(id, code, description, deductsBalance, requiresApproval,
-                maxDaysPerYear, maxDaysPerOccurrence, maxDaysPerMonth, category, active, regime);
+                maxDaysPerYear, maxDaysPerOccurrence, maxDaysPerMonth, category, active, regime,
+                efeitoRemuneracao);
     }
 
     public void atualizar(String description, boolean deductsBalance, boolean requiresApproval,
                           Integer maxDaysPerYear, Integer maxDaysPerOccurrence,
-                          Integer maxDaysPerMonth, String category, RegimeAusencia regime) {
+                          Integer maxDaysPerMonth, String category, RegimeAusencia regime,
+                          EfeitoNaRemuneracao efeitoRemuneracao) {
         validarLimite("maxDaysPerYear", maxDaysPerYear);
         validarLimite("maxDaysPerOccurrence", maxDaysPerOccurrence);
         validarLimite("maxDaysPerMonth", maxDaysPerMonth);
@@ -97,6 +109,7 @@ public class LeaveType {
         this.category = category;
         // Nao se apaga uma classificacao por o pedido vir sem ela: a omissao mantem a que esta.
         if (regime != null) this.regime = regime;
+        if (efeitoRemuneracao != null) this.efeitoRemuneracao = efeitoRemuneracao;
     }
 
     public void desativar() {

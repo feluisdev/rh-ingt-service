@@ -95,3 +95,16 @@ update t_leave_mobility_subtype
 --    A doenca com declaracao medica sao 3 consecutivas (al. d).
 update t_leave_type set max_days_per_year=NULL, max_days_per_occurrence=8 where code='LUTO';
 update t_leave_type set max_days_per_occurrence=3 where code='DOENCA';
+
+--    E, pela mesma razao, a classificacao da V54 nas linhas que ja existiam. A migracao NAO as
+--    classifica de proposito -- estas duas colunas mandam descontar antiguidade e mexer em
+--    salarios, e decidir por uma instituicao em silencio seria o pior sitio para o fazer.
+update t_leave_type set regime='FALTA_INJUSTIFICADA', efeito_remuneracao='DEPENDE_DA_OPCAO'
+ where code='FALTA_INJUSTIFICADA';
+update t_leave_type set efeito_remuneracao='PERDA_PARCIAL'
+ where code in ('DOENCA','DOENCA_ATESTADO','MATERNIDADE','PATERNIDADE','ASSISTENCIA_FAMILIA');
+update t_leave_type set efeito_remuneracao='PERDA_TOTAL' where code='GREVE';
+--    E a falta injustificada deixa de descontar saldo do proprio tipo: um saldo de faltas
+--    injustificadas seria uma quota de faltar. O que ela desconta, se for essa a opcao do
+--    art. 43.o n.o 2, sao ferias.
+update t_leave_type set deducts_balance=false where code='FALTA_INJUSTIFICADA';

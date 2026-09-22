@@ -31,7 +31,9 @@ public class PedidoAusenciaMapper {
                 e.getMotivo(), e.getEstado(),
                 e.getAprovadoPor() != null ? FuncionarioId.from(e.getAprovadoPor()) : null,
                 e.getDataDecisao(), e.getObservacoesDecisao(),
-                e.getIsActive(), e.getSuspensoEm(), e.getSuspensaoMotivo());
+                e.getIsActive(), e.getSuspensoEm(), e.getSuspensaoMotivo(),
+                cv.igrp.RH_Service.colaboradores.domain.models.OpcaoFaltaInjustificada
+                        .de(e.getOpcaoFaltaInjustificada()));
     }
 
     public PedidoAusenciaEntity toEntity(PedidoAusencia p) {
@@ -49,6 +51,8 @@ public class PedidoAusenciaMapper {
         e.setObservacoesDecisao(p.getObservacoesDecisao());
         e.setSuspensoEm(p.getSuspensoEm());
         e.setSuspensaoMotivo(p.getSuspensaoMotivo());
+        e.setOpcaoFaltaInjustificada(p.getOpcaoFaltaInjustificada() != null
+                ? p.getOpcaoFaltaInjustificada().name() : null);
         e.setIsActive(p.getIsActive());
         return e;
     }
@@ -63,6 +67,8 @@ public class PedidoAusenciaMapper {
         r.setMaxDaysPerYear(t.getMaxDaysPerYear());
         r.setMaxDaysPerOccurrence(t.getMaxDaysPerOccurrence());
         r.setMaxDaysPerMonth(t.getMaxDaysPerMonth());
+        r.setRegime(t.getRegime() != null ? t.getRegime().name() : null);
+        r.setEfeitoRemuneracao(t.getEfeitoRemuneracao() != null ? t.getEfeitoRemuneracao().name() : null);
         r.setCategoryOptionCkey(t.getCategoryOptionCkey());
         r.setIsActive(t.getIsActive());
         r.setEstadoDesc(Boolean.TRUE.equals(t.getIsActive()) ? "Ativo" : "Inativo");
@@ -81,6 +87,8 @@ public class PedidoAusenciaMapper {
         r.setAprovadoPor(p.getAprovadoPor() != null ? p.getAprovadoPor().getStringValor() : null);
         r.setDataDecisao(p.getDataDecisao());
         r.setObservacoesDecisao(p.getObservacoesDecisao());
+        r.setOpcaoFaltaInjustificada(p.getOpcaoFaltaInjustificada() != null
+                ? p.getOpcaoFaltaInjustificada().name() : null);
         r.setIsActive(p.getIsActive());
         r.setEstadoDesc(Boolean.TRUE.equals(p.getIsActive()) ? "Ativo" : "Inativo");
         // A suspensao encurta o periodo mas nao muda o estado -- o pedido continua APROVADO.

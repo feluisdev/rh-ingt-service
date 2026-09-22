@@ -17,6 +17,8 @@ public class PedidoAusenciaResponseDTO {
     private LocalDate dataFim;
     private int numeroDias;
     private String motivo;
+    /** Art. 43.o n.o 2: a opcao tomada, quando o tipo e falta injustificada. Nula nos outros. */
+    private String opcaoFaltaInjustificada;
     private String estado;
     private String aprovadoPor;
     private LocalDate dataDecisao;

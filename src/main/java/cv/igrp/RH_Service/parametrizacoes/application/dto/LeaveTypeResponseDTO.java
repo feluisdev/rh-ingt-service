@@ -35,8 +35,16 @@ public class LeaveTypeResponseDTO {
 
     private String category;
 
-    /** Regime legal do DL n.o 3/2010: FERIAS ou FALTA. */
+    /** Regime legal do DL n.o 3/2010: FERIAS · FALTA · FALTA_INJUSTIFICADA. */
     private String regime;
+
+    /**
+     * O que a ausencia faz a remuneracao (art. 16.o do DL n.o 3/2010): SEM_PERDA ·
+     * PERDA_PARCIAL · PERDA_TOTAL · PERDA_VENCIMENTO_EXERCICIO · DEPENDE_DA_OPCAO. Esta
+     * aplicacao NAO calcula remuneracao -- a classificacao existe para o sistema que a processa.
+     */
+    private String efeitoRemuneracao;
+
     private String categoryDesc;
 
     private Boolean isActive;

@@ -558,6 +558,45 @@ independentes: "6 dias em cada ano civil **e um dia por mes**" -- os dois tectos
 (`ON CONFLICT DO NOTHING`). Numa instalacao a rodar, o `LUTO` continua a dizer 5 dias por ano ate
 alguem o reclassificar pela API -- e, a partir da V53, e pela API que se faz, sem tocar em codigo.
 
+### 11.20 Faltas injustificadas e efeito na remuneracao (2026-09-22)
+
+Duas coisas que vivem na mesma frase do art. 43.o n.o 2 do DL n.o 3/2010.
+
+**1. `regime` passa a ter tres valores**, e nao dois: `FERIAS` · `FALTA` · `FALTA_INJUSTIFICADA`.
+Um select que so conheca os dois primeiros deixa de mostrar linhas validas.
+
+Classificar um tipo como injustificado tem consequencias que o ecra deve deixar claras a quem
+classifica: **as faltas desse tipo passam a descontar antiguidade**, sempre, e isso nao se
+desliga. E deliberado -- a lei nao da a opcao.
+
+**2. `POST /funcionarios/{id}/pedidos-ausencia` ganha `opcaoFaltaInjustificada`** --
+`PERDA_REMUNERACAO` ou `DESCONTO_FERIAS`:
+
+- **obrigatoria** quando o tipo escolhido e injustificado: sem ela da **422**;
+- **recusada** quando nao e: com ela da **422**.
+
+O formulario tem de reagir ao tipo escolhido, mostrando o campo so quando o tipo tem
+`regime = FALTA_INJUSTIFICADA`. A opcao vem de volta no `GET` dos pedidos, no mesmo campo.
+
+Pelo **self-service** este campo nao existe: um pedido de um tipo injustificado submetido por ai
+e recusado, porque ninguem classifica uma falta sua como injustificada.
+
+**3. O tipo de ausencia ganha `efeitoRemuneracao`** -- `SEM_PERDA` · `PERDA_PARCIAL` ·
+`PERDA_TOTAL` · `PERDA_VENCIMENTO_EXERCICIO` · `DEPENDE_DA_OPCAO` (art. 16.o).
+
+A aplicacao **nao calcula remuneracao**: e informacao para o sistema que a processa. Para o
+front-end, e mais um campo de classificacao no ecra de tipos de ausencia, que nasce `SEM_PERDA`
+e recusa valores fora da lista com 422.
+
+**Catalogo:** como no MOB_COMISSAO e nos limites da V53, a migracao **nao classifica** as linhas
+existentes -- estas duas colunas mandam descontar antiguidade e mexer em salarios. Tudo fica em
+`SEM_PERDA` e no regime que ja tinha, e a classificacao faz-se pela API. Numa instalacao a rodar,
+**nenhuma falta desconta antiguidade ate alguem classificar o tipo**, que e a direccao segura.
+
+**Nota:** nas licencas esta informacao ja existia como booleano
+(`t_leave_mobility_subtype.affects_pay`), que nao sabe dizer "parcial". Por agora sao dois
+contratos diferentes: booleano nas licencas, enum nas ausencias.
+
 - [ ] Select de `situacaoFuncional` no catálogo de estados.
 - [ ] Tratar `afectacaoEncerradaId` com `cessouVinculo: false` (activo, sem Lugar).
 - [ ] Retirar `AMBOS` dos selects de `recordType`.
@@ -581,3 +620,7 @@ alguem o reclassificar pela API -- e, a partir da V53, e pela API que se faz, se
 - [ ] Três campos de limite no ecrã de tipos de ausência; vazio é "sem limite" e `0` dá **400**.
 - [ ] Mostrar a mensagem do **422** do pedido: há agora recusa por ocorrência, por mês e por ano.
 - [ ] Select de tipos de ausência preparado para o catálogo completo do art. 15.º.
+- [ ] Terceiro valor `FALTA_INJUSTIFICADA` no select de `regime`, com aviso de que desconta antiguidade.
+- [ ] Campo `opcaoFaltaInjustificada` no pedido, visível **só** para tipos injustificados (422 nos dois sentidos).
+- [ ] Campo `efeitoRemuneracao` no ecrã de tipos de ausência (nasce `SEM_PERDA`).
+- [ ] Contar com que, numa instalação existente, nada disto venha classificado.

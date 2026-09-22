@@ -57,7 +57,17 @@ public class LeaveTypeEntity extends AuditEntity {
     @Column(name = "is_active")
     private Boolean isActive;
 
-    /** Regime legal do DL n.o 3/2010: FERIAS (cap. II) ou FALTA (cap. III). Ver V49. */
+    /**
+     * Regime legal do DL n.o 3/2010: FERIAS (cap. II), FALTA (cap. III, seccao II) ou
+     * FALTA_INJUSTIFICADA (seccao III, que nao conta para antiguidade). Ver V49 e V54.
+     */
     @Column(name = "regime", length = 20)
     private String regime;
+
+    /**
+     * O que a ausencia faz a remuneracao (art. 16.o; V54). Esta aplicacao nao calcula
+     * remuneracao -- guarda a classificacao para quem a processa a poder ler.
+     */
+    @Column(name = "efeito_remuneracao", length = 30)
+    private String efeitoRemuneracao;
 }

@@ -40,4 +40,11 @@ public class LeaveTypeRequestDTO {
      * {@code FALTA} (cap. III). Omitido, mantem o que esta; num tipo novo vale FALTA.
      */
     private String regime;
+
+    /**
+     * O que a ausencia faz a remuneracao (art. 16.o do DL n.o 3/2010): SEM_PERDA ·
+     * PERDA_PARCIAL · PERDA_TOTAL · PERDA_VENCIMENTO_EXERCICIO · DEPENDE_DA_OPCAO. Esta
+     * aplicacao NAO calcula remuneracao -- a classificacao existe para o sistema que a processa.
+     */
+    private String efeitoRemuneracao;
 }

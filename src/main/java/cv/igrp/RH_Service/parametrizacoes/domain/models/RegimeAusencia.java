@@ -34,7 +34,28 @@ public enum RegimeAusencia {
      * Faltas e restantes ausências curtas (cap. III). Não se vencem: o saldo, quando existe,
      * é um tecto do próprio tipo ({@code max_days_per_year}) e é configurado pela instituição.
      */
-    FALTA;
+    FALTA,
+
+    /**
+     * Faltas <b>injustificadas</b> (cap. III, secção III). O art. 43.º n.º 1 diz quais o são —
+     * as dadas por motivos não previstos no art. 15.º n.º 1, e as dadas ao abrigo dele sem prova
+     * ou com motivo comprovadamente falso — e o n.º 2 diz o que isso implica: «não contam para
+     * efeitos de antiguidade e implicam a opção entre a perda das remunerações correspondentes
+     * aos dias de ausência, ou o seu desconto nas férias».
+     *
+     * <p><b>O desconto na antiguidade é imperativo.</b> Por isso é um regime e não um booleano
+     * ao lado: um {@code counts_seniority} deixaria a instituição configurar o contrário da lei.
+     * Ela diz <b>quais</b> das suas linhas são injustificadas; o que daí decorre é da lei.
+     *
+     * <p>A única escolha que a lei dá — perder a remuneração ou descontar nas férias — é de cada
+     * caso, e vive no pedido, não aqui.
+     */
+    FALTA_INJUSTIFICADA;
+
+    /** Art. 43.º n.º 2: não conta para antiguidade. Não é configurável. */
+    public boolean contaAntiguidade() {
+        return this != FALTA_INJUSTIFICADA;
+    }
 
     /**
      * Lê um regime vindo de fora. Nulo ou em branco devolve {@code null} — quem chama decide o
@@ -50,7 +71,8 @@ public enum RegimeAusencia {
             return RegimeAusencia.valueOf(valor.trim().toUpperCase());
         } catch (IllegalArgumentException e) {
             throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Regime de ausência inválido: '" + valor + "'. Valores possíveis: FERIAS, FALTA.");
+                    "Regime de ausência inválido: '" + valor + "'. Valores possíveis: FERIAS, "
+                            + "FALTA, FALTA_INJUSTIFICADA.");
         }
     }
 }

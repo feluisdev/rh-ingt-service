@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.domain.models;
 
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.TipoAusenciaId;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.EfeitoNaRemuneracao;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.RegimeAusencia;
 import lombok.Getter;
 
@@ -29,6 +30,11 @@ public class TipoAusencia {
      * lei, e e por aqui — nao pelo codigo — que se sabe quais destas linhas sao ferias.
      */
     private RegimeAusencia regime;
+    /**
+     * O que a ausência faz à remuneração (art. 16.º; V54). Não se calcula nada com isto — é
+     * informação para quem processa vencimentos.
+     */
+    private EfeitoNaRemuneracao efeitoRemuneracao;
 
     private TipoAusencia() {}
 
@@ -36,6 +42,8 @@ public class TipoAusencia {
                                      Boolean requiresApproval, Integer maxDaysPerYear,
                                      Integer maxDaysPerOccurrence, Integer maxDaysPerMonth,
                                      String categoryOptionCkey) {
+        // O regime e o efeito na remuneração são classificação da instituição: entram pelo
+        // catálogo (LeaveType), não por aqui.
         TipoAusencia t = new TipoAusencia();
         t.id = TipoAusenciaId.gerarNovo();
         t.nome = nome;
@@ -54,7 +62,8 @@ public class TipoAusencia {
                                             Boolean deductsBalance, Boolean requiresApproval,
                                             Integer maxDaysPerYear, Integer maxDaysPerOccurrence,
                                             Integer maxDaysPerMonth, String categoryOptionCkey,
-                                            Boolean isActive, RegimeAusencia regime) {
+                                            Boolean isActive, RegimeAusencia regime,
+                                            EfeitoNaRemuneracao efeitoRemuneracao) {
         TipoAusencia t = new TipoAusencia();
         t.id = id;
         t.nome = nome;
@@ -67,11 +76,25 @@ public class TipoAusencia {
         t.categoryOptionCkey = categoryOptionCkey;
         t.isActive = isActive;
         t.regime = regime;
+        t.efeitoRemuneracao = efeitoRemuneracao;
         return t;
     }
 
     /** Ferias vencem-se; uma falta acontece. So o primeiro faz nascer saldo sozinho. */
     public boolean isFerias() { return regime == RegimeAusencia.FERIAS; }
+
+    /**
+     * Art. 43.º: falta injustificada. Quais o são di-lo a instituição pelo regime — nunca o
+     * código —, mas o que daí decorre é da lei e não se configura.
+     */
+    public boolean isFaltaInjustificada() { return regime == RegimeAusencia.FALTA_INJUSTIFICADA; }
+
+    /**
+     * Art. 43.º n.º 2: as injustificadas não contam para antiguidade. Um tipo sem regime
+     * classificado <b>conta</b> — descontar por omissão tiraria tempo a quem o tem, que é a
+     * mesma regra que vale para os estados sem situação funcional classificada.
+     */
+    public boolean contaParaAntiguidade() { return regime == null || regime.contaAntiguidade(); }
 
     /**
      * Excede o que a lei permite <b>de uma vez</b>? Cada pedido é um acontecimento — um

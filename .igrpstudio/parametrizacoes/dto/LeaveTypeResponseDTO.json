@@ -62,6 +62,13 @@
       "primaryKey": false
     },
     {
+      "name": "efeitoRemuneracao",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
       "name": "category",
       "objectType": "java",
       "type": "string",

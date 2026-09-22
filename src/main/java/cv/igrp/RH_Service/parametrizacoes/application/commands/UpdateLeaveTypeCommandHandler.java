@@ -35,7 +35,8 @@ public class UpdateLeaveTypeCommandHandler implements CommandHandler<UpdateLeave
 
         leaveType.atualizar(dto.getDescription(), dto.isDeductsBalance(), dto.isRequiresApproval(),
                 dto.getMaxDaysPerYear(), dto.getMaxDaysPerOccurrence(), dto.getMaxDaysPerMonth(),
-                dto.getCategory(), RegimeAusencia.de(dto.getRegime()));
+                dto.getCategory(), RegimeAusencia.de(dto.getRegime()),
+                cv.igrp.RH_Service.parametrizacoes.domain.models.EfeitoNaRemuneracao.de(dto.getEfeitoRemuneracao()));
 
         LeaveType updated = leaveTypeRepository.save(leaveType);
 

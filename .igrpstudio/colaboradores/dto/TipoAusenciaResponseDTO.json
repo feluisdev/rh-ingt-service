@@ -54,6 +54,18 @@
     },
     {
       "type": "string",
+      "name": "regime",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "efeitoRemuneracao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
       "name": "categoryOptionCkey",
       "objectType": "java",
       "required": false

@@ -7,7 +7,11 @@ import cv.igrp.RH_Service.colaboradores.domain.models.LicencaMobilidade;
 import cv.igrp.RH_Service.colaboradores.domain.repository.ContratoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.HistoricoEstadoColaboradorRepository;
+import cv.igrp.RH_Service.colaboradores.domain.models.PedidoAusencia;
 import cv.igrp.RH_Service.colaboradores.domain.repository.LicencaMobilidadeRepository;
+import cv.igrp.RH_Service.colaboradores.domain.repository.PedidoAusenciaRepository;
+import cv.igrp.RH_Service.colaboradores.domain.repository.TipoAusenciaRepository;
+import cv.igrp.RH_Service.colaboradores.domain.filter.PedidoAusenciaFilter;
 import cv.igrp.RH_Service.colaboradores.domain.repository.SubtipoLicencaMobilidadeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.service.CalculadoraAntiguidade;
 import cv.igrp.RH_Service.colaboradores.domain.service.CalculadoraAntiguidade.PeriodoExcluido;
@@ -49,6 +53,8 @@ import java.util.UUID;
  *   <li>{@code t_vinculo_laboral.counts_seniority} — há vínculos cujo tempo não conta. O vínculo
  *       vem do contrato, por isso o desconto aplica-se ao <b>período do contrato</b>, e não à
  *       pessoa: quem esteve dois anos num vínculo que não conta e cinco num que conta tem cinco.</li>
+ *   <li>{@code t_leave_type.regime = FALTA_INJUSTIFICADA} — art. 43.º n.º 2 do DL n.º 3/2010:
+ *       as faltas injustificadas não contam. É a quarta fonte, e entrou com a V54.</li>
  * </ul>
  *
  * <p><b>O que não se desconta, e é deliberado.</b> A <b>mobilidade</b> nunca desconta: o art.
@@ -57,10 +63,11 @@ import java.util.UUID;
  * desconta antiguidade (art. 16.º n.º 4) — e como não há tipo de ausência classificado para ela,
  * não fazer nada é a resposta certa.
  *
- * <p><b>O que ainda não se desconta, e é uma lacuna conhecida:</b> as faltas injustificadas, que
- * pelo art. 43.º n.º 2 não contam para antiguidade. Falta a {@code t_leave_type} uma coluna que
- * diga quais o são — hoje só o subtipo de licença tem classificação de antiguidade. Fica
- * assinalado em vez de adivinhado a partir do código do tipo.
+ * <p><b>Faltas injustificadas</b> (V54): o art. 43.º n.º 2 diz que «não contam para efeitos de
+ * antiguidade», e agora descontam. Quais das linhas do catálogo o são di-lo o
+ * {@code t_leave_type.regime} — a instituição classifica, a lei decide o efeito —, e nunca o
+ * código do tipo. O desconto <b>não é configurável</b>: um booleano ao lado deixaria configurar
+ * o contrário da lei.
  *
  * <p><b>A antiguidade não se guarda</b>, deriva-se. Guardá-la obrigaria a recalcular sempre que
  * uma data do passado fosse corrigida, e alguém acabaria por confiar num número velho.
@@ -75,6 +82,8 @@ public class AntiguidadeService {
     private final LicencaMobilidadeRepository licencaRepository;
     private final SubtipoLicencaMobilidadeRepository subtipoRepository;
     private final ContratoRepository contratoRepository;
+    private final PedidoAusenciaRepository pedidoAusenciaRepository;
+    private final TipoAusenciaRepository tipoAusenciaRepository;
     private final ContractTypeRepository contractTypeRepository;
     private final VinculoLaboralRepository vinculoLaboralRepository;
 
@@ -99,6 +108,7 @@ public class AntiguidadeService {
         exclusoes.addAll(periodosEmSituacaoQueNaoConta(funcionarioId, referencia));
         exclusoes.addAll(periodosDeLicencaQueNaoConta(funcionarioId));
         exclusoes.addAll(periodosDeVinculoQueNaoConta(funcionarioId));
+        exclusoes.addAll(periodosDeFaltaInjustificada(funcionarioId));
 
         return CalculadoraAntiguidade.calcular(funcionario.getDataAdmissao(), referencia, exclusoes);
     }
@@ -190,6 +200,35 @@ public class AntiguidadeService {
 
             periodos.add(new PeriodoExcluido(contrato.getStartDate(), contrato.getEndDate(),
                     "Vínculo " + vinculo.get().getCode() + " não conta antiguidade"));
+        }
+        return periodos;
+    }
+
+    /**
+     * Faltas injustificadas (art. 43.º n.º 2). Quais das linhas do catálogo o são vem do
+     * {@code regime}, nunca do código: a instituição classifica, a lei decide o efeito.
+     *
+     * <p>Contam-se os pedidos que <b>não</b> foram rejeitados nem cancelados — é o mesmo critério
+     * com que se somam os dias para os tectos do art. 15.º, e pela mesma razão: um pedido
+     * rejeitado ou cancelado não produziu ausência nenhuma.
+     *
+     * <p>Um tipo <b>sem regime classificado</b> conta para antiguidade. Descontar por omissão
+     * tiraria tempo a quem o tem, e é a mesma regra que já vale para os estados sem situação
+     * funcional classificada.
+     */
+    private List<PeriodoExcluido> periodosDeFaltaInjustificada(FuncionarioId funcionarioId) {
+        List<PeriodoExcluido> periodos = new ArrayList<>();
+
+        for (PedidoAusencia pedido : pedidoAusenciaRepository.findAllByFuncionarioId(
+                funcionarioId, new PedidoAusenciaFilter())) {
+
+            if (pedido.getEstado() == null || pedido.getEstado().isSemEfeito()) continue;
+
+            var tipo = tipoAusenciaRepository.findById(pedido.getTipoAusenciaId());
+            if (tipo.isEmpty() || tipo.get().contaParaAntiguidade()) continue;
+
+            periodos.add(new PeriodoExcluido(pedido.getDataInicio(), pedido.getDataFim(),
+                    "Falta injustificada " + tipo.get().getCodigo() + " (art. 43.º n.º 2)"));
         }
         return periodos;
     }

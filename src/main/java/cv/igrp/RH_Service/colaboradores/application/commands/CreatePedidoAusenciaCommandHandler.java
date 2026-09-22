@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
 import cv.igrp.RH_Service.colaboradores.application.services.SaldoAusenciaService;
+import cv.igrp.RH_Service.colaboradores.domain.models.OpcaoFaltaInjustificada;
 import cv.igrp.RH_Service.colaboradores.domain.models.PedidoAusencia;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FeriadoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
@@ -83,8 +84,26 @@ public class CreatePedidoAusenciaCommandHandler
                         "Limite anual de dias excedido. Disponíveis: " + (tipo.getMaxDaysPerYear() - diasUsados) + ", solicitados: " + numeroDias);
         }
 
+        // Art. 43.º n.º 2: a falta injustificada «implica a opção entre a perda das remunerações
+        // correspondentes aos dias de ausência, ou o seu desconto nas férias». É a única escolha
+        // que a lei dá — o desconto na antiguidade, no mesmo número, é imperativo — e é de cada
+        // caso. Exige-se no acto de registar: deixá-la para depois criava linhas que ninguém
+        // voltaria a abrir, e quem processa vencimentos ficaria sem saber o que fazer com elas.
+        var opcao = OpcaoFaltaInjustificada.de(dto.getOpcaoFaltaInjustificada());
+
+        if (tipo.isFaltaInjustificada() && opcao == null)
+            throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Uma falta injustificada tem de dizer o que se faz aos dias (art. 43.º n.º 2): "
+                            + "PERDA_REMUNERACAO ou DESCONTO_FERIAS.");
+
+        if (!tipo.isFaltaInjustificada() && opcao != null)
+            throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "A opção do art. 43.º n.º 2 só existe nas faltas injustificadas, e o tipo '"
+                            + tipo.getCodigo() + "' não está classificado como tal.");
+
         var pedido = PedidoAusencia.criar(
-                funcionarioId, tipoId, dto.getDataInicio(), dto.getDataFim(), numeroDias, dto.getMotivo());
+                funcionarioId, tipoId, dto.getDataInicio(), dto.getDataFim(), numeroDias,
+                dto.getMotivo(), opcao);
 
         // Os dias ficam reservados desde a submissão: dois pedidos em simultâneo já não
         // podem esgotar duas vezes o mesmo saldo. Sem saldo suficiente, é 422 já aqui.

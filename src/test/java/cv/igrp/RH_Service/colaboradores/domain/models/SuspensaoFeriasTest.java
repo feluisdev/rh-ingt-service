@@ -31,7 +31,7 @@ class SuspensaoFeriasTest {
     private static final String MOTIVO = "doenca - atestado entregue no servico";
 
     private static PedidoAusencia feriasAprovadas(LocalDate inicio, LocalDate fim, int dias) {
-        var p = PedidoAusencia.criar(FUNCIONARIO, FERIAS, inicio, fim, dias, "ferias anuais");
+        var p = PedidoAusencia.criar(FUNCIONARIO, FERIAS, inicio, fim, dias, "ferias anuais", null);
         p.aprovar(FUNCIONARIO, inicio.minusDays(5), null);
         return p;
     }
@@ -129,7 +129,7 @@ class SuspensaoFeriasTest {
     /** Um pedido por decidir não tem férias a correr. */
     @Test
     void soUmPedidoAprovadoSeSuspende() {
-        var p = PedidoAusencia.criar(FUNCIONARIO, FERIAS, HOJE.minusDays(10), HOJE.plusDays(10), 15, "ferias");
+        var p = PedidoAusencia.criar(FUNCIONARIO, FERIAS, HOJE.minusDays(10), HOJE.plusDays(10), 15, "ferias", null);
 
         var ex = assertThrows(IgrpResponseStatusException.class,
                 () -> p.suspender(HOJE, MOTIVO, HOJE));

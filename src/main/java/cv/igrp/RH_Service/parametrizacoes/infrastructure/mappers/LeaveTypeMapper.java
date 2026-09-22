@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers;
 
 import cv.igrp.RH_Service.parametrizacoes.application.dto.LeaveTypeResponseDTO;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.LeaveType;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.EfeitoNaRemuneracao;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.RegimeAusencia;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.LeaveTypeEntity;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.LeaveTypeId;
@@ -23,6 +24,8 @@ public class LeaveTypeMapper {
         entity.setMaxDaysPerMonth(domain.getMaxDaysPerMonth());
         entity.setCategory(domain.getCategory());
         entity.setRegime(domain.getRegime() != null ? domain.getRegime().name() : RegimeAusencia.FALTA.name());
+        entity.setEfeitoRemuneracao(domain.getEfeitoRemuneracao() != null
+                ? domain.getEfeitoRemuneracao().name() : EfeitoNaRemuneracao.SEM_PERDA.name());
         entity.setIsActive(domain.isActive());
         return entity;
     }
@@ -40,7 +43,8 @@ public class LeaveTypeMapper {
             entity.getMaxDaysPerMonth(),
             entity.getCategory(),
             entity.getIsActive() != null && entity.getIsActive(),
-            RegimeAusencia.de(entity.getRegime())
+            RegimeAusencia.de(entity.getRegime()),
+            EfeitoNaRemuneracao.de(entity.getEfeitoRemuneracao())
         );
     }
 
@@ -57,6 +61,8 @@ public class LeaveTypeMapper {
         dto.setMaxDaysPerMonth(domain.getMaxDaysPerMonth());
         dto.setCategory(domain.getCategory());
         dto.setRegime(domain.getRegime() != null ? domain.getRegime().name() : null);
+        dto.setEfeitoRemuneracao(domain.getEfeitoRemuneracao() != null
+                ? domain.getEfeitoRemuneracao().name() : null);
         dto.setIsActive(domain.isActive());
         dto.setEstadoDesc(Boolean.TRUE.equals(domain.isActive()) ? "Ativo" : "Inativo");
         return dto;

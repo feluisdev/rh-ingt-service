@@ -54,8 +54,11 @@ public class SelfServiceCriarPedidoAusenciaCommandHandler
         int numeroDias = (int) ChronoUnit.DAYS.between(startDate, endDate) + 1;
         var tipoAusenciaId = TipoAusenciaId.from(dto.getLeaveTypeId());
 
+        // Sem opção do art. 43.º n.º 2: pelo self-service ninguém classifica uma falta sua como
+        // injustificada, e a opção entre perder remuneração ou descontar nas férias é um acto do
+        // serviço. Um pedido de um tipo injustificado submetido por aqui é recusado.
         var pedido = PedidoAusencia.criar(funcionarioId, tipoAusenciaId, startDate, endDate,
-                numeroDias, dto.getNotes());
+                numeroDias, dto.getNotes(), null);
 
         // Reserva os dias já na submissão, como no caminho do RH.
         saldoAusenciaService.reservar(pedido);

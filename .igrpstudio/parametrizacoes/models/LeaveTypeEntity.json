@@ -114,6 +114,15 @@
       "unique": false,
       "primaryKey": false,
       "skipFieldRevision": false
+    },
+    {
+      "name": "efeitoRemuneracao",
+      "type": "string",
+      "length": 20,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false
     }
   ],
   "id": "leave_type_entity_001",

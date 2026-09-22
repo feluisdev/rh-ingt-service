@@ -63,6 +63,14 @@ public class PedidoAusenciaEntity extends AuditEntity {
     @Column(name = "suspensao_motivo", columnDefinition = "TEXT")
     private String suspensaoMotivo;
 
+    /**
+     * Art. 43.o n.o 2: PERDA_REMUNERACAO ou DESCONTO_FERIAS. Nula em tudo o que nao seja falta
+     * injustificada -- e o dominio que o garante, porque saber se o tipo o e obriga a ir a outra
+     * tabela. Ver V54.
+     */
+    @Column(name = "opcao_falta_injustificada", length = 30)
+    private String opcaoFaltaInjustificada;
+
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 }

@@ -60,11 +60,16 @@ class AntiguidadeServiceTest {
     @Mock private ContratoRepository contratoRepository;
     @Mock private ContractTypeRepository contractTypeRepository;
     @Mock private VinculoLaboralRepository vinculoLaboralRepository;
+    @Mock private cv.igrp.RH_Service.colaboradores.domain.repository.PedidoAusenciaRepository pedidoAusenciaRepository;
+    @Mock private cv.igrp.RH_Service.colaboradores.domain.repository.TipoAusenciaRepository tipoAusenciaRepository;
 
     private AntiguidadeService servico() {
+        // A ordem segue a dos campos do servico: o pedido de ausencia e o tipo entram a seguir ao
+        // contrato, que e onde a quarta fonte da antiguidade foi declarada (V54).
         return new AntiguidadeService(funcionarioRepository, historicoRepository, workerStateRepository,
-                licencaRepository, subtipoRepository, contratoRepository, contractTypeRepository,
-                vinculoLaboralRepository);
+                licencaRepository, subtipoRepository, contratoRepository,
+                pedidoAusenciaRepository, tipoAusenciaRepository,
+                contractTypeRepository, vinculoLaboralRepository);
     }
 
     private void admitidoEm(LocalDate data) {
@@ -79,6 +84,29 @@ class AntiguidadeServiceTest {
         lenient().when(licencaRepository.findAllByFuncionarioId(any(), any())).thenReturn(List.of());
         lenient().when(contratoRepository.findAllByFuncionarioIdOrderByStartDateDesc(any()))
                 .thenReturn(List.of());
+        lenient().when(pedidoAusenciaRepository.findAllByFuncionarioId(any(), any()))
+                .thenReturn(List.of());
+    }
+
+    /**
+     * Um pedido de ausência de um tipo classificado no regime indicado. O regime é o que
+     * distingue uma falta injustificada de qualquer outra ausência — nunca o código.
+     */
+    private void pedidoDe(cv.igrp.RH_Service.parametrizacoes.domain.models.RegimeAusencia regime,
+                          String codigo, String estado, LocalDate inicio, LocalDate fim) {
+        var tipoId = cv.igrp.RH_Service.colaboradores.domain.valueobject.TipoAusenciaId.gerarNovo();
+        var tipo = cv.igrp.RH_Service.colaboradores.domain.models.TipoAusencia.reconstituir(
+                tipoId, codigo, codigo, false, false, null, null, null, "PESSOAL", true, regime, null);
+        lenient().when(tipoAusenciaRepository.findById(tipoId)).thenReturn(Optional.of(tipo));
+
+        var pedido = cv.igrp.RH_Service.colaboradores.domain.models.PedidoAusencia.reconstituir(
+                cv.igrp.RH_Service.colaboradores.domain.valueobject.PedidoAusenciaId.gerarNovo(),
+                FUNCIONARIO, tipoId, inicio, fim,
+                (int) java.time.temporal.ChronoUnit.DAYS.between(inicio, fim) + 1,
+                "motivo", estado, null, null, null, true, null, null, null);
+
+        lenient().when(pedidoAusenciaRepository.findAllByFuncionarioId(any(), any()))
+                .thenReturn(List.of(pedido));
     }
 
     private UUID estadoCom(SituacaoFuncional situacao, String codigo) {
@@ -258,6 +286,69 @@ class AntiguidadeServiceTest {
                     () -> servico().calcular(FUNCIONARIO, REFERENCIA));
 
             assertEquals(422, ex.getStatusCode().value());
+        }
+    }
+
+    // -----------------------------------------------------------------------------
+    @Nested
+    class AFaltaInjustificadaNaoConta {
+
+        /**
+         * Art. 43.º n.º 2: «As faltas injustificadas [...] não contam para efeitos de
+         * antiguidade.» É imperativo — a instituição diz QUAIS das suas linhas o são, pelo
+         * regime, mas não pode decidir que contam.
+         */
+        @Test
+        void oPeriodoDaFaltaInjustificadaEDescontado() {
+            admitidoEm(ADMISSAO);
+            semNadaAMais();
+            pedidoDe(cv.igrp.RH_Service.parametrizacoes.domain.models.RegimeAusencia.FALTA_INJUSTIFICADA,
+                    "FALTA_INJUSTIFICADA", "APROVADO",
+                    LocalDate.of(2021, 3, 1), LocalDate.of(2021, 3, 10));
+
+            var antiguidade = servico().calcular(FUNCIONARIO, REFERENCIA);
+
+            assertEquals(10, antiguidade.diasDescontados());
+        }
+
+        /** Uma falta justificada não desconta nada: o eixo é o regime, não o facto de faltar. */
+        @Test
+        void aFaltaJustificadaNaoDesconta() {
+            admitidoEm(ADMISSAO);
+            semNadaAMais();
+            pedidoDe(cv.igrp.RH_Service.parametrizacoes.domain.models.RegimeAusencia.FALTA,
+                    "DOENCA", "APROVADO", LocalDate.of(2021, 3, 1), LocalDate.of(2021, 3, 10));
+
+            assertEquals(0, servico().calcular(FUNCIONARIO, REFERENCIA).diasDescontados());
+        }
+
+        /**
+         * Um pedido rejeitado ou cancelado não produziu ausência nenhuma — mesmo critério com
+         * que se somam os dias para os tectos do art. 15.º.
+         */
+        @Test
+        void oPedidoRejeitadoNaoDesconta() {
+            admitidoEm(ADMISSAO);
+            semNadaAMais();
+            pedidoDe(cv.igrp.RH_Service.parametrizacoes.domain.models.RegimeAusencia.FALTA_INJUSTIFICADA,
+                    "FALTA_INJUSTIFICADA", "REJEITADO",
+                    LocalDate.of(2021, 3, 1), LocalDate.of(2021, 3, 10));
+
+            assertEquals(0, servico().calcular(FUNCIONARIO, REFERENCIA).diasDescontados());
+        }
+
+        /**
+         * Tipo por classificar <b>conta</b>. É configuração em falta, não uma falta
+         * injustificada: descontar por omissão tiraria tempo a quem o tem.
+         */
+        @Test
+        void oTipoSemRegimeClassificadoConta() {
+            admitidoEm(ADMISSAO);
+            semNadaAMais();
+            pedidoDe(null, "POR_CLASSIFICAR", "APROVADO",
+                    LocalDate.of(2021, 3, 1), LocalDate.of(2021, 3, 10));
+
+            assertEquals(0, servico().calcular(FUNCIONARIO, REFERENCIA).diasDescontados());
         }
     }
 }

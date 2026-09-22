@@ -53,7 +53,7 @@ class FeriasVencimentoTest {
 
     private static TipoAusencia ferias(Integer diasPorAno) {
         return TipoAusencia.reconstituir(TIPO_FERIAS, "Férias", "FERIAS", true, true,
-                diasPorAno, null, null, "GOZAMENTO", true, RegimeAusencia.FERIAS);
+                diasPorAno, null, null, "GOZAMENTO", true, RegimeAusencia.FERIAS, null);
     }
 
     private static Funcionario admitidoEm(LocalDate data) {

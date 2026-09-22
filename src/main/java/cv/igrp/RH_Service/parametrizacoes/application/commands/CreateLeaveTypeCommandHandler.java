@@ -40,7 +40,8 @@ public class CreateLeaveTypeCommandHandler implements CommandHandler<CreateLeave
             dto.getMaxDaysPerOccurrence(),
             dto.getMaxDaysPerMonth(),
             dto.getCategory(),
-            RegimeAusencia.de(dto.getRegime())
+            RegimeAusencia.de(dto.getRegime()),
+            cv.igrp.RH_Service.parametrizacoes.domain.models.EfeitoNaRemuneracao.de(dto.getEfeitoRemuneracao())
         );
 
         LeaveType saved = leaveTypeRepository.save(leaveType);

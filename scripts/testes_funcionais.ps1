@@ -661,7 +661,9 @@ $anoAgora = (Get-Date).Year
 $rTipos = Chamar 'F11.1 catalogo de tipos de ausencia' GET '/catalogs/leave-types'
 $tipoFerias = (@(Linhas $rTipos) | Where-Object { $_.regime -eq 'FERIAS' } | Select-Object -First 1)
 Verificar 'F11.2 ha um tipo classificado como FERIAS' ($null -ne $tipoFerias) ('(' + $tipoFerias.code + ')')
-Verificar 'F11.3 os restantes sao FALTA' ((@(Linhas $rTipos) | Where-Object { $_.regime -ne 'FERIAS' -and $_.regime -ne 'FALTA' }).Count -eq 0) ''
+# Tres regimes desde a V54, e nao dois: o DL separa as faltas justificadas (seccao II) das
+# injustificadas (seccao III), que nao contam para antiguidade (art. 43.o n.o 2).
+Verificar 'F11.3 os restantes sao FALTA ou FALTA_INJUSTIFICADA' ((@(Linhas $rTipos) | Where-Object { $_.regime -ne 'FERIAS' -and $_.regime -ne 'FALTA' -and $_.regime -ne 'FALTA_INJUSTIFICADA' }).Count -eq 0) ''
 
 # --- ano inteiro: admitido a 1 de Janeiro deste ano ---
 $nifA = '9' + (Get-Date -Format 'MMddHHmmss')
@@ -1139,6 +1141,87 @@ $rLidoLim = Chamar 'F18.20 ler o tipo criado' GET ('/catalogs/leave-types/' + $r
 Verificar 'F18.21 os tectos ficaram guardados' (($rLidoLim.Dados.maxDaysPerOccurrence -eq 3) -and ($rLidoLim.Dados.maxDaysPerMonth -eq 4)) ('(ocorrencia=' + $rLidoLim.Dados.maxDaysPerOccurrence + ' mes=' + $rLidoLim.Dados.maxDaysPerMonth + ')')
 $rAltLim = Chamar 'F18.22 e alteram-se pela API' PUT ('/catalogs/leave-types/' + $rNovoLim.Dados.id) @{ code=$codLim; description='Tipo de teste'; deductsBalance=$false; requiresApproval=$false; maxDaysPerOccurrence=5 } 200
 Verificar 'F18.23 o tecto mudou e o mensal foi limpo' (($rAltLim.Dados.maxDaysPerOccurrence -eq 5) -and ($null -eq $rAltLim.Dados.maxDaysPerMonth)) ('(ocorrencia=' + $rAltLim.Dados.maxDaysPerOccurrence + ' mes=' + $rAltLim.Dados.maxDaysPerMonth + ')')
+
+Write-Host ''
+Write-Host ''
+Write-Host '=========== F19 - FALTA INJUSTIFICADA E EFEITO NA REMUNERACAO ==========='
+
+# Art. 43.o n.o 2: "As faltas injustificadas, para alem das consequencias disciplinares a que
+# possam dar lugar, NAO CONTAM PARA EFEITOS DE ANTIGUIDADE e implicam a opcao entre a perda das
+# remuneracoes correspondentes aos dias de ausencia, ou o seu desconto nas ferias."
+#
+# Duas coisas numa frase, e so uma delas e escolha. O desconto na antiguidade e imperativo -- por
+# isso nao ha booleano a configura-lo, ha um REGIME, e a instituicao so diz QUAIS das suas linhas
+# sao injustificadas. Ja entre perder a remuneracao e descontar nas ferias, a lei deixa escolher,
+# e a escolha e de CADA CASO: vive no pedido.
+#
+# E o art. 16.o classifica o efeito na remuneracao das justificadas. A aplicacao NAO calcula
+# remuneracao nenhuma -- guarda a classificacao para o sistema que a processa a poder ler.
+
+$rTipos19 = Chamar 'F19.1 catalogo de tipos de ausencia' GET '/catalogs/leave-types?pagina=0&tamanho=50'
+$tipos19 = @(Linhas $rTipos19)
+$tInj = ($tipos19 | Where-Object { $_.regime -eq 'FALTA_INJUSTIFICADA' } | Select-Object -First 1)
+$tGreve = ($tipos19 | Where-Object { $_.code -eq 'GREVE' } | Select-Object -First 1)
+$tDoenca = ($tipos19 | Where-Object { $_.code -eq 'DOENCA' } | Select-Object -First 1)
+
+Verificar 'F19.2 ha um tipo classificado no regime das injustificadas' ($null -ne $tInj) ('(' + $tInj.code + ')')
+# A classificacao e do REGIME, nao do codigo: e por aqui que a antiguidade sabe o que descontar.
+Verificar 'F19.3 e a lei diz o que isso implica na remuneracao' ($tInj.efeitoRemuneracao -eq 'DEPENDE_DA_OPCAO') ('(' + $tInj.efeitoRemuneracao + ')')
+# Art. 16.o n.o 4: a greve perde remuneracao mas NAO desconta antiguidade. Dois eixos separados.
+Verificar 'F19.4 a greve perde remuneracao e continua FALTA' (($tGreve.efeitoRemuneracao -eq 'PERDA_TOTAL') -and ($tGreve.regime -eq 'FALTA')) ('(' + $tGreve.efeitoRemuneracao + '/' + $tGreve.regime + ')')
+# Art. 16.o n.o 2: doenca perde PARCIALMENTE, com direito a subsidio da previdencia.
+Verificar 'F19.5 a doenca perde parcialmente (al. d)' ($tDoenca.efeitoRemuneracao -eq 'PERDA_PARCIAL') ('(' + $tDoenca.efeitoRemuneracao + ')')
+
+# --- a opcao do n.o 2 e obrigatoria, e so existe aqui ---
+# A antiguidade de partida mede-se ANTES: o B ja traz dias descontados dos blocos anteriores
+# (esteve em inactividade fora do quadro), e sem esta linha o bloco provaria esse desconto em
+# vez do seu. O que interessa e a DIFERENCA.
+$rAntAntes19 = Chamar 'F19.5b antiguidade antes das faltas' GET ('/funcionarios/' + $colabB + '/antiguidade')
+$descontadosAntes19 = $rAntAntes19.Dados.diasDescontados
+Write-Host ('      descontados antes: ' + $descontadosAntes19)
+
+# No PASSADO, e nao no futuro como o resto do F18: uma falta que ainda nao aconteceu nao
+# desconta antiguidade nenhuma -- o calculador recorta os periodos ao tempo ja servido, e bem.
+# Duas segundas-feiras ja passadas, que nao colidem com os pedidos futuros do bloco anterior.
+$dInj1 = $segunda18.AddDays(-28)
+$dInj2 = $segunda18.AddDays(-21)
+Chamar 'F19.6 NEG falta injustificada sem dizer o que se faz aos dias' POST ('/funcionarios/' + $colabB + '/pedidos-ausencia') @{ tipoAusenciaId=$tInj.id; dataInicio=$dInj1.ToString('yyyy-MM-dd'); dataFim=$dInj1.ToString('yyyy-MM-dd'); motivo='faltou' } 422 | Out-Null
+Chamar 'F19.7 NEG opcao fora da lista' POST ('/funcionarios/' + $colabB + '/pedidos-ausencia') @{ tipoAusenciaId=$tInj.id; dataInicio=$dInj1.ToString('yyyy-MM-dd'); dataFim=$dInj1.ToString('yyyy-MM-dd'); motivo='faltou'; opcaoFaltaInjustificada='PERDOAR' } 422 | Out-Null
+# A opcao so existe no art. 43.o n.o 2: num tipo que nao e injustificado nao ha nada a optar.
+Chamar 'F19.8 NEG opcao num tipo que nao e injustificado' POST ('/funcionarios/' + $colabB + '/pedidos-ausencia') @{ tipoAusenciaId=$tDoenca.id; dataInicio=$dInj1.ToString('yyyy-MM-dd'); dataFim=$dInj1.ToString('yyyy-MM-dd'); motivo='doente'; opcaoFaltaInjustificada='DESCONTO_FERIAS' } 422 | Out-Null
+
+$rInj1 = Chamar 'F19.9 registar falta injustificada com perda de remuneracao' POST ('/funcionarios/' + $colabB + '/pedidos-ausencia') @{ tipoAusenciaId=$tInj.id; dataInicio=$dInj1.ToString('yyyy-MM-dd'); dataFim=$dInj1.ToString('yyyy-MM-dd'); motivo='faltou sem avisar'; opcaoFaltaInjustificada='PERDA_REMUNERACAO' } 201
+# As duas opcoes existem mesmo: a segunda falta escolhe a outra. Nao e uma configuracao do tipo.
+$rInj2 = Chamar 'F19.10 e outra com desconto nas ferias' POST ('/funcionarios/' + $colabB + '/pedidos-ausencia') @{ tipoAusenciaId=$tInj.id; dataInicio=$dInj2.ToString('yyyy-MM-dd'); dataFim=$dInj2.ToString('yyyy-MM-dd'); motivo='outra vez'; opcaoFaltaInjustificada='DESCONTO_FERIAS' } 201
+
+$rLido19 = Chamar 'F19.11 ler os pedidos do colaborador' GET ('/funcionarios/' + $colabB + '/pedidos-ausencia')
+$ped19a = (@(Linhas $rLido19) | Where-Object { $_.id -eq $rInj1.Dados.id } | Select-Object -First 1)
+$ped19b = (@(Linhas $rLido19) | Where-Object { $_.id -eq $rInj2.Dados.id } | Select-Object -First 1)
+Verificar 'F19.12 cada pedido guarda a SUA opcao' (($ped19a.opcaoFaltaInjustificada -eq 'PERDA_REMUNERACAO') -and ($ped19b.opcaoFaltaInjustificada -eq 'DESCONTO_FERIAS')) ('(' + $ped19a.opcaoFaltaInjustificada + ' / ' + $ped19b.opcaoFaltaInjustificada + ')')
+
+# --- e a antiguidade desconta-as, que e a parte que a lei nao deixa configurar ---
+$rAnt19 = Chamar 'F19.13 antiguidade depois das faltas' GET ('/funcionarios/' + $colabB + '/antiguidade')
+Write-Host ('      dias descontados: ' + $rAnt19.Dados.diasDescontados)
+# Dois dias uteis, um por cada falta. O desconto e pela DIFERENCA, nao pelo total.
+Verificar 'F19.14 as duas faltas descontaram dois dias de antiguidade' (($rAnt19.Dados.diasDescontados - $descontadosAntes19) -eq 2) ('(' + $descontadosAntes19 + ' -> ' + $rAnt19.Dados.diasDescontados + ', art. 43.o n.o 2)')
+$motivos19 = ($rAnt19.Dados.periodosDescontados | ForEach-Object { $_.motivo }) -join ' | '
+Verificar 'F19.15 e o motivo diz porque foi descontado' ($motivos19 -like '*43*') ('(' + $motivos19 + ')')
+
+# Cancelar uma delas: um pedido sem efeito nao produziu ausencia, logo devolve a antiguidade.
+Chamar 'F19.16 cancelar uma das faltas' PATCH ('/funcionarios/' + $colabB + '/pedidos-ausencia/' + $rInj2.Dados.id + '/cancelar') $null 200 | Out-Null
+$rAnt19b = Chamar 'F19.17 antiguidade depois do cancelamento' GET ('/funcionarios/' + $colabB + '/antiguidade')
+Verificar 'F19.18 o pedido cancelado deixou de descontar' (($rAnt19b.Dados.diasDescontados - $descontadosAntes19) -eq 1) ('(' + $rAnt19.Dados.diasDescontados + ' -> ' + $rAnt19b.Dados.diasDescontados + ')')
+
+# --- a classificacao e da instituicao, e muda-se pela API ---
+$codEf = 'REG_TST_' + (Get-Date -Format 'HHmmss') + 'E'
+$rNovoEf = Chamar 'F19.19 criar tipo sem dizer o efeito na remuneracao' POST '/catalogs/leave-types' @{ code=$codEf; description='Tipo de teste'; deductsBalance=$false; requiresApproval=$false } 201
+$rLidoEf = Chamar 'F19.20 ler o tipo criado' GET ('/catalogs/leave-types/' + $rNovoEf.Dados.id)
+# SEM_PERDA e a omissao segura: afirma que nao ha perda em vez de a provocar.
+Verificar 'F19.21 nasce SEM_PERDA, que e a omissao segura' ($rLidoEf.Dados.efeitoRemuneracao -eq 'SEM_PERDA') ('(' + $rLidoEf.Dados.efeitoRemuneracao + ')')
+$rAltEf = Chamar 'F19.22 classificar pela API' PUT ('/catalogs/leave-types/' + $rNovoEf.Dados.id) @{ code=$codEf; description='Tipo de teste'; deductsBalance=$false; requiresApproval=$false; regime='FALTA_INJUSTIFICADA'; efeitoRemuneracao='PERDA_VENCIMENTO_EXERCICIO' } 200
+Verificar 'F19.23 a instituicao classifica sem tocar em codigo' (($rAltEf.Dados.regime -eq 'FALTA_INJUSTIFICADA') -and ($rAltEf.Dados.efeitoRemuneracao -eq 'PERDA_VENCIMENTO_EXERCICIO')) ('(' + $rAltEf.Dados.regime + '/' + $rAltEf.Dados.efeitoRemuneracao + ')')
+Chamar 'F19.24 NEG efeito fora da lista da lei' PUT ('/catalogs/leave-types/' + $rNovoEf.Dados.id) @{ code=$codEf; description='Tipo de teste'; deductsBalance=$false; requiresApproval=$false; efeitoRemuneracao='PERDOA_TUDO' } 422 | Out-Null
+Chamar 'F19.25 NEG regime fora da lista da lei' PUT ('/catalogs/leave-types/' + $rNovoEf.Dados.id) @{ code=$codEf; description='Tipo de teste'; deductsBalance=$false; requiresApproval=$false; regime='FALTA_QUALQUER' } 422 | Out-Null
 
 Write-Host ''
 Write-Host '=========== RESUMO ==========='

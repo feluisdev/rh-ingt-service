@@ -380,12 +380,48 @@ nao transformar uma regra certa numa falha.
 O `repor_estado.sql` ganhou a correccao do `LUTO` e da `DOENCA`, pela mesma razao do
 `MOB_COMISSAO`: o seed usa `ON CONFLICT (code) DO NOTHING` e nao toca em linhas que ja existam.
 
+### F19 - falta injustificada e efeito na remuneracao (2026-09-22)
+
+Prova o art. 43.o n.o 2 e o art. 16.o do DL n.o 3/2010, e sobretudo o que os separa: **so uma das
+duas coisas e escolha**. O desconto na antiguidade e imperativo; a opcao entre perder a
+remuneracao e descontar nas ferias e de cada caso.
+
+- o catalogo traz o terceiro regime e a classificacao do art. 16.o: a greve perde remuneracao
+  mas continua `FALTA` (n.o 4 -- nao desconta antiguidade), a doenca perde **parcialmente**
+  (n.o 2), e a injustificada fica em `DEPENDE_DA_OPCAO`, porque ai a lei nao fixa, da uma opcao
+- registar uma falta injustificada **sem dizer o que se faz aos dias** da 422; com um valor fora
+  da lista, 422; e a mesma opcao **num tipo que nao e injustificado** tambem da 422
+- duas faltas, duas opcoes diferentes -- cada pedido guarda a **sua**, que e o ponto de a opcao
+  viver no pedido e nao no catalogo
+- **a antiguidade desconta-as**, e prova-se pela DIFERENCA: mede-se antes, registam-se as duas
+  faltas, e descontam exactamente dois dias. Cancelar uma devolve um -- um pedido sem efeito nao
+  produziu ausencia nenhuma
+- a instituicao classifica pela API (regime e efeito), e valores fora das listas da lei dao 422
+
+**Duas armadilhas que este bloco pagou:**
+
+1. **As faltas tem de ser no PASSADO.** Uma falta marcada para daqui a dois meses nao desconta
+   antiguidade nenhuma -- o calculador recorta os periodos ao tempo ja servido, e bem. A primeira
+   versao do bloco punha-as no futuro, como o resto do F18, e media zero.
+2. **Mede-se a diferenca, nao o total.** O B chega aqui com dias ja descontados de blocos
+   anteriores (esteve em inactividade fora do quadro). Um `-ge 2` passava sem o bloco provar
+   nada; o que prova e `depois - antes = 2`.
+
+**E um defeito do seed que so apareceu aqui:** a falta injustificada vinha com
+`deducts_balance = true`, o que exigia um *saldo de faltas injustificadas* para se poder registar
+uma -- isto e, uma quota de faltar, o oposto do que a lei diz. Passou a `false`: o que ela pode
+descontar sao **ferias**, e isso e a opcao do art. 43.o n.o 2, guardada no pedido.
+
+O F11.3 foi actualizado: os regimes passaram a ser tres.
+
 ## Resultado da última execução
 
-**427 passos, 427 OK** (2026-09-22), contra a base local com a V53 aplicada.
+**457 passos, 457 OK** (2026-09-22), contra a base local com a V54 aplicada.
 
-O F15 (mudanca de carreira), o F16 (consolidacao da mobilidade), o F17 (regresso de comissao) e o
-F18 (limites de dias por natureza) entraram nesta data, mais os passos da forma de prestacao no F8 e os da porta generica no F10.
+O F15 (mudanca de carreira), o F16 (consolidacao da mobilidade), o F17 (regresso de comissao), o
+F18 (limites de dias por natureza) e o F19 (falta injustificada e efeito na remuneracao) entraram
+nesta data, mais os passos da forma de prestacao no F8, os da porta generica no F10 e as sete
+modalidades do art. 45.o no F3.
 Nenhum tem migracao: a `origem` da afectacao e `VARCHAR(20)` sem restricao, e o `return_effect`
 tambem nao tem restricao na base.
 

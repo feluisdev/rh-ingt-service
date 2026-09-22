@@ -19,4 +19,10 @@ public class PedidoAusenciaRequestDTO {
     @NotNull
     private LocalDate dataFim;
     private String motivo;
+    /**
+     * Art. 43.o n.o 2, so para tipos classificados como falta injustificada: {@code
+     * PERDA_REMUNERACAO} ou {@code DESCONTO_FERIAS}. E <b>obrigatoria</b> nesses tipos e
+     * <b>recusada</b> nos outros -- a lei so da a opcao a quem falta sem justificacao.
+     */
+    private String opcaoFaltaInjustificada;
 }

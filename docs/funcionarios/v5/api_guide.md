@@ -631,6 +631,39 @@ Os três são recusados com **422** na criação do pedido, e a mensagem disting
 
 O seed passou a trazer as alíneas do art. 15.º já classificadas — `CASAMENTO`, `LUTO` (8 dias, cônjuge ou 1.º grau) e `LUTO_OUTRO_GRAU` (3), `NASCIMENTO_FILHO`, `PROVA_EXAME`, `ASSISTENCIA_FAMILIA`, `AUTORIZADA_DIRIGENTE`, `CONTA_FERIAS`, `GREVE`, `OBRIGACAO_LEGAL`, `DOENCA` e `DOENCA_ATESTADO`. **Numa instalação já existente o seed não os corrige** (`ON CONFLICT DO NOTHING`): a classificação das linhas antigas é da instituição, e faz-se pela API.
 
+### 6.2c Faltas injustificadas, e o que a ausência faz à remuneração
+
+Duas coisas que vivem na mesma frase da lei. O art. 43.º n.º 2: *«As faltas injustificadas, para além das consequências disciplinares a que possam dar lugar, **não contam para efeitos de antiguidade** e implicam a **opção** entre a perda das remunerações correspondentes aos dias de ausência, ou o seu desconto nas férias.»*
+
+**O regime ganhou um terceiro valor.** `regime` passa a ser `FERIAS` · `FALTA` · `FALTA_INJUSTIFICADA`, seguindo as secções do próprio diploma. A instituição diz **quais** das suas linhas são injustificadas; o que daí decorre é da lei e **não se configura**:
+
+- **descontam antiguidade**, sempre. Não há booleano para o desligar — um booleano deixaria configurar o contrário da lei. `GET /funcionarios/{id}/antiguidade` passou a contá-las, e o período aparece em `periodosDescontados` com o artigo no motivo;
+- **exigem a opção** do n.º 2 no pedido.
+
+**A opção é de cada caso, não do catálogo.** `POST /funcionarios/{id}/pedidos-ausencia` aceita `opcaoFaltaInjustificada` ∈ `PERDA_REMUNERACAO` · `DESCONTO_FERIAS`. É **obrigatória** quando o tipo é injustificado (**422** se faltar) e **recusada** quando não é (**422**): a lei só dá a opção a quem falta sem justificação. Duas faltas da mesma pessoa podem ser resolvidas de maneiras diferentes — é por isso que vive no pedido.
+
+**Pelo self-service não se registam faltas injustificadas.** Ninguém classifica uma falta sua como injustificada, e a opção é um acto do serviço.
+
+#### O efeito na remuneração — informação, não cálculo
+
+**Esta aplicação não calcula remuneração e não vai passar a calcular.** O que passa a fazer é guardar a classificação do art. 16.º, para o sistema que processa vencimentos a poder ler junto com os dias:
+
+| `efeitoRemuneracao` | O que a lei diz | Onde |
+|---|---|---|
+| `SEM_PERDA` | as justificadas não determinam perda de remuneração | n.º 1 |
+| `PERDA_PARCIAL` | als. d), e), i), j) e t) — com direito a subsídio da previdência | n.º 2 e 3 |
+| `PERDA_TOTAL` | greve: perde remuneração e **não** desconta antiguidade | n.º 4 |
+| `PERDA_VENCIMENTO_EXERCICIO` | prisão preventiva; **reparável** em caso de absolvição | n.º 5 e 6 |
+| `DEPENDE_DA_OPCAO` | falta injustificada: a lei não fixa, dá a opção do art. 43.º n.º 2 | — |
+
+O n.º 3 define o valor da perda parcial como «a diferença entre a remuneração líquida a que o funcionário teria direito e o subsídio pago pela previdência social». Essa conta é de quem processa vencimentos: aqui só se diz **qual é o regime**.
+
+Um tipo novo nasce `SEM_PERDA` — afirmar que não há perda nunca tira dinheiro a ninguém. Valor fora da lista dá **422**.
+
+> **Nota para quem integra:** nas **licenças** esta informação já existia, mas como booleano (`t_leave_mobility_subtype.affects_pay`), que não sabe dizer «parcial». Os dois hão-de convergir; para já, ler o booleano nas licenças e o enum nas ausências.
+
+**Numa instalação já existente nada disto vem classificado.** A migração **não** classifica linha nenhuma — estas duas colunas mandam descontar antiguidade e mexer em salários, e decidir em silêncio pela instituição seria o pior sítio para o fazer. As linhas antigas ficam em `SEM_PERDA` e no regime que já tinham, e a classificação faz-se pela API.
+
 ### 6.3 Férias: o saldo nasce sozinho
 
 **`POST /saldos-ausencia` deixou de ser o caminho para as férias.** O art. 2.º n.º 4 do DL n.º 3/2010 diz que «o direito a férias vence no dia 1 de Janeiro de cada ano» — e passou a ser o que acontece:

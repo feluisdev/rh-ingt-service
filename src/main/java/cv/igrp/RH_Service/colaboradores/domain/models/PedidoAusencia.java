@@ -27,12 +27,20 @@ public class PedidoAusencia {
     private LocalDate suspensoEm;
     /** Qual das causas do art. 8.º. Texto da instituição, não validado — mas obrigatório. */
     private String suspensaoMotivo;
+    /**
+     * A opção do art. 43.º n.º 2, quando o tipo é falta injustificada: perder a remuneração dos
+     * dias, ou descontá-los nas férias. É a <b>única</b> escolha que esse número dá — o desconto
+     * na antiguidade, no mesmo número, é imperativo — e é de cada caso, por isso vive aqui e não
+     * no catálogo.
+     */
+    private OpcaoFaltaInjustificada opcaoFaltaInjustificada;
 
     private PedidoAusencia() {}
 
     public static PedidoAusencia criar(FuncionarioId funcionarioId, TipoAusenciaId tipoAusenciaId,
                                        LocalDate dataInicio, LocalDate dataFim,
-                                       int numeroDias, String motivo) {
+                                       int numeroDias, String motivo,
+                                       OpcaoFaltaInjustificada opcaoFaltaInjustificada) {
         PedidoAusencia p = new PedidoAusencia();
         p.id = PedidoAusenciaId.gerarNovo();
         p.funcionarioId = funcionarioId;
@@ -43,6 +51,7 @@ public class PedidoAusencia {
         p.motivo = motivo;
         p.estado = EstadoPedidoAusencia.PENDENTE;
         p.isActive = true;
+        p.opcaoFaltaInjustificada = opcaoFaltaInjustificada;
         return p;
     }
 
@@ -52,7 +61,8 @@ public class PedidoAusencia {
                                               String estado, FuncionarioId aprovadoPor,
                                               LocalDate dataDecisao, String observacoesDecisao,
                                               Boolean isActive, LocalDate suspensoEm,
-                                              String suspensaoMotivo) {
+                                              String suspensaoMotivo,
+                                              OpcaoFaltaInjustificada opcaoFaltaInjustificada) {
         PedidoAusencia p = new PedidoAusencia();
         p.id = id;
         p.funcionarioId = funcionarioId;
@@ -68,6 +78,7 @@ public class PedidoAusencia {
         p.isActive = isActive;
         p.suspensoEm = suspensoEm;
         p.suspensaoMotivo = suspensaoMotivo;
+        p.opcaoFaltaInjustificada = opcaoFaltaInjustificada;
         return p;
     }
 

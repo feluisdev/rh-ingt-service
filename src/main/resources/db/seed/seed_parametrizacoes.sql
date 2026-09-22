@@ -81,46 +81,49 @@ ON CONFLICT (codigo) DO NOTHING;
 --         E por esta coluna -- nunca pelo codigo -- que o vencimento sabe quais sao ferias,
 --         e e por isso que a instituicao a pode mudar sem tocar em codigo. Ver V49.
 -- =============================================================
-INSERT INTO t_leave_type (id, code, description, deducts_balance, requires_approval, max_days_per_year, max_days_per_occurrence, max_days_per_month, category, regime, is_active, created_date, created_by) VALUES
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1', 'FERIAS',              'Férias',                          true,  true,  22,   null, null, 'GOZAMENTO', 'FERIAS', true, NOW(), 'system'),
+INSERT INTO t_leave_type (id, code, description, deducts_balance, requires_approval, max_days_per_year, max_days_per_occurrence, max_days_per_month, category, regime, efeito_remuneracao, is_active, created_date, created_by) VALUES
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1', 'FERIAS',              'Férias',                          true,  true,  22,   null, null, 'GOZAMENTO', 'FERIAS', 'SEM_PERDA', true, NOW(), 'system'),
 -- Doenca: a al. d) trata ate 3 dias consecutivos com declaracao medica e a al. e) mais de 3 e
 -- ate 30 com atestado. Sao duas alineas com prova diferente, logo duas linhas -- o tecto de 30
 -- e por OCORRENCIA, e nao ha tecto anual: ninguem adoece por quota.
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e2', 'DOENCA',              'Doença (declaração médica)',      false, false, null, 3,    null, 'SAUDE',     'FALTA',  true, NOW(), 'system'),
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e8', 'DOENCA_ATESTADO',     'Doença (atestado médico)',        false, false, null, 30,   null, 'SAUDE',     'FALTA',  true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e2', 'DOENCA',              'Doença (declaração médica)',      false, false, null, 3,    null, 'SAUDE',     'FALTA',  'PERDA_PARCIAL', true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e8', 'DOENCA_ATESTADO',     'Doença (atestado médico)',        false, false, null, 30,   null, 'SAUDE',     'FALTA',  'PERDA_PARCIAL', true, NOW(), 'system'),
 -- Parentalidade: al. t). A duracao vem do art. 17.o e seguintes, nao de um tecto de pedido.
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e3', 'MATERNIDADE',         'Licença de Maternidade',          false, false, null, null, null, 'FAMILIAR',  'FALTA',  true, NOW(), 'system'),
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e4', 'PATERNIDADE',         'Licença de Paternidade',          false, false, null, null, null, 'FAMILIAR',  'FALTA',  true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e3', 'MATERNIDADE',         'Licença de Maternidade',          false, false, null, null, null, 'FAMILIAR',  'FALTA',  'PERDA_PARCIAL', true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e4', 'PATERNIDADE',         'Licença de Paternidade',          false, false, null, null, null, 'FAMILIAR',  'FALTA',  'PERDA_PARCIAL', true, NOW(), 'system'),
 -- Luto: a lei distingue o grau de parentesco -- 8 dias pelo conjuge ou 1.o grau da linha recta
 -- (al. b), 3 pelos restantes graus (al. c) --, e conta por FALECIMENTO, nao por ano. A linha
 -- antiga dizia 5 dias por ano: recusava o segundo luto do mesmo ano e deixava passar oito dias
 -- seguidos de uma so vez. Mantem-se o codigo LUTO no 1.o grau para nao orfanar historico.
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e5', 'LUTO',                'Luto (cônjuge ou 1.º grau)',      false, false, null, 8,    null, 'FAMILIAR',  'FALTA',  true, NOW(), 'system'),
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e9', 'LUTO_OUTRO_GRAU',     'Luto (outros graus)',             false, false, null, 3,    null, 'FAMILIAR',  'FALTA',  true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e5', 'LUTO',                'Luto (cônjuge ou 1.º grau)',      false, false, null, 8,    null, 'FAMILIAR',  'FALTA',  'SEM_PERDA', true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e9', 'LUTO_OUTRO_GRAU',     'Luto (outros graus)',             false, false, null, 3,    null, 'FAMILIAR',  'FALTA',  'SEM_PERDA', true, NOW(), 'system'),
 -- Al. a): 6 dias por OCASIAO do casamento. Quem case duas vezes tem direito duas vezes.
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1ea', 'CASAMENTO',           'Casamento',                       false, false, null, 6,    null, 'FAMILIAR',  'FALTA',  true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1ea', 'CASAMENTO',           'Casamento',                       false, false, null, 6,    null, 'FAMILIAR',  'FALTA',  'SEM_PERDA', true, NOW(), 'system'),
 -- Al. h): duas por ocasiao do nascimento de um filho. Nao se confunde com a paternidade.
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1eb', 'NASCIMENTO_FILHO',    'Nascimento de filho',             false, false, null, 2,    null, 'FAMILIAR',  'FALTA',  true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1eb', 'NASCIMENTO_FILHO',    'Nascimento de filho',             false, false, null, 2,    null, 'FAMILIAR',  'FALTA',  'SEM_PERDA', true, NOW(), 'system'),
 -- Al. f): duas por CADA prova ou exame -- a do dia e a da vespera.
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1ec', 'PROVA_EXAME',         'Prova ou exame',                  false, false, null, 2,    null, 'PESSOAL',   'FALTA',  true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1ec', 'PROVA_EXAME',         'Prova ou exame',                  false, false, null, 2,    null, 'PESSOAL',   'FALTA',  'SEM_PERDA', true, NOW(), 'system'),
 -- Al. j): ate 15 POR ANO, para assistencia inadiavel a membro do agregado familiar. Aqui o
 -- tecto e mesmo anual -- e a unica alinea do artigo que o diz por extenso, alem da al. q).
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1ed', 'ASSISTENCIA_FAMILIA', 'Assistência a familiar',          false, false, 15,   null, null, 'FAMILIAR',  'FALTA',  true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1ed', 'ASSISTENCIA_FAMILIA', 'Assistência a familiar',          false, false, 15,   null, null, 'FAMILIAR',  'FALTA',  'PERDA_PARCIAL', true, NOW(), 'system'),
 -- Al. q): «nao podendo em caso algum ultrapassar 6 dias em cada ano civil E UM DIA POR MES».
 -- E esta linha que obriga a ter as duas colunas: os dois tectos valem ao mesmo tempo.
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1ee', 'AUTORIZADA_DIRIGENTE','Falta autorizada pelo dirigente', false, true,  6,    null, 1,    'PESSOAL',   'FALTA',  true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1ee', 'AUTORIZADA_DIRIGENTE','Falta autorizada pelo dirigente', false, true,  6,    null, 1,    'PESSOAL',   'FALTA',  'SEM_PERDA', true, NOW(), 'system'),
 -- Al. o): um por mes por conta do periodo de ferias, se ja as gozou. Desconta saldo.
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1ef', 'CONTA_FERIAS',        'Por conta do período de férias',  true,  true,  null, null, 1,    'GOZAMENTO', 'FALTA',  true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1ef', 'CONTA_FERIAS',        'Por conta do período de férias',  true,  true,  null, null, 1,    'GOZAMENTO', 'FALTA',  'SEM_PERDA', true, NOW(), 'system'),
 -- Al. p): greve. Perde remuneracao mas NAO desconta antiguidade (art. 16.o n.o 4) -- e por isso
 -- que nao tem tecto nenhum: o direito a greve nao tem quota.
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1f0', 'GREVE',               'Greve',                           false, false, null, null, null, 'PESSOAL',   'FALTA',  true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1f0', 'GREVE',               'Greve',                           false, false, null, null, null, 'PESSOAL',   'FALTA',  'PERDA_TOTAL', true, NOW(), 'system'),
 -- Al. m) e al. n): obrigacoes legais ou imposicao de autoridade, e prisao preventiva. Sem tecto:
 -- a duracao e a que a autoridade determinar.
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1f1', 'OBRIGACAO_LEGAL',     'Obrigação legal ou judicial',     false, false, null, null, null, 'PESSOAL',   'FALTA',  true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1f1', 'OBRIGACAO_LEGAL',     'Obrigação legal ou judicial',     false, false, null, null, null, 'PESSOAL',   'FALTA',  'SEM_PERDA', true, NOW(), 'system'),
 -- Genericas, para o que a instituicao nao queira desdobrar. A injustificada nao tem tecto
 -- porque nao e um direito: e o registo de uma falta que aconteceu.
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e6', 'FALTA_JUSTIFICADA',   'Falta Justificada',               true,  false, null, null, null, 'PESSOAL',   'FALTA',  true, NOW(), 'system'),
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e7', 'FALTA_INJUSTIFICADA', 'Falta Injustificada',             true,  false, null, null, null, 'PESSOAL',   'FALTA',  true, NOW(), 'system')
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e6', 'FALTA_JUSTIFICADA',   'Falta Justificada',               true,  false, null, null, null, 'PESSOAL',   'FALTA',  'SEM_PERDA', true, NOW(), 'system'),
+-- deducts_balance = FALSE: uma falta injustificada nao se desconta de um saldo do proprio tipo.
+-- Isso seria uma QUOTA de faltar, que e o oposto do que a lei diz. O que ela pode descontar sao
+-- FERIAS, e isso e a opcao do art. 43.o n.o 2, guardada no pedido -- nao um saldo.
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e7', 'FALTA_INJUSTIFICADA', 'Falta Injustificada',             false, false, null, null, null, 'PESSOAL',   'FALTA_INJUSTIFICADA', 'DEPENDE_DA_OPCAO', true, NOW(), 'system')
 ON CONFLICT (code) DO NOTHING;
 
 -- =============================================================

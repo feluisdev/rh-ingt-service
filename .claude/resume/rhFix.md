@@ -22,9 +22,12 @@ não o fazer sem lhe perguntar.**
   são unitários puros; o `RecursosHumanosApplicationTests.contextLoads` carrega o
   contexto Spring completo e o Flyway liga-se ao Postgres. **Sem o contentor a
   correr dá 1 erro, e não é regressão.** Correr **sempre com `clean`** (ver Blockers).
-- **Bateria funcional: 427 passos, 427 OK**, cobre **F0 a F18**. Nada commitado sem
+- **Bateria funcional: 457 passos, 457 OK**, cobre **F0 a F19**. Nada commitado sem
   prova na bateria.
-- **Migrações V40 a V53** aplicadas e verificadas na BD. Próxima livre: **V54**.
+- **Migrações V40 a V54** aplicadas e verificadas na BD. Próxima livre: **V55**.
+  **As catorze da V40 à V53 foram auditadas a 2026-09-22** contra uma base vazia e em
+  repetição sobre uma cópia da base real; a V51 e a V53 falhavam na base vazia e
+  foram corrigidas. Ver «Migrações» em Constraints.
 - **`openapi.json`**: 231 caminhos, 250 esquemas, **0 operações não-sigdi sem
   esquema de resposta**. Regenerado a 2026-09-22; **regenerar sempre** que se
   mexa num endpoint.
@@ -212,6 +215,42 @@ temos. **Não se inventou nenhum prazo.** Se esse diploma aparecer, é no
 no **ciclo de gestão de pessoal** — não nos artigos da mobilidade nem da
 comissão. O texto de 2023 vale para o que se fez. **Isto responde em parte à
 questão aberta 10.**
+
+### Ausências — a falta injustificada e o efeito na remuneração (V54, 2026-09-22)
+
+**Uma frase da lei, duas coisas, e só uma delas é escolha.** Art. 43.º n.º 2: as faltas
+injustificadas «não contam para efeitos de antiguidade e implicam a **opção** entre a
+perda das remunerações correspondentes aos dias de ausência, ou o seu desconto nas
+férias».
+
+- **O desconto na antiguidade é imperativo** — por isso não entrou um booleano
+  `counts_seniority`, que deixaria configurar o contrário da lei. Entrou um **terceiro
+  valor no `regime`**: `FALTA_INJUSTIFICADA`, seguindo a secção própria do diploma. A
+  instituição diz **quais** das suas linhas o são; o efeito é da lei. O
+  `AntiguidadeService` ganhou a **quarta fonte**, e a questão aberta 11 fecha-se.
+- **A opção é de cada caso**, e vive no pedido (`opcaoFaltaInjustificada` ∈
+  `PERDA_REMUNERACAO` · `DESCONTO_FERIAS`). Obrigatória nos tipos injustificados (422 se
+  faltar), recusada nos outros (422). Pelo self-service não existe: ninguém classifica
+  uma falta sua como injustificada.
+- **O efeito na remuneração é informação, não cálculo** (art. 16.º).
+  `EfeitoNaRemuneracao` ∈ `SEM_PERDA` · `PERDA_PARCIAL` (n.º 2, com subsídio da
+  previdência) · `PERDA_TOTAL` (n.º 4, greve) · `PERDA_VENCIMENTO_EXERCICIO` (n.º 5,
+  prisão preventiva, reparável pelo n.º 6) · `DEPENDE_DA_OPCAO`. **Decisão do
+  utilizador:** o RH não desconta nada, guarda a classificação para integrar com o
+  sistema que processa vencimentos. Um booleano não servia — não sabe dizer «parcial».
+
+**A migração não classifica linha nenhuma**, de propósito: estas duas colunas mandam
+descontar antiguidade e mexer em salários. Tudo fica em `SEM_PERDA` e no regime que já
+tinha; classifica-se pela API. Numa instalação a rodar, **nada desconta até alguém
+classificar** — que é a direcção segura.
+
+**Defeito do seed que a bateria apanhou:** a falta injustificada vinha com
+`deducts_balance = true`, o que exigia um *saldo de faltas injustificadas* para se poder
+registar uma — uma quota de faltar, o oposto do que a lei diz. Passou a `false`.
+
+**Nas licenças a informação já existia** como booleano
+(`t_leave_mobility_subtype.affects_pay`), que não sabe dizer «parcial». Ficam dois
+contratos até alguém os convergir.
 
 ### Ausências — o limite de dias tem três naturezas (V53, 2026-09-22)
 
@@ -597,8 +636,22 @@ quando o framework entrar — a lógica de negócio não muda, só passa de
 ## Constraints
 
 - **Build exige JDK 26**: `export JAVA_HOME="/c/Program Files/Eclipse Adoptium/jdk-26.0.2.10-hotspot"`.
-- **Migrações Flyway sempre defensivas**: `to_regclass` + `information_schema.columns`.
-  V40 a V47 são o modelo. **Confirmar o número livre** antes de criar.
+- **Migrações Flyway sempre defensivas E idempotentes**, sem excepção (regra reafirmada
+  pelo utilizador a 2026-09-22). `to_regclass` + `information_schema.columns`, e o
+  mesmo cuidado com as colunas de `audit_schema.*_aud`. **Confirmar o número livre**
+  antes de criar.
+  - **O guarda tem de ser ANINHADO.** O PL/pgSQL prepara a instrução inteira quando a
+    executa, por isso `IF to_regclass('t_x') IS NOT NULL AND NOT EXISTS (SELECT 1 FROM
+    t_x ...)` rebenta com *relation does not exist* numa base onde a tabela falta — o
+    curto-circuito lógico não salva. A V49 tem a forma certa; a V51 e a V53 tinham a
+    forma plana e foram corrigidas.
+  - **Verificar, não acreditar.** Duas provas: correr o ficheiro contra uma base
+    **vazia**, e corrê-lo **duas vezes** sobre uma cópia da base real (`pg_dump` para
+    uma base nova), comparando depois as contagens das tabelas que ele actualiza.
+  - **Editar uma migração já aplicada parte o checksum.** Apagar a linha de
+    `flyway_schema_history` e arrancar uma vez com `--spring.flyway.out-of-order=true`.
+    **Atenção:** reaplicar com um jar antigo grava o checksum do ficheiro antigo — usar
+    fontes actualizadas (`mvn test` serve).
 - Controladores em `interfaces/rest/` são gerados pelo IGRP: lógica nos handlers,
   e **manifesto `.igrpstudio` actualizado a par do Java** (acção + DTOs + entity).
 - **Um `@ApiResponse` com `@Content` sem `schema` apaga o tipo inferido** — o
@@ -801,7 +854,7 @@ férias já estão construídas por cima dela.
 - `db/seed/seed_carreiras.sql` — `ordem_progressao` (1=ASS_TEC, 2=TEC_SUP); **sem
   ela a promoção recusa sempre**.
 - `db/seed/seed_colaboradores.sql` — 3 colaboradores, 6 Lugares.
-- `scripts/testes_funcionais.ps1` — bateria completa (F0 a F18, 427 passos).
+- `scripts/testes_funcionais.ps1` — bateria completa (F0 a F19, 457 passos).
 - `scripts/repor_estado.sql` — **correr antes de cada execução**.
 - `scripts/testes_funcionais_README.md` — o que cada bloco prova.
 - `docs/funcionarios/v5/openapi.json` — contrato gerado; **fonte para as formas**.
@@ -851,7 +904,7 @@ docker exec postgres-ingt-rh sh -c "psql -U postgres -d recursoshumanos_db -q -f
 
 # 3. bateria
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/testes_funcionais.ps1
-# esperado: PASSOS: 427   OK: 427   FALHAS: 0
+# esperado: PASSOS: 457   OK: 457   FALHAS: 0
 
 # 4. regenerar o contrato depois de mexer em endpoints
 curl -s -o docs/funcionarios/v5/openapi.json http://localhost:8099/v3/api-docs
@@ -877,7 +930,7 @@ esc. 1). Vagos: **LUG-0004** (TEC_SUP, promoção com `positionId`), **LUG-0005*
 
 ## Test / validation plan
 
-**A bateria cobre F0 a F17 — 404 passos, todos OK.** F11 (vencimento de férias),
+**A bateria cobre F0 a F19 — 457 passos, todos OK.** F11 (vencimento de férias),
 F12 (acumulação), F13 (suspensão) e F14 (antiguidade) entraram na primeira sessão
 de 2026-09-22, e o F6 ganhou a leitura das substituições; F15 (mudança de
 carreira) e F16 (consolidação da mobilidade) entraram na segunda; **F17 (regresso
@@ -942,11 +995,10 @@ contradizer o código.
    produção** (confirmado pelo utilizador).
 10. **Jurídico**: confirmar se algum diploma substituiu o DL 3/2010 e qual é o
     diploma da mobilidade.
-11. **Faltas injustificadas e antiguidade** — o art. 43.º n.º 2 diz que não
-    contam, mas `t_leave_type` não tem coluna que diga quais o são. **Não se
-    adivinhou** a partir do código `FALTA_INJUSTIFICADA`. Para fechar: acrescentar
-    `counts_seniority` a `t_leave_type` (ou um terceiro valor ao `regime` da V49) e
-    uma quarta fonte ao `AntiguidadeService`. **Decide o RH** se as quer descontar.
+11. ~~**Faltas injustificadas e antiguidade**~~ — **RESOLVIDA na V54 (2026-09-22).**
+    Não era pergunta para o RH: o art. 43.º n.º 2 é imperativo. O que faltava era dizer
+    **quais** das linhas do catálogo são injustificadas, e isso é o terceiro valor do
+    `regime`. A instituição classifica; a lei decide o efeito.
 12. **Marcação de férias** (art. 5.º e 6.º) — mapa até 31 de Março, preferência até
     31 de Janeiro, mínimo de 11 dias num dos períodos, fixação pelo dirigente entre
     Maio e Outubro na falta de acordo. **Por decidir com o RH/produto: quem aprova
@@ -1048,7 +1100,7 @@ O caminho das férias:
 3. Marcação (o pedido já existe; falta o que distingue férias de uma falta comum).
 
 Antes de começar: `docker start postgres-ingt-rh`, `mvn -B clean test` (**897**, 0
-falhas), repor a BD e correr a bateria (**427/427**) para confirmar que se parte de
+falhas), repor a BD e correr a bateria (**457/457**) para confirmar que se parte de
 verde.
 
 > A antiguidade já está feita e **já lê** o art. 47.º n.º 1 (a licença sem

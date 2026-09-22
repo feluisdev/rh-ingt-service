@@ -120,7 +120,7 @@ class SaldoAusenciaTest {
         @InjectMocks private SaldoAusenciaService service;
 
         private PedidoAusencia pedido(int dias) {
-            return PedidoAusencia.criar(FUNCIONARIO, TIPO, INICIO, INICIO.plusDays(dias - 1L), dias, "férias");
+            return PedidoAusencia.criar(FUNCIONARIO, TIPO, INICIO, INICIO.plusDays(dias - 1L), dias, "férias", null);
         }
 
         private void tipoDesconta(boolean desconta) {
