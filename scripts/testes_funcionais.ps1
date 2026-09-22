@@ -668,6 +668,44 @@ if ($null -ne $tipoFalta) {
 }
 
 Write-Host ''
+Write-Host '=========== F13 - SUSPENSAO DE FERIAS (art. 8.o) ==========='
+
+# Ate aqui um pedido de ferias e um de doenca nao se falavam: quem adoecesse a meio das ferias
+# perdia-as, porque os dias ja tinham sido contados como gozados na aprovacao.
+
+$hojeF = Get-Date
+$iniF = $hojeF.AddDays(-6).ToString('yyyy-MM-dd')
+$fimF = $hojeF.AddDays(8).ToString('yyyy-MM-dd')
+$dataSusp = $hojeF.ToString('yyyy-MM-dd')
+
+$rSaldoAntes = Chamar 'F13.1 saldo de ferias antes' GET ('/funcionarios/' + $colabFA + '/saldos-ausencia?ano=' + $anoAc)
+$sAntes = (@(Linhas $rSaldoAntes) | Where-Object { $_.tipoAusenciaId -eq $tipoFerias.id } | Select-Object -First 1)
+
+$rPedF = Chamar 'F13.2 marcar ferias que ja comecaram' POST ('/funcionarios/' + $colabFA + '/pedidos-ausencia') @{ tipoAusenciaId=$tipoFerias.id; dataInicio=$iniF; dataFim=$fimF; motivo='ferias anuais' } 201
+$pedF = $rPedF.Dados.id
+$diasPedidos = $rPedF.Dados.numeroDias
+Chamar 'F13.3 aprovar as ferias' PATCH ('/funcionarios/' + $colabFA + '/pedidos-ausencia/' + $pedF + '/aprovar') @{ aprovadoPorId=$colabFB; observacoesDecisao='deferido' } 200 | Out-Null
+
+Chamar 'F13.4 NEG suspender sem motivo' PATCH ('/funcionarios/' + $colabFA + '/pedidos-ausencia/' + $pedF + '/suspender') @{ data=$dataSusp } 400 | Out-Null
+Chamar 'F13.5 NEG suspender com data futura' PATCH ('/funcionarios/' + $colabFA + '/pedidos-ausencia/' + $pedF + '/suspender') @{ data=$hojeF.AddDays(3).ToString('yyyy-MM-dd'); motivo='doenca' } 400 | Out-Null
+
+$rSusp = Chamar 'F13.6 suspender por doenca a partir de hoje' PATCH ('/funcionarios/' + $colabFA + '/pedidos-ausencia/' + $pedF + '/suspender') @{ data=$dataSusp; motivo='doenca - atestado entregue no servico' } 200
+Verificar 'F13.7 o ultimo dia de ferias e a vespera' ($rSusp.Dados.dataFim -like ($hojeF.AddDays(-1).ToString('yyyy-MM-dd') + '*')) ('(' + $rSusp.Dados.dataFim + ')')
+Verificar 'F13.8 recuperou dias para o saldo' ($rSusp.Dados.diasRecuperados -gt 0) ('(gozados=' + $rSusp.Dados.diasGozados + ' recuperados=' + $rSusp.Dados.diasRecuperados + ')')
+Verificar 'F13.9 gozados mais recuperados dao o pedido inteiro' (($rSusp.Dados.diasGozados + $rSusp.Dados.diasRecuperados) -eq $diasPedidos) ('(' + $diasPedidos + ')')
+
+$rPedLido = Chamar 'F13.10 ler o pedido suspenso' GET ('/funcionarios/' + $colabFA + '/pedidos-ausencia/' + $pedF)
+Verificar 'F13.11 continua APROVADO -- a decisao nao se desfaz' ($rPedLido.Dados.estado -eq 'APROVADO') ('(' + $rPedLido.Dados.estado + ')')
+Verificar 'F13.12 e o motivo da suspensao ficou gravado' (-not [string]::IsNullOrWhiteSpace($rPedLido.Dados.suspensaoMotivo)) ('(' + $rPedLido.Dados.suspensaoMotivo + ')')
+
+$rSaldoDepois = Chamar 'F13.13 saldo depois da suspensao' GET ('/funcionarios/' + $colabFA + '/saldos-ausencia?ano=' + $anoAc)
+$sDepois = (@(Linhas $rSaldoDepois) | Where-Object { $_.tipoAusenciaId -eq $tipoFerias.id } | Select-Object -First 1)
+Verificar 'F13.14 os dias voltaram mesmo ao saldo' ($sDepois.diasDisponiveis -eq ($sAntes.diasDisponiveis - $rSusp.Dados.diasGozados)) ('(antes=' + $sAntes.diasDisponiveis + ' depois=' + $sDepois.diasDisponiveis + ' gozados=' + $rSusp.Dados.diasGozados + ')')
+
+Chamar 'F13.15 NEG suspender duas vezes' PATCH ('/funcionarios/' + $colabFA + '/pedidos-ausencia/' + $pedF + '/suspender') @{ data=$dataSusp; motivo='outra vez' } 409 | Out-Null
+Chamar 'F13.16 NEG pedido de outro colaborador pelo URL deste' PATCH ('/funcionarios/' + $colabFB + '/pedidos-ausencia/' + $pedF + '/suspender') @{ data=$dataSusp; motivo='engano' } 404 | Out-Null
+
+Write-Host ''
 Write-Host '=========== RESUMO ==========='
 $ok = ($script:resultados | Where-Object { $_.OK }).Count
 $total = $script:resultados.Count

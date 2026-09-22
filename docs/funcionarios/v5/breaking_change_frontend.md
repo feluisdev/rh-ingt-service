@@ -359,6 +359,22 @@ gozadas nesse ano. Sem ele, **400**.
 **Um ecra de saldo deve mostrar `diasDireito` e `diasAcumulados` separados.** Sao coisas
 diferentes: um venceu-se este ano, o outro sobrou do anterior e tem prazo.
 
+### 11.11 Suspensao de ferias (2026-09-22)
+
+Endpoint novo: **`PATCH /funcionarios/{id}/pedidos-ausencia/{pedidoId}/suspender`**, corpo
+`{ "data": "YYYY-MM-DD", "motivo": "..." }`. O `motivo` e **obrigatorio** (400 sem ele) e a
+`data` nao pode ser futura (400).
+
+**Campos novos no `PedidoAusenciaResponseDTO`:** `suspensoEm` e `suspensaoMotivo`.
+
+**O estado NAO muda.** Umas ferias interrompidas continuam `APROVADO` -- a decisao foi tomada e
+nao se desfaz; o que encurta e a `dataFim`. Um ecra que queira distinguir umas ferias
+interrompidas de umas ferias que sempre tiveram aquela duracao tem de olhar para `suspensoEm`,
+nao para o estado.
+
+**O `numeroDias` do pedido e reescrito** para os dias efectivamente gozados, e a diferenca volta
+ao saldo. Um ecra que tenha guardado o numero antigo passa a divergir da API -- releia o pedido.
+
 ### Checklist
 
 - [ ] Select de `situacaoFuncional` no catálogo de estados.

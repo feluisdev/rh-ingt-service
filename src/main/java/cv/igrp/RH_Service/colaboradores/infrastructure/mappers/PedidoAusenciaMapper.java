@@ -31,7 +31,7 @@ public class PedidoAusenciaMapper {
                 e.getMotivo(), e.getEstado(),
                 e.getAprovadoPor() != null ? FuncionarioId.from(e.getAprovadoPor()) : null,
                 e.getDataDecisao(), e.getObservacoesDecisao(),
-                e.getIsActive());
+                e.getIsActive(), e.getSuspensoEm(), e.getSuspensaoMotivo());
     }
 
     public PedidoAusenciaEntity toEntity(PedidoAusencia p) {
@@ -47,6 +47,8 @@ public class PedidoAusenciaMapper {
         e.setAprovadoPor(p.getAprovadoPor() != null ? p.getAprovadoPor().getValor() : null);
         e.setDataDecisao(p.getDataDecisao());
         e.setObservacoesDecisao(p.getObservacoesDecisao());
+        e.setSuspensoEm(p.getSuspensoEm());
+        e.setSuspensaoMotivo(p.getSuspensaoMotivo());
         e.setIsActive(p.getIsActive());
         return e;
     }
@@ -79,6 +81,11 @@ public class PedidoAusenciaMapper {
         r.setObservacoesDecisao(p.getObservacoesDecisao());
         r.setIsActive(p.getIsActive());
         r.setEstadoDesc(Boolean.TRUE.equals(p.getIsActive()) ? "Ativo" : "Inativo");
+        // A suspensao encurta o periodo mas nao muda o estado -- o pedido continua APROVADO.
+        // Sem estes dois campos, um ecra nao conseguia distinguir umas ferias interrompidas de
+        // umas ferias que sempre tiveram aquela duracao.
+        r.setSuspensoEm(p.getSuspensoEm());
+        r.setSuspensaoMotivo(p.getSuspensaoMotivo());
         tipoAusenciaRepository.findById(p.getTipoAusenciaId())
                 .ifPresent(t -> r.setTipoAusencia(toTipoDTO(t)));
         return r;

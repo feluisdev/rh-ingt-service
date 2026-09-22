@@ -549,7 +549,46 @@ Resposta `200` (`AcumulacaoFeriasResponseDTO`) mostra os dois lados, que é o qu
 
 **Os dias recebidos não voltam a ser acumuláveis.** O horizonte da lei é de um ano: o art. 7.º n.º 1 fala do «ano seguinte» e o art. 8.º n.º 4 manda gozar o remanescente «até ao termo do ano civil imediato». Por isso `diasAcumuláveis` conta só o que sobra do direito do próprio ano — quem gastou tudo o que se venceu neste ano e ainda tem saldo, tem-no à custa dos dias antigos, e esses ficam.
 
-> **O que ainda não existe:** a compensação na cessação (art. 12.º), que depende de remuneração — e remuneração não existe nesta aplicação.
+### 6.5 Suspensão de férias
+
+**`PATCH /funcionarios/{id}/pedidos-ausencia/{pedidoId}/suspender`**
+
+```json
+{ "data": "YYYY-MM-DD", "motivo": "doença — atestado entregue no serviço" }
+```
+
+O art. 8.º manda suspender as férias por maternidade, paternidade ou adopção (n.º 1), por doença e assistência inadiável a familiares doentes (n.º 2), e por razões imperiosas de serviço mediante despacho fundamentado (n.º 5). O n.º 3 diz **a partir de quando**: «a partir da data da entrada no serviço do documento comprovativo».
+
+Antes disto, um pedido de férias e um de doença não se falavam: quem adoecesse a meio das férias perdia-as, porque os dias tinham sido contados como gozados na aprovação.
+
+**O último dia de férias é a véspera da data indicada** — «a partir de» inclui o próprio dia. É a mesma leitura do regresso antecipado da licença (7.0).
+
+**O estado não muda.** O pedido continua `APROVADO`: a decisão foi tomada e não se desfaz; o que encurta é o período. No `PedidoAusenciaResponseDTO` a interrupção lê-se em `suspensoEm` e `suspensaoMotivo`.
+
+Resposta `200` (`SuspensaoFeriasResponseDTO`):
+
+| Campo | Significado |
+|---|---|
+| `suspensoEm` · `dataFim` | a data da suspensão e o novo último dia de férias |
+| `diasGozados` | dias úteis efectivamente gozados até à interrupção |
+| `diasRecuperados` | dias úteis que voltaram ao saldo |
+| `saldoDisponivel` | o que passa a haver no saldo do ano |
+
+**O que impede erros:**
+
+| Situação | Resposta |
+|---|---|
+| Sem `motivo` | **400** |
+| `data` futura | **400** |
+| Pedido que não está `APROVADO` | **409** |
+| Suspender no próprio dia de início (não há período gozado a interromper) | **409** |
+| Férias que já terminaram, ou já suspensas | **409** |
+| Tipo que não seja férias (`regime != FERIAS`) | **422** |
+| Pedido de outro colaborador pelo URL deste | **404** |
+
+**Para onde vão os dias recuperados:** voltam ao saldo do **próprio ano**. Passá-los ao ano seguinte é a acumulação (6.4) — e é isso que o art. 9.º n.º 1, remetendo para o art. 8.º n.º 4, autoriza ao mandar gozá-los «até ao termo do ano civil imediato».
+
+> **O que ainda não existe:** a compensação na cessação (art. 12.º) e a compensação proporcional pela suspensão por razões de serviço (art. 8.º n.º 7), ambas dependentes de remuneração — e remuneração não existe nesta aplicação.
 
 As transições do pedido são todas `PATCH`, e não `PUT` — ao contrário das do contrato e das da licença, que são `PUT`:
 

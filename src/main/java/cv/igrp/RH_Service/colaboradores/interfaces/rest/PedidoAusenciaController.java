@@ -10,6 +10,12 @@ import cv.igrp.framework.core.domain.CommandBus;
 import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.framework.stereotype.IgrpController;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import cv.igrp.RH_Service.colaboradores.application.commands.SuspenderFeriasCommand;
+import cv.igrp.RH_Service.colaboradores.application.dto.SuspensaoFeriasResponseDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.SuspensaoFeriasRequestDTO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -107,6 +113,22 @@ public class PedidoAusenciaController {
         LOGGER.debug("Operation started");
         ResponseEntity<SuccessResponseDTO> response = commandBus.send(
                 new CancelarPedidoAusenciaCommand(funcionarioId, pedidoId, funcionarioId));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @PatchMapping("{pedidoId}/suspender")
+    @Operation(summary = "Suspender ferias a partir de uma data (art. 8.o: parentalidade, doenca, "
+            + "assistencia a familiares ou razoes imperiosas de servico). Devolve os dias ao saldo")
+    @ApiResponse(responseCode = "200", description = "Ferias suspensas",
+            content = @Content(schema = @Schema(implementation = SuspensaoFeriasResponseDTO.class)))
+    public ResponseEntity<SuspensaoFeriasResponseDTO> suspender(
+            @PathVariable String funcionarioId,
+            @PathVariable String pedidoId,
+            @RequestBody SuspensaoFeriasRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<SuspensaoFeriasResponseDTO> response = commandBus.send(
+                new SuspenderFeriasCommand(funcionarioId, pedidoId, request.getData(), request.getMotivo()));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

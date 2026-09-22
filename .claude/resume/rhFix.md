@@ -15,17 +15,17 @@ par, sem avançar enquanto o anterior não estiver verde.
 
 **Branch `fix-alinhamento-legislacao`**. O commit que a versão anterior deste
 documento dava como pendente **já foi enviado**; há **1 commit local por enviar**
-a 2026-09-22 (`204f29af` a V48, `f0a135b2` o handoff, `9d0e353b` a V49 e o da
-acumulação/V50). O
+a 2026-09-22 (`204f29af` a V48, `f0a135b2` o handoff, `9d0e353b` a V49, o da
+acumulação/V50 e o da suspensão/V51). O
 GitLab é o repo da equipa; merge para `master` é deploy. **Ainda não foi feito
 push** — por indicação do utilizador.
 
-- **Testes: 806, 0 falhas — mas só com a base de dados de pé.** 805 são unitários
+- **Testes: 815, 0 falhas — mas só com a base de dados de pé.** 814 são unitários
   puros; o `RecursosHumanosApplicationTests.contextLoads` carrega o contexto Spring
   completo e o Flyway liga-se ao Postgres. **Sem o contentor a correr dá 1 erro, e
   não é regressão.** Correr **sempre com `clean`** (ver Blockers).
-- **Bateria funcional: 258 passos, 258 OK**, cobre **F0 a F12**.
-- **Migrações V40 a V50** aplicadas e verificadas na BD. Próxima livre: **V51**.
+- **Bateria funcional: 274 passos, 274 OK**, cobre **F0 a F13**.
+- **Migrações V40 a V51** aplicadas e verificadas na BD. Próxima livre: **V52**.
 - **`openapi.json`**: 225 caminhos, 238 esquemas, **0 operações não-sigdi sem
   esquema de resposta**.
 - **Nenhum handler ou controlador não-sigdi devolve `Map`.**
@@ -81,6 +81,16 @@ de ser possível, por construção e por restrição no esquema.
    fica à parte do direito do próprio ano (`dias_acumulados` + motivo), e os dias
    recebidos **não voltam a ser acumuláveis** — o horizonte da lei é de um ano
    (art. 7.º n.º 1 e art. 8.º n.º 4).
+
+   **A suspensão também está feita (V51, 2026-09-22).** Umas férias em curso
+   interrompem-se por `PATCH /pedidos-ausencia/{id}/suspender` pelas causas do
+   art. 8.º (parentalidade, doença, assistência a familiares, razões imperiosas
+   de serviço), com motivo obrigatório. A suspensão produz efeito **a partir** da
+   data indicada (n.º 3), logo o último dia de férias é a **véspera**; o pedido
+   continua `APROVADO` — o que encurta é o período — e os dias recuperados voltam
+   ao saldo do próprio ano, recontados em dias úteis. Passá-los ao ano seguinte
+   é a acumulação da V50, que é o que o art. 9.º n.º 1 conjugado com o art. 8.º
+   n.º 4 autoriza; não se inventou um segundo transporte.
 
    **Falta ainda:**
    - **marcação** — o mapa de férias até 31 de Março (art. 6.º), a indicação de
@@ -531,10 +541,17 @@ contradizer o código.
 **Push por fazer** (`git push origin_git_lab fix-alinhamento-legislacao`) — o
 utilizador pediu para não o fazer ainda.
 
-**Vencimento e acumulação de férias estão feitos.** O ponto 1 continua aberto
-nas partes listadas acima: **marcação** (mapa de férias, preferência, mínimo de
-11 dias, fixação pelo dirigente), **suspensão** por doença ou parentalidade
-(art. 8.º) e **meios-dias** (art. 2.º n.º 6).
+**Vencimento, acumulação e suspensão de férias estão feitos.** Do ponto 1
+sobram duas partes, e **ambas esperam por decisões que não são de código**:
+
+- **Marcação** (art. 5.º e 6.º) — mapa de férias até 31 de Março, indicação de
+  preferência até 31 de Janeiro, mínimo de 11 dias num dos períodos em gozo
+  interpolado, fixação pelo dirigente entre Maio e Outubro na falta de acordo.
+  **Por decidir com o RH/produto:** quem aprova o mapa, e o que acontece a quem
+  não indica preferência.
+- **Meios-dias** (art. 2.º n.º 6, até 5) — o `numeroDias` é inteiro. Mudá-lo
+  parte o contrato do front-end. **Por decidir:** se se faz agora ou junto com a
+  decisão sobre assiduidade (questão aberta 1).
 
 Ao atacar a marcação, decidir primeiro com o RH/produto: quem aprova o mapa de
 férias e o que acontece a quem não indica preferência até 31 de Janeiro. São

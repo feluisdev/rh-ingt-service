@@ -1,0 +1,10 @@
+{
+  "type": "dto",
+  "name": "SuspensaoFeriasRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "date", "name": "data", "objectType": "java", "required": true},
+    {"type": "string", "name": "motivo", "objectType": "java", "required": true}
+  ]
+}

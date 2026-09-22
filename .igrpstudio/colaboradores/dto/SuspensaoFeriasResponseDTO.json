@@ -1,0 +1,14 @@
+{
+  "type": "dto",
+  "name": "SuspensaoFeriasResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "pedidoId", "objectType": "java", "required": false},
+    {"type": "date", "name": "suspensoEm", "objectType": "java", "required": false},
+    {"type": "date", "name": "dataFim", "objectType": "java", "required": false},
+    {"type": "integer", "name": "diasGozados", "objectType": "java", "required": false},
+    {"type": "integer", "name": "diasRecuperados", "objectType": "java", "required": false},
+    {"type": "integer", "name": "saldoDisponivel", "objectType": "java", "required": false}
+  ]
+}

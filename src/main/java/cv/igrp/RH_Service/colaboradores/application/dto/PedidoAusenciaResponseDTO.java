@@ -23,4 +23,8 @@ public class PedidoAusenciaResponseDTO {
     private String observacoesDecisao;
     private Boolean isActive;
     private String estadoDesc;
+    /** Data a partir da qual as ferias deixaram de correr (art. 8.o). Nulo se nao houve suspensao. */
+    private LocalDate suspensoEm;
+    /** Qual das causas do art. 8.o justificou a interrupcao. */
+    private String suspensaoMotivo;
 }

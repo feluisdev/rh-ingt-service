@@ -60,6 +60,18 @@ public class SaldoAusenciaService {
     }
 
     /**
+     * Devolve <b>parte</b> dos dias gozados. É o caso da suspensão de férias (art. 8.º): o
+     * período encurta, uma parte foi mesmo gozada e o resto volta ao saldo. Ao contrário do
+     * cancelamento, o número não é o do pedido — que entretanto já foi ajustado — mas o que
+     * deixou de ser gozado.
+     */
+    @Transactional
+    public void devolverDias(PedidoAusencia pedido, int dias) {
+        if (dias <= 0) return;
+        aplicar(pedido, false, saldo -> saldo.devolverGozo(dias));
+    }
+
+    /**
      * @param exigirSaldo na submissão, não haver saldo configurado é motivo para
      *                    recusar; a devolver dias, não — não se prende um
      *                    cancelamento por falta de configuração

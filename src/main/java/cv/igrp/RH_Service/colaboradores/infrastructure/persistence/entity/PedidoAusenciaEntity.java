@@ -56,6 +56,13 @@ public class PedidoAusenciaEntity extends AuditEntity {
     @Column(name = "observacoes_decisao")
     private String observacoesDecisao;
 
+    /** Suspensao de ferias (art. 8.o do DL n.o 3/2010). Ver V51. */
+    @Column(name = "suspenso_em")
+    private LocalDate suspensoEm;
+
+    @Column(name = "suspensao_motivo", columnDefinition = "TEXT")
+    private String suspensaoMotivo;
+
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 }

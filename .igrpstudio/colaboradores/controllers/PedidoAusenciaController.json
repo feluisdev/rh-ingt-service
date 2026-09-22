@@ -200,6 +200,38 @@
           }
         }
       }
+    },
+    {
+      "actionName": "suspender",
+      "method": "PATCH",
+      "path": "{pedidoId}/suspender",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "pedidoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": true,
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuspensaoFeriasResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }
