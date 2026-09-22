@@ -22,4 +22,9 @@ public interface PedidoAusenciaRepository {
     int somarDiasNoAno(FuncionarioId funcionarioId,
                        cv.igrp.RH_Service.colaboradores.domain.valueobject.TipoAusenciaId tipoAusenciaId,
                        int ano);
+
+    /** O mesmo no mês civil — art. 15.º n.º 1 al. o) e al. q) contam por mês, não por ano. */
+    int somarDiasNoMes(FuncionarioId funcionarioId,
+                       cv.igrp.RH_Service.colaboradores.domain.valueobject.TipoAusenciaId tipoAusenciaId,
+                       int ano, int mes);
 }

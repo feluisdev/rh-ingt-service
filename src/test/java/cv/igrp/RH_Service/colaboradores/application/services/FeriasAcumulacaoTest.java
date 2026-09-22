@@ -54,7 +54,7 @@ class FeriasAcumulacaoTest {
 
     private static TipoAusencia tipo(RegimeAusencia regime) {
         return TipoAusencia.reconstituir(TIPO_FERIAS, "Férias", "FERIAS", true, true,
-                22, "GOZAMENTO", true, regime);
+                22, null, null, "GOZAMENTO", true, regime);
     }
 
     private static SaldoAusencia saldo(int ano, int direito) {

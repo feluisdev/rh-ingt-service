@@ -88,3 +88,10 @@ delete from t_leave_type where code like 'REG_TST_%' or code like 'TESTE%';
 update t_leave_mobility_subtype
    set return_effect='REGRESSA_OU_CESSA', max_duration_days=1095, max_extensions=NULL
  where code='MOB_COMISSAO';
+
+--    Pela mesma razao, os limites do art. 15.o nas linhas que ja existiam antes da V53. O luto
+--    dizia 5 dias POR ANO, o que recusava o segundo funeral do mesmo ano e deixava passar oito
+--    dias seguidos de uma so vez; a lei conta 8 por falecimento do conjuge ou 1.o grau (al. b).
+--    A doenca com declaracao medica sao 3 consecutivas (al. d).
+update t_leave_type set max_days_per_year=NULL, max_days_per_occurrence=8 where code='LUTO';
+update t_leave_type set max_days_per_occurrence=3 where code='DOENCA';

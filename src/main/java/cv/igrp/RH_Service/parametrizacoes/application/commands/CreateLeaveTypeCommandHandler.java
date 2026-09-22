@@ -37,6 +37,8 @@ public class CreateLeaveTypeCommandHandler implements CommandHandler<CreateLeave
             dto.isDeductsBalance(),
             dto.isRequiresApproval(),
             dto.getMaxDaysPerYear(),
+            dto.getMaxDaysPerOccurrence(),
+            dto.getMaxDaysPerMonth(),
             dto.getCategory(),
             RegimeAusencia.de(dto.getRegime())
         );

@@ -43,6 +43,22 @@ public interface ColabsPedidoAusenciaEntityRepository extends JpaRepository<Pedi
                        @Param("tipoAusenciaId") UUID tipoAusenciaId,
                        @Param("ano") int ano);
 
+    /**
+     * O mesmo, mas no MÊS civil — art. 15.º n.º 1 al. o) e al. q), que contam por mês e não por
+     * ano. Conta-se pelo mês do <b>início</b>, como a soma anual: é o mês em que a ausência é
+     * dada, e é a data que o pedido tem para todos os outros efeitos.
+     */
+    @Query("SELECT COALESCE(SUM(p.numeroDias), 0) FROM ColabsPedidoAusenciaEntity p " +
+           "WHERE p.funcionario.id = :funcionarioId " +
+           "AND p.tipoAusencia.id = :tipoAusenciaId " +
+           "AND YEAR(p.dataInicio) = :ano " +
+           "AND MONTH(p.dataInicio) = :mes " +
+           "AND p.estado NOT IN ('REJEITADO', 'CANCELADO')")
+    int somarDiasNoMes(@Param("funcionarioId") UUID funcionarioId,
+                       @Param("tipoAusenciaId") UUID tipoAusenciaId,
+                       @Param("ano") int ano,
+                       @Param("mes") int mes);
+
     @Query("SELECT CASE WHEN COUNT(p) > 0 THEN TRUE ELSE FALSE END FROM ColabsPedidoAusenciaEntity p " +
            "WHERE p.funcionario.id = :funcionarioId " +
            "AND p.estado IN ('APROVADO', 'PENDENTE') " +

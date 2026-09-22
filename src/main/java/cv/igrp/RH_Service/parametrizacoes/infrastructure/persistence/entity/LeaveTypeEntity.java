@@ -39,6 +39,18 @@ public class LeaveTypeEntity extends AuditEntity {
     @Column(name = "max_days_per_year")
     private Integer maxDaysPerYear;
 
+    /**
+     * Limite por ACONTECIMENTO (V53). O art. 15.o n.o 1 do DL n.o 3/2010 quase so fala assim:
+     * 6 dias por ocasiao do casamento, 8 por falecimento do conjuge, 2 por cada prova.
+     * Nulo quer dizer que a lei nao poe limite desta natureza.
+     */
+    @Column(name = "max_days_per_occurrence")
+    private Integer maxDaysPerOccurrence;
+
+    /** Limite por mes civil (V53): art. 15.o n.o 1 al. o) e al. q). Nulo e sem limite. */
+    @Column(name = "max_days_per_month")
+    private Integer maxDaysPerMonth;
+
     @Column(name = "category", length = 50)
     private String category;
 

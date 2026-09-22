@@ -15,6 +15,14 @@ public class LeaveType {
     private boolean deductsBalance;
     private boolean requiresApproval;
     private Integer maxDaysPerYear;
+    /**
+     * Limite por ACONTECIMENTO (V53). O art. 15.o n.o 1 do DL n.o 3/2010 quase so fala assim --
+     * 6 dias por ocasiao do casamento, 8 por falecimento do conjuge, 2 por cada prova. Nulo quer
+     * dizer que a lei nao poe limite desta natureza, que e o caso da maioria das alineas.
+     */
+    private Integer maxDaysPerOccurrence;
+    /** Limite por mes civil (V53): art. 15.o n.o 1 al. o) e al. q). */
+    private Integer maxDaysPerMonth;
     private String category;
     private boolean active;
     /**
@@ -27,7 +35,8 @@ public class LeaveType {
     private LeaveType() {}
 
     private LeaveType(LeaveTypeId id, String code, String description, boolean deductsBalance,
-                      boolean requiresApproval, Integer maxDaysPerYear, String category, boolean active,
+                      boolean requiresApproval, Integer maxDaysPerYear, Integer maxDaysPerOccurrence,
+                      Integer maxDaysPerMonth, String category, boolean active,
                       RegimeAusencia regime) {
         this.id = id;
         this.code = code;
@@ -35,35 +44,56 @@ public class LeaveType {
         this.deductsBalance = deductsBalance;
         this.requiresApproval = requiresApproval;
         this.maxDaysPerYear = maxDaysPerYear;
+        this.maxDaysPerOccurrence = maxDaysPerOccurrence;
+        this.maxDaysPerMonth = maxDaysPerMonth;
         this.category = category;
         this.active = active;
         this.regime = regime != null ? regime : RegimeAusencia.FALTA;
     }
 
     public static LeaveType criar(String code, String description, boolean deductsBalance,
-                                  boolean requiresApproval, Integer maxDaysPerYear, String category,
-                                  RegimeAusencia regime) {
+                                  boolean requiresApproval, Integer maxDaysPerYear,
+                                  Integer maxDaysPerOccurrence, Integer maxDaysPerMonth,
+                                  String category, RegimeAusencia regime) {
         Objects.requireNonNull(code, "code não pode ser nulo");
-        if (maxDaysPerYear != null && maxDaysPerYear < 0) {
-            throw IgrpResponseStatusException.badRequest("maxDaysPerYear não pode ser negativo.");
-        }
+        validarLimite("maxDaysPerYear", maxDaysPerYear);
+        validarLimite("maxDaysPerOccurrence", maxDaysPerOccurrence);
+        validarLimite("maxDaysPerMonth", maxDaysPerMonth);
         return new LeaveType(LeaveTypeId.gerarNovo(), code, description, deductsBalance,
-                requiresApproval, maxDaysPerYear, category, true, regime);
+                requiresApproval, maxDaysPerYear, maxDaysPerOccurrence, maxDaysPerMonth,
+                category, true, regime);
+    }
+
+    /**
+     * Um limite de zero dias não é um limite: é um tipo que ninguém pode pedir, e isso diz-se
+     * desactivando a linha. Nulo continua a valer — é o «sem limite desta natureza».
+     */
+    private static void validarLimite(String campo, Integer valor) {
+        if (valor != null && valor <= 0)
+            throw IgrpResponseStatusException.badRequest(
+                    campo + " tem de ser maior do que zero; para impedir os pedidos, desactive o tipo.");
     }
 
     public static LeaveType reconstruir(LeaveTypeId id, String code, String description, boolean deductsBalance,
                                         boolean requiresApproval, Integer maxDaysPerYear,
+                                        Integer maxDaysPerOccurrence, Integer maxDaysPerMonth,
                                         String category, boolean active, RegimeAusencia regime) {
         return new LeaveType(id, code, description, deductsBalance, requiresApproval,
-                maxDaysPerYear, category, active, regime);
+                maxDaysPerYear, maxDaysPerOccurrence, maxDaysPerMonth, category, active, regime);
     }
 
     public void atualizar(String description, boolean deductsBalance, boolean requiresApproval,
-                          Integer maxDaysPerYear, String category, RegimeAusencia regime) {
+                          Integer maxDaysPerYear, Integer maxDaysPerOccurrence,
+                          Integer maxDaysPerMonth, String category, RegimeAusencia regime) {
+        validarLimite("maxDaysPerYear", maxDaysPerYear);
+        validarLimite("maxDaysPerOccurrence", maxDaysPerOccurrence);
+        validarLimite("maxDaysPerMonth", maxDaysPerMonth);
         this.description = description;
         this.deductsBalance = deductsBalance;
         this.requiresApproval = requiresApproval;
         this.maxDaysPerYear = maxDaysPerYear;
+        this.maxDaysPerOccurrence = maxDaysPerOccurrence;
+        this.maxDaysPerMonth = maxDaysPerMonth;
         this.category = category;
         // Nao se apaga uma classificacao por o pedido vir sem ela: a omissao mantem a que esta.
         if (regime != null) this.regime = regime;

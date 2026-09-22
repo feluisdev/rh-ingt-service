@@ -611,6 +611,26 @@ O saldo tem três números: `diasDireito`, `diasPendentes` (reservados) e `diasG
 
 Isto mudou: a reserva era feita só na aprovação, e `diasGozados` ficava sempre a zero. Se o teu front-end mostrava os dias gozados, passa agora a ter valores reais.
 
+### 6.2b Limites de dias: por ano, por ocorrência e por mês
+
+O tipo de ausência trazia um só tecto, `maxDaysPerYear`, e o pedido somava sempre o **ano civil**. O art. 15.º n.º 1 do DL n.º 3/2010, porém, quase nunca fala em anos — e desde a **V53** há três campos, todos opcionais:
+
+| Campo | O que limita | Onde a lei o diz |
+|---|---|---|
+| `maxDaysPerYear` | o total do **ano civil** | al. j) «até 15 por ano» · al. q) «6 dias em cada ano civil» |
+| `maxDaysPerOccurrence` | os dias de **cada pedido** | al. a) casamento · al. b) e c) falecimento · al. d) e e) doença · al. f) provas · al. h) nascimento |
+| `maxDaysPerMonth` | o total do **mês civil** | al. o) «um por mês por conta das férias» · al. q) «e um dia por mês» |
+
+**Nulo quer dizer «sem limite desta natureza»** — não zero. É o caso da greve, das obrigações legais e da prisão preventiva, que não têm quota.
+
+**O tecto por ocorrência não se acumula.** Olha só para o pedido que tem à frente: quem perde dois familiares no mesmo ano tem direito às duas ausências. Era esta a falha que a V53 fecha — com o valor escrito no tecto anual, o segundo funeral do ano era recusado *e* oito dias seguidos de uma só vez passavam.
+
+**Podem valer ao mesmo tempo.** A al. q) tem tecto anual **e** mensal, e é por isso que são três campos independentes e não um campo com uma classificação ao lado. Um pedido pode caber no ano e não caber no mês — a recusa diz qual dos dois falhou.
+
+Os três são recusados com **422** na criação do pedido, e a mensagem distingue-os («no máximo N dias de cada vez» · «limite mensal» · «limite anual»). No catálogo (`POST`/`PUT /catalogs/leave-types`) um valor **zero ou negativo** dá **400**: um limite de zero dias não é um limite, é um tipo que ninguém pode pedir, e isso diz-se desactivando a linha.
+
+O seed passou a trazer as alíneas do art. 15.º já classificadas — `CASAMENTO`, `LUTO` (8 dias, cônjuge ou 1.º grau) e `LUTO_OUTRO_GRAU` (3), `NASCIMENTO_FILHO`, `PROVA_EXAME`, `ASSISTENCIA_FAMILIA`, `AUTORIZADA_DIRIGENTE`, `CONTA_FERIAS`, `GREVE`, `OBRIGACAO_LEGAL`, `DOENCA` e `DOENCA_ATESTADO`. **Numa instalação já existente o seed não os corrige** (`ON CONFLICT DO NOTHING`): a classificação das linhas antigas é da instituição, e faz-se pela API.
+
 ### 6.3 Férias: o saldo nasce sozinho
 
 **`POST /saldos-ausencia` deixou de ser o caminho para as férias.** O art. 2.º n.º 4 do DL n.º 3/2010 diz que «o direito a férias vence no dia 1 de Janeiro de cada ano» — e passou a ser o que acontece:

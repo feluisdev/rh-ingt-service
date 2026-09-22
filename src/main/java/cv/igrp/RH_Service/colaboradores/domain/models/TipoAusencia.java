@@ -13,6 +13,15 @@ public class TipoAusencia {
     private Boolean deductsBalance;
     private Boolean requiresApproval;
     private Integer maxDaysPerYear;
+    /**
+     * Limite por ACONTECIMENTO (V53). O art. 15.º n.º 1 do DL n.º 3/2010 quase só fala assim —
+     * 6 dias por ocasião do casamento, 8 por falecimento do cônjuge, 2 por cada prova —, e antes
+     * disto não havia onde o guardar: escrito no limite anual, recusava o segundo luto do ano e
+     * deixava passar oito dias seguidos de uma só vez.
+     */
+    private Integer maxDaysPerOccurrence;
+    /** Limite por mês civil (V53): art. 15.º n.º 1 al. o) e al. q). */
+    private Integer maxDaysPerMonth;
     private String categoryOptionCkey;
     private Boolean isActive;
     /**
@@ -25,6 +34,7 @@ public class TipoAusencia {
 
     public static TipoAusencia criar(String nome, String codigo, Boolean deductsBalance,
                                      Boolean requiresApproval, Integer maxDaysPerYear,
+                                     Integer maxDaysPerOccurrence, Integer maxDaysPerMonth,
                                      String categoryOptionCkey) {
         TipoAusencia t = new TipoAusencia();
         t.id = TipoAusenciaId.gerarNovo();
@@ -33,6 +43,8 @@ public class TipoAusencia {
         t.deductsBalance = deductsBalance;
         t.requiresApproval = requiresApproval;
         t.maxDaysPerYear = maxDaysPerYear;
+        t.maxDaysPerOccurrence = maxDaysPerOccurrence;
+        t.maxDaysPerMonth = maxDaysPerMonth;
         t.categoryOptionCkey = categoryOptionCkey;
         t.isActive = true;
         return t;
@@ -40,7 +52,8 @@ public class TipoAusencia {
 
     public static TipoAusencia reconstituir(TipoAusenciaId id, String nome, String codigo,
                                             Boolean deductsBalance, Boolean requiresApproval,
-                                            Integer maxDaysPerYear, String categoryOptionCkey,
+                                            Integer maxDaysPerYear, Integer maxDaysPerOccurrence,
+                                            Integer maxDaysPerMonth, String categoryOptionCkey,
                                             Boolean isActive, RegimeAusencia regime) {
         TipoAusencia t = new TipoAusencia();
         t.id = id;
@@ -49,6 +62,8 @@ public class TipoAusencia {
         t.deductsBalance = deductsBalance;
         t.requiresApproval = requiresApproval;
         t.maxDaysPerYear = maxDaysPerYear;
+        t.maxDaysPerOccurrence = maxDaysPerOccurrence;
+        t.maxDaysPerMonth = maxDaysPerMonth;
         t.categoryOptionCkey = categoryOptionCkey;
         t.isActive = isActive;
         t.regime = regime;
@@ -58,14 +73,39 @@ public class TipoAusencia {
     /** Ferias vencem-se; uma falta acontece. So o primeiro faz nascer saldo sozinho. */
     public boolean isFerias() { return regime == RegimeAusencia.FERIAS; }
 
+    /**
+     * Excede o que a lei permite <b>de uma vez</b>? Cada pedido é um acontecimento — um
+     * casamento, um funeral, uma prova —, e o limite da alínea aplica-se a ele, não ao ano.
+     * Quem perde dois familiares no mesmo ano tem direito às duas ausências.
+     *
+     * <p>Nulo é «a lei não põe limite desta natureza», que é o caso da maior parte das alíneas
+     * do art. 15.º n.º 1: greve, obrigações legais, prisão preventiva, calamidade pública.
+     */
+    public boolean excedeLimitePorOcorrencia(int diasPedidos) {
+        return maxDaysPerOccurrence != null && diasPedidos > maxDaysPerOccurrence;
+    }
+
+    /** Art. 15.º n.º 1 al. o) e al. q): o que se conta é o mês civil, não o ano. */
+    public boolean excedeLimiteMensal(int diasJaUsadosNoMes, int diasPedidos) {
+        return maxDaysPerMonth != null && diasJaUsadosNoMes + diasPedidos > maxDaysPerMonth;
+    }
+
+    /** Art. 15.º n.º 1 al. j) e al. q): o tecto do ano civil, quando a alínea tem um. */
+    public boolean excedeLimiteAnual(int diasJaUsadosNoAno, int diasPedidos) {
+        return maxDaysPerYear != null && diasJaUsadosNoAno + diasPedidos > maxDaysPerYear;
+    }
+
     public void atualizar(String nome, String codigo, Boolean deductsBalance,
                           Boolean requiresApproval, Integer maxDaysPerYear,
+                          Integer maxDaysPerOccurrence, Integer maxDaysPerMonth,
                           String categoryOptionCkey) {
         this.nome = nome;
         this.codigo = codigo;
         this.deductsBalance = deductsBalance;
         this.requiresApproval = requiresApproval;
         this.maxDaysPerYear = maxDaysPerYear;
+        this.maxDaysPerOccurrence = maxDaysPerOccurrence;
+        this.maxDaysPerMonth = maxDaysPerMonth;
         this.categoryOptionCkey = categoryOptionCkey;
     }
 

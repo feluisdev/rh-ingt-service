@@ -59,6 +59,8 @@ public class SaldoAusenciaMapper {
         r.setDeductsBalance(t.getDeductsBalance());
         r.setRequiresApproval(t.getRequiresApproval());
         r.setMaxDaysPerYear(t.getMaxDaysPerYear());
+        r.setMaxDaysPerOccurrence(t.getMaxDaysPerOccurrence());
+        r.setMaxDaysPerMonth(t.getMaxDaysPerMonth());
         r.setCategoryOptionCkey(t.getCategoryOptionCkey());
         r.setIsActive(t.getIsActive());
         return r;

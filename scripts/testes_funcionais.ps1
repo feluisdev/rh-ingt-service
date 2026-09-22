@@ -1050,6 +1050,82 @@ Verificar 'F17.34 e nao ha cessacao nenhuma registada' ((@(@(Linhas $rHistReg) |
 Chamar 'F17.35 NEG cessar a comissao duas vezes' PUT ('/funcionarios/' + $colabCom + '/licencas-mobilidade/' + $com17b + '/close') $null 409 | Out-Null
 
 Write-Host ''
+Write-Host ''
+Write-Host '=========== F18 - LIMITES DE DIAS POR NATUREZA (art. 15.o n.o 1) ==========='
+
+# O catalogo so sabia dizer "X dias por ano", e o pedido somava sempre o ano civil. Mas o
+# art. 15.o n.o 1 do DL n.o 3/2010 quase nunca fala em anos: "ate 6, POR OCASIAO do casamento",
+# "ate 8, por motivo de FALECIMENTO do conjuge", "duas por CADA prova". Escrever isso no limite
+# anual errava nos dois sentidos ao mesmo tempo -- recusava o segundo funeral do ano e deixava
+# passar oito dias seguidos de uma so vez.
+#
+# A V53 poe os tres tectos lado a lado, porque a al. q) tem limite anual E mensal ao mesmo
+# tempo: "nao podendo ultrapassar 6 dias em cada ano civil e um dia por mes".
+#
+# As datas ancoram-se no dia corrente e sao TODAS disjuntas: a sobreposicao e verificada por
+# funcionario e nao por tipo, logo dois pedidos que se cruzem dao 409 antes de chegarem ao
+# limite -- e o bloco provaria outra coisa.
+
+# Segunda-feira da semana que vem, para as contagens cairem em dias uteis inteiros.
+$segunda18 = (Get-Date).Date.AddDays(7)
+while ($segunda18.DayOfWeek -ne [DayOfWeek]::Monday) { $segunda18 = $segunda18.AddDays(1) }
+function Dia18([int]$offsetDias) { return $segunda18.AddDays($offsetDias).ToString('yyyy-MM-dd') }
+
+$rTipos18 = Chamar 'F18.1 catalogo de tipos de ausencia' GET '/catalogs/leave-types?pagina=0&tamanho=50'
+$tipos18 = @(Linhas $rTipos18)
+$tProva = ($tipos18 | Where-Object { $_.code -eq 'PROVA_EXAME' } | Select-Object -First 1)
+$tAssist = ($tipos18 | Where-Object { $_.code -eq 'ASSISTENCIA_FAMILIA' } | Select-Object -First 1)
+$tAutoriz = ($tipos18 | Where-Object { $_.code -eq 'AUTORIZADA_DIRIGENTE' } | Select-Object -First 1)
+$tLuto = ($tipos18 | Where-Object { $_.code -eq 'LUTO' } | Select-Object -First 1)
+
+Verificar 'F18.2 o catalogo traz os tres tectos, e nao so o anual' (($null -ne $tProva) -and ($null -ne $tAssist) -and ($null -ne $tAutoriz)) ''
+Verificar 'F18.3 a prova de exame sao 2 dias por CADA prova (al. f)' (($tProva.maxDaysPerOccurrence -eq 2) -and ($null -eq $tProva.maxDaysPerYear)) ('(ocorrencia=' + $tProva.maxDaysPerOccurrence + ' ano=' + $tProva.maxDaysPerYear + ')')
+Verificar 'F18.4 a assistencia a familiar sao 15 POR ANO (al. j)' (($tAssist.maxDaysPerYear -eq 15) -and ($null -eq $tAssist.maxDaysPerOccurrence)) ('(ano=' + $tAssist.maxDaysPerYear + ')')
+# A alinea que obriga a ter as duas colunas: os dois tectos valem ao mesmo tempo.
+Verificar 'F18.5 a falta autorizada tem tecto anual E mensal (al. q)' (($tAutoriz.maxDaysPerYear -eq 6) -and ($tAutoriz.maxDaysPerMonth -eq 1)) ('(ano=' + $tAutoriz.maxDaysPerYear + ' mes=' + $tAutoriz.maxDaysPerMonth + ')')
+# O luto conta por falecimento, nao por ano -- e o valor e o do grau de parentesco (al. b).
+Verificar 'F18.6 o luto conta por falecimento, nao por ano (al. b)' (($tLuto.maxDaysPerOccurrence -eq 8) -and ($null -eq $tLuto.maxDaysPerYear)) ('(ocorrencia=' + $tLuto.maxDaysPerOccurrence + ' ano=' + $tLuto.maxDaysPerYear + ')')
+
+# --- o tecto por ocorrencia olha so para o pedido que tem a frente ---
+Chamar 'F18.7 NEG uma semana inteira para uma prova de 2 dias' POST ('/funcionarios/' + $colabB + '/pedidos-ausencia') @{ tipoAusenciaId=$tProva.id; dataInicio=(Dia18 0); dataFim=(Dia18 4); motivo='prova' } 422 | Out-Null
+
+# Tres provas em tres semanas. Cada uma cabe no tecto; juntas ultrapassam-no de longe -- e e
+# esse o ponto: um tecto por ocorrencia NAO se acumula. Antes da V53 o segundo pedido morria.
+$rP1 = Chamar 'F18.8 primeira prova, dois dias' POST ('/funcionarios/' + $colabB + '/pedidos-ausencia') @{ tipoAusenciaId=$tProva.id; dataInicio=(Dia18 0); dataFim=(Dia18 1); motivo='prova de Janeiro' } 201
+$rP2 = Chamar 'F18.9 segunda prova, na semana seguinte' POST ('/funcionarios/' + $colabB + '/pedidos-ausencia') @{ tipoAusenciaId=$tProva.id; dataInicio=(Dia18 7); dataFim=(Dia18 8); motivo='segunda prova' } 201
+$rP3 = Chamar 'F18.10 terceira prova' POST ('/funcionarios/' + $colabB + '/pedidos-ausencia') @{ tipoAusenciaId=$tProva.id; dataInicio=(Dia18 14); dataFim=(Dia18 15); motivo='terceira prova' } 201
+$somaProvas = $rP1.Dados.numeroDias + $rP2.Dados.numeroDias + $rP3.Dados.numeroDias
+Verificar 'F18.11 no ano ja vao mais dias do que o tecto de cada prova' ($somaProvas -gt $tProva.maxDaysPerOccurrence) ('(' + $somaProvas + ' dias no ano, tecto por prova=' + $tProva.maxDaysPerOccurrence + ')')
+
+# --- o tecto anual, esse, soma ---
+$rA1 = Chamar 'F18.12 assistencia a familiar, duas semanas' POST ('/funcionarios/' + $colabB + '/pedidos-ausencia') @{ tipoAusenciaId=$tAssist.id; dataInicio=(Dia18 21); dataFim=(Dia18 32); motivo='assistencia' } 201
+Write-Host ('      dias do primeiro pedido de assistencia: ' + $rA1.Dados.numeroDias)
+Chamar 'F18.13 NEG outras duas semanas passam dos 15 do ano' POST ('/funcionarios/' + $colabB + '/pedidos-ausencia') @{ tipoAusenciaId=$tAssist.id; dataInicio=(Dia18 35); dataFim=(Dia18 46); motivo='assistencia outra vez' } 422 | Out-Null
+
+# --- e o tecto mensal conta o mes civil, nao o ano ---
+# Um dia de cada vez, para o tecto que se exercita ser o mensal e nao o da ocorrencia.
+$diaMes1 = $segunda18.AddDays(49)
+$diaMes2 = $diaMes1.AddDays(1)
+# O mes seguinte a contar do primeiro dia usado: e a fronteira que se quer provar.
+$diaOutroMes = (Get-Date -Year $diaMes1.Year -Month $diaMes1.Month -Day 1).AddMonths(1)
+while ($diaOutroMes.DayOfWeek -ne [DayOfWeek]::Monday) { $diaOutroMes = $diaOutroMes.AddDays(1) }
+
+$rM1 = Chamar 'F18.14 uma falta autorizada pelo dirigente' POST ('/funcionarios/' + $colabB + '/pedidos-ausencia') @{ tipoAusenciaId=$tAutoriz.id; dataInicio=$diaMes1.ToString('yyyy-MM-dd'); dataFim=$diaMes1.ToString('yyyy-MM-dd'); motivo='assunto pessoal' } 201
+Verificar 'F18.15 contou um dia util' ($rM1.Dados.numeroDias -eq 1) ('(' + $rM1.Dados.numeroDias + ')')
+Chamar 'F18.16 NEG a segunda no mesmo mes passa do dia por mes' POST ('/funcionarios/' + $colabB + '/pedidos-ausencia') @{ tipoAusenciaId=$tAutoriz.id; dataInicio=$diaMes2.ToString('yyyy-MM-dd'); dataFim=$diaMes2.ToString('yyyy-MM-dd'); motivo='outra vez' } 422 | Out-Null
+# O mes seguinte tem conta propria: o tecto anual de 6 ainda tem folga.
+Chamar 'F18.17 mas no mes seguinte ja cabe' POST ('/funcionarios/' + $colabB + '/pedidos-ausencia') @{ tipoAusenciaId=$tAutoriz.id; dataInicio=$diaOutroMes.ToString('yyyy-MM-dd'); dataFim=$diaOutroMes.ToString('yyyy-MM-dd'); motivo='mes seguinte' } 201 | Out-Null
+
+# --- a instituicao parametriza os tectos pela API, sem tocar em codigo ---
+$codLim = 'REG_TST_' + (Get-Date -Format 'HHmmss')
+Chamar 'F18.18 NEG tecto de zero dias' POST '/catalogs/leave-types' @{ code=$codLim; description='Tipo de teste'; deductsBalance=$false; requiresApproval=$false; maxDaysPerOccurrence=0 } 400 | Out-Null
+$rNovoLim = Chamar 'F18.19 criar tipo com tecto por ocorrencia' POST '/catalogs/leave-types' @{ code=$codLim; description='Tipo de teste'; deductsBalance=$false; requiresApproval=$false; maxDaysPerOccurrence=3; maxDaysPerMonth=4 } 201
+$rLidoLim = Chamar 'F18.20 ler o tipo criado' GET ('/catalogs/leave-types/' + $rNovoLim.Dados.id)
+Verificar 'F18.21 os tectos ficaram guardados' (($rLidoLim.Dados.maxDaysPerOccurrence -eq 3) -and ($rLidoLim.Dados.maxDaysPerMonth -eq 4)) ('(ocorrencia=' + $rLidoLim.Dados.maxDaysPerOccurrence + ' mes=' + $rLidoLim.Dados.maxDaysPerMonth + ')')
+$rAltLim = Chamar 'F18.22 e alteram-se pela API' PUT ('/catalogs/leave-types/' + $rNovoLim.Dados.id) @{ code=$codLim; description='Tipo de teste'; deductsBalance=$false; requiresApproval=$false; maxDaysPerOccurrence=5 } 200
+Verificar 'F18.23 o tecto mudou e o mensal foi limpo' (($rAltLim.Dados.maxDaysPerOccurrence -eq 5) -and ($null -eq $rAltLim.Dados.maxDaysPerMonth)) ('(ocorrencia=' + $rAltLim.Dados.maxDaysPerOccurrence + ' mes=' + $rAltLim.Dados.maxDaysPerMonth + ')')
+
+Write-Host ''
 Write-Host '=========== RESUMO ==========='
 $ok = ($script:resultados | Where-Object { $_.OK }).Count
 $total = $script:resultados.Count

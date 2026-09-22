@@ -23,6 +23,16 @@ public class LeaveTypeRequestDTO {
 
     private Integer maxDaysPerYear;
 
+    /**
+     * Limite por ACONTECIMENTO (V53): 6 dias por ocasiao do casamento, 8 por falecimento do
+     * conjuge, 2 por cada prova (art. 15.o n.o 1 do DL n.o 3/2010). Nao se soma ao ano -- quem
+     * perde dois familiares no mesmo ano tem direito as duas ausencias. Nulo e sem limite.
+     */
+    private Integer maxDaysPerOccurrence;
+
+    /** Limite por MES civil (V53): art. 15.o n.o 1 al. o) e al. q). Nulo e sem limite. */
+    private Integer maxDaysPerMonth;
+
     private String category;
 
     /**

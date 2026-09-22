@@ -40,6 +40,8 @@ public class TipoAusenciaRepositoryImpl implements TipoAusenciaRepository {
                 e.getDescription(), e.getCode(),
                 e.getDeductsBalance(), e.getRequiresApproval(),
                 e.getMaxDaysPerYear(),
+                e.getMaxDaysPerOccurrence(),
+                e.getMaxDaysPerMonth(),
                 e.getCategory(),
                 e.getIsActive(),
                 regimeDe(e));
@@ -53,6 +55,8 @@ public class TipoAusenciaRepositoryImpl implements TipoAusenciaRepository {
         e.setDeductsBalance(t.getDeductsBalance());
         e.setRequiresApproval(t.getRequiresApproval());
         e.setMaxDaysPerYear(t.getMaxDaysPerYear());
+        e.setMaxDaysPerOccurrence(t.getMaxDaysPerOccurrence());
+        e.setMaxDaysPerMonth(t.getMaxDaysPerMonth());
         e.setCategory(t.getCategoryOptionCkey());
         e.setIsActive(t.getIsActive());
         e.setRegime(t.getRegime() != null ? t.getRegime().name() : null);

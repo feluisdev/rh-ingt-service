@@ -48,6 +48,20 @@
       "primaryKey": false
     },
     {
+      "name": "maxDaysPerOccurrence",
+      "objectType": "java",
+      "type": "integer",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "maxDaysPerMonth",
+      "objectType": "java",
+      "type": "integer",
+      "required": false,
+      "primaryKey": false
+    },
+    {
       "name": "category",
       "objectType": "java",
       "type": "string",

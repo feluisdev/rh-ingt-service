@@ -53,10 +53,32 @@ public class CreatePedidoAusenciaCommandHandler
         if (pedidoRepository.existsOverlapForFuncionario(funcionarioId, dto.getDataInicio(), dto.getDataFim()))
             throw IgrpResponseStatusException.conflict("Existe sobreposição de datas com um pedido APROVADO ou PENDENTE do mesmo funcionário.");
 
+        // Os três limites do art. 15.º n.º 1, cada um com a sua natureza (V53). Vêm por esta
+        // ordem de propósito: a recusa mais útil é a que fala do próprio pedido.
+        //
+        // O limite por OCORRÊNCIA olha só para este pedido. É o que a lei diz na maioria das
+        // alíneas — «até 6, por ocasião do casamento», «até 8, por falecimento do cônjuge»,
+        // «duas por cada prova» —, e é por isso que não se soma nada: quem perde dois
+        // familiares no mesmo ano tem direito às duas ausências.
+        if (tipo.excedeLimitePorOcorrencia(numeroDias))
+            throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Este tipo de ausência admite no máximo " + tipo.getMaxDaysPerOccurrence()
+                            + " dias de cada vez, e foram pedidos " + numeroDias + ".");
+
+        int ano = dto.getDataInicio().getYear();
+
+        if (tipo.getMaxDaysPerMonth() != null) {
+            int mes = dto.getDataInicio().getMonthValue();
+            int usadosNoMes = pedidoRepository.somarDiasNoMes(funcionarioId, tipoId, ano, mes);
+            if (tipo.excedeLimiteMensal(usadosNoMes, numeroDias))
+                throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                        "Limite mensal de dias excedido. Disponíveis neste mês: "
+                                + (tipo.getMaxDaysPerMonth() - usadosNoMes) + ", solicitados: " + numeroDias + ".");
+        }
+
         if (tipo.getMaxDaysPerYear() != null) {
-            int ano = dto.getDataInicio().getYear();
             int diasUsados = pedidoRepository.somarDiasNoAno(funcionarioId, tipoId, ano);
-            if (diasUsados + numeroDias > tipo.getMaxDaysPerYear())
+            if (tipo.excedeLimiteAnual(diasUsados, numeroDias))
                 throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
                         "Limite anual de dias excedido. Disponíveis: " + (tipo.getMaxDaysPerYear() - diasUsados) + ", solicitados: " + numeroDias);
         }

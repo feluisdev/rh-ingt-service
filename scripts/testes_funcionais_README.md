@@ -351,12 +351,41 @@ E o F8 passou a escolher a mobilidade **comum** de forma explicita (`REGRESSA_LU
 primeira da lista: a ordem do catalogo nao e garantida e, se lhe calhasse a comissao, o F8.21
 (prorrogar alem do maximo) deixava de poder falhar -- ela nao tem limite de prorrogacoes.
 
+### F18 - limites de dias por natureza (2026-09-22)
+
+Prova o art. 15.o n.o 1 do DL n.o 3/2010 e a **V53**: o tecto de dias nao e um numero, sao tres,
+e cada um conta uma coisa diferente. O catalogo so sabia dizer "X dias por ano", e o pedido
+somava sempre o ano civil -- mas o artigo quase nunca fala em anos.
+
+- o catalogo devolve os tres tectos, e o seed traz as alineas ja classificadas: a prova de exame
+  sao **2 por cada prova** (al. f), a assistencia a familiar **15 por ano** (al. j), a falta
+  autorizada pelo dirigente **6 por ano E um por mes** (al. q), o luto **8 por falecimento** do
+  conjuge ou 1.o grau (al. b) -- e nao 5 por ano, como dizia
+- uma semana inteira para uma prova de dois dias da **422**
+- **tres provas em tres semanas passam todas**, e no fim do ano ja foram mais dias do que o tecto
+  de cada uma: e o ponto do bloco -- um tecto **por ocorrencia nao se acumula**. Antes da V53 o
+  segundo pedido morria, e era assim que o segundo funeral do ano era recusado
+- o tecto **anual**, esse, soma: duas semanas de assistencia passam, as duas seguintes dao 422
+- o tecto **mensal** conta o mes civil: uma falta autorizada passa, a segunda no mesmo mes da
+  422, e a do mes seguinte passa outra vez -- o tecto anual de 6 ainda tinha folga
+- a instituicao parametriza os tres pela API; um tecto de **zero** da 400, porque um limite de
+  zero dias nao e um limite: e um tipo que ninguem pode pedir, e isso diz-se desactivando a linha
+
+**Todas as datas do bloco sao disjuntas, e nao por acaso:** a sobreposicao e verificada por
+funcionario e nao por tipo, logo dois pedidos que se cruzem dao 409 antes de chegarem ao limite --
+e o bloco estaria a provar outra coisa. As semanas ancoram-se na proxima segunda-feira a contar
+de `Get-Date`, e as contagens sao lidas da resposta em vez de assumidas, para um feriado no meio
+nao transformar uma regra certa numa falha.
+
+O `repor_estado.sql` ganhou a correccao do `LUTO` e da `DOENCA`, pela mesma razao do
+`MOB_COMISSAO`: o seed usa `ON CONFLICT (code) DO NOTHING` e nao toca em linhas que ja existam.
+
 ## Resultado da última execução
 
-**404 passos, 404 OK** (2026-09-22), contra a base local com a V52 aplicada.
+**427 passos, 427 OK** (2026-09-22), contra a base local com a V53 aplicada.
 
-O F15 (mudanca de carreira), o F16 (consolidacao da mobilidade) e o F17 (regresso de comissao)
-entraram nesta data, mais os passos da forma de prestacao no F8 e os da porta generica no F10.
+O F15 (mudanca de carreira), o F16 (consolidacao da mobilidade), o F17 (regresso de comissao) e o
+F18 (limites de dias por natureza) entraram nesta data, mais os passos da forma de prestacao no F8 e os da porta generica no F10.
 Nenhum tem migracao: a `origem` da afectacao e `VARCHAR(20)` sem restricao, e o `return_effect`
 tambem nao tem restricao na base.
 

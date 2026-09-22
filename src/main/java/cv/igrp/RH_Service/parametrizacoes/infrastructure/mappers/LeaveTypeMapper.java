@@ -19,6 +19,8 @@ public class LeaveTypeMapper {
         entity.setDeductsBalance(domain.isDeductsBalance());
         entity.setRequiresApproval(domain.isRequiresApproval());
         entity.setMaxDaysPerYear(domain.getMaxDaysPerYear());
+        entity.setMaxDaysPerOccurrence(domain.getMaxDaysPerOccurrence());
+        entity.setMaxDaysPerMonth(domain.getMaxDaysPerMonth());
         entity.setCategory(domain.getCategory());
         entity.setRegime(domain.getRegime() != null ? domain.getRegime().name() : RegimeAusencia.FALTA.name());
         entity.setIsActive(domain.isActive());
@@ -34,6 +36,8 @@ public class LeaveTypeMapper {
             entity.getDeductsBalance() != null && entity.getDeductsBalance(),
             entity.getRequiresApproval() != null && entity.getRequiresApproval(),
             entity.getMaxDaysPerYear(),
+            entity.getMaxDaysPerOccurrence(),
+            entity.getMaxDaysPerMonth(),
             entity.getCategory(),
             entity.getIsActive() != null && entity.getIsActive(),
             RegimeAusencia.de(entity.getRegime())
@@ -49,6 +53,8 @@ public class LeaveTypeMapper {
         dto.setDeductsBalance(domain.isDeductsBalance());
         dto.setRequiresApproval(domain.isRequiresApproval());
         dto.setMaxDaysPerYear(domain.getMaxDaysPerYear());
+        dto.setMaxDaysPerOccurrence(domain.getMaxDaysPerOccurrence());
+        dto.setMaxDaysPerMonth(domain.getMaxDaysPerMonth());
         dto.setCategory(domain.getCategory());
         dto.setRegime(domain.getRegime() != null ? domain.getRegime().name() : null);
         dto.setIsActive(domain.isActive());

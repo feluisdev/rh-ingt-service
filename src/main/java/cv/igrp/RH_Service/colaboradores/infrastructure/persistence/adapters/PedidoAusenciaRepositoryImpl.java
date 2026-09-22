@@ -53,6 +53,11 @@ public class PedidoAusenciaRepositoryImpl implements PedidoAusenciaRepository {
         return entityRepository.somarDiasNoAno(funcionarioId.getValor(), tipoAusenciaId.getValor(), ano);
     }
 
+    @Override
+    public int somarDiasNoMes(FuncionarioId funcionarioId, TipoAusenciaId tipoAusenciaId, int ano, int mes) {
+        return entityRepository.somarDiasNoMes(funcionarioId.getValor(), tipoAusenciaId.getValor(), ano, mes);
+    }
+
     @Transactional(readOnly = true)
     @Override
     public boolean existsOverlapForFuncionario(FuncionarioId funcionarioId, LocalDate dataInicio, LocalDate dataFim) {

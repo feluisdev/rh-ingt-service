@@ -521,6 +521,43 @@ que o faca por elas, porque o catalogo e da instituicao.
 
 ### Checklist
 
+### 11.19 Tipos de ausencia: tres tectos de dias, e nao um (2026-09-22)
+
+O tipo de ausencia tinha um so campo de limite, `maxDaysPerYear`, e o pedido somava sempre o **ano
+civil**. Passa a ter **tres**, todos opcionais:
+
+| Campo | O que limita |
+|---|---|
+| `maxDaysPerYear` | o total do ano civil |
+| `maxDaysPerOccurrence` | os dias de **cada pedido** |
+| `maxDaysPerMonth` | o total do mes civil |
+
+Nao ha campo removido nem renomeado: quem so conhecer o `maxDaysPerYear` continua a funcionar.
+
+**Porque foi preciso.** O art. 15.o n.o 1 do DL n.o 3/2010 quase nunca fala em anos -- "ate 6, POR
+OCASIAO do casamento", "ate 8, por motivo de FALECIMENTO do conjuge", "duas por CADA prova". Com
+esses numeros escritos no tecto anual, o segundo funeral do mesmo ano era recusado e, ao mesmo
+tempo, oito dias seguidos de uma so vez passavam. A al. q) mostra porque sao tres valores
+independentes: "6 dias em cada ano civil **e um dia por mes**" -- os dois tectos valem juntos.
+
+**Nulo quer dizer sem limite desta natureza**, nao zero. E o caso da greve e das obrigacoes legais.
+
+**O que o ecra tem de fazer:**
+
+- mostrar os tres campos na configuracao do tipo de ausencia, e deixar claro que vazio e "sem
+  limite" -- um `0` passa a dar **400**, porque um limite de zero dias diz-se desactivando a linha;
+- tratar o **422** da criacao do pedido a ler a mensagem: ha agora tres recusas diferentes ("no
+  maximo N dias de cada vez", "limite mensal", "limite anual"), e a que interessa mostrar e a que
+  veio;
+- contar com mais linhas no catalogo: o seed traz agora as alineas do art. 15.o
+  (`CASAMENTO`, `LUTO`, `LUTO_OUTRO_GRAU`, `NASCIMENTO_FILHO`, `PROVA_EXAME`,
+  `ASSISTENCIA_FAMILIA`, `AUTORIZADA_DIRIGENTE`, `CONTA_FERIAS`, `GREVE`, `OBRIGACAO_LEGAL`,
+  `DOENCA_ATESTADO`). Um select de tipos com altura fixa para meia duzia de linhas fica curto.
+
+**Catalogo:** como no MOB_COMISSAO, o seed **nao corrige** linhas ja existentes
+(`ON CONFLICT DO NOTHING`). Numa instalacao a rodar, o `LUTO` continua a dizer 5 dias por ano ate
+alguem o reclassificar pela API -- e, a partir da V53, e pela API que se faz, sem tocar em codigo.
+
 - [ ] Select de `situacaoFuncional` no catálogo de estados.
 - [ ] Tratar `afectacaoEncerradaId` com `cessouVinculo: false` (activo, sem Lugar).
 - [ ] Retirar `AMBOS` dos selects de `recordType`.
@@ -541,3 +578,6 @@ que o faca por elas, porque o catalogo e da instituicao.
 - [ ] Acção de consolidar na mobilidade interna, com os Lugares filtrados por unidade de destino, cargo e categoria.
 - [ ] Contar com que o fim de uma **comissão de serviço** possa deixar o colaborador **cessado**.
 - [ ] `REGRESSA_OU_CESSA` no select de `returnEffect` da configuração de subtipos.
+- [ ] Três campos de limite no ecrã de tipos de ausência; vazio é "sem limite" e `0` dá **400**.
+- [ ] Mostrar a mensagem do **422** do pedido: há agora recusa por ocorrência, por mês e por ano.
+- [ ] Select de tipos de ausência preparado para o catálogo completo do art. 15.º.
