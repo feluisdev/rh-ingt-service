@@ -88,7 +88,7 @@ public class LicencaMobilidadeController {
     // ── Workflow ─────────────────────────────────────────────────────────────
 
     @PutMapping("{licencaId}/approve")
-    @Operation(summary = "Aprovar licença/mobilidade (PENDING → ACTIVE; mobilidades criam nova colocação)")
+    @Operation(summary = "Deferir licença/mobilidade (PENDING → APPROVED). Os efeitos no Lugar aplicam-se na data de início, não na do despacho")
     public ResponseEntity<LicencaEfeitoResponseDTO> approve(
             @PathVariable String funcionarioId,
             @PathVariable String licencaId) {
@@ -112,7 +112,7 @@ public class LicencaMobilidadeController {
     }
 
     @PutMapping("{licencaId}/close")
-    @Operation(summary = "Encerrar licença/mobilidade (ACTIVE → CLOSED; mobilidades restauram colocação anterior)")
+    @Operation(summary = "Registar regresso antecipado (art. 46.º n.º 4): encurta o período para hoje. Recusa o que ainda não começou ou já terminou")
     public ResponseEntity<LicencaEfeitoResponseDTO> close(
             @PathVariable String funcionarioId,
             @PathVariable String licencaId) {
@@ -123,7 +123,7 @@ public class LicencaMobilidadeController {
     }
 
     @PutMapping("{licencaId}/cancel")
-    @Operation(summary = "Cancelar licença/mobilidade (PENDING ou ACTIVE → CANCELLED)")
+    @Operation(summary = "Cancelar licença/mobilidade (PENDING, ou APPROVED que ainda não começou → CANCELLED)")
     public ResponseEntity<SuccessResponseDTO> cancel(
             @PathVariable String funcionarioId,
             @PathVariable String licencaId) {

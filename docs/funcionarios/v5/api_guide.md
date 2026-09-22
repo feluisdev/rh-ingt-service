@@ -512,15 +512,33 @@ DELETE .../{ownerId}/documentos/{docId}
 >
 > **A licença pode tirar** (DL n.º 3/2010) — ver 7.1. O `record_type` do subtipo é `LICENCA` ou `MOBILIDADE`; o valor `AMBOS` foi removido.
 
+### 7.0 Dois eixos: a decisão e o período
+
+O art. 44.º do DL n.º 3/2010 trata dois factos em números seguidos — o n.º 1 define a licença como «ausência prolongada do serviço» (um **período**) e o n.º 2 faz a concessão depender «do pedido do interessado e do **despacho** da autoridade competente» (um **acto**). Desde a **V48** o registo espelha essa separação, e a resposta traz os dois campos:
+
+| Campo | Eixo | Valores |
+|---|---|---|
+| `status` | **decisão** — o que foi despachado | `PENDING` · `APPROVED` · `REJECTED` · `CANCELLED` |
+| `estadoPeriodo` | **período** — onde a licença está hoje | `POR_INICIAR` · `EM_CURSO` · `TERMINADA` (nulo se não estiver deferida) |
+
+**`ACTIVE` e `CLOSED` desapareceram.** Não eram decisões: eram o período disfarçado de decisão. Quem lia `status == "ACTIVE"` para saber se alguém está de licença passa a ler **`estadoPeriodo == "EM_CURSO"`**; quem lia `CLOSED` passa a ler `TERMINADA`.
+
+O que isto muda no comportamento:
+
+- **Deferir não é pôr em vigor.** Aprovar uma licença que começa daqui a um mês deixa-a `APPROVED` / `POR_INICIAR` e **não** abre vaga nem muda o estado do trabalhador. Os efeitos aplicam-se na data de início — na própria transacção se ela for hoje, por um **job diário** (`rh.licencas.efeitos.cron`, 00:15 por omissão) se for mais tarde.
+- **O período acaba sozinho.** Passada a `dataFim`, a licença fica `TERMINADA` sem ninguém carregar em nada, e o mesmo job aplica o regresso e faz caducar as substituições — é o «caduca automaticamente» do art. 46.º n.º 3. Antes, uma licença esquecida ficava em vigor para sempre.
+- **Não se regressa do que não começou.** O `close` de uma licença `POR_INICIAR` devolve **409** e indica o cancelamento. Antes fixava o fim em *hoje* sem olhar ao início, gravando um fim **anterior** ao início — e falseando as contagens de dias em que assentam o desconto na antiguidade e as férias proporcionais (art. 47.º n.os 1 a 3).
+- **A data de regresso é o primeiro dia de volta**, logo a `dataFim` fica na **véspera**. Quem parte e regressa no mesmo dia fica com um dia — o mínimo que datas em `DATE` exprimem.
+
 | Método | Path | Descrição |
 |---|---|---|
 | `POST` | `/` | Criar licença/mobilidade (nasce `PENDING`). |
 | `GET` | `/` · `/{licencaId}` | Listar / detalhe. |
 | `PUT` | `/{licencaId}` | Atualizar (só enquanto `PENDING`). |
-| `PUT` | `/{licencaId}/approve` | Aprovar (só a partir de `PENDING`). Valida destino e duração. **Não mexe na afectação.** |
+| `PUT` | `/{licencaId}/approve` | **Deferir** (só a partir de `PENDING`). Valida destino e duração. **Não mexe na afectação.** Os efeitos no Lugar só se aplicam na data de início — ver 7.0. |
 | `PUT` | `/{licencaId}/reject` | Rejeitar com motivo. |
-| `PUT` | `/{licencaId}/close` | Encerrar (fim do período ou regresso antecipado). Só a partir de `ACTIVE`. |
-| `PUT` | `/{licencaId}/cancel` | Cancelar (`PENDING` ou `ACTIVE`). |
+| `PUT` | `/{licencaId}/close` | **Regresso antecipado** (art. 46.º n.º 4): encurta o período. Só com o registo deferido e **em curso** — ver 7.0. |
+| `PUT` | `/{licencaId}/cancel` | Cancelar (`PENDING`, ou `APPROVED` que **ainda não começou**). |
 | `PUT` | `/{licencaId}/prorrogar` | **Prorrogar** o período em vigor (limites do subtipo). |
 | `PATCH` | `/{licencaId}/ativar` | Igual a `approve` (alias legado). |
 | `DELETE` | `/{licencaId}/desativar` | Soft delete do registo. |
@@ -562,7 +580,7 @@ No `approve` (ou `ativar`), se o subtipo abrir vaga para aquela duração:
 - o colaborador passa ao estado com situação `INACTIVIDADE_FORA_QUADRO`, se existir no catálogo;
 - **o vínculo não cessa** — a resposta traz `afectacaoEncerradaId` e o colaborador continua activo.
 
-No `close`, se o `returnEffect` for `DISPONIBILIDADE`, o colaborador passa ao estado com essa situação (art. 122.º) e a resposta traz `estadoAtribuidoId`. A nova afectação é um acto do RH: depende de haver Lugar livre.
+No regresso (pelo `close` ou pelo job, quando o período acaba), se o `returnEffect` for `DISPONIBILIDADE`, o colaborador passa ao estado com essa situação (art. 122.º) e a resposta traz `estadoAtribuidoId`. A nova afectação é um acto do RH: depende de haver Lugar livre.
 
 Um período **sem data de fim** ultrapassa qualquer prazo, logo abre vaga. A **mobilidade nunca abre vaga**: marcar um subtipo de mobilidade como `ABRE_VAGA` devolve **400**.
 
@@ -571,7 +589,7 @@ Valores do seed: `LIC_SEM_VENCIMENTO` mantém; `LIC_LONGA_DURACAO` e `LIC_ORG_IN
 ### Duração e prorrogação
 A duração máxima e o número de prorrogações são **parametrizados no subtipo** (`maxDurationDays`, `maxExtensions`). Por omissão, os subtipos de mobilidade ficam com 365 dias e 1 prorrogação (art. 132.º n.º 5). Se o subtipo tiver duração máxima, a `dataFim` é obrigatória e a duração é validada no `approve` (**422** se exceder).
 
-**`PUT /{licencaId}/prorrogar`** — só com o registo `ACTIVE`:
+**`PUT /{licencaId}/prorrogar`** — só com o registo deferido (`APPROVED`):
 ```json
 { "novaDataFim": "YYYY-MM-DD", "despachoNumero": "string | null", "observacoes": "string | null" }
 ```

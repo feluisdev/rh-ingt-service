@@ -40,7 +40,7 @@ docker exec postgres-ingt-rh sh -c "psql -U postgres -d recursoshumanos_db -q -f
 | **F1** situações funcionais | os quatro estados de origem vêm classificados; situação fora da lei, cessação incoerente e `APOSENTACAO` sem cessação são recusadas |
 | **F1b** movimentos | progressão sobe um escalão; promoção e transferência recusam destino inexistente; data anterior à afectação é recusada |
 | **F2** estado que abre vaga | inactividade fora do quadro encerra a afectação, suspende o contrato e **não** cessa o vínculo; o regresso reactiva o contrato e não devolve o Lugar |
-| **F3** licenças | o prazo do subtipo decide: 180 dias mantém o Lugar, 200 abre vaga; o regresso põe em disponibilidade; mobilidade não pode abrir vaga; `AMBOS` recusado; criar subtipo pela API funciona |
+| **F3** licenças | o prazo do subtipo decide: 180 dias mantém o Lugar, 200 abre vaga; o regresso põe em disponibilidade; mobilidade não pode abrir vaga; `AMBOS` recusado; criar subtipo pela API funciona. **Os dois eixos (V48):** deferir uma licença que só começa daqui a um mês **não** abre vaga (F3.12c) e devolve `APPROVED`/`POR_INICIAR` (F3.12e); o `close` dessa licença é recusado com 409 e o período fica intacto, sem fim anterior ao início (F3.12f–h); cancelar vale antes de começar (F3.12i) e é recusado depois (F3.15c); o regresso antecipado deixa a ausência a acabar na **véspera** (F3.18b). Datas ancoradas em `Get-Date`: com datas fixas, este bloco provava o defeito em vez da regra |
 | **F4** ausências | reserva na submissão, gozo na aprovação, devolução no cancelamento, libertação na rejeição; sobreposição, falta de saldo, dupla decisão e URL de outro colaborador são recusados |
 | **F5** efeitos cruzados | quem perdeu o Lugar (por estado ou por licença) não pode progredir |
 
@@ -157,7 +157,7 @@ bateria comporta-se como um cliente correcto.
 
 ## Resultado da última execução
 
-**207 passos, 207 OK** (2026-09-19), contra a base local com a V47 aplicada.
+**221 passos, 221 OK** (2026-09-22), contra a base local com a V48 aplicada.
 
 Encontrou dois problemas reais, já corrigidos:
 

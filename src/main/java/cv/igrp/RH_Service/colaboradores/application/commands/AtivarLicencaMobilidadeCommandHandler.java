@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
-import cv.igrp.RH_Service.colaboradores.application.services.LicencaService;
+import cv.igrp.RH_Service.colaboradores.application.services.LicencaEfeitoService;
 import cv.igrp.RH_Service.colaboradores.application.services.MobilidadeService;
 import cv.igrp.RH_Service.colaboradores.domain.repository.LicencaMobilidadeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.LicencaMobilidadeId;
@@ -27,7 +27,7 @@ public class AtivarLicencaMobilidadeCommandHandler
 
     private final LicencaMobilidadeRepository licencaRepository;
     private final MobilidadeService mobilidadeService;
-    private final LicencaService licencaService;
+    private final LicencaEfeitoService licencaEfeitoService;
 
     @IgrpCommandHandler
     @Transactional
@@ -51,8 +51,10 @@ public class AtivarLicencaMobilidadeCommandHandler
         licenca.aprovar();
         licencaRepository.save(licenca);
 
-        // A licença pode abrir vaga; a mobilidade nunca o faz. Quem decide é o subtipo.
-        var efeito = licencaService.aplicarEntradaEmVigor(licenca, subtipo);
+        // Deferir nao e por em vigor: os efeitos pertencem ao PERIODO (art. 44.o n.o 1), nao ao
+        // despacho (n.o 2). Se a licenca comeca hoje, aplicam-se ja — ninguem espera pela
+        // meia-noite; se comeca mais tarde, e o job diario que os aplica na data certa.
+        var efeito = licencaEfeitoService.aplicarEntradaSeDevida(licenca, java.time.LocalDate.now());
         if (efeito.afectacaoEncerradaId() != null)
             return ResponseEntity.ok(new LicencaEfeitoResponseDTO(
                     licenca.getId().getStringValor(), licenca.getStatus(), true,

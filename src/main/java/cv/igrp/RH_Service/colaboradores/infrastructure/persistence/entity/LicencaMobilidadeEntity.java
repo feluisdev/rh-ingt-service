@@ -10,6 +10,7 @@ import lombok.*;
 import org.hibernate.envers.Audited;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Audited
@@ -76,4 +77,11 @@ public class LicencaMobilidadeEntity extends AuditEntity {
     /** Prorrogações já concedidas — ver V41. */
     @Column(name = "extensions_count")
     private Integer extensionsCount;
+
+    /** Marcas de aplicação dos efeitos no Lugar — a idempotência do job diário. Ver V48. */
+    @Column(name = "efeito_entrada_aplicado_em")
+    private LocalDateTime efeitoEntradaAplicadoEm;
+
+    @Column(name = "efeito_regresso_aplicado_em")
+    private LocalDateTime efeitoRegressoAplicadoEm;
 }

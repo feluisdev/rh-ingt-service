@@ -17,8 +17,14 @@ public interface LicencaMobilidadeRepository {
     List<LicencaMobilidade> findAllByFuncionarioId(FuncionarioId funcionarioId, LicencaMobilidadeFilter filter);
 
     /**
-     * Registos em vigor (ACTIVE) do colaborador numa data — é por aqui que se sabe onde a pessoa
+     * Registos em vigor (deferidos e a decorrer) do colaborador numa data — é por aqui que se sabe onde a pessoa
      * exerce funções quando está em mobilidade, já que a afectação continua no Lugar de origem.
      */
     List<LicencaMobilidade> findActiveByFuncionarioIdAt(FuncionarioId funcionarioId, java.time.LocalDate data);
+
+    /** Deferidas que já começaram e cujos efeitos no Lugar continuam por aplicar. */
+    List<LicencaMobilidade> findEntradaPorAplicar(java.time.LocalDate data);
+
+    /** Deferidas cujo período já terminou e cujo regresso continua por aplicar. */
+    List<LicencaMobilidade> findRegressoPorAplicar(java.time.LocalDate data);
 }

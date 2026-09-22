@@ -30,7 +30,7 @@ public class CancelarLicencaMobilidadeCommandHandler
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Licença/mobilidade não encontrada: " + command.getLicencaId()));
 
-        licenca.cancelar();
+        licenca.cancelar(java.time.LocalDate.now());
         licencaRepository.save(licenca);
 
         return ResponseEntity.ok(SuccessResponseDTO.de(command.getLicencaId()));

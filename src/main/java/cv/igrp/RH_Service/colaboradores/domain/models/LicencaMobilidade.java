@@ -7,6 +7,7 @@ import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
@@ -25,10 +26,13 @@ import java.util.UUID;
 @Getter
 public class LicencaMobilidade {
 
+    // O status guarda a DECISÃO, e só a decisão (art. 44.º n.º 2: o despacho). O estado do
+    // PERÍODO — por iniciar, em curso, terminada — deriva das datas e vive no
+    // EstadoPeriodoLicenca. Até à V48 os dois viviam aqui, e era isso que tornava possível
+    // aprovar em Setembro uma licença de Outubro e pôr a pessoa de licença em Setembro.
     public static final String PENDING = "PENDING";
-    public static final String ACTIVE = "ACTIVE";
+    public static final String APPROVED = "APPROVED";
     public static final String REJECTED = "REJECTED";
-    public static final String CLOSED = "CLOSED";
     public static final String CANCELLED = "CANCELLED";
 
     private LicencaMobilidadeId id;
@@ -53,6 +57,15 @@ public class LicencaMobilidade {
     private String rejectionReason;
     /** Prorrogações já concedidas (art. 132.º n.º 5: em regra, uma única). */
     private Integer extensionsCount;
+    /**
+     * Quando os efeitos da entrada em vigor foram aplicados ao Lugar. Nulo quer dizer «ainda por
+     * aplicar», e é isso — e só isso — que o job diário lê. É o que o torna seguro de repetir:
+     * um dia falhado não perde nada, porque a pergunta é sobre o estado actual e não sobre um
+     * intervalo desde a última execução.
+     */
+    private LocalDateTime efeitoEntradaAplicadoEm;
+    /** O mesmo para o regresso, no fim do período. */
+    private LocalDateTime efeitoRegressoAplicadoEm;
 
     private LicencaMobilidade() {}
 
@@ -96,7 +109,9 @@ public class LicencaMobilidade {
                                                   String status, UUID destinationUnitId,
                                                   UUID destinationPositionId,
                                                   String justification, UUID documentId,
-                                                  String rejectionReason, Integer extensionsCount) {
+                                                  String rejectionReason, Integer extensionsCount,
+                                                  LocalDateTime efeitoEntradaAplicadoEm,
+                                                  LocalDateTime efeitoRegressoAplicadoEm) {
         LicencaMobilidade l = new LicencaMobilidade();
         l.id = id;
         l.funcionarioId = funcionarioId;
@@ -114,6 +129,8 @@ public class LicencaMobilidade {
         l.documentId = documentId;
         l.rejectionReason = rejectionReason;
         l.extensionsCount = extensionsCount != null ? extensionsCount : 0;
+        l.efeitoEntradaAplicadoEm = efeitoEntradaAplicadoEm;
+        l.efeitoRegressoAplicadoEm = efeitoRegressoAplicadoEm;
         return l;
     }
 
@@ -129,13 +146,17 @@ public class LicencaMobilidade {
         this.observacoes = observacoes;
     }
 
-    /** Aprovar = pôr em vigor. Só a partir de PENDING. */
+    /**
+     * Deferir o pedido (art. 44.º n.º 2). Aprovar <b>não</b> é pôr em vigor: a licença entra em
+     * vigor na sua data de início, que pode ser hoje ou daqui a um mês. Quem aplica os efeitos
+     * no Lugar é o {@code LicencaService}, na data certa.
+     */
     public void aprovar() {
         if (!isPending())
             throw IgrpResponseStatusException.conflict(
                     "Apenas registos PENDING podem ser aprovados. Estado actual: " + this.status);
         this.isActive = true;
-        this.status = ACTIVE;
+        this.status = APPROVED;
     }
 
     public void rejeitar(String reason) {
@@ -147,21 +168,65 @@ public class LicencaMobilidade {
         this.rejectionReason = reason;
     }
 
-    /** Encerrar no fim do período (ou antes, com regresso antecipado). */
-    public void encerrar(LocalDate dataFimEfectiva) {
+    /**
+     * <b>Regresso antecipado ao serviço</b> (art. 46.º n.º 4): o funcionário volta antes do fim
+     * despachado, e o que isso muda é a <b>data de fim</b> — não o despacho, que continua a ser o
+     * que foi. Por isso não há transição de estado nenhuma aqui: o registo fica {@code APPROVED}
+     * com um período mais curto, e passa a {@link EstadoPeriodoLicenca#TERMINADA} sozinho.
+     *
+     * <p>Só quem partiu pode regressar. Uma licença <b>por iniciar</b> não se encerra: desiste-se
+     * dela ({@link #cancelar()}), porque pelo art. 44.º n.º 1 não chegou a haver ausência. Uma já
+     * terminada não precisa de nada. Era daqui que vinha o fim anterior ao início.
+     */
+    public void registarRegressoAntecipado(LocalDate dataRegresso, LocalDate hoje) {
         if (!isApproved())
             throw IgrpResponseStatusException.conflict(
-                    "Apenas registos ACTIVE podem ser encerrados. Estado actual: " + this.status);
-        this.isActive = false;
-        this.status = CLOSED;
-        this.dataFim = dataFimEfectiva != null ? dataFimEfectiva
-                : (this.dataFim != null ? this.dataFim : LocalDate.now());
+                    "Só uma licença/mobilidade deferida (APPROVED) admite regresso antecipado. "
+                            + "Estado actual: " + this.status);
+
+        EstadoPeriodoLicenca periodo = estadoEm(hoje);
+        if (periodo == EstadoPeriodoLicenca.POR_INICIAR)
+            throw IgrpResponseStatusException.conflict(
+                    "Esta licença/mobilidade ainda não começou (início a " + this.dataInicio
+                            + "): não há regresso a registar. Para desistir dela, use o cancelamento.");
+        if (periodo == EstadoPeriodoLicenca.TERMINADA)
+            throw IgrpResponseStatusException.conflict(
+                    "Esta licença/mobilidade já terminou a " + this.dataFim + ".");
+
+        LocalDate efectiva = dataRegresso != null ? dataRegresso : hoje;
+        if (efectiva.isBefore(this.dataInicio))
+            throw IgrpResponseStatusException.badRequest(
+                    "A data de regresso (" + efectiva + ") não pode ser anterior ao início da licença ("
+                            + this.dataInicio + ").");
+        if (efectiva.isAfter(hoje))
+            throw IgrpResponseStatusException.badRequest(
+                    "A data de regresso (" + efectiva + ") não pode ser futura.");
+
+        // A data de regresso é o primeiro dia DE VOLTA ao serviço, logo o último dia de ausência
+        // é a véspera. Fazer coincidir os dois punha a pessoa de licença no próprio dia em que
+        // regressou, e um ecrã de RH mostrava-a ausente à frente de quem a via à secretária.
+        //
+        // Quem parte e regressa no mesmo dia esteve ausente parte desse dia: fica um dia, que é o
+        // mínimo que este modelo sabe exprimir — `data_inicio`/`data_fim` são DATE, e o meio dia
+        // do art. 13.º n.º 4 do DL n.º 3/2010 não tem como ser representado aqui. Também é o que
+        // impede o fim de cair antes do início.
+        LocalDate ultimoDiaDeAusencia = efectiva.minusDays(1);
+        this.dataFim = ultimoDiaDeAusencia.isBefore(this.dataInicio) ? this.dataInicio : ultimoDiaDeAusencia;
     }
 
-    public void cancelar() {
+    /**
+     * Desistir. Vale para um pedido ainda por decidir e para uma licença deferida que
+     * <b>ainda não começou</b> — aí o despacho revoga-se e não fica ausência nenhuma. Depois de
+     * começar já há ausência gozada, e a saída é o regresso antecipado (art. 46.º n.º 4).
+     */
+    public void cancelar(LocalDate hoje) {
+        if (isApproved() && estadoEm(hoje) != EstadoPeriodoLicenca.POR_INICIAR)
+            throw IgrpResponseStatusException.conflict(
+                    "Esta licença/mobilidade já começou a " + this.dataInicio
+                            + ": não pode ser cancelada. Registe o regresso antecipado.");
         if (!isPending() && !isApproved())
             throw IgrpResponseStatusException.conflict(
-                    "Apenas registos PENDING ou ACTIVE podem ser cancelados. Estado actual: " + this.status);
+                    "Apenas registos PENDING ou APPROVED podem ser cancelados. Estado actual: " + this.status);
         this.isActive = false;
         this.status = CANCELLED;
     }
@@ -173,7 +238,7 @@ public class LicencaMobilidade {
     public void prorrogar(LocalDate novaDataFim, Integer maxExtensions) {
         if (!isApproved())
             throw IgrpResponseStatusException.conflict(
-                    "Apenas registos ACTIVE podem ser prorrogados. Estado actual: " + this.status);
+                    "Apenas registos deferidos (APPROVED) podem ser prorrogados. Estado actual: " + this.status);
         if (novaDataFim == null)
             throw IgrpResponseStatusException.badRequest("A nova data de fim é obrigatória.");
         if (this.dataFim != null && !novaDataFim.isAfter(this.dataFim))
@@ -208,5 +273,58 @@ public class LicencaMobilidade {
     public boolean isDestinoInterno() { return destinationUnitId != null; }
 
     public boolean isPending() { return PENDING.equals(this.status); }
-    public boolean isApproved() { return ACTIVE.equals(this.status); }
+    public boolean isApproved() { return APPROVED.equals(this.status); }
+
+    // ---------------------------------------------------------------------------------
+    // O período — o segundo eixo, derivado das datas e nunca guardado.
+    // ---------------------------------------------------------------------------------
+
+    /**
+     * Onde o período está, na data dada. Só faz sentido num registo deferido: um pedido por
+     * decidir, indeferido ou cancelado não tem período a decorrer, e devolve {@code null}.
+     *
+     * <p>Um período sem fim ({@code dataFim} nula) nunca termina sozinho — é o caso da licença de
+     * longa duração, cujo regresso depende de despacho (art. 53.º) e não do calendário.
+     */
+    public EstadoPeriodoLicenca estadoEm(LocalDate data) {
+        if (!isApproved()) return null;
+        if (dataInicio != null && data.isBefore(dataInicio)) return EstadoPeriodoLicenca.POR_INICIAR;
+        if (dataFim != null && data.isAfter(dataFim)) return EstadoPeriodoLicenca.TERMINADA;
+        return EstadoPeriodoLicenca.EM_CURSO;
+    }
+
+    /** «Estar de licença» na data dada: deferida e a decorrer. */
+    public boolean emVigorEm(LocalDate data) {
+        return estadoEm(data) == EstadoPeriodoLicenca.EM_CURSO;
+    }
+
+    // ---------------------------------------------------------------------------------
+    // Marcas de aplicação dos efeitos — a idempotência do job diário.
+    // ---------------------------------------------------------------------------------
+
+    /**
+     * Os efeitos da entrada em vigor estão por aplicar nesta data? Verdadeiro quando a licença
+     * está deferida, o início já chegou, e ninguém os aplicou ainda.
+     */
+    public boolean carecedeEfeitoEntrada(LocalDate data) {
+        return isApproved() && efeitoEntradaAplicadoEm == null
+                && estadoEm(data) != EstadoPeriodoLicenca.POR_INICIAR;
+    }
+
+    /**
+     * Os efeitos do regresso estão por aplicar nesta data? Só depois de o período ter terminado —
+     * é o «caduca automaticamente» do art. 46.º n.º 3, que não espera por ninguém.
+     */
+    public boolean carecedeEfeitoRegresso(LocalDate data) {
+        return isApproved() && efeitoRegressoAplicadoEm == null
+                && estadoEm(data) == EstadoPeriodoLicenca.TERMINADA;
+    }
+
+    public void marcarEfeitoEntradaAplicado(LocalDateTime quando) {
+        this.efeitoEntradaAplicadoEm = quando != null ? quando : LocalDateTime.now();
+    }
+
+    public void marcarEfeitoRegressoAplicado(LocalDateTime quando) {
+        this.efeitoRegressoAplicadoEm = quando != null ? quando : LocalDateTime.now();
+    }
 }

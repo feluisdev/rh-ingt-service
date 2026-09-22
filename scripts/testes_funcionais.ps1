@@ -169,24 +169,55 @@ Chamar 'F3.7 NEG recordType AMBOS' POST '/catalogs/leave-mobility-subtypes' @{ c
 $codigoNovo = 'LIC_TST_' + (Get-Date -Format 'HHmmss')
 Chamar 'F3.7b criar subtipo pela API (coluna name)' POST '/catalogs/leave-mobility-subtypes' @{ code=$codigoNovo; description='Licenca de teste'; recordType='LICENCA'; affectsPay=$true; countsForSeniority=$false; canSelfSubmit=$false; positionEffect='ABRE_VAGA'; vacancyAfterDays=180; returnEffect='DISPONIBILIDADE' } 201 | Out-Null
 
-$idForm = $st['LIC_FORMACAO'].id
-$rL1 = Chamar 'F3.8 criar licenca de formacao de 180 dias (B)' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade') @{ subtipoId=$idForm; dataInicio='2026-10-01'; dataFim='2027-03-29'; despachoNumero='DESP/1'; justification='curta' } 201
-$lic1 = $rL1.Dados.id
-$rAp1 = Chamar 'F3.9 aprovar licenca de 180 dias' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $lic1 + '/approve') $null 200
-Verificar 'F3.10 nao abriu vaga (no limite do prazo)' ($null -eq $rAp1.Dados.afectacaoEncerradaId)
-Chamar 'F3.11 NEG aprovar duas vezes' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $lic1 + '/approve') $null 409 | Out-Null
-Chamar 'F3.12 encerrar a licenca de 180 dias' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $lic1 + '/close') $null 200 | Out-Null
+# Datas ancoradas no presente. Desde a V48 o comportamento depende de onde HOJE cai dentro do
+# periodo: o despacho e um acto (art. 44.o n.o 2) e a licenca e um periodo (n.o 1). Com datas
+# fixas no futuro este bloco provava o defeito em vez da regra -- aprovar uma licenca de 2027
+# abria vaga no proprio dia do despacho.
+$agora     = Get-Date
+$licIni    = $agora.AddDays(-10).ToString('yyyy-MM-dd')
+$licFim180 = $agora.AddDays(169).ToString('yyyy-MM-dd')
+$licIni2   = $agora.AddDays(-5).ToString('yyyy-MM-dd')
+$licFim200 = $agora.AddDays(194).ToString('yyyy-MM-dd')
+$futIni    = $agora.AddDays(30).ToString('yyyy-MM-dd')
+$futFim    = $agora.AddDays(229).ToString('yyyy-MM-dd')
 
-$rL2 = Chamar 'F3.13 criar licenca de formacao de 200 dias (B)' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade') @{ subtipoId=$idForm; dataInicio='2027-04-01'; dataFim='2027-10-17'; despachoNumero='DESP/2'; justification='longa' } 201
+$idForm = $st['LIC_FORMACAO'].id
+$rL1 = Chamar 'F3.8 criar licenca de formacao de 180 dias em curso (B)' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade') @{ subtipoId=$idForm; dataInicio=$licIni; dataFim=$licFim180; despachoNumero='DESP/1'; justification='curta' } 201
+$lic1 = $rL1.Dados.id
+$rAp1 = Chamar 'F3.9 deferir licenca de 180 dias' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $lic1 + '/approve') $null 200
+Verificar 'F3.10 nao abriu vaga (no limite do prazo)' ($null -eq $rAp1.Dados.afectacaoEncerradaId)
+Chamar 'F3.11 NEG deferir duas vezes' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $lic1 + '/approve') $null 409 | Out-Null
+Chamar 'F3.12 regresso antecipado da licenca de 180 dias' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $lic1 + '/close') $null 200 | Out-Null
+
+# --- os dois eixos: deferir nao e por em vigor (V48) ---
+# Uma licenca que abre vaga, mas que so comeca daqui a um mes. O despacho e hoje; o efeito no
+# Lugar pertence ao periodo e so chega na data de inicio, pela mao do job diario.
+$rFut = Chamar 'F3.12a criar licenca de 200 dias que so comeca daqui a um mes' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade') @{ subtipoId=$idForm; dataInicio=$futIni; dataFim=$futFim; despachoNumero='DESP/FUT'; justification='futura' } 201
+$licFut = $rFut.Dados.id
+$rApFut = Chamar 'F3.12b deferir a licenca futura' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $licFut + '/approve') $null 200
+Verificar 'F3.12c deferir NAO abriu vaga (o efeito e do periodo, nao do despacho)' ($null -eq $rApFut.Dados.afectacaoEncerradaId) '(art. 44.o n.os 1 e 2)'
+$rLerFut = Chamar 'F3.12d ler a licenca futura' GET ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $licFut)
+Verificar 'F3.12e deferida (APPROVED) e por iniciar' (($rLerFut.Dados.status -eq 'APPROVED') -and ($rLerFut.Dados.estadoPeriodo -eq 'POR_INICIAR')) ('(' + $rLerFut.Dados.status + '/' + $rLerFut.Dados.estadoPeriodo + ')')
+Chamar 'F3.12f NEG regressar de uma licenca que ainda nao comecou' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $licFut + '/close') $null 409 | Out-Null
+$rLerFut2 = Chamar 'F3.12g o periodo ficou intacto' GET ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $licFut)
+Verificar 'F3.12h o fim NAO ficou anterior ao inicio' ([datetime]$rLerFut2.Dados.dataFim -ge [datetime]$rLerFut2.Dados.dataInicio) ('(' + $rLerFut2.Dados.dataInicio + ' a ' + $rLerFut2.Dados.dataFim + ')')
+Chamar 'F3.12i desistir da licenca futura (cancelar)' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $licFut + '/cancel') $null 200 | Out-Null
+
+$rL2 = Chamar 'F3.13 criar licenca de formacao de 200 dias em curso (B)' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade') @{ subtipoId=$idForm; dataInicio=$licIni2; dataFim=$licFim200; despachoNumero='DESP/2'; justification='longa' } 201
 $lic2 = $rL2.Dados.id
-$rAp2 = Chamar 'F3.14 aprovar licenca de 200 dias' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $lic2 + '/approve') $null 200
-Verificar 'F3.15 abriu vaga' ($null -ne $rAp2.Dados.afectacaoEncerradaId) ('(' + $rAp2.Dados.afectacaoEncerradaId + ')')
+$rAp2 = Chamar 'F3.14 deferir licenca de 200 dias ja em curso' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $lic2 + '/approve') $null 200
+Verificar 'F3.15 abriu vaga (o periodo ja comecou)' ($null -ne $rAp2.Dados.afectacaoEncerradaId) ('(' + $rAp2.Dados.afectacaoEncerradaId + ')')
+$rLer2 = Chamar 'F3.15a ler a licenca em curso' GET ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $lic2)
+Verificar 'F3.15b deferida e EM_CURSO' (($rLer2.Dados.status -eq 'APPROVED') -and ($rLer2.Dados.estadoPeriodo -eq 'EM_CURSO')) ('(' + $rLer2.Dados.status + '/' + $rLer2.Dados.estadoPeriodo + ')')
+Chamar 'F3.15c NEG cancelar o que ja comecou' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $lic2 + '/cancel') $null 409 | Out-Null
 
 $rB = Chamar 'F3.16 estado de B depois da licenca' GET ('/funcionarios/' + $colabB)
 Write-Host ('      estado de B: ' + $rB.Dados.workerStateName + ' activo=' + $rB.Dados.isActive)
 
-$rFecha = Chamar 'F3.17 encerrar a licenca (regresso)' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $lic2 + '/close') $null 200
+$rFecha = Chamar 'F3.17 regresso antecipado (art. 46.o n.o 4)' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $lic2 + '/close') $null 200
 Verificar 'F3.18 regresso pela disponibilidade' ($null -ne $rFecha.Dados.estadoAtribuidoId) ('(' + $rFecha.Dados.estadoAtribuidoId + ')')
+$rLer3 = Chamar 'F3.18a ler a licenca depois do regresso' GET ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $lic2)
+Verificar 'F3.18b continua deferida, e a ausencia acabou na vespera do regresso' (($rLer3.Dados.status -eq 'APPROVED') -and ($rLer3.Dados.dataFim -like ((Get-Date).AddDays(-1).ToString('yyyy-MM-dd') + '*'))) ('(' + $rLer3.Dados.status + ' fim=' + $rLer3.Dados.dataFim + ')')
 
 Write-Host ''
 Write-Host '=========== F4 - AUSENCIAS E SALDO ==========='

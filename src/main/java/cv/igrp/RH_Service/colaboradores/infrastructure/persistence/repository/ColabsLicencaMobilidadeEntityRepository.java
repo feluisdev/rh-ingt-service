@@ -19,11 +19,40 @@ public interface ColabsLicencaMobilidadeEntityRepository extends JpaRepository<L
     @Query("""
             SELECT l FROM ColabsLicencaMobilidadeEntity l
              WHERE l.funcionario.id = :funcionarioId
-               AND l.status = 'ACTIVE'
+               AND l.status = 'APPROVED'
                AND l.dataInicio <= :data
                AND (l.dataFim IS NULL OR l.dataFim >= :data)
              ORDER BY l.dataInicio DESC
             """)
     List<LicencaMobilidadeEntity> findActiveAt(@Param("funcionarioId") UUID funcionarioId,
                                                @Param("data") LocalDate data);
+
+    /**
+     * Deferidas que ja comecaram e cujos efeitos no Lugar continuam por aplicar. E a pergunta que
+     * o job diario faz, e e feita ao estado actual — nao a um intervalo desde a ultima execucao.
+     * Por isso um dia falhado nao perde nada: o dia seguinte apanha o atraso.
+     */
+    @Query("""
+            SELECT l FROM ColabsLicencaMobilidadeEntity l
+             WHERE l.status = 'APPROVED'
+               AND l.dataInicio <= :data
+               AND l.efeitoEntradaAplicadoEm IS NULL
+             ORDER BY l.dataInicio
+            """)
+    List<LicencaMobilidadeEntity> findEntradaPorAplicar(@Param("data") LocalDate data);
+
+    /**
+     * Deferidas cujo periodo ja terminou e cujo regresso continua por aplicar — o «caduca
+     * automaticamente» do art. 46.o n.o 3. Um periodo sem fim nunca entra aqui: o regresso da
+     * licenca de longa duracao depende de despacho (art. 53.o), nao do calendario.
+     */
+    @Query("""
+            SELECT l FROM ColabsLicencaMobilidadeEntity l
+             WHERE l.status = 'APPROVED'
+               AND l.dataFim IS NOT NULL
+               AND l.dataFim < :data
+               AND l.efeitoRegressoAplicadoEm IS NULL
+             ORDER BY l.dataFim
+            """)
+    List<LicencaMobilidadeEntity> findRegressoPorAplicar(@Param("data") LocalDate data);
 }

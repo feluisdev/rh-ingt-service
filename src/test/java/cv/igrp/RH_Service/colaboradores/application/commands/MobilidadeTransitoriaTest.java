@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.colaboradores.application.commands;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -10,6 +11,7 @@ import static org.mockito.Mockito.when;
 import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
 import cv.igrp.RH_Service.colaboradores.application.services.SubstituicaoService;
 import cv.igrp.RH_Service.colaboradores.application.services.LicencaService;
+import cv.igrp.RH_Service.colaboradores.application.services.LicencaEfeitoService;
 import cv.igrp.RH_Service.colaboradores.application.services.MobilidadeService;
 import cv.igrp.RH_Service.colaboradores.domain.models.LicencaMobilidade;
 import cv.igrp.RH_Service.colaboradores.domain.models.SubtipoLicencaMobilidade;
@@ -55,7 +57,11 @@ class MobilidadeTransitoriaTest {
     private final FuncionarioId funcionarioId = FuncionarioId.gerarNovo();
     private final SubtipoLicencaMobilidadeId subtipoId = SubtipoLicencaMobilidadeId.gerarNovo();
     private final UUID unidadeDestino = UUID.randomUUID();
-    private final LocalDate inicio = LocalDate.of(2026, 1, 1);
+    // Datas ancoradas no presente, nao fixas: desde a V48 o comportamento depende de onde a
+    // data de hoje cai dentro do periodo. Um registo que comeca ha dez dias esta EM_CURSO hoje
+    // e estara na proxima semana; com datas fixas passava a TERMINADA sozinho com o passar do
+    // tempo, e o teste falhava sem haver bug nenhum.
+    private final LocalDate inicio = LocalDate.now().minusDays(10);
 
     private void servicos() {
         mobilidadeService = new MobilidadeService(subtipoRepository, unidadeRepository, licencaRepository);
@@ -63,9 +69,10 @@ class MobilidadeTransitoriaTest {
         var licencaService = new LicencaService(Mockito.mock(AssignmentService.class),
                 Mockito.mock(FuncionarioRepository.class), Mockito.mock(WorkerStateRepository.class),
                 Mockito.mock(HistoricoEstadoColaboradorRepository.class));
-        aprovar = new AprovarLicencaMobilidadeCommandHandler(licencaRepository, mobilidadeService, licencaService);
-        encerrar = new EncerrarLicencaMobilidadeCommandHandler(licencaRepository, mobilidadeService, licencaService,
+        var efeitoService = new LicencaEfeitoService(licencaRepository, mobilidadeService, licencaService,
                 Mockito.mock(SubstituicaoService.class));
+        aprovar = new AprovarLicencaMobilidadeCommandHandler(licencaRepository, mobilidadeService, efeitoService);
+        encerrar = new EncerrarLicencaMobilidadeCommandHandler(licencaRepository, efeitoService);
         cancelar = new CancelarLicencaMobilidadeCommandHandler(licencaRepository);
     }
 
@@ -99,8 +106,9 @@ class MobilidadeTransitoriaTest {
 
         assertEquals(200, response.getStatusCode().value());
         ArgumentCaptor<LicencaMobilidade> captor = ArgumentCaptor.forClass(LicencaMobilidade.class);
-        verify(licencaRepository).save(captor.capture());
-        assertEquals(LicencaMobilidade.ACTIVE, captor.getValue().getStatus());
+        // Duas gravacoes: o despacho, e a marca de que os efeitos do periodo ja foram tratados.
+        verify(licencaRepository, atLeastOnce()).save(captor.capture());
+        assertEquals(LicencaMobilidade.APPROVED, captor.getValue().getStatus());
     }
 
     @Test
@@ -112,7 +120,7 @@ class MobilidadeTransitoriaTest {
 
         aprovar.handle(new AprovarLicencaMobilidadeCommand(UUID.randomUUID().toString()));
 
-        verify(licencaRepository).save(any(LicencaMobilidade.class));
+        verify(licencaRepository, atLeastOnce()).save(any(LicencaMobilidade.class));
         verify(unidadeRepository, never()).findById(any());
     }
 
@@ -162,11 +170,15 @@ class MobilidadeTransitoriaTest {
 
         aprovar.handle(new AprovarLicencaMobilidadeCommand(UUID.randomUUID().toString()));
 
-        verify(licencaRepository).save(any(LicencaMobilidade.class));
+        verify(licencaRepository, atLeastOnce()).save(any(LicencaMobilidade.class));
     }
 
+    /**
+     * O regresso antecipado (art. 46.o n.o 4) encurta o periodo e nao mexe na afectacao: o
+     * registo continua deferido, e passa a TERMINADA por a data de fim ser hoje.
+     */
     @Test
-    void encerrarSoFechaORegistoENaoMexeNaAfectacao() {
+    void regressoAntecipadoEncurtaOPeriodoENaoMexeNaAfectacao() {
         servicos();
         var licenca = registo(unidadeDestino, null, inicio.plusDays(180));
         licenca.aprovar();
@@ -175,12 +187,14 @@ class MobilidadeTransitoriaTest {
         encerrar.handle(new EncerrarLicencaMobilidadeCommand(UUID.randomUUID().toString()));
 
         ArgumentCaptor<LicencaMobilidade> captor = ArgumentCaptor.forClass(LicencaMobilidade.class);
-        verify(licencaRepository).save(captor.capture());
-        assertEquals(LicencaMobilidade.CLOSED, captor.getValue().getStatus());
+        verify(licencaRepository, atLeastOnce()).save(captor.capture());
+        var guardada = captor.getValue();
+        assertEquals(LicencaMobilidade.APPROVED, guardada.getStatus());
+        assertEquals(LocalDate.now().minusDays(1), guardada.getDataFim());   // ultimo dia de ausencia
     }
 
     @Test
-    void encerrarSoEhPossivelComORegistoActivo() {
+    void regressoAntecipadoSoEhPossivelComORegistoDeferido() {
         servicos();
         comRegisto(registo(unidadeDestino, null, inicio.plusDays(180)));   // fica PENDING
 
@@ -190,10 +204,33 @@ class MobilidadeTransitoriaTest {
         assertEquals(409, ex.getStatusCode().value());
     }
 
+    /**
+     * Nao se regressa do que ainda nao comecou (art. 44.o n.o 1: nao houve ausencia nenhuma).
+     * Era daqui que vinha a licenca com fim anterior ao inicio, antes da V48.
+     */
+    @Test
+    void naoSeRegressaDeUmaLicencaQueAindaNaoComecou() {
+        servicos();
+        var futura = LicencaMobilidade.criar(funcionarioId, subtipoId,
+                LocalDate.now().plusDays(30), LocalDate.now().plusDays(120),
+                null, "12/2026", null, null, unidadeDestino, null, null);
+        futura.aprovar();
+        comRegisto(futura);
+
+        var ex = assertThrows(IgrpResponseStatusException.class,
+                () -> encerrar.handle(new EncerrarLicencaMobilidadeCommand(UUID.randomUUID().toString())));
+
+        assertEquals(409, ex.getStatusCode().value());
+        assertEquals(LocalDate.now().plusDays(120), futura.getDataFim());   // o periodo ficou intacto
+    }
+
+    /** Desistir de uma licenca deferida que ainda nao comecou: revoga-se o despacho. */
     @Test
     void cancelarFechaORegistoSemReverterNada() {
         servicos();
-        var licenca = registo(unidadeDestino, null, inicio.plusDays(180));
+        var licenca = LicencaMobilidade.criar(funcionarioId, subtipoId,
+                LocalDate.now().plusDays(30), LocalDate.now().plusDays(120),
+                null, "12/2026", null, null, unidadeDestino, null, null);
         licenca.aprovar();
         comRegisto(licenca);
 

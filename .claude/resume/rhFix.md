@@ -72,6 +72,70 @@ completa F0–F10**.
 4. **Percurso do colaborador** — linha temporal única (afectações, mobilidades,
    licenças, estados). Adiado até o negócio estar definido; resolveria também a
    lacuna de não haver como ler as substituições.
+5. **Framework de jobs — portar do `inss_core_service`.** **Fica para o fim**, por
+   decisão do utilizador (2026-09-22). Ver secção própria abaixo.
+
+### Framework de jobs — a portar do `inss_core_service` (por último)
+
+O RH tem hoje seis `@Scheduled` crus (cinco no `sigdi`, mais o das licenças que
+entra agora). Cru quer dizer: hora no código, ninguém sabe se correu, nada se
+repete sem SQL à mão, e uma execução que **não aconteceu** é invisível.
+
+Está resolvido noutro projecto da equipa e deve ser trazido em vez de reinventado:
+
+- **Repositório:** `C:\Users\ivanick.santos\Nosi-work\projects_nosi_workspace\projects\inss_core_service`
+- **Branch:** `dev-pre-release` (é onde o repositório já está; não há diferença
+  para o HEAD nos ficheiros do scheduler)
+- **Documentação:** `docs/schedulers/README.md` (16 secções), `scheduler.html`
+  (diagramas), `FRONTEND.md` (contrato para o front-end)
+- **Código:** `src/main/java/gw/inss/core/shared/application/services/scheduler/`
+  — `ScheduledJob` (interface de 4 métodos), `JobContext`, `JobResult`,
+  `JobRunner`, `SchedulerService`, `ExecucaoRegistoService`, `SchedulerSweeper`,
+  `EstadoExecucao`, `TipoDisparo`, `JobParametro`
+- **Entidades:** `shared/infrastructure/persistence/entity/scheduler/` —
+  `SchedulerJobEntity`, `SchedulerExecucaoEntity`
+- **Migrações lá:** V40 (execuções), V47 (jobs), V48 (parâmetros). **Atenção:** os
+  números colidem com os nossos; renumerar ao trazer.
+- **REST:** `shared/interfaces/rest/SchedulerController.java` (`api/v1/schedulers`)
+- **Pools:** `shared/config/SchedulingConfig.java` — `taskScheduler` (triggers)
+  separado do `jobExecutor` (trabalho). É essa separação que torna o timeout
+  possível.
+
+**O que se ganha** (por implementar uma interface de quatro métodos): cron
+configurável em BD sem recompilar · histórico de execuções com duração,
+contadores e stacktrace · disparo manual com formulário gerado a partir de
+`getParametros()` · re-execução de uma corrida antiga com os parâmetros originais
+· detecção de execuções que não aconteceram (estado `OMITIDA`, linha sintética
+criada pelo sweeper) · guarda de concorrência · timeout · retry com backoff
+5→15→45 min.
+
+**As três ideias que valem a pena mesmo que se porte só uma parte:**
+
+1. **O período vem de `agendadoPara`, nunca de `now()`.** Repetir em Setembro a
+   execução de Agosto tem de processar Agosto. É a mesma armadilha que já nos
+   mordeu na bateria ("datas ancoradas em `Get-Date`").
+2. **Gravar os parâmetros na abertura do registo, não no fim.** Uma execução que
+   rebenta com excepção fica sem se saber a que período dizia respeito — e é
+   essa a linha que alguém vai querer repetir.
+3. **Abrir e fechar o registo em `REQUIRES_NEW`, num bean separado.** Se o job
+   rebentou *porque* a BD caiu, gravar o desfecho não pode ir de boleia na
+   transacção moribunda.
+
+**Retry assimétrico**, que é o que o torna correcto: `FALHA` e `TIMEOUT` repetem;
+`FALHA_PARCIAL` **não** (voltaria a falhar exactamente nos mesmos itens — é
+trabalho humano); `OMITIDA` também não (dispararia rajadas).
+
+**Limitação que vem com ele, e que é a mesma que já temos:** não há lock
+distribuído. Com réplicas, o job corre em todas. Lá a nota diz que o passo
+seguinte seria ShedLock dentro do `JobRunner`. Cá, as marcas de aplicação
+(`efeito_entrada_aplicado_em`, `efeito_regresso_aplicado_em`, V48) limitam o
+estrago mas não substituem um lock. Entra no mesmo saco de produção que o
+`HIBERNATE_DDL`.
+
+**Ordem:** depois das férias, da antiguidade e dos movimentos menores. O job das
+licenças nasce agora no molde cru do `sigdi` e é o primeiro candidato a migrar
+quando o framework entrar — a lógica de negócio não muda, só passa de
+`@Scheduled` para `executar(JobContext)`.
 
 ### Âmbito — o que a aplicação faz sobre o funcionário
 

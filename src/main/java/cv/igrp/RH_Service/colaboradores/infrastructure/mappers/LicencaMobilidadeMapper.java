@@ -36,7 +36,8 @@ public class LicencaMobilidadeMapper {
                 e.getStatus(), refs.idOf(e.getDestinationUnit(), OrganizationalUnitEntity::getId),
                 refs.idOf(e.getDestinationPosition(), PositionEntity::getId),
                 e.getJustification(), refs.idOf(e.getDocument(), DocumentoEntity::getId),
-                e.getRejectionReason(), e.getExtensionsCount());
+                e.getRejectionReason(), e.getExtensionsCount(),
+                e.getEfeitoEntradaAplicadoEm(), e.getEfeitoRegressoAplicadoEm());
     }
 
     public LicencaMobilidadeEntity toEntity(LicencaMobilidade l) {
@@ -57,6 +58,8 @@ public class LicencaMobilidadeMapper {
         e.setDocument(refs.ref(DocumentoEntity.class, l.getDocumentId()));
         e.setRejectionReason(l.getRejectionReason());
         e.setExtensionsCount(l.extensoes());
+        e.setEfeitoEntradaAplicadoEm(l.getEfeitoEntradaAplicadoEm());
+        e.setEfeitoRegressoAplicadoEm(l.getEfeitoRegressoAplicadoEm());
         return e;
     }
 
@@ -87,6 +90,10 @@ public class LicencaMobilidadeMapper {
         r.setIsActive(l.getIsActive());
         r.setEstadoDesc(Boolean.TRUE.equals(l.getIsActive()) ? "Ativo" : "Inativo");
         r.setStatus(l.getStatus());
+        // O status diz o que foi despachado; o periodo diz onde a licenca esta hoje. Sao dois
+        // eixos, e o front-end precisa dos dois: "deferida" nao quer dizer "a decorrer".
+        var periodo = l.estadoEm(java.time.LocalDate.now());
+        r.setEstadoPeriodo(periodo != null ? periodo.name() : null);
         r.setDestinationUnitId(l.getDestinationUnitId() != null ? l.getDestinationUnitId().toString() : null);
         r.setDestinationPositionId(l.getDestinationPositionId() != null ? l.getDestinationPositionId().toString() : null);
         r.setJustification(l.getJustification());

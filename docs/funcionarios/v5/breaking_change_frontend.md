@@ -271,6 +271,41 @@ Não sobrou nenhuma. O que não cabia no `SuccessResponseDTO` ganhou DTO própri
 
 As operações que já tinham DTO próprio não mudaram: registo composto, progressão, promoção, transferência, substituição, mudança de estado.
 
+### 11.8 Licenca/mobilidade: a decisao e o periodo separam-se (BREAKING, 2026-09-22)
+
+O `status` guardava duas coisas ao mesmo tempo: o que foi despachado e onde a licenca estava no
+seu periodo. O art. 44.o do DL n.o 3/2010 separa-as em numeros seguidos -- o n.o 1 define a
+licenca como ausencia prolongada (um **periodo**), o n.o 2 faz a concessao depender do **despacho**
+(um acto). Agora o registo tambem as separa.
+
+| Campo | Eixo | Valores |
+|---|---|---|
+| `status` | decisao | `PENDING` / `APPROVED` / `REJECTED` / `CANCELLED` |
+| `estadoPeriodo` (**novo**) | periodo, hoje | `POR_INICIAR` / `EM_CURSO` / `TERMINADA`, ou `null` se nao estiver deferida |
+
+**`ACTIVE` e `CLOSED` deixaram de existir.** Mapeamento para quem os lia:
+
+| Antes | Agora |
+|---|---|
+| `status == "ACTIVE"` para saber se esta de licenca | `estadoPeriodo == "EM_CURSO"` |
+| `status == "ACTIVE"` para saber se foi deferida | `status == "APPROVED"` |
+| `status == "CLOSED"` | `estadoPeriodo == "TERMINADA"` |
+
+**O que muda nos ecras:**
+
+- **Deferir deixou de por em vigor.** Aprovar uma licenca que comeca daqui a um mes devolve
+  `afectacaoEncerradaId` a nulo e **nao** muda o estado do trabalhador. O ecra nao deve anunciar
+  "vaga aberta" na aprovacao: isso acontece na data de inicio, aplicado por um job diario.
+- **Um registo deferido pode nao estar a decorrer.** Uma lista que mostre "de licenca" tem de
+  filtrar por `estadoPeriodo`, nao por `status`.
+- **`PUT /{id}/close` passou a ser o regresso antecipado** (art. 46.o n.o 4) e devolve **409**
+  se a licenca ainda nao comecou (use `cancel`) ou se ja terminou (nao ha nada a fechar --
+  termina sozinha na data de fim).
+- **`PUT /{id}/cancel` devolve 409** depois de a licenca comecar. Ai a saida e o regresso
+  antecipado.
+- **A `dataFim` depois do regresso fica na vespera** do dia em que a pessoa voltou, porque a data
+  de regresso e o primeiro dia de volta ao servico.
+
 ### Checklist
 
 - [ ] Select de `situacaoFuncional` no catálogo de estados.

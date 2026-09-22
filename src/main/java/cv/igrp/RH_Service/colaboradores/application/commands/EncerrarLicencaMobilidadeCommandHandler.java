@@ -1,8 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
-import cv.igrp.RH_Service.colaboradores.application.services.LicencaService;
-import cv.igrp.RH_Service.colaboradores.application.services.SubstituicaoService;
-import cv.igrp.RH_Service.colaboradores.application.services.MobilidadeService;
+import cv.igrp.RH_Service.colaboradores.application.services.LicencaEfeitoService;
 import cv.igrp.RH_Service.colaboradores.domain.repository.LicencaMobilidadeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.LicencaMobilidadeId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
@@ -17,11 +15,24 @@ import java.time.LocalDate;
 import cv.igrp.RH_Service.colaboradores.application.dto.LicencaEfeitoResponseDTO;
 
 /**
- * Encerrar a licença ou a mobilidade (fim do período, ou regresso antecipado).
+ * <b>Regresso antecipado ao serviço</b> — art. 46.º n.º 4 do DL n.º 3/2010: «O funcionário a quem
+ * tenha sido concedida licença pode requerer o regresso antecipado ao serviço.»
  *
- * <p>O <b>regresso deixou de precisar de código</b>: como a mobilidade transitória nunca tirou o
- * Lugar ao titular, encerrar é só fechar o registo. Antes, o regresso reabria a afectação de
- * origem — e falhava em silêncio se o Lugar entretanto tivesse sido ocupado por outra pessoa.
+ * <p>O que isto muda é a <b>data de fim</b>, e mais nada. O despacho continua a ser o que foi, e
+ * por isso o registo fica deferido ({@code APPROVED}): passa a {@code TERMINADA} sozinho, porque
+ * o estado do período deriva das datas. Até à V48 este caminho escrevia um estado {@code CLOSED}
+ * e fixava o fim em <i>hoje</i> sem olhar ao início — o que, numa licença que ainda não tinha
+ * começado, gravava um fim anterior ao início e falseava as contagens de dias em que assentam o
+ * desconto na antiguidade e as férias proporcionais (art. 47.º n.os 1 a 3).
+ *
+ * <p><b>Só quem partiu regressa.</b> Uma licença por iniciar não se encerra: desiste-se dela pelo
+ * cancelamento, porque pelo art. 44.º n.º 1 não chegou a haver ausência. Uma já terminada não
+ * precisa de nada — terminou no dia em que terminou, sem ninguém carregar em nada (art. 46.º
+ * n.º 3). Nos dois casos o agregado recusa com 409 e diz qual é o caminho.
+ *
+ * <p>O <b>regresso não precisa de reabrir nada</b>: como a mobilidade transitória nunca tirou o
+ * Lugar ao titular, e a licença que abre vaga devolve o funcionário à disponibilidade (art. 122.º),
+ * não há afectação de origem a restaurar.
  */
 @Component
 @RequiredArgsConstructor
@@ -29,9 +40,7 @@ public class EncerrarLicencaMobilidadeCommandHandler
         implements CommandHandler<EncerrarLicencaMobilidadeCommand, ResponseEntity<LicencaEfeitoResponseDTO>> {
 
     private final LicencaMobilidadeRepository licencaRepository;
-    private final MobilidadeService mobilidadeService;
-    private final LicencaService licencaService;
-    private final SubstituicaoService substituicaoService;
+    private final LicencaEfeitoService licencaEfeitoService;
 
     @IgrpCommandHandler
     @Transactional
@@ -40,31 +49,21 @@ public class EncerrarLicencaMobilidadeCommandHandler
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Licença/mobilidade não encontrada: " + command.getLicencaId()));
 
-        // Encerramento no fim do período aprovado; se for antes, vale a data de hoje (regresso antecipado).
         LocalDate hoje = LocalDate.now();
-        LocalDate dataFim = licenca.getDataFim() != null && licenca.getDataFim().isBefore(hoje)
-                ? licenca.getDataFim() : hoje;
 
-        licenca.encerrar(dataFim);
+        // O regresso é hoje: é isso que "antecipado" quer dizer. A data não vem do pedido porque
+        // um regresso futuro não é um regresso — é uma prorrogação ao contrário, e o registo do
+        // que ainda não aconteceu não pertence a este caminho.
+        licenca.registarRegressoAntecipado(hoje, hoje);
         licencaRepository.save(licenca);
 
-        // Quem perdeu o Lugar não regressa a ele: fica na disponibilidade, a aguardar
-        // vaga (art. 122.º). Quem o manteve não precisa de nada. Se o subtipo já não
-        // existir no catálogo, encerra à mesma — fechar um registo não depende de
-        // configuração.
-        // Acabada a licença, acabou o impedimento: quem estava a substituir o titular sai
-        // (art. 77.º n.º 2). Nada a fazer quando a licença abriu vaga -- aí o titular já não
-        // tem afectação, logo não há substituição ligada a ela.
-        substituicaoService.encerrarPorRegressoDoTitular(licenca.getFuncionarioId(), dataFim);
-
-        var estadoAtribuido = mobilidadeService.subtipoSeExistir(licenca)
-                .flatMap(subtipo -> licencaService.aplicarRegresso(licenca, subtipo, dataFim));
-        if (estadoAtribuido.isPresent())
-            return ResponseEntity.ok(new LicencaEfeitoResponseDTO(
-                    licenca.getId().getStringValor(), licenca.getStatus(), true,
-                    null, estadoAtribuido.get().toString()));
+        // O funcionário está de volta agora: os efeitos aplicam-se já, sem esperar pelo job da
+        // noite, que deixaria o substituto no Lugar mais um dia. Pelo mesmo caminho que o job
+        // usaria — e marcados como aplicados, para ele não lhes tocar outra vez.
+        var efeito = licencaEfeitoService.aplicarRegresso(licenca);
 
         return ResponseEntity.ok(new LicencaEfeitoResponseDTO(
-                licenca.getId().getStringValor(), licenca.getStatus(), true, null, null));
+                licenca.getId().getStringValor(), licenca.getStatus(), true, null,
+                efeito.estadoAtribuidoId() != null ? efeito.estadoAtribuidoId().toString() : null));
     }
 }

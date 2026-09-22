@@ -54,4 +54,16 @@ public class LicencaMobilidadeRepositoryImpl implements LicencaMobilidadeReposit
         return entityRepository.findActiveAt(funcionarioId.getValor(), data)
                 .stream().map(mapper::toDomain).toList();
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<LicencaMobilidade> findEntradaPorAplicar(java.time.LocalDate data) {
+        return entityRepository.findEntradaPorAplicar(data).stream().map(mapper::toDomain).toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<LicencaMobilidade> findRegressoPorAplicar(java.time.LocalDate data) {
+        return entityRepository.findRegressoPorAplicar(data).stream().map(mapper::toDomain).toList();
+    }
 }
