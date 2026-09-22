@@ -580,6 +580,40 @@
           }
         }
       }
+    },
+    {
+      "actionName": "getAntiguidade",
+      "method": "GET",
+      "path": "{funcionarioId}/antiguidade",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "requestParams": [
+        {
+          "name": "ate",
+          "type": "date",
+          "required": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AntiguidadeResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

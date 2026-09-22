@@ -16,15 +16,16 @@ par, sem avançar enquanto o anterior não estiver verde.
 **Branch `fix-alinhamento-legislacao`**. O commit que a versão anterior deste
 documento dava como pendente **já foi enviado**; há **1 commit local por enviar**
 a 2026-09-22 (`204f29af` a V48, `f0a135b2` o handoff, `9d0e353b` a V49, o da
-acumulação/V50 e o da suspensão/V51). O
+acumulação/V50, o da suspensão/V51, a leitura das substituições e a
+**antiguidade**). O
 GitLab é o repo da equipa; merge para `master` é deploy. **Ainda não foi feito
 push** — por indicação do utilizador.
 
-- **Testes: 820, 0 falhas — mas só com a base de dados de pé.** 819 são unitários
+- **Testes: 840, 0 falhas — mas só com a base de dados de pé.** 839 são unitários
   puros; o `RecursosHumanosApplicationTests.contextLoads` carrega o contexto Spring
   completo e o Flyway liga-se ao Postgres. **Sem o contentor a correr dá 1 erro, e
   não é regressão.** Correr **sempre com `clean`** (ver Blockers).
-- **Bateria funcional: 288 passos, 288 OK**, cobre **F0 a F13**.
+- **Bateria funcional: 305 passos, 305 OK**, cobre **F0 a F14**.
 - **Migrações V40 a V51** aplicadas e verificadas na BD. Próxima livre: **V52**.
 - **`openapi.json`**: 225 caminhos, 238 esquemas, **0 operações não-sigdi sem
   esquema de resposta**.
@@ -103,11 +104,10 @@ de ser possível, por construção e por restrição no esquema.
      mesmo limite que já impede exprimir o art. 13.º n.º 4;
    - **compensação na cessação** (art. 12.º) — depende de remuneração, que não
      existe nesta aplicação.
-2. **Antiguidade / tempo de serviço** — **não se calcula em lado nenhum**. É a
-   raiz de três colunas mortas: `affects_pay` e `counts_for_seniority` (subtipo) e
-   `counts_seniority` (vínculo laboral) existem e **ninguém as lê**;
-   `SituacaoFuncional.contaAntiguidade()` também não tem consumidor. Quem
-   parametrizar estas colunas hoje fica convencido de que fez alguma coisa.
+2. **Antiguidade / tempo de serviço** — **FEITA (2026-09-22)**, sem migração:
+   é derivada, não guardada. Ver secção própria abaixo.
+   **Sobra uma coluna morta:** `affects_pay` (subtipo) continua sem consumidor —
+   é remuneração, e remuneração não existe nesta aplicação.
 3. **Movimentos menores** — sete, sem caminho nenhum: consolidação da mobilidade
    (art. 132.º n.º 4) · acumulação (art. 134.º n.º 2 al. b) · permuta (atómica) ·
    **mudança de carreira** (art. 139.º / art. 35.º PCFR) · regresso de comissão
@@ -120,6 +120,72 @@ de ser possível, por construção e por restrição no esquema.
    lacuna de não haver como ler as substituições.
 5. **Framework de jobs — portar do `inss_core_service`.** **Fica para o fim**, por
    decisão do utilizador (2026-09-22). Ver secção própria abaixo.
+
+### Antiguidade — o que ficou feito (2026-09-22)
+
+**Não há migração.** A antiguidade **deriva-se do percurso** e é recalculada a
+cada leitura. Guardá-la obrigaria a recalcular sempre que uma data do passado
+fosse corrigida, e alguém acabaria por confiar num número velho. É a mesma regra
+que já vale para «provido/vago» e para o vínculo laboral.
+
+**Endpoint:** `GET /funcionarios/{id}/antiguidade?ate=YYYY-MM-DD` (o `ate` é
+opcional; por omissão, hoje). Serve para responder a «quanta antiguidade tinha à
+data da promoção», que é pergunta corrente do RH.
+
+**Duas peças:**
+
+| Ficheiro | O que faz |
+|---|---|
+| `colaboradores/domain/service/CalculadoraAntiguidade.java` | a conta pura: recorta, **une** e subtrai. Sem dependências |
+| `colaboradores/application/services/AntiguidadeService.java` | recolhe as três fontes da lei e chama o calculador |
+
+**As três fontes, e as colunas que passaram a ser lidas:**
+
+| Fonte | Regra | Coluna |
+|---|---|---|
+| Situação funcional | art. 120.º n.º 2 (inactividade não conta) e art. 122.º n.º 1 (disponibilidade conta) | `t_worker_state.situacao_funcional` → `SituacaoFuncional.contaAntiguidade()` |
+| Licenças deferidas | art. 47.º n.º 1 do DL 3/2010 | `t_leave_mobility_subtype.counts_for_seniority` |
+| Contratos | o vínculo vem do contrato, logo o desconto é do **período do contrato** | `t_vinculo_laboral.counts_seniority` |
+
+**A decisão que faz a conta estar certa: os períodos excluídos UNEM-SE, não se
+somam.** Uma licença sem vencimento de longa duração chega por dois caminhos — a
+situação funcional em que põe o funcionário e o subtipo da própria licença — e
+somá-los descontaria 730 dias de um ano que tem 365. Há um teste dedicado em cada
+nível (`aMesmaAusenciaPorDoisCaminhosDescontaUmaVez` e
+`aMesmaAusenciaPelosDoisCaminhosDescontaUmaVez`). Períodos **contíguos** também se
+fundem: entre o fim de um e o início do outro não houve um dia de serviço.
+
+**O que NÃO desconta, e é deliberado** — não mexer sem ler isto primeiro:
+
+- **Mobilidade**: art. 137.º da Lei 20/X/2023, o tempo conta no lugar de origem.
+  Não é configurável — mesmo que o subtipo esteja mal classificado, não desconta.
+- **Estado sem situação classificada**: é configuração em falta, não um estado que
+  não conta. Descontar por omissão tiraria tempo a quem o tem.
+- **Licença por decidir, indeferida ou cancelada**: não houve ausência.
+- **Férias não gozadas**: contam (art. 12.º n.º 3).
+- **Greve**: perde remuneração mas não desconta antiguidade (art. 16.º n.º 4).
+  Como não há tipo classificado para ela, não fazer nada é a resposta certa.
+
+**Recorte ao serviço:** uma licença anterior à admissão só desconta a parte de
+dentro; um período **em aberto** conta até à data de referência e não
+indefinidamente — sem isso, uma licença sem fim descontaria tempo que ainda não
+passou.
+
+**Leitura em anos/meses/dias:** os dias descontados tiram-se do **fim** do
+intervalo, como se o percurso fosse contínuo. É assim que se lê «tem 8 anos de
+serviço».
+
+**Lacuna conhecida, assinalada e não adivinhada:** o art. 43.º n.º 2 diz que as
+**faltas injustificadas** não contam para antiguidade, mas `t_leave_type` não tem
+coluna que o diga — só o subtipo de licença tem classificação de antiguidade.
+Inferi-lo do código `FALTA_INJUSTIFICADA` seria exactamente o que este projecto
+decidiu não fazer. **Para fechar:** uma migração que acrescente
+`t_leave_type.counts_seniority` (ou reaproveite o `regime` da V49 com um terceiro
+valor), e uma quarta fonte no `AntiguidadeService`.
+
+**Quem passa a poder usar isto:** a progressão e a promoção verificam
+elegibilidade fora do RH (DL 4/2024 art. 36.º remete para o diploma da gestão de
+desempenho), mas a antiguidade é o dado que faltava para quem a quiser exigir.
 
 ### Duas dívidas pequenas, já diagnosticadas (entram no plano a 2026-09-22)
 
@@ -419,7 +485,7 @@ pedido que atravesse um feriado municipal conta um dia a mais, embora
 - `db/seed/seed_carreiras.sql` — `ordem_progressao` (1=ASS_TEC, 2=TEC_SUP); **sem
   ela a promoção recusa sempre**.
 - `db/seed/seed_colaboradores.sql` — 3 colaboradores, 6 Lugares.
-- `scripts/testes_funcionais.ps1` — bateria completa (F0 a F13, 288 passos).
+- `scripts/testes_funcionais.ps1` — bateria completa (F0 a F14, 305 passos).
 - `scripts/repor_estado.sql` — **correr antes de cada execução**.
 - `scripts/testes_funcionais_README.md` — o que cada bloco prova.
 - `docs/funcionarios/v5/openapi.json` — contrato gerado; **fonte para as formas**.
@@ -439,7 +505,7 @@ git switch fix-alinhamento-legislacao
 
 # A BD tem de estar de pe ANTES dos testes: o contextLoads liga-se-lhe.
 docker start postgres-ingt-rh      # se falhar, o Docker Desktop esta em baixo
-mvn -B clean test                  # esperado: 820 testes, 0 falhas (COM clean)
+mvn -B clean test                  # esperado: 840 testes, 0 falhas (COM clean)
                                    # sem a BD: 1 erro em contextLoads, nao e regressao
 ```
 
@@ -487,7 +553,7 @@ esc. 1). Vagos: **LUG-0004** (TEC_SUP, promoção com `positionId`), **LUG-0005*
 
 ## Test / validation plan
 
-**A bateria cobre F0 a F13 — 288 passos, todos OK.** F11 (vencimento de férias),
+**A bateria cobre F0 a F14 — 305 passos, todos OK.** F11 (vencimento de férias),
 F12 (acumulação) e F13 (suspensão) entraram a 2026-09-22, e o F6 ganhou a leitura
 das substituições.
 
@@ -561,9 +627,15 @@ sobram duas partes, e **ambas esperam por decisões que não são de código**:
   interpolado, fixação pelo dirigente entre Maio e Outubro na falta de acordo.
   **Por decidir com o RH/produto:** quem aprova o mapa, e o que acontece a quem
   não indica preferência.
-- **Meios-dias** (art. 2.º n.º 6, até 5) — o `numeroDias` é inteiro. Mudá-lo
-  parte o contrato do front-end. **Por decidir:** se se faz agora ou junto com a
-  decisão sobre assiduidade (questão aberta 1).
+- **Meios-dias** (art. 2.º n.º 6, até 5) — **ADIADO por decisão do utilizador
+  (2026-09-22): «por agora não teremos pedido de meio dia».** Fica na lista do que
+  está por fazer, não em discussão. O que o trava é ser uma mudança de contrato:
+  `t_leave_request.numero_dias` e as quatro contagens de `t_leave_balance` são
+  `INTEGER`, e passá-las a decimal obriga a rever qualquer ecrã que some ou
+  formate dias. Enquanto não se fizer, **um pedido de meio dia é inexprimível** —
+  arredondaria para zero (dia de graça) ou para um (desconto a dobrar).
+  Não confundir com o art. 13.º n.º 4 (meios períodos nas faltas), que depende do
+  horário e é mesmo assiduidade.
 
 Ao atacar a marcação, decidir primeiro com o RH/produto: quem aprova o mapa de
 férias e o que acontece a quem não indica preferência até 31 de Janeiro. São

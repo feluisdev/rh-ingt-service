@@ -8,6 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
+import java.time.LocalDate;
+import org.springframework.format.annotation.DateTimeFormat;
+import cv.igrp.RH_Service.colaboradores.application.queries.GetAntiguidadeQuery;
+import cv.igrp.RH_Service.colaboradores.application.dto.AntiguidadeResponseDTO;
 import cv.igrp.RH_Service.colaboradores.application.queries.ListarSubstituicoesQuery;
 import cv.igrp.RH_Service.colaboradores.application.dto.WrapperListaSubstituicoesDTO;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -164,6 +168,22 @@ public class FuncionarioController {
         LOGGER.debug("Operation started");
         final var command = new SubstituirColaboradorCommand(funcionarioId, request);
         ResponseEntity<SubstituicaoResponseDTO> response = commandBus.send(command);
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("{funcionarioId}/antiguidade")
+    @Operation(summary = "Tempo de servico a uma data, descontando o que a lei manda nao contar "
+            + "(situacao funcional, licencas sem vencimento, vinculos que nao contam)")
+    @ApiResponse(responseCode = "200", description = "Antiguidade calculada",
+            content = @Content(schema = @Schema(implementation = AntiguidadeResponseDTO.class)))
+    public ResponseEntity<AntiguidadeResponseDTO> getAntiguidade(
+            @PathVariable String funcionarioId,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ate) {
+        LOGGER.debug("Operation started");
+        final var query = new GetAntiguidadeQuery(funcionarioId, ate);
+        ResponseEntity<AntiguidadeResponseDTO> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

@@ -389,6 +389,21 @@ isso um ecra nao deve pedir nem mostrar uma data de fim prevista.
 Um ecra de RH que mostre um Lugar passa a poder dizer quem la esta em substituicao; um ecra de
 colaborador passa a poder dizer quem o substitui enquanto esta impedido.
 
+### 11.13 Antiguidade (2026-09-22)
+
+Endpoint novo: **`GET /funcionarios/{id}/antiguidade`** (`?ate=YYYY-MM-DD` opcional). Nao quebra
+nada -- ate aqui a antiguidade **nao se calculava em lado nenhum**.
+
+Devolve `diasTotais`, `diasDescontados`, `diasContados`, `anos`/`meses`/`dias` e a lista
+`periodosDescontados[]` com `inicio`, `fim`, `dias` e `motivo`.
+
+**Mostre os periodos, nao so o total.** Quem discorda de uma antiguidade quer ver que periodos
+foram descontados e porque -- e e isso que torna a conta defensavel a frente de um colaborador.
+
+**Nao guarde o valor em cache.** A antiguidade e derivada e recalculada a cada leitura: muda
+quando muda o estado do colaborador, quando se defere uma licenca, ou quando se corrige uma data
+do passado.
+
 ### Checklist
 
 - [ ] Select de `situacaoFuncional` no catálogo de estados.

@@ -455,6 +455,48 @@ Resposta `200` (`WrapperListaSubstituicoesDTO`): `linhas` + `total`. Cada linha 
 Uma substituição anterior à V46 não tem ligação ao titular: aparece na mesma, sem contraparte. O registo existiu, e escondê-lo seria pior do que mostrá-lo incompleto.
 
 
+### 5.8 Antiguidade — `GET /funcionarios/{id}/antiguidade`
+
+Tempo de serviço a uma data, **descontando o que a lei manda não contar**. Parâmetro opcional `ate=YYYY-MM-DD` (por omissão, hoje) — serve para responder a «quanta antiguidade tinha à data da promoção».
+
+**Não se guarda: deriva-se.** É recalculada a cada leitura. Um número gravado ficaria velho na primeira vez que alguém corrigisse uma data do passado.
+
+**O que desconta, e porquê:**
+
+| Fonte | Regra | Onde está configurado |
+|---|---|---|
+| Situação funcional | art. 120.º n.º 2 — a inactividade **no** quadro não conta; a inactividade **fora** do quadro suspende o vínculo, logo também não. A **disponibilidade conta** (art. 122.º n.º 1) | `t_worker_state.situacao_funcional` → enum `SituacaoFuncional` |
+| Licença sem vencimento | art. 47.º n.º 1 do DL 3/2010 — «implica o desconto na antiguidade para todos os efeitos legais» | `t_leave_mobility_subtype.counts_for_seniority` |
+| Vínculo laboral | há vínculos cujo tempo não conta; aplica-se ao **período do contrato**, não à pessoa | `t_vinculo_laboral.counts_seniority` |
+
+**O que não desconta, e é deliberado:**
+
+- **Mobilidade** — art. 137.º da Lei 20/X/2023: o tempo conta no lugar de origem. Não é configurável; mesmo que o subtipo esteja mal classificado, não desconta.
+- **Estado sem situação classificada** — é configuração em falta, não um estado que não conta. Descontar por omissão tiraria tempo a quem o tem.
+- **Licença por decidir, indeferida ou cancelada** — não produziu ausência nenhuma.
+- **Férias não gozadas** — contam (art. 12.º n.º 3).
+
+> **Os períodos descontados unem-se, não se somam.** Uma licença sem vencimento de longa duração chega por **dois** caminhos — pela situação funcional em que põe o funcionário e pelo subtipo da própria licença — e somá-los descontaria o dobro dos dias. Sobrepostos, fundem-se; contíguos também, porque entre eles não houve um dia de serviço.
+
+Resposta `200` (`AntiguidadeResponseDTO`):
+
+| Campo | Significado |
+|---|---|
+| `dataInicio` · `dataReferencia` | de quando a quando se contou |
+| `diasTotais` | dias de calendário, extremos incluídos |
+| `diasDescontados` · `diasContados` | o que saiu e o que ficou |
+| `anos` · `meses` · `dias` | o mesmo, como se lê uma antiguidade |
+| `periodosDescontados[]` | `inicio`, `fim`, `dias`, `motivo` — **já unidos** |
+
+O `motivo` de um período fundido junta os dois motivos: o resultado continua a dizer *porquê* depois da fusão.
+
+| Situação | Resposta |
+|---|---|
+| Colaborador inexistente | **404** |
+| Sem data de admissão (não há por onde começar) | **422** |
+
+> **Lacuna conhecida:** as **faltas injustificadas** não contam para antiguidade (art. 43.º n.º 2), mas `t_leave_type` não tem coluna que diga quais o são — só o subtipo de licença tem classificação de antiguidade. Está assinalado em vez de adivinhado a partir do código do tipo.
+
 ---
 
 ## 6. Dados do colaborador (sub-recursos de `/funcionarios/{funcionarioId}`)

@@ -733,6 +733,47 @@ Chamar 'F13.15 NEG suspender duas vezes' PATCH ('/funcionarios/' + $colabFA + '/
 Chamar 'F13.16 NEG pedido de outro colaborador pelo URL deste' PATCH ('/funcionarios/' + $colabFB + '/pedidos-ausencia/' + $pedF + '/suspender') @{ data=$dataSusp; motivo='engano' } 404 | Out-Null
 
 Write-Host ''
+Write-Host '=========== F14 - ANTIGUIDADE (tempo de servico) ==========='
+
+# A antiguidade nao se calculava em lado nenhum, e isso deixava tres colunas mortas:
+# contaAntiguidade() da situacao funcional, counts_for_seniority do subtipo e counts_seniority
+# do vinculo. Quem as parametrizasse ficava convencido de que tinha feito alguma coisa.
+# Nao se guarda: deriva-se do percurso e recalcula-se a cada leitura.
+
+$hojeA = Get-Date
+$inicioAno = $hojeA.Year.ToString() + '-01-01'
+
+# O colabFA foi admitido a 1 de Janeiro deste ano (F11.4).
+$rAnt = Chamar 'F14.1 antiguidade de quem foi admitido a 1 de Janeiro' GET ('/funcionarios/' + $colabFA + '/antiguidade')
+Verificar 'F14.2 conta desde a admissao' ($rAnt.Dados.dataInicio -like ($inicioAno + '*')) ('(' + $rAnt.Dados.dataInicio + ')')
+Verificar 'F14.3 sem nada a descontar' ($rAnt.Dados.diasDescontados -eq 0) ('(' + $rAnt.Dados.diasDescontados + ')')
+Verificar 'F14.4 o que conta e o total' ($rAnt.Dados.diasContados -eq $rAnt.Dados.diasTotais) ('(' + $rAnt.Dados.diasContados + ' de ' + $rAnt.Dados.diasTotais + ')')
+
+# A data de referencia responde a "quanta antiguidade tinha a data da promocao".
+$rAnt31 = Chamar 'F14.5 antiguidade a 31 de Janeiro' GET ('/funcionarios/' + $colabFA + '/antiguidade?ate=' + $hojeA.Year.ToString() + '-01-31')
+Verificar 'F14.6 conta os dois extremos: Janeiro tem 31 dias' ($rAnt31.Dados.diasTotais -eq 31) ('(' + $rAnt31.Dados.diasTotais + ')')
+
+# --- a situacao funcional passa a descontar (art. 120.o n.o 2) ---
+$de = $hojeA.AddDays(-60).ToString('yyyy-MM-dd')
+$ate = $hojeA.AddDays(-30).ToString('yyyy-MM-dd')
+Chamar 'F14.7 por o colaborador em inactividade no quadro' PATCH ('/funcionarios/' + $colabFA + '/worker-state') @{ workerStateId=$ws['SUSPENDED'].id; dataEfectividade=$de; motivoCkey='DOENCA' } 200 | Out-Null
+Chamar 'F14.8 e traze-lo de volta 30 dias depois' PATCH ('/funcionarios/' + $colabFA + '/worker-state') @{ workerStateId=$ws['ACTIVE'].id; dataEfectividade=$ate; motivoCkey='ALTA' } 200 | Out-Null
+
+$rAnt2 = Chamar 'F14.9 antiguidade depois da inactividade' GET ('/funcionarios/' + $colabFA + '/antiguidade')
+Verificar 'F14.10 descontou os 30 dias de inactividade' ($rAnt2.Dados.diasDescontados -eq 30) ('(' + $rAnt2.Dados.diasDescontados + ')')
+Verificar 'F14.11 e o contado baixou na mesma medida' ($rAnt2.Dados.diasContados -eq ($rAnt.Dados.diasContados - 30)) ('(antes=' + $rAnt.Dados.diasContados + ' depois=' + $rAnt2.Dados.diasContados + ')')
+$periodo = (@($rAnt2.Dados.periodosDescontados) | Select-Object -First 1)
+Verificar 'F14.12 e diz porque descontou' ($periodo.motivo -like '*INACTIVIDADE_NO_QUADRO*') ('(' + $periodo.motivo + ')')
+Verificar 'F14.13 com o periodo exacto' (($periodo.inicio -like ($de + '*')) -and ($periodo.dias -eq 30)) ('(' + $periodo.inicio + ' a ' + $periodo.fim + ', ' + $periodo.dias + ' dias)')
+
+# A disponibilidade conta expressamente (art. 122.o n.o 1) -- nao acrescenta desconto.
+Chamar 'F14.14 por em disponibilidade' PATCH ('/funcionarios/' + $colabFA + '/worker-state') @{ workerStateId=$ws['AVAILABLE'].id; dataEfectividade=$hojeA.AddDays(-10).ToString('yyyy-MM-dd'); motivoCkey='AGUARDA_VAGA' } 200 | Out-Null
+$rAnt3 = Chamar 'F14.15 antiguidade com disponibilidade' GET ('/funcionarios/' + $colabFA + '/antiguidade')
+Verificar 'F14.16 a disponibilidade nao desconta' ($rAnt3.Dados.diasDescontados -eq 30) ('(' + $rAnt3.Dados.diasDescontados + ')')
+
+Chamar 'F14.17 NEG antiguidade de colaborador inexistente' GET '/funcionarios/00000000-0000-4000-8000-000000000999/antiguidade' $null 404 | Out-Null
+
+Write-Host ''
 Write-Host '=========== RESUMO ==========='
 $ok = ($script:resultados | Where-Object { $_.OK }).Count
 $total = $script:resultados.Count

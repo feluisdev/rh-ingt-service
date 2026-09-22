@@ -1,0 +1,18 @@
+{
+  "type": "dto",
+  "name": "AntiguidadeResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "funcionarioId", "objectType": "java", "required": false},
+    {"type": "date", "name": "dataInicio", "objectType": "java", "required": false},
+    {"type": "date", "name": "dataReferencia", "objectType": "java", "required": false},
+    {"type": "long", "name": "diasTotais", "objectType": "java", "required": false},
+    {"type": "long", "name": "diasDescontados", "objectType": "java", "required": false},
+    {"type": "long", "name": "diasContados", "objectType": "java", "required": false},
+    {"type": "integer", "name": "anos", "objectType": "java", "required": false},
+    {"type": "integer", "name": "meses", "objectType": "java", "required": false},
+    {"type": "integer", "name": "dias", "objectType": "java", "required": false},
+    {"type": "PeriodoAntiguidadeDTO", "name": "periodosDescontados", "objectType": "dto", "collectionType": "list", "module": "colaboradores", "required": false}
+  ]
+}

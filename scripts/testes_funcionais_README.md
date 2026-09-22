@@ -208,9 +208,23 @@ doenca **nao se falavam**: quem adoecesse a meio perdia-as.
 - sem motivo da 400; data futura da 400; suspender duas vezes da 409; o pedido de
   outro colaborador pelo URL deste da 404
 
+### F14 - antiguidade (2026-09-22)
+
+Prova que o tempo de servico se calcula, e que as colunas que ninguem lia passaram a ser lidas.
+Usa o colaborador admitido a 1 de Janeiro (F11.4), de percurso conhecido:
+
+- conta **desde a admissao**, e sem nada a descontar o contado e o total
+- `?ate=` responde a "quanta antiguidade tinha a data X" -- Janeiro da 31 dias, com os dois
+  extremos incluidos
+- pos-se o colaborador em **inactividade no quadro** durante 30 dias e traz-se de volta: o
+  desconto e de exactamente 30 dias (art. 120.o n.o 2), o contado baixa na mesma medida, e o
+  resultado **diz porque descontou** e em que periodo
+- a **disponibilidade nao desconta** (art. 122.o n.o 1): o total descontado nao mexe
+- colaborador inexistente da 404
+
 ## Resultado da última execução
 
-**288 passos, 288 OK** (2026-09-22), contra a base local com a V51 aplicada.
+**305 passos, 305 OK** (2026-09-22), contra a base local com a V51 aplicada.
 
 Encontrou dois problemas reais, já corrigidos:
 
