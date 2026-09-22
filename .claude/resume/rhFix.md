@@ -1,4 +1,4 @@
-> Updated: 2026-09-21 10:20
+> Updated: 2026-09-22
 
 ## Goal
 
@@ -13,16 +13,17 @@ par, sem avançar enquanto o anterior não estiver verde.
 
 ## Current state
 
-**Branch `fix-alinhamento-legislacao`**, já enviado para o GitLab
-(`origin_git_lab/fix-alinhamento-legislacao`). **1 commit local por enviar** a
-2026-09-21. O GitLab é o repo da equipa; merge para `master` é deploy.
+**Branch `fix-alinhamento-legislacao`**. O commit que a versão anterior deste
+documento dava como pendente **já foi enviado**; há **1 commit local por enviar**
+a 2026-09-22 (`204f29af`, a V48). O GitLab é o repo da equipa; merge para
+`master` é deploy.
 
-- **Testes: 763, 0 falhas — mas só com a base de dados de pé.** 762 são unitários
+- **Testes: 784, 0 falhas — mas só com a base de dados de pé.** 783 são unitários
   puros; o `RecursosHumanosApplicationTests.contextLoads` carrega o contexto Spring
   completo e o Flyway liga-se ao Postgres. **Sem o contentor a correr dá 1 erro, e
   não é regressão.** Correr **sempre com `clean`** (ver Blockers).
-- **Bateria funcional: 207 passos, 207 OK**, cobre **F0 a F10**.
-- **Migrações V40 a V47** aplicadas e verificadas na BD. Próxima livre: **V48**.
+- **Bateria funcional: 221 passos, 221 OK**, cobre **F0 a F10**.
+- **Migrações V40 a V48** aplicadas e verificadas na BD. Próxima livre: **V49**.
 - **`openapi.json`**: 225 caminhos, 238 esquemas, **0 operações não-sigdi sem
   esquema de resposta**.
 - **Nenhum handler ou controlador não-sigdi devolve `Map`.**
@@ -48,7 +49,20 @@ par, sem avançar enquanto o anterior não estiver verde.
 **Feito:** situações funcionais art. 117.º (V42) · licenças que abrem vaga (V43)
 · ciclo do saldo de ausências · contrato com estado obrigatório (V44) ·
 **substituição** (V45+V46) · **respostas tipadas** · limpeza da V47 · **bateria
-completa F0–F10**.
+completa F0–F10** · **decisão separada do período na licença (V48)**.
+
+**V48 — o que fechou (2026-09-22).** O `status` guardava ao mesmo tempo o despacho
+(art. 44.º n.º 2) e o período (n.º 1). Agora guarda só a decisão — `PENDING`,
+`APPROVED`, `REJECTED`, `CANCELLED` — e o período (`POR_INICIAR`, `EM_CURSO`,
+`TERMINADA`) deriva das datas, exposto em `estadoPeriodo`. `ACTIVE` e `CLOSED`
+desapareceram. Deferir deixou de pôr em vigor: os efeitos aplicam-se na data de
+início, na própria transacção se for hoje e pelo `LicencaEfeitoScheduler`
+(`rh.licencas.efeitos.cron`, 00:15) nos restantes casos, com duas marcas de
+aplicação a garantir idempotência. O `close` passou a ser o regresso antecipado
+do art. 46.º n.º 4 e recusa o que não começou (409, remete para o cancelamento)
+ou o que já terminou; a ausência acaba na **véspera** do dia do regresso.
+**Isto resolveu a questão aberta 3** (licença que acaba antes de começar): deixou
+de ser possível, por construção e por restrição no esquema.
 
 **Por fazer — quatro pontos, por ordem recomendada:**
 
@@ -428,9 +442,11 @@ contradizer o código.
    pensar que tem controlo de assiduidade. **Decide o cliente.**
 2. **Ler as substituições** — não há endpoint. Endpoint próprio ou dentro do
    percurso do colaborador? **Decide o RH/produto.**
-3. **Licença que acaba antes de começar** — recusar com 422, `dataFim =
-   max(hoje, dataInicio)`, ou tratar o período como nulo nas contagens? Convém
-   decidir **antes** das férias e da antiguidade. **Decide o RH/produto.**
+3. ~~**Licença que acaba antes de começar**~~ — **RESOLVIDA na V48 (2026-09-22).**
+   Não se recusou com 422 nem se colou a data: separou-se a decisão do período, e
+   o caso deixou de ter caminho. Encerrar o que não começou é 409 e remete para o
+   cancelamento (art. 44.º n.º 1: não houve ausência); a restrição
+   `ck_leave_mobility_periodo` impede-o também no esquema.
 4. **Feriados municipais** — corrigir é pequeno; a pergunta é se a contagem deve
    usar o município do colaborador, e essa informação não está na afectação.
    **Decide o RH.**
@@ -454,18 +470,29 @@ contradizer o código.
 
 ## Next step
 
-**Enviar o commit local pendente** (`git push origin_git_lab fix-alinhamento-legislacao`)
+**Enviar o commit da V48** (`git push origin_git_lab fix-alinhamento-legislacao`)
 e depois atacar o **ponto 1 do plano: férias**.
+
+A questão que bloqueava as férias — a licença que acabava antes de começar — está
+resolvida: as contagens de dias já assentam em períodos válidos.
 
 O caminho das férias:
 1. O saldo tem de **nascer sozinho** — hoje é criado à mão. Regra do DL 3/2010
-   cap. II, com **proporcionalidade no ano de admissão**.
+   cap. II, com **proporcionalidade no ano de admissão** (art. 3.º: a partir dos
+   90 dias de serviço efectivo, 6 ou 5 dias úteis por cada 3 meses completos).
 2. Acumulação entre anos.
 3. Marcação (o pedido já existe; falta o que distingue férias de uma falta comum).
 
-Antes de tocar em código, **decidir a questão 3** (licença que acaba antes de
-começar): falseia contagens de dias, e as férias são contagem de dias.
+Ao chegar à antiguidade, lembrar que o art. 47.º n.º 1 manda descontar os dias de
+licença sem vencimento, e os n.os 2 e 3 fazem as férias do ano seguinte
+proporcionais ao tempo de serviço — é para isso que a V48 preparou o terreno.
 
-Antes de começar: `docker start postgres-ingt-rh`, `mvn -B clean test` (763, 0
-falhas), repor a BD e correr a bateria (207/207) para confirmar que se parte de
+Antes de começar: `docker start postgres-ingt-rh`, `mvn -B clean test` (784, 0
+falhas), repor a BD e correr a bateria (221/221) para confirmar que se parte de
 verde.
+
+**Cuidado que custou tempo nesta sessão:** não editar `src/` com um build a
+correr. O Maven apanha o ficheiro a meio e o resultado parece uma regressão de
+mais de cem testes que não existe. Também não correr dois Maven ao mesmo tempo
+sobre o mesmo `target/` — o IDE do utilizador tem um Maven próprio, e a colisão
+produz um jar sem recursos e erros de ficheiros em falta.
