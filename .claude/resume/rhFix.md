@@ -18,13 +18,13 @@ par, sem avançar enquanto o anterior não estiver verde.
 `master` é deploy. **O push não foi feito por indicação expressa do utilizador:
 não o fazer sem lhe perguntar.**
 
-- **Testes: 890, 0 falhas — mas só com a base de dados de pé.** Todos menos um
+- **Testes: 897, 0 falhas — mas só com a base de dados de pé.** Todos menos um
   são unitários puros; o `RecursosHumanosApplicationTests.contextLoads` carrega o
   contexto Spring completo e o Flyway liga-se ao Postgres. **Sem o contentor a
   correr dá 1 erro, e não é regressão.** Correr **sempre com `clean`** (ver Blockers).
-- **Bateria funcional: 404 passos, 404 OK**, cobre **F0 a F17**. O bloco do regresso
-  de comissão (F17) entrou a 2026-09-22 — já não falta nada commitado sem prova.
-- **Migrações V40 a V52** aplicadas e verificadas na BD. Próxima livre: **V53**.
+- **Bateria funcional: 427 passos, 427 OK**, cobre **F0 a F18**. Nada commitado sem
+  prova na bateria.
+- **Migrações V40 a V53** aplicadas e verificadas na BD. Próxima livre: **V54**.
 - **`openapi.json`**: 231 caminhos, 250 esquemas, **0 operações não-sigdi sem
   esquema de resposta**. Regenerado a 2026-09-22; **regenerar sempre** que se
   mexa num endpoint.
@@ -212,6 +212,39 @@ temos. **Não se inventou nenhum prazo.** Se esse diploma aparecer, é no
 no **ciclo de gestão de pessoal** — não nos artigos da mobilidade nem da
 comissão. O texto de 2023 vale para o que se fez. **Isto responde em parte à
 questão aberta 10.**
+
+### Ausências — o limite de dias tem três naturezas (V53, 2026-09-22)
+
+**O catálogo só sabia dizer «X dias por ano»**, e o `CreatePedidoAusenciaCommandHandler`
+somava sempre o ano civil. O art. 15.º n.º 1 do DL n.º 3/2010 quase nunca fala em
+anos: «até 6, **por ocasião** do casamento», «até 8, por motivo de **falecimento**
+do cônjuge», «duas por **cada** prova». Escrever isso no tecto anual errava nos
+**dois sentidos ao mesmo tempo** — recusava o segundo funeral do ano e deixava
+passar oito dias seguidos de uma só vez.
+
+**Três valores independentes, não um valor com uma classificação ao lado.** É a
+al. q) que o obriga: «6 dias em cada ano civil **e um dia por mês**» — os dois
+tectos valem juntos. `max_days_per_year` · `max_days_per_occurrence` ·
+`max_days_per_month`.
+
+**Nulo é «a lei não põe limite desta natureza»**, não zero. Greve, obrigações
+legais e prisão preventiva não têm quota. Zero dá 400 e é impedido na base
+(`ck_leave_type_limites_positivos`): um limite de zero dias não é um limite, é um
+tipo que ninguém pode pedir, e isso diz-se desactivando a linha.
+
+| Peça | O que faz |
+|---|---|
+| `colaboradores/domain/models/TipoAusencia.java` | `excedeLimitePorOcorrencia` · `excedeLimiteMensal` · `excedeLimiteAnual` — as regras, puras |
+| `CreatePedidoAusenciaCommandHandler` | orquestra, pela ordem em que a recusa é mais útil |
+| `PedidoAusenciaRepository.somarDiasNoMes` | a soma do mês, feita na base como a do ano |
+| `db/migration/V53__leave_type_limites_por_ocorrencia_e_mes.sql` | as duas colunas + `ck_` |
+
+**O seed traz o art. 15.º classificado** (`CASAMENTO`, `LUTO` 8 / `LUTO_OUTRO_GRAU`
+3, `NASCIMENTO_FILHO`, `PROVA_EXAME`, `ASSISTENCIA_FAMILIA`,
+`AUTORIZADA_DIRIGENTE`, `CONTA_FERIAS`, `GREVE`, `OBRIGACAO_LEGAL`,
+`DOENCA_ATESTADO`). **A migração não corrige valores existentes** — o catálogo é da
+instituição. O `repor_estado.sql` alinha a base de desenvolvimento, como já faz ao
+`MOB_COMISSAO`.
 
 ### Antiguidade — o que ficou feito (2026-09-22)
 
@@ -768,7 +801,7 @@ férias já estão construídas por cima dela.
 - `db/seed/seed_carreiras.sql` — `ordem_progressao` (1=ASS_TEC, 2=TEC_SUP); **sem
   ela a promoção recusa sempre**.
 - `db/seed/seed_colaboradores.sql` — 3 colaboradores, 6 Lugares.
-- `scripts/testes_funcionais.ps1` — bateria completa (F0 a F17, 404 passos).
+- `scripts/testes_funcionais.ps1` — bateria completa (F0 a F18, 427 passos).
 - `scripts/repor_estado.sql` — **correr antes de cada execução**.
 - `scripts/testes_funcionais_README.md` — o que cada bloco prova.
 - `docs/funcionarios/v5/openapi.json` — contrato gerado; **fonte para as formas**.
@@ -791,7 +824,7 @@ git switch fix-alinhamento-legislacao
 
 # A BD tem de estar de pe ANTES dos testes: o contextLoads liga-se-lhe.
 docker start postgres-ingt-rh      # se falhar, o Docker Desktop esta em baixo
-mvn -B clean test                  # esperado: 890 testes, 0 falhas (COM clean)
+mvn -B clean test                  # esperado: 897 testes, 0 falhas (COM clean)
                                    # sem a BD: 1 erro em contextLoads, nao e regressao
 ```
 
@@ -818,7 +851,7 @@ docker exec postgres-ingt-rh sh -c "psql -U postgres -d recursoshumanos_db -q -f
 
 # 3. bateria
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/testes_funcionais.ps1
-# esperado: PASSOS: 404   OK: 404   FALHAS: 0
+# esperado: PASSOS: 427   OK: 427   FALHAS: 0
 
 # 4. regenerar o contrato depois de mexer em endpoints
 curl -s -o docs/funcionarios/v5/openapi.json http://localhost:8099/v3/api-docs
@@ -936,13 +969,24 @@ não o fazer ainda; **não enviar sem lhe perguntar**.
 
 Ordem confirmada pelo utilizador a 2026-09-22 (terceira sessão):
 
-1. ~~**Bloco da bateria para o regresso de comissão**~~ — **FEITO (2026-09-22)**:
-   F17, 35 passos, os dois caminhos do art. 64.º n.º 2 mais o diferencial que prova
-   que a bifurcação é do **catálogo** e não de «não ter Lugar».
-2. **Ausências / assiduidade e subtipos de mobilidade e licença** — **é o passo
-   seguinte.** Ver «Ausências não é assiduidade» em Blockers: o que lá está diz o
-   que o modelo **não consegue** exprimir, e é o ponto de partida da conversa, não
-   um impedimento a começar.
+1. ~~**Bloco da bateria para o regresso de comissão**~~ — **FEITO (2026-09-22)**: F17.
+2. **Ausências — em curso.** O primeiro tijolo está feito: **V53, o limite de dias
+   tem três naturezas** (ano, ocorrência, mês), e o seed traz as alíneas do
+   art. 15.º já classificadas. Ver secção própria abaixo.
+
+   **O que falta nas ausências, por ordem:**
+   - **art. 16.º n.º 2 — perda parcial de remuneração** nas als. d), e), i), j) e t).
+     `t_leave_type` não tem `affects_pay` (só o subtipo tem) e **remuneração não
+     existe nesta aplicação**: classificar sem consumidor seria coluna morta, como
+     o `affects_pay` do subtipo já é.
+   - **art. 43.º n.º 2 — faltas injustificadas e antiguidade** (questão 11, decide
+     o RH). Agora é mais barato: bastaria uma quarta fonte no `AntiguidadeService`.
+   - **falta registada sem pedido** — toda a linha de `t_leave_request` é um
+     *pedido* com estado, e uma falta que ninguém pediu não tem caminho. É
+     estrutural, não é catálogo.
+   - **meios-dias** (art. 13.º n.º 4) — adiado por decisão do utilizador.
+3. **Subtipos de mobilidade e licença** — as duas modalidades do art. 45.º que
+   faltam no seed (sem vencimento até 90 dias e extraordinária, questão 8).
 
 **Fora do caminho, por decisão do utilizador (confirmada a 2026-09-22):**
 **permuta**, **estágio probatório** (art. 57.º) e **reintegração judicial**
@@ -1003,8 +1047,8 @@ O caminho das férias:
 2. Acumulação entre anos.
 3. Marcação (o pedido já existe; falta o que distingue férias de uma falta comum).
 
-Antes de começar: `docker start postgres-ingt-rh`, `mvn -B clean test` (**890**, 0
-falhas), repor a BD e correr a bateria (**404/404**) para confirmar que se parte de
+Antes de começar: `docker start postgres-ingt-rh`, `mvn -B clean test` (**897**, 0
+falhas), repor a BD e correr a bateria (**427/427**) para confirmar que se parte de
 verde.
 
 > A antiguidade já está feita e **já lê** o art. 47.º n.º 1 (a licença sem
