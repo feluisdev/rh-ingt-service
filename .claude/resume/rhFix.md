@@ -15,15 +15,16 @@ par, sem avançar enquanto o anterior não estiver verde.
 
 **Branch `fix-alinhamento-legislacao`**. O commit que a versão anterior deste
 documento dava como pendente **já foi enviado**; há **1 commit local por enviar**
-a 2026-09-22 (`204f29af`, a V48). O GitLab é o repo da equipa; merge para
-`master` é deploy.
+a 2026-09-22 (`204f29af` a V48, `f0a135b2` o handoff, e o das férias/V49). O
+GitLab é o repo da equipa; merge para `master` é deploy. **Ainda não foi feito
+push** — por indicação do utilizador.
 
-- **Testes: 784, 0 falhas — mas só com a base de dados de pé.** 783 são unitários
+- **Testes: 798, 0 falhas — mas só com a base de dados de pé.** 797 são unitários
   puros; o `RecursosHumanosApplicationTests.contextLoads` carrega o contexto Spring
   completo e o Flyway liga-se ao Postgres. **Sem o contentor a correr dá 1 erro, e
   não é regressão.** Correr **sempre com `clean`** (ver Blockers).
-- **Bateria funcional: 221 passos, 221 OK**, cobre **F0 a F10**.
-- **Migrações V40 a V48** aplicadas e verificadas na BD. Próxima livre: **V49**.
+- **Bateria funcional: 241 passos, 241 OK**, cobre **F0 a F11**.
+- **Migrações V40 a V49** aplicadas e verificadas na BD. Próxima livre: **V50**.
 - **`openapi.json`**: 225 caminhos, 238 esquemas, **0 operações não-sigdi sem
   esquema de resposta**.
 - **Nenhum handler ou controlador não-sigdi devolve `Map`.**
@@ -66,11 +67,25 @@ de ser possível, por construção e por restrição no esquema.
 
 **Por fazer — quatro pontos, por ordem recomendada:**
 
-1. **Férias (DL 3/2010, cap. II)** — o ciclo do saldo funciona e o F4 cobre-o,
-   mas **o saldo é criado à mão** via `POST /saldos-ausencia`. Falta o negócio:
-   marcação, acumulação entre anos, e gozo **proporcional ao tempo de serviço** no
-   ano de admissão. Quem instale isto hoje pensa que tem gestão de férias e tem
-   metade.
+1. **Férias (DL 3/2010, cap. II)** — **o vencimento está feito (V49, 2026-09-22).**
+   O saldo deixou de ser escrito à mão: nasce na admissão, vence-se a 1 de Janeiro
+   (art. 2.º n.º 4) e é proporcional no ano de ingresso (art. 3.º), com o número de
+   dias vindo do catálogo e a lei por recurso. Quem classifica o catálogo é a coluna
+   `regime` (`FERIAS`/`FALTA`), não o código.
+   **Falta ainda:**
+   - **acumulação entre anos** (art. 7.º n.º 1: quando por motivo de serviço não
+     puderam ser gozadas) e a regra do art. 8.º n.º 4 / art. 9.º, que manda gozar
+     o remanescente até ao fim do ano civil seguinte;
+   - **marcação** — o mapa de férias até 31 de Março (art. 6.º), a indicação de
+     preferência até 31 de Janeiro (art. 5.º n.º 4), o mínimo de 11 dias num dos
+     períodos em gozo interpolado (art. 5.º n.º 1) e a fixação pelo dirigente entre
+     Maio e Outubro na falta de acordo (n.º 5);
+   - **suspensão das férias** por maternidade, paternidade, adopção ou doença
+     (art. 8.º n.os 1 a 3) — hoje um pedido de férias e um de doença não se falam;
+   - **meios-dias** (art. 2.º n.º 6: até 5 meios-dias). O `numeroDias` é inteiro, o
+     mesmo limite que já impede exprimir o art. 13.º n.º 4;
+   - **compensação na cessação** (art. 12.º) — depende de remuneração, que não
+     existe nesta aplicação.
 2. **Antiguidade / tempo de serviço** — **não se calcula em lado nenhum**. É a
    raiz de três colunas mortas: `affects_pay` e `counts_for_seniority` (subtipo) e
    `counts_seniority` (vínculo laboral) existem e **ninguém as lê**;
@@ -88,6 +103,42 @@ de ser possível, por construção e por restrição no esquema.
    lacuna de não haver como ler as substituições.
 5. **Framework de jobs — portar do `inss_core_service`.** **Fica para o fim**, por
    decisão do utilizador (2026-09-22). Ver secção própria abaixo.
+
+### Duas dívidas pequenas, já diagnosticadas (entram no plano a 2026-09-22)
+
+Não são pontos do alinhamento — são defeitos conhecidos, com causa localizada.
+Ficam aqui para não voltarem a viver só em «Blockers» e serem esquecidos.
+
+**D1. Feriados municipais ignorados na contagem de dias úteis.**
+`CreatePedidoAusenciaCommandHandler:50` chama `findAllNacionaisActivosByAno`, e o
+`DiasUteisCalculator` desconta só os **nacionais**. Um pedido que atravesse um
+feriado municipal conta **um dia a mais**, apesar de `t_public_holiday.is_national`
+existir precisamente para os distinguir.
+
+*Porque ainda não está feito:* corrigir a chamada é trivial; a pergunta é **de
+que município** se contam os feriados. A informação não está na afectação nem no
+funcionário — é preciso decidir onde vive (unidade orgânica? colaborador?) antes
+de escrever código. **Decide o RH** (questão aberta 4).
+
+*Porque importa agora:* a contagem de dias úteis é a base das férias. Convém
+fechar isto **durante** o ponto 1, não depois — senão as férias nascem com a
+mesma contagem errada.
+
+**D2. Não há como ler as substituições.**
+`POST /funcionarios/{id}/substituicao` devolve o id e mais nada o lista depois.
+`GET .../unidade-atual` só devolve a `PRINCIPAL`. Um ecrã de RH **não consegue
+mostrar quem substitui quem**, e na bateria o fecho automático teve de ser provado
+por via indirecta (F6.30-33): põe-se o titular impedido outra vez e tenta-se nova
+substituição — se a anterior não tivesse fechado daria 409, e dá 201.
+
+*Decisão que falta:* endpoint próprio (`GET /funcionarios/{id}/substituicoes` e/ou
+`GET /positions/{id}/substituicoes`) ou esperar pelo **percurso do colaborador**
+(ponto 4), que resolveria os dois problemas de uma vez. **Decide o RH/produto**
+(questão aberta 2).
+
+*Nota:* é barato e independente do resto — um handler de consulta sobre
+`findSubstituicoesCorrentes`, que já existe no repositório. Se o percurso do
+colaborador ficar para longe, não vale a pena esperar por ele.
 
 ### Framework de jobs — a portar do `inss_core_service` (por último)
 
@@ -470,8 +521,11 @@ contradizer o código.
 
 ## Next step
 
-**Enviar o commit da V48** (`git push origin_git_lab fix-alinhamento-legislacao`)
-e depois atacar o **ponto 1 do plano: férias**.
+**Push por fazer** (`git push origin_git_lab fix-alinhamento-legislacao`) — o
+utilizador pediu para não o fazer ainda.
+
+O **vencimento de férias está feito**; o ponto 1 continua aberto nas partes
+listadas acima (acumulação, marcação, suspensão, meios-dias).
 
 A questão que bloqueava as férias — a licença que acabava antes de começar — está
 resolvida: as contagens de dias já assentam em períodos válidos.
@@ -490,6 +544,19 @@ proporcionais ao tempo de serviço — é para isso que a V48 preparou o terreno
 Antes de começar: `docker start postgres-ingt-rh`, `mvn -B clean test` (784, 0
 falhas), repor a BD e correr a bateria (221/221) para confirmar que se parte de
 verde.
+
+**Migração já aplicada não se edita.** O `contextLoads` dos testes corre o Flyway,
+por isso **correr os testes aplica as migrações**. Editar o ficheiro depois disso
+faz o arranque falhar com *checksum mismatch*. Em desenvolvimento resolve-se
+desfazendo à mão os efeitos da migração e apagando a linha respectiva de
+`flyway_schema_history`, para ser reaplicada limpa.
+
+**`ADD COLUMN ... DEFAULT` preenche já as linhas existentes.** Uma migração que
+acrescente a coluna com omissão e só depois classifique `WHERE ... IS NULL` nunca
+classifica nada — e não falha, nem nos testes nem no arranque. A ordem certa é:
+coluna sem omissão → classificar → `NOT NULL` → `SET DEFAULT`. Custou uma
+classificação inteira errada (7 linhas em `FALTA`, férias incluídas), só visível
+ao consultar a base.
 
 **Cuidado que custou tempo nesta sessão:** não editar `src/` com um build a
 correr. O Maven apanha o ficheiro a meio e o resultado parece uma regressão de

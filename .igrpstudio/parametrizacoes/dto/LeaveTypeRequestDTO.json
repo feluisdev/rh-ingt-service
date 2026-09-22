@@ -46,6 +46,13 @@
       "type": "string",
       "required": false,
       "primaryKey": false
+    },
+    {
+      "name": "regime",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
     }
   ],
   "id": "leave_type_req_dto_001"

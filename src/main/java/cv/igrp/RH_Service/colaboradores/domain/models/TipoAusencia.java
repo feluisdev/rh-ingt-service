@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.domain.models;
 
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.TipoAusenciaId;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.RegimeAusencia;
 import lombok.Getter;
 
 @Getter
@@ -14,6 +15,11 @@ public class TipoAusencia {
     private Integer maxDaysPerYear;
     private String categoryOptionCkey;
     private Boolean isActive;
+    /**
+     * O regime legal a que obedece (V49). O motivo e o nome sao da instituicao; o regime e da
+     * lei, e e por aqui — nao pelo codigo — que se sabe quais destas linhas sao ferias.
+     */
+    private RegimeAusencia regime;
 
     private TipoAusencia() {}
 
@@ -35,7 +41,7 @@ public class TipoAusencia {
     public static TipoAusencia reconstituir(TipoAusenciaId id, String nome, String codigo,
                                             Boolean deductsBalance, Boolean requiresApproval,
                                             Integer maxDaysPerYear, String categoryOptionCkey,
-                                            Boolean isActive) {
+                                            Boolean isActive, RegimeAusencia regime) {
         TipoAusencia t = new TipoAusencia();
         t.id = id;
         t.nome = nome;
@@ -45,8 +51,12 @@ public class TipoAusencia {
         t.maxDaysPerYear = maxDaysPerYear;
         t.categoryOptionCkey = categoryOptionCkey;
         t.isActive = isActive;
+        t.regime = regime;
         return t;
     }
+
+    /** Ferias vencem-se; uma falta acontece. So o primeiro faz nascer saldo sozinho. */
+    public boolean isFerias() { return regime == RegimeAusencia.FERIAS; }
 
     public void atualizar(String nome, String codigo, Boolean deductsBalance,
                           Boolean requiresApproval, Integer maxDaysPerYear,

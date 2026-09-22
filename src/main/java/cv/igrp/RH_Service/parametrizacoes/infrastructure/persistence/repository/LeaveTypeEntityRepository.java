@@ -11,4 +11,10 @@ public interface LeaveTypeEntityRepository extends JpaRepository<LeaveTypeEntity
     boolean existsByCode(String code);
     boolean existsByCodeAndIdNot(String code, UUID id);
     List<LeaveTypeEntity> findAllByIsActive(Boolean isActive);
+
+    /**
+     * Tipos activos de um regime legal (V49). O saldo de ferias nasce sozinho e precisa de saber
+     * QUAL das linhas do catalogo sao ferias -- pela classificacao, nunca pelo codigo.
+     */
+    List<LeaveTypeEntity> findAllByRegimeAndIsActive(String regime, Boolean isActive);
 }

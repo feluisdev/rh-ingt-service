@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.parametrizacoes.application.commands;
 
 import cv.igrp.RH_Service.parametrizacoes.domain.models.LeaveType;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.RegimeAusencia;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.LeaveTypeRepository;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
@@ -36,7 +37,8 @@ public class CreateLeaveTypeCommandHandler implements CommandHandler<CreateLeave
             dto.isDeductsBalance(),
             dto.isRequiresApproval(),
             dto.getMaxDaysPerYear(),
-            dto.getCategory()
+            dto.getCategory(),
+            RegimeAusencia.de(dto.getRegime())
         );
 
         LeaveType saved = leaveTypeRepository.save(leaveType);

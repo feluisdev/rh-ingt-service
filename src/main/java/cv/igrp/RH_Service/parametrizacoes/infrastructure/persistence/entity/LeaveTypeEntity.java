@@ -44,4 +44,8 @@ public class LeaveTypeEntity extends AuditEntity {
 
     @Column(name = "is_active")
     private Boolean isActive;
+
+    /** Regime legal do DL n.o 3/2010: FERIAS (cap. II) ou FALTA (cap. III). Ver V49. */
+    @Column(name = "regime", length = 20)
+    private String regime;
 }

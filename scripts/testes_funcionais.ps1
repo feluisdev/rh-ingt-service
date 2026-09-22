@@ -569,6 +569,59 @@ $rErr = Chamar 'F10.11 NEG etiqueta inexistente' DELETE '/reference/options/0000
 Verificar 'F10.12 o erro traz title, nao sucesso' (($null -ne $rErr.Dados.title) -and ($null -eq $rErr.Dados.sucesso)) ''
 
 Write-Host ''
+Write-Host '=========== F11 - VENCIMENTO DE FERIAS (DL 3/2010 cap. II) ==========='
+
+# O saldo de ferias deixou de ser escrito a mao: vence-se sozinho (art. 2.o n.o 4) e e
+# proporcional no ano de ingresso (art. 3.o). Quem sabe QUAIS linhas do catalogo sao ferias
+# e a coluna `regime`, nunca o codigo.
+
+$anoAgora = (Get-Date).Year
+$rTipos = Chamar 'F11.1 catalogo de tipos de ausencia' GET '/catalogs/leave-types'
+$tipoFerias = (@(Linhas $rTipos) | Where-Object { $_.regime -eq 'FERIAS' } | Select-Object -First 1)
+Verificar 'F11.2 ha um tipo classificado como FERIAS' ($null -ne $tipoFerias) ('(' + $tipoFerias.code + ')')
+Verificar 'F11.3 os restantes sao FALTA' ((@(Linhas $rTipos) | Where-Object { $_.regime -ne 'FERIAS' -and $_.regime -ne 'FALTA' }).Count -eq 0) ''
+
+# --- ano inteiro: admitido a 1 de Janeiro deste ano ---
+$nifA = '9' + (Get-Date -Format 'MMddHHmmss')
+$rNovoA = Chamar 'F11.4 admitir colaborador a 1 de Janeiro' POST '/funcionarios' @{ nomeCompleto='Ferias Ano Inteiro'; dataNascimento='1990-05-05'; genero='M'; estadoCivil='SOLTEIRO'; nif=$nifA; dataAdmissao=($anoAgora.ToString() + '-01-01') } 201
+$colabFA = $rNovoA.Dados.id
+$rSaldoA = Chamar 'F11.5 o saldo nasceu sozinho' GET ('/funcionarios/' + $colabFA + '/saldos-ausencia?ano=' + $anoAgora)
+$saldoFA = (@(Linhas $rSaldoA) | Where-Object { $_.tipoAusenciaId -eq $tipoFerias.id } | Select-Object -First 1)
+Verificar 'F11.6 ha saldo de ferias sem ninguem o criar' ($null -ne $saldoFA) '(art. 2.o n.o 4)'
+Verificar 'F11.7 com os 22 dias do catalogo' ($saldoFA.diasDireito -eq 22) ('(' + $saldoFA.diasDireito + ' dias)')
+
+# --- ano de ingresso: proporcional (art. 3.o) ---
+# Admitido a 1 de Julho: dois trimestres completos ate 31 de Dezembro -> 11 dias.
+$nifB = '8' + (Get-Date -Format 'MMddHHmmss')
+$rNovoB = Chamar 'F11.8 admitir colaborador a 1 de Julho' POST '/funcionarios' @{ nomeCompleto='Ferias Proporcional'; dataNascimento='1992-06-06'; genero='F'; estadoCivil='SOLTEIRO'; nif=$nifB; dataAdmissao=($anoAgora.ToString() + '-07-01') } 201
+$colabFB = $rNovoB.Dados.id
+$rSaldoB = Chamar 'F11.9 saldo do ano de ingresso' GET ('/funcionarios/' + $colabFB + '/saldos-ausencia?ano=' + $anoAgora)
+$saldoFB = (@(Linhas $rSaldoB) | Where-Object { $_.tipoAusenciaId -eq $tipoFerias.id } | Select-Object -First 1)
+Verificar 'F11.10 proporcional, nao o ano inteiro' (($null -ne $saldoFB) -and ($saldoFB.diasDireito -eq 11)) ('(' + $saldoFB.diasDireito + ' dias, esperado 11)')
+
+# --- abaixo dos 90 dias de servico nao ha gozo antecipado (art. 3.o) ---
+$nifC = '7' + (Get-Date -Format 'MMddHHmmss')
+$rNovoC = Chamar 'F11.11 admitir colaborador a 1 de Dezembro' POST '/funcionarios' @{ nomeCompleto='Ferias Sem Direito'; dataNascimento='1995-07-07'; genero='M'; estadoCivil='SOLTEIRO'; nif=$nifC; dataAdmissao=($anoAgora.ToString() + '-12-01') } 201
+$colabFC = $rNovoC.Dados.id
+$rSaldoC = Chamar 'F11.12 saldo de quem entrou em Dezembro' GET ('/funcionarios/' + $colabFC + '/saldos-ausencia?ano=' + $anoAgora)
+$saldoFC = (@(Linhas $rSaldoC) | Where-Object { $_.tipoAusenciaId -eq $tipoFerias.id } | Select-Object -First 1)
+Verificar 'F11.13 existe, mas a zero dias' (($null -ne $saldoFC) -and ($saldoFC.diasDireito -eq 0)) ('(' + $saldoFC.diasDireito + ' dias)')
+
+# --- a classificacao e da instituicao, e muda-se pela API, nao por SQL ---
+$codigoReg = 'REG_TST_' + (Get-Date -Format 'HHmmss')
+$rTipoNovo = Chamar 'F11.14 criar tipo sem indicar regime' POST '/catalogs/leave-types' @{ code=$codigoReg; description='Tipo de teste'; deductsBalance=$false; requiresApproval=$false } 201
+$idTipoNovo = $rTipoNovo.Dados.id
+# O POST devolve SuccessResponseDTO (id, sucesso, alertas) -- e preciso ler o tipo de volta.
+$rTipoLido = Chamar 'F11.15 ler o tipo criado' GET ('/catalogs/leave-types/' + $idTipoNovo)
+Verificar 'F11.15a nasce FALTA, que e a omissao segura' ($rTipoLido.Dados.regime -eq 'FALTA') ('(' + $rTipoLido.Dados.regime + ')')
+$rReclass = Chamar 'F11.16 reclassificar pela API' PUT ('/catalogs/leave-types/' + $idTipoNovo) @{ code=$codigoReg; description='Tipo de teste'; deductsBalance=$false; requiresApproval=$false; regime='FERIAS' } 200
+Verificar 'F11.17 a instituicao reclassifica sem tocar em codigo' ($rReclass.Dados.regime -eq 'FERIAS') ('(' + $rReclass.Dados.regime + ')')
+Chamar 'F11.18 NEG regime fora da lista da lei' PUT ('/catalogs/leave-types/' + $idTipoNovo) @{ code=$codigoReg; description='Tipo de teste'; deductsBalance=$false; requiresApproval=$false; regime='INVENTADO' } 422 | Out-Null
+
+# Repor: dois tipos FERIAS activos tornariam o vencimento ambiguo para as proximas execucoes.
+Chamar 'F11.19 repor o tipo de teste como FALTA' PUT ('/catalogs/leave-types/' + $idTipoNovo) @{ code=$codigoReg; description='Tipo de teste'; deductsBalance=$false; requiresApproval=$false; regime='FALTA' } 200 | Out-Null
+
+Write-Host ''
 Write-Host '=========== RESUMO ==========='
 $ok = ($script:resultados | Where-Object { $_.OK }).Count
 $total = $script:resultados.Count

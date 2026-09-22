@@ -478,6 +478,34 @@ O saldo tem três números: `diasDireito`, `diasPendentes` (reservados) e `diasG
 
 Isto mudou: a reserva era feita só na aprovação, e `diasGozados` ficava sempre a zero. Se o teu front-end mostrava os dias gozados, passa agora a ter valores reais.
 
+### 6.3 Férias: o saldo nasce sozinho
+
+**`POST /saldos-ausencia` deixou de ser o caminho para as férias.** O art. 2.º n.º 4 do DL n.º 3/2010 diz que «o direito a férias vence no dia 1 de Janeiro de cada ano» — e passou a ser o que acontece:
+
+| Momento | O que acontece |
+|---|---|
+| **Admissão** (`POST /funcionarios`) | o saldo de férias do ano de ingresso é criado logo, com o direito proporcional — muitas vezes **zero**, o que é a resposta certa |
+| **Todos os dias**, pelo job (`rh.ferias.vencimento.cron`, 00:05) | o saldo do ano corrente é criado a quem não o tenha e **actualizado** a quem o direito tenha crescido |
+| **1 de Janeiro** | a mesma passagem cria o saldo do ano novo, com o direito inteiro |
+
+**Quantos dias.** Vem do `maxDaysPerYear` do tipo de ausência classificado como férias; na falta dele valem os **22 dias úteis** do art. 2.º n.º 3. A instituição pode ter outro número por diploma próprio.
+
+**No ano de ingresso é proporcional** (art. 3.º): a partir dos **90 dias** de serviço efectivo, por cada **3 meses completos** até 31 de Dezembro. Com 22 dias anuais dá:
+
+| Admitido em | Trimestres completos | Dias |
+|---|---|---|
+| Janeiro | 4 | 22 |
+| Abril | 3 | 17 |
+| Julho | 2 | 11 |
+| Outubro | 1 | 6 |
+| Novembro ou Dezembro | menos de 90 dias de serviço | **0** |
+
+**O direito nunca encolhe abaixo do que já foi gozado ou reservado**, mesmo que o recálculo dê menos — o art. 2.º n.º 5 diz que é irrenunciável.
+
+**Qual das linhas do catálogo são férias** lê-se do campo `regime` do tipo de ausência (`FERIAS` ou `FALTA`), e nunca do código. Ver 11.x no guia de catálogos: a instituição reclassifica pela API, e um valor fora da lista da lei dá **422**.
+
+> **O que ainda não existe:** acumulação de férias de um ano para o outro (art. 7.º n.º 1) e a compensação na cessação (art. 12.º), que depende de remuneração — e remuneração não existe nesta aplicação.
+
 As transições do pedido são todas `PATCH`, e não `PUT` — ao contrário das do contrato e das da licença, que são `PUT`:
 
 | Verbo | Path | Quem |

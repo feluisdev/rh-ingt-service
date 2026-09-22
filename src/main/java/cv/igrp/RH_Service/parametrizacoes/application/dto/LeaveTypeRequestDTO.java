@@ -24,4 +24,10 @@ public class LeaveTypeRequestDTO {
     private Integer maxDaysPerYear;
 
     private String category;
+
+    /**
+     * Regime legal do DL n.o 3/2010: {@code FERIAS} (cap. II, vence-se anualmente) ou
+     * {@code FALTA} (cap. III). Omitido, mantem o que esta; num tipo novo vale FALTA.
+     */
+    private String regime;
 }

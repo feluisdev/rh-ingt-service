@@ -306,6 +306,36 @@ licenca como ausencia prolongada (um **periodo**), o n.o 2 faz a concessao depen
 - **A `dataFim` depois do regresso fica na vespera** do dia em que a pessoa voltou, porque a data
   de regresso e o primeiro dia de volta ao servico.
 
+### 11.9 Ferias: o saldo deixa de ser criado a mao (2026-09-22)
+
+O art. 2.o n.o 4 do DL n.o 3/2010 diz que o direito a ferias vence a 1 de Janeiro. Ate agora o
+saldo era escrito por alguem atraves de `POST /funcionarios/{id}/saldos-ausencia`; passou a
+nascer sozinho.
+
+**O que muda nos ecras:**
+
+- **Nao criar saldos de ferias a mao.** O saldo existe a partir da admissao. Um ecra que peca
+  "dias de direito" ao utilizador para as ferias esta a duplicar o que a lei ja fixou. O
+  endpoint continua a existir para os restantes tipos de ausencia.
+- **Zero dias nao e erro.** Quem e admitido em Novembro ou Dezembro tem saldo de ferias a
+  **zero** ate perfazer 90 dias de servico (art. 3.o). O ecra deve mostrar zero, e nao
+  "sem saldo configurado".
+- **O direito cresce durante o ano de ingresso**, a cada trimestre completo. Um valor lido em
+  Maio pode nao ser o mesmo em Agosto -- nao vale a pena guarda-lo em cache do lado do cliente.
+
+**Campo novo no catalogo de tipos de ausencia** (`/catalogs/leave-types`):
+
+| Campo | Valores | Para que serve |
+|---|---|---|
+| `regime` | `FERIAS` / `FALTA` | o capitulo do DL n.o 3/2010 a que a linha obedece |
+
+- Na **criacao**, omitido vale `FALTA`.
+- Na **actualizacao**, omitido **mantem** o que esta -- nao apaga a classificacao.
+- Um valor fora da lista devolve **422**: os regimes sao os da lei, a instituicao mapeia mas nao
+  inventa.
+- Um ecra de administracao do catalogo deve expor este campo, porque e ele -- e nao o codigo --
+  que determina a que linha se aplica o vencimento anual.
+
 ### Checklist
 
 - [ ] Select de `situacaoFuncional` no catálogo de estados.

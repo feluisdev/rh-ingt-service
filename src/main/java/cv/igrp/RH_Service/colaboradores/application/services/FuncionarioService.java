@@ -18,6 +18,7 @@ public class FuncionarioService {
 
     private final FuncionarioRepository funcionarioRepository;
     private final WorkerStateRepository workerStateRepository;
+    private final FeriasService feriasService;
     private final JdbcTemplate jdbcTemplate;
 
     @Transactional
@@ -42,7 +43,7 @@ public class FuncionarioService {
         Long seq = jdbcTemplate.queryForObject("SELECT nextval('seq_numero_funcionario')", Long.class);
         String numeroFuncionario = String.format("F%06d", seq);
 
-        return funcionarioRepository.save(
+        Funcionario funcionario = funcionarioRepository.save(
                 Funcionario.criar(numeroFuncionario, dto.getNomeCompleto(), dto.getDataNascimento(),
                         dto.getGenero(), dto.getEstadoCivil(), dto.getNif(),
                         dto.getDocumentTypeId(), dto.getNumeroDocumento(),
@@ -50,5 +51,13 @@ public class FuncionarioService {
                         dto.getNacionalidade(), dto.getEmail(), dto.getTelefone(),
                         dto.getMorada(), dto.getIlha(), dto.getConcelho(), dto.getLocalidade(),
                         workerStateId, dto.getDataAdmissao()));
+
+        // O direito a férias adquire-se com a constituição da relação de emprego (art. 2.º n.º 1
+        // do DL n.º 3/2010), por isso o saldo nasce aqui e não na madrugada seguinte. No ano de
+        // ingresso começa em zero e cresce a cada trimestre completo (art. 3.º) -- é o job diário
+        // que o faz crescer. Zero dias é a resposta certa, e é melhor do que "não existe saldo".
+        feriasService.garantirSaldoDoAno(funcionario.getId(), dto.getDataAdmissao().getYear());
+
+        return funcionario;
     }
 }

@@ -24,6 +24,9 @@ public class LeaveTypeResponseDTO {
     private Integer maxDaysPerYear;
 
     private String category;
+
+    /** Regime legal do DL n.o 3/2010: FERIAS ou FALTA. */
+    private String regime;
     private String categoryDesc;
 
     private Boolean isActive;

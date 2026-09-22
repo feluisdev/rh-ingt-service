@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.parametrizacoes.application.commands;
 
 import cv.igrp.RH_Service.parametrizacoes.application.dto.LeaveTypeResponseDTO;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.LeaveType;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.RegimeAusencia;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.LeaveTypeRepository;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.LeaveTypeMapper;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
@@ -33,7 +34,7 @@ public class UpdateLeaveTypeCommandHandler implements CommandHandler<UpdateLeave
                 "Tipo de licença não encontrado: " + command.getLeaveTypeId()));
 
         leaveType.atualizar(dto.getDescription(), dto.isDeductsBalance(), dto.isRequiresApproval(),
-                dto.getMaxDaysPerYear(), dto.getCategory());
+                dto.getMaxDaysPerYear(), dto.getCategory(), RegimeAusencia.de(dto.getRegime()));
 
         LeaveType updated = leaveTypeRepository.save(leaveType);
 

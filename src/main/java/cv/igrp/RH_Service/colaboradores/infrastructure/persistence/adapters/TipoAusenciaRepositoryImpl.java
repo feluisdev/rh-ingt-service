@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.colaboradores.domain.filter.TipoAusenciaFilter;
 import cv.igrp.RH_Service.colaboradores.domain.models.TipoAusencia;
 import cv.igrp.RH_Service.colaboradores.domain.repository.TipoAusenciaRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.TipoAusenciaId;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.RegimeAusencia;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.LeaveTypeEntity;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.LeaveTypeEntityRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,20 @@ public class TipoAusenciaRepositoryImpl implements TipoAusenciaRepository {
 
     private final LeaveTypeEntityRepository entityRepository;
 
+    /**
+     * Uma classificação que o esquema já não deixa entrar (V49, ck_leave_type_regime) mas que
+     * pode existir numa base anterior à migração: em vez de rebentar, trata-se como FALTA, que é
+     * o regime que não produz efeitos automáticos.
+     */
+    private RegimeAusencia regimeDe(LeaveTypeEntity e) {
+        if (e.getRegime() == null) return null;
+        try {
+            return RegimeAusencia.valueOf(e.getRegime());
+        } catch (IllegalArgumentException ex) {
+            return RegimeAusencia.FALTA;
+        }
+    }
+
     private TipoAusencia toDomain(LeaveTypeEntity e) {
         return TipoAusencia.reconstituir(
                 TipoAusenciaId.from(e.getId()),
@@ -26,7 +41,8 @@ public class TipoAusenciaRepositoryImpl implements TipoAusenciaRepository {
                 e.getDeductsBalance(), e.getRequiresApproval(),
                 e.getMaxDaysPerYear(),
                 e.getCategory(),
-                e.getIsActive());
+                e.getIsActive(),
+                regimeDe(e));
     }
 
     private LeaveTypeEntity toEntity(TipoAusencia t) {
@@ -39,6 +55,7 @@ public class TipoAusenciaRepositoryImpl implements TipoAusenciaRepository {
         e.setMaxDaysPerYear(t.getMaxDaysPerYear());
         e.setCategory(t.getCategoryOptionCkey());
         e.setIsActive(t.getIsActive());
+        e.setRegime(t.getRegime() != null ? t.getRegime().name() : null);
         return e;
     }
 
@@ -72,5 +89,12 @@ public class TipoAusenciaRepositoryImpl implements TipoAusenciaRepository {
     @Override
     public boolean existsByCodigoAndIdNot(String codigo, TipoAusenciaId id) {
         return entityRepository.existsByCodeAndIdNot(codigo, id.getValor());
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<TipoAusencia> findFerias() {
+        return entityRepository.findAllByRegimeAndIsActive(RegimeAusencia.FERIAS.name(), true)
+                .stream().findFirst().map(this::toDomain);
     }
 }

@@ -69,15 +69,19 @@ ON CONFLICT (codigo) DO NOTHING;
 -- deducts_balance=true  → valida saldo disponível antes de aprovar
 -- requires_approval=true → fica PENDING até chefia aprovar; false → APPROVED automático
 -- max_days_per_year: null = sem limite legal
+-- regime: o capitulo do DL n.o 3/2010 a que a linha obedece. FERIAS (cap. II) vence-se
+--         sozinho a 1 de Janeiro, proporcional no ano de ingresso; FALTA (cap. III) nao.
+--         E por esta coluna -- nunca pelo codigo -- que o vencimento sabe quais sao ferias,
+--         e e por isso que a instituicao a pode mudar sem tocar em codigo. Ver V49.
 -- =============================================================
-INSERT INTO t_leave_type (id, code, description, deducts_balance, requires_approval, max_days_per_year, category, is_active, created_date, created_by) VALUES
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1', 'FERIAS',              'Férias',                   true,  true,  22,   'GOZAMENTO', true, NOW(), 'system'),
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e2', 'DOENCA',              'Doença',                   false, false, null, 'SAUDE',     true, NOW(), 'system'),
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e3', 'MATERNIDADE',         'Licença de Maternidade',   false, false, null, 'FAMILIAR',  true, NOW(), 'system'),
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e4', 'PATERNIDADE',         'Licença de Paternidade',   false, false, null, 'FAMILIAR',  true, NOW(), 'system'),
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e5', 'LUTO',                'Licença de Luto',          false, false, 5,    'FAMILIAR',  true, NOW(), 'system'),
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e6', 'FALTA_JUSTIFICADA',   'Falta Justificada',        true,  false, null, 'PESSOAL',   true, NOW(), 'system'),
-('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e7', 'FALTA_INJUSTIFICADA', 'Falta Injustificada',      true,  false, null, 'PESSOAL',   true, NOW(), 'system')
+INSERT INTO t_leave_type (id, code, description, deducts_balance, requires_approval, max_days_per_year, category, regime, is_active, created_date, created_by) VALUES
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1', 'FERIAS',              'Férias',                   true,  true,  22,   'GOZAMENTO', 'FERIAS', true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e2', 'DOENCA',              'Doença',                   false, false, null, 'SAUDE',     'FALTA',  true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e3', 'MATERNIDADE',         'Licença de Maternidade',   false, false, null, 'FAMILIAR',  'FALTA',  true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e4', 'PATERNIDADE',         'Licença de Paternidade',   false, false, null, 'FAMILIAR',  'FALTA',  true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e5', 'LUTO',                'Licença de Luto',          false, false, 5,    'FAMILIAR',  'FALTA',  true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e6', 'FALTA_JUSTIFICADA',   'Falta Justificada',        true,  false, null, 'PESSOAL',   'FALTA',  true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e7', 'FALTA_INJUSTIFICADA', 'Falta Injustificada',      true,  false, null, 'PESSOAL',   'FALTA',  true, NOW(), 'system')
 ON CONFLICT (code) DO NOTHING;
 
 -- =============================================================

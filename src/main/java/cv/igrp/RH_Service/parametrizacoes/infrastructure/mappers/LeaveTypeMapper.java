@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers;
 
 import cv.igrp.RH_Service.parametrizacoes.application.dto.LeaveTypeResponseDTO;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.LeaveType;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.RegimeAusencia;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.LeaveTypeEntity;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.LeaveTypeId;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ public class LeaveTypeMapper {
         entity.setRequiresApproval(domain.isRequiresApproval());
         entity.setMaxDaysPerYear(domain.getMaxDaysPerYear());
         entity.setCategory(domain.getCategory());
+        entity.setRegime(domain.getRegime() != null ? domain.getRegime().name() : RegimeAusencia.FALTA.name());
         entity.setIsActive(domain.isActive());
         return entity;
     }
@@ -33,7 +35,8 @@ public class LeaveTypeMapper {
             entity.getRequiresApproval() != null && entity.getRequiresApproval(),
             entity.getMaxDaysPerYear(),
             entity.getCategory(),
-            entity.getIsActive() != null && entity.getIsActive()
+            entity.getIsActive() != null && entity.getIsActive(),
+            RegimeAusencia.de(entity.getRegime())
         );
     }
 
@@ -47,6 +50,7 @@ public class LeaveTypeMapper {
         dto.setRequiresApproval(domain.isRequiresApproval());
         dto.setMaxDaysPerYear(domain.getMaxDaysPerYear());
         dto.setCategory(domain.getCategory());
+        dto.setRegime(domain.getRegime() != null ? domain.getRegime().name() : null);
         dto.setIsActive(domain.isActive());
         dto.setEstadoDesc(Boolean.TRUE.equals(domain.isActive()) ? "Ativo" : "Inativo");
         return dto;
