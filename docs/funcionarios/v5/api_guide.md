@@ -504,7 +504,52 @@ Isto mudou: a reserva era feita só na aprovação, e `diasGozados` ficava sempr
 
 **Qual das linhas do catálogo são férias** lê-se do campo `regime` do tipo de ausência (`FERIAS` ou `FALTA`), e nunca do código. Ver 11.x no guia de catálogos: a instituição reclassifica pela API, e um valor fora da lista da lei dá **422**.
 
-> **O que ainda não existe:** acumulação de férias de um ano para o outro (art. 7.º n.º 1) e a compensação na cessação (art. 12.º), que depende de remuneração — e remuneração não existe nesta aplicação.
+### 6.4 Acumulação de férias para o ano seguinte
+
+**`POST /funcionarios/{id}/saldos-ausencia/{saldoId}/acumular`**
+
+```json
+{ "dias": 8, "motivo": "conveniência de serviço — projecto em curso" }
+```
+
+O art. 7.º n.º 1 diz que as férias «devem ser gozadas no decurso do ano civil em que se vencem, salvo se, **por motivo de serviço**, não puderem ser gozadas nesse ano, caso em que pode haver acumulação de férias para o ano seguinte».
+
+**Não é automático, e não é o job que o faz.** É um acto do RH e o `motivo` é **obrigatório** (400 sem ele) — a lei condiciona a acumulação a haver motivo de serviço. O conteúdo não é validado: os motivos são da instituição.
+
+Resposta `200` (`AcumulacaoFeriasResponseDTO`) mostra os dois lados, que é o que quem autoriza precisa de ver:
+
+| Campo | Significado |
+|---|---|
+| `saldoDestinoId` · `anoOrigem` · `anoDestino` | de onde e para onde |
+| `diasAcumulados` | dias movidos nesta operação |
+| `disponivelNaOrigem` | o que resta por gozar no ano de origem |
+| `disponivelNoDestino` | o que passa a haver no ano de destino |
+
+**O que impede erros:**
+
+| Situação | Resposta |
+|---|---|
+| Sem `motivo` | **400** |
+| Mais dias do que os que sobram no ano | **422** |
+| Ceder outra vez dias já cedidos | **422** |
+| Acumular um tipo que não seja férias (`regime != FERIAS`) | **422** |
+| Saldo de outro colaborador pelo URL deste | **404** |
+
+**O saldo do ano de destino é criado se ainda não existir** — a autorização pode acontecer em Dezembro, antes de o job do vencimento passar.
+
+**Os dias acumulados ficam à parte do direito do próprio ano.** No `SaldoAusenciaResponseDTO`:
+
+| Campo | Significado |
+|---|---|
+| `diasDireito` | o que se venceu **neste** ano |
+| `diasAcumulados` | o que veio do ano anterior · `acumulacaoMotivo` diz porquê |
+| `diasTransportados` | o que já foi cedido ao ano seguinte |
+| `diasDisponiveis` | `diasDireito + diasAcumulados − gozados − pendentes − transportados` |
+| `diasAcumuláveis` | quanto deste ano ainda pode seguir para o seguinte |
+
+**Os dias recebidos não voltam a ser acumuláveis.** O horizonte da lei é de um ano: o art. 7.º n.º 1 fala do «ano seguinte» e o art. 8.º n.º 4 manda gozar o remanescente «até ao termo do ano civil imediato». Por isso `diasAcumuláveis` conta só o que sobra do direito do próprio ano — quem gastou tudo o que se venceu neste ano e ainda tem saldo, tem-no à custa dos dias antigos, e esses ficam.
+
+> **O que ainda não existe:** a compensação na cessação (art. 12.º), que depende de remuneração — e remuneração não existe nesta aplicação.
 
 As transições do pedido são todas `PATCH`, e não `PUT` — ao contrário das do contrato e das da licença, que são `PUT`:
 

@@ -1,0 +1,14 @@
+{
+  "type": "dto",
+  "name": "AcumulacaoFeriasResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "saldoDestinoId", "objectType": "java", "required": false},
+    {"type": "integer", "name": "anoOrigem", "objectType": "java", "required": false},
+    {"type": "integer", "name": "anoDestino", "objectType": "java", "required": false},
+    {"type": "integer", "name": "diasAcumulados", "objectType": "java", "required": false},
+    {"type": "integer", "name": "disponivelNaOrigem", "objectType": "java", "required": false},
+    {"type": "integer", "name": "disponivelNoDestino", "objectType": "java", "required": false}
+  ]
+}

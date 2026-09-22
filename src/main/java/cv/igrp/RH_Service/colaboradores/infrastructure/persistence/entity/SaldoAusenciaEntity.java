@@ -45,4 +45,14 @@ public class SaldoAusenciaEntity extends AuditEntity {
 
     @Column(name = "dias_pendentes", nullable = false)
     private int diasPendentes;
+
+    /** Acumulacao de ferias para o ano seguinte (art. 7.o n.o 1 do DL n.o 3/2010). Ver V50. */
+    @Column(name = "dias_acumulados", nullable = false)
+    private int diasAcumulados;
+
+    @Column(name = "acumulacao_motivo", columnDefinition = "TEXT")
+    private String acumulacaoMotivo;
+
+    @Column(name = "dias_transportados", nullable = false)
+    private int diasTransportados;
 }

@@ -30,7 +30,10 @@ public class SaldoAusenciaMapper {
                 e.getAno(),
                 e.getDiasDireito(),
                 e.getDiasGozados(),
-                e.getDiasPendentes());
+                e.getDiasPendentes(),
+                e.getDiasAcumulados(),
+                e.getAcumulacaoMotivo(),
+                e.getDiasTransportados());
     }
 
     public SaldoAusenciaEntity toEntity(SaldoAusencia s) {
@@ -42,6 +45,9 @@ public class SaldoAusenciaMapper {
         e.setDiasDireito(s.getDiasDireito());
         e.setDiasGozados(s.getDiasGozados());
         e.setDiasPendentes(s.getDiasPendentes());
+        e.setDiasAcumulados(s.getDiasAcumulados());
+        e.setAcumulacaoMotivo(s.getAcumulacaoMotivo());
+        e.setDiasTransportados(s.getDiasTransportados());
         return e;
     }
 
@@ -68,6 +74,12 @@ public class SaldoAusenciaMapper {
         r.setDiasGozados(s.getDiasGozados());
         r.setDiasPendentes(s.getDiasPendentes());
         r.setDiasDisponiveis(s.saldoDisponivel());
+        // Os dias vindos do ano anterior somam-se ao disponivel mas ficam a parte do direito do
+        // proprio ano: sao coisas diferentes e um ecra de RH tem de as poder distinguir.
+        r.setDiasAcumulados(s.getDiasAcumulados());
+        r.setAcumulacaoMotivo(s.getAcumulacaoMotivo());
+        r.setDiasTransportados(s.getDiasTransportados());
+        r.setDiasAcumulaveis(s.diasAcumulaveis());
         tipoAusenciaRepository.findById(s.getTipoAusenciaId())
                 .ifPresent(t -> r.setTipoAusencia(toTipoDTO(t)));
         return r;

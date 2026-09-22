@@ -622,6 +622,52 @@ Chamar 'F11.18 NEG regime fora da lista da lei' PUT ('/catalogs/leave-types/' + 
 Chamar 'F11.19 repor o tipo de teste como FALTA' PUT ('/catalogs/leave-types/' + $idTipoNovo) @{ code=$codigoReg; description='Tipo de teste'; deductsBalance=$false; requiresApproval=$false; regime='FALTA' } 200 | Out-Null
 
 Write-Host ''
+Write-Host '=========== F12 - ACUMULACAO DE FERIAS (art. 7.o n.o 1) ==========='
+
+# Depois de o saldo passar a nascer sozinho, os dias nao gozados ficavam na linha do ano
+# anterior sem caminho nenhum: um pedido de 2027 so olha para o saldo de 2027. A lei nao os
+# deixa cair -- mas tambem nao os arrasta sozinha: so ha acumulacao quando, por motivo de
+# servico, nao puderam ser gozados nesse ano.
+
+$anoAc = (Get-Date).Year
+$rSaldosAc = Chamar 'F12.1 saldos do colaborador do ano inteiro' GET ('/funcionarios/' + $colabFA + '/saldos-ausencia?ano=' + $anoAc)
+$saldoAc = (@(Linhas $rSaldosAc) | Where-Object { $_.tipoAusenciaId -eq $tipoFerias.id } | Select-Object -First 1)
+Verificar 'F12.2 tem os 22 dias todos por gozar' (($saldoAc.diasDisponiveis -eq 22) -and ($saldoAc.diasAcumulaveis -eq 22)) ('(disponivel=' + $saldoAc.diasDisponiveis + ' acumulavel=' + $saldoAc.diasAcumulaveis + ')')
+
+Chamar 'F12.3 NEG acumular sem motivo' POST ('/funcionarios/' + $colabFA + '/saldos-ausencia/' + $saldoAc.id + '/acumular') @{ dias=5 } 400 | Out-Null
+Chamar 'F12.4 NEG acumular mais do que sobra' POST ('/funcionarios/' + $colabFA + '/saldos-ausencia/' + $saldoAc.id + '/acumular') @{ dias=40; motivo='conveniencia de servico' } 422 | Out-Null
+
+$rAcum = Chamar 'F12.5 acumular 8 dias para o ano seguinte' POST ('/funcionarios/' + $colabFA + '/saldos-ausencia/' + $saldoAc.id + '/acumular') @{ dias=8; motivo='conveniencia de servico - projecto em curso' } 200
+Verificar 'F12.6 a resposta mostra os dois anos' (($rAcum.Dados.anoOrigem -eq $anoAc) -and ($rAcum.Dados.anoDestino -eq ($anoAc + 1))) ('(' + $rAcum.Dados.anoOrigem + ' -> ' + $rAcum.Dados.anoDestino + ')')
+Verificar 'F12.7 a origem ficou com menos 8' ($rAcum.Dados.disponivelNaOrigem -eq 14) ('(' + $rAcum.Dados.disponivelNaOrigem + ')')
+Verificar 'F12.8 o destino tem o seu direito mais os 8' ($rAcum.Dados.disponivelNoDestino -eq 30) ('(' + $rAcum.Dados.disponivelNoDestino + ')')
+
+# O saldo do ano seguinte foi criado pela propria acumulacao -- o job do vencimento ainda nao
+# passou por ele, e a autorizacao pode acontecer em Dezembro.
+$rSaldoSeg = Chamar 'F12.9 saldo do ano seguinte' GET ('/funcionarios/' + $colabFA + '/saldos-ausencia?ano=' + ($anoAc + 1))
+$saldoSeg = (@(Linhas $rSaldoSeg) | Where-Object { $_.tipoAusenciaId -eq $tipoFerias.id } | Select-Object -First 1)
+Verificar 'F12.10 nasceu com os dias acumulados a parte do direito' (($saldoSeg.diasDireito -eq 22) -and ($saldoSeg.diasAcumulados -eq 8)) ('(direito=' + $saldoSeg.diasDireito + ' acumulados=' + $saldoSeg.diasAcumulados + ')')
+Verificar 'F12.11 e o motivo ficou gravado' (-not [string]::IsNullOrWhiteSpace($saldoSeg.acumulacaoMotivo)) ('(' + $saldoSeg.acumulacaoMotivo + ')')
+
+# Os dias recebidos nao seguem viagem para o ano a seguir: o horizonte da lei e de um ano.
+Verificar 'F12.12 os dias recebidos nao sao acumulaveis de novo' ($saldoSeg.diasAcumulaveis -eq 22) ('(acumulavel=' + $saldoSeg.diasAcumulaveis + ', e nao 30)')
+
+# A origem ja so tem 14 por gozar, logo nao pode ceder os 22 outra vez.
+Chamar 'F12.13 NEG ceder outra vez os mesmos dias' POST ('/funcionarios/' + $colabFA + '/saldos-ausencia/' + $saldoAc.id + '/acumular') @{ dias=22; motivo='outra vez' } 422 | Out-Null
+
+# Um saldo de outra pessoa nao se acumula pelo URL desta.
+Chamar 'F12.14 NEG saldo de outro colaborador pelo URL deste' POST ('/funcionarios/' + $colabFB + '/saldos-ausencia/' + $saldoAc.id + '/acumular') @{ dias=1; motivo='engano' } 404 | Out-Null
+
+# A acumulacao e do capitulo das ferias: uma falta nao se acumula.
+$tipoFalta = (@(Linhas $rTipos) | Where-Object { $_.regime -eq 'FALTA' -and $_.deductsBalance -eq $true } | Select-Object -First 1)
+if ($null -ne $tipoFalta) {
+    $rSaldoFalta = Chamar 'F12.15 criar saldo de um tipo FALTA' POST ('/funcionarios/' + $colabFA + '/saldos-ausencia') @{ tipoAusenciaId=$tipoFalta.id; ano=$anoAc; diasDireito=10 } 201
+    $rSaldosTodos = Chamar 'F12.16 ler os saldos' GET ('/funcionarios/' + $colabFA + '/saldos-ausencia?ano=' + $anoAc)
+    $saldoFalta = (@(Linhas $rSaldosTodos) | Where-Object { $_.tipoAusenciaId -eq $tipoFalta.id } | Select-Object -First 1)
+    Chamar 'F12.17 NEG acumular uma falta' POST ('/funcionarios/' + $colabFA + '/saldos-ausencia/' + $saldoFalta.id + '/acumular') @{ dias=2; motivo='nao se aplica' } 422 | Out-Null
+}
+
+Write-Host ''
 Write-Host '=========== RESUMO ==========='
 $ok = ($script:resultados | Where-Object { $_.OK }).Count
 $total = $script:resultados.Count

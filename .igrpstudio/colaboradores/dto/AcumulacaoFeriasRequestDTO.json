@@ -1,0 +1,10 @@
+{
+  "type": "dto",
+  "name": "AcumulacaoFeriasRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "integer", "name": "dias", "objectType": "java", "required": true},
+    {"type": "string", "name": "motivo", "objectType": "java", "required": true}
+  ]
+}

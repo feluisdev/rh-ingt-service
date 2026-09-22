@@ -15,16 +15,17 @@ par, sem avançar enquanto o anterior não estiver verde.
 
 **Branch `fix-alinhamento-legislacao`**. O commit que a versão anterior deste
 documento dava como pendente **já foi enviado**; há **1 commit local por enviar**
-a 2026-09-22 (`204f29af` a V48, `f0a135b2` o handoff, e o das férias/V49). O
+a 2026-09-22 (`204f29af` a V48, `f0a135b2` o handoff, `9d0e353b` a V49 e o da
+acumulação/V50). O
 GitLab é o repo da equipa; merge para `master` é deploy. **Ainda não foi feito
 push** — por indicação do utilizador.
 
-- **Testes: 798, 0 falhas — mas só com a base de dados de pé.** 797 são unitários
+- **Testes: 806, 0 falhas — mas só com a base de dados de pé.** 805 são unitários
   puros; o `RecursosHumanosApplicationTests.contextLoads` carrega o contexto Spring
   completo e o Flyway liga-se ao Postgres. **Sem o contentor a correr dá 1 erro, e
   não é regressão.** Correr **sempre com `clean`** (ver Blockers).
-- **Bateria funcional: 241 passos, 241 OK**, cobre **F0 a F11**.
-- **Migrações V40 a V49** aplicadas e verificadas na BD. Próxima livre: **V50**.
+- **Bateria funcional: 258 passos, 258 OK**, cobre **F0 a F12**.
+- **Migrações V40 a V50** aplicadas e verificadas na BD. Próxima livre: **V51**.
 - **`openapi.json`**: 225 caminhos, 238 esquemas, **0 operações não-sigdi sem
   esquema de resposta**.
 - **Nenhum handler ou controlador não-sigdi devolve `Map`.**
@@ -72,10 +73,16 @@ de ser possível, por construção e por restrição no esquema.
    (art. 2.º n.º 4) e é proporcional no ano de ingresso (art. 3.º), com o número de
    dias vindo do catálogo e a lei por recurso. Quem classifica o catálogo é a coluna
    `regime` (`FERIAS`/`FALTA`), não o código.
+   **A acumulação também está feita (V50, 2026-09-22).** Os dias que, por motivo
+   de serviço, não puderam ser gozados passam para o ano seguinte por
+   `POST /saldos-ausencia/{saldoId}/acumular` — **acto do RH com motivo
+   obrigatório**, não automatismo: a lei condiciona-a a haver motivo de serviço.
+   O que é cedido sai do saldo de origem (`dias_transportados`), o que é recebido
+   fica à parte do direito do próprio ano (`dias_acumulados` + motivo), e os dias
+   recebidos **não voltam a ser acumuláveis** — o horizonte da lei é de um ano
+   (art. 7.º n.º 1 e art. 8.º n.º 4).
+
    **Falta ainda:**
-   - **acumulação entre anos** (art. 7.º n.º 1: quando por motivo de serviço não
-     puderam ser gozadas) e a regra do art. 8.º n.º 4 / art. 9.º, que manda gozar
-     o remanescente até ao fim do ano civil seguinte;
    - **marcação** — o mapa de férias até 31 de Março (art. 6.º), a indicação de
      preferência até 31 de Janeiro (art. 5.º n.º 4), o mínimo de 11 dias num dos
      períodos em gozo interpolado (art. 5.º n.º 1) e a fixação pelo dirigente entre
@@ -524,8 +531,15 @@ contradizer o código.
 **Push por fazer** (`git push origin_git_lab fix-alinhamento-legislacao`) — o
 utilizador pediu para não o fazer ainda.
 
-O **vencimento de férias está feito**; o ponto 1 continua aberto nas partes
-listadas acima (acumulação, marcação, suspensão, meios-dias).
+**Vencimento e acumulação de férias estão feitos.** O ponto 1 continua aberto
+nas partes listadas acima: **marcação** (mapa de férias, preferência, mínimo de
+11 dias, fixação pelo dirigente), **suspensão** por doença ou parentalidade
+(art. 8.º) e **meios-dias** (art. 2.º n.º 6).
+
+Ao atacar a marcação, decidir primeiro com o RH/produto: quem aprova o mapa de
+férias e o que acontece a quem não indica preferência até 31 de Janeiro. São
+decisões de processo, não de código — foi por isso que se fez a acumulação
+primeiro.
 
 A questão que bloqueava as férias — a licença que acabava antes de começar — está
 resolvida: as contagens de dias já assentam em períodos válidos.

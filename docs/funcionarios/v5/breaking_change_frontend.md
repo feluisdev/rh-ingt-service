@@ -336,6 +336,29 @@ nascer sozinho.
 - Um ecra de administracao do catalogo deve expor este campo, porque e ele -- e nao o codigo --
   que determina a que linha se aplica o vencimento anual.
 
+### 11.10 Acumulacao de ferias (2026-09-22)
+
+Endpoint novo: **`POST /funcionarios/{id}/saldos-ausencia/{saldoId}/acumular`**, corpo
+`{ "dias": N, "motivo": "..." }`. O `motivo` e **obrigatorio** -- o art. 7.o n.o 1 do
+DL n.o 3/2010 so permite a acumulacao quando, por motivo de servico, as ferias nao puderam ser
+gozadas nesse ano. Sem ele, **400**.
+
+**Campos novos no `SaldoAusenciaResponseDTO`:**
+
+| Campo | Significado |
+|---|---|
+| `diasAcumulados` | dias vindos do ano anterior |
+| `acumulacaoMotivo` | porque e que nao puderam ser gozados |
+| `diasTransportados` | dias ja cedidos ao ano seguinte |
+| `diasAcumulaveis` | quanto deste ano ainda pode seguir para o seguinte |
+
+**O `diasDisponiveis` mudou de formula:** passou a ser
+`diasDireito + diasAcumulados - gozados - pendentes - transportados`. Um ecra que somasse
+`diasDireito - gozados` a mao passa a dar um numero diferente do da API -- use o campo.
+
+**Um ecra de saldo deve mostrar `diasDireito` e `diasAcumulados` separados.** Sao coisas
+diferentes: um venceu-se este ano, o outro sobrou do anterior e tem prazo.
+
 ### Checklist
 
 - [ ] Select de `situacaoFuncional` no catálogo de estados.

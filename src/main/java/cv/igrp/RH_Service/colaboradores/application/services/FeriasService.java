@@ -7,7 +7,9 @@ import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.SaldoAusenciaRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.TipoAusenciaRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -107,6 +109,58 @@ public class FeriasService {
 
         // Arredondamento à unidade mais próxima, meio para cima: com 22 dias dá 6, 11 e 17.
         return (int) ((direitoAnual * trimestres * 2 + TRIMESTRES_NO_ANO) / (TRIMESTRES_NO_ANO * 2));
+    }
+
+    /**
+     * <b>Acumulação para o ano seguinte</b> — art. 7.º n.º 1: «As férias devem ser gozadas no
+     * decurso do ano civil em que se vencem, salvo se, por motivo de serviço, não puderem ser
+     * gozadas nesse ano, caso em que pode haver acumulação de férias para o ano seguinte.»
+     *
+     * <p><b>Não é automático, de propósito.</b> A lei condiciona-a a «motivo de serviço», e por
+     * isso isto é um acto justificado e não um job a arrastar dias em silêncio. Não se valida o
+     * conteúdo do motivo — os motivos são da instituição —, mas exige-se que exista.
+     *
+     * <p><b>É para o ano imediatamente seguinte, e uma só vez.</b> O que se cede fica registado
+     * na linha de origem, e os dias recebidos não voltam a ser cedíveis: o horizonte da lei é de
+     * um ano (art. 8.º n.º 4 e art. 9.º mandam gozar o remanescente «até ao termo do ano civil
+     * imediato»), não uma corrente que arrasta dias indefinidamente.
+     *
+     * <p>O saldo do ano de destino é criado se ainda não existir — a acumulação pode ser
+     * autorizada em Dezembro, antes de o job do vencimento passar.
+     *
+     * @return o saldo do ano de destino, já com os dias recebidos
+     */
+    @Transactional
+    public SaldoAusencia acumularParaOAnoSeguinte(SaldoAusencia origem, int dias, String motivo) {
+        if (motivo == null || motivo.isBlank())
+            throw IgrpResponseStatusException.badRequest(
+                    "A acumulação de férias exige um motivo: a lei só a permite quando, por motivo "
+                            + "de serviço, as férias não puderam ser gozadas no ano (art. 7.º n.º 1).");
+
+        TipoAusencia tipo = tipoAusenciaRepository.findById(origem.getTipoAusenciaId())
+                .orElseThrow(() -> IgrpResponseStatusException.notFound(
+                        "Tipo de ausência não encontrado: " + origem.getTipoAusenciaId().getStringValor()));
+
+        if (!tipo.isFerias())
+            throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "A acumulação para o ano seguinte é das férias (DL n.º 3/2010, cap. II). "
+                            + "O tipo '" + tipo.getNome() + "' está classificado como " + tipo.getRegime() + ".");
+
+        int anoDestino = origem.getAno() + 1;
+
+        SaldoAusencia destino = saldoAusenciaRepository
+                .findByFuncionarioIdAndTipoAusenciaIdAndAno(
+                        origem.getFuncionarioId(), origem.getTipoAusenciaId(), anoDestino)
+                .orElseGet(() -> garantirSaldoDoAno(origem.getFuncionarioId(), anoDestino)
+                        .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                                "Não foi possível preparar o saldo de " + anoDestino + ".")));
+
+        // A ordem importa: a origem valida quantos dias tem para ceder antes de o destino os receber.
+        origem.transportarParaOAnoSeguinte(dias);
+        destino.receberAcumulados(dias, motivo);
+
+        saldoAusenciaRepository.save(origem);
+        return saldoAusenciaRepository.save(destino);
     }
 
     /**

@@ -10,6 +10,12 @@ import cv.igrp.framework.core.domain.CommandBus;
 import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.framework.stereotype.IgrpController;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import cv.igrp.RH_Service.colaboradores.application.commands.AcumularFeriasCommand;
+import cv.igrp.RH_Service.colaboradores.application.dto.AcumulacaoFeriasResponseDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.AcumulacaoFeriasRequestDTO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -80,6 +86,21 @@ public class SaldoAusenciaController {
         LOGGER.debug("Operation started");
         ResponseEntity<SuccessResponseDTO> response = commandBus.send(
                 new UpdateSaldoAusenciaCommand(funcionarioId, saldoId, diasDireito));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @PostMapping("{saldoId}/acumular")
+    @Operation(summary = "Acumular ferias para o ano seguinte (art. 7.o n.o 1: exige motivo de servico)")
+    @ApiResponse(responseCode = "200", description = "Dias acumulados",
+            content = @Content(schema = @Schema(implementation = AcumulacaoFeriasResponseDTO.class)))
+    public ResponseEntity<AcumulacaoFeriasResponseDTO> acumular(
+            @PathVariable String funcionarioId,
+            @PathVariable String saldoId,
+            @RequestBody AcumulacaoFeriasRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<AcumulacaoFeriasResponseDTO> response = commandBus.send(
+                new AcumularFeriasCommand(funcionarioId, saldoId, request.getDias(), request.getMotivo()));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

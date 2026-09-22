@@ -12,6 +12,10 @@
     {"type": "integer", "name": "diasDireito", "objectType": "java", "required": false},
     {"type": "integer", "name": "diasGozados", "objectType": "java", "required": false},
     {"type": "integer", "name": "diasPendentes", "objectType": "java", "required": false},
-    {"type": "integer", "name": "diasDisponiveis", "objectType": "java", "required": false}
+    {"type": "integer", "name": "diasDisponiveis", "objectType": "java", "required": false},
+    {"type": "integer", "name": "diasAcumulados", "objectType": "java", "required": false},
+    {"type": "string", "name": "acumulacaoMotivo", "objectType": "java", "required": false},
+    {"type": "integer", "name": "diasTransportados", "objectType": "java", "required": false},
+    {"type": "integer", "name": "diasAcumulaveis", "objectType": "java", "required": false}
   ]
 }

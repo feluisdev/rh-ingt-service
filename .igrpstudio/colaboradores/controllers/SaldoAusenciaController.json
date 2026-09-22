@@ -138,6 +138,38 @@
           }
         }
       }
+    },
+    {
+      "actionName": "acumular",
+      "method": "POST",
+      "path": "{saldoId}/acumular",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "saldoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": true,
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AcumulacaoFeriasResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

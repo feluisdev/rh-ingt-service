@@ -157,7 +157,7 @@ bateria comporta-se como um cliente correcto.
 
 ## Resultado da última execução
 
-**241 passos, 241 OK** (2026-09-22), contra a base local com a V49 aplicada.
+**258 passos, 258 OK** (2026-09-22), contra a base local com a V50 aplicada.
 
 Encontrou dois problemas reais, já corrigidos:
 
