@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.colaboradores.application.services;
 import cv.igrp.RH_Service.colaboradores.domain.models.HistoricoEstadoColaborador;
 import cv.igrp.RH_Service.colaboradores.domain.models.LicencaMobilidade;
 import cv.igrp.RH_Service.colaboradores.domain.models.SubtipoLicencaMobilidade;
+import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.HistoricoEstadoColaboradorRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
@@ -39,6 +40,8 @@ import java.util.UUID;
 public class LicencaService {
 
     private final AssignmentService assignmentService;
+    private final CessacaoService cessacaoService;
+    private final AssignmentRepository assignmentRepository;
     private final FuncionarioRepository funcionarioRepository;
     private final WorkerStateRepository workerStateRepository;
     private final HistoricoEstadoColaboradorRepository historicoRepository;
@@ -80,11 +83,46 @@ public class LicencaService {
     @Transactional
     public Optional<UUID> aplicarRegresso(LicencaMobilidade licenca, SubtipoLicencaMobilidade subtipo,
                                           LocalDate dataRegresso) {
+        // Art. 64.º n.º 2 — a cessação da comissão de serviço tem duas saídas, e não é quem
+        // regista que escolhe: ou há situação anterior a que voltar, ou a relação de emprego
+        // público cessa. Vem antes da guarda da mobilidade porque a comissão é um registo de
+        // mobilidade — e era exactamente por isso que este caso nunca era tratado.
+        if (subtipo.regressaOuCessa())
+            return aplicarRegressoDeComissao(licenca.getFuncionarioId(), subtipo, dataRegresso);
+
         if (subtipo.isMobilidade() || !subtipo.regressaEmDisponibilidade())
             return Optional.empty();
 
         return passarASituacao(licenca.getFuncionarioId(), SituacaoFuncional.DISPONIBILIDADE,
                 dataRegresso, subtipo.getCodigo());
+    }
+
+    /**
+     * Art. 64.º n.º 2: «Cessada a comissão de serviço, o nomeado regressa à situação
+     * jurídico-funcional de que era titular antes dela, quando constituída e consolidada por
+     * tempo indeterminado, ou, no caso contrário, cessa a relação jurídica de emprego público.»
+     *
+     * <p><b>Qual dos dois deriva-se do percurso.</b> A comissão mantém o Lugar
+     * ({@code position_effect = MANTEM}), logo quem tinha situação anterior continua a ser
+     * titular do seu Lugar — e regressa a ele sem que nada tenha de acontecer aqui. Quem não
+     * tem afectação corrente foi recrutado <i>para</i> a comissão: não há situação a que voltar,
+     * e a relação cessa.
+     *
+     * <p>Não se guarda um campo a dizer qual é o caso, pela mesma razão de sempre: o que é
+     * derivável não se guarda, e um campo mal preenchido passaria a decidir uma cessação.
+     */
+    private Optional<UUID> aplicarRegressoDeComissao(FuncionarioId funcionarioId,
+                                                     SubtipoLicencaMobilidade subtipo,
+                                                     LocalDate dataRegresso) {
+        if (assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId).isPresent())
+            return Optional.empty();
+
+        var cessacao = cessacaoService.cessar(funcionarioId,
+                cessacaoService.estadoDeCessacaoPorOmissao(), dataRegresso,
+                subtipo.getCodigo(),
+                "Cessação da comissão de serviço sem situação anterior (art. 64.º n.º 2)");
+
+        return Optional.of(cessacao.estado().getId().getValor());
     }
 
     /**

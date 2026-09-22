@@ -112,7 +112,12 @@ INSERT INTO t_leave_mobility_subtype (id, code, name, description, record_type, 
 -- Organismo internacional, como funcionário do organismo (art. 62.º): abre vaga.
 ('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e9', 'LIC_ORG_INTERNACIONAL','Organismo Internacional',         'Organismo Internacional',         'LICENCA',    true,  false, false, true, 'ABRE_VAGA', NULL, 'DISPONIBILIDADE', NULL, NULL, NOW(), 'system'),
 -- Mobilidade: mantém sempre o Lugar (art. 135.º n.º 7); um ano, prorrogável uma vez (art. 132.º n.º 5).
-('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e4', 'MOB_COMISSAO',         'Comissão de Serviço',             'Comissão de Serviço',             'MOBILIDADE', false, true,  false, true, 'MANTEM',    NULL, 'REGRESSA_LUGAR',  365,  1,    NOW(), 'system'),
+-- Comissão de serviço: três anos, sucessivamente renovável (art. 60.º n.º 1) -- e não um ano com
+-- uma prorrogação, que é a regra da mobilidade comum (art. 132.º n.º 5). NULL em max_extensions
+-- quer dizer sem limite, que é o que «sucessivamente» diz.
+-- REGRESSA_OU_CESSA por causa do art. 64.º n.º 2: cessada a comissão, regressa quem tinha
+-- situação anterior; quem foi recrutado PARA a comissão não tem para onde voltar e cessa.
+('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e4', 'MOB_COMISSAO',         'Comissão de Serviço',             'Comissão de Serviço',             'MOBILIDADE', false, true,  false, true, 'MANTEM',    NULL, 'REGRESSA_OU_CESSA', 1095, NULL, NOW(), 'system'),
 ('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e5', 'MOB_REQUISICAO',       'Requisição',                      'Requisição',                      'MOBILIDADE', false, true,  false, true, 'MANTEM',    NULL, 'REGRESSA_LUGAR',  365,  1,    NOW(), 'system'),
 ('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e6', 'MOB_DESTACAMENTO',     'Destacamento',                    'Destacamento',                    'MOBILIDADE', false, true,  false, true, 'MANTEM',    NULL, 'REGRESSA_LUGAR',  365,  1,    NOW(), 'system')
 ON CONFLICT (code) DO NOTHING;

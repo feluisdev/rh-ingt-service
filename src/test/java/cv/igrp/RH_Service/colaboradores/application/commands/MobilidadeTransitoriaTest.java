@@ -15,6 +15,8 @@ import cv.igrp.RH_Service.colaboradores.application.services.LicencaEfeitoServic
 import cv.igrp.RH_Service.colaboradores.application.services.MobilidadeService;
 import cv.igrp.RH_Service.colaboradores.domain.models.LicencaMobilidade;
 import cv.igrp.RH_Service.colaboradores.domain.models.SubtipoLicencaMobilidade;
+import cv.igrp.RH_Service.colaboradores.application.services.CessacaoService;
+import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.HistoricoEstadoColaboradorRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.LicencaMobilidadeRepository;
@@ -67,6 +69,7 @@ class MobilidadeTransitoriaTest {
         mobilidadeService = new MobilidadeService(subtipoRepository, unidadeRepository, licencaRepository);
         // A mobilidade nunca abre vaga, por isso o serviço da licença nunca faz nada aqui.
         var licencaService = new LicencaService(Mockito.mock(AssignmentService.class),
+                Mockito.mock(CessacaoService.class), Mockito.mock(AssignmentRepository.class),
                 Mockito.mock(FuncionarioRepository.class), Mockito.mock(WorkerStateRepository.class),
                 Mockito.mock(HistoricoEstadoColaboradorRepository.class));
         var efeitoService = new LicencaEfeitoService(licencaRepository, mobilidadeService, licencaService,

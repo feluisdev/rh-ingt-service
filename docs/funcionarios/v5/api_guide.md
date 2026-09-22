@@ -887,6 +887,34 @@ cessação.
 
 ---
 
+### 7.0d Regresso de comissão de serviço — regressa, ou cessa
+
+Art. 64.º n.º 2: «Cessada a comissão de serviço, o nomeado **regressa à situação jurídico-funcional
+de que era titular antes dela**, quando constituída e consolidada por tempo indeterminado, ou,
+**no caso contrário, cessa a relação jurídica de emprego público**.»
+
+Classifica-se no catálogo com `return_effect = REGRESSA_OU_CESSA`. É o **único** efeito no regresso
+que pode terminar o vínculo — os outros dois (`REGRESSA_LUGAR`, `DISPONIBILIDADE`) nunca cessam nada.
+
+Não há endpoint novo: acontece **no fim da comissão**, seja pelo `close` (regresso antecipado) seja
+pelo job diário na data de fim. Qual dos dois caminhos se segue **deriva-se do percurso**:
+
+| Situação do colaborador | O que acontece |
+|---|---|
+| **Tem afectação corrente** (a comissão mantém o Lugar) | Regressa a ele. Não há estado a mudar nem nada a registar. |
+| **Não tem afectação corrente** — foi recrutado *para* a comissão | A relação **cessa**, pelo `CessacaoService`, com o motivo no histórico. |
+
+> **Não se guarda um campo a dizer qual é o caso.** É derivável do percurso, e um campo mal
+> preenchido passaria a decidir uma cessação.
+
+**Atenção ao catálogo:** até 2026-09-22 o `MOB_COMISSAO` do seed estava como `REGRESSA_LUGAR`, sem
+condição — devolvia ao Lugar de origem **toda a gente**, incluindo quem nunca teve Lugar. O seed
+passou também a **1095 dias e sem limite de renovações** (art. 60.º n.º 1: três anos,
+sucessivamente renovável), em vez dos 365 com uma prorrogação, que é a regra da mobilidade comum.
+Instalações existentes têm de reclassificar o seu próprio catálogo.
+
+---
+
 ### 7.1 Licenças que abrem vaga
 Três campos do subtipo dizem o que a licença faz ao Lugar:
 

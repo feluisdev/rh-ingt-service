@@ -20,7 +20,24 @@ public enum EfeitoNoRegresso {
     REGRESSA_LUGAR,
 
     /** Fica a aguardar vaga na sua categoria (art. 122.º). */
-    DISPONIBILIDADE;
+    DISPONIBILIDADE,
+
+    /**
+     * <b>Regressa — ou cessa, se não tiver para onde regressar</b> (Lei n.º 20/X/2023,
+     * art. 64.º n.º 2): «Cessada a comissão de serviço, o nomeado regressa à situação
+     * jurídico-funcional de que era titular antes dela, quando constituída e consolidada por
+     * tempo indeterminado, ou, no caso contrário, cessa a relação jurídica de emprego
+     * público.»
+     *
+     * <p>É o único efeito no regresso que pode <b>terminar</b> o vínculo, e serve o caso de quem
+     * foi recrutado <i>para</i> a comissão e nunca teve Lugar do quadro: acabada a comissão,
+     * não há situação anterior a que voltar.
+     *
+     * <p><b>Qual dos dois caminhos se segue deriva-se do percurso</b>, não de um campo que
+     * alguém preencha: a comissão mantém o Lugar, logo quem tinha Lugar continua a tê-lo e
+     * regressa; quem não tem nenhum nunca teve situação para onde voltar.
+     */
+    REGRESSA_OU_CESSA;
 
     public static EfeitoNoRegresso de(String valor) {
         if (valor == null || valor.isBlank()) return REGRESSA_LUGAR;

@@ -490,6 +490,35 @@ mobilidade e passa a ser **titular de um Lugar vago do servico de destino**.
 - Depois da consolidacao, `/unidade-atual` passa a dar o **Lugar novo** e `emMobilidade` fica
   `false`. A mobilidade fica `APPROVED` com `dataFim` na **vespera** da data de efeito.
 
+### 11.18 Regresso de comissao de servico pode cessar o vinculo (BREAKING de comportamento, 2026-09-22)
+
+Nao ha endpoint novo nem campo novo. O que muda e **o que acontece no fim de uma comissao de
+servico**.
+
+Art. 64.o n.o 2: cessada a comissao, o nomeado regressa a situacao de que era titular antes dela
+"quando constituida e consolidada por tempo indeterminado, ou, **no caso contrario, cessa a
+relacao juridica de emprego publico**".
+
+Ate agora o catalogo tinha a comissao como `REGRESSA_LUGAR` sem condicao: devolvia ao Lugar de
+origem **toda a gente**, incluindo quem foi recrutado PARA a comissao e nunca teve Lugar. Passa a
+haver um terceiro valor de `return_effect`, `REGRESSA_OU_CESSA`, e com ele:
+
+- quem **tem** afectacao corrente regressa a ela, como antes;
+- quem **nao tem** ve a relacao de emprego publico **cessar** -- contrato encerrado, estado de
+  cessacao, registo no historico.
+
+**O que o ecra tem de fazer:** ao fechar uma comissao (`close`) ou ao mostrar o resultado do job
+diario, **contar com que o colaborador possa vir cessado**. Nao assuma que depois de uma
+mobilidade a pessoa continua activa. O `estadoAtribuidoId` da resposta traz o estado de cessacao
+quando foi esse o caso.
+
+Nos selects de `returnEffect` (configuracao de subtipos) acrescente `REGRESSA_OU_CESSA`.
+
+**Catalogo:** o `MOB_COMISSAO` do seed passou a `REGRESSA_OU_CESSA`, com 1095 dias e sem limite de
+renovacoes (art. 60.o n.o 1: tres anos, sucessivamente renovavel), em vez de 365 com uma
+prorrogacao. Instalacoes existentes tem de reclassificar o seu proprio catalogo -- nao ha migracao
+que o faca por elas, porque o catalogo e da instituicao.
+
 ### Checklist
 
 - [ ] Select de `situacaoFuncional` no catálogo de estados.
@@ -510,3 +539,5 @@ mobilidade e passa a ser **titular de um Lugar vago do servico de destino**.
 - [ ] Deixar de criar substituições por `POST /assignments` — passa a dar 422.
 - [ ] Campo `formaPrestacao` no formulário de mobilidade (omisso = `TEMPO_INTEIRO`).
 - [ ] Acção de consolidar na mobilidade interna, com os Lugares filtrados por unidade de destino, cargo e categoria.
+- [ ] Contar com que o fim de uma **comissão de serviço** possa deixar o colaborador **cessado**.
+- [ ] `REGRESSA_OU_CESSA` no select de `returnEffect` da configuração de subtipos.

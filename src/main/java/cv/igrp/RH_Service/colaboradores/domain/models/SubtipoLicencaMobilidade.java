@@ -105,6 +105,11 @@ public class SubtipoLicencaMobilidade {
         return efeitoNoRegresso() == EfeitoNoRegresso.DISPONIBILIDADE;
     }
 
+    /** Art. 64.º n.º 2: regressa à situação anterior, ou cessa o vínculo se não a tinha. */
+    public boolean regressaOuCessa() {
+        return efeitoNoRegresso() == EfeitoNoRegresso.REGRESSA_OU_CESSA;
+    }
+
     public EfeitoNoLugar efeitoNoLugar() {
         return positionEffect != null ? positionEffect : EfeitoNoLugar.MANTEM;
     }
