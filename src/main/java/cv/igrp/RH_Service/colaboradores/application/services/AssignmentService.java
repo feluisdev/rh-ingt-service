@@ -5,10 +5,13 @@ import cv.igrp.RH_Service.colaboradores.domain.models.TipoAfectacao;
 import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.AssignmentId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
+import cv.igrp.RH_Service.carreiras.domain.models.Career;
 import cv.igrp.RH_Service.carreiras.domain.models.Category;
 import cv.igrp.RH_Service.carreiras.domain.models.Grade;
+import cv.igrp.RH_Service.carreiras.domain.repository.CareerRepository;
 import cv.igrp.RH_Service.carreiras.domain.repository.CategoryRepository;
 import cv.igrp.RH_Service.carreiras.domain.repository.GradeRepository;
+import cv.igrp.RH_Service.carreiras.domain.valueobject.CareerId;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CategoryId;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.GradeId;
 import cv.igrp.RH_Service.estrutura.domain.models.Position;
@@ -41,6 +44,7 @@ public class AssignmentService {
     private final PositionRepository positionRepository;
     private final GradeRepository gradeRepository;
     private final CategoryRepository categoryRepository;
+    private final CareerRepository careerRepository;
     private final FunctionRepository functionRepository;
 
     /**
@@ -341,6 +345,124 @@ public class AssignmentService {
                             + destino.getNumeroLugar() + "' — indique a função (functionId) a exercer no destino.");
 
         return functionIdActual;
+    }
+
+    /**
+     * Resultado de uma mudança de carreira: a nova afectação, as carreiras e categorias de
+     * partida e de chegada, o escalão atribuído e os Lugares de origem e de destino.
+     */
+    public record MudancaCarreira(Assignment afectacao, Career carreiraAnterior, Career carreiraNova,
+                                  Category categoriaAnterior, Category categoriaNova, Grade escalao,
+                                  Position lugarAnterior, Position lugarNovo) {}
+
+    /**
+     * Mudança de carreira: o colaborador passa a ocupar um Lugar de <b>outra carreira</b>.
+     *
+     * <p>Não é uma transferência nem uma promoção, embora a mecânica seja a mesma — fechar uma
+     * afectação e abrir outra noutro Lugar. A {@link #transferir transferência} mantém a posição
+     * na grelha e só muda de cadeira; a {@link #promover promoção} sobe uma categoria <b>dentro
+     * da mesma carreira</b>. Aqui muda o próprio eixo de que a categoria e o escalão dependem,
+     * o que aproxima este movimento de um novo provimento. É por isso que a carreira de destino
+     * <b>tem de ser diferente</b> da actual: sem essa guarda, este caminho seria uma promoção
+     * sem nenhuma das suas regras.
+     *
+     * <p><b>Exige Lugar vago da carreira de destino</b> e não reclassifica o Lugar actual: passar
+     * um Lugar de uma carreira para outra altera o quadro de pessoal, que é decisão de
+     * organograma e não movimento de uma pessoa. (A promoção pode reclassificar porque aí o
+     * Lugar sobe um degrau dentro da mesma carreira e a forma do quadro não muda.)
+     *
+     * <p><b>Quem posiciona na nova carreira é o acto administrativo.</b> O critério legal —
+     * entrar na remuneração igual ou imediatamente superior à que se tinha — é aritmética sobre
+     * remuneração, e esta aplicação não a tem, por decisão de âmbito. Logo a categoria vem do
+     * Lugar de destino e o escalão é indicado (ou, na falta dele, o primeiro activo); o que
+     * aqui se valida é só a coerência da grelha. Quando houver remuneração, é neste método que
+     * a regra do posicionamento entra.
+     */
+    public MudancaCarreira mudarCarreira(FuncionarioId funcionarioId, UUID positionIdDestino,
+                                         UUID gradeIdEscolhido, UUID functionIdEscolhido,
+                                         LocalDate dataEfeito, String notes) {
+
+        Assignment atual = assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId)
+                .orElseThrow(() -> IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                        "O colaborador não tem afectação principal corrente — não é possível mudar de carreira."));
+
+        if (!dataEfeito.isAfter(atual.getDataInicio()))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "A data de efeito tem de ser posterior ao início da afectação corrente ("
+                            + atual.getDataInicio() + ").");
+
+        Position origem = positionRepository.findById(PositionId.from(atual.getPositionId()))
+                .orElseThrow(() -> IgrpResponseStatusException.notFound(
+                        "Lugar não encontrado: " + atual.getPositionId()));
+
+        if (origem.isForaDeGrelha())
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "O Lugar '" + origem.getNumeroLugar()
+                            + "' está fora da grelha (sem carreira/categoria) — não há carreira de onde sair.");
+
+        if (positionIdDestino.equals(atual.getPositionId()))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "O Lugar de destino é o mesmo em que o colaborador já está.");
+
+        Position destino = positionRepository.findById(PositionId.from(positionIdDestino))
+                .orElseThrow(() -> IgrpResponseStatusException.notFound(
+                        "Lugar de destino não encontrado: " + positionIdDestino));
+
+        if (destino.isForaDeGrelha())
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "O Lugar '" + destino.getNumeroLugar()
+                            + "' está fora da grelha (sem carreira/categoria) — não há carreira de destino.");
+
+        if (!destino.podeSerOcupado())
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "O Lugar '" + destino.getNumeroLugar() + "' não está disponível (estado="
+                            + destino.getEstado() + ").");
+
+        if (assignmentRepository.temTitular(positionIdDestino))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "O Lugar '" + destino.getNumeroLugar() + "' já tem titular.");
+
+        // A guarda que distingue este movimento dos outros dois: a carreira TEM de mudar.
+        if (java.util.Objects.equals(origem.getCareerId(), destino.getCareerId()))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "O Lugar '" + destino.getNumeroLugar() + "' é da mesma carreira em que o colaborador "
+                            + "já está — não há mudança de carreira. Para subir de categoria use a promoção; "
+                            + "para mudar de Lugar mantendo a grelha use a transferência.");
+
+        Career carreiraAnterior = carreiraOuFalha(origem.getCareerId());
+        Career carreiraNova = carreiraOuFalha(destino.getCareerId());
+
+        if (!Boolean.TRUE.equals(carreiraNova.getIsActive()))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "A carreira de destino '" + carreiraNova.getName() + "' está inactiva.");
+
+        Category categoriaAnterior = categoriaOuFalha(origem.getCategoryId());
+        Category categoriaNova = categoriaOuFalha(destino.getCategoryId());
+
+        if (!Boolean.TRUE.equals(categoriaNova.getIsActive()))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "A categoria de destino '" + categoriaNova.getName() + "' está inactiva.");
+
+        Grade escalao = escalaoDaPromocao(gradeIdEscolhido, categoriaNova);
+
+        UUID functionId = funcaoDaTransferencia(atual.getFunctionId(), functionIdEscolhido, destino);
+
+        atual.encerrar(dataEfeito.minusDays(1));
+        assignmentRepository.save(atual);
+
+        Assignment nova = assignmentRepository.save(Assignment.criar(
+                funcionarioId, positionIdDestino, escalao.getId().getValor(), functionId,
+                TipoAfectacao.PRINCIPAL, Assignment.MUDANCA_CARREIRA, dataEfeito, notes));
+
+        return new MudancaCarreira(nova, carreiraAnterior, carreiraNova, categoriaAnterior,
+                categoriaNova, escalao, origem, destino);
+    }
+
+    private Career carreiraOuFalha(UUID careerId) {
+        if (careerId == null)
+            throw IgrpResponseStatusException.badRequest("A carreira é obrigatória.");
+        return careerRepository.findById(CareerId.from(careerId))
+                .orElseThrow(() -> IgrpResponseStatusException.notFound("Carreira não encontrada: " + careerId));
     }
 
     /** Escalão da promoção: o escolhido (tem de ser da categoria de destino) ou o primeiro activo. */

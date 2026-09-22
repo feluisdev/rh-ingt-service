@@ -16,6 +16,14 @@ INSERT INTO t_category (id, career_id, code, name, description, ordem_progressao
 ('71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e702', '61e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e601', 'ASS_TEC', 'Assistente Técnico', 'Categoria de Nível Médio', 1, true, NOW(), 'system')
 ON CONFLICT (id) DO UPDATE SET ordem_progressao = EXCLUDED.ordem_progressao;
 
+-- Categoria da OUTRA carreira (Regime Especial). Sem ela a REG_ESP existe no
+-- catalogo mas nao e utilizavel: nao ha categoria, nao ha escalao e nao ha Lugar,
+-- logo a mudanca de carreira fica por exercitar. ordem_progressao=1 porque e a
+-- base da sua propria carreira -- a ordem e por carreira, nao global.
+INSERT INTO t_category (id, career_id, code, name, description, ordem_progressao, is_active, created_date, created_by) VALUES
+('71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e703', '61e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e602', 'TEC_ESP', 'Tecnico de Regime Especial', 'Categoria de base do Regime Especial', 1, true, NOW(), 'system')
+ON CONFLICT (id) DO UPDATE SET ordem_progressao = EXCLUDED.ordem_progressao;
+
 -- Grades (Escalões)
 -- Cada categoria tem pelo menos dois escalões: com um só, ninguém progride e o
 -- caminho da progressão fica por exercitar (o seed anterior punha o Francisco
@@ -25,5 +33,9 @@ INSERT INTO t_grade (id, category_id, grade_number, name, salary_index, is_activ
 ('81e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e802', '71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e701', 2, 'Escalão 2', 110.00, true, NOW(), 'system'),
 ('81e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e805', '71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e701', 3, 'Escalão 3', 120.00, true, NOW(), 'system'),
 ('81e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e803', '71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e702', 1, 'Escalão 1', 80.00, true, NOW(), 'system'),
-('81e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e804', '71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e702', 2, 'Escalão 2', 88.00, true, NOW(), 'system')
+('81e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e804', '71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e702', 2, 'Escalão 2', 88.00, true, NOW(), 'system'),
+-- Escaloes do Regime Especial: dois, para a mudanca de carreira poder entrar pelo
+-- primeiro por omissao e provar-se que o indicado tambem e aceite.
+('81e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e806', '71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e703', 1, 'Escalão 1', 95.00, true, NOW(), 'system'),
+('81e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e807', '71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e703', 2, 'Escalão 2', 105.00, true, NOW(), 'system')
 ON CONFLICT (id) DO NOTHING;

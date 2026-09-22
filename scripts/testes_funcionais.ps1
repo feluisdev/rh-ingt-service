@@ -774,6 +774,69 @@ Verificar 'F14.16 a disponibilidade nao desconta' ($rAnt3.Dados.diasDescontados 
 Chamar 'F14.17 NEG antiguidade de colaborador inexistente' GET '/funcionarios/00000000-0000-4000-8000-000000000999/antiguidade' $null 404 | Out-Null
 
 Write-Host ''
+Write-Host ''
+Write-Host '=========== F15 - MUDANCA DE CARREIRA ==========='
+
+# Ate aqui a mudanca de carreira era impossivel: a promocao exige a MESMA carreira e a
+# transferencia a MESMA categoria, e nao havia terceira porta. Parece-se com a transferencia
+# porque a mecanica e a mesma -- fechar uma afectacao e abrir outra noutro Lugar --, mas o que
+# muda e o proprio eixo de que a categoria e o escalao dependem.
+#
+# Duas coisas que este bloco fixa:
+#   a carreira TEM de mudar, senao seria uma promocao sem nenhuma das regras da promocao;
+#   o escalao NAO se herda -- pertence a categoria do destino, e quem posiciona e o acto.
+#
+# Contexto herdado: no fim do F9 o B esta num Lugar do Regime Geral. O LUG-0007 do seed esta
+# vago no Regime Especial, e e o unico destino de carreira diferente que existe.
+
+$rCarr15 = Chamar 'F15.1 catalogo de carreiras' GET '/careers?pagina=0&tamanho=50'
+Verificar 'F15.2 ha mais do que uma carreira activa' ((@(Linhas $rCarr15) | Where-Object { $_.isActive -ne $false }).Count -ge 2) ''
+
+$rUni15 = Chamar 'F15.3 onde esta o B' GET ('/colaboradores/assignments/funcionario/' + $colabB + '/unidade-atual')
+$lugarActual15 = $rUni15.Dados.positionId
+$rPosAct15 = Chamar 'F15.4 detalhe do Lugar actual' GET ('/estrutura/positions/' + $lugarActual15)
+$carreiraActual15 = $rPosAct15.Dados.careerId
+
+$rVagas15 = Chamar 'F15.5 Lugares vagos da unidade' GET ('/colaboradores/assignments/unidade/' + $unidadeB + '/vagas/lista')
+$vagos15 = @(Linhas $rVagas15)
+$lugarOutra15 = ($vagos15 | Where-Object { $_.estado -eq 'ATIVO' -and $null -ne $_.careerId -and $_.careerId -ne $carreiraActual15 } | Select-Object -First 1)
+$lugarMesma15 = ($vagos15 | Where-Object { $_.estado -eq 'ATIVO' -and $_.careerId -eq $carreiraActual15 } | Select-Object -First 1)
+Verificar 'F15.6 ha Lugar vago noutra carreira' ($null -ne $lugarOutra15) ('(' + $lugarOutra15.numeroLugar + ', ' + $lugarOutra15.careerNome + ')')
+Verificar 'F15.7 e ha Lugar vago na mesma, para o negativo' ($null -ne $lugarMesma15) ('(' + $lugarMesma15.numeroLugar + ')')
+
+$dMud15 = $hoje.ToString('yyyy-MM-dd')
+
+# --- negativos, antes de gastar o cenario ---
+# Este e o que separa o movimento dos outros dois: destino da mesma carreira nao e mudanca.
+Chamar 'F15.8 NEG destino da mesma carreira' POST ('/funcionarios/' + $colabB + '/mudanca-carreira') @{ positionId=$lugarMesma15.id; dataEfeito=$dMud15 } 422 | Out-Null
+Chamar 'F15.9 NEG destino e o Lugar onde ja esta' POST ('/funcionarios/' + $colabB + '/mudanca-carreira') @{ positionId=$lugarActual15; dataEfeito=$dMud15 } 422 | Out-Null
+Chamar 'F15.10 NEG data anterior a afectacao corrente' POST ('/funcionarios/' + $colabB + '/mudanca-carreira') @{ positionId=$lugarOutra15.id; dataEfeito=$hoje.AddDays(-60).ToString('yyyy-MM-dd') } 422 | Out-Null
+Chamar 'F15.11 NEG Lugar de destino inexistente' POST ('/funcionarios/' + $colabB + '/mudanca-carreira') @{ positionId='00000000-0000-4000-8000-000000000999'; dataEfeito=$dMud15 } 404 | Out-Null
+# O escalao do F9 e da carreira de origem: nao serve a categoria de destino.
+Chamar 'F15.12 NEG escalao que nao e da categoria de destino' POST ('/funcionarios/' + $colabB + '/mudanca-carreira') @{ positionId=$lugarOutra15.id; gradeId=$escBaixo; dataEfeito=$dMud15 } 422 | Out-Null
+Chamar 'F15.13 NEG sem Lugar de destino' POST ('/funcionarios/' + $colabB + '/mudanca-carreira') @{ dataEfeito=$dMud15 } 400 | Out-Null
+
+# --- o movimento ---
+$rGr15 = Chamar 'F15.14 escaloes da categoria de destino' GET ('/categories/' + $lugarOutra15.categoryId + '/grades')
+$escDestino15 = (@(Linhas $rGr15) | Where-Object { $_.isActive -ne $false } | Select-Object -First 1)
+
+$rMud15 = Chamar 'F15.15 mudar de carreira' POST ('/funcionarios/' + $colabB + '/mudanca-carreira') @{ positionId=$lugarOutra15.id; dataEfeito=$dMud15; despachoNumero='DESP-2026/92'; concursoRef='CE-2026/1' } 201
+Verificar 'F15.16 a carreira mudou mesmo' (($rMud15.Dados.carreiraAnteriorId -eq $carreiraActual15) -and ($rMud15.Dados.carreiraNovaId -eq $lugarOutra15.careerId)) ('(' + $rMud15.Dados.carreiraAnterior + ' -> ' + $rMud15.Dados.carreiraNova + ')')
+Verificar 'F15.17 a categoria e a do Lugar de destino' ($rMud15.Dados.categoriaNovaId -eq $lugarOutra15.categoryId) ('(' + $rMud15.Dados.categoriaNova + ')')
+Verificar 'F15.18 entrou pelo primeiro escalao da nova categoria' ($rMud15.Dados.escalaoId -eq $escDestino15.id) ('(' + $rMud15.Dados.escalao + ')')
+Verificar 'F15.19 e guarda de onde veio' ($rMud15.Dados.numeroLugarAnterior -eq $rPosAct15.Dados.numeroLugar) ('(' + $rMud15.Dados.numeroLugarAnterior + ' -> ' + $rMud15.Dados.numeroLugar + ')')
+
+$rUni15b = Chamar 'F15.20 onde esta o B depois' GET ('/colaboradores/assignments/funcionario/' + $colabB + '/unidade-atual')
+Verificar 'F15.21 esta no Lugar da nova carreira' ($rUni15b.Dados.positionId -eq $lugarOutra15.id) ('(' + $rUni15b.Dados.numeroLugar + ')')
+
+$rVagas15b = Chamar 'F15.22 vagas depois' GET ('/colaboradores/assignments/unidade/' + $unidadeB + '/vagas/lista')
+$vagos15b = @(Linhas $rVagas15b)
+Verificar 'F15.23 o Lugar que deixou ficou vago' (@($vagos15b | Where-Object { $_.id -eq $lugarActual15 }).Count -eq 1) ''
+Verificar 'F15.24 e o de destino deixou de estar vago' (@($vagos15b | Where-Object { $_.id -eq $lugarOutra15.id }).Count -eq 0) ''
+
+# Agora que ja esta na outra carreira, o antigo Lugar passou a ser "outra carreira" para ela.
+Chamar 'F15.25 NEG colaborador inexistente' POST '/funcionarios/00000000-0000-4000-8000-000000000999/mudanca-carreira' @{ positionId=$lugarActual15; dataEfeito=$dMud15 } 404 | Out-Null
+
 Write-Host '=========== RESUMO ==========='
 $ok = ($script:resultados | Where-Object { $_.OK }).Count
 $total = $script:resultados.Count

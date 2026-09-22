@@ -287,7 +287,7 @@ flowchart LR
       <tr><td><b>Promoção</b><br>(muda de categoria)</td><td><b>Sim</b></td>
           <td>Tem de existir um Lugar <b>vago</b> da nova categoria. <span class="pill p-post">POST</span><code>/assignments</code> com o novo <code>positionId</code> + um <code>gradeId</code> dessa categoria, <code>origem: PROMOCAO</code>.</td></tr>
       <tr><td><b>Mudança de carreira</b></td><td><b>Sim</b></td>
-          <td>Igual à promoção, mas o Lugar de destino pertence a outra carreira. <code>origem: PROMOCAO</code> ou <code>TRANSFERENCIA</code>, conforme o acto administrativo.</td></tr>
+          <td>Tem <b>endpoint próprio</b> desde 2026-09-22: <span class="pill p-post">POST</span><code>/funcionarios/{id}/mudanca-carreira</code> com um Lugar <b>vago de outra carreira</b>. Já <b>não</b> se faz por <code>origem: PROMOCAO</code> nem <code>TRANSFERENCIA</code> — a promoção exige a mesma carreira e a transferência a mesma categoria.</td></tr>
       <tr><td><b>Mudança de direcção</b><br>(outra unidade)</td><td><b>Sim</b></td>
           <td>Escolher um Lugar vago da unidade de destino. <code>origem: TRANSFERENCIA</code>. Mesmo que o cargo e a categoria sejam idênticos, a cadeira é outra — porque a unidade está no Lugar.</td></tr>
       <tr><td><b>Mobilidade</b></td><td><b>Sim</b>, com bilhete de volta</td>

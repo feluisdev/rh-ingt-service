@@ -23,6 +23,10 @@ update t_position set estado='CONGELADO', is_active=true where numero_lugar = 'L
 --    A promocao sem positionId reclassifica o Lugar: repor a categoria de origem.
 update t_position set category_id='71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e701'::uuid where numero_lugar in ('LUG-0001','LUG-0004');
 update t_position set category_id='71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e702'::uuid where numero_lugar in ('LUG-0002','LUG-0003','LUG-0005','LUG-0006');
+--    O LUG-0007 e da outra carreira (Regime Especial): a mudanca de carreira
+--    ocupa-o, e sem repor carreira E categoria a execucao seguinte nao tem destino.
+update t_position set career_id='61e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e602'::uuid,
+       category_id='71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e703'::uuid where numero_lugar = 'LUG-0007';
 
 -- 3. Estado e contratos.
 update t_funcionario set worker_state_id=(select id from t_worker_state where code='ACTIVE'), is_active=true;

@@ -160,6 +160,18 @@ public class FuncionarioController {
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
 
+    @PostMapping("{funcionarioId}/mudanca-carreira")
+    @Operation(summary = "Mudar o colaborador para um Lugar vago de outra carreira")
+    public ResponseEntity<MudancaCarreiraResponseDTO> mudarCarreiraColaborador(
+            @PathVariable(value = "funcionarioId") String funcionarioId,
+            @Valid @RequestBody MudancaCarreiraRequestDTO request) {
+        LOGGER.debug("Operation started");
+        final var command = new MudarCarreiraColaboradorCommand(funcionarioId, request);
+        ResponseEntity<MudancaCarreiraResponseDTO> response = commandBus.send(command);
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
     @PostMapping("{funcionarioId}/substituicao")
     @Operation(summary = "Pôr o colaborador a substituir o titular de um Lugar temporariamente impedido")
     public ResponseEntity<SubstituicaoResponseDTO> substituirColaborador(

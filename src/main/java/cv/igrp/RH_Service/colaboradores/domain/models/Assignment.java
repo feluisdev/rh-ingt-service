@@ -23,6 +23,7 @@ public class Assignment {
     public static final String MOBILIDADE = "MOBILIDADE";
     public static final String TRANSFERENCIA = "TRANSFERENCIA";
     public static final String SUBSTITUICAO = "SUBSTITUICAO";
+    public static final String MUDANCA_CARREIRA = "MUDANCA_CARREIRA";
 
     private AssignmentId id;
     private FuncionarioId funcionarioId;

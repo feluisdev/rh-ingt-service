@@ -404,6 +404,35 @@ foram descontados e porque -- e e isso que torna a conta defensavel a frente de 
 quando muda o estado do colaborador, quando se defere uma licenca, ou quando se corrige uma data
 do passado.
 
+### 11.14 Mudanca de carreira (2026-09-22)
+
+Endpoint novo, **nao breaking** -- nada do que existia mudou de forma:
+
+```
+POST /api/v1/rh/funcionarios/{funcionarioId}/mudanca-carreira
+```
+
+Ate agora nao havia como mudar de carreira: a promocao exige a **mesma carreira** e a
+transferencia a **mesma categoria**. Se o ecra oferecia a mudanca de carreira por
+`POST /assignments` com `origem: PROMOCAO` ou `TRANSFERENCIA`, **deixe de o fazer** -- passa
+pelos endpoints proprios, e estes recusam-no.
+
+Corpo: `positionId` e `dataEfeito` obrigatorios; `gradeId`, `functionId`, `despachoNumero`,
+`concursoRef` e `observacoes` opcionais. Devolve `201` com `MudancaCarreiraResponseDTO`, que
+traz as **duas pontas da grelha** -- `carreiraAnterior`/`carreiraNova`,
+`categoriaAnterior`/`categoriaNova` -- e o Lugar de onde veio.
+
+**O que o ecra tem de fazer diferente dos outros movimentos:**
+
+- **Filtrar os Lugares vagos por carreira DIFERENTE da actual.** Um destino da mesma carreira
+  da 422. Nao ha a forma "o Lugar sobe" que a promocao tem: **exige-se Lugar vago**.
+- **Oferecer o escalao da categoria de destino**, nao o actual. Ao contrario da transferencia,
+  o escalao **nao se herda**: `gradeId` de outra categoria da 422, e sem `gradeId` entra-se
+  pelo primeiro escalao activo.
+- **Nao prometa validacao de habilitacoes.** Nao existe: a carreira nao tem campo que diga o
+  requisito. Como o concurso na promocao, `despachoNumero` e `concursoRef` sao registo, nao
+  verificacao.
+
 ### Checklist
 
 - [ ] Select de `situacaoFuncional` no catálogo de estados.
@@ -418,3 +447,5 @@ do passado.
 - [ ] Tratar `sucesso: false` como "nada a fazer" e mostrar os `alertas`.
 - [ ] `downloadUrl` passa a `url` nos dois endpoints de download do self-service.
 - [ ] Deixar de testar "a chave existe" — os DTOs enviam os campos a `null`.
+- [ ] Mudança de carreira pelo endpoint próprio, com os Lugares vagos filtrados por **outra** carreira.
+- [ ] Escalão escolhido na **categoria de destino** — na mudança de carreira não se herda.

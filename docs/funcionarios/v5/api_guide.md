@@ -380,6 +380,8 @@ Mudança **definitiva** de Lugar **sem subir na grelha**: mantém carreira, cate
 **Sobre a função:** se não enviar `functionId`, mantém-se a função actual quando é compatível com o cargo do Lugar de destino; quando não é, devolve `422` a pedir que a indique — nunca se perde em silêncio. Regras completas: `regras_negocio.html`, secção 3.3 (BR-TRF-01 a 08).
 
 > Uma mudança **temporária** de Lugar, com regresso, não é transferência: é **mobilidade** (secção 7).
+>
+> Um Lugar de destino de **outra carreira** também não é transferência: é **mudança de carreira** (5.9).
 
 ---
 
@@ -496,6 +498,65 @@ O `motivo` de um período fundido junta os dois motivos: o resultado continua a 
 | Sem data de admissão (não há por onde começar) | **422** |
 
 > **Lacuna conhecida:** as **faltas injustificadas** não contam para antiguidade (art. 43.º n.º 2), mas `t_leave_type` não tem coluna que diga quais o são — só o subtipo de licença tem classificação de antiguidade. Está assinalado em vez de adivinhado a partir do código do tipo.
+
+---
+
+### 5.9 Mudança de carreira — `POST /funcionarios/{id}/mudanca-carreira`
+
+O colaborador passa a ocupar um Lugar vago de **outra carreira**. Até existir este endpoint não havia caminho: a promoção (5.5) exige a **mesma carreira** e a transferência (5.6) exige a **mesma categoria**.
+
+**Não é uma transferência**, embora a mecânica seja a mesma. A transferência mantém a posição na grelha e muda de cadeira; aqui muda o **próprio eixo** de que a categoria e o escalão dependem. Por isso a carreira de destino **tem de ser diferente** da actual — sem essa guarda, este caminho seria uma promoção sem nenhuma das regras da promoção.
+
+```json
+{
+  "positionId": "uuid do Lugar vago da carreira de destino",
+  "gradeId": "uuid | omitir (entra pelo primeiro escalão activo da categoria de destino)",
+  "functionId": "uuid | omitir (mantém a função actual, se for compatível)",
+  "dataEfeito": "YYYY-MM-DD",
+  "despachoNumero": "string | null",
+  "concursoRef": "string | null",
+  "observacoes": "string | null"
+}
+```
+
+**Resposta `201`** (`MudancaCarreiraResponseDTO`)**:**
+```json
+{
+  "id": "uuid da nova afectação",
+  "funcionarioId": "uuid",
+  "positionAnteriorId": "uuid",
+  "numeroLugarAnterior": "LUG-0002",
+  "carreiraAnteriorId": "uuid",
+  "carreiraAnterior": "Regime Geral",
+  "categoriaAnteriorId": "uuid",
+  "categoriaAnterior": "Assistente Técnico",
+  "positionId": "uuid",
+  "numeroLugar": "LUG-0007",
+  "unidadeOrganicaId": "uuid",
+  "carreiraNovaId": "uuid",
+  "carreiraNova": "Regime Especial",
+  "categoriaNovaId": "uuid",
+  "categoriaNova": "Técnico de Regime Especial",
+  "escalaoId": "uuid",
+  "escalao": "Escalão 1",
+  "functionId": "uuid | null",
+  "dataEfeito": "YYYY-MM-DD"
+}
+```
+
+| Código | Quando |
+|---|---|
+| `400` | `positionId` ou `dataEfeito` em falta; UUID inválido. |
+| `404` | Funcionário, Lugar, carreira, categoria, escalão ou função não existem. |
+| `422` | Colaborador inactivo · vínculo que não permite evoluir na carreira · sem afectação corrente · `dataEfeito` não posterior ao início da afectação · **destino da mesma carreira** (use a promoção ou a transferência) · Lugar igual ao actual, com titular, não ATIVO ou fora da grelha · carreira ou categoria de destino inactivas · `gradeId` que não é da categoria de destino · função incompatível com o cargo do destino. |
+
+**Exige Lugar vago; não reclassifica.** Ao contrário da promoção, não há a forma «o Lugar sobe»: passar um Lugar de uma carreira para outra altera o quadro de pessoal, que é decisão de organograma e não movimento de uma pessoa.
+
+**O escalão não se herda** (ao contrário da transferência): pertence à categoria do Lugar de destino. Quem posiciona é o **acto administrativo** — o critério legal (remuneração igual ou imediatamente superior) assenta em remuneração, que esta aplicação não tem.
+
+> **As habilitações não se verificam.** A carreira não tem campo que diga o requisito habilitacional e as qualificações não têm nível normalizado. Como o concurso na promoção, `despachoNumero` e `concursoRef` guardam-se nas notas da afectação e **não são validados**.
+
+Regras completas: `regras_negocio.html`, secção 3.4 (BR-MCA-01 a 11).
 
 ---
 

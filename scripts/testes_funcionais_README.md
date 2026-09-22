@@ -73,6 +73,10 @@ update t_position set estado='CONGELADO', is_active=true where numero_lugar = 'L
 --    A promocao sem positionId reclassifica o Lugar: repor a categoria de origem.
 update t_position set category_id='71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e701'::uuid where numero_lugar in ('LUG-0001','LUG-0004');
 update t_position set category_id='71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e702'::uuid where numero_lugar in ('LUG-0002','LUG-0003','LUG-0005','LUG-0006');
+--    O LUG-0007 e da outra carreira (Regime Especial): a mudanca de carreira
+--    ocupa-o, e sem repor carreira E categoria a execucao seguinte nao tem destino.
+update t_position set career_id='61e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e602'::uuid,
+       category_id='71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e703'::uuid where numero_lugar = 'LUG-0007';
 
 -- 3. Estado e contratos.
 update t_funcionario set worker_state_id=(select id from t_worker_state where code='ACTIVE'), is_active=true;
@@ -222,9 +226,35 @@ Usa o colaborador admitido a 1 de Janeiro (F11.4), de percurso conhecido:
 - a **disponibilidade nao desconta** (art. 122.o n.o 1): o total descontado nao mexe
 - colaborador inexistente da 404
 
+### F15 - mudanca de carreira (2026-09-22)
+
+Prova o movimento que ate aqui nao tinha caminho nenhum: a promocao exige a **mesma carreira**
+e a transferencia a **mesma categoria**, logo mudar de carreira era impossivel.
+
+Usa o colaborador B, que no fim do F9 esta num Lugar do Regime Geral, e o **LUG-0007** do seed,
+vago no Regime Especial -- o unico destino de carreira diferente que existe.
+
+- **a carreira tem de mudar**: um destino da mesma carreira da 422, e o erro remete para a
+  promocao ou para a transferencia. E a guarda que impede este caminho de ser uma promocao
+  sem as regras da promocao
+- destino igual ao Lugar actual, data anterior a afectacao corrente e Lugar inexistente sao
+  recusados como nos outros movimentos
+- **o escalao nao se herda**: o escalao do F9, que e da carreira de origem, da 422; sem
+  `gradeId` entra-se pelo primeiro escalao activo da categoria de destino
+- a resposta traz as **duas pontas da grelha** (carreira e categoria, antes e depois) e de que
+  Lugar veio
+- depois do movimento, o Lugar que deixou fica **vago** e o de destino **deixa de o estar**
+
+O seed ganhou o que faltava para isto ser exercitavel: a carreira REG_ESP existia mas sem
+categoria, sem escaloes e sem Lugar -- ou seja, nao era utilizavel. Passou a ter a categoria
+TEC_ESP, dois escaloes e o LUG-0007.
+
 ## Resultado da última execução
 
-**305 passos, 305 OK** (2026-09-22), contra a base local com a V51 aplicada.
+**330 passos, 330 OK** (2026-09-22), contra a base local com a V51 aplicada.
+
+O F15 (mudanca de carreira) entrou nesta data e trouxe 25 passos. Nao tem migracao: a
+`origem` da afectacao e `VARCHAR(20)` sem restricao, e `MUDANCA_CARREIRA` cabe la.
 
 Encontrou dois problemas reais, já corrigidos:
 

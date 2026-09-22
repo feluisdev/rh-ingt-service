@@ -353,6 +353,48 @@
       }
     },
     {
+      "actionName": "mudarCarreiraColaborador",
+      "method": "POST",
+      "path": "{funcionarioId}/mudanca-carreira",
+      "summary": "Muda o colaborador para um Lugar vago de outra carreira, posicionado pelo acto administrativo (origem MUDANCA_CARREIRA)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string",
+          "isRequired": true
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "MudancaCarreiraRequestDTO",
+              "objectType": "dto",
+              "name": "data",
+              "collectionType": "none",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "MudancaCarreiraResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "actionName": "substituirColaborador",
       "method": "POST",
       "path": "{funcionarioId}/substituicao",
