@@ -66,6 +66,12 @@ public class LicencaMobilidade {
     private LocalDateTime efeitoEntradaAplicadoEm;
     /** O mesmo para o regresso, no fim do período. */
     private LocalDateTime efeitoRegressoAplicadoEm;
+    /**
+     * Como a mobilidade é prestada (art. 134.º n.º 2): a tempo inteiro ou em acumulação com as
+     * funções do serviço de origem. Numa licença não tem sentido — quem está de licença não
+     * exerce funções em lado nenhum — e por isso lá vale sempre {@code TEMPO_INTEIRO}.
+     */
+    private FormaPrestacaoMobilidade formaPrestacao;
 
     private LicencaMobilidade() {}
 
@@ -97,6 +103,7 @@ public class LicencaMobilidade {
         l.isActive = true;
         l.status = PENDING;
         l.extensionsCount = 0;
+        l.formaPrestacao = FormaPrestacaoMobilidade.TEMPO_INTEIRO;
         return l;
     }
 
@@ -131,7 +138,46 @@ public class LicencaMobilidade {
         l.extensionsCount = extensionsCount != null ? extensionsCount : 0;
         l.efeitoEntradaAplicadoEm = efeitoEntradaAplicadoEm;
         l.efeitoRegressoAplicadoEm = efeitoRegressoAplicadoEm;
+        l.formaPrestacao = FormaPrestacaoMobilidade.TEMPO_INTEIRO;
         return l;
+    }
+
+    /**
+     * Reconstituição completa, com a forma de prestação (art. 134.º n.º 2). É esta que o mapper
+     * usa; a sobrecarga sem ela assume {@code TEMPO_INTEIRO}, que é a regra do art. 20.º.
+     */
+    public static LicencaMobilidade reconstituir(LicencaMobilidadeId id,
+                                                  FuncionarioId funcionarioId,
+                                                  SubtipoLicencaMobilidadeId subtipoId,
+                                                  LocalDate dataInicio, LocalDate dataFim,
+                                                  String entidadeDestino, String despachoNumero,
+                                                  String observacoes, Boolean isActive,
+                                                  String status, UUID destinationUnitId,
+                                                  UUID destinationPositionId,
+                                                  String justification, UUID documentId,
+                                                  String rejectionReason, Integer extensionsCount,
+                                                  LocalDateTime efeitoEntradaAplicadoEm,
+                                                  LocalDateTime efeitoRegressoAplicadoEm,
+                                                  FormaPrestacaoMobilidade formaPrestacao) {
+        LicencaMobilidade l = reconstituir(id, funcionarioId, subtipoId, dataInicio, dataFim,
+                entidadeDestino, despachoNumero, observacoes, isActive, status, destinationUnitId,
+                destinationPositionId, justification, documentId, rejectionReason, extensionsCount,
+                efeitoEntradaAplicadoEm, efeitoRegressoAplicadoEm);
+        l.formaPrestacao = formaPrestacao != null ? formaPrestacao : FormaPrestacaoMobilidade.TEMPO_INTEIRO;
+        return l;
+    }
+
+    /**
+     * Fixa a forma de prestação (art. 134.º n.º 2). Só enquanto o processo estiver por decidir:
+     * depois do despacho, mudar de exclusividade para acumulação é outro despacho, não uma
+     * correcção. Nulo vale {@code TEMPO_INTEIRO}, que é a regra do art. 20.º.
+     */
+    public void definirFormaPrestacao(FormaPrestacaoMobilidade forma) {
+        if (!isPending())
+            throw IgrpResponseStatusException.conflict(
+                    "A forma de prestação só se define enquanto o processo está por decidir. "
+                            + "Estado actual: " + this.status);
+        this.formaPrestacao = forma != null ? forma : FormaPrestacaoMobilidade.TEMPO_INTEIRO;
     }
 
     public void atualizar(LocalDate dataInicio, LocalDate dataFim, String entidadeDestino,

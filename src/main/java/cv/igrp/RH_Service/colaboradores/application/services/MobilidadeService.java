@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.services;
 
+import cv.igrp.RH_Service.colaboradores.domain.models.FormaPrestacaoMobilidade;
 import cv.igrp.RH_Service.colaboradores.domain.models.LicencaMobilidade;
 import cv.igrp.RH_Service.colaboradores.domain.models.SubtipoLicencaMobilidade;
 import cv.igrp.RH_Service.colaboradores.domain.repository.LicencaMobilidadeRepository;
@@ -69,6 +70,22 @@ public class MobilidadeService {
                         SubtipoLicencaMobilidadeId.from(licenca.getSubtipoId().getValor()))
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Subtipo de licença/mobilidade não encontrado: " + licenca.getSubtipoId().getStringValor()));
+    }
+
+    /**
+     * A forma de prestação (art. 134.º n.º 2) só se aplica à <b>mobilidade</b>: é a mobilidade
+     * geral que a lei classifica quanto à forma de prestação. Numa <b>licença</b> não há nada
+     * a prestar — quem está de licença não exerce funções em serviço nenhum —, logo pedir
+     * acumulação numa licença é recusado em vez de ser guardado sem significado.
+     */
+    public void validarFormaPrestacao(SubtipoLicencaMobilidade subtipo,
+                                      FormaPrestacaoMobilidade forma) {
+        if (forma == null || !forma.isAcumulacao()) return;
+        if (!subtipo.isMobilidade())
+            throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "A forma de prestação em ACUMULACAO (art. 134.º n.º 2 al. b)) é da mobilidade. "
+                            + "O subtipo '" + subtipo.getNome() + "' é uma licença, e quem está de licença "
+                            + "não exerce funções noutro serviço.");
     }
 
     /**

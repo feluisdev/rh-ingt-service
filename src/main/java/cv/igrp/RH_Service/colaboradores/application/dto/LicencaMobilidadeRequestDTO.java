@@ -24,4 +24,10 @@ public class LicencaMobilidadeRequestDTO {
     private java.util.UUID destinationUnitId;
     /** Lugar (Position) de destino — obrigatório para mobilidade que muda de cadeira. */
     private java.util.UUID destinationPositionId;
+    /**
+     * Como a mobilidade é prestada (art. 134.º n.º 2): {@code TEMPO_INTEIRO} ou
+     * {@code ACUMULACAO}. Omisso vale {@code TEMPO_INTEIRO} — a exclusividade é a regra
+     * (art. 20.º). Só faz sentido numa mobilidade; numa licença é recusado.
+     */
+    private String formaPrestacao;
 }

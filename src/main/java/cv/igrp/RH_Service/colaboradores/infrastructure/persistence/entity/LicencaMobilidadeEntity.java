@@ -79,6 +79,9 @@ public class LicencaMobilidadeEntity extends AuditEntity {
     private Integer extensionsCount;
 
     /** Marcas de aplicação dos efeitos no Lugar — a idempotência do job diário. Ver V48. */
+    @Column(name = "forma_prestacao", nullable = false, length = 20)
+    private String formaPrestacao;
+
     @Column(name = "efeito_entrada_aplicado_em")
     private LocalDateTime efeitoEntradaAplicadoEm;
 

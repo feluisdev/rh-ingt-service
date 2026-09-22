@@ -811,6 +811,35 @@ O que isto muda no comportamento:
 
 Sem nenhum dos dois, o `approve` devolve **422**. O `destinationPositionId` deixou de ser exigido: a mobilidade transitória não ocupa Lugar no destino.
 
+### 7.0b Forma de prestação: a tempo inteiro ou em acumulação
+
+O art. 134.º n.º 2 da Lei n.º 20/X/2023 classifica a mobilidade geral **quanto à forma de
+prestação**:
+
+| Valor | A lei |
+|---|---|
+| `TEMPO_INTEIRO` | «quando o funcionário passa a desempenhar funções noutro serviço, em regime de exclusividade» |
+| `ACUMULACAO` | «quando o funcionário passa a exercer funções noutro serviço, em acumulação com as do serviço de origem» |
+
+Envia-se em `formaPrestacao` na criação e vem no mesmo campo na leitura. **Omisso vale
+`TEMPO_INTEIRO`**, porque a exclusividade é a regra (art. 20.º) — não se infere acumulação do
+silêncio. Só se fixa enquanto o processo está `PENDING`: depois do despacho, passar de
+exclusividade a acumulação é outro despacho (409).
+
+> **Nem uma nem outra cria afectação.** A mobilidade transitória é *sem ocupação do lugar do
+> quadro* (art. 135.º n.º 7), qualquer que seja a forma de prestação. Se procurava a acumulação
+> como título de ocupar um segundo Lugar, ela **não existe** — e nunca existiu na lei; ver a nota
+> em 4 e a secção 11.15 de `breaking_change_frontend.md`.
+
+> **Não confundir com o art. 21.º** (acumulação de funções públicas), que é outro instituto:
+> regime de permissão, com incompatibilidade, manifesto interesse público e, em regra, não
+> remunerada; sendo remunerada, só nos casos taxativos do n.º 2. **Não está implementado.**
+
+Pedir `ACUMULACAO` num subtipo de **licença** dá **422**: quem está de licença não exerce
+funções em serviço nenhum.
+
+---
+
 ### 7.1 Licenças que abrem vaga
 Três campos do subtipo dizem o que a licença faz ao Lugar:
 

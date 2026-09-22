@@ -1,5 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
+import cv.igrp.RH_Service.colaboradores.application.services.MobilidadeService;
+import cv.igrp.RH_Service.colaboradores.domain.models.FormaPrestacaoMobilidade;
 import cv.igrp.RH_Service.colaboradores.domain.models.LicencaMobilidade;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.LicencaMobilidadeRepository;
@@ -23,6 +25,7 @@ public class CreateLicencaMobilidadeCommandHandler
     private final LicencaMobilidadeRepository licencaRepository;
     private final FuncionarioRepository funcionarioRepository;
     private final SubtipoLicencaMobilidadeRepository subtipoRepository;
+    private final MobilidadeService mobilidadeService;
 
     @IgrpCommandHandler
     public ResponseEntity<SuccessResponseDTO> handle(CreateLicencaMobilidadeCommand command) {
@@ -32,17 +35,23 @@ public class CreateLicencaMobilidadeCommandHandler
 
         var dto = command.getRequest();
         var subtipoId = SubtipoLicencaMobilidadeId.from(dto.getSubtipoId());
-        subtipoRepository.findById(subtipoId)
+        var subtipo = subtipoRepository.findById(subtipoId)
                 .orElseThrow(() -> IgrpResponseStatusException.notFound("Subtipo não encontrado: " + dto.getSubtipoId()));
+
+        var formaPrestacao = FormaPrestacaoMobilidade.de(dto.getFormaPrestacao());
+        mobilidadeService.validarFormaPrestacao(subtipo, formaPrestacao);
 
         if (dto.getDataFim() != null && dto.getDataFim().isBefore(dto.getDataInicio()))
             throw IgrpResponseStatusException.badRequest("dataFim não pode ser anterior a dataInicio.");
 
-        var saved = licencaRepository.save(LicencaMobilidade.criar(
+        var licenca = LicencaMobilidade.criar(
                 funcionarioId, subtipoId,
                 dto.getDataInicio(), dto.getDataFim(),
                 dto.getEntidadeDestino(), dto.getDespachoNumero(), dto.getObservacoes(),
-                dto.getJustification(), dto.getDestinationUnitId(), dto.getDestinationPositionId(), null));
+                dto.getJustification(), dto.getDestinationUnitId(), dto.getDestinationPositionId(), null);
+        licenca.definirFormaPrestacao(formaPrestacao);
+
+        var saved = licencaRepository.save(licenca);
 
         return ResponseEntity.status(201).body(SuccessResponseDTO.de(saved.getId().getStringValor()));
     }

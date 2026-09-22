@@ -12,5 +12,7 @@
     {"type": "string", "name": "observacoes", "objectType": "java", "required": false},
     {"type": "string", "name": "justification", "objectType": "java", "required": false},
     {"type": "string", "name": "destinationUnitId", "objectType": "java", "required": false},
+    {"type": "string", "name": "destinationPositionId", "objectType": "java", "required": false},
+    {"type": "string", "name": "formaPrestacao", "objectType": "java", "required": false}
   ]
 }

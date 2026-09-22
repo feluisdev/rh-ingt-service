@@ -475,6 +475,11 @@ $destino = ($unidades | Where-Object { $_.id -ne $unidadeB } | Select-Object -Fi
 $rMob = Chamar 'F8.10 criar mobilidade interna' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade') @{ subtipoId=$subMob.id; dataInicio=$dInicio; dataFim=$dFim; destinationUnitId=$destino.id; justification='requisicao' } 201
 $mobId = $rMob.Dados.id
 
+# Forma de prestacao (art. 134.o n.o 2): quem nao diz nada esta em exclusividade, que e a
+# regra do art. 20.o. Nao se inventa acumulacao por omissao.
+$rMobLida = Chamar 'F8.10b ler a mobilidade criada' GET ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mobId)
+Verificar 'F8.10c omissa, a forma e TEMPO_INTEIRO' ($rMobLida.Dados.formaPrestacao -eq 'TEMPO_INTEIRO') ('(' + $rMobLida.Dados.formaPrestacao + ')')
+
 $rApr = Chamar 'F8.11 aprovar a mobilidade' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mobId + '/approve') $null 200
 Verificar 'F8.12 aprovar NAO encerrou afectacao nenhuma' ($null -eq $rApr.Dados.afectacaoEncerradaId) '(art. 135.o n.o 7)'
 
@@ -497,6 +502,31 @@ Verificar 'F8.24 continua no mesmo Lugar (nunca saiu)' ($rUniB3.Dados.positionId
 Verificar 'F8.25 e ja nao esta em mobilidade' ($rUniB3.Dados.emMobilidade -eq $false) ''
 Verificar 'F8.26 volta a exercer na sua unidade' ($rUniB3.Dados.exerceFuncoesUnidadeId -eq $unidadeB) ''
 Chamar 'F8.27 NEG encerrar duas vezes' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mobId + '/close') $null 409 | Out-Null
+
+# --- forma de prestacao em ACUMULACAO (art. 134.o n.o 2 al. b)) ---
+# A acumulacao e uma forma de PRESTAR a mobilidade, nao um titulo para ocupar um segundo
+# Lugar -- foi essa a leitura errada que o TipoAfectacao.ACUMULACAO tinha. Continua a nao
+# criar afectacao nenhuma: a mobilidade transitoria e sem ocupacao do lugar do quadro.
+$dIniAc = $hoje.AddMonths(4).ToString('yyyy-MM-dd')
+$dFimAc = $hoje.AddMonths(7).ToString('yyyy-MM-dd')
+$rMobAc = Chamar 'F8.28 criar mobilidade em acumulacao' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade') @{ subtipoId=$subMob.id; dataInicio=$dIniAc; dataFim=$dFimAc; destinationUnitId=$destino.id; justification='acumulacao com o servico de origem'; formaPrestacao='ACUMULACAO' } 201
+$mobAcId = $rMobAc.Dados.id
+$rMobAcLida = Chamar 'F8.29 ler a mobilidade em acumulacao' GET ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mobAcId)
+Verificar 'F8.30 ficou registada em ACUMULACAO' ($rMobAcLida.Dados.formaPrestacao -eq 'ACUMULACAO') ('(' + $rMobAcLida.Dados.formaPrestacao + ')')
+
+$rUniAc = Chamar 'F8.31 onde esta o B com a acumulacao marcada' GET ('/colaboradores/assignments/funcionario/' + $colabB + '/unidade-atual')
+Verificar 'F8.32 a acumulacao nao criou afectacao nenhuma' ($rUniAc.Dados.positionId -eq $lugarB) '(art. 135.o n.o 7)'
+
+Chamar 'F8.33 NEG forma de prestacao fora da lista' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade') @{ subtipoId=$subMob.id; dataInicio=$dIniAc; dataFim=$dFimAc; destinationUnitId=$destino.id; formaPrestacao='MEIO_TEMPO' } 422 | Out-Null
+
+# Quem esta de licenca nao exerce funcoes em servico nenhum: nao ha nada a acumular.
+$subLic = ($subtipos | Where-Object { $_.recordType -eq 'LICENCA' -and $_.isActive -ne $false } | Select-Object -First 1)
+if ($null -ne $subLic) {
+    Chamar 'F8.34 NEG acumulacao numa licenca' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade') @{ subtipoId=$subLic.id; dataInicio=$dIniAc; dataFim=$dFimAc; justification='nao se aplica'; formaPrestacao='ACUMULACAO' } 422 | Out-Null
+}
+
+# Deixar a base como estava: a mobilidade futura nao interessa aos blocos seguintes.
+Chamar 'F8.35 cancelar a mobilidade em acumulacao' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mobAcId + '/cancel') $null 200 | Out-Null
 
 # --- mobilidade EXTERNA ---
 $rMobE = Chamar 'F8.28 criar mobilidade externa' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade') @{ subtipoId=$subMob.id; dataInicio=$dHoje; dataFim=$dFimExt; entidadeDestino='Camara Municipal da Praia'; justification='cedencia' } 201

@@ -20,6 +20,7 @@
     {"type": "string", "name": "destinationUnitId", "objectType": "java", "required": false},
     {"type": "string", "name": "destinationUnitName", "objectType": "java", "required": false},
     {"type": "string", "name": "justification", "objectType": "java", "required": false},
-    {"type": "string", "name": "rejectionReason", "objectType": "java", "required": false}
+    {"type": "string", "name": "rejectionReason", "objectType": "java", "required": false},
+    {"type": "string", "name": "formaPrestacao", "objectType": "java", "required": false}
   ]
 }

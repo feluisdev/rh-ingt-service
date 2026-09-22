@@ -30,4 +30,6 @@ public class LicencaMobilidadeResponseDTO {
     private String destinationPositionId;
     private String justification;
     private String rejectionReason;
+    /** {@code TEMPO_INTEIRO} ou {@code ACUMULACAO} (art. 134.º n.º 2). */
+    private String formaPrestacao;
 }

@@ -452,6 +452,22 @@ regras da substituição.
 Nada a migrar: confirmou-se na base que não existe nenhuma afectação com `ACUMULACAO`, nem
 corrente nem em auditoria.
 
+### 11.16 Mobilidade: forma de prestação (2026-09-22)
+
+Campo novo, **nao breaking**: `formaPrestacao` em `POST/PUT
+/funcionarios/{id}/licencas-mobilidade` e na resposta da leitura.
+
+Valores: `TEMPO_INTEIRO` (omisso) e `ACUMULACAO`, do art. 134.o n.o 2 da Lei 20/X/2023. Quem
+nao enviar nada fica em exclusividade, que e a regra do art. 20.o.
+
+**E aqui que a acumulacao vive agora.** Se o ecra tinha (ou ia ter) acumulacao como
+`assignmentType`, e este o campo a usar -- ver 11.15. Uma mobilidade em acumulacao **continua
+a nao criar afectacao nenhuma**: o Lugar de origem nao muda, e o `positionId` em
+`/unidade-atual` fica igual.
+
+So se define enquanto o processo esta `PENDING`; depois do despacho da **409**. Num subtipo de
+licenca da **422**.
+
 ### Checklist
 
 - [ ] Select de `situacaoFuncional` no catálogo de estados.
@@ -470,3 +486,4 @@ corrente nem em auditoria.
 - [ ] Escalão escolhido na **categoria de destino** — na mudança de carreira não se herda.
 - [ ] Retirar `ACUMULACAO` dos selects de `assignmentType`.
 - [ ] Deixar de criar substituições por `POST /assignments` — passa a dar 422.
+- [ ] Campo `formaPrestacao` no formulário de mobilidade (omisso = `TEMPO_INTEIRO`).

@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.colaboradores.infrastructure.mappers;
 
 import cv.igrp.RH_Service.colaboradores.application.dto.LicencaMobilidadeResponseDTO;
 import cv.igrp.RH_Service.colaboradores.application.dto.SubtipoLicencaMobilidadeResponseDTO;
+import cv.igrp.RH_Service.colaboradores.domain.models.FormaPrestacaoMobilidade;
 import cv.igrp.RH_Service.colaboradores.domain.models.LicencaMobilidade;
 import cv.igrp.RH_Service.colaboradores.domain.repository.SubtipoLicencaMobilidadeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
@@ -37,7 +38,8 @@ public class LicencaMobilidadeMapper {
                 refs.idOf(e.getDestinationPosition(), PositionEntity::getId),
                 e.getJustification(), refs.idOf(e.getDocument(), DocumentoEntity::getId),
                 e.getRejectionReason(), e.getExtensionsCount(),
-                e.getEfeitoEntradaAplicadoEm(), e.getEfeitoRegressoAplicadoEm());
+                e.getEfeitoEntradaAplicadoEm(), e.getEfeitoRegressoAplicadoEm(),
+                FormaPrestacaoMobilidade.de(e.getFormaPrestacao()));
     }
 
     public LicencaMobilidadeEntity toEntity(LicencaMobilidade l) {
@@ -60,6 +62,8 @@ public class LicencaMobilidadeMapper {
         e.setExtensionsCount(l.extensoes());
         e.setEfeitoEntradaAplicadoEm(l.getEfeitoEntradaAplicadoEm());
         e.setEfeitoRegressoAplicadoEm(l.getEfeitoRegressoAplicadoEm());
+        e.setFormaPrestacao(FormaPrestacaoMobilidade.texto(
+                l.getFormaPrestacao() != null ? l.getFormaPrestacao() : FormaPrestacaoMobilidade.TEMPO_INTEIRO));
         return e;
     }
 
@@ -98,6 +102,7 @@ public class LicencaMobilidadeMapper {
         r.setDestinationPositionId(l.getDestinationPositionId() != null ? l.getDestinationPositionId().toString() : null);
         r.setJustification(l.getJustification());
         r.setRejectionReason(l.getRejectionReason());
+        r.setFormaPrestacao(FormaPrestacaoMobilidade.texto(l.getFormaPrestacao()));
         subtipoRepository.findById(l.getSubtipoId())
                 .ifPresent(s -> r.setSubtipo(toSubtipoDTO(s)));
         return r;
