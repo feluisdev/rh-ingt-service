@@ -140,8 +140,29 @@ ON CONFLICT (code) DO NOTHING;
 -- Until that mismatch is settled (V6 even carries an orphan "Remover NOT NULL indevidos"
 -- comment with no matching statement), any insert has to fill name by hand.
 INSERT INTO t_leave_mobility_subtype (id, code, name, description, record_type, affects_pay, counts_for_seniority, can_self_submit, is_active, position_effect, vacancy_after_days, return_effect, max_duration_days, max_extensions, created_date, created_by) VALUES
--- Licença sem vencimento até 3 anos (DL 3/2010, art. 46.º e 48.º): mantém o lugar.
+-- Licença sem vencimento até 3 anos (DL 3/2010, art. 48.º e 49.º): mantém o lugar.
 ('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1', 'LIC_SEM_VENCIMENTO',   'Licença sem Vencimento',          'Licença sem Vencimento',          'LICENCA',    true,  false, false, true, 'MANTEM',    NULL, 'REGRESSA_LUGAR',  1095, NULL, NOW(), 'system'),
+-- Licença sem vencimento ATÉ 90 DIAS (art. 45.º n.º 1 al. a), regime nos art. 46.º e 47.º).
+-- É outra modalidade, e não a mesma com prazo menor: exige um ano de serviço efectivo (a de
+-- três anos exige três, art. 48.º n.º 1) e não pode voltar a pedir-se nos dois anos seguintes
+-- (art. 46.º n.º 2). O Lugar mantém-se: o art. 46.º n.º 3 deixa preenchê-lo por contrato a
+-- prazo que CADUCA com o regresso do titular -- que é a substituição, não uma vaga.
+-- Sem limite de prorrogações porque a lei não limita o NÚMERO, limita o TOTAL: 90 dias,
+-- «a gozar seguida ou interpoladamente» (n.º 1).
+-- Art. 47.º n.º 1: perda total das remunerações e desconto na antiguidade para todos os efeitos.
+('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1ea', 'LIC_SEM_VENC_90',      'Licença sem Vencimento (90 dias)','Licença sem Vencimento até 90 dias','LICENCA',   true,  false, false, true, 'MANTEM',    NULL, 'REGRESSA_LUGAR',  90,   NULL, NOW(), 'system'),
+-- Licença EXTRAORDINÁRIA (art. 45.º n.º 1 al. f); regime no art. 64.º deste diploma).
+-- O art. 64.º remete o regime inteiro para «o diploma que estabelece o regime de mobilidade dos
+-- funcionários na Administração Pública», que não temos -- por isso NÃO SE INVENTA prazo nem
+-- número de prorrogações, tal como não se inventou o tempo mínimo da consolidação.
+-- Quem a pode pedir é só quem está na situação de DISPONIBILIDADE, e isso o catálogo não
+-- consegue exprimir hoje: não há coluna que diga a situação exigida. Fica registado no
+-- api_guide como lacuna conhecida, em vez de ficar uma regra a fingir que existe.
+-- MANTEM porque quem está em disponibilidade já não tem Lugar (art. 122.º): não há afectação
+-- para abrir vaga. E conta para antiguidade por omissão -- não porque se saiba que conta, mas
+-- porque descontar o que não se sabe tiraria tempo a quem o tem, que é a regra que o
+-- AntiguidadeService já segue para os estados sem situação classificada.
+('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1eb', 'LIC_EXTRAORDINARIA',   'Licença Extraordinária',          'Licença Extraordinária',          'LICENCA',    false, true,  false, true, 'MANTEM',    NULL, 'DISPONIBILIDADE', NULL, NULL, NOW(), 'system'),
 -- Formação (art. 67.º n.º 3 e Lei 20/X/2023 art. 118.º n.º 2): abre vaga além de 6 meses.
 ('f1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e3', 'LIC_FORMACAO',         'Licença para Formação',           'Licença para Formação',           'LICENCA',    false, true,  true,  true, 'ABRE_VAGA', 180,  'DISPONIBILIDADE', NULL, NULL, NOW(), 'system'),
 -- Longa duração (art. 50.º a 53.º): abre vaga e o regresso é pela disponibilidade.

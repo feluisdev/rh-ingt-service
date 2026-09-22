@@ -161,6 +161,21 @@ Verificar 'F3.3 LIC_SEM_VENCIMENTO mantem o Lugar' ($st['LIC_SEM_VENCIMENTO'].po
 Verificar 'F3.4 mobilidade mantem o Lugar' ($st['MOB_COMISSAO'].positionEffect -eq 'MANTEM')
 Verificar 'F3.5 LIC_PARENTAL nao aparece entre os activos' (-not $st.ContainsKey('LIC_PARENTAL'))
 
+# As SETE modalidades do art. 45.o n.o 1. Faltavam duas no seed -- a sem vencimento ate 90 dias
+# (al. a) e a extraordinaria (al. f) --, e a ausencia nao era visivel em lado nenhum: quem
+# instalasse a aplicacao ficava sem elas e sem saber que a lei as previa.
+$modalidades45 = @('LIC_SEM_VENC_90','LIC_SEM_VENCIMENTO','LIC_LONGA_DURACAO','LIC_ACOMP_CONJUGE','LIC_ORG_INTERNACIONAL','LIC_EXTRAORDINARIA','LIC_FORMACAO')
+$emFalta45 = @($modalidades45 | Where-Object { -not $st.ContainsKey($_) })
+Verificar 'F3.5b as sete modalidades do art. 45.o estao no catalogo' ($emFalta45.Count -eq 0) ('(em falta: ' + ($emFalta45 -join ', ') + ')')
+# A de 90 dias nao e a de tres anos com prazo menor: sao subseccoes diferentes, com requisitos
+# de tempo de servico diferentes. O que o catalogo guarda e o tecto de cada uma.
+Verificar 'F3.5c a de 90 dias tem o tecto da sua subseccao' (($st['LIC_SEM_VENC_90'].maxDurationDays -eq 90) -and ($st['LIC_SEM_VENCIMENTO'].maxDurationDays -eq 1095)) ('(90d=' + $st['LIC_SEM_VENC_90'].maxDurationDays + ' 3a=' + $st['LIC_SEM_VENCIMENTO'].maxDurationDays + ')')
+# Art. 46.o n.o 3: o Lugar e preenchido por contrato a prazo que CADUCA com o regresso -- e
+# substituicao, nao vaga. E o art. 47.o n.o 1 manda descontar a antiguidade.
+Verificar 'F3.5d a de 90 dias mantem o Lugar e nao conta antiguidade' (($st['LIC_SEM_VENC_90'].positionEffect -eq 'MANTEM') -and ($st['LIC_SEM_VENC_90'].countsForSeniority -eq $false)) ('(' + $st['LIC_SEM_VENC_90'].positionEffect + ' antiguidade=' + $st['LIC_SEM_VENC_90'].countsForSeniority + ')')
+# Art. 64.o remete o regime para o diploma da mobilidade, que nao temos: nao se inventou prazo.
+Verificar 'F3.5e a extraordinaria nao inventa prazo nenhum' (($null -eq $st['LIC_EXTRAORDINARIA'].maxDurationDays) -and ($null -eq $st['LIC_EXTRAORDINARIA'].maxExtensions)) ('(dias=' + $st['LIC_EXTRAORDINARIA'].maxDurationDays + ')')
+
 Chamar 'F3.6 NEG mobilidade a abrir vaga' POST '/catalogs/leave-mobility-subtypes' @{ code='MOB_TST_VAGA'; description='Teste'; recordType='MOBILIDADE'; affectsPay=$false; countsForSeniority=$true; canSelfSubmit=$false; positionEffect='ABRE_VAGA' } 400 | Out-Null
 Chamar 'F3.7 NEG recordType AMBOS' POST '/catalogs/leave-mobility-subtypes' @{ code='TST_AMBOS'; description='Teste'; recordType='AMBOS'; affectsPay=$false; countsForSeniority=$true; canSelfSubmit=$false } 422 | Out-Null
 

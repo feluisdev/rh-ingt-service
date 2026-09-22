@@ -935,6 +935,38 @@ Instalações existentes têm de reclassificar o seu próprio catálogo.
 
 ---
 
+### 7.0e As sete modalidades de licença do art. 45.º
+
+O art. 45.º n.º 1 do DL n.º 3/2010 fixa **sete** modalidades, e o seed traz-lhes uma linha a cada:
+
+| Código | Modalidade | Regime | Lugar |
+|---|---|---|---|
+| `LIC_SEM_VENC_90` | sem vencimento **até 90 dias** (al. a) | art. 46.º–47.º | mantém-se |
+| `LIC_SEM_VENCIMENTO` | sem vencimento **até 3 anos** (al. b) | art. 48.º–49.º | mantém-se |
+| `LIC_LONGA_DURACAO` | sem vencimento de **longa duração** (al. c) | art. 50.º–53.º | abre vaga |
+| `LIC_ACOMP_CONJUGE` | acompanhamento do cônjuge no estrangeiro (al. d) | art. 56.º | abre vaga além de 1 ano |
+| `LIC_ORG_INTERNACIONAL` | organismos internacionais (al. e) | art. 62.º | abre vaga |
+| `LIC_EXTRAORDINARIA` | **extraordinária** (al. f) | art. 64.º | mantém-se |
+| `LIC_FORMACAO` | formação (al. g) | art. 65.º e 67.º n.º 3 | abre vaga além de 6 meses |
+
+As duas primeiras **não são a mesma com prazo diferente**: são subsecções distintas, com
+requisitos de tempo de serviço distintos — um ano para a de 90 dias (art. 46.º n.º 1), três anos
+para a de três anos (art. 48.º n.º 1) —, e a de 90 dias não pode voltar a pedir-se nos **dois anos
+seguintes** (art. 46.º n.º 2). Desses requisitos o catálogo só guarda o **tecto de duração**.
+
+**Duas coisas que a aplicação ainda não verifica**, e que ficam ditas para ninguém contar com
+elas:
+
+- **O tempo de serviço exigido** por cada modalidade (um ano, três anos, dois anos para a
+  formação). É derivável da antiguidade, que já existe — mas ligá-lo é um passo por fazer.
+- **Quem pode pedir a extraordinária.** O art. 64.º dá-a só a quem está na situação de
+  **disponibilidade**, e remete o resto do regime para «o diploma que estabelece o regime de
+  mobilidade», que não temos. Por isso a linha **não traz prazo nem número de prorrogações
+  inventados**, e conta para antiguidade por omissão — descontar o que não se sabe tiraria tempo
+  a quem o tem.
+
+---
+
 ### 7.1 Licenças que abrem vaga
 Três campos do subtipo dizem o que a licença faz ao Lugar:
 

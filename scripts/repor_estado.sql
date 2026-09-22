@@ -73,7 +73,7 @@ delete from t_historico_estado_colaborador;
 -- 5. Lixo de catalogo deixado por execucoes anteriores.
 delete from t_option_entity where ccode like 'TESTE%';
 delete from t_worker_state where code like 'TESTE%';
-delete from t_leave_mobility_subtype where code like 'TESTE%' or code like 'LIC_TST_%' or code like 'MOB_TST_%';
+delete from t_leave_mobility_subtype where code like 'TESTE%' or code like '%_TESTE' or code like 'LIC_TST_%' or code like 'MOB_TST_%';
 --    O F11 cria um tipo de ausencia a cada execucao (REG_TST_<hora>) para provar que a
 --    classificacao do regime e da instituicao. Nunca era apagado: ao fim de algumas corridas
 --    havia quinze, e o catalogo que o front-end carrega enchia-se de lixo. Mesma falha que os
