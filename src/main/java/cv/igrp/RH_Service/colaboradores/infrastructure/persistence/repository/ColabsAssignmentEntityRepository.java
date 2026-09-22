@@ -29,6 +29,38 @@ public interface ColabsAssignmentEntityRepository extends JpaRepository<Assignme
     List<AssignmentEntity> findAllByTitularAssignment_IdAndIsCurrentTrueAndAssignmentType(
             UUID titularAssignmentId, String assignmentType);
 
+    // Substituicoes em que um colaborador esta envolvido, nos DOIS papeis: como substituto
+    // (a afectacao e dele) e como titular substituido (a afectacao coberta e dele). Ate aqui
+    // nada as lia: POST /funcionarios/{id}/substituicao devolvia o id e mais nada as mostrava,
+    // e o unidade-atual so devolve a PRINCIPAL -- um ecra de RH nao conseguia dizer quem
+    // substitui quem.
+    //
+    // Sao duas consultas e nao uma com parametro booleano: um "OR :flag = false" em JPQL
+    // depende do dialecto e e' exactamente o tipo de coisa que passa nos testes unitarios
+    // (que mockam o repositorio) e rebenta no arranque.
+    @Query("SELECT a FROM ColabsAssignmentEntity a "
+            + "WHERE a.assignmentType = 'SUBSTITUICAO' "
+            + "  AND (a.funcionario.id = :funcionarioId "
+            + "       OR a.titularAssignment.funcionario.id = :funcionarioId) "
+            + "ORDER BY a.dataInicio DESC")
+    List<AssignmentEntity> findSubstituicoesDoFuncionario(@Param("funcionarioId") UUID funcionarioId);
+
+    @Query("SELECT a FROM ColabsAssignmentEntity a "
+            + "WHERE a.assignmentType = 'SUBSTITUICAO' "
+            + "  AND a.isCurrent = TRUE "
+            + "  AND (a.funcionario.id = :funcionarioId "
+            + "       OR a.titularAssignment.funcionario.id = :funcionarioId) "
+            + "ORDER BY a.dataInicio DESC")
+    List<AssignmentEntity> findSubstituicoesCorrentesDoFuncionario(@Param("funcionarioId") UUID funcionarioId);
+
+    /** As substituicoes correntes de um Lugar -- a pergunta do lado do Lugar, nao da pessoa. */
+    @Query("SELECT a FROM ColabsAssignmentEntity a "
+            + "WHERE a.assignmentType = 'SUBSTITUICAO' "
+            + "  AND a.isCurrent = TRUE "
+            + "  AND a.position.id = :positionId "
+            + "ORDER BY a.dataInicio DESC")
+    List<AssignmentEntity> findSubstituicoesCorrentesDoLugar(@Param("positionId") UUID positionId);
+
     // Predicado temporal de sobreposicao de intervalo: uma afectacao cobre o intervalo
     // [startOfYear, endOfYear] se comecar antes ou no fim do intervalo (dataInicio <= endOfYear)
     // e terminar depois ou no inicio do intervalo, ou nunca terminar (dataFim IS NULL OR

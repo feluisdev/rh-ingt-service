@@ -1,0 +1,10 @@
+{
+  "type": "dto",
+  "name": "WrapperListaSubstituicoes",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "SubstituicaoLinhaDTO", "name": "linhas", "objectType": "dto", "collectionType": "list", "module": "colaboradores", "required": false},
+    {"type": "integer", "name": "total", "objectType": "java", "required": false}
+  ]
+}

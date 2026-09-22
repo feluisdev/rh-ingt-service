@@ -451,6 +451,29 @@ Todos seguem o padrão CRUD + (quando aplicável) `documentos`:
 | Saldos de ausência | `/funcionarios/{id}/saldos-ausencia` |
 | Licenças/mobilidade | `/funcionarios/{id}/licencas-mobilidade` (ver 7) |
 
+
+**Ler as substituições** — `GET /funcionarios/{id}/substituicoes`
+
+Até aqui a substituição criava-se e **nada a mostrava**: o `POST` devolvia o id, e o `GET .../unidade-atual` só responde pela afectação `PRINCIPAL`. Um ecrã de RH não conseguia dizer quem substitui quem.
+
+| Parâmetro | Efeito |
+|---|---|
+| `apenasCorrentes=true` | só as que estão em vigor |
+| omitido (ou `false`) | o histórico completo |
+
+Resposta `200` (`WrapperListaSubstituicoesDTO`): `linhas` + `total`. Cada linha traz **os dois papéis na mesma consulta** — a pergunta que um ecrã faz sobre uma pessoa é «em que substituições está metida», e isso inclui os dois lados:
+
+| Campo | Significado |
+|---|---|
+| `papel` | `SUBSTITUTO` (está a substituir alguém) ou `TITULAR` (está a ser substituído) |
+| `contraparteId` · `contraparteNome` · `contraparteNumero` | o outro lado |
+| `positionId` · `numeroLugar` · `unidadeOrganicaId` · `unidadeOrganicaNome` | o Lugar coberto |
+| `dataInicio` · `dataFim` · `corrente` | o período |
+
+**`dataFim` vem nula enquanto durar.** A substituição não tem fim combinado: caduca quando o titular regressa (art. 77.º n.º 2), e é então que a data é preenchida e `corrente` passa a falso.
+
+Uma substituição anterior à V46 não tem ligação ao titular: aparece na mesma, sem contraparte. O registo existiu, e escondê-lo seria pior do que mostrá-lo incompleto.
+
 ### 6.1 Ausências ou licença? — qual dos dois usar
 
 Há dois recursos para uma pessoa se ausentar, e a escolha **não é de gosto**: segue a divisão do Decreto-Lei n.º 3/2010.

@@ -336,12 +336,39 @@ Verificar 'F6.28 o Lugar do titular nao aparece como vago' (@($semTitular | Wher
 
 Chamar 'F6.29 NEG segundo substituto para o mesmo titular' POST ('/funcionarios/' + $colabB + '/substituicao') @{ positionId=$lugarC; gradeId=$escalaoC; dataInicio='2026-11-04' } 409 | Out-Null
 
-# O regresso do titular fecha a substituicao sozinho (art. 77.o n.o 2). Prova-se
-# sem endpoint de leitura: se NAO tivesse fechado, a proxima daria 409.
+# --- LER as substituicoes (ate aqui nada as lia) ---
+# O POST devolvia o id e mais nada as mostrava; o unidade-atual so responde pela PRINCIPAL.
+# Um ecra de RH nao conseguia dizer quem substitui quem.
+# Quem substitui e o A (F6.19), nao o B.
+$rSubA = Chamar 'F6.29a substituicoes de quem substitui' GET ('/funcionarios/' + $colabA + '/substituicoes?apenasCorrentes=true')
+$linhaA = (@($rSubA.Dados.linhas) | Select-Object -First 1)
+Verificar 'F6.29b ha uma substituicao em vigor para ele' ($null -ne $linhaA) ('(total=' + $rSubA.Dados.total + ')')
+Verificar 'F6.29c o papel dele e SUBSTITUTO' ($linhaA.papel -eq 'SUBSTITUTO') ('(' + $linhaA.papel + ')')
+Verificar 'F6.29d a contraparte e o titular impedido' ($linhaA.contraparteId -eq $colabC) ('(' + $linhaA.contraparteNome + ')')
+Verificar 'F6.29e diz que Lugar cobre' ($linhaA.positionId -eq $lugarC) ('(' + $linhaA.numeroLugar + ')')
+Verificar 'F6.29e2 sem data de fim -- caduca com o regresso (art. 77.o n.o 2)' (($null -ne $linhaA) -and ($null -eq $linhaA.dataFim)) ''
+
+$rSubC = Chamar 'F6.29f a mesma substituicao vista do titular' GET ('/funcionarios/' + $colabC + '/substituicoes?apenasCorrentes=true')
+$linhaC = (@($rSubC.Dados.linhas) | Select-Object -First 1)
+Verificar 'F6.29g o papel dele e TITULAR' ($linhaC.papel -eq 'TITULAR') ('(' + $linhaC.papel + ')')
+Verificar 'F6.29h e a contraparte e quem o substitui' ($linhaC.contraparteId -eq $colabA) ('(' + $linhaC.contraparteNome + ')')
+
+# O regresso do titular fecha a substituicao sozinho (art. 77.o n.o 2). Ate haver endpoint de
+# leitura isto provava-se por via indirecta -- se NAO tivesse fechado, a proxima daria 409.
+# Agora prova-se DIRECTAMENTE, e a prova indirecta fica como confirmacao.
 Chamar 'F6.30 C regressa a actividade' PATCH ('/funcionarios/' + $colabC + '/worker-state') @{ workerStateId=$ws['ACTIVE'].id; dataEfectividade='2026-11-20'; motivoCkey='ALTA'; observacao='fim da incapacidade' } 200 | Out-Null
+
+$rSubFechada = Chamar 'F6.30a ler as substituicoes correntes depois do regresso' GET ('/funcionarios/' + $colabC + '/substituicoes?apenasCorrentes=true')
+Verificar 'F6.30b ja nao ha nenhuma em vigor' ((@($rSubFechada.Dados.linhas)).Count -eq 0) ('(' + $rSubFechada.Dados.total + ')')
+$rSubHist = Chamar 'F6.30c mas o historico guarda-a' GET ('/funcionarios/' + $colabC + '/substituicoes')
+$hist = (@($rSubHist.Dados.linhas) | Select-Object -First 1)
+Verificar 'F6.30d encerrada, com data de fim e ja nao corrente' (($null -ne $hist.dataFim) -and ($hist.corrente -ne $true)) ('(fim=' + $hist.dataFim + ')')
+
 Chamar 'F6.31 C volta a ficar impedido' PATCH ('/funcionarios/' + $colabC + '/worker-state') @{ workerStateId=$ws['SUSPENDED'].id; dataEfectividade='2026-11-21'; motivoCkey='DOENCA' } 200 | Out-Null
 $rSub2 = Chamar 'F6.32 nova substituicao e aceite' POST ('/funcionarios/' + $colabB + '/substituicao') @{ positionId=$lugarC; gradeId=$escalaoC; dataInicio='2026-11-22' } 201
 Verificar 'F6.33 o regresso do titular fechou mesmo a 1a substituicao' $rSub2.OK '(senao teria dado 409)'
+
+Chamar 'F6.33a NEG substituicoes de colaborador inexistente' GET '/funcionarios/00000000-0000-4000-8000-000000000999/substituicoes' $null 404 | Out-Null
 
 Write-Host ''
 Write-Host '=========== F7 - CESSACAO PELOS DOIS CAMINHOS ==========='

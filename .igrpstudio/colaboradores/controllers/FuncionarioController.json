@@ -546,6 +546,40 @@
           }
         }
       }
+    },
+    {
+      "actionName": "listarSubstituicoes",
+      "method": "GET",
+      "path": "{funcionarioId}/substituicoes",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "requestParams": [
+        {
+          "name": "apenasCorrentes",
+          "type": "boolean",
+          "required": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "WrapperListaSubstituicoesDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

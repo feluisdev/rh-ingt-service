@@ -375,6 +375,20 @@ nao para o estado.
 **O `numeroDias` do pedido e reescrito** para os dias efectivamente gozados, e a diferenca volta
 ao saldo. Um ecra que tenha guardado o numero antigo passa a divergir da API -- releia o pedido.
 
+### 11.12 Ler as substituicoes (2026-09-22)
+
+Endpoint novo: **`GET /funcionarios/{id}/substituicoes`** (`?apenasCorrentes=true` para so as que
+estao em vigor). Nao quebra nada -- preenche uma lacuna: ate aqui a substituicao criava-se e
+nada a mostrava.
+
+Cada linha traz `papel` (`SUBSTITUTO` ou `TITULAR`), a contraparte (id, nome, numero), o Lugar
+coberto (id, numero, unidade) e o periodo. **A `dataFim` vem nula enquanto durar** -- a
+substituicao caduca com o regresso do titular (art. 77.o n.o 2), nao numa data combinada, por
+isso um ecra nao deve pedir nem mostrar uma data de fim prevista.
+
+Um ecra de RH que mostre um Lugar passa a poder dizer quem la esta em substituicao; um ecra de
+colaborador passa a poder dizer quem o substitui enquanto esta impedido.
+
 ### Checklist
 
 - [ ] Select de `situacaoFuncional` no catálogo de estados.

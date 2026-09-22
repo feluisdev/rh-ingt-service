@@ -41,6 +41,18 @@ public interface AssignmentRepository {
     List<Assignment> findSubstituicoesCorrentes(AssignmentId titularAssignmentId);
 
     /**
+     * Substituições em que um colaborador está envolvido, nos <b>dois papéis</b>: como
+     * substituto e como titular substituído. É o que faltava para um ecrã de RH conseguir
+     * mostrar quem substitui quem — até aqui a substituição criava-se e nada a lia.
+     *
+     * @param apenasCorrentes verdadeiro devolve só as que estão em vigor; falso, o histórico
+     */
+    List<Assignment> findSubstituicoesDoFuncionario(FuncionarioId funcionarioId, boolean apenasCorrentes);
+
+    /** As substituições correntes de um Lugar — a mesma pergunta, do lado do Lugar. */
+    List<Assignment> findSubstituicoesCorrentesDoLugar(UUID positionId);
+
+    /**
      * Quais dos {@code positionIds} tem titular. Existe para que uma listagem de Lugares
      * resolva o provimento numa consulta so, em vez de um {@link #temTitular} por linha.
      * Os ids ausentes do resultado estao vagos.

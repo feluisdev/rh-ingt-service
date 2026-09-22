@@ -99,9 +99,16 @@ parcial na base: **duas afectacoes correntes no mesmo Lugar**, a do titular
 - quem substitui **mantem o seu proprio Lugar** (art. 91.o n.o 1 al. a))
 - o Lugar do titular **continua provido**: nao aparece na lista de vagas
 - segundo substituto da 409
-- o **regresso do titular fecha a substituicao sozinho** (art. 77.o n.o 2),
-  provado sem endpoint de leitura: uma segunda substituicao passa a ser aceite,
-  quando antes dava 409
+- o **regresso do titular fecha a substituicao sozinho** (art. 77.o n.o 2)
+- **as substituicoes leem-se** (`GET /funcionarios/{id}/substituicoes`): os dois
+  papeis na mesma consulta -- `SUBSTITUTO` visto de quem substitui (F6.29c) e
+  `TITULAR` visto de quem e substituido (F6.29g) --, com a contraparte e o Lugar
+- enquanto dura, **sem data de fim**: caduca com o regresso, nao numa data
+  combinada (F6.29e2)
+- o fecho automatico **deixou de se provar por via indirecta**: o F6.30b confirma
+  que ja nao ha nenhuma em vigor e o F6.30d que o historico a guarda, encerrada e
+  com data de fim. A prova antiga (uma segunda substituicao passa a ser aceite,
+  quando antes dava 409) fica como confirmacao
 
 ### F7 - cessacao pelos dois caminhos (2026-09-19)
 
@@ -157,7 +164,7 @@ bateria comporta-se como um cliente correcto.
 
 ## Resultado da última execução
 
-**274 passos, 274 OK** (2026-09-22), contra a base local com a V51 aplicada.
+**288 passos, 288 OK** (2026-09-22), contra a base local com a V51 aplicada.
 
 Encontrou dois problemas reais, já corrigidos:
 

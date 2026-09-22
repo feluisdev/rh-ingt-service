@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
+import cv.igrp.RH_Service.colaboradores.application.queries.ListarSubstituicoesQuery;
+import cv.igrp.RH_Service.colaboradores.application.dto.WrapperListaSubstituicoesDTO;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -162,6 +164,21 @@ public class FuncionarioController {
         LOGGER.debug("Operation started");
         final var command = new SubstituirColaboradorCommand(funcionarioId, request);
         ResponseEntity<SubstituicaoResponseDTO> response = commandBus.send(command);
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("{funcionarioId}/substituicoes")
+    @Operation(summary = "Substituicoes do colaborador, nos dois papeis: como substituto e como "
+            + "titular substituido. Sem data de fim combinada -- caduca com o regresso do titular")
+    @ApiResponse(responseCode = "200", description = "Lista de substituicoes",
+            content = @Content(schema = @Schema(implementation = WrapperListaSubstituicoesDTO.class)))
+    public ResponseEntity<WrapperListaSubstituicoesDTO> listarSubstituicoes(
+            @PathVariable String funcionarioId,
+            @RequestParam(required = false, defaultValue = "false") Boolean apenasCorrentes) {
+        LOGGER.debug("Operation started");
+        final var query = new ListarSubstituicoesQuery(funcionarioId, apenasCorrentes);
+        ResponseEntity<WrapperListaSubstituicoesDTO> response = queryBus.handle(query);
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

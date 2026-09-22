@@ -98,6 +98,22 @@ public class AssignmentRepositoryImpl implements AssignmentRepository {
 
     @Transactional(readOnly = true)
     @Override
+    public List<Assignment> findSubstituicoesDoFuncionario(FuncionarioId funcionarioId, boolean apenasCorrentes) {
+        var linhas = apenasCorrentes
+                ? entityRepository.findSubstituicoesCorrentesDoFuncionario(funcionarioId.getValor())
+                : entityRepository.findSubstituicoesDoFuncionario(funcionarioId.getValor());
+        return linhas.stream().map(mapper::toDomain).toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Assignment> findSubstituicoesCorrentesDoLugar(java.util.UUID positionId) {
+        return entityRepository.findSubstituicoesCorrentesDoLugar(positionId)
+                .stream().map(mapper::toDomain).toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public Set<UUID> findPositionIdsComTitular(Collection<UUID> positionIds) {
         if (positionIds == null || positionIds.isEmpty()) return Set.of();
         return Set.copyOf(entityRepository.findPositionIdsComTitular(positionIds, TipoAfectacao.PRINCIPAL.name()));

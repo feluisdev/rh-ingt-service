@@ -20,11 +20,11 @@ acumulação/V50 e o da suspensão/V51). O
 GitLab é o repo da equipa; merge para `master` é deploy. **Ainda não foi feito
 push** — por indicação do utilizador.
 
-- **Testes: 815, 0 falhas — mas só com a base de dados de pé.** 814 são unitários
+- **Testes: 820, 0 falhas — mas só com a base de dados de pé.** 819 são unitários
   puros; o `RecursosHumanosApplicationTests.contextLoads` carrega o contexto Spring
   completo e o Flyway liga-se ao Postgres. **Sem o contentor a correr dá 1 erro, e
   não é regressão.** Correr **sempre com `clean`** (ver Blockers).
-- **Bateria funcional: 274 passos, 274 OK**, cobre **F0 a F13**.
+- **Bateria funcional: 288 passos, 288 OK**, cobre **F0 a F13**.
 - **Migrações V40 a V51** aplicadas e verificadas na BD. Próxima livre: **V52**.
 - **`openapi.json`**: 225 caminhos, 238 esquemas, **0 operações não-sigdi sem
   esquema de resposta**.
@@ -141,7 +141,17 @@ de escrever código. **Decide o RH** (questão aberta 4).
 fechar isto **durante** o ponto 1, não depois — senão as férias nascem com a
 mesma contagem errada.
 
-**D2. Não há como ler as substituições.**
+**D2. ~~Não há como ler as substituições~~ — FEITA (2026-09-22).**
+`GET /funcionarios/{id}/substituicoes` devolve os dois papéis na mesma consulta
+(`SUBSTITUTO` e `TITULAR`), com a contraparte, o Lugar e o período, e
+`apenasCorrentes` separa o que está em vigor do histórico. Escolheu-se o endpoint
+próprio em vez de esperar pelo percurso do colaborador — não o impede, e a
+lacuna estava a custar caro: o fecho automático da substituição provava-se por
+via indirecta na bateria. Agora prova-se directamente (F6.30b e F6.30d).
+
+O texto abaixo fica como registo do que era o problema.
+
+**D2 (histórico). Não havia como ler as substituições.**
 `POST /funcionarios/{id}/substituicao` devolve o id e mais nada o lista depois.
 `GET .../unidade-atual` só devolve a `PRINCIPAL`. Um ecrã de RH **não consegue
 mostrar quem substitui quem**, e na bateria o fecho automático teve de ser provado

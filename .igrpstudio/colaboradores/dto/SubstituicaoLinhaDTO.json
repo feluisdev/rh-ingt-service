@@ -1,0 +1,21 @@
+{
+  "type": "dto",
+  "name": "SubstituicaoLinha",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {"type": "string", "name": "id", "objectType": "java", "required": false},
+    {"type": "string", "name": "papel", "objectType": "java", "required": false},
+    {"type": "string", "name": "contraparteId", "objectType": "java", "required": false},
+    {"type": "string", "name": "contraparteNome", "objectType": "java", "required": false},
+    {"type": "string", "name": "contraparteNumero", "objectType": "java", "required": false},
+    {"type": "string", "name": "positionId", "objectType": "java", "required": false},
+    {"type": "string", "name": "numeroLugar", "objectType": "java", "required": false},
+    {"type": "string", "name": "unidadeOrganicaId", "objectType": "java", "required": false},
+    {"type": "string", "name": "unidadeOrganicaNome", "objectType": "java", "required": false},
+    {"type": "date", "name": "dataInicio", "objectType": "java", "required": false},
+    {"type": "date", "name": "dataFim", "objectType": "java", "required": false},
+    {"type": "boolean", "name": "corrente", "objectType": "java", "required": false},
+    {"type": "string", "name": "observacoes", "objectType": "java", "required": false}
+  ]
+}
