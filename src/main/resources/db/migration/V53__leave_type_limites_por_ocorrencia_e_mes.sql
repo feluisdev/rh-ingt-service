@@ -87,19 +87,25 @@ END $$;
 -- A verificação de que nada viola a regra vem antes de a criar: uma migração
 -- não deve rebentar por causa de dados que já lá estavam.
 -- -------------------------------------------------------------
+-- NOTA sobre a forma do guarda: o `to_regclass` e a consulta a tabela TEM de estar em IFs
+-- ANINHADOS, e nao na mesma condicao. O PL/pgSQL prepara a instrucao inteira quando a executa,
+-- por isso um `to_regclass(...) IS NOT NULL AND NOT EXISTS (SELECT 1 FROM <tabela>)` rebenta com
+-- "relation does not exist" quando a tabela falta -- o curto-circuito logico nao o salva, porque
+-- o plano e feito na mesma. Aninhando, a consulta interior so e preparada se a exterior passar.
 DO $$ BEGIN
-    IF to_regclass('public.t_leave_type') IS NOT NULL
-       AND NOT EXISTS (SELECT 1 FROM information_schema.table_constraints
+    IF to_regclass('public.t_leave_type') IS NOT NULL THEN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints
                        WHERE table_schema='public' AND table_name='t_leave_type'
                          AND constraint_name='ck_leave_type_limites_positivos')
-       AND NOT EXISTS (SELECT 1 FROM t_leave_type
-                       WHERE (max_days_per_year IS NOT NULL AND max_days_per_year <= 0)
-                          OR (max_days_per_occurrence IS NOT NULL AND max_days_per_occurrence <= 0)
-                          OR (max_days_per_month IS NOT NULL AND max_days_per_month <= 0)) THEN
-        ALTER TABLE t_leave_type
-            ADD CONSTRAINT ck_leave_type_limites_positivos CHECK (
-                (max_days_per_year IS NULL OR max_days_per_year > 0)
-                AND (max_days_per_occurrence IS NULL OR max_days_per_occurrence > 0)
-                AND (max_days_per_month IS NULL OR max_days_per_month > 0));
+           AND NOT EXISTS (SELECT 1 FROM t_leave_type
+                           WHERE (max_days_per_year IS NOT NULL AND max_days_per_year <= 0)
+                              OR (max_days_per_occurrence IS NOT NULL AND max_days_per_occurrence <= 0)
+                              OR (max_days_per_month IS NOT NULL AND max_days_per_month <= 0)) THEN
+            ALTER TABLE t_leave_type
+                ADD CONSTRAINT ck_leave_type_limites_positivos CHECK (
+                    (max_days_per_year IS NULL OR max_days_per_year > 0)
+                    AND (max_days_per_occurrence IS NULL OR max_days_per_occurrence > 0)
+                    AND (max_days_per_month IS NULL OR max_days_per_month > 0));
+        END IF;
     END IF;
 END $$;

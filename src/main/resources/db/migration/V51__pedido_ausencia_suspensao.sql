@@ -71,15 +71,21 @@ END $$;
 -- Só entra se nada a violar -- uma migração não deve rebentar por causa de dados
 -- que já lá estavam.
 -- -------------------------------------------------------------
+-- NOTA sobre a forma do guarda: o `to_regclass` e a consulta a tabela TEM de estar em IFs
+-- ANINHADOS, e nao na mesma condicao. O PL/pgSQL prepara a instrucao inteira quando a executa,
+-- por isso um `to_regclass(...) IS NOT NULL AND NOT EXISTS (SELECT 1 FROM <tabela>)` rebenta com
+-- "relation does not exist" quando a tabela falta -- o curto-circuito logico nao o salva, porque
+-- o plano e feito na mesma. Aninhando, a consulta interior so e preparada se a exterior passar.
 DO $$ BEGIN
-    IF to_regclass('public.t_leave_request') IS NOT NULL
-       AND NOT EXISTS (SELECT 1 FROM information_schema.table_constraints
+    IF to_regclass('public.t_leave_request') IS NOT NULL THEN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints
                        WHERE table_schema='public' AND table_name='t_leave_request'
                          AND constraint_name='ck_leave_request_periodo')
-       AND NOT EXISTS (SELECT 1 FROM t_leave_request
-                       WHERE data_fim IS NOT NULL AND data_inicio IS NOT NULL
-                         AND data_fim < data_inicio) THEN
-        ALTER TABLE t_leave_request
-            ADD CONSTRAINT ck_leave_request_periodo CHECK (data_fim IS NULL OR data_inicio IS NULL OR data_fim >= data_inicio);
+           AND NOT EXISTS (SELECT 1 FROM t_leave_request
+                           WHERE data_fim IS NOT NULL AND data_inicio IS NOT NULL
+                             AND data_fim < data_inicio) THEN
+            ALTER TABLE t_leave_request
+                ADD CONSTRAINT ck_leave_request_periodo CHECK (data_fim IS NULL OR data_inicio IS NULL OR data_fim >= data_inicio);
+        END IF;
     END IF;
 END $$;
