@@ -74,3 +74,12 @@ delete from t_historico_estado_colaborador;
 delete from t_option_entity where ccode like 'TESTE%';
 delete from t_worker_state where code like 'TESTE%';
 delete from t_leave_mobility_subtype where code like 'TESTE%' or code like 'LIC_TST_%' or code like 'MOB_TST_%';
+
+-- 6. Catalogo que o seed nao consegue corrigir sozinho.
+--    O seed_parametrizacoes usa ON CONFLICT (code) DO NOTHING: numa base ja criada, a linha
+--    antiga fica como estava. A comissao de servico foi reclassificada (art. 64.o n.o 2:
+--    REGRESSA_OU_CESSA) e a duracao corrigida para tres anos sucessivamente renovaveis
+--    (art. 60.o n.o 1), e sem isto o F17 corre contra o catalogo velho e nao prova nada.
+update t_leave_mobility_subtype
+   set return_effect='REGRESSA_OU_CESSA', max_duration_days=1095, max_extensions=NULL
+ where code='MOB_COMISSAO';

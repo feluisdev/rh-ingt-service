@@ -468,8 +468,12 @@ $unidadeB = $rUniB.Dados.unidadeOrganicaId
 Verificar 'F8.8 B tem Lugar e nao esta em mobilidade' (($null -ne $lugarB) -and ($rUniB.Dados.emMobilidade -eq $false)) ('(lugar=' + $rUniB.Dados.numeroLugar + ')')
 
 # --- mobilidade INTERNA ---
-$subMob = ($subtipos | Where-Object { $_.recordType -eq 'MOBILIDADE' -and $_.isActive -ne $false } | Select-Object -First 1)
-Verificar 'F8.9 ha subtipo de mobilidade no catalogo' ($null -ne $subMob) ('(' + $subMob.code + ')')
+# A mobilidade COMUM, e nao a primeira da lista: a ordem do catalogo nao e garantida, e a
+# comissao de servico tem outro regime -- tres anos sucessivamente renovaveis (art. 60.o n.o 1)
+# e o regresso do art. 64.o n.o 2. Se calhasse a comissao, o F8.21 (prorrogar alem do maximo)
+# deixava de poder falhar, porque ela nao tem limite de prorrogacoes. O F17 e que a exercita.
+$subMob = ($subtipos | Where-Object { $_.recordType -eq 'MOBILIDADE' -and $_.returnEffect -eq 'REGRESSA_LUGAR' -and $_.isActive -ne $false } | Select-Object -First 1)
+Verificar 'F8.9 ha subtipo de mobilidade comum no catalogo' ($null -ne $subMob) ('(' + $subMob.code + ')')
 $destino = ($unidades | Where-Object { $_.id -ne $unidadeB } | Select-Object -First 1)
 
 $rMob = Chamar 'F8.10 criar mobilidade interna' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade') @{ subtipoId=$subMob.id; dataInicio=$dInicio; dataFim=$dFim; destinationUnitId=$destino.id; justification='requisicao' } 201
@@ -953,6 +957,99 @@ Verificar 'F16.24 o Lugar que deixou ficou vago' (@(@(Linhas $rVagas16b) | Where
 # Consolidada uma vez, o periodo transitorio acabou: nao ha segundo a consolidar.
 Chamar 'F16.25 NEG consolidar duas vezes' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mob16 + '/consolidar') @{ positionId=$lugarOrigem16.id; dataEfeito=$dCons16 } 409 | Out-Null
 
+Write-Host ''
+Write-Host '=========== F17 - REGRESSO DE COMISSAO DE SERVICO (art. 64.o n.o 2) ==========='
+
+# "Cessada a comissao de servico, o nomeado regressa a situacao juridico-funcional de que era
+# titular antes dela, quando constituida e consolidada por tempo indeterminado, ou, NO CASO
+# CONTRARIO, CESSA a relacao juridica de emprego publico."
+#
+# Sao duas saidas, e nao e quem regista que escolhe: o caminho DERIVA-SE DO PERCURSO. A comissao
+# mantem o Lugar (position_effect=MANTEM), logo quem tinha situacao anterior continua titular
+# dele e regressa sem que nada tenha de acontecer; quem foi recrutado PARA a comissao nunca teve
+# situacao para onde voltar, e a relacao termina. Antes disto o catalogo classificava a comissao
+# como REGRESSA_LUGAR sem condicao, e o regresso devolvia ao Lugar de origem TODA A GENTE --
+# incluindo quem nunca teve Lugar nenhum. Falta silenciosa: nada falhava.
+#
+# Contexto herdado: no fim do F16 o B e titular do Lugar de destino da consolidacao.
+
+$subCom = ($subtipos | Where-Object { $_.recordType -eq 'MOBILIDADE' -and $_.returnEffect -eq 'REGRESSA_OU_CESSA' -and $_.isActive -ne $false } | Select-Object -First 1)
+Verificar 'F17.1 ha subtipo classificado REGRESSA_OU_CESSA' ($null -ne $subCom) ('(' + $subCom.code + ')')
+Verificar 'F17.2 e mantem o Lugar, como a comissao manda' ($subCom.positionEffect -eq 'MANTEM') ('(' + $subCom.positionEffect + ')')
+# Tres anos, sucessivamente renovavel (art. 60.o n.o 1) -- e nao um ano com uma prorrogacao,
+# que e a regra da mobilidade comum (art. 132.o n.o 5).
+Verificar 'F17.3 com a duracao da comissao, nao a da mobilidade comum' (($subCom.maxDurationDays -eq 1095) -and ($null -eq $subCom.maxExtensions)) ('(' + $subCom.maxDurationDays + ' dias, prorrogacoes=' + $subCom.maxExtensions + ')')
+
+$dIniCom = $hoje.AddDays(-15).ToString('yyyy-MM-dd')
+$dFimCom = $hoje.AddMonths(6).ToString('yyyy-MM-dd')
+
+# --- 1a parte do n.o 2: quem tinha situacao anterior REGRESSA, e regressar e nao acontecer nada ---
+$rUniAntes17 = Chamar 'F17.4 onde esta o B antes da comissao' GET ('/colaboradores/assignments/funcionario/' + $colabB + '/unidade-atual')
+$lugar17 = $rUniAntes17.Dados.positionId
+Verificar 'F17.5 o B e titular de um Lugar' ($null -ne $lugar17) ('(' + $rUniAntes17.Dados.numeroLugar + ')')
+
+$rCom17 = Chamar 'F17.6 nomear o B em comissao de servico' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade') @{ subtipoId=$subCom.id; dataInicio=$dIniCom; dataFim=$dFimCom; destinationUnitId=$unidadeOrigem16; justification='comissao de servico' } 201
+$com17 = $rCom17.Dados.id
+$rApr17 = Chamar 'F17.7 aprovar a comissao' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $com17 + '/approve') $null 200
+Verificar 'F17.8 a comissao nao tirou o Lugar a ninguem' ($null -eq $rApr17.Dados.afectacaoEncerradaId) '(art. 135.o n.o 7)'
+
+$rFim17 = Chamar 'F17.9 cessar a comissao' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $com17 + '/close') $null 200
+Verificar 'F17.10 quem tinha Lugar regressa, e nao ha estado novo nenhum' ($null -eq $rFim17.Dados.estadoAtribuidoId) '(art. 64.o n.o 2, 1a parte)'
+
+$rUniDep17 = Chamar 'F17.11 onde esta o B depois' GET ('/colaboradores/assignments/funcionario/' + $colabB + '/unidade-atual')
+Verificar 'F17.12 continua titular do mesmo Lugar' ($rUniDep17.Dados.positionId -eq $lugar17) ('(' + $rUniDep17.Dados.numeroLugar + ')')
+# Prova-se o proprio registo, e nao o campo emMobilidade do colaborador: esse responde por
+# TODAS as mobilidades em vigor, e o B herda do F8 uma externa que abriu e fechou no mesmo dia
+# -- que por desenho fica com um dia, e cobre hoje. Que o regresso acaba a mobilidade ja esta
+# provado no F8.25; aqui interessa o que esta comissao ficou a dizer.
+$rComLida17 = Chamar 'F17.13 ler a comissao depois do regresso' GET ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $com17)
+Verificar 'F17.14 o despacho nao se desfaz -- continua APPROVED' ($rComLida17.Dados.status -eq 'APPROVED') ('(' + $rComLida17.Dados.status + ')')
+Verificar 'F17.15 e o periodo esta TERMINADA' ($rComLida17.Dados.estadoPeriodo -eq 'TERMINADA') ('(' + $rComLida17.Dados.estadoPeriodo + ')')
+# O ultimo dia em comissao e a vespera do regresso: quem regressa hoje nao esta em comissao hoje.
+Verificar 'F17.16 o ultimo dia em comissao e a vespera do regresso' ($rComLida17.Dados.dataFim -like ($hoje.AddDays(-1).ToString('yyyy-MM-dd') + '*')) ('(' + $rComLida17.Dados.dataFim + ')')
+
+# --- 2a parte do n.o 2: quem foi recrutado PARA a comissao nao tem para onde voltar ---
+# Admite-se alguem sem afectacao nenhuma. E o caso que a lei preve e que o codigo nao via: sem
+# Lugar do quadro, a comissao E a relacao de emprego, e acabada ela nao sobra vinculo.
+$nifCom = '6' + (Get-Date -Format 'MMddHHmmss')
+$rNovoCom = Chamar 'F17.17 admitir alguem para a comissao, sem Lugar do quadro' POST '/funcionarios' @{ nomeCompleto='Comissao Sem Lugar'; dataNascimento='1988-02-02'; genero='F'; estadoCivil='SOLTEIRO'; nif=$nifCom; dataAdmissao=($anoAgora.ToString() + '-01-15') } 201
+$colabCom = $rNovoCom.Dados.id
+Chamar 'F17.18 nao tem afectacao nenhuma' GET ('/colaboradores/assignments/funcionario/' + $colabCom + '/unidade-atual') $null 404 | Out-Null
+
+$rCom17b = Chamar 'F17.19 nomea-lo em comissao' POST ('/funcionarios/' + $colabCom + '/licencas-mobilidade') @{ subtipoId=$subCom.id; dataInicio=$dIniCom; dataFim=$dFimCom; destinationUnitId=$unidadeOrigem16; justification='recrutado para a comissao' } 201
+$com17b = $rCom17b.Dados.id
+Chamar 'F17.20 aprovar a comissao' PUT ('/funcionarios/' + $colabCom + '/licencas-mobilidade/' + $com17b + '/approve') $null 200 | Out-Null
+
+$rFim17b = Chamar 'F17.21 cessar a comissao' PUT ('/funcionarios/' + $colabCom + '/licencas-mobilidade/' + $com17b + '/close') $null 200
+Verificar 'F17.22 sem situacao anterior, a relacao CESSA' ($null -ne $rFim17b.Dados.estadoAtribuidoId) '(art. 64.o n.o 2, 2a parte)'
+Verificar 'F17.23 e o estado atribuido e o de cessacao' ($rFim17b.Dados.estadoAtribuidoId -eq $ws['INACTIVE'].id) ('(' + $rFim17b.Dados.estadoAtribuidoId + ')')
+
+# A cessacao nao e um desaparecimento silencioso: fica no historico a dizer porque aconteceu.
+$rHist17 = Chamar 'F17.24 historico de estados de quem cessou' GET ('/funcionarios/' + $colabCom + '/worker-state/historico')
+$cess17 = (@(Linhas $rHist17) | Where-Object { $_.estadoNovoId -eq $ws['INACTIVE'].id } | Select-Object -First 1)
+Verificar 'F17.25 a cessacao ficou registada' ($null -ne $cess17) ''
+Verificar 'F17.26 com o motivo do subtipo e o artigo por extenso' (($cess17.motivoCkey -eq $subCom.code) -and ($cess17.observacao -like '*64*')) ('(' + $cess17.motivoCkey + ' / ' + $cess17.observacao + ')')
+
+# --- a bifurcacao e do CATALOGO, nao de "nao ter Lugar" ---
+# Mesmo cenario -- ninguem com Lugar --, subtipo classificado REGRESSA_LUGAR: nao cessa nada.
+# Sem este passo, o bloco provaria apenas que quem nao tem Lugar cessa, que e outra regra.
+$subReg = ($subtipos | Where-Object { $_.recordType -eq 'MOBILIDADE' -and $_.returnEffect -eq 'REGRESSA_LUGAR' -and $_.isActive -ne $false } | Select-Object -First 1)
+Verificar 'F17.27 ha subtipo de mobilidade comum no catalogo' ($null -ne $subReg) ('(' + $subReg.code + ')')
+
+$nifReg = '5' + (Get-Date -Format 'MMddHHmmss')
+$rNovoReg = Chamar 'F17.28 admitir outro sem Lugar' POST '/funcionarios' @{ nomeCompleto='Mobilidade Sem Lugar'; dataNascimento='1989-03-03'; genero='M'; estadoCivil='SOLTEIRO'; nif=$nifReg; dataAdmissao=($anoAgora.ToString() + '-01-15') } 201
+$colabReg = $rNovoReg.Dados.id
+$rMobReg = Chamar 'F17.29 po-lo em mobilidade comum' POST ('/funcionarios/' + $colabReg + '/licencas-mobilidade') @{ subtipoId=$subReg.id; dataInicio=$dIniCom; dataFim=$dFimCom; destinationUnitId=$unidadeOrigem16; justification='mobilidade comum' } 201
+Chamar 'F17.30 aprovar' PUT ('/funcionarios/' + $colabReg + '/licencas-mobilidade/' + $rMobReg.Dados.id + '/approve') $null 200 | Out-Null
+$rFimReg = Chamar 'F17.31 encerrar' PUT ('/funcionarios/' + $colabReg + '/licencas-mobilidade/' + $rMobReg.Dados.id + '/close') $null 200
+Verificar 'F17.32 sem Lugar, mas a mobilidade comum nao cessa vinculo nenhum' ($null -eq $rFimReg.Dados.estadoAtribuidoId) ''
+$rHistReg = Chamar 'F17.33 historico de estados desse' GET ('/funcionarios/' + $colabReg + '/worker-state/historico')
+Verificar 'F17.34 e nao ha cessacao nenhuma registada' ((@(@(Linhas $rHistReg) | Where-Object { $_.estadoNovoId -eq $ws['INACTIVE'].id })).Count -eq 0) ''
+
+# Encerrada a comissao pela cessacao, nao ha segundo regresso a registar.
+Chamar 'F17.35 NEG cessar a comissao duas vezes' PUT ('/funcionarios/' + $colabCom + '/licencas-mobilidade/' + $com17b + '/close') $null 409 | Out-Null
+
+Write-Host ''
 Write-Host '=========== RESUMO ==========='
 $ok = ($script:resultados | Where-Object { $_.OK }).Count
 $total = $script:resultados.Count

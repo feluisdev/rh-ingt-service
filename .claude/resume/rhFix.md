@@ -1,4 +1,4 @@
-> Updated: 2026-09-22
+> Updated: 2026-09-22 (terceira sessão do dia)
 
 ## Goal
 
@@ -13,27 +13,45 @@ par, sem avançar enquanto o anterior não estiver verde.
 
 ## Current state
 
-**Branch `fix-alinhamento-legislacao`**, com **8 commits locais por enviar**
-(`71103f99..HEAD`, todos de 2026-09-22 — ver a tabela abaixo). O GitLab é o repo
-da equipa; merge para `master` é deploy. **O push não foi feito por indicação
-expressa do utilizador: não o fazer sem lhe perguntar.**
+**Branch `fix-alinhamento-legislacao`**, com **14 commits locais por enviar**
+(`71103f99..HEAD`, todos de 2026-09-22). O GitLab é o repo da equipa; merge para
+`master` é deploy. **O push não foi feito por indicação expressa do utilizador:
+não o fazer sem lhe perguntar.**
 
-- **Testes: 840, 0 falhas — mas só com a base de dados de pé.** 839 são unitários
-  puros; o `RecursosHumanosApplicationTests.contextLoads` carrega o contexto Spring
-  completo e o Flyway liga-se ao Postgres. **Sem o contentor a correr dá 1 erro, e
-  não é regressão.** Correr **sempre com `clean`** (ver Blockers).
-- **Bateria funcional: 305 passos, 305 OK**, cobre **F0 a F14**.
-- **Migrações V40 a V51** aplicadas e verificadas na BD. Próxima livre: **V52**.
-- **`openapi.json`**: 229 caminhos, 246 esquemas, **0 operações não-sigdi sem
+- **Testes: 890, 0 falhas — mas só com a base de dados de pé.** Todos menos um
+  são unitários puros; o `RecursosHumanosApplicationTests.contextLoads` carrega o
+  contexto Spring completo e o Flyway liga-se ao Postgres. **Sem o contentor a
+  correr dá 1 erro, e não é regressão.** Correr **sempre com `clean`** (ver Blockers).
+- **Bateria funcional: 404 passos, 404 OK**, cobre **F0 a F17**. O bloco do regresso
+  de comissão (F17) entrou a 2026-09-22 — já não falta nada commitado sem prova.
+- **Migrações V40 a V52** aplicadas e verificadas na BD. Próxima livre: **V53**.
+- **`openapi.json`**: 231 caminhos, 250 esquemas, **0 operações não-sigdi sem
   esquema de resposta**. Regenerado a 2026-09-22; **regenerar sempre** que se
   mexa num endpoint.
+- **O texto da Lei n.º 20/X/2023 está agora em `.lei20.txt`** (raiz, não
+  versionado), extraído do Boletim Oficial n.º 30 de 24-03-2023 que o utilizador
+  forneceu. **Usá-lo**: os três movimentos desta sessão mudaram de desenho depois
+  de o ler. O `.dl3.txt` é o DL n.º 3/2010 (férias, faltas e licenças).
 - **Sete jobs `@Scheduled`**: cinco do `sigdi`, mais o dos efeitos das licenças
   (`rh.licencas.efeitos.cron`, 00:15) e o do vencimento de férias
   (`rh.ferias.vencimento.cron`, 00:05). Nenhum tem lock distribuído — ver
   questão 13.
 - **Nenhum handler ou controlador não-sigdi devolve `Map`.**
 
-### O que a sessão de 2026-09-22 fez (7 commits, `71103f99..HEAD`)
+### O que a segunda sessão de 2026-09-22 fez (5 commits, `1f2199a3..HEAD`)
+
+| Commit | O que fecha |
+|---|---|
+| `161b9877` | **Mudança de carreira** — `POST /funcionarios/{id}/mudanca-carreira`. Era impossível: a promoção exige a mesma carreira e a transferência a mesma categoria |
+| `a65870fd` | **A acumulação não é um título de ocupar um Lugar** — sai do `TipoAfectacao`; `POST /assignments` passa a aceitar só `PRINCIPAL` |
+| `9d0d7ea1` | **V52 — forma de prestação da mobilidade** (art. 134.º n.º 2): `TEMPO_INTEIRO` ou `ACUMULACAO`, no registo da mobilidade |
+| `c6cf01ed` | **Consolidação da mobilidade** (art. 132.º n.º 4) — a transitória torna-se definitiva num Lugar vago do destino |
+| `3bb58fb0` | **Regresso de comissão** (art. 64.º n.º 2): regressa quem tinha situação anterior; **cessa** quem não tinha |
+
+**O utilizador forneceu o Boletim Oficial**, e isso mudou dois dos três desenhos.
+Ver «O que a lei disse, e que contrariava o plano» abaixo.
+
+### O que a primeira sessão de 2026-09-22 fez (8 commits, `71103f99..1f2199a3`)
 
 | Commit | O que fecha |
 |---|---|
@@ -123,18 +141,77 @@ de ser possível, por construção e por restrição no esquema.
    é derivada, não guardada. Ver secção própria abaixo.
    **Sobra uma coluna morta:** `affects_pay` (subtipo) continua sem consumidor —
    é remuneração, e remuneração não existe nesta aplicação.
-3. **Movimentos menores** — sete, sem caminho nenhum: consolidação da mobilidade
-   (art. 132.º n.º 4) · acumulação (art. 134.º n.º 2 al. b) · permuta (atómica) ·
-   **mudança de carreira** (art. 139.º / art. 35.º PCFR) · regresso de comissão
-   (art. 64.º n.º 2) · estágio probatório (art. 57.º, 72.º) · reintegração
-   judicial (art. 97.º n.º 10 al. b). **A mudança de carreira é a mais grave:**
-   hoje é impossível, porque a promoção exige a mesma carreira e a transferência a
-   mesma categoria.
+3. **Movimentos menores** — eram sete. **Quatro feitos** a 2026-09-22 (segunda
+   sessão), **três por fazer**.
+
+   **Feitos:** **mudança de carreira** · **acumulação** (que afinal é uma forma de
+   prestar a mobilidade, não um título — ver abaixo) · **consolidação da
+   mobilidade** (art. 132.º n.º 4) · **regresso de comissão** (art. 64.º n.º 2).
+
+   **Por fazer:** **permuta** (troca atómica entre dois titulares) · **estágio
+   probatório** (art. 57.º do texto lido: nomeação provisória por tempo determinado
+   para frequência de estágio; o n.º 2 manda que quem já está nomeado
+   definitivamente noutra carreira faça o estágio **em comissão de serviço**, o que
+   liga este ponto ao anterior; o n.º 3 conta o tempo, o n.º 5 devolve-o à carreira
+   de origem quando corre mal) · **reintegração judicial** (art. 97.º n.º 10 al. b).
+
+   **O utilizador decidiu (2026-09-22) que estes três ficam por implementar** e que
+   se segue para outras áreas do RH — gestão de ausências/assiduidade e os subtipos
+   de mobilidade/licença.
 4. **Percurso do colaborador** — linha temporal única (afectações, mobilidades,
    licenças, estados). Adiado até o negócio estar definido; resolveria também a
    lacuna de não haver como ler as substituições.
 5. **Framework de jobs — portar do `inss_core_service`.** **Fica para o fim**, por
    decisão do utilizador (2026-09-22). Ver secção própria abaixo.
+
+### O que a lei disse, e que contrariava o plano (2026-09-22)
+
+O utilizador forneceu o **Boletim Oficial n.º 30 de 24-03-2023**, onde a Lei
+n.º 20/X/2023 foi publicada; está extraído em **`.lei20.txt`** (raiz, não
+versionado). Antes disso tentei quatro fontes públicas e **nenhuma dava o
+articulado** — só a ficha do diploma. Ler o texto mudou dois dos três desenhos,
+e vale a pena saber porquê antes de mexer nisto outra vez.
+
+**A acumulação não era o que o código dizia.** O `TipoAfectacao.ACUMULACAO`
+citava o art. 134.º n.º 2 al. b) para dizer «exercício cumulativo de outro
+Lugar». O artigo diz outra coisa: classifica a mobilidade geral **quanto à forma
+de prestação** — a tempo inteiro, ou «em regime de acumulação, quando o
+funcionário passa a exercer funções noutro serviço, em acumulação com as do
+serviço de origem». E como a mobilidade transitória é «sem ocupação do lugar do
+quadro» (art. 135.º n.º 7), **uma mobilidade em acumulação não cria afectação
+nenhuma**. O valor saiu do enum (zero linhas na BD e na auditoria) e a
+acumulação passou a viver no registo da mobilidade (V52).
+
+*Não confundir com o art. 21.º* — acumulação de funções públicas, que é outro
+instituto: permissão, com incompatibilidade, manifesto interesse público e, em
+regra, não remunerada (n.º 1); sendo remunerada, só nos casos taxativos do n.º 2.
+**Não está implementado.**
+
+**O regresso de comissão estava errado, e em silêncio.** O art. 64.º n.º 2 diz
+que o nomeado regressa à situação anterior «quando constituída e consolidada por
+tempo indeterminado, ou, **no caso contrário, cessa a relação jurídica de emprego
+público**». O catálogo tinha `REGRESSA_LUGAR` sem condição: devolvia ao Lugar de
+origem toda a gente, incluindo quem foi recrutado *para* a comissão e nunca teve
+Lugar. Falta que só se via lendo o artigo.
+
+**A consolidação confirmou a regra já decidida.** O art. 135.º n.º 8 define a
+mobilidade definitiva como a que é feita «com ocupação do lugar do quadro», por
+oposição à transitória do n.º 7. Isso sustenta no texto a decisão antiga de que
+«mobilidade definitiva = transferência», e dá as condições exactas: **na mesma
+função e categoria** (art. 132.º n.º 4) e para um **lugar vago** (art. 134.º n.º 1
+al. a)).
+
+**O que a lei manda e não se escreveu:** o art. 132.º n.º 4 acaba com «nos termos
+regulados por **diploma de desenvolvimento**». Há, portanto, condições de
+consolidação (tempo mínimo, provavelmente) que vivem noutro diploma que não
+temos. **Não se inventou nenhum prazo.** Se esse diploma aparecer, é no
+`AssignmentService.consolidarMobilidade` que entra.
+
+**Aliança de datas:** a Lei n.º 20/X/2023 foi alterada pela **Lei n.º 49/X/2025**
+(BO n.º 27, de 7 de Abril de 2025), que mexeu em **contratação de emergência** e
+no **ciclo de gestão de pessoal** — não nos artigos da mobilidade nem da
+comissão. O texto de 2023 vale para o que se fez. **Isto responde em parte à
+questão aberta 10.**
 
 ### Antiguidade — o que ficou feito (2026-09-22)
 
@@ -442,6 +519,48 @@ quando o framework entrar — a lógica de negócio não muda, só passa de
   substituições está esta pessoa metida», e isso inclui os dois lados.
 - **Endpoint próprio, sem esperar pelo percurso do colaborador.** Não o impede.
 
+**Sobre os movimentos de 2026-09-22 (segunda sessão)**
+
+- **A mudança de carreira não é uma transferência.** A transferência mantém a
+  posição na grelha e muda de cadeira; a mudança de carreira muda o **próprio
+  eixo** de que a categoria e o escalão dependem, o que a aproxima de um novo
+  provimento. A guarda que a define: **a carreira de destino tem de ser
+  diferente** — sem ela, seria uma promoção sem nenhuma das regras da promoção.
+- **Exige Lugar vago e não reclassifica.** Passar um Lugar de uma carreira para
+  outra altera o quadro de pessoal, que é decisão de organograma e não movimento
+  de uma pessoa. (A promoção pode reclassificar porque aí o Lugar sobe um degrau
+  dentro da mesma carreira.)
+- **Quem posiciona na nova carreira é o acto administrativo.** O critério legal
+  — remuneração igual ou imediatamente superior — é aritmética sobre remuneração,
+  que esta aplicação não tem. Entrar sempre pela base seria **contrário** ao
+  espírito da regra, que existe para proteger quem muda com anos de serviço.
+  Quando houver remuneração, é no `mudarCarreira` que a regra entra.
+- **As habilitações não se verificam** em nenhum destes movimentos: a carreira não
+  tem campo que diga o requisito e as qualificações não têm nível normalizado.
+  Como o concurso na promoção, registam-se despacho e referência sem validação.
+- **`POST /assignments` é só da titularidade.** A substituição tem endpoint próprio
+  e por ali dá 422. Era um buraco aberto pela V45: ao tornar o índice do Lugar
+  parcial em `PRINCIPAL`, deixou de haver nada a impedir que a porta genérica
+  criasse afectações a outro título sem validação nenhuma.
+- **A acumulação é forma de prestação da mobilidade, não título** (art. 134.º
+  n.º 2 al. b)). `TEMPO_INTEIRO` por omissão, porque a exclusividade é a regra
+  (art. 20.º). Só se fixa enquanto o processo está por decidir; depois do despacho
+  é outro despacho. Numa licença dá 422 — quem está de licença não exerce funções
+  em serviço nenhum.
+- **A consolidação é a única via pela qual uma mobilidade toca na afectação**, e
+  não contradiz o art. 135.º n.º 7: esse fala da transitória; o n.º 8 define a
+  definitiva como a que ocupa lugar do quadro. **Na mesma função e categoria**, e
+  o escalão mantém-se — não há evolução na grelha numa consolidação. **Só a
+  interna**: numa externa não há Lugar nosso onde pôr a pessoa.
+- **Não se inventou tempo mínimo de mobilidade** para consolidar — a condição está
+  em diploma de desenvolvimento que não temos.
+- **O regresso de comissão bifurca-se, e o caminho deriva-se do percurso.** Quem
+  tem afectação corrente regressa a ela (a comissão mantém o Lugar); quem não tem
+  foi recrutado *para* a comissão e **a relação cessa**, automaticamente, porque a
+  lei não dá escolha. **Não se guarda um campo** a dizer qual é o caso: um campo
+  mal preenchido passaria a decidir uma cessação.
+- **`REGRESSA_OU_CESSA` é o único efeito no regresso que termina um vínculo.**
+
 ## Constraints
 
 - **Build exige JDK 26**: `export JAVA_HOME="/c/Program Files/Eclipse Adoptium/jdk-26.0.2.10-hotspot"`.
@@ -475,6 +594,17 @@ quando o framework entrar — a lógica de negócio não muda, só passa de
   negoceia e devolve os **erros em XML** enquanto os sucessos vêm em JSON.
 - **O `close` do contrato é idempotente** (200, não 409) e não sobrepõe o primeiro.
 - **Repor a BD antes de cada execução** (`scripts/repor_estado.sql`).
+- **Não afirmar `emMobilidade -eq $false` depois de um regresso.** Esse campo responde
+  por **qualquer** mobilidade em vigor, e o F8 deixa uma externa que abriu e fechou no
+  mesmo dia — fica com um dia, que cobre hoje. Provar o **próprio registo**
+  (`status` + `estadoPeriodo` + `dataFim`). Custou uma execução no F17.
+- **O seed não corrige o que já existe**: `seed_parametrizacoes` usa
+  `ON CONFLICT (code) DO NOTHING`. Uma linha de catálogo reclassificada num commit
+  **não chega a uma base já criada** — foi por isso que o `MOB_COMISSAO` continuava
+  `REGRESSA_LUGAR`. A reclassificação vive agora no `repor_estado.sql`.
+- **Não escolher do catálogo «o primeiro da lista»**: a ordem não é garantida. O
+  `$subMob` do F8 passou a exigir `returnEffect = REGRESSA_LUGAR`; se lhe calhasse a
+  comissão, o F8.21 deixava de poder falhar (ela não tem limite de prorrogações).
 
 ## Blockers & risks
 
@@ -620,12 +750,25 @@ férias já estão construídas por cima dela.
   - `colaboradores/domain/service/CalculadoraAntiguidade.java` — a conta pura
     (recorta, **une**, subtrai). É aqui que vive a regra de não somar períodos.
   - `colaboradores/application/services/AntiguidadeService.java` — as três fontes.
+- **Movimentos de 2026-09-22 (segunda sessão):**
+  - `colaboradores/application/services/AssignmentService.java` — ganhou
+    `mudarCarreira` e `consolidarMobilidade`; o `afectar` ganhou a guarda que só
+    deixa passar `PRINCIPAL`.
+  - `colaboradores/domain/models/FormaPrestacaoMobilidade.java` — art. 134.º n.º 2.
+  - `colaboradores/domain/models/LicencaMobilidade.java` — `consolidar` e
+    `definirFormaPrestacao`.
+  - `colaboradores/application/commands/ConsolidarMobilidadeCommandHandler.java`
+  - `colaboradores/application/commands/MudarCarreiraColaboradorCommandHandler.java`
+  - `colaboradores/application/services/LicencaService.java` —
+    `aplicarRegressoDeComissao` (art. 64.º n.º 2).
+  - `parametrizacoes/domain/models/EfeitoNoRegresso.java` — `REGRESSA_OU_CESSA`.
+  - `db/migration/V52__mobilidade_forma_prestacao.sql`
 - `colaboradores/application/queries/ListarSubstituicoesQueryHandler.java` — a
   leitura das substituições, nos dois papéis.
 - `db/seed/seed_carreiras.sql` — `ordem_progressao` (1=ASS_TEC, 2=TEC_SUP); **sem
   ela a promoção recusa sempre**.
 - `db/seed/seed_colaboradores.sql` — 3 colaboradores, 6 Lugares.
-- `scripts/testes_funcionais.ps1` — bateria completa (F0 a F14, 305 passos).
+- `scripts/testes_funcionais.ps1` — bateria completa (F0 a F17, 404 passos).
 - `scripts/repor_estado.sql` — **correr antes de cada execução**.
 - `scripts/testes_funcionais_README.md` — o que cada bloco prova.
 - `docs/funcionarios/v5/openapi.json` — contrato gerado; **fonte para as formas**.
@@ -648,7 +791,7 @@ git switch fix-alinhamento-legislacao
 
 # A BD tem de estar de pe ANTES dos testes: o contextLoads liga-se-lhe.
 docker start postgres-ingt-rh      # se falhar, o Docker Desktop esta em baixo
-mvn -B clean test                  # esperado: 840 testes, 0 falhas (COM clean)
+mvn -B clean test                  # esperado: 890 testes, 0 falhas (COM clean)
                                    # sem a BD: 1 erro em contextLoads, nao e regressao
 ```
 
@@ -675,7 +818,7 @@ docker exec postgres-ingt-rh sh -c "psql -U postgres -d recursoshumanos_db -q -f
 
 # 3. bateria
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/testes_funcionais.ps1
-# esperado: PASSOS: 305   OK: 305   FALHAS: 0
+# esperado: PASSOS: 404   OK: 404   FALHAS: 0
 
 # 4. regenerar o contrato depois de mexer em endpoints
 curl -s -o docs/funcionarios/v5/openapi.json http://localhost:8099/v3/api-docs
@@ -701,9 +844,11 @@ esc. 1). Vagos: **LUG-0004** (TEC_SUP, promoção com `positionId`), **LUG-0005*
 
 ## Test / validation plan
 
-**A bateria cobre F0 a F14 — 305 passos, todos OK.** F11 (vencimento de férias),
-F12 (acumulação) e F13 (suspensão) entraram a 2026-09-22, e o F6 ganhou a leitura
-das substituições.
+**A bateria cobre F0 a F17 — 404 passos, todos OK.** F11 (vencimento de férias),
+F12 (acumulação), F13 (suspensão) e F14 (antiguidade) entraram na primeira sessão
+de 2026-09-22, e o F6 ganhou a leitura das substituições; F15 (mudança de
+carreira) e F16 (consolidação da mobilidade) entraram na segunda; **F17 (regresso
+de comissão)** na terceira. Não há nada commitado sem prova na bateria.
 
 **O que cada bloco prova está em `scripts/testes_funcionais_README.md`**, e é lá
 que se actualiza. Não se repete aqui de propósito: duas cópias divergem sempre —
@@ -783,23 +928,36 @@ contradizer o código.
 
 ## Next step
 
-**Push por fazer** — há **8 commits locais** por enviar
+**Push por fazer** — há **14 commits locais** por enviar
 (`git push origin_git_lab fix-alinhamento-legislacao`). O utilizador pediu para
 não o fazer ainda; **não enviar sem lhe perguntar**.
 
 ### O que pode avançar já, sem esperar por ninguém
 
-Por ordem do plano, e ambos independentes:
+Ordem confirmada pelo utilizador a 2026-09-22 (terceira sessão):
 
-1. **Movimentos menores** (ponto 3) — sete, sem caminho nenhum. A **mudança de
-   carreira** é a mais grave: hoje é *impossível*, porque a promoção exige a mesma
-   carreira e a transferência exige a mesma categoria. Art. 139.º e art. 35.º do
-   PCFR.
-2. **Percurso do colaborador** (ponto 4) — linha temporal única. Já não precisa de
-   resolver a leitura das substituições (feita), mas continua a valer como
-   agregador de afectações, mobilidades, licenças e estados.
+1. ~~**Bloco da bateria para o regresso de comissão**~~ — **FEITO (2026-09-22)**:
+   F17, 35 passos, os dois caminhos do art. 64.º n.º 2 mais o diferencial que prova
+   que a bifurcação é do **catálogo** e não de «não ter Lugar».
+2. **Ausências / assiduidade e subtipos de mobilidade e licença** — **é o passo
+   seguinte.** Ver «Ausências não é assiduidade» em Blockers: o que lá está diz o
+   que o modelo **não consegue** exprimir, e é o ponto de partida da conversa, não
+   um impedimento a começar.
+
+**Fora do caminho, por decisão do utilizador (confirmada a 2026-09-22):**
+**permuta**, **estágio probatório** (art. 57.º) e **reintegração judicial**
+(art. 97.º n.º 10 al. b) **ficam por fazer**. Não são dívida esquecida — são
+âmbito adiado.
+
+O **percurso do colaborador** (ponto 4) continua no plano como agregador de
+afectações, mobilidades, licenças e estados; já não precisa de resolver a leitura
+das substituições, que está feita.
 
 ### O que está à espera de decisão (não avançar sem)
+
+**Tudo o que está nesta tabela continua adiado** — o utilizador confirmou a
+2026-09-22 que decide depois. Não avançar por conta própria: escolher por ele
+seria inventar modelo de dados ou processo.
 
 | Assunto | Quem decide | Onde está |
 |---|---|---|
@@ -845,8 +1003,8 @@ O caminho das férias:
 2. Acumulação entre anos.
 3. Marcação (o pedido já existe; falta o que distingue férias de uma falta comum).
 
-Antes de começar: `docker start postgres-ingt-rh`, `mvn -B clean test` (**840**, 0
-falhas), repor a BD e correr a bateria (**305/305**) para confirmar que se parte de
+Antes de começar: `docker start postgres-ingt-rh`, `mvn -B clean test` (**890**, 0
+falhas), repor a BD e correr a bateria (**404/404**) para confirmar que se parte de
 verde.
 
 > A antiguidade já está feita e **já lê** o art. 47.º n.º 1 (a licença sem

@@ -310,13 +310,55 @@ ficando com um dia, que e o comportamento deliberado da BR-MOB-14.
 O seed ganhou o **LUG-0008**, vago noutra unidade (DGP) com o mesmo cargo e categoria do
 LUG-0002. Sem ele nao ha destino possivel: todos os outros Lugares vivem no SERV_RH.
 
+### F17 - regresso de comissao de servico (2026-09-22)
+
+Prova o art. 64.o n.o 2: «Cessada a comissao de servico, o nomeado regressa a situacao
+juridico-funcional de que era titular antes dela, quando constituida e consolidada por tempo
+indeterminado, ou, **no caso contrario, cessa a relacao juridica de emprego publico**.»
+
+Sao **duas saidas**, e o caminho **deriva-se do percurso**, nao de um campo que alguem preencha:
+a comissao mantem o Lugar, logo quem tinha situacao anterior continua titular dele e regressa;
+quem foi recrutado *para* a comissao nunca teve situacao para onde voltar.
+
+Era uma falta **silenciosa**: o catalogo classificava a comissao como `REGRESSA_LUGAR` sem
+condicao, e o regresso devolvia ao Lugar de origem toda a gente. Nada falhava.
+
+- o subtipo vem do catalogo classificado `REGRESSA_OU_CESSA`, mantem o Lugar e tem a duracao da
+  comissao -- **1095 dias sem limite de prorrogacoes** (art. 60.o n.o 1), e nao o ano com uma
+  prorrogacao da mobilidade comum (art. 132.o n.o 5)
+- **quem tinha Lugar regressa**: o `close` nao atribui estado nenhum, e a pessoa continua
+  titular do mesmo Lugar
+- o registo fica `APPROVED` com o periodo `TERMINADA`, e o ultimo dia em comissao e a **vespera**
+  do regresso
+- **quem nao tinha Lugar cessa**: admite-se alguem sem afectacao nenhuma (`unidade-atual` da
+  404), nomeia-se em comissao e, ao cessa-la, o vinculo termina no estado de cessacao
+- a cessacao **fica no historico** com o motivo do subtipo e o artigo por extenso, em vez de ser
+  um desaparecimento silencioso
+- **a bifurcacao e do catalogo, nao de "nao ter Lugar"**: repete-se o mesmo cenario com um
+  subtipo `REGRESSA_LUGAR` e nao cessa nada nem escreve historico. Sem este passo o bloco
+  provaria outra regra -- que quem nao tem Lugar cessa --, que nao e a da lei
+- **cessar a comissao duas vezes** da 409
+
+Como no F16, nao se afirma que `emMobilidade` passa a falso: esse campo responde por QUALQUER
+mobilidade em vigor, e o F8 deixa uma externa que comecou e foi encerrada no mesmo dia -- fica
+com um dia, que cobre hoje (BR-MOB-14). Prova-se o **proprio registo**. Custou uma execucao.
+
+O `repor_estado.sql` ganhou a **reclassificacao do MOB_COMISSAO**: o seed usa
+`ON CONFLICT (code) DO NOTHING`, portanto numa base ja criada a linha antiga fica como estava, e
+o bloco correria contra o catalogo velho sem provar nada.
+
+E o F8 passou a escolher a mobilidade **comum** de forma explicita (`REGRESSA_LUGAR`) em vez da
+primeira da lista: a ordem do catalogo nao e garantida e, se lhe calhasse a comissao, o F8.21
+(prorrogar alem do maximo) deixava de poder falhar -- ela nao tem limite de prorrogacoes.
+
 ## Resultado da última execução
 
-**369 passos, 369 OK** (2026-09-22), contra a base local com a V52 aplicada.
+**404 passos, 404 OK** (2026-09-22), contra a base local com a V52 aplicada.
 
-O F15 (mudanca de carreira) e o F16 (consolidacao da mobilidade) entraram nesta data,
-mais os passos da forma de prestacao no F8 e os da porta generica no F10. Nao tem migracao: a
-`origem` da afectacao e `VARCHAR(20)` sem restricao, e `MUDANCA_CARREIRA` cabe la.
+O F15 (mudanca de carreira), o F16 (consolidacao da mobilidade) e o F17 (regresso de comissao)
+entraram nesta data, mais os passos da forma de prestacao no F8 e os da porta generica no F10.
+Nenhum tem migracao: a `origem` da afectacao e `VARCHAR(20)` sem restricao, e o `return_effect`
+tambem nao tem restricao na base.
 
 Encontrou dois problemas reais, já corrigidos:
 
