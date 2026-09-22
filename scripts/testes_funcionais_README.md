@@ -162,6 +162,52 @@ sucessos vem em JSON -- dois formatos na mesma API. Foi o F10.12 que o expos: o
 `ConvertFrom-Json` falhava no corpo do 404. O `api_guide` ja avisava; agora a
 bateria comporta-se como um cliente correcto.
 
+### F11 - vencimento de ferias (2026-09-22)
+
+Prova que o saldo de ferias **nasce sozinho** (DL 3/2010, art. 2.o n.o 4) e que e
+**proporcional no ano de ingresso** (art. 3.o). Cria colaboradores pela API com
+datas de admissao diferentes e le o saldo que aparece sem ninguem o criar:
+
+| Admitido em | Dias | Porque |
+|---|---|---|
+| 1 de Janeiro | 22 | ano inteiro, valor do catalogo |
+| 1 de Julho | 11 | dois trimestres completos |
+| 1 de Dezembro | 0 | menos de 90 dias de servico efectivo |
+
+Cobre tambem a classificacao do catalogo: o `regime` (`FERIAS`/`FALTA`) e que diz
+quais linhas sao ferias -- **nunca o codigo** --, um tipo novo nasce `FALTA` (a
+omissao segura), reclassifica-se pela API, e um valor fora da lista da lei da 422.
+
+### F12 - acumulacao de ferias (2026-09-22)
+
+Art. 7.o n.o 1: os dias que, **por motivo de servico**, nao puderam ser gozados
+passam para o ano seguinte. Nao e automatico -- e um acto com motivo obrigatorio.
+
+- sem motivo da 400; mais dias do que sobram da 422
+- a origem perde os dias cedidos e o destino recebe-os **a parte** do direito do
+  proprio ano (`diasAcumulados` + motivo)
+- ceder outra vez os mesmos dias da 422
+- os dias **recebidos nao voltam a ser acumulaveis**: o horizonte da lei e de um
+  ano (art. 7.o n.o 1 e art. 8.o n.o 4), nao uma corrente
+- o saldo do ano de destino **nasce da propria acumulacao**, porque a autorizacao
+  pode acontecer em Dezembro, antes de o job do vencimento passar
+- uma falta nao se acumula (422); o saldo de outro colaborador pelo URL deste, 404
+
+### F13 - suspensao de ferias (2026-09-22)
+
+Art. 8.o: as ferias suspendem-se por parentalidade, doenca, assistencia a
+familiares ou razoes imperiosas de servico. Ate aqui um pedido de ferias e um de
+doenca **nao se falavam**: quem adoecesse a meio perdia-as.
+
+- o **ultimo dia de ferias e a vespera** da data indicada -- o n.o 3 diz «a partir
+  da data da entrada no servico do documento comprovativo»
+- o pedido continua **`APROVADO`**: a decisao nao se desfaz, o que encurta e o
+  periodo (a mesma separacao da V48)
+- os dias **voltam mesmo ao saldo**, e prova-se com a diferenca: 14 disponiveis
+  antes, 4 gozados ate a interrupcao, 10 depois
+- sem motivo da 400; data futura da 400; suspender duas vezes da 409; o pedido de
+  outro colaborador pelo URL deste da 404
+
 ## Resultado da última execução
 
 **288 passos, 288 OK** (2026-09-22), contra a base local com a V51 aplicada.

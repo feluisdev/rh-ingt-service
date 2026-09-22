@@ -419,7 +419,7 @@ pedido que atravesse um feriado municipal conta um dia a mais, embora
 - `db/seed/seed_carreiras.sql` — `ordem_progressao` (1=ASS_TEC, 2=TEC_SUP); **sem
   ela a promoção recusa sempre**.
 - `db/seed/seed_colaboradores.sql` — 3 colaboradores, 6 Lugares.
-- `scripts/testes_funcionais.ps1` — bateria completa (F0 a F10, 207 passos).
+- `scripts/testes_funcionais.ps1` — bateria completa (F0 a F13, 288 passos).
 - `scripts/repor_estado.sql` — **correr antes de cada execução**.
 - `scripts/testes_funcionais_README.md` — o que cada bloco prova.
 - `docs/funcionarios/v5/openapi.json` — contrato gerado; **fonte para as formas**.
@@ -439,7 +439,7 @@ git switch fix-alinhamento-legislacao
 
 # A BD tem de estar de pe ANTES dos testes: o contextLoads liga-se-lhe.
 docker start postgres-ingt-rh      # se falhar, o Docker Desktop esta em baixo
-mvn -B clean test                  # esperado: 763 testes, 0 falhas (COM clean)
+mvn -B clean test                  # esperado: 820 testes, 0 falhas (COM clean)
                                    # sem a BD: 1 erro em contextLoads, nao e regressao
 ```
 
@@ -487,7 +487,9 @@ esc. 1). Vagos: **LUG-0004** (TEC_SUP, promoção com `positionId`), **LUG-0005*
 
 ## Test / validation plan
 
-**A bateria cobre F0 a F10 — 207 passos, todos OK.** Não há blocos por escrever.
+**A bateria cobre F0 a F13 — 288 passos, todos OK.** F11 (vencimento de férias),
+F12 (acumulação) e F13 (suspensão) entraram a 2026-09-22, e o F6 ganhou a leitura
+das substituições.
 
 **O que cada bloco prova está em `scripts/testes_funcionais_README.md`**, e é lá
 que se actualiza. Não se repete aqui de propósito: duas cópias divergem sempre —

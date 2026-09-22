@@ -431,26 +431,6 @@ POST /api/v1/rh/funcionarios/{funcionarioId}/substituicao
 
 > **O substituto mantém o seu próprio Lugar**, se tiver: ao contrário dos movimentos de carreira, a substituição **não encerra** a afectação principal de quem substitui.
 
----
-
-## 6. Dados do colaborador (sub-recursos de `/funcionarios/{funcionarioId}`)
-
-Todos seguem o padrão CRUD + (quando aplicável) `documentos`:
-
-| Recurso | Base |
-|---|---|
-| Contratos | `/funcionarios/{id}/contratos` — + `close`, `suspend`, `activate`, `documentos` (**todos `PUT`**). **`close` = cessação do vínculo** (ver nota abaixo) |
-| Dados bancários | `/funcionarios/{id}/dados-bancarios` |
-| Dependentes | `/funcionarios/{id}/dependentes` |
-| Qualificações | `/funcionarios/{id}/qualificacoes` — + `documentos` |
-| Formações | `/funcionarios/{id}/formacoes` — + `documentos` |
-| Documentos | `/funcionarios/{id}/documentos` — upload/list/download/delete |
-| Recibos | `/funcionarios/{id}/recibos` — + `documentos` |
-| Processos disciplinares | `/funcionarios/{id}/processos-disciplinares` — + `documentos` |
-| Pedidos de ausência | `/funcionarios/{id}/pedidos-ausencia` — + `aprovar`/`rejeitar`/`cancelar` (**todos `PATCH`**, ver 6.1) |
-| Saldos de ausência | `/funcionarios/{id}/saldos-ausencia` |
-| Licenças/mobilidade | `/funcionarios/{id}/licencas-mobilidade` (ver 7) |
-
 
 **Ler as substituições** — `GET /funcionarios/{id}/substituicoes`
 
@@ -473,6 +453,29 @@ Resposta `200` (`WrapperListaSubstituicoesDTO`): `linhas` + `total`. Cada linha 
 **`dataFim` vem nula enquanto durar.** A substituição não tem fim combinado: caduca quando o titular regressa (art. 77.º n.º 2), e é então que a data é preenchida e `corrente` passa a falso.
 
 Uma substituição anterior à V46 não tem ligação ao titular: aparece na mesma, sem contraparte. O registo existiu, e escondê-lo seria pior do que mostrá-lo incompleto.
+
+
+---
+
+## 6. Dados do colaborador (sub-recursos de `/funcionarios/{funcionarioId}`)
+
+Todos seguem o padrão CRUD + (quando aplicável) `documentos`:
+
+| Recurso | Base |
+|---|---|
+| Contratos | `/funcionarios/{id}/contratos` — + `close`, `suspend`, `activate`, `documentos` (**todos `PUT`**). **`close` = cessação do vínculo** (ver nota abaixo) |
+| Dados bancários | `/funcionarios/{id}/dados-bancarios` |
+| Dependentes | `/funcionarios/{id}/dependentes` |
+| Qualificações | `/funcionarios/{id}/qualificacoes` — + `documentos` |
+| Formações | `/funcionarios/{id}/formacoes` — + `documentos` |
+| Documentos | `/funcionarios/{id}/documentos` — upload/list/download/delete |
+| Recibos | `/funcionarios/{id}/recibos` — + `documentos` |
+| Processos disciplinares | `/funcionarios/{id}/processos-disciplinares` — + `documentos` |
+| Pedidos de ausência | `/funcionarios/{id}/pedidos-ausencia` — + `aprovar`/`rejeitar`/`cancelar` (**todos `PATCH`**, ver 6.1) |
+| Saldos de ausência | `/funcionarios/{id}/saldos-ausencia` |
+| Licenças/mobilidade | `/funcionarios/{id}/licencas-mobilidade` (ver 7) |
+| Substituições | `/funcionarios/{id}/substituicoes` — leitura, nos dois papéis (ver 5.7) |
+
 
 ### 6.1 Ausências ou licença? — qual dos dois usar
 
