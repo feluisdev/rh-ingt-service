@@ -43,6 +43,11 @@ docker exec postgres-ingt-rh sh -c "psql -U postgres -d recursoshumanos_db -q -f
 | **F3** licenças | o prazo do subtipo decide: 180 dias mantém o Lugar, 200 abre vaga; o regresso põe em disponibilidade; mobilidade não pode abrir vaga; `AMBOS` recusado; criar subtipo pela API funciona. **Os dois eixos (V48):** deferir uma licença que só começa daqui a um mês **não** abre vaga (F3.12c) e devolve `APPROVED`/`POR_INICIAR` (F3.12e); o `close` dessa licença é recusado com 409 e o período fica intacto, sem fim anterior ao início (F3.12f–h); cancelar vale antes de começar (F3.12i) e é recusado depois (F3.15c); o regresso antecipado deixa a ausência a acabar na **véspera** (F3.18b). Datas ancoradas em `Get-Date`: com datas fixas, este bloco provava o defeito em vez da regra |
 | **F4** ausências | reserva na submissão, gozo na aprovação, devolução no cancelamento, libertação na rejeição; sobreposição, falta de saldo, dupla decisão e URL de outro colaborador são recusados |
 | **F5** efeitos cruzados | quem perdeu o Lugar (por estado ou por licença) não pode progredir |
+| **F20** feriados (V55) | recorrentes contam em anos que o seed não traz, no período inteiro; o municipal com área só conta com a área na unidade; área desconhecida aceite, nacional com área 422, nacional repetido 409 |
+| **F21** contagem (V56) | dias seguidos com o fim-de-semana intercalado, úteis só onde a lei diz; tecto de 5 seguidos; o `PUT` que omite a contagem mantém-na |
+| **F22** mapa de férias | preferência, fixada fora da janela 422, marcação por acordo com alerta, mapa, publicar duas vezes 409, alterar depois de publicado só com motivo |
+| **F23** parâmetros de férias | vigência nova por ano (409 repetida, 422 inválida); cada ano lê as regras do seu tempo; o mínimo interpolado novo aceita o que o da lei recusa |
+| **F24** horários | NENHUM → BASE → UNIDADE (herdado da mãe) → COLABORADOR; atribuição fecha a anterior na véspera; base não se desactiva; `horarioId` da unidade mantém-se no `PUT` omisso e limpa-se em branco |
 
 ## Repor o estado inicial
 
@@ -414,7 +419,41 @@ descontar sao **ferias**, e isso e a opcao do art. 43.o n.o 2, guardada no pedid
 
 O F11.3 foi actualizado: os regimes passaram a ser tres.
 
+### F20 a F24 - calendario, contagem, mapa de ferias, parametros e horarios (2026-09-23)
+
+Os cinco blocos usam **anos futuros** (ano corrente + 2, + 3 e + 4), longe dos pedidos dos blocos
+anteriores, que andam nos proximos meses: assim nao colidem com nada, e os feriados recorrentes do
+seed (desde 2026) tem de valer num ano que o seed nao traz. Tudo com a **Maria** (0000002): no fim
+do F19 e a unica com Lugar (o Francisco perdeu-o, a Joana foi cessada).
+
+- **F20** cria um tipo de teste sem saldo nem tectos, em dias uteis (`CNT_TST_<hora>`), para medir
+  so o calendario. O numero esperado de 24/12 a 04/01 calcula-se no proprio script (dias uteis
+  menos Natal e Ano Novo). A area vai para a unidade onde a Maria exerce e sai no fim do bloco.
+- **F21** usa os tipos do seed ja classificados (LUTO e SEMINARIO seguidos, TE_PESQUISA uteis).
+- **F22** usa tres semanas de Setembro (sem feriados no seed): 15 dias uteis, abaixo do direito,
+  e por isso 200 com alerta.
+- **F23** cria uma vigencia no ano + 4 com minimo interpolado 10: a marcacao 10+6 passa nesse ano e
+  e recusada no anterior, que le a linha da lei (11).
+- **F24** e o cenario da prova manual dos horarios. O horario vai para a **mae** da unidade da
+  Maria, para provar a heranca.
+
+**Duas armadilhas que estes blocos pagaram:**
+
+1. **A funcao `Linhas` perdia as listas simples.** Com uma resposta que e um array (sem pagina),
+   `$d.content` nao e `$null` no PowerShell: enumera os membros e devolve um nulo por elemento.
+   A lista vinha com o tamanho certo e os elementos vazios. Nenhum bloco anterior lia uma lista
+   simples; o F24 (historico de horarios) foi o primeiro. Corrigido no `Linhas`.
+2. **Hoje, a Maria esta numa mobilidade externa de um dia** (criada pelo F8). Sem unidade onde
+   exerca, o horario que vale e o base -- e bem. A heranca da unidade prova-se cinco dias a frente.
+
+A V56 passou 15 tipos de ausencia a dias seguidos, mas **nenhum bloco antigo partiu**: os que
+verificam `numeroDias` usam periodos de segunda a sexta.
+
 ## Resultado da última execução
+
+**553 passos, 553 OK** (2026-09-23), duas execucoes seguidas com o `repor_estado.sql` entre elas,
+contra a base local com a V57 aplicada. A anterior (antes dos blocos novos) deu 458 de 458: um passo
+a mais do que os 457 de 2026-09-22 que este README dizia.
 
 **457 passos, 457 OK** (2026-09-22), contra a base local com a V54 aplicada.
 

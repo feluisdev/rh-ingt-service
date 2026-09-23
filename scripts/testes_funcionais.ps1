@@ -51,6 +51,9 @@ function Verificar {
 function Linhas($resposta) {
     $d = $resposta.Dados
     if ($null -eq $d) { return @() }
+    # Uma lista simples (sem pagina) devolve-se como vem: num array, $d.content nao e $null --
+    # o PowerShell enumera os membros e devolve um nulo por elemento, e a lista vinha vazia.
+    if ($d -is [System.Array]) { return @($d) }
     foreach ($campo in 'content','dados','data','items') {
         if ($null -ne $d.$campo) { return @($d.$campo) }
     }
@@ -1222,6 +1225,227 @@ $rAltEf = Chamar 'F19.22 classificar pela API' PUT ('/catalogs/leave-types/' + $
 Verificar 'F19.23 a instituicao classifica sem tocar em codigo' (($rAltEf.Dados.regime -eq 'FALTA_INJUSTIFICADA') -and ($rAltEf.Dados.efeitoRemuneracao -eq 'PERDA_VENCIMENTO_EXERCICIO')) ('(' + $rAltEf.Dados.regime + '/' + $rAltEf.Dados.efeitoRemuneracao + ')')
 Chamar 'F19.24 NEG efeito fora da lista da lei' PUT ('/catalogs/leave-types/' + $rNovoEf.Dados.id) @{ code=$codEf; description='Tipo de teste'; deductsBalance=$false; requiresApproval=$false; efeitoRemuneracao='PERDOA_TUDO' } 422 | Out-Null
 Chamar 'F19.25 NEG regime fora da lista da lei' PUT ('/catalogs/leave-types/' + $rNovoEf.Dados.id) @{ code=$codEf; description='Tipo de teste'; deductsBalance=$false; requiresApproval=$false; regime='FALTA_QUALQUER' } 422 | Out-Null
+
+Write-Host ''
+Write-Host ''
+Write-Host '=========== F20 - FERIADOS: RECORRENTES, COM AREA, E TODOS CONTAM (V55) ==========='
+
+# Anos futuros, longe dos pedidos dos blocos anteriores (que andam nos proximos meses): assim os
+# blocos novos nao colidem com nada, e os feriados recorrentes do seed (desde 2026) valem la.
+$anoMapa = (Get-Date).Year + 2
+$anoFer = (Get-Date).Year + 3
+$anoPar = (Get-Date).Year + 4
+function PrimeiraSegunda([int]$ano, [int]$mes) {
+    $d = (Get-Date -Year $ano -Month $mes -Day 1).Date
+    while ($d.DayOfWeek -ne [DayOfWeek]::Monday) { $d = $d.AddDays(1) }
+    return $d
+}
+function Iso($d) { return $d.ToString('yyyy-MM-dd') }
+function DiasUteisEntre($ini, $fim, $feriados) {
+    $n = 0; $d = $ini
+    while ($d -le $fim) {
+        if (($d.DayOfWeek -ne [DayOfWeek]::Saturday) -and ($d.DayOfWeek -ne [DayOfWeek]::Sunday) -and -not ($feriados -contains (Iso $d))) { $n++ }
+        $d = $d.AddDays(1)
+    }
+    return $n
+}
+function CorpoUnidade($u) {
+    return @{ code=$u.code; name=$u.name; acronym=$u.acronym; unitType=$u.unitType; descricao=$u.descricao;
+              parentUnitId=$u.parentUnitId; responsibleEmployeeId=$u.responsibleEmployeeId }
+}
+
+# Um tipo sem saldo e sem tectos, em dias uteis: o que se mede e so o calendario.
+$codCnt = 'CNT_TST_' + (Get-Date -Format 'HHmmss')
+$rTipoCnt = Chamar 'F20.1 criar tipo de teste em dias uteis' POST '/catalogs/leave-types' @{ code=$codCnt; description='Tipo de teste (calendario)'; deductsBalance=$false; requiresApproval=$false; contagem='DIAS_UTEIS' } 201
+$tCnt = $rTipoCnt.Dados.id
+
+# Natal e Ano Novo sao recorrentes no seed (desde 2026): tem de contar num ano que o seed nao traz.
+$iniNat = Get-Date -Year $anoFer -Month 12 -Day 24
+$fimNat = Get-Date -Year ($anoFer + 1) -Month 1 -Day 4
+$esperadoNat = DiasUteisEntre $iniNat.Date $fimNat.Date @((Iso (Get-Date -Year $anoFer -Month 12 -Day 25)), (Iso (Get-Date -Year ($anoFer + 1) -Month 1 -Day 1)))
+$rNat = Chamar 'F20.2 pedido de 24/12 a 04/01 num ano futuro' POST ('/funcionarios/' + $colabB + '/pedidos-ausencia') @{ tipoAusenciaId=$tCnt; dataInicio=(Iso $iniNat); dataFim=(Iso $fimNat); motivo='fim de ano' } 201
+Verificar 'F20.3 o Natal e o Ano Novo recorrentes contam, no periodo inteiro' ($rNat.Dados.numeroDias -eq $esperadoNat) ('(' + $rNat.Dados.numeroDias + ', esperado ' + $esperadoNat + ')')
+
+# Area: um feriado municipal so conta para quem trabalha numa unidade dessa area.
+$ckeyArea = 'TST_' + (Get-Date -Format 'HHmmss')
+Chamar 'F20.4 criar area geografica de teste' POST '/reference/options' @{ ccode='AREA_GEOGRAFICA'; ckey=$ckeyArea; cvalue='Area de teste'; locale='pt'; sortOrder=99; description='bateria' } 201 | Out-Null
+$segFer1 = PrimeiraSegunda $anoFer 2
+$segFer2 = $segFer1.AddDays(7)
+Chamar 'F20.5 feriado municipal com area, numa quarta' POST '/catalogs/public-holidays' @{ name='Municipal TST 1'; holidayDate=(Iso $segFer1.AddDays(2)); isNational=$false; isRecurring=$false; areaCkey=$ckeyArea } 201 | Out-Null
+Chamar 'F20.6 outro na quarta da semana seguinte' POST '/catalogs/public-holidays' @{ name='Municipal TST 2'; holidayDate=(Iso $segFer2.AddDays(2)); isNational=$false; isRecurring=$false; areaCkey=$ckeyArea } 201 | Out-Null
+$rSem1 = Chamar 'F20.7 semana do primeiro, com a unidade sem area' POST ('/funcionarios/' + $colabB + '/pedidos-ausencia') @{ tipoAusenciaId=$tCnt; dataInicio=(Iso $segFer1); dataFim=(Iso $segFer1.AddDays(4)); motivo='semana 1' } 201
+Verificar 'F20.8 sem area na unidade, o municipal nao conta' ($rSem1.Dados.numeroDias -eq 5) ('(' + $rSem1.Dados.numeroDias + ')')
+
+$rUni20 = Chamar 'F20.9 unidade onde a Maria exerce' GET ('/colaboradores/assignments/funcionario/' + $colabB + '/unidade-atual')
+$uni20 = $rUni20.Dados.unidadeOrganicaId
+$u20 = (Chamar 'F20.10 ler a unidade' GET ('/estrutura/organizational-units/' + $uni20)).Dados
+$corpo20 = CorpoUnidade $u20
+$corpo20.areaCkey = $ckeyArea
+$rPut20 = Chamar 'F20.11 dar a area a unidade' PUT ('/estrutura/organizational-units/' + $uni20) $corpo20 200
+Verificar 'F20.12 a unidade ficou com a area' ($rPut20.Dados.areaCkey -eq $ckeyArea) ('(' + $rPut20.Dados.areaCkey + ')')
+$rSem2 = Chamar 'F20.13 semana do segundo, com a unidade na area' POST ('/funcionarios/' + $colabB + '/pedidos-ausencia') @{ tipoAusenciaId=$tCnt; dataInicio=(Iso $segFer2); dataFim=(Iso $segFer2.AddDays(4)); motivo='semana 2' } 201
+Verificar 'F20.14 com a area, o municipal conta' ($rSem2.Dados.numeroDias -eq 4) ('(' + $rSem2.Dados.numeroDias + ')')
+
+# Nao partir o front: a area nao se valida contra o catalogo (decisao de 2026-09-23).
+Chamar 'F20.15 feriado com area que nao existe no catalogo e aceite' POST '/catalogs/public-holidays' @{ name='Area desconhecida'; holidayDate=(Iso $segFer2.AddDays(14)); isNational=$false; isRecurring=$false; areaCkey='NAO_EXISTE' } 201 | Out-Null
+Chamar 'F20.16 NEG feriado nacional com area' POST '/catalogs/public-holidays' @{ name='Nacional com area'; holidayDate=(Iso $segFer2.AddDays(15)); isNational=$true; isRecurring=$false; areaCkey=$ckeyArea } 422 | Out-Null
+Chamar 'F20.17 NEG nacional no dia de um recorrente (Natal)' POST '/catalogs/public-holidays' @{ name='Natal repetido'; holidayDate=(Iso (Get-Date -Year $anoFer -Month 12 -Day 25)); isNational=$true; isRecurring=$false } 409 | Out-Null
+
+# A area sai da unidade: os blocos seguintes contam sem ela.
+$corpo20.areaCkey = ''
+$rLimpa20 = Chamar 'F20.18 limpar a area da unidade' PUT ('/estrutura/organizational-units/' + $uni20) $corpo20 200
+Verificar 'F20.19 a area limpa-se em branco' ($null -eq $rLimpa20.Dados.areaCkey) ''
+
+Write-Host ''
+Write-Host '=========== F21 - DIAS SEGUIDOS OU UTEIS (V56, art. 76.o) ==========='
+
+# Regra: dias seguidos, contando entre o primeiro e o ultimo dia util. Uteis so onde a lei o diz.
+$tipos21 = @(Linhas (Chamar 'F21.1 catalogo de tipos de ausencia' GET '/catalogs/leave-types?pagina=0&tamanho=50'))
+$tLuto21 = ($tipos21 | Where-Object { $_.code -eq 'LUTO' } | Select-Object -First 1)
+$tSem21 = ($tipos21 | Where-Object { $_.code -eq 'SEMINARIO' } | Select-Object -First 1)
+$tTe21 = ($tipos21 | Where-Object { $_.code -eq 'TE_PESQUISA' } | Select-Object -First 1)
+Verificar 'F21.2 o seed classifica: luto e seminario seguidos, pesquisa em uteis' (($tLuto21.contagem -eq 'DIAS_SEGUIDOS') -and ($tSem21.contagem -eq 'DIAS_SEGUIDOS') -and ($tTe21.contagem -eq 'DIAS_UTEIS')) ('(' + $tLuto21.contagem + '/' + $tSem21.contagem + '/' + $tTe21.contagem + ')')
+
+$s21 = PrimeiraSegunda $anoFer 10
+$rLuto21 = Chamar 'F21.3 luto de sexta a segunda' POST ('/funcionarios/' + $colabB + '/pedidos-ausencia') @{ tipoAusenciaId=$tLuto21.id; dataInicio=(Iso $s21.AddDays(4)); dataFim=(Iso $s21.AddDays(7)); motivo='luto' } 201
+Verificar 'F21.4 o fim-de-semana intercalado conta' ($rLuto21.Dados.numeroDias -eq 4) ('(' + $rLuto21.Dados.numeroDias + ')')
+Chamar 'F21.5 NEG seminario de quinta a quarta passa dos 5 seguidos' POST ('/funcionarios/' + $colabB + '/pedidos-ausencia') @{ tipoAusenciaId=$tSem21.id; dataInicio=(Iso $s21.AddDays(10)); dataFim=(Iso $s21.AddDays(16)); motivo='seminario' } 422 | Out-Null
+$rSem21 = Chamar 'F21.6 seminario de segunda a sexta' POST ('/funcionarios/' + $colabB + '/pedidos-ausencia') @{ tipoAusenciaId=$tSem21.id; dataInicio=(Iso $s21.AddDays(14)); dataFim=(Iso $s21.AddDays(18)); motivo='seminario' } 201
+Verificar 'F21.7 cinco dias seguidos' ($rSem21.Dados.numeroDias -eq 5) ('(' + $rSem21.Dados.numeroDias + ')')
+$rTe21 = Chamar 'F21.8 pesquisa de trabalhador-estudante de sexta a segunda' POST ('/funcionarios/' + $colabB + '/pedidos-ausencia') @{ tipoAusenciaId=$tTe21.id; dataInicio=(Iso $s21.AddDays(25)); dataFim=(Iso $s21.AddDays(28)); motivo='pesquisa' } 201
+Verificar 'F21.9 em dias uteis o fim-de-semana nao conta' ($rTe21.Dados.numeroDias -eq 2) ('(' + $rTe21.Dados.numeroDias + ')')
+
+# Nao partir o front: o PUT que omite a contagem nao a apaga.
+$rPut21 = Chamar 'F21.10 alterar o tipo de teste sem enviar a contagem' PUT ('/catalogs/leave-types/' + $tCnt) @{ code=$codCnt; description='Tipo de teste (calendario)'; deductsBalance=$false; requiresApproval=$false } 200
+Verificar 'F21.11 a contagem ficou como estava' ($rPut21.Dados.contagem -eq 'DIAS_UTEIS') ('(' + $rPut21.Dados.contagem + ')')
+Chamar 'F21.12 NEG contagem fora da lei' PUT ('/catalogs/leave-types/' + $tCnt) @{ code=$codCnt; description='Tipo de teste (calendario)'; deductsBalance=$false; requiresApproval=$false; contagem='CORRIDOS' } 422 | Out-Null
+
+Write-Host ''
+Write-Host '=========== F22 - MAPA DE FERIAS (arts. 5.o e 6.o) ==========='
+
+$setMapa = PrimeiraSegunda $anoMapa 9
+$rotaF22 = '/funcionarios/' + $colabB + '/ferias/' + $anoMapa
+$rPref22 = Chamar 'F22.1 indicar a preferencia, dentro do prazo' PUT ($rotaF22 + '/preferencia') @{ periodos=@(@{ dataInicio=(Iso $setMapa); dataFim=(Iso $setMapa.AddDays(18)) }); observacoes='Setembro' } 200
+Verificar 'F22.2 dentro do prazo, sem alertas' (@($rPref22.Dados.alertas).Count -eq 0) ('(' + (@($rPref22.Dados.alertas) -join ' | ') + ')')
+
+# Sem acordo, o dirigente fixa entre 1 de Maio e 31 de Outubro (art. 5.o n.o 5).
+$dez22 = PrimeiraSegunda $anoMapa 12
+Chamar 'F22.3 NEG fixada em Dezembro, fora da janela' PUT ($rotaF22 + '/marcacao') @{ origem='FIXADA'; periodos=@(@{ dataInicio=(Iso $dez22); dataFim=(Iso $dez22.AddDays(11)) }) } 422 | Out-Null
+$rMarc22 = Chamar 'F22.4 marcar por acordo tres semanas de Setembro' PUT ($rotaF22 + '/marcacao') @{ origem='ACORDO'; periodos=@(@{ dataInicio=(Iso $setMapa); dataFim=(Iso $setMapa.AddDays(18)) }) } 200
+Verificar 'F22.5 abaixo do direito, aceite com alerta' (@($rMarc22.Dados.alertas).Count -ge 1) ('(' + (@($rMarc22.Dados.alertas) -join ' | ') + ')')
+$rLer22 = Chamar 'F22.6 ler as ferias do ano' GET $rotaF22
+Verificar 'F22.7 quinze dias uteis marcados, com o direito do ano' (($rLer22.Dados.totalMarcado -eq 15) -and ($null -ne $rLer22.Dados.direito)) ('(marcado=' + $rLer22.Dados.totalMarcado + ' direito=' + $rLer22.Dados.direito + ')')
+
+$rMapa22 = Chamar 'F22.8 mapa do ano' GET ('/ferias/mapa/' + $anoMapa)
+$linhaB22 = (@($rMapa22.Dados.linhas) | Where-Object { $_.funcionarioId -eq $colabB } | Select-Object -First 1)
+Verificar 'F22.9 a Maria esta no mapa, marcada por acordo' (($null -ne $linhaB22) -and ($linhaB22.origem -eq 'ACORDO')) ''
+$rPub22 = Chamar 'F22.10 dar conhecimento do mapa' POST ('/ferias/mapa/' + $anoMapa + '/publicar') $null 201
+Chamar 'F22.11 NEG dar conhecimento outra vez' POST ('/ferias/mapa/' + $anoMapa + '/publicar') $null 409 | Out-Null
+
+# Depois de publicado, alterar pede o motivo do art. 6.o n.o 2.
+$setMapa2 = $setMapa.AddDays(7)
+Chamar 'F22.12 NEG alterar o mapa publicado sem motivo' PUT ($rotaF22 + '/marcacao') @{ origem='ACORDO'; periodos=@(@{ dataInicio=(Iso $setMapa2); dataFim=(Iso $setMapa2.AddDays(18)) }) } 422 | Out-Null
+Chamar 'F22.13 alterar por acordo' PUT ($rotaF22 + '/marcacao') @{ origem='ACORDO'; motivoAlteracao='ACORDO'; periodos=@(@{ dataInicio=(Iso $setMapa2); dataFim=(Iso $setMapa2.AddDays(18)) }) } 200 | Out-Null
+$rLer22b = Chamar 'F22.14 ler as ferias depois da alteracao' GET $rotaF22
+Verificar 'F22.15 a alteracao ficou registada, com o motivo' ((@($rLer22b.Dados.alteracoes).Count -eq 1) -and (@($rLer22b.Dados.alteracoes)[0].motivo -eq 'ACORDO')) ''
+
+Write-Host ''
+Write-Host '=========== F23 - PARAMETROS DO MAPA DE FERIAS, POR VIGENCIA ==========='
+
+$rVig23 = Chamar 'F23.1 parametros em vigor num ano sem linha propria' GET ('/catalogs/parametros-ferias/vigente?ano=' + $anoPar)
+Verificar 'F23.2 vale a linha da lei, desde 2010' (($rVig23.Dados.vigenteDesde -eq 2010) -and ($rVig23.Dados.prazoMapa -eq '03-31') -and ($rVig23.Dados.periodoMinimoInterpolado -eq 11)) ('(' + $rVig23.Dados.vigenteDesde + ' ' + $rVig23.Dados.prazoMapa + ' ' + $rVig23.Dados.origem + ')')
+$corpo23 = @{ vigenteDesde=$anoPar; prazoPreferencia='02-15'; prazoMapa='04-15'; fixacaoInicio='05-01'; fixacaoFim='10-31'; periodoMinimoInterpolado=10; fundamento='Diploma de teste' }
+Chamar 'F23.3 vigencia nova, como faria um diploma novo' POST '/catalogs/parametros-ferias' $corpo23 201 | Out-Null
+Chamar 'F23.4 NEG outra vigencia no mesmo ano' POST '/catalogs/parametros-ferias' $corpo23 409 | Out-Null
+Chamar 'F23.5 NEG prazo a 29 de Fevereiro' POST '/catalogs/parametros-ferias' @{ vigenteDesde=($anoPar + 1); prazoPreferencia='02-29'; prazoMapa='04-15'; fixacaoInicio='05-01'; fixacaoFim='10-31'; periodoMinimoInterpolado=10 } 422 | Out-Null
+Chamar 'F23.6 NEG preferencia depois do mapa' POST '/catalogs/parametros-ferias' @{ vigenteDesde=($anoPar + 1); prazoPreferencia='05-15'; prazoMapa='04-15'; fixacaoInicio='05-01'; fixacaoFim='10-31'; periodoMinimoInterpolado=10 } 422 | Out-Null
+$rVigN = Chamar 'F23.7 em vigor no ano do diploma' GET ('/catalogs/parametros-ferias/vigente?ano=' + $anoPar)
+$rVigA = Chamar 'F23.8 e no ano anterior' GET ('/catalogs/parametros-ferias/vigente?ano=' + ($anoPar - 1))
+Verificar 'F23.9 cada ano le as regras do seu tempo' (($rVigN.Dados.prazoMapa -eq '04-15') -and ($rVigA.Dados.prazoMapa -eq '03-31')) ('(' + $rVigN.Dados.prazoMapa + ' / ' + $rVigA.Dados.prazoMapa + ')')
+$rFer23 = Chamar 'F23.10 ferias da Maria no ano do diploma' GET ('/funcionarios/' + $colabB + '/ferias/' + $anoPar)
+Verificar 'F23.11 o mapa de ferias ja le o prazo novo' ($rFer23.Dados.prazoPreferencia -eq ("$anoPar" + '-02-15')) ('(' + $rFer23.Dados.prazoPreferencia + ')')
+
+# Gozo interpolado 10 + 6: o minimo novo (10) aceita, o da lei (11) recusa.
+function Interpolado([int]$ano) {
+    $p1 = PrimeiraSegunda $ano 9
+    $p2 = PrimeiraSegunda $ano 10
+    return @{ origem='ACORDO'; periodos=@(@{ dataInicio=(Iso $p1); dataFim=(Iso $p1.AddDays(11)) }, @{ dataInicio=(Iso $p2); dataFim=(Iso $p2.AddDays(7)) }) }
+}
+Chamar 'F23.12 interpolado 10+6 no ano do diploma (minimo 10)' PUT ('/funcionarios/' + $colabB + '/ferias/' + $anoPar + '/marcacao') (Interpolado $anoPar) 200 | Out-Null
+Chamar 'F23.13 NEG o mesmo no ano anterior (minimo 11 da lei)' PUT ('/funcionarios/' + $colabB + '/ferias/' + ($anoPar - 1) + '/marcacao') (Interpolado ($anoPar - 1)) 422 | Out-Null
+
+Write-Host ''
+Write-Host '=========== F24 - HORARIOS (assiduidade, primeiro passo) ==========='
+
+# O horario que vale numa data: o do colaborador; senao o da unidade (ou da mae); senao o base;
+# senao nenhum. O repor_estado apaga os horarios: comeca-se sem nenhum.
+function Semana($ini1, $fim1, $ini2, $fim2, [bool]$obrigatorio) {
+    $blocos = @()
+    foreach ($d in 1..5) {
+        $blocos += @{ diaSemana=$d; inicio=$ini1; fim=$fim1; obrigatorio=$obrigatorio }
+        if ($ini2) { $blocos += @{ diaSemana=$d; inicio=$ini2; fim=$fim2; obrigatorio=$obrigatorio } }
+    }
+    return $blocos
+}
+$rotaH = '/funcionarios/' + $colabB + '/horarios'
+$hoje24 = Iso (Get-Date)
+# Hoje a Maria esta numa mobilidade externa de um dia (F8): sem unidade, vale o base, e bem.
+# A heranca da unidade prova-se daqui a cinco dias -- depois dela, antes da atribuicao (dez).
+$antes24 = Iso (Get-Date).Date.AddDays(5)
+function Vigente($data) { return (Chamar ('F24 vigente em ' + $data) GET ($rotaH + '/vigente?data=' + $data)).Dados }
+
+$v0 = Vigente $hoje24
+Verificar 'F24.1 sem horario nenhum, a origem e NENHUM' ($v0.origem -eq 'NENHUM') ('(' + $v0.origem + ')')
+$rNormal = Chamar 'F24.2 criar horario fixo' POST '/catalogs/horarios' @{ nome='TST Normal'; controlo='FIXO'; blocos=(Semana '08:00' '12:30' '14:00' '17:30' $true) } 201
+$hNormal = $rNormal.Dados.id
+$rBase = Chamar 'F24.3 marcar como horario base' PATCH ('/catalogs/horarios/' + $hNormal + '/base') $null 200
+Verificar 'F24.4 base, com as horas calculadas' (($rBase.Dados.isBase -eq $true) -and ($rBase.Dados.horasSemanais -eq '40:00')) ('(' + $rBase.Dados.horasSemanais + ')')
+$v1 = Vigente $hoje24
+Verificar 'F24.5 sem horario na pessoa nem na unidade, vale o base' (($v1.origem -eq 'BASE') -and ($v1.regimePrestacao -eq 'PRESENCIAL')) ('(' + $v1.origem + ')')
+
+$rAtend = Chamar 'F24.6 criar horario de atendimento' POST '/catalogs/horarios' @{ nome='TST Atendimento'; controlo='FIXO'; blocos=(Semana '07:30' '15:30' $null $null $true) } 201
+$hAtend = $rAtend.Dados.id
+# O horario vai para a MAE da unidade da Maria (ou para a propria, se nao tiver mae): prova a heranca.
+$uH = (Chamar 'F24.7 ler a unidade da Maria' GET ('/estrutura/organizational-units/' + $uni20)).Dados
+$uniH = $uni20
+if ($uH.parentUnitId) { $uniH = $uH.parentUnitId }
+$uAlvo = (Chamar 'F24.8 ler a unidade que recebe o horario' GET ('/estrutura/organizational-units/' + $uniH)).Dados
+$corpoH = CorpoUnidade $uAlvo
+$corpoH.horarioId = $hAtend
+$rPutH = Chamar 'F24.9 dar horario a unidade' PUT ('/estrutura/organizational-units/' + $uniH) $corpoH 200
+Verificar 'F24.10 a unidade ficou com o horario' ($rPutH.Dados.horarioId -eq $hAtend) ''
+$v2 = Vigente $antes24
+Verificar 'F24.11 vale o da unidade, herdado' (($v2.origem -eq 'UNIDADE') -and ($v2.horario.nome -eq 'TST Atendimento')) ('(' + $v2.origem + ' ' + $v2.horario.nome + ')')
+$corpoH.Remove('horarioId')
+$rPutH2 = Chamar 'F24.12 PUT da unidade sem horarioId' PUT ('/estrutura/organizational-units/' + $uniH) $corpoH 200
+Verificar 'F24.13 nao apaga o horario' ($rPutH2.Dados.horarioId -eq $hAtend) ''
+$corpoH.horarioId = '00000000-0000-0000-0000-000000000000'
+Chamar 'F24.14 NEG unidade com horario que nao existe' PUT ('/estrutura/organizational-units/' + $uniH) $corpoH 422 | Out-Null
+
+Chamar 'F24.15 NEG flexivel sem periodo de afericao' POST '/catalogs/horarios' @{ nome='TST Flex'; controlo='FLEXIVEL'; duracaoDiaria='07:00'; blocos=(Semana '07:00' '19:00' $null $null $false) } 422 | Out-Null
+$rFlex = Chamar 'F24.16 flexivel com periodo e duracao' POST '/catalogs/horarios' @{ nome='TST Flex'; controlo='FLEXIVEL'; periodoAfericao='MES'; duracaoDiaria='07:00'; blocos=(Semana '07:00' '19:00' $null $null $false) } 201
+$hFlex = $rFlex.Dados.id
+Chamar 'F24.17 NEG blocos sobrepostos' POST '/catalogs/horarios' @{ nome='X'; controlo='FIXO'; blocos=@(@{ diaSemana=1; inicio='08:00'; fim='12:00' }, @{ diaSemana=1; inicio='11:00'; fim='13:00' }) } 422 | Out-Null
+
+$dA = (Get-Date).Date.AddDays(10)
+Chamar 'F24.18 atribuir o flexivel em teletrabalho' POST $rotaH @{ horarioId=$hFlex; regimePrestacao='TELETRABALHO'; dataInicio=(Iso $dA) } 201 | Out-Null
+$v3 = Vigente (Iso $dA.AddDays(4))
+Verificar 'F24.19 depois da data, vale o da pessoa' (($v3.origem -eq 'COLABORADOR') -and ($v3.regimePrestacao -eq 'TELETRABALHO') -and ($v3.horario.horasSemanais -eq '35:00')) ('(' + $v3.origem + ' ' + $v3.regimePrestacao + ' ' + $v3.horario.horasSemanais + ')')
+$v4 = Vigente $antes24
+Verificar 'F24.20 antes da data, ainda o da unidade' ($v4.origem -eq 'UNIDADE') ('(' + $v4.origem + ')')
+Chamar 'F24.21 NEG outra atribuicao na mesma data' POST $rotaH @{ horarioId=$hNormal; dataInicio=(Iso $dA) } 422 | Out-Null
+Chamar 'F24.22 atribuir a seguinte' POST $rotaH @{ horarioId=$hNormal; dataInicio=(Iso $dA.AddDays(31)) } 201 | Out-Null
+$hist24 = @(Linhas (Chamar 'F24.23 historico' GET $rotaH))
+Verificar 'F24.24 a anterior fechou na vespera' (($hist24.Count -eq 2) -and ($hist24[0].dataFim -eq (Iso $dA.AddDays(30))) -and ($null -eq $hist24[1].dataFim)) ('(' + $hist24.Count + ' atribuicoes, fim da 1a=' + $hist24[0].dataFim + ')')
+Chamar 'F24.25 NEG regime de prestacao fora da lei' POST $rotaH @{ horarioId=$hNormal; regimePrestacao='REMOTO'; dataInicio=(Iso $dA.AddDays(60)) } 422 | Out-Null
+
+Chamar 'F24.26 NEG desactivar o horario base' DELETE ('/catalogs/horarios/' + $hNormal) $null 409 | Out-Null
+Chamar 'F24.27 marcar outro como base' PATCH ('/catalogs/horarios/' + $hAtend + '/base') $null 200 | Out-Null
+$rNormal2 = Chamar 'F24.28 ler o antigo base' GET ('/catalogs/horarios/' + $hNormal)
+Verificar 'F24.29 marcar outro desmarcou o anterior' ($rNormal2.Dados.isBase -eq $false) ''
+$corpoH.horarioId = ''
+$rPutH3 = Chamar 'F24.30 horarioId em branco limpa a unidade' PUT ('/estrutura/organizational-units/' + $uniH) $corpoH 200
+Verificar 'F24.31 a unidade ficou sem horario' ($null -eq $rPutH3.Dados.horarioId) ''
 
 Write-Host ''
 Write-Host '=========== RESUMO ==========='

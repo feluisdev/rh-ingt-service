@@ -86,8 +86,8 @@ delete from t_leave_mobility_subtype where code like 'TESTE%' or code like '%_TE
 --    O F11 cria um tipo de ausencia a cada execucao (REG_TST_<hora>) para provar que a
 --    classificacao do regime e da instituicao. Nunca era apagado: ao fim de algumas corridas
 --    havia quinze, e o catalogo que o front-end carrega enchia-se de lixo. Mesma falha que os
---    colaboradores extras tinham no ponto 0.
-delete from t_leave_type where code like 'REG_TST_%' or code like 'TESTE%';
+--    colaboradores extras tinham no ponto 0. O F20 cria outro (CNT_TST_<hora>), em dias uteis.
+delete from t_leave_type where code like 'REG_TST_%' or code like 'CNT_TST_%' or code like 'TESTE%';
 
 -- 6. Catalogo que o seed nao consegue corrigir sozinho.
 --    O seed_parametrizacoes usa ON CONFLICT (code) DO NOTHING: numa base ja criada, a linha
