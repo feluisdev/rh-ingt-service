@@ -1628,6 +1628,49 @@ Verificar 'F29.20 vazia' (@(Linhas $rPend).Count -eq 0) ''
 Chamar 'F29.21 a Maria le a sua assiduidade pelo /me' GET ('/me/assiduidade?de=' + (Iso $ontem29) + '&ate=' + (Iso $ontem29)) $null 200 $colabB | Out-Null
 
 Write-Host ''
+Write-Host '=========== F30 - TRABALHO SUPLEMENTAR (Lei 20/X/2023, art. 155.o n.o 2 a)) ==========='
+
+# A terca do F25 foi das 08:00 as 17:00 contra o base 07:30-15:30: das 15:30 as 17:00 e fora do
+# horario. O RH autoriza depois (caso urgente) das 15:30 as 17:30; realizado = 90 min, pelas marcacoes.
+$rotaS = '/funcionarios/' + $colabB + '/trabalho-suplementar'
+Chamar 'F30.1 NEG num dia util o intervalo toca no horario' POST $rotaS @{ data=(Iso $ter25); horaInicio='15:00'; horaFim='17:00'; motivo='fecho' } 422 | Out-Null
+Chamar 'F30.2 NEG sem motivo' POST $rotaS @{ data=(Iso $ter25); horaInicio='15:30'; horaFim='17:30' } 422 | Out-Null
+Chamar 'F30.3 NEG hora mal escrita' POST $rotaS @{ data=(Iso $ter25); horaInicio='15h30'; horaFim='17:30'; motivo='x' } 422 | Out-Null
+$rS1 = Chamar 'F30.4 o RH autoriza depois: terca do F25, 15:30-17:30' POST $rotaS @{ data=(Iso $ter25); horaInicio='15:30'; horaFim='17:30'; motivo='fecho de contas urgente' } 201
+Chamar 'F30.5 NEG sobreposto ao ja autorizado' POST $rotaS @{ data=(Iso $ter25); horaInicio='17:00'; horaFim='18:00'; motivo='x' } 409 | Out-Null
+Chamar 'F30.6 NEG colaborador inactivo' POST ('/funcionarios/' + $colabA + '/trabalho-suplementar') @{ data=(Iso $ter25); horaInicio='18:00'; horaFim='19:00'; motivo='x' } 403 | Out-Null
+$m30 = (Chamar 'F30.7 trabalho suplementar do mes do F25' GET ($rotaS + '?mes=' + $mes26)).Dados
+$s30 = (@($m30.trabalhos) | Where-Object { $_.id -eq $rS1.Dados.id } | Select-Object -First 1)
+Verificar 'F30.8 autorizado depois, dia util, 90 min realizados pelas marcacoes' (($s30.estado -eq 'AUTORIZADO') -and $s30.autorizacaoPosterior -and ($s30.tipoDia -eq 'DIA_UTIL') -and ($s30.minutosAutorizados -eq 120) -and ($s30.minutosRealizados -eq 90)) ('(' + $s30.estado + ' ' + $s30.tipoDia + ' ' + $s30.minutosRealizados + '/' + $s30.minutosAutorizados + ')')
+Verificar 'F30.9 o total do mes conta-o no dia util' (($m30.minutosRealizadosDiaUtil -ge 90) -and ($m30.minutosRealizados -ge 90)) ('(' + $m30.minutosRealizadosDiaUtil + ')')
+# No apuramento de faltas a presenca das 15:30 as 17:00 passa a suplementar: sai do tempo normal.
+$f30 = (Chamar 'F30.10 apuramento do mes com o trabalho suplementar' GET $rotaF).Dados
+$t30 = DiaF $f30 $ter25
+Verificar 'F30.11 a terca separa tempo normal e suplementar' (($t30.minutosSuplementares -eq 90) -and ($t30.estado -eq 'SEM_FALTA')) ('(' + $t30.minutosTrabalhados + ' normal + ' + $t30.minutosSuplementares + ' suplementar, ' + $t30.estado + ')')
+
+# O proprio pede, para a frente; a chefia directa ou o RH decidem. Num sabado qualquer hora serve.
+$sab30 = (Get-Date).Date.AddDays(7)
+while ($sab30.DayOfWeek -ne [DayOfWeek]::Saturday) { $sab30 = $sab30.AddDays(1) }
+Chamar 'F30.12 NEG o proprio nao pede para um dia passado' POST '/me/trabalho-suplementar' @{ data=(Iso (Get-Date).Date.AddDays(-1)); horaInicio='18:00'; horaFim='19:00'; motivo='x' } 422 $colabB | Out-Null
+$rS2 = Chamar 'F30.13 a Maria pede para um sabado' POST '/me/trabalho-suplementar' @{ data=(Iso $sab30); horaInicio='09:00'; horaFim='13:00'; motivo='inventario anual' } 201 $colabB
+Chamar 'F30.14 NEG ninguem autoriza o seu proprio' PATCH ('/me/equipa/trabalho-suplementar/' + $rS2.Dados.id + '/autorizar') $null 422 $colabB | Out-Null
+Chamar 'F30.15 NEG quem nao e chefia directa nao autoriza' PATCH ('/me/equipa/trabalho-suplementar/' + $rS2.Dados.id + '/autorizar') $null 403 $colabFA | Out-Null
+Chamar 'F30.16 NEG quem nao e chefia directa nao lanca' POST '/me/equipa/trabalho-suplementar' @{ funcionarioId=$colabB; data=(Iso $sab30); horaInicio='14:00'; horaFim='15:00'; motivo='x' } 403 $colabFA | Out-Null
+$rotaS2 = $rotaS + '/' + $rS2.Dados.id
+Chamar 'F30.17 NEG o RH recusa sem motivo' PATCH ($rotaS2 + '/recusar') @{ motivo='' } 422 | Out-Null
+Chamar 'F30.18 o RH autoriza' PATCH ($rotaS2 + '/autorizar') $null 200 | Out-Null
+Chamar 'F30.19 NEG decidir outra vez' PATCH ($rotaS2 + '/autorizar') $null 409 | Out-Null
+$mMe = (Chamar 'F30.20 a Maria le o seu trabalho suplementar pelo /me' GET ('/me/trabalho-suplementar?mes=' + $sab30.ToString('yyyy-MM')) $null 200 $colabB).Dados
+$s30b = (@($mMe.trabalhos) | Where-Object { $_.id -eq $rS2.Dados.id } | Select-Object -First 1)
+Verificar 'F30.21 autorizado, em dia de descanso, pedido pelo proprio' (($s30b.estado -eq 'AUTORIZADO') -and $s30b.pedidoPeloProprio -and (($s30b.tipoDia -eq 'DESCANSO') -or ($s30b.tipoDia -eq 'FERIADO'))) ('(' + $s30b.estado + ' ' + $s30b.tipoDia + ')')
+Chamar 'F30.22 NEG cancelar sem motivo' PATCH ($rotaS2 + '/cancelar') @{ motivo='' } 422 | Out-Null
+Chamar 'F30.23 o RH cancela, com motivo' PATCH ($rotaS2 + '/cancelar') @{ motivo='inventario adiado' } 200 | Out-Null
+Chamar 'F30.24 NEG cancelar outra vez' PATCH ($rotaS2 + '/cancelar') @{ motivo='de novo' } 409 | Out-Null
+$rPendS = Chamar 'F30.25 a caixa de pendentes da Maria (nao chefia ninguem)' GET '/me/equipa/trabalho-suplementar-pendente' $null 200 $colabB
+Verificar 'F30.26 vazia' (@(Linhas $rPendS).Count -eq 0) ''
+Chamar 'F30.27 NEG mes mal escrito' GET ($rotaS + '?mes=2026/09') $null 422 | Out-Null
+
+Write-Host ''
 Write-Host '=========== RESUMO ==========='
 $ok = ($script:resultados | Where-Object { $_.OK }).Count
 $total = $script:resultados.Count

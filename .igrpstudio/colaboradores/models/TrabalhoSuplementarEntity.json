@@ -1,0 +1,117 @@
+{
+  "type": "model",
+  "module": "colaboradores",
+  "name": "TrabalhoSuplementarEntity",
+  "tableName": "t_trabalho_suplementar",
+  "audit": true,
+  "crud": false,
+  "revision": true,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": true,
+      "nullable": false
+    },
+    {
+      "name": "funcionario",
+      "type": "relation",
+      "relation": {
+        "type": "ManyToOne",
+        "entity": "FuncionarioEntity",
+        "fetchType": "lazy",
+        "joinColumn": "funcionario_id",
+        "module": "colaboradores"
+      }
+    },
+    {
+      "name": "data",
+      "type": "date",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "horaInicio",
+      "type": "time",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "horaFim",
+      "type": "time",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "motivo",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 500
+    },
+    {
+      "name": "estado",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 12
+    },
+    {
+      "name": "pedidoPeloProprio",
+      "type": "boolean",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "autorizacaoPosterior",
+      "type": "boolean",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "decididoPor",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    },
+    {
+      "name": "decididoEm",
+      "type": "datetime",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    },
+    {
+      "name": "motivoRecusa",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true,
+      "length": 500
+    },
+    {
+      "name": "motivoCancelamento",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true,
+      "length": 500
+    },
+    {
+      "name": "canceladoEm",
+      "type": "datetime",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    }
+  ]
+}

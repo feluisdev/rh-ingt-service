@@ -239,4 +239,73 @@ public class MeController {
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
+
+    // ── Trabalho suplementar: pedido do próprio e decisão da chefia ────────────────────────
+
+    @PostMapping("trabalho-suplementar")
+    @Operation(summary = "Pedir trabalho suplementar (proprio), para hoje ou para a frente; fica PEDIDO ate a chefia ou o RH decidirem")
+    @ApiResponse(responseCode = "201", description = "Pedido registado",
+            content = @Content(schema = @Schema(implementation = SuccessResponseDTO.class)))
+    public ResponseEntity<SuccessResponseDTO> pedirTrabalhoSuplementar(@RequestBody cv.igrp.RH_Service.colaboradores.application.dto.TrabalhoSuplementarRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new cv.igrp.RH_Service.colaboradores.application.commands.PedirTrabalhoSuplementarCommand(request));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("trabalho-suplementar")
+    @Operation(summary = "O meu trabalho suplementar do mes: horas autorizadas e realizadas")
+    @ApiResponse(responseCode = "200", description = "Trabalho suplementar do mes",
+            content = @Content(schema = @Schema(implementation = cv.igrp.RH_Service.colaboradores.application.dto.TrabalhoSuplementarMesDTO.class)))
+    public ResponseEntity<cv.igrp.RH_Service.colaboradores.application.dto.TrabalhoSuplementarMesDTO> meuTrabalhoSuplementar(@RequestParam(value = "mes") String mes) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<cv.igrp.RH_Service.colaboradores.application.dto.TrabalhoSuplementarMesDTO> response = queryBus.handle(new cv.igrp.RH_Service.colaboradores.application.queries.GetTrabalhoSuplementarMesQuery(null, mes));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @PostMapping("equipa/trabalho-suplementar")
+    @Operation(summary = "Lancar trabalho suplementar para alguem da minha equipa directa; nasce autorizado")
+    @ApiResponse(responseCode = "201", description = "Trabalho suplementar autorizado",
+            content = @Content(schema = @Schema(implementation = SuccessResponseDTO.class)))
+    public ResponseEntity<SuccessResponseDTO> lancarTrabalhoSuplementarDaEquipa(@RequestBody cv.igrp.RH_Service.colaboradores.application.dto.TrabalhoSuplementarRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new cv.igrp.RH_Service.colaboradores.application.commands.LancarTrabalhoSuplementarCommand(true, null, request));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("equipa/trabalho-suplementar-pendente")
+    @Operation(summary = "Pedidos de trabalho suplementar por decidir da minha equipa directa")
+    @ApiResponse(responseCode = "200", description = "Pendentes",
+            content = @Content(array = @io.swagger.v3.oas.annotations.media.ArraySchema(schema = @Schema(implementation = cv.igrp.RH_Service.colaboradores.application.dto.TrabalhoSuplementarDTO.class))))
+    public ResponseEntity<java.util.List<cv.igrp.RH_Service.colaboradores.application.dto.TrabalhoSuplementarDTO>> trabalhoSuplementarPendenteDaEquipa() {
+        LOGGER.debug("Operation started");
+        ResponseEntity<java.util.List<cv.igrp.RH_Service.colaboradores.application.dto.TrabalhoSuplementarDTO>> response = queryBus.handle(new cv.igrp.RH_Service.colaboradores.application.queries.GetTrabalhoSuplementarPendenteEquipaQuery());
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @PatchMapping("equipa/trabalho-suplementar/{id}/autorizar")
+    @Operation(summary = "Autorizar um pedido de trabalho suplementar da minha equipa directa")
+    @ApiResponse(responseCode = "200", description = "Autorizado",
+            content = @Content(schema = @Schema(implementation = SuccessResponseDTO.class)))
+    public ResponseEntity<SuccessResponseDTO> autorizarTrabalhoSuplementarDaEquipa(@PathVariable String id) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new cv.igrp.RH_Service.colaboradores.application.commands.DecidirTrabalhoSuplementarCommand(true, null, id, true, null));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @PatchMapping("equipa/trabalho-suplementar/{id}/recusar")
+    @Operation(summary = "Recusar um pedido de trabalho suplementar da minha equipa directa, com motivo")
+    @ApiResponse(responseCode = "200", description = "Recusado",
+            content = @Content(schema = @Schema(implementation = SuccessResponseDTO.class)))
+    public ResponseEntity<SuccessResponseDTO> recusarTrabalhoSuplementarDaEquipa(@PathVariable String id,
+            @RequestBody cv.igrp.RH_Service.colaboradores.application.dto.DecisaoTrabalhoSuplementarRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new cv.igrp.RH_Service.colaboradores.application.commands.DecidirTrabalhoSuplementarCommand(true, null, id, false, request));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
 }

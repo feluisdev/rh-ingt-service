@@ -29,6 +29,9 @@ BEGIN
   DELETE FROM t_qualificacao   WHERE funcionario_id = ANY(extras);
   DELETE FROM t_training       WHERE funcionario_id = ANY(extras);
   -- Tabelas do ddl-auto (assiduidade, ferias): o F29 pica e atribui horario a um admitido do F11.
+  IF to_regclass('public.t_trabalho_suplementar') IS NOT NULL THEN
+    DELETE FROM t_trabalho_suplementar WHERE funcionario_id = ANY(extras);
+  END IF;
   IF to_regclass('public.t_marcacao_assiduidade') IS NOT NULL THEN
     DELETE FROM t_marcacao_assiduidade WHERE funcionario_id = ANY(extras);
   END IF;
@@ -182,7 +185,11 @@ END $$;
 -- 9. Horarios e marcacoes (assiduidade). Tabelas do ddl-auto: podem ainda nao existir numa
 --    base acabada de criar. O catalogo de horarios e da instituicao e o seed nao traz nenhum: a
 --    bateria cria os seus e aqui saem todos, com as atribuicoes e o horario das unidades (V57).
+--    O trabalho suplementar (F30) sai primeiro.
 DO $$ BEGIN
+  IF to_regclass('public.t_trabalho_suplementar') IS NOT NULL THEN
+    DELETE FROM t_trabalho_suplementar;
+  END IF;
   IF to_regclass('public.t_marcacao_assiduidade') IS NOT NULL THEN
     DELETE FROM t_marcacao_assiduidade;
   END IF;

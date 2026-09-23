@@ -1,0 +1,122 @@
+{
+  "type": "dto",
+  "name": "TrabalhoSuplementarDTO",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "numeroFuncionario",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioNome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "data",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "horaInicio",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "horaFim",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "pedidoPeloProprio",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "autorizacaoPosterior",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "decididoPor",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "datetime",
+      "name": "decididoEm",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivoRecusa",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivoCancelamento",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "tipoDia",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "minutosAutorizados",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "minutosRealizados",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "semRegisto",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

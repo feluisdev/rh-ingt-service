@@ -1,54 +1,56 @@
 {
   "type": "dto",
-  "name": "DiaApuradoDTO",
+  "name": "TrabalhoSuplementarMesDTO",
   "template": "classic",
   "module": "colaboradores",
   "attributes": [
     {
-      "type": "date",
-      "name": "data",
+      "type": "string",
+      "name": "funcionarioId",
       "objectType": "java",
       "required": false
     },
     {
       "type": "string",
-      "name": "estado",
+      "name": "mes",
       "objectType": "java",
       "required": false
     },
     {
-      "type": "string",
-      "name": "motivo",
+      "type": "TrabalhoSuplementarDTO",
+      "name": "trabalhos",
+      "objectType": "dto",
+      "collectionType": "list",
+      "module": "colaboradores",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "minutosAutorizados",
       "objectType": "java",
       "required": false
     },
     {
       "type": "integer",
-      "name": "minutosEsperados",
+      "name": "minutosRealizados",
       "objectType": "java",
       "required": false
     },
     {
       "type": "integer",
-      "name": "minutosTrabalhados",
+      "name": "minutosRealizadosDiaUtil",
       "objectType": "java",
       "required": false
     },
     {
       "type": "integer",
-      "name": "minutosJustificados",
+      "name": "minutosRealizadosDescanso",
       "objectType": "java",
       "required": false
     },
     {
       "type": "integer",
-      "name": "minutosEmFalta",
-      "objectType": "java",
-      "required": false
-    },
-    {
-      "type": "integer",
-      "name": "minutosSuplementares",
+      "name": "minutosRealizadosFeriado",
       "objectType": "java",
       "required": false
     }

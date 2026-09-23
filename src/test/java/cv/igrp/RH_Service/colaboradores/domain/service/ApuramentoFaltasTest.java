@@ -212,4 +212,18 @@ class ApuramentoFaltasTest {
         assertEquals(480, r.periodoNormalMinutos());
         assertEquals(new BigDecimal("0.5"), r.faltasParciais());
     }
+
+    @Test
+    void noFlexivelOTrabalhoSuplementarAutorizadoNaoContaParaOSaldo() {
+        // 5h dentro do horario + 2h de trabalho suplementar autorizado (19:00-21:00, fora das margens).
+        var h = flexivel();
+        var d1 = dia(SEGUNDA, h, "09:30", "12:00", "14:00", "16:30", "19:00", "21:00");
+        var comSuplementar = new ApuramentoFaltas.Dia(d1.data(), null, h, d1.assiduidade(), true, List.of(),
+                List.of(new DiaAssiduidade.Periodo(LocalTime.of(19, 0), LocalTime.of(21, 0))));
+        var r = ApuramentoFaltas.apurar(List.of(comSuplementar, dia(SEGUNDA.plusDays(1), h, "09:30", "12:00", "14:00", "16:30")));
+        assertEquals(120, r.dias().get(0).minutosSuplementares());
+        assertEquals(300, r.dias().get(0).minutosTrabalhados());
+        // 14h esperadas, 10h de tempo normal: as 2h suplementares nao tapam o debito.
+        assertEquals(240, r.debitos().get(0).minutosDebito());
+    }
 }

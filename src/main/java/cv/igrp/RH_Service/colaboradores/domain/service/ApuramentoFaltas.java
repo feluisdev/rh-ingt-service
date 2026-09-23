@@ -50,7 +50,14 @@ public final class ApuramentoFaltas {
      * (FUTURO, FERIADO, AUSENCIA_JUSTIFICADA...); nulo quer dizer «apurar pelo horário».
      */
     public record Dia(LocalDate data, EstadoDiaApurado estadoPrevio, Horario horario, DiaAssiduidade assiduidade,
-                      boolean temMarcacoesValidas, List<DiaAssiduidade.Periodo> justificados) {
+                      boolean temMarcacoesValidas, List<DiaAssiduidade.Periodo> justificados,
+                      List<DiaAssiduidade.Periodo> suplementares) {
+        /** Sem trabalho suplementar autorizado nesse dia. */
+        public Dia(LocalDate data, EstadoDiaApurado estadoPrevio, Horario horario, DiaAssiduidade assiduidade,
+                   boolean temMarcacoesValidas, List<DiaAssiduidade.Periodo> justificados) {
+            this(data, estadoPrevio, horario, assiduidade, temMarcacoesValidas, justificados, List.of());
+        }
+
         /** Sem horas justificadas nesse dia. */
         public Dia(LocalDate data, EstadoDiaApurado estadoPrevio, Horario horario, DiaAssiduidade assiduidade,
                    boolean temMarcacoesValidas) {
@@ -60,10 +67,18 @@ public final class ApuramentoFaltas {
 
     /**
      * {@code minutosJustificados}: as horas de pedidos em horas aprovados (V58) que não coincidem com
-     * presença — contam como tempo cumprido.
+     * presença — contam como tempo cumprido. {@code minutosSuplementares}: a presença dentro de trabalho
+     * suplementar autorizado — fica fora de {@code minutosTrabalhados}, que é o tempo normal, e por isso
+     * não conta para o saldo do horário flexível.
      */
     public record DiaApurado(LocalDate data, EstadoDiaApurado estado, MotivoFalta motivo, int minutosEsperados,
-                             int minutosTrabalhados, int minutosJustificados, int minutosEmFalta) {}
+                             int minutosTrabalhados, int minutosJustificados, int minutosEmFalta,
+                             int minutosSuplementares) {
+        public DiaApurado(LocalDate data, EstadoDiaApurado estado, MotivoFalta motivo, int minutosEsperados,
+                          int minutosTrabalhados, int minutosJustificados, int minutosEmFalta) {
+            this(data, estado, motivo, minutosEsperados, minutosTrabalhados, minutosJustificados, minutosEmFalta, 0);
+        }
+    }
 
     public record Debito(String horarioNome, PeriodoAfericao periodo, LocalDate inicio, LocalDate fim,
                          int minutosEsperados, int minutosTrabalhados, int minutosJaEmFalta, int minutosDebito) {}
@@ -130,17 +145,22 @@ public final class ApuramentoFaltas {
     }
 
     private static DiaApurado apurarDia(Dia d) {
-        int trabalhados = d.assiduidade() != null ? d.assiduidade().minutosTrabalhados() : 0;
+        List<DiaAssiduidade.Periodo> presenca = d.assiduidade() != null ? d.assiduidade().periodos() : List.of();
+        // O que se fez dentro de trabalho suplementar autorizado conta à parte, não como tempo normal.
+        int suplementares = 0;
+        for (DiaAssiduidade.Periodo s : d.suplementares() != null ? d.suplementares() : List.<DiaAssiduidade.Periodo>of())
+            suplementares += coberto(s.entrada(), s.saida(), presenca);
+        int trabalhados = (d.assiduidade() != null ? d.assiduidade().minutosTrabalhados() : 0) - suplementares;
         if (d.estadoPrevio() != null)
-            return new DiaApurado(d.data(), d.estadoPrevio(), null, 0, trabalhados, 0, 0);
+            return new DiaApurado(d.data(), d.estadoPrevio(), null, 0, trabalhados, 0, 0, suplementares);
         if (d.horario() == null)
-            return new DiaApurado(d.data(), EstadoDiaApurado.SEM_HORARIO, null, 0, trabalhados, 0, 0);
+            return new DiaApurado(d.data(), EstadoDiaApurado.SEM_HORARIO, null, 0, trabalhados, 0, 0, suplementares);
 
         int esperados = d.horario().minutosNoDia(d.data().getDayOfWeek());
         if (esperados == 0)
-            return new DiaApurado(d.data(), EstadoDiaApurado.DESCANSO, null, 0, trabalhados, 0, 0);
+            return new DiaApurado(d.data(), EstadoDiaApurado.DESCANSO, null, 0, trabalhados, 0, 0, suplementares);
         if (d.assiduidade() != null && !d.assiduidade().anomalias().isEmpty())
-            return new DiaApurado(d.data(), EstadoDiaApurado.POR_CORRIGIR, null, esperados, trabalhados, 0, 0);
+            return new DiaApurado(d.data(), EstadoDiaApurado.POR_CORRIGIR, null, esperados, trabalhados, 0, 0, suplementares);
 
         List<DiaAssiduidade.Periodo> justificados = d.justificados() != null ? d.justificados() : List.of();
         if (!d.temMarcacoesValidas() && justificados.isEmpty())
@@ -148,10 +168,9 @@ public final class ApuramentoFaltas {
 
         // Presença e horas justificadas juntam-se: uma hora picada que também foi justificada não
         // conta duas vezes.
-        List<DiaAssiduidade.Periodo> presenca = d.assiduidade() != null ? d.assiduidade().periodos() : List.of();
         List<DiaAssiduidade.Periodo> cobertura = unir(presenca, justificados);
         int coberturaMinutos = cobertura.stream().mapToInt(DiaAssiduidade.Periodo::minutos).sum();
-        int justificadosExtra = Math.max(0, coberturaMinutos - trabalhados);
+        int justificadosExtra = Math.max(0, coberturaMinutos - trabalhados - suplementares);
 
         boolean flexivel = d.horario().getControlo() == ControloHorario.FLEXIVEL;
         List<BlocoHorario> obrigatorios = d.horario().getBlocos().stream()
@@ -162,9 +181,10 @@ public final class ApuramentoFaltas {
         for (BlocoHorario b : obrigatorios)
             emFalta += b.minutos() - coberto(b.inicio(), b.fim(), cobertura);
         if (emFalta <= 0)
-            return new DiaApurado(d.data(), EstadoDiaApurado.SEM_FALTA, null, esperados, trabalhados, justificadosExtra, 0);
+            return new DiaApurado(d.data(), EstadoDiaApurado.SEM_FALTA, null, esperados, trabalhados, justificadosExtra, 0,
+                    suplementares);
         return new DiaApurado(d.data(), EstadoDiaApurado.COM_FALTA, flexivel ? MotivoFalta.PLATAFORMA : MotivoFalta.INCOMPLETO,
-                esperados, trabalhados, justificadosExtra, emFalta);
+                esperados, trabalhados, justificadosExtra, emFalta, suplementares);
     }
 
     /** A união de dois conjuntos de períodos, sem sobreposições, por ordem. */

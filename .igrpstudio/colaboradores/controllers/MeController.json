@@ -507,6 +507,190 @@
           }
         }
       }
+    },
+    {
+      "actionName": "pedirTrabalhoSuplementar",
+      "method": "POST",
+      "path": "trabalho-suplementar",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "TrabalhoSuplementarRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "meuTrabalhoSuplementar",
+      "method": "GET",
+      "path": "trabalho-suplementar",
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "mes",
+          "isRequired": true
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TrabalhoSuplementarMesDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "lancarTrabalhoSuplementarDaEquipa",
+      "method": "POST",
+      "path": "equipa/trabalho-suplementar",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "TrabalhoSuplementarRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "trabalhoSuplementarPendenteDaEquipa",
+      "method": "GET",
+      "path": "equipa/trabalho-suplementar-pendente",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TrabalhoSuplementarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "autorizarTrabalhoSuplementarDaEquipa",
+      "method": "PATCH",
+      "path": "equipa/trabalho-suplementar/{id}/autorizar",
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "recusarTrabalhoSuplementarDaEquipa",
+      "method": "PATCH",
+      "path": "equipa/trabalho-suplementar/{id}/recusar",
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "DecisaoTrabalhoSuplementarRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

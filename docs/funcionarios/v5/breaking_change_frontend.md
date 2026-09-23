@@ -597,6 +597,19 @@ existentes -- estas duas colunas mandam descontar antiguidade e mexer em salario
 (`t_leave_mobility_subtype.affects_pay`), que nao sabe dizer "parcial". Por agora sao dois
 contratos diferentes: booleano nas licencas, enum nas ausencias.
 
+### 11.31 Trabalho suplementar (horas extras) (2026-09-23)
+
+**Nada deixa de funcionar**: endpoints novos e um campo novo numa resposta.
+
+- RH: `POST|GET /funcionarios/{id}/trabalho-suplementar` (`?mes=yyyy-MM`),
+  `PATCH /funcionarios/{id}/trabalho-suplementar/{tid}/autorizar|recusar|cancelar`.
+- `/me`: `POST|GET /me/trabalho-suplementar`, `POST /me/equipa/trabalho-suplementar`,
+  `GET /me/equipa/trabalho-suplementar-pendente`, `PATCH /me/equipa/trabalho-suplementar/{id}/autorizar|recusar`.
+- Horas em `HH:mm`. Mostrar `tipoDia` (DIA_UTIL/DESCANSO/FERIADO), autorizado vs realizado, e assinalar
+  `autorizacaoPosterior` e `semRegisto`.
+- Faltas apuradas: cada dia traz `minutosSuplementares` (fora de `minutosTrabalhados`).
+- Sem valores em dinheiro: so horas.
+
 ### 11.30 Registo pelo proprio e validacao da chefia (2026-09-23)
 
 **Nada deixa de funcionar**: endpoints novos e campos novos nas respostas.
@@ -775,5 +788,6 @@ resposta ja reflecte isto -- nao ha nada a recalcular no ecra.
 - [ ] Separador de horário no colaborador: histórico, atribuir a partir de uma data (horário + regime de prestação) e o horário vigente com a origem.
 - [ ] Ecrã de assiduidade do colaborador: semana/mês com períodos, horas trabalhadas vs esperadas, dias com anomalia destacados, e as acções corrigir e anular (com motivo).
 - [ ] Pedido de ausência: horas de início e fim (só para tipos que as admitem), e a acção terminar para pedidos em horas aprovados.
+- [ ] Trabalho suplementar: separador no colaborador (mês, autorizado vs realizado por tipo de dia), pedido pelo próprio no `/me`, e a caixa de pendentes da chefia (autorizar/recusar).
 - [ ] `/me`: botão de picar (só em teletrabalho/misto), pedido de correcção com motivo, e a caixa de pendentes da equipa para a chefia (validar/rejeitar).
 - [ ] Separador de faltas apuradas do mês: dias com falta e motivo, débitos da aferição, total em dias e meios-dias, e atalho para justificar (pedido de ausência).

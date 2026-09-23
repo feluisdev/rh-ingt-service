@@ -52,6 +52,7 @@ docker exec postgres-ingt-rh sh -c "psql -U postgres -d recursoshumanos_db -q -f
 | **F26** faltas por débito | sobre a semana do F25: dia com anomalia fica por corrigir; atraso de 30 min contra o horário fixo; dia sem marcações conta inteiro (SEM_REGISTO); domingo não se apura; um pedido aprovado tira o dia do apuramento |
 | **F27** pedido em horas (V58) | amamentação 1h+1h por dia durante 100 dias; a terceira passa do tecto diário; horas cruzadas 409, noutra hora cabe; tecto por ocorrência; férias em horas 422; terminar antes do fim acaba na véspera; meia hora justificada tira o atraso do apuramento |
 | **F28** pedido pelo próprio (/me) | segue as regras do RH: luto de sexta a segunda conta 4 dias seguidos; seminário de 7 dias passa do tecto (422); sobreposição 409; amamentação em horas pelo próprio |
+| **F30** trabalho suplementar | RH autoriza depois a terça do F25 fora do horário (90 min realizados pelas marcações, dia útil); tocar no horário 422, sem motivo 422, hora mal escrita 422, sobreposto 409, inactivo 403; o apuramento separa 90 min suplementares; a Maria pede para um sábado (para trás 422), ela própria 422, quem não é chefia 403, RH recusa sem motivo 422, autoriza, segunda vez 409, cancela |
 | **F29** registo pelo próprio | picagem pelo /me: presencial 422, inactivo 403, em teletrabalho 201; correcção fica PENDENTE e não conta; quem não é chefia 403, o próprio 422; RH rejeita sem motivo 422, valida, segunda vez 409; rejeitada fica visível e não conta |
 
 ## Repor o estado inicial
@@ -504,7 +505,19 @@ F29 deixou-lhes marcacoes e atribuicoes de horario. O DELETE falhou pelas chaves
 parou, e a segunda corrida caiu em 223 passos por estado nao reposto. O ponto 0 passou a apagar primeiro
 as marcacoes, as atribuicoes e as ferias desses colaboradores.
 
+### F30 - trabalho suplementar (2026-09-23)
+
+A terca do F25 foi das 08:00 as 17:00 contra o base 07:30-15:30: o RH autoriza depois (caso urgente)
+das 15:30 as 17:30, e o realizado sai das marcacoes -- 90 min. No apuramento dessa terca, os 90 min
+passam a `minutosSuplementares` e saem do tempo normal. A Maria pede pelo `/me` para um sabado daqui a
+uma semana (qualquer hora serve num dia de descanso); o RH autoriza e depois cancela. A decisao pela
+chefia directa fica nos testes unitarios, pela mesma razao do F29. O `repor_estado.sql` apaga o
+trabalho suplementar (ponto 0 para os admitidos do F11; ponto 9 para todos).
+
 ## Resultado da última execução
+
+**663 passos, 663 OK** (2026-09-23), duas execucoes seguidas com o `repor_estado.sql` entre elas
+(F30 incluido).
 
 **636 passos, 636 OK** (2026-09-23), duas execucoes seguidas com o `repor_estado.sql` entre elas.
 

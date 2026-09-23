@@ -57,6 +57,7 @@ class ApuramentoFaltasServiceTest {
     @Mock private MobilidadeService mobilidadeService;
     @Mock private CalendarioFeriadosService calendarioFeriadosService;
     @Mock private HorarioColaboradorService horarioColaboradorService;
+    @Mock private TrabalhoSuplementarService trabalhoSuplementarService;
 
     private ApuramentoFaltasService service;
     private final FuncionarioId funcionario = FuncionarioId.gerarNovo();
@@ -65,7 +66,7 @@ class ApuramentoFaltasServiceTest {
     void base() {
         service = new ApuramentoFaltasService(funcionarioRepository, contratoRepository, marcacaoRepository,
                 pedidoAusenciaRepository, licencaRepository, mobilidadeService, calendarioFeriadosService,
-                horarioColaboradorService) {
+                horarioColaboradorService, trabalhoSuplementarService) {
             @Override LocalDate hoje() { return LocalDate.of(2026, 9, 21); }
         };
         var pessoa = mock(Funcionario.class);

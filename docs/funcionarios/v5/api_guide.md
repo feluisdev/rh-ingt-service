@@ -1096,9 +1096,51 @@ registo diário (§6.8) com o horário vigente de cada dia (§6.7) e os pedidos 
 - `minutosJustificados`: horas de pedidos em horas aprovados (§6.2e) fora da presença — contam como
   cumpridas; um dia sem marcações mas com horas justificadas não é `SEM_REGISTO`.
 - Quem tem isenção de horário no contrato não tem débito (`isento: true`).
+- `minutosSuplementares`: presença dentro de trabalho suplementar autorizado (§6.10) — fica fora de
+  `minutosTrabalhados` (o tempo normal) e, no flexível, do saldo da aferição.
 - `mes` fora de `yyyy-MM` → 422.
 
 Regras: BR-FAL-01 a BR-FAL-07.
+
+### 6.10 Trabalho suplementar (horas extras)
+
+Lei n.º 20/X/2023, art. 155.º n.º 2 a). Autoriza-se um **intervalo de um dia**; as horas realizadas
+**saem das marcações**; classifica-se pelo tipo de dia. **Sem valores** — o suplemento e o tecto de um
+terço da remuneração base (n.º 7) são do processamento salarial.
+
+| Quem | Método | Path | O quê |
+|---|---|---|---|
+| RH | `POST` | `/api/v1/rh/funcionarios/{id}/trabalho-suplementar` | lançar — nasce **AUTORIZADO** (também para um dia passado: `autorizacaoPosterior`) |
+| RH | `GET` | `/api/v1/rh/funcionarios/{id}/trabalho-suplementar?mes=2026-09` | o mês: cada um com tipo de dia e horas realizadas; totais dos autorizados |
+| RH | `PATCH` | `…/trabalho-suplementar/{tid}/autorizar` · `…/recusar` `{ "motivo" }` · `…/cancelar` `{ "motivo" }` | decidir um PEDIDO; cancelar um pedido ou autorizado |
+| Próprio | `POST` · `GET` | `/api/v1/rh/me/trabalho-suplementar` · `?mes=` | pedir (hoje ou para a frente — nasce **PEDIDO**) e ler o seu mês |
+| Chefia | `POST` | `/api/v1/rh/me/equipa/trabalho-suplementar` `{ "funcionarioId", … }` | lançar para a equipa directa — nasce AUTORIZADO |
+| Chefia | `GET` | `/api/v1/rh/me/equipa/trabalho-suplementar-pendente` | a caixa: pedidos por decidir da equipa directa |
+| Chefia | `PATCH` | `/api/v1/rh/me/equipa/trabalho-suplementar/{id}/autorizar` · `…/recusar` | decidir (403 se não for a chefia directa; 422 nos seus) |
+
+```json
+POST /api/v1/rh/funcionarios/{id}/trabalho-suplementar
+{ "data": "2026-09-22", "horaInicio": "17:00", "horaFim": "19:00", "motivo": "fecho de contas" }
+
+GET /api/v1/rh/funcionarios/{id}/trabalho-suplementar?mes=2026-09
+{ "funcionarioId": "…", "mes": "2026-09",
+  "trabalhos": [ { "id": "…", "data": "2026-09-22", "horaInicio": "17:00", "horaFim": "19:00",
+                   "estado": "AUTORIZADO", "pedidoPeloProprio": false, "autorizacaoPosterior": true,
+                   "tipoDia": "DIA_UTIL", "minutosAutorizados": 120, "minutosRealizados": 90, "semRegisto": false } ],
+  "minutosAutorizados": 120, "minutosRealizados": 90,
+  "minutosRealizadosDiaUtil": 90, "minutosRealizadosDescanso": 0, "minutosRealizadosFeriado": 0 }
+```
+
+- `tipoDia`: `FERIADO` (calendário do colaborador), `DESCANSO` (dia sem blocos no horário vigente) ou
+  `DIA_UTIL`. Num dia útil o intervalo tem de ficar **fora dos blocos do horário** (422).
+- `minutosRealizados`: presença (marcações válidas) dentro do intervalo; só nos autorizados.
+  `semRegisto`: autorizado, num dia passado, sem nenhuma marcação válida.
+- 422: sem motivo, `horaInicio` ≥ `horaFim` ou fora de `HH:mm`, isenção de horário no contrato, sem
+  horário nesse dia, o próprio a pedir para um dia passado, recusar ou cancelar sem motivo.
+  409: sobreposição com outro pedido ou autorizado; decidir o que não é PEDIDO; cancelar o que já não
+  está em vigor. 403: colaborador inactivo; chefia que não é a directa.
+
+Regras: BR-SUP-01 a BR-SUP-09, BR-ME-04.
 
 ### Sub-recurso `documentos` (padrão)
 ```

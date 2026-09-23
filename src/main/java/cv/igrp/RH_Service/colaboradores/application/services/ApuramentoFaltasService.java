@@ -53,6 +53,7 @@ public class ApuramentoFaltasService {
     private final MobilidadeService mobilidadeService;
     private final CalendarioFeriadosService calendarioFeriadosService;
     private final HorarioColaboradorService horarioColaboradorService;
+    private final TrabalhoSuplementarService trabalhoSuplementarService;
 
     @Transactional(readOnly = true)
     public Apuramento apurar(FuncionarioId funcionarioId, YearMonth mes) {
@@ -74,6 +75,7 @@ public class ApuramentoFaltasService {
         Set<LocalDate> justificados = diasCobertos(aprovados.stream().filter(p -> !p.isEmHoras()).toList(), de, ate);
         Map<LocalDate, List<DiaAssiduidade.Periodo>> horasJustificadas = horasJustificadas(
                 aprovados.stream().filter(PedidoAusencia::isEmHoras).toList(), de, ate);
+        Map<LocalDate, List<DiaAssiduidade.Periodo>> suplementares = trabalhoSuplementarService.autorizadosPorDia(funcionarioId, de, ate);
 
         List<ApuramentoFaltas.Dia> dias = new ArrayList<>();
         for (LocalDate d = de; !d.isAfter(ate); d = d.plusDays(1)) {
@@ -88,7 +90,7 @@ public class ApuramentoFaltasService {
                 previo = EstadoDiaApurado.POR_VALIDAR;
             var horario = previo == null ? horarioColaboradorService.vigente(funcionarioId, data).horario() : null;
             dias.add(new ApuramentoFaltas.Dia(data, previo, horario, assiduidade, temValidas,
-                    horasJustificadas.getOrDefault(data, List.of())));
+                    horasJustificadas.getOrDefault(data, List.of()), suplementares.getOrDefault(data, List.of())));
         }
         return new Apuramento(mes, isento, ApuramentoFaltas.apurar(dias));
     }

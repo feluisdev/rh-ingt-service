@@ -1,0 +1,38 @@
+{
+  "type": "dto",
+  "name": "TrabalhoSuplementarRequestDTO",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "data",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "horaInicio",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "horaFim",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

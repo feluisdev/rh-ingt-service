@@ -22,4 +22,6 @@ public class DiaApuradoDTO {
     /** V58: horas de pedidos em horas aprovados, fora da presença, que contam como cumpridas. */
     private int minutosJustificados;
     private int minutosEmFalta;
+    /** Presença dentro de trabalho suplementar autorizado: fora de minutosTrabalhados e do saldo do flexível. */
+    private int minutosSuplementares;
 }
