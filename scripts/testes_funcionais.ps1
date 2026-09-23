@@ -1501,6 +1501,38 @@ Verificar 'F25.21 aceite, com alerta de fim-de-semana' ((@($rSab.Dados.alertas) 
 Chamar 'F25.22 NEG consulta de mais de dois meses' GET ('/funcionarios/' + $colabB + '/assiduidade?de=' + (Iso $seg25) + '&ate=' + (Iso $seg25.AddDays(70))) $null 422 | Out-Null
 
 Write-Host ''
+Write-Host '=========== F26 - FALTAS POR DEBITO (DL 3/2010, art. 13.o) ==========='
+
+# Sobre a semana do F25: a segunda ficou com anomalia (anulou-se uma saida), a terca foi corrigida
+# (08:00-17:00 contra o base 07:30-15:30: 30 min de atraso), a quarta nao tem marcacoes, e o sabado
+# e descanso. Calcula-se a cada leitura: aprovar um pedido que cubra a quarta tira-a do apuramento.
+$qua26 = $seg25.AddDays(2)
+$mes26 = $seg25.ToString('yyyy-MM')
+$rotaF = '/funcionarios/' + $colabB + '/faltas-apuradas?mes=' + $mes26
+function DiaF($apur, $data) { return (@($apur.dias) | Where-Object { $_.data -eq (Iso $data) } | Select-Object -First 1) }
+
+$f1 = (Chamar 'F26.1 apuramento do mes da semana do F25' GET $rotaF).Dados
+Verificar 'F26.2 a segunda tem anomalia: fica por corrigir, nao conta' ((DiaF $f1 $seg25).estado -eq 'POR_CORRIGIR') ('(' + (DiaF $f1 $seg25).estado + ')')
+$t26 = DiaF $f1 $ter25
+Verificar 'F26.3 a terca tem 30 min de atraso contra o horario fixo' (($t26.estado -eq 'COM_FALTA') -and ($t26.motivo -eq 'INCOMPLETO') -and ($t26.minutosEmFalta -eq 30)) ('(' + $t26.estado + ' ' + $t26.motivo + ' ' + $t26.minutosEmFalta + ')')
+$q26 = DiaF $f1 $qua26
+Verificar 'F26.4 a quarta, sem nenhuma marcacao, conta inteira' (($q26.motivo -eq 'SEM_REGISTO') -and ($q26.minutosEmFalta -eq 480)) ('(' + $q26.motivo + ' ' + $q26.minutosEmFalta + ')')
+# O domingo: o sabado desta semana pode ser feriado (15 de Agosto), e ai o estado e FERIADO.
+$dom26 = (DiaF $f1 $seg25.AddDays(6)).estado
+Verificar 'F26.5 o domingo nao se apura' (($dom26 -eq 'DESCANSO') -or ($dom26 -eq 'FERIADO')) ('(' + $dom26 + ')')
+Verificar 'F26.6 o parcial converte-se em meios-dias' (($f1.periodoNormalMinutos -gt 0) -and ($f1.totalFaltas -ge $f1.diasSemRegisto)) ('(sem registo=' + $f1.diasSemRegisto + ' parciais=' + $f1.minutosParciais + ' total=' + $f1.totalFaltas + ')')
+
+# Justificar a quarta: um pedido de ausencia aprovado que a cubra tira-a do apuramento.
+$rPed26 = Chamar 'F26.7 pedido de ausencia para a quarta' POST ('/funcionarios/' + $colabB + '/pedidos-ausencia') @{ tipoAusenciaId=$tCnt; dataInicio=(Iso $qua26); dataFim=(Iso $qua26); motivo='justificacao da quarta' } 201
+if ($rPed26.Dados.estado -ne 'APROVADO') {
+    Chamar 'F26.8 aprovar o pedido' PATCH ('/funcionarios/' + $colabB + '/pedidos-ausencia/' + $rPed26.Dados.id + '/aprovar') @{ aprovadoPorId=$colabA; observacoesDecisao='justificada' } 200 | Out-Null
+}
+$f2 = (Chamar 'F26.9 apuramento depois de justificar' GET $rotaF).Dados
+Verificar 'F26.10 a quarta passou a ausencia justificada' ((DiaF $f2 $qua26).estado -eq 'AUSENCIA_JUSTIFICADA') ('(' + (DiaF $f2 $qua26).estado + ')')
+Verificar 'F26.11 e deixou de contar' ($f2.diasSemRegisto -eq ($f1.diasSemRegisto - 1)) ('(' + $f1.diasSemRegisto + ' -> ' + $f2.diasSemRegisto + ')')
+Chamar 'F26.12 NEG mes mal escrito' GET ('/funcionarios/' + $colabB + '/faltas-apuradas?mes=09-2026') $null 422 | Out-Null
+
+Write-Host ''
 Write-Host '=========== RESUMO ==========='
 $ok = ($script:resultados | Where-Object { $_.OK }).Count
 $total = $script:resultados.Count

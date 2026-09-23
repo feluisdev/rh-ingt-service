@@ -8,10 +8,12 @@ import cv.igrp.RH_Service.colaboradores.application.commands.ImportarMarcacoesCo
 import cv.igrp.RH_Service.colaboradores.application.commands.LancarMarcacaoCommand;
 import cv.igrp.RH_Service.colaboradores.application.dto.AnularMarcacaoRequestDTO;
 import cv.igrp.RH_Service.colaboradores.application.dto.AssiduidadeResponseDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.FaltasApuradasResponseDTO;
 import cv.igrp.RH_Service.colaboradores.application.dto.ImportacaoMarcacoesRequestDTO;
 import cv.igrp.RH_Service.colaboradores.application.dto.ImportacaoMarcacoesResponseDTO;
 import cv.igrp.RH_Service.colaboradores.application.dto.MarcacaoRequestDTO;
 import cv.igrp.RH_Service.colaboradores.application.queries.GetAssiduidadeQuery;
+import cv.igrp.RH_Service.colaboradores.application.queries.GetFaltasApuradasQuery;
 import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 import cv.igrp.framework.core.domain.CommandBus;
 import cv.igrp.framework.core.domain.QueryBus;
@@ -90,6 +92,18 @@ public class AssiduidadeController {
             @RequestParam(value = "ate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ate) {
         LOGGER.debug("Operation started");
         ResponseEntity<AssiduidadeResponseDTO> response = queryBus.handle(new GetAssiduidadeQuery(funcionarioId, de, ate));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("funcionarios/{funcionarioId}/faltas-apuradas")
+    @Operation(summary = "Faltas por débito do mês (DL n.º 3/2010, art. 13.º): por dia, débitos da aferição e conversão em dias")
+    @ApiResponse(responseCode = "200", description = "Apuramento do mês",
+            content = @Content(schema = @Schema(implementation = FaltasApuradasResponseDTO.class)))
+    public ResponseEntity<FaltasApuradasResponseDTO> getFaltasApuradas(
+            @PathVariable String funcionarioId, @RequestParam(value = "mes") String mes) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<FaltasApuradasResponseDTO> response = queryBus.handle(new GetFaltasApuradasQuery(funcionarioId, mes));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

@@ -991,6 +991,43 @@ GET /api/v1/rh/funcionarios/{id}/assiduidade?de=2026-09-21&ate=2026-09-27
 
 Regras: BR-ASS-01 a BR-ASS-07.
 
+### 6.9 Faltas por débito — apuramento do mês
+
+`GET /api/v1/rh/funcionarios/{id}/faltas-apuradas?mes=2026-09` — DL n.º 3/2010, art. 13.º. Cruza o
+registo diário (§6.8) com o horário vigente de cada dia (§6.7) e os pedidos de ausência aprovados.
+**Calcula-se a cada leitura** até ao fecho do mês: aprovar um pedido que cubra o dia tira-o daqui.
+
+```json
+{ "funcionarioId": "…", "mes": "2026-09", "isento": false,
+  "dias": [
+    { "data": "2026-09-07", "estado": "COM_FALTA", "motivo": "INCOMPLETO", "minutosEsperados": 480, "minutosTrabalhados": 450, "minutosEmFalta": 30 },
+    { "data": "2026-09-08", "estado": "COM_FALTA", "motivo": "SEM_REGISTO", "minutosEsperados": 480, "minutosTrabalhados": 0, "minutosEmFalta": 480 },
+    { "data": "2026-09-12", "estado": "FERIADO", "minutosEsperados": 0, "minutosTrabalhados": 0, "minutosEmFalta": 0 }
+  ],
+  "debitos": [],
+  "diasSemRegisto": 1, "minutosParciais": 30, "periodoNormalMinutos": 480,
+  "faltasParciais": 0.5, "totalFaltas": 1.5, "diasPorCorrigir": 0 }
+```
+
+| `estado` | O que é |
+|---|---|
+| `COM_FALTA` · `SEM_FALTA` | dia de trabalho apurado |
+| `POR_CORRIGIR` | as marcações têm anomalias (§6.8): não se apura sem as corrigir |
+| `FUTURO` | hoje ou depois — o dia não acabou |
+| `FORA_DO_VINCULO` · `ISENTO` · `FERIADO` · `AUSENCIA_JUSTIFICADA` · `LICENCA` · `MOBILIDADE_EXTERNA` · `SEM_HORARIO` · `DESCANSO` | não se apura |
+
+- `motivo`: `SEM_REGISTO` (nenhuma marcação — dia inteiro), `INCOMPLETO` (horário fixo: blocos não
+  cobertos — atrasos, saídas antecipadas), `PLATAFORMA` (horário flexível: plataformas fixas não cobertas).
+- `debitos`: um por período de aferição de um horário flexível — esperado − trabalhado − o que já
+  contou nos dias, nunca negativo.
+- **Conversão (art. 13.º n.os 3 e 4):** `diasSemRegisto` são faltas de dia inteiro; `minutosParciais`
+  somam-se no mês e convertem-se pelo `periodoNormalMinutos` (a média do esperado no mês): cada período
+  inteiro é uma falta, o resto até meio período é meia, acima é uma. `totalFaltas` = os dois.
+- Quem tem isenção de horário no contrato não tem débito (`isento: true`).
+- `mes` fora de `yyyy-MM` → 422.
+
+Regras: BR-FAL-01 a BR-FAL-07.
+
 ### Sub-recurso `documentos` (padrão)
 ```
 POST   .../{ownerId}/documentos            # upload (multipart)

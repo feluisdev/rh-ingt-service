@@ -597,6 +597,16 @@ existentes -- estas duas colunas mandam descontar antiguidade e mexer em salario
 (`t_leave_mobility_subtype.affects_pay`), que nao sabe dizer "parcial". Por agora sao dois
 contratos diferentes: booleano nas licencas, enum nas ausencias.
 
+### 11.27 Faltas por debito (2026-09-23)
+
+**Nada deixa de funcionar**: e um endpoint novo, so de leitura.
+
+- `GET /funcionarios/{id}/faltas-apuradas?mes=yyyy-MM`. Ver `api_guide.md` §6.9.
+- E um **calculo**, nao um registo: muda quando se corrige uma marcacao ou se aprova um pedido. O
+  ecra deve dizer que o mes ainda nao esta fechado.
+- Mostrar os dias `POR_CORRIGIR` e os `SEM_REGISTO` a parte: sao o que o RH trata antes do fecho.
+- `faltasParciais` e `totalFaltas` sao decimais em meios (0.5, 1, 1.5...).
+
 ### 11.26 Registo diario de assiduidade (2026-09-23)
 
 **Nada deixa de funcionar**: sao endpoints novos.
@@ -728,3 +738,4 @@ resposta ja reflecte isto -- nao ha nada a recalcular no ecra.
 - [ ] Select opcional de horário no formulário da unidade orgânica (vazio = segue a unidade-mãe).
 - [ ] Separador de horário no colaborador: histórico, atribuir a partir de uma data (horário + regime de prestação) e o horário vigente com a origem.
 - [ ] Ecrã de assiduidade do colaborador: semana/mês com períodos, horas trabalhadas vs esperadas, dias com anomalia destacados, e as acções corrigir e anular (com motivo).
+- [ ] Separador de faltas apuradas do mês: dias com falta e motivo, débitos da aferição, total em dias e meios-dias, e atalho para justificar (pedido de ausência).

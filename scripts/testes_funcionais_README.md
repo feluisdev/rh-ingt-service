@@ -49,6 +49,7 @@ docker exec postgres-ingt-rh sh -c "psql -U postgres -d recursoshumanos_db -q -f
 | **F23** parâmetros de férias | vigência nova por ano (409 repetida, 422 inválida); cada ano lê as regras do seu tempo; o mínimo interpolado novo aceita o que o da lei recusa |
 | **F24** horários | NENHUM → BASE → UNIDADE (herdado da mãe) → COLABORADOR; atribuição fecha a anterior na véspera; base não se desactiva; `horarioId` da unidade mantém-se no `PUT` omisso e limpa-se em branco |
 | **F25** registo diário | importação de picagens repetível (duplicadas não entram, as más vão para o relatório); dia calculado com períodos, intervalo e horas; anomalia sem saída; correcção exige motivo; anular fica visível; sábado dá alerta |
+| **F26** faltas por débito | sobre a semana do F25: dia com anomalia fica por corrigir; atraso de 30 min contra o horário fixo; dia sem marcações conta inteiro (SEM_REGISTO); domingo não se apura; um pedido aprovado tira o dia do apuramento |
 
 ## Repor o estado inicial
 
@@ -463,7 +464,19 @@ ligacoes da app tinha ligacoes a base ja fechadas (SQLState 08003, `This connect
 closed`). O pool recuperou sozinho e a corrida seguinte passou toda. Se acontecer, repor e correr
 outra vez; se se repetir, reiniciar a app.
 
+### F26 - faltas por debito (2026-09-23)
+
+Le o apuramento do mes da semana do F25 e verifica os dias que o F25 deixou: a segunda por corrigir,
+a terca com 30 minutos de atraso (INCOMPLETO), a quarta sem marcacoes (SEM_REGISTO, 480 min). Depois
+justifica a quarta com um pedido de ausencia aprovado (pelo Francisco) e a quarta sai do apuramento.
+
+**Armadilha paga:** o sabado dessa semana e 15 de Agosto -- feriado recorrente do seed --, e o dia
+vinha FERIADO, com razao. O passo verifica o domingo e aceita DESCANSO ou FERIADO.
+
 ## Resultado da última execução
+
+**587 passos, 587 OK** (2026-09-23), duas execucoes seguidas com o `repor_estado.sql` entre elas
+(F26 incluido).
 
 **575 passos, 575 OK** (2026-09-23), duas execucoes seguidas com o `repor_estado.sql` entre elas,
 contra a base local com a V57 aplicada (F25 incluido).

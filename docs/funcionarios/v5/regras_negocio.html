@@ -82,6 +82,7 @@
       <a href="#ausencias">5. Ausências (pedidos e saldos)</a><br>
       &nbsp;&nbsp;<a href="#assiduidade">5.1 Assiduidade — horários</a><br>
       &nbsp;&nbsp;<a href="#registo-diario">5.2 Assiduidade — registo diário</a><br>
+      &nbsp;&nbsp;<a href="#faltas-debito">5.3 Assiduidade — faltas por débito</a><br>
       <a href="#mobilidade">6. Licenças e mobilidade</a><br>
       <a href="#docs">7. Documentos, dados bancários e dossier</a><br>
       <a href="#me">8. Self-service (/me)</a><br>
@@ -349,6 +350,19 @@
     <tr><td class="id">BR-ASS-06</td><td><b>O dia calcula-se das marcações válidas, por ordem</b>: uma entrada abre, a saída seguinte fecha; os intervalos são os espaços entre períodos. O que não emparelha é <b>anomalia</b> — ENTRADA_SEM_SAIDA, SAIDA_SEM_ENTRADA, ENTRADAS_SEGUIDAS (conta a segunda) — e os minutos só contam nos pares completos: nunca se inventa uma hora que ninguém picou. As marcações contam no dia da sua data; um período que passe a meia-noite é trabalho por turnos, fora deste passo.</td><td>—</td><td class="src">DiaAssiduidade.calcular</td></tr>
     <tr><td class="id">BR-ASS-07</td><td><b>A consulta dá, por dia, os minutos trabalhados e os esperados</b> pelo horário vigente nesse dia (zero em feriado ou sem horário), e por semana ISO os totais dos dias consultados. No máximo 62 dias por consulta.</td><td><span class="http h422">422</span></td><td class="src">AssiduidadeService.consultar</td></tr>
   </table>
+  <h2 id="faltas-debito"><span class="n">5.3</span>Assiduidade — faltas por débito</h2>
+  <p>Terceiro passo (DL n.º 3/2010, art. 13.º; Lei n.º 20/X/2023, art. 170.º). Cruza o registo diário com o horário vigente de cada dia e com os pedidos de ausência aprovados. <b>Calcula-se, não se guarda</b>: até ao fecho do mês (art. 75.º, passo seguinte), um pedido aprovado que cubra o dia tira-o do apuramento; o que ficar por justificar no fecho passa a injustificado (art. 43.º n.º 1 b)).</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-FAL-01</td><td><b>Não se apuram</b>: hoje e os dias seguintes (o dia não acabou), os dias antes da admissão, quem tem <b>isenção de horário</b> no contrato, feriados, dias cobertos por pedido de ausência aprovado (um pedido suspenso cobre até à véspera da suspensão), licenças, mobilidade externa, dias sem horário e dias de descanso do horário. Na mobilidade interna apura-se, com o horário da unidade de destino.</td><td>—</td><td class="src">ApuramentoFaltasService.estadoPrevio</td></tr>
+    <tr><td class="id">BR-FAL-02</td><td><b>Horário fixo</b>: em falta os minutos dos blocos que nenhum período de presença cobre — atraso e saída antecipada contam (n.º 1: «parte do período diário de presença obrigatória»). Motivo INCOMPLETO.</td><td>—</td><td class="src">ApuramentoFaltas</td></tr>
+    <tr><td class="id">BR-FAL-03</td><td><b>Horário flexível</b>: de dia a dia, as plataformas fixas não cobertas (motivo PLATAFORMA); no fim de cada período de aferição (semana ou mês, do horário), o débito = esperado − trabalhado − o que já contou nos dias, nunca negativo (n.º 2). O crédito de um dia compensa outro dentro do período. Uma semana partida pelo mês apura-se em cada mês pelos seus dias.</td><td>—</td><td class="src">ApuramentoFaltas</td></tr>
+    <tr><td class="id">BR-FAL-04</td><td><b>Um dia de trabalho sem nenhuma marcação</b> conta inteiro, com o motivo SEM_REGISTO — o RH confirma que não falta importar o relógio antes do fecho. Em teletrabalho, as marcações são de disponibilidade (art. 170.º n.º 2).</td><td>—</td><td class="src">ApuramentoFaltas</td></tr>
+    <tr><td class="id">BR-FAL-05</td><td><b>Um dia com anomalias não se apura</b> (POR_CORRIGIR): inventar uma saída seria inventar uma falta.</td><td>—</td><td class="src">ApuramentoFaltas</td></tr>
+    <tr><td class="id">BR-FAL-06</td><td><b>Conversão (n.os 3 e 4)</b>: os dias sem registo são faltas de dia inteiro. O tempo parcial do mês (incompletos, plataformas, débitos) <b>soma-se no mês</b> — «é adicionada», e o mês é a unidade da relação do art. 75.º — e converte-se pelo período normal diário (a média do esperado no mês): cada período inteiro é uma falta; o resto, até meio período (inclusive), meia; acima, uma. Três atrasos de 30 minutos são meia falta, não três. <i>Por confirmar com o jurídico.</i></td><td>—</td><td class="src">ApuramentoFaltas.converter</td></tr>
+    <tr><td class="id">BR-FAL-07</td><td><b>Ausência de parte do dia</b>: justifica-se com um pedido de ausência em horas — passo seguinte (art. 13.º n.º 3 «salvo regime diferente»; art. 15.º; art. 172.º n.º 3 da Lei 20/X/2023). Até lá fica no apuramento como por justificar.</td><td>—</td><td class="src">(por implementar)</td></tr>
+  </table>
+
   <div class="callout warn"><b>Versões dos horários:</b> não há. Até ao fecho do mês (art. 75.º, passo seguinte às faltas), o esperado recalcula-se com a configuração actual; o fecho guarda-o e bloqueia o mês — é o que a lei já define como unidade (a relação mensal serve de base aos vencimentos) e o que os sistemas de ponto fazem (fecho de período).</div>
 
   <!-- ============ MOBILIDADE ============ -->

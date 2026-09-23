@@ -1,0 +1,78 @@
+{
+  "type": "dto",
+  "name": "FaltasApuradasResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "mes",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "isento",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "DiaApuradoDTO",
+      "name": "dias",
+      "objectType": "dto",
+      "required": false,
+      "collectionType": "list",
+      "module": "colaboradores"
+    },
+    {
+      "type": "DebitoAfericaoDTO",
+      "name": "debitos",
+      "objectType": "dto",
+      "required": false,
+      "collectionType": "list",
+      "module": "colaboradores"
+    },
+    {
+      "type": "integer",
+      "name": "diasSemRegisto",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "minutosParciais",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "periodoNormalMinutos",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "decimal",
+      "name": "faltasParciais",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "decimal",
+      "name": "totalFaltas",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "diasPorCorrigir",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

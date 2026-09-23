@@ -9,14 +9,14 @@ em tabela editável pela API. Um ponto por commit.
 
 ## Current state
 
-**Branch `fix-alinhamento-legislacao`**, **31 commits locais por enviar** (`origin_git_lab`).
+**Branch `fix-alinhamento-legislacao`**, **32 commits locais por enviar** (`origin_git_lab`).
 **Não fazer push sem o utilizador pedir** — merge para `master` no GitLab é deploy.
 
-- **Testes: 1017, 0 falhas** — correr na **cópia isolada** (ver Blockers).
-- **Bateria funcional: 575 passos**, 575 OK (2026-09-23, duas execuções seguidas). Blocos F20–F25
-  cobrem V55, V56, mapa de férias, parâmetros de férias, horários e registo diário.
+- **Testes: 1030, 0 falhas** — correr na **cópia isolada** (ver Blockers).
+- **Bateria funcional: 587 passos**, 587 OK (2026-09-23, duas execuções seguidas). Blocos F20–F26
+  cobrem V55, V56, mapa de férias, parâmetros de férias, horários, registo diário e faltas por débito.
 - Migrações até **`V57`**. Próxima livre: **V58** (só para alterar tabelas existentes).
-- **`openapi.json`**: 249 caminhos, 276 esquemas (regenerado com a app a correr).
+- **`openapi.json`**: 250 caminhos, 279 esquemas (regenerado com a app a correr).
 - **Sete jobs `@Scheduled`**, sem lock distribuído (fica para o framework de jobs).
 - Árvore limpa excepto `.claude/settings*.json` (não são desta sessão) e os textos das leis não
   versionados na raiz: `.lei20.txt` (Lei 20/X/2023), `.dl3.txt` (DL 3/2010, numa só linha),
@@ -34,7 +34,7 @@ em tabela editável pela API. Um ponto por commit.
 | `3386b1fc` | **Assiduidade, 1.º tijolo** — catálogo de horários, horário base, **`V57`** (horário da unidade orgânica), horário do colaborador com regime de prestação |
 
 **Plano:** 1 feriados ✔ · 2 dispensas ✔ · 3 mapa de férias ✔ · **4 — Assiduidade**: horários ✔ →
-registo diário ✔ → **faltas por débito (a seguir)** → relação mensal / fecho (art. 75.º) → trabalho suplementar → amamentação ·
+registo diário ✔ → faltas por débito ✔ → **pedido com horas + amamentação (a seguir)** → `/me` com validação → relação mensal / fecho (art. 75.º) → trabalho suplementar → amamentação ·
 framework de jobs (por último).
 
 ## Decisions made — do not re-litigate
@@ -74,6 +74,17 @@ framework de jobs (por último).
   - **versões dos horários: não** — o **fecho mensal** (relação do art. 75.º do DL 3/2010) guarda o
     esperado e bloqueia o mês. Ordem: registo → faltas por débito → relação mensal/fecho → trabalho
     suplementar.
+- **Faltas por débito (assiduidade, 3.º tijolo)** — lei + indústria:
+  - **calcula-se, não se guarda** (`GET /funcionarios/{id}/faltas-apuradas?mes=`) até ao fecho mensal;
+  - fixo: blocos não cobertos (INCOMPLETO); flexível: plataformas (PLATAFORMA) + débito no fim da
+    aferição sem dupla contagem; dia sem marcações conta inteiro (**SEM_REGISTO**); dia com anomalia
+    **POR_CORRIGIR**; **isenção de horário fora do débito**;
+  - **art. 13.º n.º 4: o parcial soma-se no mês** («é adicionada»; o mês é a unidade do art. 75.º; é
+    como a indústria e o CT português art. 248.º n.º 2 fazem) e converte-se pelo período normal
+    (média do esperado no mês): resto até meio período = meia falta, acima = uma. Por confirmar com o
+    jurídico, mas não bloqueia;
+  - **ausência parcial justifica-se com pedido de ausência em horas** (horaInicio/horaFim opcionais,
+    num só dia) — é o **próximo passo**, com a amamentação (art. 172.º n.º 3 da Lei 20).
 - **Mapa de férias — fica por fazer** (lacunas assinaladas, não adivinhadas): preferência dos
   cônjuges no mesmo serviço (art. 5.º n.º 6, não há ligação entre colaboradores); preferência
   indicada pelo próprio em `/me`; aviso quando um pedido de férias não coincide com a marcação.
@@ -132,6 +143,9 @@ framework de jobs (por último).
 
 ## Relevant files
 
+- `colaboradores/domain/service/ApuramentoFaltas.java` — tempo em falta por dia, débito da aferição,
+  conversão do art. 13.º n.º 4. `colaboradores/application/services/ApuramentoFaltasService.java` —
+  classifica os dias (feriado, pedido aprovado, licença, mobilidade externa, isenção...).
 - `colaboradores/application/services/AssiduidadeService.java` — lançar (correcção com motivo),
   anular, importar (repetível), consultar (dia e semana, esperado do horário vigente).
 - `colaboradores/domain/models/DiaAssiduidade.java` — emparelhar marcações, intervalos, anomalias.
@@ -201,7 +215,7 @@ prova manual com a app, e um bloco F25+ na bateria.
 ## Open questions
 
 - Limite de substituições por pessoa — RH. Promoção exige Lugar vago? — cliente.
-- Jurídico: diploma de desenvolvimento da Lei 20/X/2023 (**horários, limites, turnos** — os
+- Jurídico: **período de soma do art. 13.º n.º 4** (decidido: mês); diploma de desenvolvimento da Lei 20/X/2023 (**horários, limites, turnos** — os
   horários ficaram sem limites por isso), diploma da mobilidade, e o período dos 6 dias do art. 77.º
   n.º 3.
 - **Horários com versões?** — decidir antes do registo diário (ver Blockers).
@@ -226,9 +240,7 @@ inventar omissões**. Meios-dias voltam à mesa aqui.
 
 ## Next step
 
-Apresentar o **desenho das faltas por débito** (DL 3/2010, art. 13.º: falta no período de presença
-   obrigatória; no flexível, o débito no fim do período de aferição; ausências curtas somam — menos
-   de meio período conta meio, mais de meio conta um; art. 170.º da Lei 20 para o teletrabalho),
-   cruzando o registo diário com o horário vigente e com os pedidos de ausência aprovados — **sem
-   implementar** até o utilizador aprovar. Depois: `/me` com validação da chefia e o fecho mensal
-   (art. 75.º).
+Apresentar o **desenho do pedido de ausência em horas** (horaInicio/horaFim opcionais, num só dia; sem
+partir o front) e da **dispensa de amamentação** (art. 172.º n.º 3 da Lei 20/X/2023: duas horas por
+dia, em dois períodos), e como o apuramento de faltas passa a descontar as horas justificadas — lendo
+antes o articulado; **sem implementar** até o utilizador aprovar.
