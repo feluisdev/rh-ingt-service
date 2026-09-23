@@ -1,0 +1,128 @@
+{
+  "type": "dto",
+  "name": "RelacaoMensalLinhaDTO",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "numeroFuncionario",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "nome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "isento",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "diasForaDoVinculo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "diasFerias",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "RubricaFaltaDTO",
+      "name": "faltasJustificadas",
+      "objectType": "dto",
+      "collectionType": "list",
+      "module": "colaboradores",
+      "required": false
+    },
+    {
+      "type": "RubricaFaltaDTO",
+      "name": "faltasInjustificadas",
+      "objectType": "dto",
+      "collectionType": "list",
+      "module": "colaboradores",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "diasSemRegisto",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "decimal",
+      "name": "faltasParciais",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "decimal",
+      "name": "faltasPorJustificar",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "RubricaLicencaDTO",
+      "name": "licencas",
+      "objectType": "dto",
+      "collectionType": "list",
+      "module": "colaboradores",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "minutosSuplementarDiaUtil",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "minutosSuplementarDescanso",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "minutosSuplementarFeriado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "diasPorCorrigir",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "diasPorValidar",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "pedidosPendentes",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estado",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

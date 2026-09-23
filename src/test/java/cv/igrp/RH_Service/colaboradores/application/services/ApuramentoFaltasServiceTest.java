@@ -141,4 +141,23 @@ class ApuramentoFaltasServiceTest {
         assertEquals(EstadoDiaApurado.ISENTO, estado(a, 3));
         assertEquals(0, a.resultado().totalFaltas().signum());
     }
+
+    @Test
+    void depoisDoFimDoVinculoNaoHaFaltas() {
+        // Cessou a 8: o contrato mais recente acabou nesse dia, e a pessoa ficou inactiva.
+        var pessoa = mock(Funcionario.class);
+        when(pessoa.getId()).thenReturn(funcionario);
+        when(pessoa.getIsActive()).thenReturn(false);
+        when(pessoa.getDataAdmissao()).thenReturn(LocalDate.of(2026, 9, 3));
+        when(funcionarioRepository.findById(funcionario)).thenReturn(Optional.of(pessoa));
+        var contrato = mock(Contrato.class);
+        when(contrato.getEndDate()).thenReturn(LocalDate.of(2026, 9, 8));
+        when(contratoRepository.findAllByFuncionarioIdOrderByStartDateDesc(funcionario)).thenReturn(List.of(contrato));
+
+        var a = service.apurar(funcionario, SETEMBRO);
+        assertEquals(EstadoDiaApurado.COM_FALTA, estado(a, 8));          // ultimo dia do vinculo, sem registo
+        assertEquals(EstadoDiaApurado.FORA_DO_VINCULO, estado(a, 9));
+        assertEquals(EstadoDiaApurado.FORA_DO_VINCULO, estado(a, 18));
+        assertEquals(LocalDate.of(2026, 9, 8), service.fimDoVinculo(pessoa));
+    }
 }

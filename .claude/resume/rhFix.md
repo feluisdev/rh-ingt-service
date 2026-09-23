@@ -9,16 +9,16 @@ em tabela editável pela API. Um ponto por commit.
 
 ## Current state
 
-**Branch `fix-alinhamento-legislacao`**, **36 commits locais por enviar** (`origin_git_lab`).
+**Branch `fix-alinhamento-legislacao`**, **37 commits locais por enviar** (`origin_git_lab`).
 **Não fazer push sem o utilizador pedir** — merge para `master` no GitLab é deploy.
 
-- **Testes: 1084, 0 falhas** — correr na **cópia isolada** (ver Blockers).
-- **Bateria funcional: 663 passos**, 663 OK (2026-09-23, duas execuções seguidas). Blocos F20–F30
+- **Testes: 1092, 0 falhas** — correr na **cópia isolada** (ver Blockers).
+- **Bateria funcional: 681 passos**, 681 OK (2026-09-23, duas execuções seguidas). Blocos F20–F31
   cobrem V55, V56, mapa de férias, parâmetros de férias, horários, registo diário, faltas por débito e
-  pedido em horas (V58), pedido pelo próprio em `/me`, registo pelo próprio com validação e trabalho
-  suplementar.
+  pedido em horas (V58), pedido pelo próprio em `/me`, registo pelo próprio com validação, trabalho
+  suplementar e relação mensal.
 - Migrações até **`V58`**. Próxima livre: **V59** (só para alterar tabelas existentes).
-- **`openapi.json`**: 268 caminhos (regenerado com a app a correr).
+- **`openapi.json`**: 270 caminhos (regenerado com a app a correr).
 - **Sete jobs `@Scheduled`**, sem lock distribuído (fica para o framework de jobs).
 - Árvore limpa excepto `.claude/settings*.json` (não são desta sessão) e os textos das leis não
   versionados na raiz: `.lei20.txt` (Lei 20/X/2023), `.dl3.txt` (DL 3/2010, numa só linha),
@@ -36,7 +36,7 @@ em tabela editável pela API. Um ponto por commit.
 | `3386b1fc` | **Assiduidade, 1.º tijolo** — catálogo de horários, horário base, **`V57`** (horário da unidade orgânica), horário do colaborador com regime de prestação |
 
 **Plano:** 1 feriados ✔ · 2 dispensas ✔ · 3 mapa de férias ✔ · **4 — Assiduidade**: horários ✔ →
-registo diário ✔ → faltas por débito ✔ → pedido em horas + amamentação ✔ → registo pelo próprio com validação ✔ → trabalho suplementar ✔ → **relação mensal do art. 75.º, só leitura (a seguir)** ·
+registo diário ✔ → faltas por débito ✔ → pedido em horas + amamentação ✔ → registo pelo próprio com validação ✔ → trabalho suplementar ✔ → relação mensal do art. 75.º, só leitura ✔ ·
 fecho mensal (congelar/bloquear/reabrir) **adiado até haver integração salarial** · meios-dias de férias
 (em falta face à lei, DL 3/2010 art. 2.º n.º 6) · tectos em horas (só se o cliente pedir) ·
 framework de jobs (por último).
@@ -123,6 +123,14 @@ framework de jobs (por último).
   apuramento, a presença dentro do suplementar autorizado sai do tempo normal (`minutosSuplementares`),
   para não contar duas vezes no saldo do flexível. Fora: tecto de 1/3 (dinheiro), nocturno, compensação
   em descanso — diploma de desenvolvimento / jurídico.
+- **Relação mensal (feita)** — art. 75.º, só leitura, sem tabelas: `GET /assiduidade/relacao-mensal`
+  (JSON) e `.csv` (`;`, UTF-8 com BOM, decimais com vírgula). Decisões do utilizador: **por unidade
+  orgânica com subunidades** (unidadeId obrigatório); **JSON e CSV**; **activos e quem cessou no mês ou
+  depois**. Quem entra sai das **afectações que cobrem o mês** (pelas datas, não pelo isCurrent): resolve
+  os cessados e dá a unidade do mês; uma pessoa, uma unidade (a afectação que chega mais longe).
+  Limitação: mobilidade interna *para* a unidade aparece na de origem. Defeito real corrigido pelo
+  caminho: o apuramento contava os dias **depois da cessação** como SEM_REGISTO — agora FORA_DO_VINCULO
+  (fim do contrato mais recente de quem está inactivo; BR-FAL-08).
 - **Regra de trabalho** (utilizador): antes de desenhar, **lei + indústria + o que já existe** — e só
   depois propor; tabela nova só para conceito com ciclo de vida próprio.
 - **Mapa de férias — fica por fazer** (lacunas assinaladas, não adivinhadas): preferência dos
@@ -289,10 +297,10 @@ inventar omissões**. Meios-dias voltam à mesa aqui.
 
 ## Next step
 
-Apresentar o **desenho da relação mensal do art. 75.º** (DL 3/2010), **só leitura, sem congelar nem
-bloquear** (o fecho fica para quando houver integração salarial): por mês, por colaborador e agrupada
-por unidade — faltas justificadas por tipo, licenças por subtipo, faltas por justificar (dias e
-meios-dias, do apuramento), dias fora do vínculo, mobilidade e, agora, horas de trabalho suplementar
-por tipo de dia. Reutilizar `ApuramentoFaltasService`, pedidos de ausência, licenças e
-`TrabalhoSuplementarService`; sem tabelas novas. Antes: lei, indústria e **o que já existe**. **Sem
-implementar** até o utilizador aprovar.
+O ciclo da assiduidade fechou (horários → registo → faltas → horas → próprio → suplementar → relação).
+Perguntar ao utilizador o que vem a seguir, entre o que está no plano e o que ficou em aberto:
+**meios-dias de férias** (em falta face à lei), **hierarquia de chefias nos dados de demonstração**
+(para mostrar a validação pela chefia), **framework de jobs com lock distribuído**, as lacunas do
+**mapa de férias** (cônjuges, preferência pelo `/me`, aviso de pedido fora da marcação), a aprovação
+dos pedidos do `/me` pela chefia, e as propostas por aprovar (indicadores, lista de antiguidade,
+notificações, declarações). Antes de desenhar: lei, indústria e **o que já existe**.

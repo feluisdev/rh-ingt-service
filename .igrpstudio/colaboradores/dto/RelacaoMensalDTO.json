@@ -1,0 +1,46 @@
+{
+  "type": "dto",
+  "name": "RelacaoMensalDTO",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "mes",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "provisoria",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "unidadeId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "unidadeNome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "incluirSubunidades",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "RelacaoMensalUnidadeDTO",
+      "name": "unidades",
+      "objectType": "dto",
+      "collectionType": "list",
+      "module": "colaboradores",
+      "required": false
+    }
+  ]
+}

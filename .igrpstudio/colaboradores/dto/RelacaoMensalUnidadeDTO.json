@@ -1,0 +1,52 @@
+{
+  "type": "dto",
+  "name": "RelacaoMensalUnidadeDTO",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "unidadeId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "codigo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "nome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "colaboradores",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "comPendencias",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "decimal",
+      "name": "faltasPorJustificar",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "RelacaoMensalLinhaDTO",
+      "name": "linhas",
+      "objectType": "dto",
+      "collectionType": "list",
+      "module": "colaboradores",
+      "required": false
+    }
+  ]
+}

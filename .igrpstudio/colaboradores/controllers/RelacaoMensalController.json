@@ -1,0 +1,82 @@
+{
+  "type": "controller",
+  "name": "RelacaoMensal",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh",
+  "description": "Relação mensal de assiduidade de cada serviço: faltas e licenças de cada funcionário e sua natureza (DL n.º 3/2010, art. 75.º); só leitura",
+  "actions": [
+    {
+      "actionName": "getRelacaoMensal",
+      "method": "GET",
+      "path": "assiduidade/relacao-mensal",
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "mes",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "unidadeId",
+          "isRequired": true
+        },
+        {
+          "type": "boolean",
+          "name": "incluirSubunidades",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "RelacaoMensalDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getRelacaoMensalCsv",
+      "method": "GET",
+      "path": "assiduidade/relacao-mensal.csv",
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "mes",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "unidadeId",
+          "isRequired": true
+        },
+        {
+          "type": "boolean",
+          "name": "incluirSubunidades",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "text/csv": {
+              "schema": {
+                "type": "string",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

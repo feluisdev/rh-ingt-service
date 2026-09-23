@@ -1,0 +1,44 @@
+{
+  "type": "dto",
+  "name": "RubricaFaltaDTO",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "codigo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "nome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "dias",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "minutos",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "efeitoRemuneracao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "opcaoFaltaInjustificada",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

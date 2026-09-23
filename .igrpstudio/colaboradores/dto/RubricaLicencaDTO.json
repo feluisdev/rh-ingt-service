@@ -1,0 +1,44 @@
+{
+  "type": "dto",
+  "name": "RubricaLicencaDTO",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "codigo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "nome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "tipoRegisto",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "dias",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "afectaRemuneracao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "contaAntiguidade",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

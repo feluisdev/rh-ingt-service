@@ -1671,6 +1671,49 @@ Verificar 'F30.26 vazia' (@(Linhas $rPendS).Count -eq 0) ''
 Chamar 'F30.27 NEG mes mal escrito' GET ($rotaS + '?mes=2026/09') $null 422 | Out-Null
 
 Write-Host ''
+Write-Host '=========== F31 - RELACAO MENSAL (DL 3/2010, art. 75.o) ==========='
+
+# O mes da semana do F25, pedido ao ministerio com as subunidades: a Maria esta no SERV_RH, dois niveis
+# abaixo. Esse mes tem o que os blocos anteriores deixaram: a segunda com anomalia (por corrigir), a
+# meia hora de tratamento ambulatorio (F27) e os 90 min de trabalho suplementar (F30).
+$uMin = '31e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e301'
+$rotaR = '/assiduidade/relacao-mensal?mes=' + $mes26 + '&unidadeId=' + $uMin
+$r31 = (Chamar 'F31.1 relacao mensal do ministerio, com subunidades' GET $rotaR).Dados
+$linhas31 = @($r31.unidades | ForEach-Object { $_.linhas } | Where-Object { $_.funcionarioId -eq $colabB })
+Verificar 'F31.2 a Maria aparece uma vez' ($linhas31.Count -eq 1) ('(' + $linhas31.Count + ')')
+$l31 = $linhas31[0]
+$u31 = (@($r31.unidades) | Where-Object { @($_.linhas | Where-Object { $_.funcionarioId -eq $colabB }).Count -gt 0 } | Select-Object -First 1)
+Verificar 'F31.3 na unidade dela (SERV_RH)' ($u31.codigo -eq 'SERV_RH') ('(' + $u31.codigo + ')')
+Verificar 'F31.4 o trabalho suplementar do F30 esta la' ($l31.minutosSuplementarDiaUtil -ge 90) ('(' + $l31.minutosSuplementarDiaUtil + ' min)')
+$trat31 = (@($l31.faltasJustificadas) | Where-Object { $_.codigo -eq 'TRATAMENTO_AMBULATORIO' } | Select-Object -First 1)
+Verificar 'F31.5 a meia hora de tratamento ambulatorio, em minutos' ($trat31.minutos -eq 30) ('(' + $trat31.minutos + ')')
+Verificar 'F31.6 a segunda por corrigir deixa a linha com pendencias' (($l31.estado -eq 'COM_PENDENCIAS') -and ($l31.diasPorCorrigir -ge 1)) ('(' + $l31.estado + ', por corrigir=' + $l31.diasPorCorrigir + ')')
+Verificar 'F31.7 um mes passado nao e provisorio' (-not $r31.provisoria) ''
+
+$r31b = (Chamar 'F31.8 so o ministerio, sem subunidades' GET ($rotaR + '&incluirSubunidades=false')).Dados
+Verificar 'F31.9 sem subunidades a Maria nao entra' ((@($r31b.unidades).Count -eq 1) -and (@($r31b.unidades | ForEach-Object { $_.linhas } | Where-Object { $_.funcionarioId -eq $colabB }).Count -eq 0)) ''
+$r31c = (Chamar 'F31.10 o mes corrente' GET ('/assiduidade/relacao-mensal?mes=' + (Get-Date).ToString('yyyy-MM') + '&unidadeId=' + $uMin)).Dados
+Verificar 'F31.11 o mes corrente e provisorio' ($r31c.provisoria) ''
+
+# CSV: o mesmo, para a folha de calculo.
+try {
+    $csv = Invoke-WebRequest -UseBasicParsing -TimeoutSec 90 -Uri ($base + '/assiduidade/relacao-mensal.csv?mes=' + $mes26 + '&unidadeId=' + $uMin)
+    # O PowerShell 5.1 entrega text/csv ja como texto; outras versoes, como bytes.
+    if ($csv.Content -is [byte[]]) { $csvTexto = [System.Text.Encoding]::UTF8.GetString($csv.Content) } else { $csvTexto = [string]$csv.Content }
+    $csvTipo = $csv.Headers['Content-Type']
+    $csvNome = $csv.Headers['Content-Disposition']
+} catch { $csvTexto = ''; $csvTipo = ''; $csvNome = '' }
+Verificar 'F31.12 CSV: text/csv, como anexo' (($csvTipo -like 'text/csv*') -and ($csvNome -like '*relacao-mensal-*')) ('(' + $csvTipo + ')')
+$csvLinhas = @($csvTexto -split "`r`n" | Where-Object { $_ })
+Verificar 'F31.13 CSV: cabecalho e a linha da Maria' (($csvLinhas[0] -like '*mes;provisoria;unidade_codigo*') -and (@($csvLinhas | Where-Object { $_ -like '*;0000002;*' }).Count -eq 1)) ('(' + $csvLinhas.Count + ' linhas)')
+
+Chamar 'F31.14 NEG mes futuro' GET ('/assiduidade/relacao-mensal?mes=' + (Get-Date).AddMonths(2).ToString('yyyy-MM') + '&unidadeId=' + $uMin) $null 422 | Out-Null
+Chamar 'F31.15 NEG mes mal escrito' GET ('/assiduidade/relacao-mensal?mes=08-2026&unidadeId=' + $uMin) $null 422 | Out-Null
+Chamar 'F31.16 NEG unidade vazia' GET ('/assiduidade/relacao-mensal?mes=' + $mes26 + '&unidadeId=') $null 422 | Out-Null
+Chamar 'F31.17 NEG unidade mal escrita' GET ('/assiduidade/relacao-mensal?mes=' + $mes26 + '&unidadeId=abc') $null 422 | Out-Null
+Chamar 'F31.18 NEG unidade que nao existe' GET ('/assiduidade/relacao-mensal?mes=' + $mes26 + '&unidadeId=' + [guid]::NewGuid()) $null 404 | Out-Null
+
+Write-Host ''
 Write-Host '=========== RESUMO ==========='
 $ok = ($script:resultados | Where-Object { $_.OK }).Count
 $total = $script:resultados.Count

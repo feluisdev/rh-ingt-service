@@ -69,6 +69,7 @@ public class ApuramentoFaltasService {
                 .map(c -> RegimeTrabalho.ISENCAO_HORARIO.getCode().equals(c.getRegimeTrabalho()))
                 .orElse(false);
 
+        LocalDate fimDoVinculo = fimDoVinculo(funcionario);
         List<MarcacaoAssiduidade> marcacoes = marcacaoRepository.findByFuncionarioEntre(funcionarioId, de, ate);
         Set<LocalDate> feriados = calendarioFeriadosService.feriadosDoColaborador(funcionarioId, de, ate);
         List<PedidoAusencia> aprovados = pedidoAusenciaRepository.findAprovadosEntre(funcionarioId, de, ate);
@@ -84,7 +85,8 @@ public class ApuramentoFaltasService {
             DiaAssiduidade assiduidade = DiaAssiduidade.calcular(data, doDia);
             boolean temValidas = doDia.stream().anyMatch(MarcacaoAssiduidade::conta);
 
-            EstadoDiaApurado previo = estadoPrevio(funcionarioId, funcionario, data, hoje, isento, feriados, justificados);
+            EstadoDiaApurado previo = fimDoVinculo != null && data.isAfter(fimDoVinculo) ? EstadoDiaApurado.FORA_DO_VINCULO
+                    : estadoPrevio(funcionarioId, funcionario, data, hoje, isento, feriados, justificados);
             // Um dia com correcções por decidir não se apura: o que conta ainda não está assente.
             if (previo == null && doDia.stream().anyMatch(MarcacaoAssiduidade::isPendente))
                 previo = EstadoDiaApurado.POR_VALIDAR;
@@ -93,6 +95,18 @@ public class ApuramentoFaltasService {
                     horasJustificadas.getOrDefault(data, List.of()), suplementares.getOrDefault(data, List.of())));
         }
         return new Apuramento(mes, isento, ApuramentoFaltas.apurar(dias));
+    }
+
+    /**
+     * O último dia do vínculo de quem já não está activo: o fim do contrato mais recente (a cessação
+     * encerra-o na data de efeito). Nulo para quem está activo, ou sem contrato com fim. Os dias
+     * seguintes não são faltas: estão fora do vínculo.
+     */
+    @Transactional(readOnly = true)
+    public LocalDate fimDoVinculo(Funcionario funcionario) {
+        if (!Boolean.FALSE.equals(funcionario.getIsActive())) return null;
+        return contratoRepository.findAllByFuncionarioIdOrderByStartDateDesc(funcionario.getId()).stream()
+                .findFirst().map(c -> c.getEndDate()).orElse(null);
     }
 
     private EstadoDiaApurado estadoPrevio(FuncionarioId funcionarioId, Funcionario funcionario, LocalDate data,

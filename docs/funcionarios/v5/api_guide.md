@@ -1142,6 +1142,42 @@ GET /api/v1/rh/funcionarios/{id}/trabalho-suplementar?mes=2026-09
 
 Regras: BR-SUP-01 a BR-SUP-09, BR-ME-04.
 
+### 6.11 Relação mensal — art. 75.º
+
+`GET /api/v1/rh/assiduidade/relacao-mensal?mes=2026-09&unidadeId={uuid}&incluirSubunidades=true` —
+DL n.º 3/2010, art. 75.º: as faltas e licenças de cada funcionário e a sua natureza, **por serviço**.
+**Só leitura**, calculada a cada pedido (o fecho do mês fica para quando houver integração salarial).
+`GET …/assiduidade/relacao-mensal.csv` com os mesmos parâmetros devolve o CSV (`text/csv`, anexo).
+
+```json
+{ "mes": "2026-08", "provisoria": false, "unidadeId": "…", "unidadeNome": "Ministério…", "incluirSubunidades": true,
+  "unidades": [ { "unidadeId": "…", "codigo": "SERV_RH", "nome": "Serviço de Recursos Humanos",
+                  "colaboradores": 1, "comPendencias": 1, "faltasPorJustificar": 18,
+                  "linhas": [ { "funcionarioId": "…", "numeroFuncionario": "0000002", "nome": "Maria Santos",
+                                "isento": false, "diasForaDoVinculo": 0, "diasFerias": 0,
+                                "faltasJustificadas": [ { "codigo": "TRATAMENTO_AMBULATORIO", "nome": "…", "dias": 0, "minutos": 30,
+                                                          "efeitoRemuneracao": "SEM_PERDA", "opcaoFaltaInjustificada": null } ],
+                                "faltasInjustificadas": [],
+                                "diasSemRegisto": 18, "faltasParciais": 0, "faltasPorJustificar": 18,
+                                "licencas": [ { "codigo": "…", "tipoRegisto": "LICENCA", "dias": 5, "afectaRemuneracao": true, "contaAntiguidade": false } ],
+                                "minutosSuplementarDiaUtil": 90, "minutosSuplementarDescanso": 0, "minutosSuplementarFeriado": 0,
+                                "diasPorCorrigir": 1, "diasPorValidar": 0, "pedidosPendentes": 0, "estado": "COM_PENDENCIAS" } ] } ] }
+```
+
+- **Quem entra**: quem teve afectação principal na unidade (ou subunidades) em algum dia do mês,
+  pelas datas da afectação — quem cessou a meio também, com `diasForaDoVinculo`. Uma pessoa, uma
+  unidade: a da afectação que chega mais longe no mês.
+- **Férias e faltas** cortadas ao mês: `dias` pela contagem do tipo; `minutos` nos pedidos em horas.
+  As injustificadas trazem a `opcaoFaltaInjustificada` (art. 43.º n.º 2) quando registada.
+- **Licenças e mobilidade**: dias de calendário no mês, por subtipo.
+- **Faltas por justificar**: do apuramento (§6.9). **Trabalho suplementar**: minutos realizados (§6.10).
+- `estado`: `COM_PENDENCIAS` com dias por corrigir/validar ou pedidos de ausência por decidir no mês.
+- `provisoria: true` no mês corrente. 422: mês futuro ou mal escrito, `unidadeId` vazio ou mal
+  escrito. 404: unidade que não existe.
+- CSV: uma linha por colaborador, `;`, UTF-8 com BOM, decimais com vírgula.
+
+Regras: BR-REL-01 a BR-REL-08, BR-FAL-08.
+
 ### Sub-recurso `documentos` (padrão)
 ```
 POST   .../{ownerId}/documentos            # upload (multipart)

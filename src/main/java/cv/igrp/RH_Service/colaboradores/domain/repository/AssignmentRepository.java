@@ -77,4 +77,11 @@ public interface AssignmentRepository {
      * A travessia Afectacao -> Lugar é feita na consulta, para não trazer N+1 a quem chama.
      */
     List<Assignment> findAllByUnidadeOrganicaCoveringYear(UUID unidadeOrganicaId, int year);
+
+    /**
+     * A mesma pergunta para um intervalo qualquer — [{@code de}, {@code ate}] — pelas datas da
+     * afectação, não pelo {@code isCurrent}: quem cessou a meio do intervalo também vem. É o que
+     * a relação mensal do art. 75.º do DL n.º 3/2010 precisa para saber quem esteve na unidade.
+     */
+    List<Assignment> findAllByUnidadeOrganicaEntre(UUID unidadeOrganicaId, java.time.LocalDate de, java.time.LocalDate ate);
 }

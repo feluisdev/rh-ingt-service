@@ -52,6 +52,7 @@ docker exec postgres-ingt-rh sh -c "psql -U postgres -d recursoshumanos_db -q -f
 | **F26** faltas por débito | sobre a semana do F25: dia com anomalia fica por corrigir; atraso de 30 min contra o horário fixo; dia sem marcações conta inteiro (SEM_REGISTO); domingo não se apura; um pedido aprovado tira o dia do apuramento |
 | **F27** pedido em horas (V58) | amamentação 1h+1h por dia durante 100 dias; a terceira passa do tecto diário; horas cruzadas 409, noutra hora cabe; tecto por ocorrência; férias em horas 422; terminar antes do fim acaba na véspera; meia hora justificada tira o atraso do apuramento |
 | **F28** pedido pelo próprio (/me) | segue as regras do RH: luto de sexta a segunda conta 4 dias seguidos; seminário de 7 dias passa do tecto (422); sobreposição 409; amamentação em horas pelo próprio |
+| **F31** relação mensal | o mês do F25 pedido ao ministério com subunidades: a Maria uma vez, no SERV_RH, com os 90 min suplementares, os 30 min de tratamento ambulatório e COM_PENDENCIAS (segunda por corrigir); sem subunidades não entra; o mês corrente é provisório; CSV text/csv com cabeçalho e a linha dela; mês futuro, mal escrito, unidade vazia ou mal escrita 422; unidade inexistente 404 |
 | **F30** trabalho suplementar | RH autoriza depois a terça do F25 fora do horário (90 min realizados pelas marcações, dia útil); tocar no horário 422, sem motivo 422, hora mal escrita 422, sobreposto 409, inactivo 403; o apuramento separa 90 min suplementares; a Maria pede para um sábado (para trás 422), ela própria 422, quem não é chefia 403, RH recusa sem motivo 422, autoriza, segunda vez 409, cancela |
 | **F29** registo pelo próprio | picagem pelo /me: presencial 422, inactivo 403, em teletrabalho 201; correcção fica PENDENTE e não conta; quem não é chefia 403, o próprio 422; RH rejeita sem motivo 422, valida, segunda vez 409; rejeitada fica visível e não conta |
 
@@ -514,7 +515,17 @@ uma semana (qualquer hora serve num dia de descanso); o RH autoriza e depois can
 chefia directa fica nos testes unitarios, pela mesma razao do F29. O `repor_estado.sql` apaga o
 trabalho suplementar (ponto 0 para os admitidos do F11; ponto 9 para todos).
 
+### F31 - relacao mensal (2026-09-23)
+
+Le o mes da semana do F25 ao nivel do ministerio (MIN_FIN), com as subunidades: a Maria esta no
+SERV_RH, dois niveis abaixo. **Armadilha paga:** no PowerShell 5.1 o `Invoke-WebRequest` entrega um
+`text/csv` ja como texto, e o `GetString` sobre ele falhava em silencio (dentro do `try`); o passo aceita
+agora texto ou bytes.
+
 ## Resultado da última execução
+
+**681 passos, 681 OK** (2026-09-23), duas execucoes seguidas com o `repor_estado.sql` entre elas
+(F31 incluido).
 
 **663 passos, 663 OK** (2026-09-23), duas execucoes seguidas com o `repor_estado.sql` entre elas
 (F30 incluido).

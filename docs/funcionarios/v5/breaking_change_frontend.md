@@ -597,6 +597,16 @@ existentes -- estas duas colunas mandam descontar antiguidade e mexer em salario
 (`t_leave_mobility_subtype.affects_pay`), que nao sabe dizer "parcial". Por agora sao dois
 contratos diferentes: booleano nas licencas, enum nas ausencias.
 
+### 11.32 Relacao mensal do art. 75.o (2026-09-23)
+
+**Nada deixa de funcionar**: dois endpoints novos, so leitura.
+
+- `GET /assiduidade/relacao-mensal?mes=yyyy-MM&unidadeId=...&incluirSubunidades=true` (JSON) e
+  `GET /assiduidade/relacao-mensal.csv` (mesmos parametros; descarregar como ficheiro).
+- Ecra por unidade: uma linha por colaborador, com o `estado` (COMPLETA/COM_PENDENCIAS) em destaque e
+  a indicacao `provisoria` no mes corrente.
+- Faltas apuradas: os dias depois do fim do vinculo passam a `FORA_DO_VINCULO` (antes COM_FALTA/SEM_REGISTO).
+
 ### 11.31 Trabalho suplementar (horas extras) (2026-09-23)
 
 **Nada deixa de funcionar**: endpoints novos e um campo novo numa resposta.
@@ -788,6 +798,7 @@ resposta ja reflecte isto -- nao ha nada a recalcular no ecra.
 - [ ] Separador de horário no colaborador: histórico, atribuir a partir de uma data (horário + regime de prestação) e o horário vigente com a origem.
 - [ ] Ecrã de assiduidade do colaborador: semana/mês com períodos, horas trabalhadas vs esperadas, dias com anomalia destacados, e as acções corrigir e anular (com motivo).
 - [ ] Pedido de ausência: horas de início e fim (só para tipos que as admitem), e a acção terminar para pedidos em horas aprovados.
+- [ ] Relação mensal: ecrã por unidade (mês, com subunidades), pendências em destaque, botão de descarregar o CSV.
 - [ ] Trabalho suplementar: separador no colaborador (mês, autorizado vs realizado por tipo de dia), pedido pelo próprio no `/me`, e a caixa de pendentes da chefia (autorizar/recusar).
 - [ ] `/me`: botão de picar (só em teletrabalho/misto), pedido de correcção com motivo, e a caixa de pendentes da equipa para a chefia (validar/rejeitar).
 - [ ] Separador de faltas apuradas do mês: dias com falta e motivo, débitos da aferição, total em dias e meios-dias, e atalho para justificar (pedido de ausência).

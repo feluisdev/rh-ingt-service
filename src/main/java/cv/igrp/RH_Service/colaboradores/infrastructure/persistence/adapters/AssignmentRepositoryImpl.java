@@ -127,4 +127,11 @@ public class AssignmentRepositoryImpl implements AssignmentRepository {
         return entityRepository.findAllByUnidadeOrganicaCoveringRange(unidadeOrganicaId, startOfYear, endOfYear)
                 .stream().map(mapper::toDomain).toList();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Assignment> findAllByUnidadeOrganicaEntre(UUID unidadeOrganicaId, LocalDate de, LocalDate ate) {
+        return entityRepository.findAllByUnidadeOrganicaCoveringRange(unidadeOrganicaId, de, ate)
+                .stream().map(mapper::toDomain).toList();
+    }
 }
