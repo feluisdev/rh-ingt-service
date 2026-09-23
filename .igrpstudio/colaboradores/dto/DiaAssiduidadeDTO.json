@@ -1,0 +1,68 @@
+{
+  "type": "dto",
+  "name": "DiaAssiduidadeDTO",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "date",
+      "name": "data",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "PeriodoPresencaDTO",
+      "name": "periodos",
+      "objectType": "dto",
+      "required": false,
+      "collectionType": "list",
+      "module": "colaboradores"
+    },
+    {
+      "type": "integer",
+      "name": "intervalosMinutos",
+      "objectType": "java",
+      "required": false,
+      "collectionType": "list"
+    },
+    {
+      "type": "integer",
+      "name": "minutosTrabalhados",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "minutosEsperados",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "horarioNome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "feriado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "anomalias",
+      "objectType": "java",
+      "required": false,
+      "collectionType": "list"
+    },
+    {
+      "type": "MarcacaoDTO",
+      "name": "marcacoes",
+      "objectType": "dto",
+      "required": false,
+      "collectionType": "list",
+      "module": "colaboradores"
+    }
+  ]
+}

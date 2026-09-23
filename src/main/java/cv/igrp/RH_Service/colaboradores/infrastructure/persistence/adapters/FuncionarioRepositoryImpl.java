@@ -44,6 +44,12 @@ public class FuncionarioRepositoryImpl implements FuncionarioRepository {
 
     @Transactional(readOnly = true)
     @Override
+    public Optional<Funcionario> findByNumeroFuncionario(String numeroFuncionario) {
+        return entityRepository.findByNumeroFuncionario(numeroFuncionario).map(mapper::toDomain);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public List<Funcionario> findAll(FuncionarioFilter filter) {
         var pageable = PageRequest.of(filter.getPage(), filter.getSize());
         return entityRepository.findAll(toSpec(filter), pageable)

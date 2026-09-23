@@ -63,4 +63,11 @@ public class PedidoAusenciaRepositoryImpl implements PedidoAusenciaRepository {
     public boolean existsOverlapForFuncionario(FuncionarioId funcionarioId, LocalDate dataInicio, LocalDate dataFim) {
         return entityRepository.existsOverlap(funcionarioId.getValor(), dataInicio, dataFim);
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<PedidoAusencia> findAprovadosEntre(FuncionarioId funcionarioId, LocalDate dataInicio, LocalDate dataFim) {
+        return entityRepository.findAprovadosEntre(funcionarioId.getValor(), dataInicio, dataFim)
+                .stream().map(mapper::toDomain).toList();
+    }
 }

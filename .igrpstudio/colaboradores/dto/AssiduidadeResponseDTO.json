@@ -1,0 +1,42 @@
+{
+  "type": "dto",
+  "name": "AssiduidadeResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "de",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "ate",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "DiaAssiduidadeDTO",
+      "name": "dias",
+      "objectType": "dto",
+      "required": false,
+      "collectionType": "list",
+      "module": "colaboradores"
+    },
+    {
+      "type": "SemanaAssiduidadeDTO",
+      "name": "semanas",
+      "objectType": "dto",
+      "required": false,
+      "collectionType": "list",
+      "module": "colaboradores"
+    }
+  ]
+}

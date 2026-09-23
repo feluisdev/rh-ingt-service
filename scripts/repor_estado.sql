@@ -167,10 +167,13 @@ DO $$ BEGIN
   END IF;
 END $$;
 
--- 9. Horarios (assiduidade, primeiro passo). Tabelas do ddl-auto: podem ainda nao existir numa
+-- 9. Horarios e marcacoes (assiduidade). Tabelas do ddl-auto: podem ainda nao existir numa
 --    base acabada de criar. O catalogo de horarios e da instituicao e o seed nao traz nenhum: a
 --    bateria cria os seus e aqui saem todos, com as atribuicoes e o horario das unidades (V57).
 DO $$ BEGIN
+  IF to_regclass('public.t_marcacao_assiduidade') IS NOT NULL THEN
+    DELETE FROM t_marcacao_assiduidade;
+  END IF;
   IF to_regclass('public.t_horario_colaborador') IS NOT NULL THEN
     DELETE FROM t_horario_colaborador;
   END IF;

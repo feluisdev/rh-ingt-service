@@ -1,0 +1,91 @@
+{
+  "type": "model",
+  "module": "colaboradores",
+  "name": "MarcacaoAssiduidadeEntity",
+  "tableName": "t_marcacao_assiduidade",
+  "audit": true,
+  "crud": false,
+  "revision": true,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": true,
+      "nullable": false
+    },
+    {
+      "name": "funcionario",
+      "type": "relation",
+      "relation": {
+        "type": "ManyToOne",
+        "entity": "FuncionarioEntity",
+        "fetchType": "lazy",
+        "joinColumn": "funcionario_id",
+        "module": "colaboradores"
+      }
+    },
+    {
+      "name": "momento",
+      "type": "datetime",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "sentido",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "length": 10,
+      "nullable": false
+    },
+    {
+      "name": "origem",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "length": 20,
+      "nullable": false
+    },
+    {
+      "name": "motivo",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "length": 500,
+      "nullable": true
+    },
+    {
+      "name": "referenciaExterna",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "length": 100,
+      "nullable": true,
+      "unique": true
+    },
+    {
+      "name": "anulada",
+      "type": "boolean",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "motivoAnulacao",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "length": 500,
+      "nullable": true
+    },
+    {
+      "name": "anuladaEm",
+      "type": "datetime",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    }
+  ]
+}

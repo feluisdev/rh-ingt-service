@@ -1,0 +1,38 @@
+{
+  "type": "dto",
+  "name": "PicagemDTO",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "numeroFuncionario",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "datetime",
+      "name": "momento",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "sentido",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "referenciaExterna",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

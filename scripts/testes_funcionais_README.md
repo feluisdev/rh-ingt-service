@@ -48,6 +48,7 @@ docker exec postgres-ingt-rh sh -c "psql -U postgres -d recursoshumanos_db -q -f
 | **F22** mapa de férias | preferência, fixada fora da janela 422, marcação por acordo com alerta, mapa, publicar duas vezes 409, alterar depois de publicado só com motivo |
 | **F23** parâmetros de férias | vigência nova por ano (409 repetida, 422 inválida); cada ano lê as regras do seu tempo; o mínimo interpolado novo aceita o que o da lei recusa |
 | **F24** horários | NENHUM → BASE → UNIDADE (herdado da mãe) → COLABORADOR; atribuição fecha a anterior na véspera; base não se desactiva; `horarioId` da unidade mantém-se no `PUT` omisso e limpa-se em branco |
+| **F25** registo diário | importação de picagens repetível (duplicadas não entram, as más vão para o relatório); dia calculado com períodos, intervalo e horas; anomalia sem saída; correcção exige motivo; anular fica visível; sábado dá alerta |
 
 ## Repor o estado inicial
 
@@ -449,7 +450,23 @@ do F19 e a unica com Lugar (o Francisco perdeu-o, a Joana foi cessada).
 A V56 passou 15 tipos de ausencia a dias seguidos, mas **nenhum bloco antigo partiu**: os que
 verificam `numeroDias` usam periodos de segunda a sexta.
 
+### F25 - registo diario de assiduidade (2026-09-23)
+
+Seis semanas atras, longe das mobilidades e dos pedidos dos blocos anteriores; o horario esperado e
+o base que o F24 deixou (TST Atendimento, 8h). Importa um lote de picagens da Maria pelo numero de
+funcionario (5 boas, uma de numero desconhecido, uma sem referencia), repete o lote (5 duplicadas,
+nada entra), le a semana, corrige a terca (sem motivo 422, com motivo 201), anula a saida das 12:30
+(o dia passa a ter ENTRADAS_SEGUIDAS e 210 minutos, e a anulada continua visivel).
+
+**Armadilha de ambiente, nao de codigo:** numa das corridas o F21.1 deu 500 porque o pool de
+ligacoes da app tinha ligacoes a base ja fechadas (SQLState 08003, `This connection has been
+closed`). O pool recuperou sozinho e a corrida seguinte passou toda. Se acontecer, repor e correr
+outra vez; se se repetir, reiniciar a app.
+
 ## Resultado da última execução
+
+**575 passos, 575 OK** (2026-09-23), duas execucoes seguidas com o `repor_estado.sql` entre elas,
+contra a base local com a V57 aplicada (F25 incluido).
 
 **553 passos, 553 OK** (2026-09-23), duas execucoes seguidas com o `repor_estado.sql` entre elas,
 contra a base local com a V57 aplicada. A anterior (antes dos blocos novos) deu 458 de 458: um passo

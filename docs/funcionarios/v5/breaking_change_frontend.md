@@ -597,6 +597,18 @@ existentes -- estas duas colunas mandam descontar antiguidade e mexer em salario
 (`t_leave_mobility_subtype.affects_pay`), que nao sabe dizer "parcial". Por agora sao dois
 contratos diferentes: booleano nas licencas, enum nas ausencias.
 
+### 11.26 Registo diario de assiduidade (2026-09-23)
+
+**Nada deixa de funcionar**: sao endpoints novos.
+
+- `POST /funcionarios/{id}/marcacoes`, `PATCH /funcionarios/{id}/marcacoes/{mid}/anular`,
+  `POST /assiduidade/importacao` e `GET /funcionarios/{id}/assiduidade?de=&ate=`. Ver
+  `api_guide.md` §6.8.
+- Uma marcacao **nao se edita nem se apaga**: o ecra oferece "corrigir" (nova marcacao, com motivo
+  se o dia ja tiver marcacoes) e "anular" (com motivo). As anuladas continuam a vir, marcadas.
+- Mostrar as `anomalias` do dia: sao os dias a corrigir.
+- O lancamento pode devolver 201 **com alerta** (ausencia aprovada, feriado, fim-de-semana).
+
 ### 11.25 Horarios: catalogo, unidade organica e colaborador (2026-09-23)
 
 **Nada deixa de funcionar**: sao endpoints novos e um campo opcional novo na unidade organica.
@@ -715,3 +727,4 @@ resposta ja reflecte isto -- nao ha nada a recalcular no ecra.
 - [ ] Ecrã do catálogo de horários: blocos por dia, fixo ou flexível (período de aferição + duração diária + plataformas), e o botão de marcar o horário base.
 - [ ] Select opcional de horário no formulário da unidade orgânica (vazio = segue a unidade-mãe).
 - [ ] Separador de horário no colaborador: histórico, atribuir a partir de uma data (horário + regime de prestação) e o horário vigente com a origem.
+- [ ] Ecrã de assiduidade do colaborador: semana/mês com períodos, horas trabalhadas vs esperadas, dias com anomalia destacados, e as acções corrigir e anular (com motivo).

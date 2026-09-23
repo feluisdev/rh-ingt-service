@@ -1,0 +1,38 @@
+{
+  "type": "dto",
+  "name": "SemanaAssiduidadeDTO",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "integer",
+      "name": "ano",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "semana",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "inicio",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "minutosTrabalhados",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "minutosEsperados",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

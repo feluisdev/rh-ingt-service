@@ -1,0 +1,28 @@
+{
+  "type": "dto",
+  "name": "ImportacaoMarcacoesResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "integer",
+      "name": "importadas",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "duplicadas",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "RejeicaoImportacaoDTO",
+      "name": "rejeitadas",
+      "objectType": "dto",
+      "required": false,
+      "collectionType": "list",
+      "module": "colaboradores"
+    }
+  ]
+}

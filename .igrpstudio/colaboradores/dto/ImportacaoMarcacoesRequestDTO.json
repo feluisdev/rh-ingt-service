@@ -1,0 +1,16 @@
+{
+  "type": "dto",
+  "name": "ImportacaoMarcacoesRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "PicagemDTO",
+      "name": "picagens",
+      "objectType": "dto",
+      "required": false,
+      "collectionType": "list",
+      "module": "colaboradores"
+    }
+  ]
+}

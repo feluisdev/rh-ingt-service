@@ -14,6 +14,8 @@ public interface PedidoAusenciaRepository {
     Optional<PedidoAusencia> findById(PedidoAusenciaId id);
     List<PedidoAusencia> findAllByFuncionarioId(FuncionarioId funcionarioId, PedidoAusenciaFilter filter);
     boolean existsOverlapForFuncionario(FuncionarioId funcionarioId, LocalDate dataInicio, LocalDate dataFim);
+    /** Os pedidos aprovados que tocam em [{@code dataInicio}, {@code dataFim}]. */
+    List<PedidoAusencia> findAprovadosEntre(FuncionarioId funcionarioId, LocalDate dataInicio, LocalDate dataFim);
 
     /**
      * Dias já pedidos no ano para um tipo, ignorando os rejeitados e cancelados.

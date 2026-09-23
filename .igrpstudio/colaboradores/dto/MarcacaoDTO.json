@@ -1,0 +1,62 @@
+{
+  "type": "dto",
+  "name": "MarcacaoDTO",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "datetime",
+      "name": "momento",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "sentido",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "origem",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "referenciaExterna",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "anulada",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivoAnulacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "datetime",
+      "name": "anuladaEm",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "type": "dto",
+  "name": "PeriodoPresencaDTO",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "entrada",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "saida",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "minutos",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

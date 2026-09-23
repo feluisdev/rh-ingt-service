@@ -19,4 +19,6 @@ public interface FuncionarioRepository {
     boolean existsByNumeroDocumento(String numeroDocumento);
     boolean existsByNumeroDocumentoAndIdNot(String numeroDocumento, FuncionarioId id);
     List<Funcionario> findAllByIds(Collection<UUID> ids);
+    /** Pelo número de funcionário — é o que um relógio de ponto conhece. */
+    Optional<Funcionario> findByNumeroFuncionario(String numeroFuncionario);
 }

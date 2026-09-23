@@ -1,0 +1,55 @@
+{
+  "type": "controller",
+  "name": "Assiduidade",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh",
+  "description": "Registo diário de assiduidade: marcações, importação de relógio e consulta (Lei n.º 20/X/2023, art. 164.º n.º 3)",
+  "actions": [
+    {
+      "actionName": "lancarMarcacao",
+      "method": "POST",
+      "path": "funcionarios/{funcionarioId}/marcacoes",
+      "pathVariables": [ { "name": "funcionarioId", "type": "string" } ],
+      "requestBody": { "content": { "application/json": { "schema": {
+        "type": "MarcacaoRequest", "collectionType": "none", "name": "data", "objectType": "dto", "module": "colaboradores" } } } },
+      "responses": {
+        "201": { "name": "Created", "content": { "application/json": { "schema": {
+          "type": "SuccessResponseDTO", "objectType": "dto", "name": "data", "collectionType": "none", "module": "shared" } } } }
+      }
+    },
+    {
+      "actionName": "anularMarcacao",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/marcacoes/{marcacaoId}/anular",
+      "pathVariables": [ { "name": "funcionarioId", "type": "string" }, { "name": "marcacaoId", "type": "string" } ],
+      "requestBody": { "content": { "application/json": { "schema": {
+        "type": "AnularMarcacaoRequest", "collectionType": "none", "name": "data", "objectType": "dto", "module": "colaboradores" } } } },
+      "responses": {
+        "200": { "name": "OK", "content": { "application/json": { "schema": {
+          "type": "SuccessResponseDTO", "objectType": "dto", "name": "data", "collectionType": "none", "module": "shared" } } } }
+      }
+    },
+    {
+      "actionName": "importarMarcacoes",
+      "method": "POST",
+      "path": "assiduidade/importacao",
+      "requestBody": { "content": { "application/json": { "schema": {
+        "type": "ImportacaoMarcacoesRequest", "collectionType": "none", "name": "data", "objectType": "dto", "module": "colaboradores" } } } },
+      "responses": {
+        "200": { "name": "OK", "content": { "application/json": { "schema": {
+          "type": "ImportacaoMarcacoesResponseDTO", "objectType": "dto", "name": "data", "collectionType": "none", "module": "colaboradores" } } } }
+      }
+    },
+    {
+      "actionName": "getAssiduidade",
+      "method": "GET",
+      "path": "funcionarios/{funcionarioId}/assiduidade",
+      "pathVariables": [ { "name": "funcionarioId", "type": "string" } ],
+      "requestParams": [ { "type": "date", "name": "de", "isRequired": true }, { "type": "date", "name": "ate", "isRequired": true } ],
+      "responses": {
+        "200": { "name": "OK", "content": { "application/json": { "schema": {
+          "type": "AssiduidadeResponseDTO", "objectType": "dto", "name": "data", "collectionType": "none", "module": "colaboradores" } } } }
+      }
+    }
+  ]
+}

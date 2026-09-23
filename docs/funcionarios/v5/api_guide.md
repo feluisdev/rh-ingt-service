@@ -931,6 +931,66 @@ GET /api/v1/rh/funcionarios/{id}/horarios/vigente?data=2026-10-05
 
 Regras: BR-HOR-06 a BR-HOR-10.
 
+### 6.8 Registo diário de assiduidade — marcações
+
+O registo do art. 164.º n.º 3 da Lei n.º 20/X/2023. Guardam-se as **marcações** (entrada ou saída,
+com a hora) — a prova — e o dia **calcula-se** delas: períodos, intervalos, horas e anomalias.
+Uma marcação **nunca se apaga**: corrige-se com outra, e a errada anula-se com motivo.
+
+| Método | Path | O quê |
+|---|---|---|
+| `POST` | `/api/v1/rh/funcionarios/{id}/marcacoes` | lançamento pelo RH → 201 (com alertas) |
+| `PATCH` | `/api/v1/rh/funcionarios/{id}/marcacoes/{marcacaoId}/anular` | anula, com motivo → 200 |
+| `POST` | `/api/v1/rh/assiduidade/importacao` | picagens de um relógio → 200 com relatório |
+| `GET` | `/api/v1/rh/funcionarios/{id}/assiduidade?de=2026-09-01&ate=2026-09-30` | o período, por dia e por semana |
+
+```json
+POST /api/v1/rh/funcionarios/{id}/marcacoes
+{ "momento": "2026-09-22T17:00", "sentido": "SAIDA", "motivo": "esqueceu-se de picar a saída" }
+```
+
+O `motivo` é **obrigatório quando o dia já tem marcações** — lançar outra é uma correcção.
+
+```json
+POST /api/v1/rh/assiduidade/importacao
+{ "picagens": [
+    { "numeroFuncionario": "0000002", "momento": "2026-09-22T08:02", "sentido": "ENTRADA", "referenciaExterna": "REL1-000123" }
+] }
+→ { "importadas": 1, "duplicadas": 0, "rejeitadas": [] }
+```
+
+A importação é **genérica**: o adaptador de cada marca de relógio converte para este formato. A
+`referenciaExterna` (o id da picagem no relógio) é obrigatória e torna-a **repetível** — a mesma
+referência conta como duplicada. Uma picagem má não trava as outras: vai para `rejeitadas`, com o
+motivo. No máximo 5000 por lote.
+
+```json
+GET /api/v1/rh/funcionarios/{id}/assiduidade?de=2026-09-21&ate=2026-09-27
+{ "dias": [ {
+    "data": "2026-09-21",
+    "periodos": [ { "entrada": "08:00", "saida": "12:30", "minutos": 270 }, { "entrada": "14:00", "saida": "17:30", "minutos": 210 } ],
+    "intervalosMinutos": [ 90 ], "minutosTrabalhados": 480, "minutosEsperados": 480,
+    "horarioNome": "Horário normal", "feriado": false, "anomalias": [],
+    "marcacoes": [ { "id": "…", "momento": "2026-09-21T08:00", "sentido": "ENTRADA", "origem": "IMPORTADO", "anulada": false } ]
+  } ],
+  "semanas": [ { "ano": 2026, "semana": 39, "inicio": "2026-09-21", "minutosTrabalhados": 480, "minutosEsperados": 2400 } ] }
+```
+
+- `anomalias` ∈ `ENTRADA_SEM_SAIDA` · `SAIDA_SEM_ENTRADA` · `ENTRADAS_SEGUIDAS`: o dia tem de ser
+  corrigido; os minutos só contam nos pares completos.
+- `minutosEsperados` vem do horário vigente nesse dia (§6.7); zero em feriado ou sem horário.
+- `marcacoes` traz todas, anuladas incluídas (com `motivoAnulacao`).
+
+| Caso | Resposta |
+|---|---|
+| marcação no futuro, sem `momento`, `sentido` fora de ENTRADA/SAIDA | 422 |
+| dia com marcações e sem `motivo` | 422 |
+| anular sem motivo · anular outra vez · marcação de outra pessoa | 422 · 409 · 404 |
+| consulta sem `de`/`ate`, ao contrário ou com mais de 62 dias | 422 |
+| ausência aprovada, feriado ou fim-de-semana | 201, com alerta |
+
+Regras: BR-ASS-01 a BR-ASS-07.
+
 ### Sub-recurso `documentos` (padrão)
 ```
 POST   .../{ownerId}/documentos            # upload (multipart)

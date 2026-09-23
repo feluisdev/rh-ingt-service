@@ -15,4 +15,5 @@ public interface ColabsFuncionarioEntityRepository
     boolean existsByNumeroDocumento(String numeroDocumento);
     boolean existsByNumeroDocumentoAndIdNot(String numeroDocumento, UUID id);
     Optional<FuncionarioEntity> findByEmailIgnoreCase(String email);
+    Optional<FuncionarioEntity> findByNumeroFuncionario(String numeroFuncionario);
 }

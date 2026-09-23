@@ -1448,6 +1448,59 @@ $rPutH3 = Chamar 'F24.30 horarioId em branco limpa a unidade' PUT ('/estrutura/o
 Verificar 'F24.31 a unidade ficou sem horario' ($null -eq $rPutH3.Dados.horarioId) ''
 
 Write-Host ''
+Write-Host '=========== F25 - REGISTO DIARIO DE ASSIDUIDADE (art. 164.o n.o 3) ==========='
+
+# Guardam-se as marcacoes (a prova) e o dia calcula-se delas. Seis semanas atras: longe das
+# mobilidades e dos pedidos dos blocos anteriores. O horario que vale e o base que o F24 deixou
+# (TST Atendimento, 8h de segunda a sexta).
+$seg25 = (Get-Date).Date.AddDays(-42)
+while ($seg25.DayOfWeek -ne [DayOfWeek]::Monday) { $seg25 = $seg25.AddDays(-1) }
+$ter25 = $seg25.AddDays(1)
+$tag25 = 'TST-' + (Get-Date -Format 'HHmmss')
+function Pic($dia, $hora, $sentido, $n) {
+    return @{ numeroFuncionario='0000002'; momento=((Iso $dia) + 'T' + $hora); sentido=$sentido; referenciaExterna=($tag25 + '-' + $n) }
+}
+$lote25 = @{ picagens=@(
+    (Pic $seg25 '08:00' 'ENTRADA' 1), (Pic $seg25 '12:30' 'SAIDA' 2), (Pic $seg25 '14:00' 'ENTRADA' 3), (Pic $seg25 '17:30' 'SAIDA' 4),
+    (Pic $ter25 '08:00' 'ENTRADA' 5),
+    @{ numeroFuncionario='9999999'; momento=((Iso $ter25) + 'T08:00'); sentido='ENTRADA'; referenciaExterna=($tag25 + '-6') },
+    @{ numeroFuncionario='0000002'; momento=((Iso $ter25) + 'T09:00'); sentido='ENTRADA' }) }
+$rImp = Chamar 'F25.1 importar picagens do relogio' POST '/assiduidade/importacao' $lote25 200
+Verificar 'F25.2 cinco importadas, duas rejeitadas com motivo' (($rImp.Dados.importadas -eq 5) -and (@($rImp.Dados.rejeitadas).Count -eq 2)) ('(importadas=' + $rImp.Dados.importadas + ' rejeitadas=' + @($rImp.Dados.rejeitadas).Count + ')')
+$rImp2 = Chamar 'F25.3 importar o mesmo lote outra vez' POST '/assiduidade/importacao' $lote25 200
+Verificar 'F25.4 a importacao e repetivel: nada duplica' (($rImp2.Dados.importadas -eq 0) -and ($rImp2.Dados.duplicadas -eq 5)) ('(duplicadas=' + $rImp2.Dados.duplicadas + ')')
+
+$rotaA = '/funcionarios/' + $colabB + '/assiduidade?de=' + (Iso $seg25) + '&ate=' + (Iso $seg25.AddDays(6))
+$a25 = (Chamar 'F25.5 assiduidade da semana' GET $rotaA).Dados
+$d0 = @($a25.dias)[0]; $d1 = @($a25.dias)[1]
+Verificar 'F25.6 segunda: dois periodos, 90 min de intervalo, 8h' (($d0.minutosTrabalhados -eq 480) -and (@($d0.periodos).Count -eq 2) -and (@($d0.intervalosMinutos)[0] -eq 90) -and (@($d0.anomalias).Count -eq 0)) ('(' + $d0.minutosTrabalhados + ' min)')
+Verificar 'F25.7 terca: entrada sem saida e anomalia, e nao conta' (($d1.minutosTrabalhados -eq 0) -and (@($d1.anomalias) -contains 'ENTRADA_SEM_SAIDA')) ('(' + (@($d1.anomalias) -join ',') + ')')
+Verificar 'F25.8 esperado pelo horario do dia, total da semana' (($d0.minutosEsperados -eq 480) -and (@($a25.semanas)[0].minutosEsperados -eq 2400) -and (@($a25.semanas)[0].minutosTrabalhados -eq 480)) ('(esperado dia=' + $d0.minutosEsperados + ' semana=' + @($a25.semanas)[0].minutosEsperados + ')')
+
+# Corrigir: num dia com marcacoes, lancar outra e uma correccao, e exige motivo.
+$rotaM = '/funcionarios/' + $colabB + '/marcacoes'
+Chamar 'F25.9 NEG corrigir a terca sem motivo' POST $rotaM @{ momento=((Iso $ter25) + 'T17:00'); sentido='SAIDA' } 422 | Out-Null
+Chamar 'F25.10 corrigir a terca com motivo' POST $rotaM @{ momento=((Iso $ter25) + 'T17:00'); sentido='SAIDA'; motivo='esqueceu-se de picar a saida' } 201 | Out-Null
+$d1b = @((Chamar 'F25.11 ler a semana depois da correccao' GET $rotaA).Dados.dias)[1]
+Verificar 'F25.12 a terca ficou completa' (($d1b.minutosTrabalhados -eq 540) -and (@($d1b.anomalias).Count -eq 0)) ('(' + $d1b.minutosTrabalhados + ' min)')
+Chamar 'F25.13 NEG marcacao no futuro' POST $rotaM @{ momento=((Iso (Get-Date).AddDays(2)) + 'T08:00'); sentido='ENTRADA' } 422 | Out-Null
+Chamar 'F25.14 NEG sentido fora da lista' POST $rotaM @{ momento=((Iso $seg25.AddDays(2)) + 'T08:00'); sentido='PAUSA' } 422 | Out-Null
+
+# Anular: a marcacao fica, anulada, com o motivo. E prova do que foi picado.
+$saida1230 = (@($d0.marcacoes) | Where-Object { $_.sentido -eq 'SAIDA' } | Sort-Object momento | Select-Object -First 1).id
+$rotaAn = $rotaM + '/' + $saida1230 + '/anular'
+Chamar 'F25.15 NEG anular sem motivo' PATCH $rotaAn @{ motivo='' } 422 | Out-Null
+Chamar 'F25.16 anular com motivo' PATCH $rotaAn @{ motivo='picagem duplicada do relogio' } 200 | Out-Null
+Chamar 'F25.17 NEG anular outra vez' PATCH $rotaAn @{ motivo='de novo' } 409 | Out-Null
+$d0b = @((Chamar 'F25.18 ler a semana depois de anular' GET $rotaA).Dados.dias)[0]
+$anuladas = @($d0b.marcacoes | Where-Object { $_.anulada }).Count
+Verificar 'F25.19 a anulada fica visivel e deixa de contar' (($anuladas -eq 1) -and (@($d0b.marcacoes).Count -eq 4) -and (@($d0b.anomalias) -contains 'ENTRADAS_SEGUIDAS') -and ($d0b.minutosTrabalhados -eq 210)) ('(' + $d0b.minutosTrabalhados + ' min, ' + (@($d0b.anomalias) -join ',') + ')')
+
+$rSab = Chamar 'F25.20 marcacao num sabado' POST $rotaM @{ momento=((Iso $seg25.AddDays(5)) + 'T09:00'); sentido='ENTRADA' } 201
+Verificar 'F25.21 aceite, com alerta de fim-de-semana' ((@($rSab.Dados.alertas) -join ' ') -like '*fim-de-semana*') ('(' + (@($rSab.Dados.alertas) -join ' | ') + ')')
+Chamar 'F25.22 NEG consulta de mais de dois meses' GET ('/funcionarios/' + $colabB + '/assiduidade?de=' + (Iso $seg25) + '&ate=' + (Iso $seg25.AddDays(70))) $null 422 | Out-Null
+
+Write-Host ''
 Write-Host '=========== RESUMO ==========='
 $ok = ($script:resultados | Where-Object { $_.OK }).Count
 $total = $script:resultados.Count

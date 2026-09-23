@@ -67,4 +67,13 @@ public interface ColabsPedidoAusenciaEntityRepository extends JpaRepository<Pedi
     boolean existsOverlap(@Param("funcionarioId") UUID funcionarioId,
                           @Param("dataInicio") LocalDate dataInicio,
                           @Param("dataFim") LocalDate dataFim);
+
+    @Query("SELECT p FROM ColabsPedidoAusenciaEntity p " +
+           "WHERE p.funcionario.id = :funcionarioId " +
+           "AND p.estado = 'APROVADO' " +
+           "AND p.dataInicio <= :dataFim " +
+           "AND p.dataFim >= :dataInicio")
+    List<PedidoAusenciaEntity> findAprovadosEntre(@Param("funcionarioId") UUID funcionarioId,
+                                                  @Param("dataInicio") LocalDate dataInicio,
+                                                  @Param("dataFim") LocalDate dataFim);
 }
