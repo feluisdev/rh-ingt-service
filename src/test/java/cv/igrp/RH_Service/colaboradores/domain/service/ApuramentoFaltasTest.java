@@ -148,6 +148,48 @@ class ApuramentoFaltasTest {
         assertEquals(BigDecimal.ZERO, ApuramentoFaltas.converter(0, 480));
     }
 
+    private ApuramentoFaltas.Dia comJustificadas(ApuramentoFaltas.Dia d, String de, String ate) {
+        return new ApuramentoFaltas.Dia(d.data(), d.estadoPrevio(), d.horario(), d.assiduidade(), d.temMarcacoesValidas(),
+                List.of(new DiaAssiduidade.Periodo(LocalTime.parse(de), LocalTime.parse(ate))));
+    }
+
+    @Test
+    void horaJustificadaCobreOAtrasoNoFixo() {
+        // Entrou as 09:00; a hora das 08:00 as 09:00 esta justificada por um pedido em horas (V58).
+        var r = ApuramentoFaltas.apurar(List.of(
+                comJustificadas(dia(SEGUNDA, fixo(), "09:00", "12:00", "13:00", "17:00"), "08:00", "09:00")));
+        var d = r.dias().get(0);
+        assertEquals(EstadoDiaApurado.SEM_FALTA, d.estado());
+        assertEquals(60, d.minutosJustificados());
+        assertEquals(0, r.minutosParciais());
+    }
+
+    @Test
+    void semMarcacoesMasComHorasJustificadasNaoEDiaInteiro() {
+        var r = ApuramentoFaltas.apurar(List.of(comJustificadas(dia(SEGUNDA, fixo()), "08:00", "10:00")));
+        var d = r.dias().get(0);
+        assertEquals(MotivoFalta.INCOMPLETO, d.motivo());
+        assertEquals(360, d.minutosEmFalta());
+        assertEquals(0, r.diasSemRegisto());
+    }
+
+    @Test
+    void horaPicadaEJustificadaNaoContaDuasVezes() {
+        var r = ApuramentoFaltas.apurar(List.of(
+                comJustificadas(dia(SEGUNDA, fixo(), "08:00", "12:00", "13:00", "17:00"), "11:00", "12:00")));
+        assertEquals(0, r.dias().get(0).minutosJustificados());
+    }
+
+    @Test
+    void noFlexivelAsHorasJustificadasContamNoDebito() {
+        var h = flexivel();
+        // 5h picadas + 2h de amamentacao justificadas = 7h: sem debito.
+        var r = ApuramentoFaltas.apurar(List.of(
+                comJustificadas(dia(SEGUNDA, h, "09:30", "12:00", "14:00", "16:30"), "16:30", "18:30")));
+        assertEquals(0, r.debitos().get(0).minutosDebito());
+        assertEquals(120, r.dias().get(0).minutosJustificados());
+    }
+
     @Test
     void oParcialSomaSeNoMesAntesDeConverter() {
         var h = fixo();

@@ -701,6 +701,58 @@ antecedência do art. 77.º n.º 2 e o estatuto de trabalhador-estudante **não*
 
 Regras: BR-AUS-20 a BR-AUS-23.
 
+### 6.2e Pedido de ausência em horas — e a dispensa de amamentação
+
+O pedido de ausência aceita, **opcionalmente**, `horaInicio` e `horaFim` (`HH:mm`). Com elas, é um
+pedido em horas, e as horas valem **em cada dia do intervalo** `dataInicio`–`dataFim`. Sem elas, tudo
+como sempre — dias inteiros.
+
+```json
+POST /api/v1/rh/funcionarios/{id}/pedidos-ausencia
+{ "tipoAusenciaId": "…DISPENSA_AMAMENTACAO…", "dataInicio": "2027-03-01", "dataFim": "2027-08-28",
+  "horaInicio": "08:00", "horaFim": "09:00", "motivo": "amamentação — período da manhã" }
+→ 201 { "id": "…", "numeroDias": 0, "estado": "PENDENTE", "minutosPorDia": 60 }
+```
+
+A amamentação são duas horas por dia, em dois períodos (Lei n.º 20/X/2023, art. 172.º n.º 3): dois
+pedidos de 1 hora. É o mesmo mecanismo do tratamento ambulatório, que costuma ser de um dia só.
+
+| Tipo (seed) | Base legal | Tectos |
+|---|---|---|
+| `DISPENSA_AMAMENTACAO` | Lei 20, art. 172.º n.º 3 (prevalece sobre os 45 min do DL, art. 20.º) | `maxMinutosPorDia` 120; 183 dias por ocorrência (os 6 meses do art. 20.º — a confirmar) |
+| `TRATAMENTO_AMBULATORIO` | DL 3/2010, art. 37.º | — |
+| `CONSULTA_PRE_NATAL` | art. 15.º al. u) | — |
+| `DOACAO_SANGUE` | art. 15.º al. k) | — |
+| `CREDITO_SINDICAL` | art. 15.º al. r) | — |
+
+| Caso | Resposta |
+|---|---|
+| só uma das horas, formato errado, início depois do fim | 422 |
+| tipo que desconta saldo, de férias ou de falta injustificada, ou com tecto anual/mensal em dias | 422 |
+| intervalo com mais dias do que o tecto por ocorrência | 422 |
+| minutos do dia (somando os pedidos do tipo nessas datas) acima de `maxMinutosPorDia` | 422 |
+| horas que se cruzam com outro pedido, ou um pedido de dias inteiros nessas datas | 409 |
+
+A resposta do pedido traz `horaInicio`, `horaFim` e `minutosPorDia` (zero num de dias inteiros).
+
+**Terminar antes do fim** (a amamentação que acaba mais cedo):
+
+```json
+PATCH /api/v1/rh/funcionarios/{id}/pedidos-ausencia/{pedidoId}/terminar
+{ "data": "2027-06-01", "motivo": "deixou de amamentar" }
+```
+
+A decisão fica; o período acaba na véspera (`suspensoEm` = a data). Só pedidos em horas aprovados,
+uma vez, com data depois do início e até ao fim. As férias continuam a suspender-se (§6.5).
+
+**No catálogo** (`/catalogs/leave-types`), `maxMinutosPorDia` é o tecto diário dos pedidos em horas;
+omisso no `PUT` mantém, `0` limpa.
+
+**No apuramento de faltas** (§6.9), as horas de um pedido aprovado contam como cumpridas
+(`minutosJustificados`).
+
+Regras: BR-AUS-24 a BR-AUS-28, BR-FAL-07.
+
 ### 6.3 Férias: o saldo nasce sozinho
 
 **`POST /saldos-ausencia` deixou de ser o caminho para as férias.** O art. 2.º n.º 4 do DL n.º 3/2010 diz que «o direito a férias vence no dia 1 de Janeiro de cada ano» — e passou a ser o que acontece:
@@ -1023,6 +1075,8 @@ registo diário (§6.8) com o horário vigente de cada dia (§6.7) e os pedidos 
 - **Conversão (art. 13.º n.os 3 e 4):** `diasSemRegisto` são faltas de dia inteiro; `minutosParciais`
   somam-se no mês e convertem-se pelo `periodoNormalMinutos` (a média do esperado no mês): cada período
   inteiro é uma falta, o resto até meio período é meia, acima é uma. `totalFaltas` = os dois.
+- `minutosJustificados`: horas de pedidos em horas aprovados (§6.2e) fora da presença — contam como
+  cumpridas; um dia sem marcações mas com horas justificadas não é `SEM_REGISTO`.
 - Quem tem isenção de horário no contrato não tem débito (`isento: true`).
 - `mes` fora de `yyyy-MM` → 422.
 

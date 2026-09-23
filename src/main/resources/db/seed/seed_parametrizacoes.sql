@@ -143,6 +143,21 @@ INSERT INTO t_leave_type (id, code, description, deducts_balance, requires_appro
 ('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1f4', 'TE_LICENCA',          'Trabalhador-estudante: licença',  false, true,  10,   null, null, 'PESSOAL',   'FALTA',  'PERDA_TOTAL', 'DIAS_UTEIS', true, NOW(), 'system')
 ON CONFLICT (code) DO NOTHING;
 
+-- Ausências em horas (V58): pedem-se com horaInicio/horaFim, que valem em cada dia do intervalo.
+-- Nenhuma desconta saldo nem tem tecto anual ou mensal em dias -- é o que a lei dá em horas.
+--   DISPENSA_AMAMENTACAO: duas horas por dia, em dois períodos (Lei n.º 20/X/2023, art. 172.º
+--     n.º 3, que prevalece sobre os 45 minutos do art. 20.º do DL n.º 3/2010); 183 dias por
+--     ocorrência = os 6 meses do art. 20.º (a Lei 20 não diz a duração; por confirmar com o jurídico).
+--   TRATAMENTO_AMBULATORIO: «durante o tempo necessário» (art. 37.º).
+--   CONSULTA_PRE_NATAL: art. 15.º al. u).   DOACAO_SANGUE: al. k).   CREDITO_SINDICAL: al. r).
+INSERT INTO t_leave_type (id, code, description, deducts_balance, requires_approval, max_days_per_year, max_days_per_occurrence, max_days_per_month, max_minutos_por_dia, category, regime, efeito_remuneracao, contagem, is_active, created_date, created_by) VALUES
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1f5', 'DISPENSA_AMAMENTACAO',  'Dispensa para amamentação',       false, true,  null, 183,  null, 120,  'FAMILIAR', 'FALTA', 'SEM_PERDA', 'DIAS_SEGUIDOS', true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1f6', 'TRATAMENTO_AMBULATORIO', 'Tratamento ambulatório',         false, true,  null, null, null, null, 'SAUDE',    'FALTA', 'SEM_PERDA', 'DIAS_SEGUIDOS', true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1f7', 'CONSULTA_PRE_NATAL',    'Consulta pré-natal',              false, true,  null, null, null, null, 'SAUDE',    'FALTA', 'SEM_PERDA', 'DIAS_SEGUIDOS', true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1f8', 'DOACAO_SANGUE',         'Doação de sangue',                false, true,  null, null, null, null, 'SAUDE',    'FALTA', 'SEM_PERDA', 'DIAS_SEGUIDOS', true, NOW(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1f9', 'CREDITO_SINDICAL',      'Crédito de horas sindical',       false, true,  null, null, null, null, 'PESSOAL',  'FALTA', 'SEM_PERDA', 'DIAS_SEGUIDOS', true, NOW(), 'system')
+ON CONFLICT (code) DO NOTHING;
+
 -- =============================================================
 -- 6. Subtipos de Licença e Mobilidade (t_leave_mobility_subtype)
 -- record_type: LICENCA | MOBILIDADE (o valor AMBOS foi removido na V43 —

@@ -109,6 +109,13 @@
       "type": "string",
       "required": false,
       "primaryKey": false
+    },
+    {
+      "name": "maxMinutosPorDia",
+      "objectType": "java",
+      "type": "integer",
+      "required": false,
+      "primaryKey": false
     }
   ],
   "id": "leave_type_res_dto_001"

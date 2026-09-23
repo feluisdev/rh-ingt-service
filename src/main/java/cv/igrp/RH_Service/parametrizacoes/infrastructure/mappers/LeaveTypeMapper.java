@@ -27,6 +27,7 @@ public class LeaveTypeMapper {
         entity.setRegime(domain.getRegime() != null ? domain.getRegime().name() : RegimeAusencia.FALTA.name());
         entity.setEfeitoRemuneracao(domain.getEfeitoRemuneracao() != null
                 ? domain.getEfeitoRemuneracao().name() : EfeitoNaRemuneracao.SEM_PERDA.name());
+        entity.setMaxMinutosPorDia(domain.getMaxMinutosPorDia());
         entity.setContagem(domain.getContagem() != null
                 ? domain.getContagem().name() : ContagemDias.DIAS_UTEIS.name());
         entity.setIsActive(domain.isActive());
@@ -35,7 +36,7 @@ public class LeaveTypeMapper {
 
     public LeaveType toDomain(LeaveTypeEntity entity) {
         if (entity == null) return null;
-        return LeaveType.reconstruir(
+        LeaveType leaveType = LeaveType.reconstruir(
             LeaveTypeId.from(entity.getId()),
             entity.getCode(),
             entity.getDescription(),
@@ -50,6 +51,8 @@ public class LeaveTypeMapper {
             EfeitoNaRemuneracao.de(entity.getEfeitoRemuneracao()),
             ContagemDias.de(entity.getContagem())
         );
+        leaveType.definirMaxMinutosPorDia(entity.getMaxMinutosPorDia());
+        return leaveType;
     }
 
     public LeaveTypeResponseDTO toDTO(LeaveType domain) {
@@ -68,6 +71,7 @@ public class LeaveTypeMapper {
         dto.setEfeitoRemuneracao(domain.getEfeitoRemuneracao() != null
                 ? domain.getEfeitoRemuneracao().name() : null);
         dto.setContagem(domain.getContagem() != null ? domain.getContagem().name() : null);
+        dto.setMaxMinutosPorDia(domain.getMaxMinutosPorDia());
         dto.setIsActive(domain.isActive());
         dto.setEstadoDesc(Boolean.TRUE.equals(domain.isActive()) ? "Ativo" : "Inativo");
         return dto;

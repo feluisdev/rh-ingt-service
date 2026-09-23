@@ -29,4 +29,9 @@ public class PedidoAusenciaResponseDTO {
     private LocalDate suspensoEm;
     /** Qual das causas do art. 8.o justificou a interrupcao. */
     private String suspensaoMotivo;
+    /** V58: pedido em horas (HH:mm), nulo num pedido de dias inteiros. */
+    private String horaInicio;
+    private String horaFim;
+    /** Minutos por dia de um pedido em horas; zero num de dias inteiros. */
+    private int minutosPorDia;
 }

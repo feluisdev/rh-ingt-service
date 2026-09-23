@@ -99,10 +99,11 @@ class ApuramentoFaltasServiceTest {
 
     @Test
     void pedidoAprovadoJustificaAteAVesperaDaSuspensao() {
-        var pedido = mock(PedidoAusencia.class);
-        when(pedido.getDataInicio()).thenReturn(LocalDate.of(2026, 9, 7));
-        when(pedido.getDataFim()).thenReturn(LocalDate.of(2026, 9, 11));
-        when(pedido.getSuspensoEm()).thenReturn(LocalDate.of(2026, 9, 10));
+        var pedido = PedidoAusencia.reconstituir(
+                cv.igrp.RH_Service.colaboradores.domain.valueobject.PedidoAusenciaId.gerarNovo(), funcionario,
+                cv.igrp.RH_Service.colaboradores.domain.valueobject.TipoAusenciaId.gerarNovo(),
+                LocalDate.of(2026, 9, 7), LocalDate.of(2026, 9, 11), 5, "ferias", "APROVADO", null, null, null,
+                true, LocalDate.of(2026, 9, 10), "doenca", null);
         when(pedidoAusenciaRepository.findAprovadosEntre(any(), any(), any())).thenReturn(List.of(pedido));
 
         var a = service.apurar(funcionario, SETEMBRO);

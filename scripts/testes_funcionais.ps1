@@ -1533,6 +1533,45 @@ Verificar 'F26.11 e deixou de contar' ($f2.diasSemRegisto -eq ($f1.diasSemRegist
 Chamar 'F26.12 NEG mes mal escrito' GET ('/funcionarios/' + $colabB + '/faltas-apuradas?mes=09-2026') $null 422 | Out-Null
 
 Write-Host ''
+Write-Host '=========== F27 - PEDIDO EM HORAS E DISPENSA DE AMAMENTACAO (V58) ==========='
+
+# O pedido de ausencia aceita horaInicio/horaFim, que valem em cada dia do intervalo. A amamentacao
+# sao duas horas por dia (Lei 20/X/2023, art. 172.o n.o 3): dois pedidos de 1 hora, durante meses.
+$tipos27 = @(Linhas (Chamar 'F27.1 catalogo de tipos de ausencia' GET '/catalogs/leave-types?pagina=0&tamanho=60'))
+$tAmam = ($tipos27 | Where-Object { $_.code -eq 'DISPENSA_AMAMENTACAO' } | Select-Object -First 1)
+$tTrat = ($tipos27 | Where-Object { $_.code -eq 'TRATAMENTO_AMBULATORIO' } | Select-Object -First 1)
+$tFer27 = ($tipos27 | Where-Object { $_.code -eq 'FERIAS' } | Select-Object -First 1)
+Verificar 'F27.2 a amamentacao: 120 min por dia, 183 dias por ocorrencia' (($tAmam.maxMinutosPorDia -eq 120) -and ($tAmam.maxDaysPerOccurrence -eq 183)) ('(' + $tAmam.maxMinutosPorDia + ' min, ' + $tAmam.maxDaysPerOccurrence + ' dias)')
+
+$ini27 = (Get-Date).Date.AddDays(200)
+$fim27 = $ini27.AddDays(99)
+$rotaP27 = '/funcionarios/' + $colabB + '/pedidos-ausencia'
+function Horas27($tipo, $de, $ate, $hi, $hf) { return @{ tipoAusenciaId=$tipo.id; dataInicio=(Iso $de); dataFim=(Iso $ate); horaInicio=$hi; horaFim=$hf; motivo='bateria' } }
+$rA1 = Chamar 'F27.3 amamentacao de manha, uma hora por dia durante 100 dias' POST $rotaP27 (Horas27 $tAmam $ini27 $fim27 '08:00' '09:00') 201
+Verificar 'F27.4 nao conta dias, conta minutos por dia' (($rA1.Dados.numeroDias -eq 0) -and ($rA1.Dados.minutosPorDia -eq 60)) ('(' + $rA1.Dados.numeroDias + ' dias, ' + $rA1.Dados.minutosPorDia + ' min)')
+Chamar 'F27.5 a segunda hora, a tarde' POST $rotaP27 (Horas27 $tAmam $ini27 $fim27 '15:00' '16:00') 201 | Out-Null
+Chamar 'F27.6 NEG uma terceira passa das 2 horas por dia' POST $rotaP27 (Horas27 $tAmam $ini27 $fim27 '12:00' '12:30') 422 | Out-Null
+Chamar 'F27.7 NEG horas que se cruzam com a amamentacao' POST $rotaP27 (Horas27 $tTrat $ini27.AddDays(3) $ini27.AddDays(3) '08:30' '09:30') 409 | Out-Null
+Chamar 'F27.8 mas noutra hora do mesmo dia cabe' POST $rotaP27 (Horas27 $tTrat $ini27.AddDays(3) $ini27.AddDays(3) '10:00' '11:00') 201 | Out-Null
+Chamar 'F27.9 NEG intervalo de 184 dias passa do tecto por ocorrencia' POST $rotaP27 (Horas27 $tAmam $fim27.AddDays(10) $fim27.AddDays(193) '08:00' '09:00') 422 | Out-Null
+Chamar 'F27.10 NEG ferias em horas (desconta saldo)' POST $rotaP27 (Horas27 $tFer27 $fim27.AddDays(10) $fim27.AddDays(10) '08:00' '09:00') 422 | Out-Null
+Chamar 'F27.11 NEG so a hora de inicio' POST $rotaP27 @{ tipoAusenciaId=$tTrat.id; dataInicio=(Iso $fim27.AddDays(12)); dataFim=(Iso $fim27.AddDays(12)); horaInicio='08:00'; motivo='x' } 422 | Out-Null
+
+# Terminar antes do fim: a decisao fica, o periodo acaba na vespera.
+Chamar 'F27.12 aprovar a amamentacao da manha' PATCH ($rotaP27 + '/' + $rA1.Dados.id + '/aprovar') @{ aprovadoPorId=$colabA; observacoesDecisao='deferido' } 200 | Out-Null
+$rTerm = Chamar 'F27.13 terminar antes do fim' PATCH ($rotaP27 + '/' + $rA1.Dados.id + '/terminar') @{ data=(Iso $ini27.AddDays(10)); motivo='deixou de amamentar' } 200
+Verificar 'F27.14 continua aprovado e acaba na vespera' (($rTerm.Dados.estado -eq 'APROVADO') -and ($rTerm.Dados.suspensoEm -eq (Iso $ini27.AddDays(10)))) ('(' + $rTerm.Dados.estado + ' ' + $rTerm.Dados.suspensoEm + ')')
+Chamar 'F27.15 NEG terminar outra vez' PATCH ($rotaP27 + '/' + $rA1.Dados.id + '/terminar') @{ data=(Iso $ini27.AddDays(20)); motivo='de novo' } 409 | Out-Null
+
+# No apuramento: a terca do F25 tinha 30 min de atraso (entrou as 08:00 contra o base das 07:30).
+# Um tratamento ambulatorio aprovado das 07:30 as 08:00 cobre-os.
+$rTr = Chamar 'F27.16 tratamento ambulatorio de meia hora na terca do F25' POST $rotaP27 (Horas27 $tTrat $ter25 $ter25 '07:30' '08:00') 201
+Chamar 'F27.17 aprovar' PATCH ($rotaP27 + '/' + $rTr.Dados.id + '/aprovar') @{ aprovadoPorId=$colabA; observacoesDecisao='comprovado' } 200 | Out-Null
+$f27 = (Chamar 'F27.18 apuramento depois de justificar a meia hora' GET $rotaF).Dados
+$t27 = DiaF $f27 $ter25
+Verificar 'F27.19 a terca ficou sem falta, com 30 min justificados' (($t27.estado -eq 'SEM_FALTA') -and ($t27.minutosJustificados -eq 30)) ('(' + $t27.estado + ' ' + $t27.minutosJustificados + ')')
+
+Write-Host ''
 Write-Host '=========== RESUMO ==========='
 $ok = ($script:resultados | Where-Object { $_.OK }).Count
 $total = $script:resultados.Count

@@ -73,4 +73,11 @@ public class PedidoAusenciaEntity extends AuditEntity {
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
+
+    /** V58: pedido em horas -- as duas ou nenhuma. */
+    @Column(name = "hora_inicio")
+    private java.time.LocalTime horaInicio;
+
+    @Column(name = "hora_fim")
+    private java.time.LocalTime horaFim;
 }

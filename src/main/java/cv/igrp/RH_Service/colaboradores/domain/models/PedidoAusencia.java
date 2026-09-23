@@ -6,7 +6,9 @@ import cv.igrp.RH_Service.colaboradores.domain.valueobject.TipoAusenciaId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import lombok.Getter;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Getter
 public class PedidoAusencia {
@@ -34,6 +36,12 @@ public class PedidoAusencia {
      * no catálogo.
      */
     private OpcaoFaltaInjustificada opcaoFaltaInjustificada;
+    /**
+     * Pedido em horas (V58): as horas valem em cada dia do intervalo — um dia para o tratamento
+     * ambulatório, meses para a amamentação. As duas ou nenhuma; sem elas, é de dias inteiros.
+     */
+    private LocalTime horaInicio;
+    private LocalTime horaFim;
 
     private PedidoAusencia() {}
 
@@ -80,6 +88,54 @@ public class PedidoAusencia {
         p.suspensaoMotivo = suspensaoMotivo;
         p.opcaoFaltaInjustificada = opcaoFaltaInjustificada;
         return p;
+    }
+
+    /** Chamado na criação e na reconstituição. As duas horas ou nenhuma, e o início antes do fim. */
+    public void definirHoras(LocalTime inicio, LocalTime fim) {
+        if (inicio == null && fim == null) return;
+        if (inicio == null || fim == null)
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Um pedido em horas tem horaInicio e horaFim.");
+        if (!inicio.isBefore(fim))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "A horaInicio (" + inicio + ") tem de ser antes da horaFim (" + fim + ").");
+        this.horaInicio = inicio;
+        this.horaFim = fim;
+    }
+
+    public boolean isEmHoras() { return horaInicio != null; }
+
+    /** Minutos por dia de um pedido em horas; zero num de dias inteiros. */
+    public int minutosPorDia() {
+        return isEmHoras() ? (int) Duration.between(horaInicio, horaFim).toMinutes() : 0;
+    }
+
+    /**
+     * <b>Terminar antes do fim</b> um pedido em horas aprovado — a amamentação que acaba mais cedo.
+     * Como a suspensão das férias: a decisão fica, o período acaba na véspera da data indicada.
+     */
+    public void terminar(LocalDate aPartirDe, String motivo) {
+        if (!isEmHoras())
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Só se termina antes do fim um pedido em horas; as férias suspendem-se, os outros cancelam-se.");
+        if (!EstadoPedidoAusencia.APROVADO.equals(this.estado))
+            throw IgrpResponseStatusException.conflict("Só um pedido aprovado pode ser terminado. Estado actual: " + this.estado);
+        if (this.suspensoEm != null)
+            throw IgrpResponseStatusException.conflict("Este pedido já terminou a " + this.suspensoEm + ".");
+        if (aPartirDe == null || motivo == null || motivo.isBlank())
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Terminar exige a data a partir da qual deixa de valer e o motivo.");
+        if (!aPartirDe.isAfter(this.dataInicio) || aPartirDe.isAfter(this.dataFim))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "A data tem de ser depois do início (" + this.dataInicio + ") e até ao fim (" + this.dataFim
+                            + "). Antes de começar, cancela-se.");
+        this.suspensoEm = aPartirDe;
+        this.suspensaoMotivo = motivo.trim();
+    }
+
+    /** O último dia em que o pedido vale: a véspera da suspensão ou do fim antecipado, ou o fim. */
+    public LocalDate ultimoDiaEmVigor() {
+        return suspensoEm != null && suspensoEm.minusDays(1).isBefore(dataFim) ? suspensoEm.minusDays(1) : dataFim;
     }
 
     public void aprovar(FuncionarioId aprovadoPorId, LocalDate dataDecisao, String observacoes) {

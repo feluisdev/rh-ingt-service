@@ -46,6 +46,8 @@ public class LeaveTypeResponseDTO {
     private String efeitoRemuneracao;
     /** Como se contam os dias (art. 76.o; V56): DIAS_UTEIS · DIAS_SEGUIDOS. */
     private String contagem;
+    /** Tecto diário dos pedidos em horas, em minutos (nulo = sem tecto). */
+    private Integer maxMinutosPorDia;
 
     private String categoryDesc;
 

@@ -28,4 +28,7 @@ public class PedidoAusenciaCriadoResponseDTO {
 
     /** Estado inicial do pedido. */
     private String estado;
+
+    /** V58: minutos por dia de um pedido em horas; zero num de dias inteiros. */
+    private int minutosPorDia;
 }

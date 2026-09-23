@@ -132,4 +132,19 @@ public class PedidoAusenciaController {
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
+
+    @PatchMapping("{pedidoId}/terminar")
+    @Operation(summary = "Terminar antes do fim um pedido em horas aprovado (ex.: amamentacao); o periodo acaba na vespera")
+    @ApiResponse(responseCode = "200", description = "Pedido terminado",
+            content = @Content(schema = @Schema(implementation = cv.igrp.RH_Service.colaboradores.application.dto.PedidoAusenciaResponseDTO.class)))
+    public ResponseEntity<cv.igrp.RH_Service.colaboradores.application.dto.PedidoAusenciaResponseDTO> terminar(
+            @PathVariable String funcionarioId,
+            @PathVariable String pedidoId,
+            @RequestBody cv.igrp.RH_Service.colaboradores.application.dto.TerminarPedidoRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<cv.igrp.RH_Service.colaboradores.application.dto.PedidoAusenciaResponseDTO> response = commandBus.send(
+                new cv.igrp.RH_Service.colaboradores.application.commands.TerminarPedidoAusenciaCommand(funcionarioId, pedidoId, request));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
 }

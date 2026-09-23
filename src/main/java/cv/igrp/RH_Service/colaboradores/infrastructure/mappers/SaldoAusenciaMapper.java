@@ -64,6 +64,7 @@ public class SaldoAusenciaMapper {
         r.setRegime(t.getRegime() != null ? t.getRegime().name() : null);
         r.setEfeitoRemuneracao(t.getEfeitoRemuneracao() != null ? t.getEfeitoRemuneracao().name() : null);
         r.setContagem(t.getContagem().name());
+        r.setMaxMinutosPorDia(t.getMaxMinutosPorDia());
         r.setCategoryOptionCkey(t.getCategoryOptionCkey());
         r.setIsActive(t.getIsActive());
         return r;

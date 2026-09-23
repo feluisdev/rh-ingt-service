@@ -597,6 +597,20 @@ existentes -- estas duas colunas mandam descontar antiguidade e mexer em salario
 (`t_leave_mobility_subtype.affects_pay`), que nao sabe dizer "parcial". Por agora sao dois
 contratos diferentes: booleano nas licencas, enum nas ausencias.
 
+### 11.28 Pedido de ausencia em horas e dispensa de amamentacao (2026-09-23)
+
+**Nada deixa de funcionar**: os campos sao novos e opcionais.
+
+- Pedido de ausencia: `horaInicio`/`horaFim` opcionais (`HH:mm`). Sem eles, dias inteiros como
+  sempre. Com eles, as horas valem em cada dia do intervalo; a resposta traz `minutosPorDia` e
+  `numeroDias` = 0. Ver `api_guide.md` §6.2e.
+- Mostrar os campos de hora so para tipos que os admitem (sem saldo, regime FALTA, sem tectos
+  anuais/mensais) -- ex.: `DISPENSA_AMAMENTACAO`, `TRATAMENTO_AMBULATORIO`.
+- `PATCH /funcionarios/{id}/pedidos-ausencia/{pid}/terminar` `{data, motivo}`: fim antecipado de um
+  pedido em horas aprovado.
+- Catalogo de tipos de ausencia: `maxMinutosPorDia` opcional (omisso mantem, 0 limpa).
+- Faltas apuradas: cada dia traz `minutosJustificados`.
+
 ### 11.27 Faltas por debito (2026-09-23)
 
 **Nada deixa de funcionar**: e um endpoint novo, so de leitura.
@@ -738,4 +752,5 @@ resposta ja reflecte isto -- nao ha nada a recalcular no ecra.
 - [ ] Select opcional de horário no formulário da unidade orgânica (vazio = segue a unidade-mãe).
 - [ ] Separador de horário no colaborador: histórico, atribuir a partir de uma data (horário + regime de prestação) e o horário vigente com a origem.
 - [ ] Ecrã de assiduidade do colaborador: semana/mês com períodos, horas trabalhadas vs esperadas, dias com anomalia destacados, e as acções corrigir e anular (com motivo).
+- [ ] Pedido de ausência: horas de início e fim (só para tipos que as admitem), e a acção terminar para pedidos em horas aprovados.
 - [ ] Separador de faltas apuradas do mês: dias com falta e motivo, débitos da aferição, total em dias e meios-dias, e atalho para justificar (pedido de ausência).

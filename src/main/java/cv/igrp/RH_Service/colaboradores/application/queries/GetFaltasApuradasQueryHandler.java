@@ -41,7 +41,7 @@ public class GetFaltasApuradasQueryHandler implements QueryHandler<GetFaltasApur
         dto.setIsento(a.isento());
         dto.setDias(r.dias().stream().map(d -> new DiaApuradoDTO(d.data(), d.estado().name(),
                 d.motivo() != null ? d.motivo().name() : null, d.minutosEsperados(), d.minutosTrabalhados(),
-                d.minutosEmFalta())).toList());
+                d.minutosJustificados(), d.minutosEmFalta())).toList());
         dto.setDebitos(r.debitos().stream().map(b -> new DebitoAfericaoDTO(b.horarioNome(), b.periodo().name(),
                 b.inicio(), b.fim(), b.minutosEsperados(), b.minutosTrabalhados(), b.minutosJaEmFalta(),
                 b.minutosDebito())).toList());

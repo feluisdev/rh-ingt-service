@@ -41,6 +41,8 @@ public class TipoAusencia {
      * contou — ver {@link #getContagem()}.
      */
     private ContagemDias contagem;
+    /** Tecto diário dos pedidos em horas, em minutos (V58). Nulo = sem tecto. */
+    private Integer maxMinutosPorDia;
 
     private TipoAusencia() {}
 
@@ -86,6 +88,27 @@ public class TipoAusencia {
         t.efeitoRemuneracao = efeitoRemuneracao;
         t.contagem = contagem;
         return t;
+    }
+
+    /** Lê o tecto diário dos pedidos em horas (V58), que vem do catálogo. */
+    public TipoAusencia comMaxMinutosPorDia(Integer minutos) {
+        this.maxMinutosPorDia = minutos;
+        return this;
+    }
+
+    public Integer getMaxMinutosPorDia() { return maxMinutosPorDia; }
+
+    /**
+     * Um pedido em horas só cabe num tipo que não desconta saldo, que é falta comum (nem férias, nem
+     * injustificada — a antiguidade desconta-as por dias) e que não tem tectos anuais ou mensais em
+     * dias: é o que a lei dá em horas (arts. 15.º, 37.º e 38.º do DL n.º 3/2010; art. 172.º n.º 3
+     * da Lei n.º 20/X/2023). Os meios-dias de férias e os tectos em horas são outro passo.
+     */
+    public String motivoParaRecusarHoras() {
+        if (Boolean.TRUE.equals(deductsBalance)) return "o tipo desconta saldo";
+        if (regime != null && regime != RegimeAusencia.FALTA) return "o tipo é do regime " + regime;
+        if (maxDaysPerYear != null || maxDaysPerMonth != null) return "o tipo tem tecto anual ou mensal em dias";
+        return null;
     }
 
     /** Por omissão DIAS_UTEIS: é como sempre se contou, e uma linha por classificar não muda os números. */

@@ -4,20 +4,113 @@
   "template": "classic",
   "module": "colaboradores",
   "attributes": [
-    {"type": "string", "name": "id", "objectType": "java", "required": false},
-    {"type": "string", "name": "funcionarioId", "objectType": "java", "required": false},
-    {"type": "string", "name": "tipoAusencia", "objectType": "java", "required": false},
-    {"type": "date", "name": "dataInicio", "objectType": "java", "required": false},
-    {"type": "date", "name": "dataFim", "objectType": "java", "required": false},
-    {"type": "integer", "name": "numeroDias", "objectType": "java", "required": false},
-    {"type": "string", "name": "motivo", "objectType": "java", "required": false},
-    {"type": "string", "name": "estado", "objectType": "java", "required": false},
-    {"type": "string", "name": "aprovadoPor", "objectType": "java", "required": false},
-    {"type": "date", "name": "dataDecisao", "objectType": "java", "required": false},
-    {"type": "string", "name": "observacoesDecisao", "objectType": "java", "required": false},
-    {"type": "boolean", "name": "isActive", "objectType": "java", "required": false},
-    {"type": "string", "name": "estadoDesc", "objectType": "java", "required": false},
-    {"type": "date", "name": "suspensoEm", "objectType": "java", "required": false},
-    {"type": "string", "name": "suspensaoMotivo", "objectType": "java", "required": false}
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "tipoAusencia",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataInicio",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataFim",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "numeroDias",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "aprovadoPor",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataDecisao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "observacoesDecisao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "isActive",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estadoDesc",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "suspensoEm",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "suspensaoMotivo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "horaInicio",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "horaFim",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "minutosPorDia",
+      "objectType": "java",
+      "required": false
+    }
   ]
 }

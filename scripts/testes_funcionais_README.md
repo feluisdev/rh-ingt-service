@@ -50,6 +50,7 @@ docker exec postgres-ingt-rh sh -c "psql -U postgres -d recursoshumanos_db -q -f
 | **F24** horários | NENHUM → BASE → UNIDADE (herdado da mãe) → COLABORADOR; atribuição fecha a anterior na véspera; base não se desactiva; `horarioId` da unidade mantém-se no `PUT` omisso e limpa-se em branco |
 | **F25** registo diário | importação de picagens repetível (duplicadas não entram, as más vão para o relatório); dia calculado com períodos, intervalo e horas; anomalia sem saída; correcção exige motivo; anular fica visível; sábado dá alerta |
 | **F26** faltas por débito | sobre a semana do F25: dia com anomalia fica por corrigir; atraso de 30 min contra o horário fixo; dia sem marcações conta inteiro (SEM_REGISTO); domingo não se apura; um pedido aprovado tira o dia do apuramento |
+| **F27** pedido em horas (V58) | amamentação 1h+1h por dia durante 100 dias; a terceira passa do tecto diário; horas cruzadas 409, noutra hora cabe; tecto por ocorrência; férias em horas 422; terminar antes do fim acaba na véspera; meia hora justificada tira o atraso do apuramento |
 
 ## Repor o estado inicial
 
@@ -473,7 +474,19 @@ justifica a quarta com um pedido de ausencia aprovado (pelo Francisco) e a quart
 **Armadilha paga:** o sabado dessa semana e 15 de Agosto -- feriado recorrente do seed --, e o dia
 vinha FERIADO, com razao. O passo verifica o domingo e aceita DESCANSO ou FERIADO.
 
+### F27 - pedido em horas e dispensa de amamentacao (2026-09-23)
+
+A amamentacao sao dois pedidos de 1 hora (08:00-09:00 e 15:00-16:00) durante 100 dias, daqui a
+200 dias (longe de tudo). Um terceiro de 30 min passa das 2 horas por dia; um tratamento ambulatorio
+das 08:30 as 09:30 nesses dias cruza-se (409), das 10:00 as 11:00 cabe. Depois de aprovar, termina-se
+a amamentacao da manha ao 10.o dia (acaba na vespera, continua APROVADO). Por fim, meia hora de
+tratamento ambulatorio aprovada na terca do F25 cobre o atraso, e a terca passa a SEM_FALTA com 30 min
+justificados. O `repor_estado.sql` traz os cinco tipos novos (o seed nao os mete numa base ja criada).
+
 ## Resultado da última execução
+
+**606 passos, 606 OK** (2026-09-23), duas execucoes seguidas com o `repor_estado.sql` entre elas
+(F27 incluido; V58 aplicada).
 
 **587 passos, 587 OK** (2026-09-23), duas execucoes seguidas com o `repor_estado.sql` entre elas
 (F26 incluido).

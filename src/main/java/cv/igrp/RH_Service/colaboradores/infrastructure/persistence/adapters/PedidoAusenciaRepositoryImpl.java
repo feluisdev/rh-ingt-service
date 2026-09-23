@@ -70,4 +70,20 @@ public class PedidoAusenciaRepositoryImpl implements PedidoAusenciaRepository {
         return entityRepository.findAprovadosEntre(funcionarioId.getValor(), dataInicio, dataFim)
                 .stream().map(mapper::toDomain).toList();
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public boolean existsSobreposicaoEmHoras(FuncionarioId funcionarioId, LocalDate dataInicio, LocalDate dataFim,
+                                             java.time.LocalTime horaInicio, java.time.LocalTime horaFim) {
+        return entityRepository.existsSobreposicaoEmHoras(funcionarioId.getValor(), dataInicio, dataFim, horaInicio, horaFim);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<PedidoAusencia> findEmHorasDoTipoEntre(FuncionarioId funcionarioId,
+                                                       cv.igrp.RH_Service.colaboradores.domain.valueobject.TipoAusenciaId tipoAusenciaId,
+                                                       LocalDate dataInicio, LocalDate dataFim) {
+        return entityRepository.findEmHorasDoTipoEntre(funcionarioId.getValor(), tipoAusenciaId.getValor(), dataInicio, dataFim)
+                .stream().map(mapper::toDomain).toList();
+    }
 }

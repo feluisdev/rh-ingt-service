@@ -25,4 +25,10 @@ public class PedidoAusenciaRequestDTO {
      * <b>recusada</b> nos outros -- a lei so da a opcao a quem falta sem justificacao.
      */
     private String opcaoFaltaInjustificada;
+    /**
+     * V58, opcionais: pedido em horas ({@code HH:mm}). As duas ou nenhuma; valem em cada dia do
+     * intervalo. Sem elas o pedido e de dias inteiros, como sempre foi.
+     */
+    private String horaInicio;
+    private String horaFim;
 }

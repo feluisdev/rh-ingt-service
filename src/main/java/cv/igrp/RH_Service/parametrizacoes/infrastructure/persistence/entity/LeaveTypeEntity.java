@@ -74,4 +74,8 @@ public class LeaveTypeEntity extends AuditEntity {
     /** Como se contam os dias (art. 76.o; V56): DIAS_UTEIS ou DIAS_SEGUIDOS. */
     @Column(name = "contagem", length = 20)
     private String contagem;
+
+    /** V58: tecto diário dos pedidos em horas. Nulo = sem tecto. */
+    @Column(name = "max_minutos_por_dia")
+    private Integer maxMinutosPorDia;
 }

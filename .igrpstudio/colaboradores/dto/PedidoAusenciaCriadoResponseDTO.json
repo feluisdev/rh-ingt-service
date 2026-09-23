@@ -21,6 +21,12 @@
       "type": "string",
       "objectType": "java",
       "required": false
+    },
+    {
+      "type": "integer",
+      "name": "minutosPorDia",
+      "objectType": "java",
+      "required": false
     }
   ]
 }

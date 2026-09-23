@@ -23,7 +23,7 @@ public class PedidoAusenciaMapper {
     private final TipoAusenciaRepository tipoAusenciaRepository;
 
     public PedidoAusencia toDomain(PedidoAusenciaEntity e) {
-        return PedidoAusencia.reconstituir(
+        PedidoAusencia p = PedidoAusencia.reconstituir(
                 PedidoAusenciaId.from(e.getId()),
                 FuncionarioId.from(e.getFuncionario().getId()),
                 TipoAusenciaId.from(e.getTipoAusencia().getId()),
@@ -34,6 +34,8 @@ public class PedidoAusenciaMapper {
                 e.getIsActive(), e.getSuspensoEm(), e.getSuspensaoMotivo(),
                 cv.igrp.RH_Service.colaboradores.domain.models.OpcaoFaltaInjustificada
                         .de(e.getOpcaoFaltaInjustificada()));
+        p.definirHoras(e.getHoraInicio(), e.getHoraFim());
+        return p;
     }
 
     public PedidoAusenciaEntity toEntity(PedidoAusencia p) {
@@ -54,6 +56,8 @@ public class PedidoAusenciaMapper {
         e.setOpcaoFaltaInjustificada(p.getOpcaoFaltaInjustificada() != null
                 ? p.getOpcaoFaltaInjustificada().name() : null);
         e.setIsActive(p.getIsActive());
+        e.setHoraInicio(p.getHoraInicio());
+        e.setHoraFim(p.getHoraFim());
         return e;
     }
 
@@ -70,6 +74,7 @@ public class PedidoAusenciaMapper {
         r.setRegime(t.getRegime() != null ? t.getRegime().name() : null);
         r.setEfeitoRemuneracao(t.getEfeitoRemuneracao() != null ? t.getEfeitoRemuneracao().name() : null);
         r.setContagem(t.getContagem().name());
+        r.setMaxMinutosPorDia(t.getMaxMinutosPorDia());
         r.setCategoryOptionCkey(t.getCategoryOptionCkey());
         r.setIsActive(t.getIsActive());
         r.setEstadoDesc(Boolean.TRUE.equals(t.getIsActive()) ? "Ativo" : "Inativo");
@@ -97,6 +102,9 @@ public class PedidoAusenciaMapper {
         // umas ferias que sempre tiveram aquela duracao.
         r.setSuspensoEm(p.getSuspensoEm());
         r.setSuspensaoMotivo(p.getSuspensaoMotivo());
+        r.setHoraInicio(p.getHoraInicio() != null ? p.getHoraInicio().toString() : null);
+        r.setHoraFim(p.getHoraFim() != null ? p.getHoraFim().toString() : null);
+        r.setMinutosPorDia(p.minutosPorDia());
         tipoAusenciaRepository.findById(p.getTipoAusenciaId())
                 .ifPresent(t -> r.setTipoAusencia(toTipoDTO(t)));
         return r;

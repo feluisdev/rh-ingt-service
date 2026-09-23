@@ -4,9 +4,41 @@
   "template": "classic",
   "module": "colaboradores",
   "attributes": [
-    {"type": "string", "name": "tipoAusenciaId", "objectType": "java", "required": true},
-    {"type": "date", "name": "dataInicio", "objectType": "java", "required": true},
-    {"type": "date", "name": "dataFim", "objectType": "java", "required": true},
-    {"type": "string", "name": "motivo", "objectType": "java", "required": false}
+    {
+      "type": "string",
+      "name": "tipoAusenciaId",
+      "objectType": "java",
+      "required": true
+    },
+    {
+      "type": "date",
+      "name": "dataInicio",
+      "objectType": "java",
+      "required": true
+    },
+    {
+      "type": "date",
+      "name": "dataFim",
+      "objectType": "java",
+      "required": true
+    },
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "horaInicio",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "horaFim",
+      "objectType": "java",
+      "required": false
+    }
   ]
 }

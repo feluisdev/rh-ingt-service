@@ -50,10 +50,20 @@ public final class ApuramentoFaltas {
      * (FUTURO, FERIADO, AUSENCIA_JUSTIFICADA...); nulo quer dizer «apurar pelo horário».
      */
     public record Dia(LocalDate data, EstadoDiaApurado estadoPrevio, Horario horario, DiaAssiduidade assiduidade,
-                      boolean temMarcacoesValidas) {}
+                      boolean temMarcacoesValidas, List<DiaAssiduidade.Periodo> justificados) {
+        /** Sem horas justificadas nesse dia. */
+        public Dia(LocalDate data, EstadoDiaApurado estadoPrevio, Horario horario, DiaAssiduidade assiduidade,
+                   boolean temMarcacoesValidas) {
+            this(data, estadoPrevio, horario, assiduidade, temMarcacoesValidas, List.of());
+        }
+    }
 
+    /**
+     * {@code minutosJustificados}: as horas de pedidos em horas aprovados (V58) que não coincidem com
+     * presença — contam como tempo cumprido.
+     */
     public record DiaApurado(LocalDate data, EstadoDiaApurado estado, MotivoFalta motivo, int minutosEsperados,
-                             int minutosTrabalhados, int minutosEmFalta) {}
+                             int minutosTrabalhados, int minutosJustificados, int minutosEmFalta) {}
 
     public record Debito(String horarioNome, PeriodoAfericao periodo, LocalDate inicio, LocalDate fim,
                          int minutosEsperados, int minutosTrabalhados, int minutosJaEmFalta, int minutosDebito) {}
@@ -82,7 +92,7 @@ public final class ApuramentoFaltas {
         for (var e : flexiveis.entrySet()) {
             List<DiaApurado> doPeriodo = e.getValue().stream().map(apurados::get).toList();
             int esperados = doPeriodo.stream().mapToInt(DiaApurado::minutosEsperados).sum();
-            int trabalhados = doPeriodo.stream().mapToInt(DiaApurado::minutosTrabalhados).sum();
+            int trabalhados = doPeriodo.stream().mapToInt(a -> a.minutosTrabalhados() + a.minutosJustificados()).sum();
             int jaEmFalta = doPeriodo.stream().mapToInt(DiaApurado::minutosEmFalta).sum();
             Horario h = horarioDaChave.get(e.getKey());
             debitos.add(new Debito(h.getNome(), h.getPeriodoAfericao(), doPeriodo.get(0).data(),
@@ -121,17 +131,26 @@ public final class ApuramentoFaltas {
     private static DiaApurado apurarDia(Dia d) {
         int trabalhados = d.assiduidade() != null ? d.assiduidade().minutosTrabalhados() : 0;
         if (d.estadoPrevio() != null)
-            return new DiaApurado(d.data(), d.estadoPrevio(), null, 0, trabalhados, 0);
+            return new DiaApurado(d.data(), d.estadoPrevio(), null, 0, trabalhados, 0, 0);
         if (d.horario() == null)
-            return new DiaApurado(d.data(), EstadoDiaApurado.SEM_HORARIO, null, 0, trabalhados, 0);
+            return new DiaApurado(d.data(), EstadoDiaApurado.SEM_HORARIO, null, 0, trabalhados, 0, 0);
 
         int esperados = d.horario().minutosNoDia(d.data().getDayOfWeek());
         if (esperados == 0)
-            return new DiaApurado(d.data(), EstadoDiaApurado.DESCANSO, null, 0, trabalhados, 0);
+            return new DiaApurado(d.data(), EstadoDiaApurado.DESCANSO, null, 0, trabalhados, 0, 0);
         if (d.assiduidade() != null && !d.assiduidade().anomalias().isEmpty())
-            return new DiaApurado(d.data(), EstadoDiaApurado.POR_CORRIGIR, null, esperados, trabalhados, 0);
-        if (!d.temMarcacoesValidas())
-            return new DiaApurado(d.data(), EstadoDiaApurado.COM_FALTA, MotivoFalta.SEM_REGISTO, esperados, 0, esperados);
+            return new DiaApurado(d.data(), EstadoDiaApurado.POR_CORRIGIR, null, esperados, trabalhados, 0, 0);
+
+        List<DiaAssiduidade.Periodo> justificados = d.justificados() != null ? d.justificados() : List.of();
+        if (!d.temMarcacoesValidas() && justificados.isEmpty())
+            return new DiaApurado(d.data(), EstadoDiaApurado.COM_FALTA, MotivoFalta.SEM_REGISTO, esperados, 0, 0, esperados);
+
+        // Presença e horas justificadas juntam-se: uma hora picada que também foi justificada não
+        // conta duas vezes.
+        List<DiaAssiduidade.Periodo> presenca = d.assiduidade() != null ? d.assiduidade().periodos() : List.of();
+        List<DiaAssiduidade.Periodo> cobertura = unir(presenca, justificados);
+        int coberturaMinutos = cobertura.stream().mapToInt(DiaAssiduidade.Periodo::minutos).sum();
+        int justificadosExtra = Math.max(0, coberturaMinutos - trabalhados);
 
         boolean flexivel = d.horario().getControlo() == ControloHorario.FLEXIVEL;
         List<BlocoHorario> obrigatorios = d.horario().getBlocos().stream()
@@ -140,11 +159,29 @@ public final class ApuramentoFaltas {
                 .toList();
         int emFalta = 0;
         for (BlocoHorario b : obrigatorios)
-            emFalta += b.minutos() - coberto(b.inicio(), b.fim(), d.assiduidade().periodos());
+            emFalta += b.minutos() - coberto(b.inicio(), b.fim(), cobertura);
         if (emFalta <= 0)
-            return new DiaApurado(d.data(), EstadoDiaApurado.SEM_FALTA, null, esperados, trabalhados, 0);
+            return new DiaApurado(d.data(), EstadoDiaApurado.SEM_FALTA, null, esperados, trabalhados, justificadosExtra, 0);
         return new DiaApurado(d.data(), EstadoDiaApurado.COM_FALTA, flexivel ? MotivoFalta.PLATAFORMA : MotivoFalta.INCOMPLETO,
-                esperados, trabalhados, emFalta);
+                esperados, trabalhados, justificadosExtra, emFalta);
+    }
+
+    /** A união de dois conjuntos de períodos, sem sobreposições, por ordem. */
+    static List<DiaAssiduidade.Periodo> unir(List<DiaAssiduidade.Periodo> a, List<DiaAssiduidade.Periodo> b) {
+        List<DiaAssiduidade.Periodo> todos = new ArrayList<>(a);
+        todos.addAll(b);
+        todos.sort(java.util.Comparator.comparing(DiaAssiduidade.Periodo::entrada));
+        List<DiaAssiduidade.Periodo> unidos = new ArrayList<>();
+        for (DiaAssiduidade.Periodo p : todos) {
+            if (!unidos.isEmpty() && !p.entrada().isAfter(unidos.get(unidos.size() - 1).saida())) {
+                DiaAssiduidade.Periodo ultimo = unidos.remove(unidos.size() - 1);
+                unidos.add(new DiaAssiduidade.Periodo(ultimo.entrada(),
+                        p.saida().isAfter(ultimo.saida()) ? p.saida() : ultimo.saida()));
+            } else {
+                unidos.add(p);
+            }
+        }
+        return unidos;
     }
 
     /** Minutos de [inicio, fim[ cobertos pelos períodos de presença (que não se sobrepõem entre si). */

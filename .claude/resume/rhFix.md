@@ -9,14 +9,15 @@ em tabela editável pela API. Um ponto por commit.
 
 ## Current state
 
-**Branch `fix-alinhamento-legislacao`**, **32 commits locais por enviar** (`origin_git_lab`).
+**Branch `fix-alinhamento-legislacao`**, **33 commits locais por enviar** (`origin_git_lab`).
 **Não fazer push sem o utilizador pedir** — merge para `master` no GitLab é deploy.
 
-- **Testes: 1030, 0 falhas** — correr na **cópia isolada** (ver Blockers).
-- **Bateria funcional: 587 passos**, 587 OK (2026-09-23, duas execuções seguidas). Blocos F20–F26
-  cobrem V55, V56, mapa de férias, parâmetros de férias, horários, registo diário e faltas por débito.
-- Migrações até **`V57`**. Próxima livre: **V58** (só para alterar tabelas existentes).
-- **`openapi.json`**: 250 caminhos, 279 esquemas (regenerado com a app a correr).
+- **Testes: 1046, 0 falhas** — correr na **cópia isolada** (ver Blockers).
+- **Bateria funcional: 606 passos**, 606 OK (2026-09-23, duas execuções seguidas). Blocos F20–F27
+  cobrem V55, V56, mapa de férias, parâmetros de férias, horários, registo diário, faltas por débito e
+  pedido em horas (V58).
+- Migrações até **`V58`**. Próxima livre: **V59** (só para alterar tabelas existentes).
+- **`openapi.json`**: 251 caminhos, 280 esquemas (regenerado com a app a correr).
 - **Sete jobs `@Scheduled`**, sem lock distribuído (fica para o framework de jobs).
 - Árvore limpa excepto `.claude/settings*.json` (não são desta sessão) e os textos das leis não
   versionados na raiz: `.lei20.txt` (Lei 20/X/2023), `.dl3.txt` (DL 3/2010, numa só linha),
@@ -34,7 +35,7 @@ em tabela editável pela API. Um ponto por commit.
 | `3386b1fc` | **Assiduidade, 1.º tijolo** — catálogo de horários, horário base, **`V57`** (horário da unidade orgânica), horário do colaborador com regime de prestação |
 
 **Plano:** 1 feriados ✔ · 2 dispensas ✔ · 3 mapa de férias ✔ · **4 — Assiduidade**: horários ✔ →
-registo diário ✔ → faltas por débito ✔ → **pedido com horas + amamentação (a seguir)** → `/me` com validação → relação mensal / fecho (art. 75.º) → trabalho suplementar → amamentação ·
+registo diário ✔ → faltas por débito ✔ → pedido em horas + amamentação ✔ → **`/me` com validação da chefia (a seguir)** → relação mensal / fecho (art. 75.º) → trabalho suplementar → amamentação ·
 framework de jobs (por último).
 
 ## Decisions made — do not re-litigate
@@ -85,6 +86,16 @@ framework de jobs (por último).
     jurídico, mas não bloqueia;
   - **ausência parcial justifica-se com pedido de ausência em horas** (horaInicio/horaFim opcionais,
     num só dia) — é o **próximo passo**, com a amamentação (art. 172.º n.º 3 da Lei 20).
+- **Pedido em horas e amamentação (assiduidade, 4.º tijolo)** — **sem tabelas novas** (o utilizador
+  corrigiu a proposta de `t_dispensa_amamentacao` + `t_parametro_assiduidade`: «dispensa amamentação tem
+  uma tabela própria??»). É o pedido de ausência com `horaInicio`/`horaFim` opcionais (V58), que valem em
+  cada dia do intervalo; a amamentação é um tipo de catálogo (`DISPENSA_AMAMENTACAO`: 120 min/dia na nova
+  coluna `max_minutos_por_dia`, 183 dias por ocorrência). Lei 20 (2h/dia) prevalece sobre o DL art. 20.º
+  (45 min/período); a duração de 6 meses vem do DL — por confirmar com o jurídico. Só tipos sem saldo,
+  regime FALTA e sem tectos anuais/mensais; meios-dias de férias e tectos em horas ficam para depois.
+  Fim antecipado: `PATCH …/terminar` (usa `suspenso_em`). O apuramento desconta as horas justificadas.
+- **Regra de trabalho** (utilizador): antes de desenhar, **lei + indústria + o que já existe** — e só
+  depois propor; tabela nova só para conceito com ciclo de vida próprio.
 - **Mapa de férias — fica por fazer** (lacunas assinaladas, não adivinhadas): preferência dos
   cônjuges no mesmo serviço (art. 5.º n.º 6, não há ligação entre colaboradores); preferência
   indicada pelo próprio em `/me`; aviso quando um pedido de férias não coincide com a marcação.
@@ -143,6 +154,10 @@ framework de jobs (por último).
 
 ## Relevant files
 
+- `colaboradores/application/commands/CreatePedidoAusenciaCommandHandler.java` — `criarEmHoras` (V58).
+  `colaboradores/domain/models/PedidoAusencia.java` — `definirHoras`, `terminar`, `ultimoDiaEmVigor`.
+  `colaboradores/domain/models/TipoAusencia.java` — `motivoParaRecusarHoras`.
+- `db/migration/V58__pedido_ausencia_em_horas.sql`.
 - `colaboradores/domain/service/ApuramentoFaltas.java` — tempo em falta por dia, débito da aferição,
   conversão do art. 13.º n.º 4. `colaboradores/application/services/ApuramentoFaltasService.java` —
   classifica os dias (feriado, pedido aprovado, licença, mobilidade externa, isenção...).
@@ -240,7 +255,8 @@ inventar omissões**. Meios-dias voltam à mesa aqui.
 
 ## Next step
 
-Apresentar o **desenho do pedido de ausência em horas** (horaInicio/horaFim opcionais, num só dia; sem
-partir o front) e da **dispensa de amamentação** (art. 172.º n.º 3 da Lei 20/X/2023: duas horas por
-dia, em dois períodos), e como o apuramento de faltas passa a descontar as horas justificadas — lendo
-antes o articulado; **sem implementar** até o utilizador aprovar.
+Apresentar o **desenho do registo pelo próprio (`/me`) com validação da chefia** — marcações de
+origem PROPRIO (sobretudo teletrabalho, art. 170.º n.º 2 da Lei 20) e o circuito de validação —,
+depois de ver a lei, a indústria e **o que já existe** (o `/me` actual, a chefia via Lugar/
+`parentPositionId`, a aprovação dos pedidos). **Sem implementar** até o utilizador aprovar. A seguir:
+fecho mensal (art. 75.º).

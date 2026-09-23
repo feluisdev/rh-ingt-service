@@ -68,6 +68,31 @@ public interface ColabsPedidoAusenciaEntityRepository extends JpaRepository<Pedi
                           @Param("dataInicio") LocalDate dataInicio,
                           @Param("dataFim") LocalDate dataFim);
 
+    /**
+     * Um pedido em horas colide com um de dias inteiros nas mesmas datas, ou com outro em horas nas
+     * mesmas datas cujas horas se cruzem (V58).
+     */
+    @Query("SELECT CASE WHEN COUNT(p) > 0 THEN TRUE ELSE FALSE END FROM ColabsPedidoAusenciaEntity p " +
+           "WHERE p.funcionario.id = :funcionarioId " +
+           "AND p.estado IN ('APROVADO', 'PENDENTE') " +
+           "AND p.dataInicio <= :dataFim AND p.dataFim >= :dataInicio " +
+           "AND (p.horaInicio IS NULL OR (p.horaInicio < :horaFim AND p.horaFim > :horaInicio))")
+    boolean existsSobreposicaoEmHoras(@Param("funcionarioId") UUID funcionarioId,
+                                      @Param("dataInicio") LocalDate dataInicio,
+                                      @Param("dataFim") LocalDate dataFim,
+                                      @Param("horaInicio") java.time.LocalTime horaInicio,
+                                      @Param("horaFim") java.time.LocalTime horaFim);
+
+    /** Os pedidos em horas do tipo que tocam nas datas — para o tecto diário em minutos. */
+    @Query("SELECT p FROM ColabsPedidoAusenciaEntity p " +
+           "WHERE p.funcionario.id = :funcionarioId AND p.tipoAusencia.id = :tipoAusenciaId " +
+           "AND p.estado IN ('APROVADO', 'PENDENTE') AND p.horaInicio IS NOT NULL " +
+           "AND p.dataInicio <= :dataFim AND p.dataFim >= :dataInicio")
+    List<PedidoAusenciaEntity> findEmHorasDoTipoEntre(@Param("funcionarioId") UUID funcionarioId,
+                                                      @Param("tipoAusenciaId") UUID tipoAusenciaId,
+                                                      @Param("dataInicio") LocalDate dataInicio,
+                                                      @Param("dataFim") LocalDate dataFim);
+
     @Query("SELECT p FROM ColabsPedidoAusenciaEntity p " +
            "WHERE p.funcionario.id = :funcionarioId " +
            "AND p.estado = 'APROVADO' " +

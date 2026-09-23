@@ -58,7 +58,8 @@ public class TipoAusenciaRepositoryImpl implements TipoAusenciaRepository {
                 regimeDe(e),
                 cv.igrp.RH_Service.parametrizacoes.domain.models.EfeitoNaRemuneracao
                         .de(e.getEfeitoRemuneracao()),
-                contagemDe(e));
+                contagemDe(e))
+                .comMaxMinutosPorDia(e.getMaxMinutosPorDia());
     }
 
     private LeaveTypeEntity toEntity(TipoAusencia t) {
@@ -76,6 +77,7 @@ public class TipoAusenciaRepositoryImpl implements TipoAusenciaRepository {
         e.setRegime(t.getRegime() != null ? t.getRegime().name() : null);
         e.setEfeitoRemuneracao(t.getEfeitoRemuneracao() != null ? t.getEfeitoRemuneracao().name() : null);
         e.setContagem(t.getContagem().name());
+        e.setMaxMinutosPorDia(t.getMaxMinutosPorDia());
         return e;
     }
 

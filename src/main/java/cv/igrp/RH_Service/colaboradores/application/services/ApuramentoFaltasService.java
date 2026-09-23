@@ -23,7 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.List;
 import java.util.Set;
 
@@ -68,7 +70,10 @@ public class ApuramentoFaltasService {
 
         List<MarcacaoAssiduidade> marcacoes = marcacaoRepository.findByFuncionarioEntre(funcionarioId, de, ate);
         Set<LocalDate> feriados = calendarioFeriadosService.feriadosDoColaborador(funcionarioId, de, ate);
-        Set<LocalDate> justificados = diasCobertos(pedidoAusenciaRepository.findAprovadosEntre(funcionarioId, de, ate), de, ate);
+        List<PedidoAusencia> aprovados = pedidoAusenciaRepository.findAprovadosEntre(funcionarioId, de, ate);
+        Set<LocalDate> justificados = diasCobertos(aprovados.stream().filter(p -> !p.isEmHoras()).toList(), de, ate);
+        Map<LocalDate, List<DiaAssiduidade.Periodo>> horasJustificadas = horasJustificadas(
+                aprovados.stream().filter(PedidoAusencia::isEmHoras).toList(), de, ate);
 
         List<ApuramentoFaltas.Dia> dias = new ArrayList<>();
         for (LocalDate d = de; !d.isAfter(ate); d = d.plusDays(1)) {
@@ -79,7 +84,8 @@ public class ApuramentoFaltasService {
 
             EstadoDiaApurado previo = estadoPrevio(funcionarioId, funcionario, data, hoje, isento, feriados, justificados);
             var horario = previo == null ? horarioColaboradorService.vigente(funcionarioId, data).horario() : null;
-            dias.add(new ApuramentoFaltas.Dia(data, previo, horario, assiduidade, temValidas));
+            dias.add(new ApuramentoFaltas.Dia(data, previo, horario, assiduidade, temValidas,
+                    horasJustificadas.getOrDefault(data, List.of())));
         }
         return new Apuramento(mes, isento, ApuramentoFaltas.apurar(dias));
     }
@@ -103,16 +109,27 @@ public class ApuramentoFaltasService {
         return null;
     }
 
-    /** Os dias do mês cobertos por pedidos aprovados; um pedido suspenso deixa de cobrir desde a suspensão. */
+    /** Os dias do mês cobertos por pedidos de dias inteiros aprovados; um pedido suspenso deixa de cobrir desde a suspensão. */
     private static Set<LocalDate> diasCobertos(List<PedidoAusencia> pedidos, LocalDate de, LocalDate ate) {
         Set<LocalDate> dias = new HashSet<>();
         for (PedidoAusencia p : pedidos) {
-            LocalDate fim = p.getDataFim();
-            if (p.getSuspensoEm() != null && p.getSuspensoEm().minusDays(1).isBefore(fim)) fim = p.getSuspensoEm().minusDays(1);
+            LocalDate fim = p.ultimoDiaEmVigor();
             for (LocalDate d = p.getDataInicio().isBefore(de) ? de : p.getDataInicio(); !d.isAfter(fim) && !d.isAfter(ate); d = d.plusDays(1))
                 dias.add(d);
         }
         return dias;
+    }
+
+    /** V58: os intervalos justificados de cada dia, dos pedidos em horas aprovados (até ao fim antecipado). */
+    private static Map<LocalDate, List<DiaAssiduidade.Periodo>> horasJustificadas(List<PedidoAusencia> pedidos,
+                                                                              LocalDate de, LocalDate ate) {
+        Map<LocalDate, List<DiaAssiduidade.Periodo>> porDia = new HashMap<>();
+        for (PedidoAusencia p : pedidos) {
+            LocalDate fim = p.ultimoDiaEmVigor();
+            for (LocalDate d = p.getDataInicio().isBefore(de) ? de : p.getDataInicio(); !d.isAfter(fim) && !d.isAfter(ate); d = d.plusDays(1))
+                porDia.computeIfAbsent(d, k -> new ArrayList<>()).add(new DiaAssiduidade.Periodo(p.getHoraInicio(), p.getHoraFim()));
+        }
+        return porDia;
     }
 
     LocalDate hoje() { return LocalDate.now(); }

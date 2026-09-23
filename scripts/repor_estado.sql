@@ -188,3 +188,14 @@ DO $$ BEGIN
     UPDATE t_unidade_organica SET horario_id = NULL;
   END IF;
 END $$;
+
+-- 10. Ausencias em horas (V58). O seed nao traz os cinco tipos novos a uma base ja criada (ON
+--     CONFLICT DO NOTHING), e a bateria precisa deles. Os pedidos de teste saem no ponto 4.
+insert into t_leave_type (id, code, description, deducts_balance, requires_approval, max_days_per_year, max_days_per_occurrence, max_days_per_month, max_minutos_por_dia, category, regime, efeito_remuneracao, contagem, is_active, created_date, created_by) values
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1f5', 'DISPENSA_AMAMENTACAO',   'Dispensa para amamentacao', false, true, null, 183,  null, 120,  'FAMILIAR', 'FALTA', 'SEM_PERDA', 'DIAS_SEGUIDOS', true, now(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1f6', 'TRATAMENTO_AMBULATORIO', 'Tratamento ambulatorio',    false, true, null, null, null, null, 'SAUDE',    'FALTA', 'SEM_PERDA', 'DIAS_SEGUIDOS', true, now(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1f7', 'CONSULTA_PRE_NATAL',     'Consulta pre-natal',        false, true, null, null, null, null, 'SAUDE',    'FALTA', 'SEM_PERDA', 'DIAS_SEGUIDOS', true, now(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1f8', 'DOACAO_SANGUE',          'Doacao de sangue',          false, true, null, null, null, null, 'SAUDE',    'FALTA', 'SEM_PERDA', 'DIAS_SEGUIDOS', true, now(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1f9', 'CREDITO_SINDICAL',       'Credito de horas sindical', false, true, null, null, null, null, 'PESSOAL',  'FALTA', 'SEM_PERDA', 'DIAS_SEGUIDOS', true, now(), 'system')
+on conflict (code) do update set max_minutos_por_dia = excluded.max_minutos_por_dia, max_days_per_occurrence = excluded.max_days_per_occurrence,
+    deducts_balance = false, regime = 'FALTA', max_days_per_year = null, max_days_per_month = null, is_active = true;

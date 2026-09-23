@@ -87,6 +87,12 @@
       "name": "estadoDesc",
       "objectType": "java",
       "required": false
+    },
+    {
+      "type": "integer",
+      "name": "maxMinutosPorDia",
+      "objectType": "java",
+      "required": false
     }
   ]
 }

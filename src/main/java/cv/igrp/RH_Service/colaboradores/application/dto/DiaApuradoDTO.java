@@ -19,5 +19,7 @@ public class DiaApuradoDTO {
     private String motivo;
     private int minutosEsperados;
     private int minutosTrabalhados;
+    /** V58: horas de pedidos em horas aprovados, fora da presença, que contam como cumpridas. */
+    private int minutosJustificados;
     private int minutosEmFalta;
 }

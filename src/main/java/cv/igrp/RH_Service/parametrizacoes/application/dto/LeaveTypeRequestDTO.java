@@ -53,4 +53,7 @@ public class LeaveTypeRequestDTO {
      * mantem o que esta; num tipo novo vale DIAS_UTEIS.
      */
     private String contagem;
+
+    /** V58: tecto diário dos pedidos em horas, em minutos. Omisso mantém; 0 limpa. */
+    private Integer maxMinutosPorDia;
 }

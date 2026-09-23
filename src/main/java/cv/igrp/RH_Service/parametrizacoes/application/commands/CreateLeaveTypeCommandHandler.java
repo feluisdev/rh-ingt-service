@@ -46,6 +46,8 @@ public class CreateLeaveTypeCommandHandler implements CommandHandler<CreateLeave
             ContagemDias.de(dto.getContagem())
         );
 
+        leaveType.definirMaxMinutosPorDia(dto.getMaxMinutosPorDia());
+
         LeaveType saved = leaveTypeRepository.save(leaveType);
 
         LOGGER.debug("LeaveType criado com id: {}", saved.getId().getStringValor());

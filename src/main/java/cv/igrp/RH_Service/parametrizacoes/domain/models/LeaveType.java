@@ -43,6 +43,11 @@ public class LeaveType {
      * isso decide-se classificando a linha, nao por omissao.
      */
     private ContagemDias contagem;
+    /**
+     * Tecto diário, em minutos, dos pedidos em horas deste tipo (V58). A amamentação são 120
+     * (Lei n.º 20/X/2023, art. 172.º n.º 3). Nulo = sem tecto em minutos.
+     */
+    private Integer maxMinutosPorDia;
 
     private LeaveType() {}
 
@@ -119,6 +124,16 @@ public class LeaveType {
         if (regime != null) this.regime = regime;
         if (efeitoRemuneracao != null) this.efeitoRemuneracao = efeitoRemuneracao;
         if (contagem != null) this.contagem = contagem;
+    }
+
+    /**
+     * Nulo não mexe (quem não conhece o campo não o apaga); zero limpa; senão, de 1 a 1440 minutos.
+     */
+    public void definirMaxMinutosPorDia(Integer minutos) {
+        if (minutos == null) return;
+        if (minutos < 0 || minutos > 24 * 60)
+            throw IgrpResponseStatusException.badRequest("maxMinutosPorDia vai de 1 a 1440; 0 limpa o tecto.");
+        this.maxMinutosPorDia = minutos == 0 ? null : minutos;
     }
 
     public void desativar() {

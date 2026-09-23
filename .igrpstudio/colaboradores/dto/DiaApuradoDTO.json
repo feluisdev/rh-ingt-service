@@ -36,6 +36,12 @@
     },
     {
       "type": "integer",
+      "name": "minutosJustificados",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
       "name": "minutosEmFalta",
       "objectType": "java",
       "required": false

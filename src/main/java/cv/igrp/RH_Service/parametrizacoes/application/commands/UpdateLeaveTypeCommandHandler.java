@@ -39,6 +39,8 @@ public class UpdateLeaveTypeCommandHandler implements CommandHandler<UpdateLeave
                 dto.getCategory(), RegimeAusencia.de(dto.getRegime()),
                 cv.igrp.RH_Service.parametrizacoes.domain.models.EfeitoNaRemuneracao.de(dto.getEfeitoRemuneracao()),
                 ContagemDias.de(dto.getContagem()));
+        // V58: omisso mantém, 0 limpa -- quem não conhece o campo não o apaga.
+        leaveType.definirMaxMinutosPorDia(dto.getMaxMinutosPorDia());
 
         LeaveType updated = leaveTypeRepository.save(leaveType);
 

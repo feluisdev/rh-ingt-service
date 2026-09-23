@@ -232,6 +232,50 @@
           }
         }
       }
+    },
+    {
+      "actionName": "terminar",
+      "method": "PATCH",
+      "path": "{pedidoId}/terminar",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "pedidoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "TerminarPedidoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PedidoAusenciaResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }
