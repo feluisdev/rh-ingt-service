@@ -664,6 +664,43 @@ Um tipo novo nasce `SEM_PERDA` — afirmar que não há perda nunca tira dinheir
 
 **Numa instalação já existente nada disto vem classificado.** A migração **não** classifica linha nenhuma — estas duas colunas mandam descontar antiguidade e mexer em salários, e decidir em silêncio pela instituição seria o pior sítio para o fazer. As linhas antigas ficam em `SEM_PERDA` e no regime que já tinham, e a classificação faz-se pela API.
 
+### 6.2d Dias úteis ou dias seguidos — art. 76.º
+
+O DL n.º 3/2010 manda contar os fins-de-semana e feriados **intercalados** numa sucessão de faltas,
+«salvo se a lei se referir expressamente a dias úteis» (art. 76.º). A regra é **dias seguidos**; dias
+úteis é a excepção, e tem de estar escrita.
+
+Cada tipo de ausência diz como se contam os seus dias — `contagem` em
+`/api/v1/rh/catalogs/leave-types` e no `tipoAusencia` que vem com os pedidos e os saldos:
+
+| `contagem` | Como conta | Quem, no seed |
+|---|---|---|
+| `DIAS_UTEIS` | Seg-Sex, sem os feriados do colaborador | férias, falta por conta das férias, paternidade, trabalhador-estudante (licença e pesquisas) |
+| `DIAS_SEGUIDOS` | dias de calendário entre o **primeiro e o último dia útil** do período | todas as outras faltas do art. 15.º, maternidade, seminários |
+
+Em dias seguidos, os fins-de-semana e feriados **das pontas** não contam — não estão «no decurso» da
+falta:
+
+| Pedido (Setembro de 2026) | `DIAS_UTEIS` | `DIAS_SEGUIDOS` |
+|---|---|---|
+| sexta 18 a segunda 21 | 2 | 4 |
+| sexta 18 a domingo 20 | 1 | 1 |
+| quinta 17 a quarta 23 | 5 | 7 |
+| sábado 19 a domingo 20 | 422 | 422 |
+
+O `numeroDias` do pedido e os três tectos (ano, ocorrência, mês) usam a contagem do tipo.
+
+**Omissão:** um tipo novo sem `contagem` conta em `DIAS_UTEIS`; o `PUT` que a omita mantém a que
+está. Valor fora dos dois dá **422**. Numa instalação existente, a migração deixou todas as linhas em
+`DIAS_UTEIS` — como sempre se contou — e a classificação faz-se pela API.
+
+**Dispensas em dias** (seed): `SEMINARIO` (al. w) e art. 21.º: máx. 5 dias consecutivos por
+ocorrência), `TE_PESQUISA` (art. 77.º n.º 3: 6 dias úteis, por ano civil até o jurídico dizer outra
+coisa) e `TE_LICENCA` (art. 77.º n.º 2: 10 dias úteis por ano civil, com desconto no vencimento). A
+antecedência do art. 77.º n.º 2 e o estatuto de trabalhador-estudante **não** se validam ainda.
+
+Regras: BR-AUS-20 a BR-AUS-23.
+
 ### 6.3 Férias: o saldo nasce sozinho
 
 **`POST /saldos-ausencia` deixou de ser o caminho para as férias.** O art. 2.º n.º 4 do DL n.º 3/2010 diz que «o direito a férias vence no dia 1 de Janeiro de cada ano» — e passou a ser o que acontece:

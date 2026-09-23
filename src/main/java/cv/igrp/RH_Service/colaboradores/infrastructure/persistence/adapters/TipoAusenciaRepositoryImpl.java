@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.colaboradores.domain.filter.TipoAusenciaFilter;
 import cv.igrp.RH_Service.colaboradores.domain.models.TipoAusencia;
 import cv.igrp.RH_Service.colaboradores.domain.repository.TipoAusenciaRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.TipoAusenciaId;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.ContagemDias;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.RegimeAusencia;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.LeaveTypeEntity;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.repository.LeaveTypeEntityRepository;
@@ -34,6 +35,16 @@ public class TipoAusenciaRepositoryImpl implements TipoAusenciaRepository {
         }
     }
 
+    /** Como o regime: um valor que o esquema já não deixa entrar lê-se como DIAS_UTEIS. */
+    private ContagemDias contagemDe(LeaveTypeEntity e) {
+        if (e.getContagem() == null) return null;
+        try {
+            return ContagemDias.valueOf(e.getContagem());
+        } catch (IllegalArgumentException ex) {
+            return ContagemDias.DIAS_UTEIS;
+        }
+    }
+
     private TipoAusencia toDomain(LeaveTypeEntity e) {
         return TipoAusencia.reconstituir(
                 TipoAusenciaId.from(e.getId()),
@@ -46,7 +57,8 @@ public class TipoAusenciaRepositoryImpl implements TipoAusenciaRepository {
                 e.getIsActive(),
                 regimeDe(e),
                 cv.igrp.RH_Service.parametrizacoes.domain.models.EfeitoNaRemuneracao
-                        .de(e.getEfeitoRemuneracao()));
+                        .de(e.getEfeitoRemuneracao()),
+                contagemDe(e));
     }
 
     private LeaveTypeEntity toEntity(TipoAusencia t) {
@@ -63,6 +75,7 @@ public class TipoAusenciaRepositoryImpl implements TipoAusenciaRepository {
         e.setIsActive(t.getIsActive());
         e.setRegime(t.getRegime() != null ? t.getRegime().name() : null);
         e.setEfeitoRemuneracao(t.getEfeitoRemuneracao() != null ? t.getEfeitoRemuneracao().name() : null);
+        e.setContagem(t.getContagem().name());
         return e;
     }
 

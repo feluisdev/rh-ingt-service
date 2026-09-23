@@ -597,6 +597,21 @@ existentes -- estas duas colunas mandam descontar antiguidade e mexer em salario
 (`t_leave_mobility_subtype.affects_pay`), que nao sabe dizer "parcial". Por agora sao dois
 contratos diferentes: booleano nas licencas, enum nas ausencias.
 
+### 11.22 Tipos de ausencia: dias uteis ou seguidos, e tres dispensas novas (2026-09-23)
+
+**Nada deixa de funcionar**: `contagem` e um campo novo e opcional em `leave-types` (pedido e
+resposta) e no `tipoAusencia` dos pedidos e saldos. Valores: `DIAS_UTEIS` · `DIAS_SEGUIDOS`. Omisso
+na criacao vale `DIAS_UTEIS`; omisso no `PUT` mantem o que esta. Valor fora dos dois da **422**.
+
+**O que muda sao os numeros.** Num tipo em `DIAS_SEGUIDOS`, o `numeroDias` do pedido passa a contar
+os fins-de-semana e feriados **intercalados** (art. 76.o do DL n.o 3/2010): um luto de sexta a
+segunda passa de 2 dias para 4. Os das pontas nao contam. Numa instalacao existente nada muda ate
+alguem classificar o tipo -- a migracao deixou tudo em `DIAS_UTEIS`.
+
+**Tres tipos novos no seed:** `SEMINARIO` (max. 5 dias seguidos por pedido), `TE_PESQUISA` (6 dias
+uteis por ano) e `TE_LICENCA` (10 dias uteis por ano, com desconto no vencimento). Todos pedem
+aprovacao.
+
 ### 11.21 Feriados: recorrentes, com area, e todos contam (2026-09-23)
 
 **Nada deixa de funcionar**: sao campos novos e opcionais. O que muda e o **numero de dias** que um
@@ -650,3 +665,6 @@ resposta ja reflecte isto -- nao ha nada a recalcular no ecra.
 - [ ] Caixa `isRecurring` e select de `areaCkey` (`AREA_GEOGRAFICA`) no ecrã de feriados (`""` limpa a área no `PUT`).
 - [ ] Select de `areaCkey` no ecrã de unidades orgânicas (vazio herda a da unidade-mãe).
 - [ ] Contar com que o `numeroDias` de um pedido desconte feriados municipais e os do ano seguinte.
+- [ ] Select de `contagem` (`DIAS_UTEIS` / `DIAS_SEGUIDOS`) no ecrã de tipos de ausência; vazio mantém.
+- [ ] Explicar no formulário do pedido que, em tipos `DIAS_SEGUIDOS`, os fins-de-semana intercalados contam.
+- [ ] Contar com três tipos novos no select de ausências: `SEMINARIO`, `TE_PESQUISA`, `TE_LICENCA`.

@@ -96,7 +96,7 @@ class AntiguidadeServiceTest {
                           String codigo, String estado, LocalDate inicio, LocalDate fim) {
         var tipoId = cv.igrp.RH_Service.colaboradores.domain.valueobject.TipoAusenciaId.gerarNovo();
         var tipo = cv.igrp.RH_Service.colaboradores.domain.models.TipoAusencia.reconstituir(
-                tipoId, codigo, codigo, false, false, null, null, null, "PESSOAL", true, regime, null);
+                tipoId, codigo, codigo, false, false, null, null, null, "PESSOAL", true, regime, null, null);
         lenient().when(tipoAusenciaRepository.findById(tipoId)).thenReturn(Optional.of(tipo));
 
         var pedido = cv.igrp.RH_Service.colaboradores.domain.models.PedidoAusencia.reconstituir(

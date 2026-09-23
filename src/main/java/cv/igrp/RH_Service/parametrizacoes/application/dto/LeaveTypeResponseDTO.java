@@ -44,6 +44,8 @@ public class LeaveTypeResponseDTO {
      * aplicacao NAO calcula remuneracao -- a classificacao existe para o sistema que a processa.
      */
     private String efeitoRemuneracao;
+    /** Como se contam os dias (art. 76.o; V56): DIAS_UTEIS · DIAS_SEGUIDOS. */
+    private String contagem;
 
     private String categoryDesc;
 

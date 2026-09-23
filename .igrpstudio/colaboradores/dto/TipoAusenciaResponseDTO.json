@@ -66,6 +66,12 @@
     },
     {
       "type": "string",
+      "name": "contagem",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
       "name": "categoryOptionCkey",
       "objectType": "java",
       "required": false

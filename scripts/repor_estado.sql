@@ -131,3 +131,16 @@ on conflict (id) do nothing;
 delete from t_public_holiday where created_by <> 'seed';
 delete from t_option_entity where ccode='AREA_GEOGRAFICA' and ckey like 'TST_%';
 update t_unidade_organica set area_ckey=null;
+
+--    E a contagem da V56 (art. 76.o), pela mesma razao: a migracao deixa tudo em DIAS_UTEIS, que e
+--    como sempre se contou; o seed classifica pela lei. As tres linhas novas do ponto 2 entram
+--    aqui porque o ON CONFLICT do seed nao as traz a uma base ja criada.
+update t_leave_type set contagem='DIAS_SEGUIDOS'
+ where code not in ('FERIAS','CONTA_FERIAS','PATERNIDADE','TE_PESQUISA','TE_LICENCA');
+update t_leave_type set contagem='DIAS_UTEIS'
+ where code in ('FERIAS','CONTA_FERIAS','PATERNIDADE','TE_PESQUISA','TE_LICENCA');
+insert into t_leave_type (id, code, description, deducts_balance, requires_approval, max_days_per_year, max_days_per_occurrence, max_days_per_month, category, regime, efeito_remuneracao, contagem, is_active, created_date, created_by) values
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1f2', 'SEMINARIO',   'Seminarios, estudos e pesquisas',  false, true, null, 5,    null, 'PESSOAL', 'FALTA', 'SEM_PERDA',   'DIAS_SEGUIDOS', true, now(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1f3', 'TE_PESQUISA', 'Trabalhador-estudante: pesquisas', false, true, 6,    null, null, 'PESSOAL', 'FALTA', 'SEM_PERDA',   'DIAS_UTEIS',    true, now(), 'system'),
+('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1f4', 'TE_LICENCA',  'Trabalhador-estudante: licenca',   false, true, 10,   null, null, 'PESSOAL', 'FALTA', 'PERDA_TOTAL', 'DIAS_UTEIS',    true, now(), 'system')
+on conflict (code) do nothing;

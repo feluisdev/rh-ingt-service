@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.domain.models;
 
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.TipoAusenciaId;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.ContagemDias;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.EfeitoNaRemuneracao;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.RegimeAusencia;
 import lombok.Getter;
@@ -35,6 +36,11 @@ public class TipoAusencia {
      * informação para quem processa vencimentos.
      */
     private EfeitoNaRemuneracao efeitoRemuneracao;
+    /**
+     * Como se contam os dias (art. 76.º; V56). Nulo lê-se DIAS_UTEIS, que é como sempre se
+     * contou — ver {@link #getContagem()}.
+     */
+    private ContagemDias contagem;
 
     private TipoAusencia() {}
 
@@ -63,7 +69,8 @@ public class TipoAusencia {
                                             Integer maxDaysPerYear, Integer maxDaysPerOccurrence,
                                             Integer maxDaysPerMonth, String categoryOptionCkey,
                                             Boolean isActive, RegimeAusencia regime,
-                                            EfeitoNaRemuneracao efeitoRemuneracao) {
+                                            EfeitoNaRemuneracao efeitoRemuneracao,
+                                            ContagemDias contagem) {
         TipoAusencia t = new TipoAusencia();
         t.id = id;
         t.nome = nome;
@@ -77,7 +84,13 @@ public class TipoAusencia {
         t.isActive = isActive;
         t.regime = regime;
         t.efeitoRemuneracao = efeitoRemuneracao;
+        t.contagem = contagem;
         return t;
+    }
+
+    /** Por omissão DIAS_UTEIS: é como sempre se contou, e uma linha por classificar não muda os números. */
+    public ContagemDias getContagem() {
+        return contagem != null ? contagem : ContagemDias.DIAS_UTEIS;
     }
 
     /** Ferias vencem-se; uma falta acontece. So o primeiro faz nascer saldo sozinho. */

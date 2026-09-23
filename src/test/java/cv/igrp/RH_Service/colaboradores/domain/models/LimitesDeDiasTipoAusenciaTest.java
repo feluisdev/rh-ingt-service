@@ -21,7 +21,7 @@ class LimitesDeDiasTipoAusenciaTest {
 
     private static TipoAusencia tipo(Integer porAno, Integer porOcorrencia, Integer porMes) {
         return TipoAusencia.reconstituir(TipoAusenciaId.gerarNovo(), "Tipo", "TIPO",
-                false, false, porAno, porOcorrencia, porMes, "PESSOAL", true, RegimeAusencia.FALTA, null);
+                false, false, porAno, porOcorrencia, porMes, "PESSOAL", true, RegimeAusencia.FALTA, null, null);
     }
 
     /** Art. 15.º n.º 1 al. b): oito dias por falecimento do cônjuge. Oito cabem. */

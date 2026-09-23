@@ -37,13 +37,20 @@ public class LeaveType {
      * direccao segura -- afirma que nao ha perda em vez de a provocar.
      */
     private EfeitoNaRemuneracao efeitoRemuneracao;
+    /**
+     * Como se contam os dias (art. 76.o; V56). A regra da lei e DIAS_SEGUIDOS, mas por omissao
+     * fica DIAS_UTEIS: e como sempre se contou, e mudar a contagem muda os numeros dos pedidos --
+     * isso decide-se classificando a linha, nao por omissao.
+     */
+    private ContagemDias contagem;
 
     private LeaveType() {}
 
     private LeaveType(LeaveTypeId id, String code, String description, boolean deductsBalance,
                       boolean requiresApproval, Integer maxDaysPerYear, Integer maxDaysPerOccurrence,
                       Integer maxDaysPerMonth, String category, boolean active,
-                      RegimeAusencia regime, EfeitoNaRemuneracao efeitoRemuneracao) {
+                      RegimeAusencia regime, EfeitoNaRemuneracao efeitoRemuneracao,
+                      ContagemDias contagem) {
         this.id = id;
         this.code = code;
         this.description = description;
@@ -57,20 +64,21 @@ public class LeaveType {
         this.regime = regime != null ? regime : RegimeAusencia.FALTA;
         this.efeitoRemuneracao = efeitoRemuneracao != null
                 ? efeitoRemuneracao : EfeitoNaRemuneracao.SEM_PERDA;
+        this.contagem = contagem != null ? contagem : ContagemDias.DIAS_UTEIS;
     }
 
     public static LeaveType criar(String code, String description, boolean deductsBalance,
                                   boolean requiresApproval, Integer maxDaysPerYear,
                                   Integer maxDaysPerOccurrence, Integer maxDaysPerMonth,
                                   String category, RegimeAusencia regime,
-                                  EfeitoNaRemuneracao efeitoRemuneracao) {
+                                  EfeitoNaRemuneracao efeitoRemuneracao, ContagemDias contagem) {
         Objects.requireNonNull(code, "code não pode ser nulo");
         validarLimite("maxDaysPerYear", maxDaysPerYear);
         validarLimite("maxDaysPerOccurrence", maxDaysPerOccurrence);
         validarLimite("maxDaysPerMonth", maxDaysPerMonth);
         return new LeaveType(LeaveTypeId.gerarNovo(), code, description, deductsBalance,
                 requiresApproval, maxDaysPerYear, maxDaysPerOccurrence, maxDaysPerMonth,
-                category, true, regime, efeitoRemuneracao);
+                category, true, regime, efeitoRemuneracao, contagem);
     }
 
     /**
@@ -87,16 +95,16 @@ public class LeaveType {
                                         boolean requiresApproval, Integer maxDaysPerYear,
                                         Integer maxDaysPerOccurrence, Integer maxDaysPerMonth,
                                         String category, boolean active, RegimeAusencia regime,
-                                        EfeitoNaRemuneracao efeitoRemuneracao) {
+                                        EfeitoNaRemuneracao efeitoRemuneracao, ContagemDias contagem) {
         return new LeaveType(id, code, description, deductsBalance, requiresApproval,
                 maxDaysPerYear, maxDaysPerOccurrence, maxDaysPerMonth, category, active, regime,
-                efeitoRemuneracao);
+                efeitoRemuneracao, contagem);
     }
 
     public void atualizar(String description, boolean deductsBalance, boolean requiresApproval,
                           Integer maxDaysPerYear, Integer maxDaysPerOccurrence,
                           Integer maxDaysPerMonth, String category, RegimeAusencia regime,
-                          EfeitoNaRemuneracao efeitoRemuneracao) {
+                          EfeitoNaRemuneracao efeitoRemuneracao, ContagemDias contagem) {
         validarLimite("maxDaysPerYear", maxDaysPerYear);
         validarLimite("maxDaysPerOccurrence", maxDaysPerOccurrence);
         validarLimite("maxDaysPerMonth", maxDaysPerMonth);
@@ -110,6 +118,7 @@ public class LeaveType {
         // Nao se apaga uma classificacao por o pedido vir sem ela: a omissao mantem a que esta.
         if (regime != null) this.regime = regime;
         if (efeitoRemuneracao != null) this.efeitoRemuneracao = efeitoRemuneracao;
+        if (contagem != null) this.contagem = contagem;
     }
 
     public void desativar() {

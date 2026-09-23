@@ -47,4 +47,10 @@ public class LeaveTypeRequestDTO {
      * aplicacao NAO calcula remuneracao -- a classificacao existe para o sistema que a processa.
      */
     private String efeitoRemuneracao;
+
+    /**
+     * Como se contam os dias (art. 76.o do DL n.o 3/2010): DIAS_UTEIS ou DIAS_SEGUIDOS. Omitido,
+     * mantem o que esta; num tipo novo vale DIAS_UTEIS.
+     */
+    private String contagem;
 }

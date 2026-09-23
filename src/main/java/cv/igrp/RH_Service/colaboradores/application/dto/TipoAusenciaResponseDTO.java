@@ -25,6 +25,8 @@ public class TipoAusenciaResponseDTO {
      * a classificacao existe para o sistema que a processa.
      */
     private String efeitoRemuneracao;
+    /** Como se contam os dias (art. 76.º; V56): DIAS_UTEIS · DIAS_SEGUIDOS. */
+    private String contagem;
     private String categoryOptionCkey;
     private Boolean isActive;
     private String estadoDesc;

@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers;
 
 import cv.igrp.RH_Service.parametrizacoes.application.dto.LeaveTypeResponseDTO;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.LeaveType;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.ContagemDias;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.EfeitoNaRemuneracao;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.RegimeAusencia;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.persistence.entity.LeaveTypeEntity;
@@ -26,6 +27,8 @@ public class LeaveTypeMapper {
         entity.setRegime(domain.getRegime() != null ? domain.getRegime().name() : RegimeAusencia.FALTA.name());
         entity.setEfeitoRemuneracao(domain.getEfeitoRemuneracao() != null
                 ? domain.getEfeitoRemuneracao().name() : EfeitoNaRemuneracao.SEM_PERDA.name());
+        entity.setContagem(domain.getContagem() != null
+                ? domain.getContagem().name() : ContagemDias.DIAS_UTEIS.name());
         entity.setIsActive(domain.isActive());
         return entity;
     }
@@ -44,7 +47,8 @@ public class LeaveTypeMapper {
             entity.getCategory(),
             entity.getIsActive() != null && entity.getIsActive(),
             RegimeAusencia.de(entity.getRegime()),
-            EfeitoNaRemuneracao.de(entity.getEfeitoRemuneracao())
+            EfeitoNaRemuneracao.de(entity.getEfeitoRemuneracao()),
+            ContagemDias.de(entity.getContagem())
         );
     }
 
@@ -63,6 +67,7 @@ public class LeaveTypeMapper {
         dto.setRegime(domain.getRegime() != null ? domain.getRegime().name() : null);
         dto.setEfeitoRemuneracao(domain.getEfeitoRemuneracao() != null
                 ? domain.getEfeitoRemuneracao().name() : null);
+        dto.setContagem(domain.getContagem() != null ? domain.getContagem().name() : null);
         dto.setIsActive(domain.isActive());
         dto.setEstadoDesc(Boolean.TRUE.equals(domain.isActive()) ? "Ativo" : "Inativo");
         return dto;

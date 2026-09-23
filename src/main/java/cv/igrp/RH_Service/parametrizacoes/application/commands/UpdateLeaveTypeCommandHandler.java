@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.parametrizacoes.application.commands;
 
 import cv.igrp.RH_Service.parametrizacoes.application.dto.LeaveTypeResponseDTO;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.ContagemDias;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.LeaveType;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.RegimeAusencia;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.LeaveTypeRepository;
@@ -36,7 +37,8 @@ public class UpdateLeaveTypeCommandHandler implements CommandHandler<UpdateLeave
         leaveType.atualizar(dto.getDescription(), dto.isDeductsBalance(), dto.isRequiresApproval(),
                 dto.getMaxDaysPerYear(), dto.getMaxDaysPerOccurrence(), dto.getMaxDaysPerMonth(),
                 dto.getCategory(), RegimeAusencia.de(dto.getRegime()),
-                cv.igrp.RH_Service.parametrizacoes.domain.models.EfeitoNaRemuneracao.de(dto.getEfeitoRemuneracao()));
+                cv.igrp.RH_Service.parametrizacoes.domain.models.EfeitoNaRemuneracao.de(dto.getEfeitoRemuneracao()),
+                ContagemDias.de(dto.getContagem()));
 
         LeaveType updated = leaveTypeRepository.save(leaveType);
 

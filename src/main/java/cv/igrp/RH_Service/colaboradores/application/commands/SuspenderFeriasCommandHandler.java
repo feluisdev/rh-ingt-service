@@ -80,7 +80,8 @@ public class SuspenderFeriasCommandHandler
         pedido.suspender(command.getData(), command.getMotivo(), LocalDate.now());
 
         int diasGozados = diasUteisCalculator.calcular(inicio, pedido.getDataFim(),
-                calendarioFeriadosService.feriadosDoColaborador(pedido.getFuncionarioId(), inicio, pedido.getDataFim()));
+                calendarioFeriadosService.feriadosDoColaborador(pedido.getFuncionarioId(), inicio, pedido.getDataFim()),
+                tipo.getContagem());
         int diasRecuperados = Math.max(0, diasAntes - diasGozados);
 
         pedido.ajustarNumeroDias(diasGozados);

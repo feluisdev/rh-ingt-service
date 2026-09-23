@@ -51,7 +51,10 @@ public class CreatePedidoAusenciaCommandHandler
         // Janeiro atravessa o 1 de Janeiro do ano seguinte.
         var feriados = calendarioFeriadosService.feriadosDoColaborador(
                 funcionarioId, dto.getDataInicio(), dto.getDataFim());
-        int numeroDias = diasUteisCalculator.calcular(dto.getDataInicio(), dto.getDataFim(), feriados);
+        // Art. 76.º: dias úteis só onde a lei o diz; nas outras faltas contam os fins-de-semana
+        // e feriados intercalados. Qual é o caso di-lo a linha do catálogo (V56).
+        int numeroDias = diasUteisCalculator.calcular(dto.getDataInicio(), dto.getDataFim(), feriados,
+                tipo.getContagem());
 
         if (pedidoRepository.existsOverlapForFuncionario(funcionarioId, dto.getDataInicio(), dto.getDataFim()))
             throw IgrpResponseStatusException.conflict("Existe sobreposição de datas com um pedido APROVADO ou PENDENTE do mesmo funcionário.");

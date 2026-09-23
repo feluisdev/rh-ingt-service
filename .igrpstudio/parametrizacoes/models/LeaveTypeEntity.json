@@ -123,6 +123,15 @@
       "unique": false,
       "primaryKey": false,
       "skipFieldRevision": false
+    },
+    {
+      "name": "contagem",
+      "type": "string",
+      "length": 20,
+      "nullable": false,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false
     }
   ],
   "id": "leave_type_entity_001",
