@@ -597,6 +597,20 @@ existentes -- estas duas colunas mandam descontar antiguidade e mexer em salario
 (`t_leave_mobility_subtype.affects_pay`), que nao sabe dizer "parcial". Por agora sao dois
 contratos diferentes: booleano nas licencas, enum nas ausencias.
 
+### 11.23 Mapa de ferias (2026-09-23)
+
+**Nada deixa de funcionar**: sao cinco endpoints novos, e o pedido de ferias continua igual.
+
+- `GET/PUT /funcionarios/{id}/ferias/{ano}` (+ `/preferencia`, `/marcacao`) e
+  `GET /ferias/mapa/{ano}`, `POST /ferias/mapa/{ano}/publicar`. Ver `api_guide.md` §6.6.
+- A **preferencia** fora de prazo e aceite: mostrar o alerta, nao tratar como erro.
+- A **marcacao** tem `origem` obrigatoria (`ACORDO` / `FIXADA`); `FIXADA` so entre Maio e Outubro,
+  e interpolada precisa de `fundamentacao`.
+- Depois de **publicado**, alterar pede `motivoAlteracao` (`ACORDO` / `CONVENIENCIA_SERVICO`) e, na
+  conveniencia, `fundamentacao`. O ecra so deve mostrar estes campos quando `mapaPublicadoEm` vem
+  preenchido.
+- Publicar duas vezes da **409**.
+
 ### 11.22 Tipos de ausencia: dias uteis ou seguidos, e tres dispensas novas (2026-09-23)
 
 **Nada deixa de funcionar**: `contagem` e um campo novo e opcional em `leave-types` (pedido e
@@ -668,3 +682,6 @@ resposta ja reflecte isto -- nao ha nada a recalcular no ecra.
 - [ ] Select de `contagem` (`DIAS_UTEIS` / `DIAS_SEGUIDOS`) no ecrã de tipos de ausência; vazio mantém.
 - [ ] Explicar no formulário do pedido que, em tipos `DIAS_SEGUIDOS`, os fins-de-semana intercalados contam.
 - [ ] Contar com três tipos novos no select de ausências: `SEMINARIO`, `TE_PESQUISA`, `TE_LICENCA`.
+- [ ] Ecrã de preferência de férias por colaborador e ano (vários períodos; alerta de fora de prazo).
+- [ ] Ecrã do mapa: marcações, lista de quem está sem marcação, e o botão de dar conhecimento (409 na segunda vez).
+- [ ] Marcação com `origem`; `fundamentacao` quando `FIXADA` interpolada; `motivoAlteracao` só com o mapa publicado.

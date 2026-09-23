@@ -1,0 +1,26 @@
+{
+  "type": "dto",
+  "name": "PeriodoFerias",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "date",
+      "name": "dataInicio",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataFim",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "diasUteis",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "type": "model",
+  "name": "FeriasAlteracaoEntity",
+  "module": "colaboradores",
+  "tableName": "t_ferias_ano_alteracao",
+  "revision": true,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": true
+    },
+    {
+      "name": "feriasAno",
+      "type": "relation",
+      "relation": {
+        "type": "ManyToOne",
+        "entity": "FeriasDoAnoEntity",
+        "fetchType": "lazy",
+        "joinColumn": "ferias_ano_id",
+        "module": "colaboradores"
+      }
+    },
+    {
+      "name": "motivo",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "length": 30
+    },
+    {
+      "name": "fundamentacao",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "length": 1000
+    },
+    {
+      "name": "periodosAnteriores",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "length": 1000
+    },
+    {
+      "name": "periodosNovos",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "length": 1000
+    },
+    {
+      "name": "alteradaEm",
+      "type": "date",
+      "objectType": "java",
+      "primaryKey": false
+    }
+  ]
+}

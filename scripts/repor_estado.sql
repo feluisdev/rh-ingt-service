@@ -68,6 +68,15 @@ update t_contrato set status='ATIVO', is_current=true, end_date=null;
 
 -- 4. Registos que a bateria cria.
 delete from t_leave_mobility; delete from t_leave_request; delete from t_leave_balance;
+--    O mapa de ferias (tabelas do ddl-auto: podem ainda nao existir numa base acabada de criar).
+DO $$ BEGIN
+  IF to_regclass('public.t_ferias_ano') IS NOT NULL THEN
+    DELETE FROM t_ferias_ano_alteracao; DELETE FROM t_ferias_ano_periodo; DELETE FROM t_ferias_ano;
+  END IF;
+  IF to_regclass('public.t_ferias_mapa') IS NOT NULL THEN
+    DELETE FROM t_ferias_mapa;
+  END IF;
+END $$;
 delete from t_historico_estado_colaborador;
 
 -- 5. Lixo de catalogo deixado por execucoes anteriores.

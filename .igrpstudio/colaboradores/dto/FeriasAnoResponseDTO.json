@@ -1,0 +1,104 @@
+{
+  "type": "dto",
+  "name": "FeriasAnoResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "ano",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "direito",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "prazoPreferencia",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "PeriodoFeriasDTO",
+      "name": "preferencia",
+      "objectType": "dto",
+      "collectionType": "list",
+      "module": "colaboradores",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "preferenciaIndicadaEm",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "preferenciaForaDePrazo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "preferenciaObservacoes",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "PeriodoFeriasDTO",
+      "name": "marcacao",
+      "objectType": "dto",
+      "collectionType": "list",
+      "module": "colaboradores",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "origem",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "fundamentacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "marcadaEm",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "totalMarcado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "mapaPublicadoEm",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "FeriasAlteracaoDTO",
+      "name": "alteracoes",
+      "objectType": "dto",
+      "collectionType": "list",
+      "module": "colaboradores",
+      "required": false
+    }
+  ]
+}

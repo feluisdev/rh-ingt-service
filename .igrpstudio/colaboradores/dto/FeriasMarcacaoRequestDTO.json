@@ -1,0 +1,34 @@
+{
+  "type": "dto",
+  "name": "FeriasMarcacaoRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "origem",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "PeriodoFeriasDTO",
+      "name": "periodos",
+      "objectType": "dto",
+      "collectionType": "list",
+      "module": "colaboradores",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "fundamentacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivoAlteracao",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

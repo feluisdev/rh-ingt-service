@@ -79,9 +79,7 @@ public class FeriasService {
      * pode gozar <i>hoje</i> tem essa resposta no saldo, que o job actualiza trimestre a trimestre.
      */
     public int direitoDoAno(Funcionario funcionario, TipoAusencia ferias, int ano) {
-        int direitoAnual = ferias.getMaxDaysPerYear() != null && ferias.getMaxDaysPerYear() > 0
-                ? ferias.getMaxDaysPerYear()
-                : DIAS_UTEIS_POR_LEI;
+        int direitoAnual = direitoAnual(ferias);
 
         LocalDate admissao = funcionario.getDataAdmissao();
         if (admissao == null) return 0;
@@ -89,6 +87,16 @@ public class FeriasService {
         if (ano > admissao.getYear()) return direitoAnual;
 
         return direitoNoAnoDeIngresso(admissao, direitoAnual);
+    }
+
+    /**
+     * Art. 2.º n.º 3: os dias úteis de férias de um ano completo — do catálogo, com a lei por
+     * recurso. É também o máximo que se goza seguidamente (art. 5.º n.º 1).
+     */
+    public int direitoAnual(TipoAusencia ferias) {
+        return ferias.getMaxDaysPerYear() != null && ferias.getMaxDaysPerYear() > 0
+                ? ferias.getMaxDaysPerYear()
+                : DIAS_UTEIS_POR_LEI;
     }
 
     /**

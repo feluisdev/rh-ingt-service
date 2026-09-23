@@ -1,0 +1,42 @@
+{
+  "type": "dto",
+  "name": "MapaFeriasResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "integer",
+      "name": "ano",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "prazoElaboracao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "publicadoEm",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "MapaFeriasLinhaDTO",
+      "name": "linhas",
+      "objectType": "dto",
+      "collectionType": "list",
+      "module": "colaboradores",
+      "required": false
+    },
+    {
+      "type": "MapaFeriasLinhaDTO",
+      "name": "semMarcacao",
+      "objectType": "dto",
+      "collectionType": "list",
+      "module": "colaboradores",
+      "required": false
+    }
+  ]
+}

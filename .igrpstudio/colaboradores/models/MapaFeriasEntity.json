@@ -1,0 +1,28 @@
+{
+  "type": "model",
+  "name": "MapaFeriasEntity",
+  "module": "colaboradores",
+  "tableName": "t_ferias_mapa",
+  "revision": true,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": true
+    },
+    {
+      "name": "ano",
+      "type": "integer",
+      "objectType": "java",
+      "primaryKey": false,
+      "unique": true
+    },
+    {
+      "name": "publicadoEm",
+      "type": "date",
+      "objectType": "java",
+      "primaryKey": false
+    }
+  ]
+}

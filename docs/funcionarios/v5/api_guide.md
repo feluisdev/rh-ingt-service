@@ -830,6 +830,61 @@ Só os tipos com `deductsBalance` mexem no saldo; para os outros, nada disto se 
 >
 > Para **renovar ou substituir** um contrato não se usa o `close`: basta criar o contrato novo, que encerra o anterior (motivo `SUBSTITUICAO`) sem tocar na afectação nem no estado.
 
+### 6.6 Mapa de férias — arts. 5.º e 6.º
+
+**Marcar não é gozar.** O mapa é o plano do ano; o gozo continua a ser o pedido de férias (§6.3),
+que desconta o saldo. Nada no mapa mexe em saldos.
+
+| Método | Caminho | O quê |
+|---|---|---|
+| `GET` | `/api/v1/rh/funcionarios/{id}/ferias/{ano}` | preferência, marcação, alterações e direito do ano |
+| `PUT` | `/api/v1/rh/funcionarios/{id}/ferias/{ano}/preferencia` | indicar a preferência (art. 5.º n.º 4) |
+| `PUT` | `/api/v1/rh/funcionarios/{id}/ferias/{ano}/marcacao` | marcar, ou alterar depois de publicado (art. 5.º, art. 6.º n.º 2) |
+| `GET` | `/api/v1/rh/ferias/mapa/{ano}` | o mapa: marcações e quem está sem nenhuma |
+| `POST` | `/api/v1/rh/ferias/mapa/{ano}/publicar` | dar conhecimento do mapa (art. 6.º n.º 1) — **não há aprovação** |
+
+Os dois `PUT` substituem o conjunto de períodos que havia.
+
+**Preferência** — `{"periodos": [{"dataInicio": "2027-08-02", "dataFim": "2027-08-31"}], "observacoes": null}`.
+Até 31 de Janeiro; **depois é aceite com alerta** e fica `preferenciaForaDePrazo: true`.
+
+**Marcação** — os dias úteis contam-se no servidor, com os feriados do colaborador:
+
+```json
+{
+  "origem": "FIXADA",
+  "periodos": [{"dataInicio": "2027-06-01", "dataFim": "2027-06-15"},
+               {"dataInicio": "2027-09-01", "dataFim": "2027-09-15"}],
+  "fundamentacao": "Época alta de atendimento em Agosto",
+  "motivoAlteracao": null
+}
+```
+
+| Caso | Resposta |
+|---|---|
+| `origem` ausente ou fora de `ACORDO` · `FIXADA` | 422 |
+| períodos fora do ano, sobrepostos, ou sem dias úteis | 422 |
+| total acima do direito do ano | 422 |
+| um período com mais dias úteis do que o direito anual (art. 5.º n.º 1) | 422 |
+| interpolado sem nenhum período de 11 dias (salvo ano de ingresso, ou direito < 11) | 422 |
+| `FIXADA` fora de 1 de Maio a 31 de Outubro (art. 5.º n.º 5) | 422 |
+| `FIXADA` interpolada sem `fundamentacao` (art. 5.º n.º 2) | 422 |
+| mapa já publicado e marcação existente, sem `motivoAlteracao` (art. 6.º n.º 2) | 422 |
+| `motivoAlteracao: CONVENIENCIA_SERVICO` sem `fundamentacao` | 422 |
+| total abaixo do direito | 200, com alerta |
+
+**Publicar** devolve 201 com alertas (fora do prazo de 31 de Março; colaboradores sem marcação);
+uma segunda vez é **409**.
+
+**Parâmetros** (`application.properties`, com a lei por omissão, sobreponíveis por variável de
+ambiente): `rh.ferias.mapa.prazo-preferencia` (01-31), `prazo-mapa` (03-31), `fixacao-inicio`
+(05-01), `fixacao-fim` (10-31), `periodo-minimo-interpolado` (11).
+
+**Não coberto:** a preferência dos cônjuges no mesmo serviço (art. 5.º n.º 6) — não há ligação
+entre colaboradores; e a indicação da preferência pelo próprio, em `/me`.
+
+Regras: BR-FER-13 a BR-FER-20.
+
 ### Sub-recurso `documentos` (padrão)
 ```
 POST   .../{ownerId}/documentos            # upload (multipart)

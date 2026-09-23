@@ -1,0 +1,22 @@
+{
+  "type": "dto",
+  "name": "FeriasPreferenciaRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "PeriodoFeriasDTO",
+      "name": "periodos",
+      "objectType": "dto",
+      "collectionType": "list",
+      "module": "colaboradores",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "observacoes",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

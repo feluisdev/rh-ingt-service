@@ -1,0 +1,38 @@
+{
+  "type": "dto",
+  "name": "FeriasAlteracao",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "fundamentacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "periodosAnteriores",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "periodosNovos",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "alteradaEm",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

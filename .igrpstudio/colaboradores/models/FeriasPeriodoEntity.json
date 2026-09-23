@@ -1,0 +1,51 @@
+{
+  "type": "model",
+  "name": "FeriasPeriodoEntity",
+  "module": "colaboradores",
+  "tableName": "t_ferias_ano_periodo",
+  "revision": true,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": true
+    },
+    {
+      "name": "feriasAno",
+      "type": "relation",
+      "relation": {
+        "type": "ManyToOne",
+        "entity": "FeriasDoAnoEntity",
+        "fetchType": "lazy",
+        "joinColumn": "ferias_ano_id",
+        "module": "colaboradores"
+      }
+    },
+    {
+      "name": "natureza",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "length": 20
+    },
+    {
+      "name": "dataInicio",
+      "type": "date",
+      "objectType": "java",
+      "primaryKey": false
+    },
+    {
+      "name": "dataFim",
+      "type": "date",
+      "objectType": "java",
+      "primaryKey": false
+    },
+    {
+      "name": "diasUteis",
+      "type": "integer",
+      "objectType": "java",
+      "primaryKey": false
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "type": "model",
+  "name": "FeriasDoAnoEntity",
+  "module": "colaboradores",
+  "tableName": "t_ferias_ano",
+  "revision": true,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": true
+    },
+    {
+      "name": "funcionario",
+      "type": "relation",
+      "relation": {
+        "type": "ManyToOne",
+        "entity": "FuncionarioEntity",
+        "fetchType": "lazy",
+        "joinColumn": "funcionario_id",
+        "module": "colaboradores"
+      }
+    },
+    {
+      "name": "ano",
+      "type": "integer",
+      "objectType": "java",
+      "primaryKey": false
+    },
+    {
+      "name": "preferenciaIndicadaEm",
+      "type": "date",
+      "objectType": "java",
+      "primaryKey": false
+    },
+    {
+      "name": "preferenciaForaDePrazo",
+      "type": "boolean",
+      "objectType": "java",
+      "primaryKey": false
+    },
+    {
+      "name": "preferenciaObservacoes",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "length": 500
+    },
+    {
+      "name": "origem",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "length": 20
+    },
+    {
+      "name": "fundamentacao",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "length": 1000
+    },
+    {
+      "name": "marcadaEm",
+      "type": "date",
+      "objectType": "java",
+      "primaryKey": false
+    }
+  ]
+}

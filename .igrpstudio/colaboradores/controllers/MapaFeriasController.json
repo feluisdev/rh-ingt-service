@@ -1,0 +1,158 @@
+{
+  "type": "controller",
+  "name": "MapaFerias",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh",
+  "description": "Mapa de férias: preferência, marcação e publicação (DL n.º 3/2010, arts. 5.º e 6.º)",
+  "actions": [
+    {
+      "actionName": "getFeriasDoAno",
+      "method": "GET",
+      "path": "funcionarios/{funcionarioId}/ferias/{ano}",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "ano",
+          "type": "integer"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "FeriasAnoResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "indicarPreferencia",
+      "method": "PUT",
+      "path": "funcionarios/{funcionarioId}/ferias/{ano}/preferencia",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "ano",
+          "type": "integer"
+        }
+      ],
+      "requestBody": true,
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "marcar",
+      "method": "PUT",
+      "path": "funcionarios/{funcionarioId}/ferias/{ano}/marcacao",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "ano",
+          "type": "integer"
+        }
+      ],
+      "requestBody": true,
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getMapa",
+      "method": "GET",
+      "path": "ferias/mapa/{ano}",
+      "pathVariables": [
+        {
+          "name": "ano",
+          "type": "integer"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "MapaFeriasResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "publicar",
+      "method": "POST",
+      "path": "ferias/mapa/{ano}/publicar",
+      "pathVariables": [
+        {
+          "name": "ano",
+          "type": "integer"
+        }
+      ],
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
