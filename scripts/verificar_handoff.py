@@ -14,6 +14,10 @@ Exit 0 = o handoff diz a verdade. Exit 1 = ha afirmacoes a corrigir.
 
 Nota: os testes sao lidos do ultimo relatorio em target/surefire-reports, portanto
 correr `mvn -B clean test` antes, senao essa verificacao e saltada.
+
+Quando a suite corre numa copia isolada (por causa do servidor Java do VS Code, que
+escreve no mesmo target/ -- ver o handoff), apontar para os relatorios dessa copia:
+    python scripts/verificar_handoff.py --relatorios <copia>/target/surefire-reports
 """
 import io
 import json
@@ -23,6 +27,12 @@ import subprocess
 import sys
 
 HANDOFF = ".claude/resume/rhFix.md"
+RELATORIOS = "target/surefire-reports"
+if "--relatorios" in sys.argv:
+    RELATORIOS = sys.argv[sys.argv.index("--relatorios") + 1]
+    # A pasta temporaria das sessoes passa facilmente dos 260 caracteres do Windows.
+    if os.name == "nt":
+        RELATORIOS = "\\\\?\\" + os.path.abspath(RELATORIOS)
 JAVA = "src/main/java/cv/igrp/RH_Service/"
 MIGRACOES = "src/main/resources/db/migration"
 
@@ -108,12 +118,12 @@ numeros = sorted(int(f.split("__")[0][1:]) for f in os.listdir(MIGRACOES)
                  if re.match(r"^V\d+__", f))
 afirma("proxima migracao livre", r"Próxima livre: \*\*V(\d+)\*\*", max(numeros) + 1)
 
-if os.path.isdir("target/surefire-reports"):
+if os.path.isdir(RELATORIOS):
     tot = fal = err = 0
-    for f in os.listdir("target/surefire-reports"):
+    for f in os.listdir(RELATORIOS):
         if not f.endswith(".xml"):
             continue
-        t = io.open("target/surefire-reports/" + f, encoding="utf-8",
+        t = io.open(os.path.join(RELATORIOS, f), encoding="utf-8",
                     errors="replace").read(4000)
         for chave in ("tests", "failures", "errors"):
             m = re.search(chave + r'="(\d+)"', t)
@@ -129,7 +139,7 @@ if os.path.isdir("target/surefire-reports"):
     verifica("suite verde", fal == 0 and err == 0,
              "%d falhas, %d erros no ultimo relatorio" % (fal, err))
 else:
-    saltadas.append("testes (sem target/surefire-reports -- correr mvn clean test)")
+    saltadas.append("testes (sem " + RELATORIOS + " -- correr mvn clean test)")
 
 readme = "scripts/testes_funcionais_README.md"
 if os.path.isfile(readme):
