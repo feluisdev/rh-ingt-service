@@ -1,0 +1,14 @@
+{
+  "type": "dto",
+  "name": "HorarioColaboradorResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    { "type": "string", "name": "id", "objectType": "java", "required": false },
+    { "type": "string", "name": "horarioId", "objectType": "java", "required": false },
+    { "type": "string", "name": "horarioNome", "objectType": "java", "required": false },
+    { "type": "string", "name": "regimePrestacao", "objectType": "java", "required": false },
+    { "type": "date", "name": "dataInicio", "objectType": "java", "required": false },
+    { "type": "date", "name": "dataFim", "objectType": "java", "required": false }
+  ]
+}

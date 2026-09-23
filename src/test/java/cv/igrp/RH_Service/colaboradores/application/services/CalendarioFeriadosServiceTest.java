@@ -31,7 +31,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -51,12 +50,14 @@ class CalendarioFeriadosServiceTest {
     @Mock private PositionRepository positionRepository;
     @Mock private OrganizationalUnitRepository unidadeRepository;
 
-    @InjectMocks private CalendarioFeriadosService service;
+    private CalendarioFeriadosService service;
 
     private final FuncionarioId funcionario = FuncionarioId.gerarNovo();
 
     @BeforeEach
     void semMobilidadePorOmissao() {
+        service = new CalendarioFeriadosService(feriadoRepository, new UnidadeDeExercicioService(
+                mobilidadeService, assignmentRepository, positionRepository, unidadeRepository));
         when(mobilidadeService.mobilidadeEmVigor(funcionario, INICIO)).thenReturn(Optional.empty());
     }
 

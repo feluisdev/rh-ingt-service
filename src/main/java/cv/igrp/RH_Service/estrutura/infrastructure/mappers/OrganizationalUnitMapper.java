@@ -5,6 +5,7 @@ import cv.igrp.RH_Service.estrutura.application.dto.OrganizationalUnitResponseDT
 import cv.igrp.RH_Service.estrutura.domain.models.OrganizationalUnit;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.OrganizationalUnitId;
 import cv.igrp.RH_Service.estrutura.infrastructure.persistence.entity.OrganizationalUnitEntity;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.HorarioId;
 import cv.igrp.RH_Service.shared.infrastructure.persistence.JpaReferences;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -27,6 +28,7 @@ public class OrganizationalUnitMapper {
         entity.setParentUnit(refs.ref(OrganizationalUnitEntity.class, domain.getParentUnitId() != null ? domain.getParentUnitId().getValor() : null));
         entity.setResponsibleEmployee(refs.ref(FuncionarioEntity.class, domain.getResponsibleEmployeeId()));
         entity.setAreaCkey(domain.getAreaCkey());
+        entity.setHorarioId(domain.getHorarioId() != null ? domain.getHorarioId().getValor() : null);
         entity.setIsActive(domain.isActive());
         return entity;
     }
@@ -45,6 +47,7 @@ public class OrganizationalUnitMapper {
                 parentId,
                 refs.idOf(entity.getResponsibleEmployee(), FuncionarioEntity::getId),
                 entity.getAreaCkey(),
+                entity.getHorarioId() != null ? HorarioId.from(entity.getHorarioId()) : null,
                 entity.getIsActive() != null && entity.getIsActive()
         );
     }
@@ -64,6 +67,7 @@ public class OrganizationalUnitMapper {
         dto.setParentUnitId(domain.getParentUnitId() != null ? domain.getParentUnitId().getValor() : null);
         dto.setResponsibleEmployeeId(domain.getResponsibleEmployeeId());
         dto.setAreaCkey(domain.getAreaCkey());
+        dto.setHorarioId(domain.getHorarioId() != null ? domain.getHorarioId().getStringValor() : null);
         dto.setIsActive(domain.isActive());
         dto.setEstadoDesc(domain.isActive() ? "Ativo" : "Inativo");
         return dto;

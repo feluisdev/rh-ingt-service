@@ -886,6 +886,51 @@ pedido de férias não coincide com a marcação.
 
 Regras: BR-FER-13 a BR-FER-20.
 
+### 6.7 Horário do colaborador — assiduidade, primeiro passo
+
+O horário de trabalho de cada colaborador, com o regime de prestação (Lei n.º 20/X/2023, arts.
+164.º a 166.º). Os horários vêm do catálogo da instituição (§9.3).
+
+| Método | Path | O quê |
+|---|---|---|
+| `GET` | `/api/v1/rh/funcionarios/{id}/horarios` | histórico das atribuições, da mais antiga para a mais recente |
+| `POST` | `/api/v1/rh/funcionarios/{id}/horarios` | atribui a partir de uma data → 201; fecha a anterior na véspera |
+| `GET` | `/api/v1/rh/funcionarios/{id}/horarios/vigente?data=2026-10-05` | o horário que vale nessa data (sem `data`: hoje) |
+
+```json
+POST /api/v1/rh/funcionarios/{id}/horarios
+{ "horarioId": "…", "regimePrestacao": "TELETRABALHO", "dataInicio": "2026-10-01" }
+```
+
+`regimePrestacao` ∈ `PRESENCIAL` · `TELETRABALHO` · `MISTO` (art. 166.º); omisso = `PRESENCIAL`.
+
+**O horário que vale numa data**, por esta ordem:
+
+1. o **atribuído** ao colaborador para essa data (`origem: COLABORADOR`);
+2. o da **unidade** onde exerce funções nessa data — na mobilidade interna, a de destino —, ou o da
+   unidade-mãe mais próxima que tenha um (`UNIDADE`, regime `PRESENCIAL`);
+3. o horário **base** da instituição (`BASE`, regime `PRESENCIAL`);
+4. nenhum, só enquanto a instituição não tiver marcado o base (`NENHUM`, `horario` nulo).
+
+```json
+GET /api/v1/rh/funcionarios/{id}/horarios/vigente?data=2026-10-05
+{
+  "funcionarioId": "…", "data": "2026-10-05",
+  "origem": "COLABORADOR", "regimePrestacao": "TELETRABALHO", "atribuicaoId": "…",
+  "horario": { "id": "…", "nome": "Flexível", "controlo": "FLEXIVEL", "periodoAfericao": "MES",
+               "duracaoDiaria": "07:00", "horasSemanais": "35:00", "blocos": [ … ], "isBase": false }
+}
+```
+
+| Caso | Resposta |
+|---|---|
+| sem `dataInicio`, ou numa data igual ou anterior à da última atribuição | 422 |
+| `horarioId` em falta, mal escrito, inexistente ou de um horário inactivo | 422 |
+| `regimePrestacao` fora dos três valores | 422 |
+| contrato a tempo parcial e um horário com tantas ou mais horas do que o da unidade (ou o base) | 201, com alerta |
+
+Regras: BR-HOR-06 a BR-HOR-10.
+
 ### Sub-recurso `documentos` (padrão)
 ```
 POST   .../{ownerId}/documentos            # upload (multipart)
@@ -1160,6 +1205,7 @@ Sem mobilidade em vigor, `exerceFuncoesUnidade*` é a unidade do próprio Lugar.
 | Tipos de documento | `/api/v1/rh/catalogs/document-types` |
 | Feriados | `/api/v1/rh/catalogs/public-holidays` |
 | Parâmetros do mapa de férias (§9.2 — padrão próprio) | `/api/v1/rh/catalogs/parametros-ferias` |
+| Horários (§9.3 — lista sem paginação, mais `PATCH /{id}/base`) | `/api/v1/rh/catalogs/horarios` |
 | Opções genéricas | `/api/v1/rh/reference/options` |
 
 Padrão CRUD comum: `GET`, `GET/{id}`, `POST`, `PUT/{id}`, `DELETE/{id}`, `PATCH/{id}/activate`, `GET/combobox`.
@@ -1267,6 +1313,60 @@ valem os valores da lei e o `id` vem nulo. O seed carrega a linha da lei, em vig
 sem reenviar os outros. O `fundamento` limpa-se enviando `""`.
 
 Regra: BR-FER-20.
+
+### 9.3 Horários — o catálogo da instituição
+
+Os horários de trabalho que a instituição usa. O **nome é livre**, e é nele que se diz a modalidade
+(rígido, desfasado, jornada contínua…): o diploma que as define (Lei n.º 20/X/2023, art. 165.º
+n.º 2) não está publicado. Os **limites legais não se validam** pela mesma razão.
+
+| Método | Path | O quê |
+|---|---|---|
+| `GET` | `/api/v1/rh/catalogs/horarios?isActive=` | lista por nome (sem paginação) |
+| `GET` | `/api/v1/rh/catalogs/horarios/{id}` | um horário |
+| `POST` | `/api/v1/rh/catalogs/horarios` | cria → 201 |
+| `PUT` | `/api/v1/rh/catalogs/horarios/{id}` | altera → 200 |
+| `DELETE` | `/api/v1/rh/catalogs/horarios/{id}` | desactiva |
+| `PATCH` | `/api/v1/rh/catalogs/horarios/{id}/activate` | reactiva |
+| `PATCH` | `/api/v1/rh/catalogs/horarios/{id}/base` | marca como horário base (desmarca o anterior) → 200 |
+
+```json
+POST /api/v1/rh/catalogs/horarios
+{
+  "nome": "Horário normal",
+  "controlo": "FIXO",
+  "blocos": [
+    { "diaSemana": 1, "inicio": "08:00", "fim": "12:30" },
+    { "diaSemana": 1, "inicio": "14:00", "fim": "17:30" }
+  ]
+}
+```
+
+| Campo | O que diz |
+|---|---|
+| `controlo` | `FIXO`: o período normal são os blocos. `FLEXIVEL`: cumpre-se `duracaoDiaria`, e a falta é o débito no fim de cada `periodoAfericao` (DL n.º 3/2010, art. 13.º n.º 2) |
+| `blocos[].diaSemana` | 1 = segunda … 7 = domingo |
+| `blocos[].inicio` · `fim` | `HH:mm`; o intervalo de descanso é o espaço entre dois blocos |
+| `blocos[].obrigatorio` | no flexível, marca as plataformas fixas; omisso = `true`. No fixo é sempre `true` |
+| `periodoAfericao` · `duracaoDiaria` | só no flexível, e aí obrigatórios (`SEMANA`·`MES`; `HH:mm`) |
+| `horasSemanais` (resposta) | calculado; não se envia |
+| `isBase` (resposta) | o horário da instituição, para quem não tem horário na pessoa nem na unidade |
+
+**Recusas:** bloco com início depois do fim ou a passar a meia-noite, blocos sobrepostos no mesmo
+dia, nenhum bloco, sem nome → 422; flexível sem período ou sem duração, duração que não cabe nos
+blocos de um dia, plataformas fixas que passam da duração → 422; período ou duração num fixo → 422;
+marcar um inactivo como base → 422; desactivar o base → 409 (marca-se primeiro outro).
+
+**O `PUT` não apaga o que não recebe.** O período e a duração limpam-se em branco; passar a `FIXO`
+sem os enviar limpa-os. Os blocos, quando vêm, substituem os anteriores por inteiro. Desactivar não
+retira o horário a quem já o tem.
+
+**O horário da unidade orgânica** (V57): `POST`/`PUT /api/v1/rh/estrutura/organizational-units`
+aceitam `horarioId`, opcional. Nulo quer dizer «o da unidade-mãe»; uma unidade sem horário nem na
+cadeia segue o horário base. Só se valida quando vem — um horário que exista e esteja activo, senão
+422 —, o `PUT` que o omita mantém-no, e `""` limpa-o. A resposta devolve-o.
+
+Regras: BR-HOR-01 a BR-HOR-07.
 
 ---
 

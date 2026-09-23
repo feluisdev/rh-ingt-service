@@ -52,6 +52,10 @@ public class OrganizationalUnitEntity extends AuditEntity {
     @Column(name = "area_ckey", length = 100)
     private String areaCkey;
 
+    /** V57. Sem FK: t_horario nasce pelo ddl-auto, depois do Flyway. Valida-se na aplicação. */
+    @Column(name = "horario_id")
+    private UUID horarioId;
+
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 }

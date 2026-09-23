@@ -1,0 +1,82 @@
+{
+  "type": "dto",
+  "module": "parametrizacoes",
+  "name": "HorarioResponse",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    {
+      "name": "id",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": true
+    },
+    {
+      "name": "nome",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "controlo",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "periodoAfericao",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "duracaoDiaria",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "blocos",
+      "objectType": "dto",
+      "type": "HorarioBlocoDTO",
+      "module": "parametrizacoes",
+      "required": false,
+      "primaryKey": false,
+      "collectionType": "list"
+    },
+    {
+      "name": "horasSemanais",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "isBase",
+      "objectType": "java",
+      "type": "boolean",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "isActive",
+      "objectType": "java",
+      "type": "boolean",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "estadoDesc",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    }
+  ],
+  "id": "horario_res_dto_001"
+}

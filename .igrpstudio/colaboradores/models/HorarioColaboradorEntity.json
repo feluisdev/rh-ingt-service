@@ -1,0 +1,17 @@
+{
+  "type": "model",
+  "module": "colaboradores",
+  "name": "HorarioColaboradorEntity",
+  "tableName": "t_horario_colaborador",
+  "audit": true,
+  "crud": false,
+  "revision": true,
+  "attributes": [
+    { "name": "id", "type": "uuid", "objectType": "java", "primaryKey": true, "nullable": false },
+    { "name": "funcionario", "type": "relation", "relation": { "type": "ManyToOne", "entity": "FuncionarioEntity", "fetchType": "lazy", "joinColumn": "funcionario_id", "module": "colaboradores" } },
+    { "name": "horarioId", "type": "uuid", "objectType": "java", "primaryKey": false, "nullable": false },
+    { "name": "regimePrestacao", "type": "string", "objectType": "java", "primaryKey": false, "length": 20, "nullable": false },
+    { "name": "dataInicio", "type": "date", "objectType": "java", "primaryKey": false, "nullable": false },
+    { "name": "dataFim", "type": "date", "objectType": "java", "primaryKey": false, "nullable": true }
+  ]
+}

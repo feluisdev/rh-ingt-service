@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.estrutura.domain.models;
 
 import cv.igrp.RH_Service.estrutura.domain.valueobject.OrganizationalUnitId;
+import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.HorarioId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import lombok.Getter;
 
@@ -24,6 +25,9 @@ public class OrganizationalUnit {
     // AREA_GEOGRAFICA. Nula quer dizer «a da unidade-mãe»; nula até ao topo, só contam os
     // feriados sem área.
     private String areaCkey;
+    // O horário de quem trabalha na unidade e não tem um atribuído (V57). Nulo quer dizer «o da
+    // unidade-mãe»; a unidade de topo faz de horário da instituição.
+    private HorarioId horarioId;
     private boolean active;
 
     private OrganizationalUnit() {}
@@ -60,6 +64,16 @@ public class OrganizationalUnit {
                 responsibleEmployeeId, areaCkey, active);
     }
 
+    public static OrganizationalUnit reconstruir(OrganizationalUnitId id, String code, String name, String acronym,
+                                                  String unitType, String descricao,
+                                                  OrganizationalUnitId parentUnitId, UUID responsibleEmployeeId,
+                                                  String areaCkey, HorarioId horarioId, boolean active) {
+        var unidade = reconstruir(id, code, name, acronym, unitType, descricao, parentUnitId,
+                responsibleEmployeeId, areaCkey, active);
+        unidade.horarioId = horarioId;
+        return unidade;
+    }
+
     public void atualizar(String code, String name, String acronym, String unitType,
                           String descricao, OrganizationalUnitId parentUnitId, UUID responsibleEmployeeId,
                           String areaCkey) {
@@ -71,6 +85,11 @@ public class OrganizationalUnit {
         this.parentUnitId = parentUnitId;
         this.responsibleEmployeeId = responsibleEmployeeId;
         this.areaCkey = normalizarArea(areaCkey);
+    }
+
+    /** Nulo: a unidade segue o horário da unidade-mãe. A existência e o estado validam-se fora. */
+    public void definirHorario(HorarioId horarioId) {
+        this.horarioId = horarioId;
     }
 
     public void desativar() {

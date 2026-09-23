@@ -22,6 +22,8 @@ public class OrganizationalUnitResponseDTO {
     private UUID responsibleEmployeeId;
     private String responsibleEmployeeName;
     private String areaCkey;
+    /** O horário próprio da unidade (nulo: segue a unidade-mãe). */
+    private String horarioId;
     private Boolean isActive;
     private String estadoDesc;
     private Long nColaboradores;

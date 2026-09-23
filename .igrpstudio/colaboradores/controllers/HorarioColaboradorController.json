@@ -1,0 +1,42 @@
+{
+  "type": "controller",
+  "name": "HorarioColaborador",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh",
+  "description": "Horário do colaborador e regime de prestação (Lei n.º 20/X/2023, arts. 164.º a 166.º)",
+  "actions": [
+    {
+      "actionName": "listHorarios",
+      "method": "GET",
+      "path": "funcionarios/{funcionarioId}/horarios",
+      "pathVariables": [ { "name": "funcionarioId", "type": "string" } ],
+      "responses": {
+        "200": { "name": "OK", "content": { "application/json": { "schema": {
+          "type": "HorarioColaboradorResponseDTO", "objectType": "dto", "name": "data", "collectionType": "list", "module": "colaboradores" } } } }
+      }
+    },
+    {
+      "actionName": "atribuirHorario",
+      "method": "POST",
+      "path": "funcionarios/{funcionarioId}/horarios",
+      "pathVariables": [ { "name": "funcionarioId", "type": "string" } ],
+      "requestBody": { "content": { "application/json": { "schema": {
+        "type": "HorarioColaboradorRequest", "collectionType": "none", "name": "data", "objectType": "dto", "module": "colaboradores" } } } },
+      "responses": {
+        "201": { "name": "Created", "content": { "application/json": { "schema": {
+          "type": "SuccessResponseDTO", "objectType": "dto", "name": "data", "collectionType": "none", "module": "shared" } } } }
+      }
+    },
+    {
+      "actionName": "getHorarioVigente",
+      "method": "GET",
+      "path": "funcionarios/{funcionarioId}/horarios/vigente",
+      "pathVariables": [ { "name": "funcionarioId", "type": "string" } ],
+      "requestParams": [ { "type": "date", "name": "data", "isRequired": false } ],
+      "responses": {
+        "200": { "name": "OK", "content": { "application/json": { "schema": {
+          "type": "HorarioVigenteResponseDTO", "objectType": "dto", "name": "data", "collectionType": "none", "module": "colaboradores" } } } }
+      }
+    }
+  ]
+}

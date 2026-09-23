@@ -1,0 +1,14 @@
+{
+  "type": "dto",
+  "name": "HorarioVigenteResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    { "type": "string", "name": "funcionarioId", "objectType": "java", "required": false },
+    { "type": "date", "name": "data", "objectType": "java", "required": false },
+    { "type": "string", "name": "origem", "objectType": "java", "required": false },
+    { "type": "string", "name": "regimePrestacao", "objectType": "java", "required": false },
+    { "type": "string", "name": "atribuicaoId", "objectType": "java", "required": false },
+    { "type": "HorarioResponseDTO", "name": "horario", "objectType": "dto", "collectionType": "none", "module": "parametrizacoes", "required": false }
+  ]
+}

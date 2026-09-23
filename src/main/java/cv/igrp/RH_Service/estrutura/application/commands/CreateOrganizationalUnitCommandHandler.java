@@ -25,6 +25,7 @@ public class CreateOrganizationalUnitCommandHandler
 
     private final OrganizationalUnitRepository unitRepository;
     private final FuncionarioLookupPort funcionarioLookupPort;
+    private final HorarioDaUnidade horarioDaUnidade;
 
     @IgrpCommandHandler
     public ResponseEntity<SuccessResponseDTO> handle(CreateOrganizationalUnitCommand command) {
@@ -44,6 +45,7 @@ public class CreateOrganizationalUnitCommandHandler
 
         var unit = OrganizationalUnit.criar(dto.getCode(), dto.getName(), dto.getAcronym(),
                 dto.getUnitType(), dto.getDescricao(), parentId, responsibleEmployeeId, dto.getAreaCkey());
+        if (dto.getHorarioId() != null) unit.definirHorario(horarioDaUnidade.validar(dto.getHorarioId()));
 
         OrganizationalUnit saved = unitRepository.save(unit);
 

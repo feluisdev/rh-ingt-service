@@ -166,3 +166,22 @@ DO $$ BEGIN
       fixacao_inicio='05-01', fixacao_fim='10-31', periodo_minimo_interpolado=11;
   END IF;
 END $$;
+
+-- 9. Horarios (assiduidade, primeiro passo). Tabelas do ddl-auto: podem ainda nao existir numa
+--    base acabada de criar. O catalogo de horarios e da instituicao e o seed nao traz nenhum: a
+--    bateria cria os seus e aqui saem todos, com as atribuicoes e o horario das unidades (V57).
+DO $$ BEGIN
+  IF to_regclass('public.t_horario_colaborador') IS NOT NULL THEN
+    DELETE FROM t_horario_colaborador;
+  END IF;
+  IF to_regclass('public.t_horario_bloco') IS NOT NULL THEN
+    DELETE FROM t_horario_bloco;
+  END IF;
+  IF to_regclass('public.t_horario') IS NOT NULL THEN
+    DELETE FROM t_horario;
+  END IF;
+  IF EXISTS (SELECT 1 FROM information_schema.columns
+             WHERE table_schema='public' AND table_name='t_unidade_organica' AND column_name='horario_id') THEN
+    UPDATE t_unidade_organica SET horario_id = NULL;
+  END IF;
+END $$;

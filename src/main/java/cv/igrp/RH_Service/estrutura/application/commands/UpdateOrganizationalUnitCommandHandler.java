@@ -29,6 +29,7 @@ public class UpdateOrganizationalUnitCommandHandler
     private final OrganizationalUnitMapper mapper;
     private final OptionLookupPort optionLookupPort;
     private final FuncionarioLookupPort funcionarioLookupPort;
+    private final HorarioDaUnidade horarioDaUnidade;
 
     @IgrpCommandHandler
     public ResponseEntity<OrganizationalUnitResponseDTO> handle(UpdateOrganizationalUnitCommand command) {
@@ -61,6 +62,8 @@ public class UpdateOrganizationalUnitCommandHandler
         String areaCkey = dto.getAreaCkey() != null ? dto.getAreaCkey() : unit.getAreaCkey();
         unit.atualizar(dto.getCode(), dto.getName(), dto.getAcronym(), dto.getUnitType(),
                 dto.getDescricao(), parentId, responsibleEmployeeId, areaCkey);
+        // O horário (V57) segue a mesma excepção: omisso fica, em branco limpa.
+        if (dto.getHorarioId() != null) unit.definirHorario(horarioDaUnidade.validar(dto.getHorarioId()));
         var updated = unitRepository.save(unit);
 
         var responseDto = mapper.toDTO(updated);

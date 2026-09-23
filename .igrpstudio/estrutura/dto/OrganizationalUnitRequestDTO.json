@@ -11,6 +11,7 @@
     {"name": "descricao", "type": "string", "required": false},
     {"name": "parentUnitId", "type": "string", "required": false},
     {"name": "responsibleEmployeeId", "type": "string", "required": false},
-    {"name": "areaCkey", "type": "string", "required": false}
+    {"name": "areaCkey", "type": "string", "required": false},
+    {"name": "horarioId", "type": "string", "required": false}
   ]
 }

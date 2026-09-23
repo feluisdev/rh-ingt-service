@@ -18,4 +18,6 @@ public class OrganizationalUnitRequestDTO {
     private UUID parentUnitId;
     private UUID responsibleEmployeeId;
     private String areaCkey;
+    /** V57. Omisso no PUT = mantém; em branco = limpa (segue a unidade-mãe). */
+    private String horarioId;
 }

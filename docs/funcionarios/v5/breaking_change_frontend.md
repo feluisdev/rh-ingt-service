@@ -597,6 +597,21 @@ existentes -- estas duas colunas mandam descontar antiguidade e mexer em salario
 (`t_leave_mobility_subtype.affects_pay`), que nao sabe dizer "parcial". Por agora sao dois
 contratos diferentes: booleano nas licencas, enum nas ausencias.
 
+### 11.25 Horarios: catalogo, unidade organica e colaborador (2026-09-23)
+
+**Nada deixa de funcionar**: sao endpoints novos e um campo opcional novo na unidade organica.
+
+- Catalogo `/catalogs/horarios` (lista sem paginacao, `GET/{id}`, `POST`, `PUT`, `DELETE`,
+  `PATCH /{id}/activate`, `PATCH /{id}/base`). Ver `api_guide.md` §9.3.
+- Unidade organica: `horarioId` opcional no `POST`/`PUT` e na resposta. O `PUT` que nao o envia
+  **mantem-no**; `""` limpa. So da 422 quando vem preenchido com um horario inexistente ou inactivo.
+- Colaborador: `GET/POST /funcionarios/{id}/horarios` e `GET /funcionarios/{id}/horarios/vigente?data=`.
+  Ver `api_guide.md` §6.7. A resposta do vigente diz a `origem` (`COLABORADOR`, `UNIDADE`, `BASE`,
+  `NENHUM`): o ecra deve mostrar de onde vem o horario.
+- Horas em `HH:mm`; dias da semana de 1 (segunda) a 7 (domingo).
+- A atribuicao pode devolver 201 **com alerta** (tempo parcial com horario de horas completas):
+  mostrar, nao tratar como erro.
+
 ### 11.24 Parametros do mapa de ferias num catalogo (2026-09-23)
 
 **Nada deixa de funcionar**: os endpoints do mapa respondem igual. Os prazos e a janela de fixacao
@@ -697,3 +712,6 @@ resposta ja reflecte isto -- nao ha nada a recalcular no ecra.
 - [ ] Ecrã do mapa: marcações, lista de quem está sem marcação, e o botão de dar conhecimento (409 na segunda vez).
 - [ ] Marcação com `origem`; `fundamentacao` quando `FIXADA` interpolada; `motivoAlteracao` só com o mapa publicado.
 - [ ] Ecrã de parâmetros do mapa de férias: lista de vigências, criar uma nova (ano + datas `MM-dd` + mínimo interpolado) e editar.
+- [ ] Ecrã do catálogo de horários: blocos por dia, fixo ou flexível (período de aferição + duração diária + plataformas), e o botão de marcar o horário base.
+- [ ] Select opcional de horário no formulário da unidade orgânica (vazio = segue a unidade-mãe).
+- [ ] Separador de horário no colaborador: histórico, atribuir a partir de uma data (horário + regime de prestação) e o horário vigente com a origem.

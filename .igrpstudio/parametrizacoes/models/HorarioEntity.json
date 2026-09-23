@@ -1,0 +1,89 @@
+{
+  "type": "model",
+  "module": "parametrizacoes",
+  "name": "HorarioEntity",
+  "tableName": "t_horario",
+  "audit": true,
+  "crud": false,
+  "revision": true,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "length": 255,
+      "nullable": false,
+      "unique": true,
+      "primaryKey": true,
+      "generationType": "NONE",
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "nome",
+      "type": "string",
+      "length": 150,
+      "nullable": false,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false
+    },
+    {
+      "name": "controlo",
+      "type": "string",
+      "length": 20,
+      "nullable": false,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false
+    },
+    {
+      "name": "periodoAfericao",
+      "type": "string",
+      "length": 10,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false
+    },
+    {
+      "name": "duracaoDiariaMinutos",
+      "type": "integer",
+      "length": 255,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "isBase",
+      "type": "boolean",
+      "length": 255,
+      "nullable": false,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "isActive",
+      "type": "boolean",
+      "length": 255,
+      "nullable": false,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    }
+  ],
+  "relations": [
+    {
+      "name": "blocos",
+      "type": "OneToMany",
+      "target": "HorarioBlocoEntity",
+      "mappedBy": "horario",
+      "cascade": "ALL",
+      "orphanRemoval": true
+    }
+  ]
+}

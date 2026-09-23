@@ -1,0 +1,19 @@
+{
+  "type": "model",
+  "module": "parametrizacoes",
+  "name": "HorarioBlocoEntity",
+  "tableName": "t_horario_bloco",
+  "audit": true,
+  "crud": false,
+  "revision": true,
+  "attributes": [
+    { "name": "id", "type": "uuid", "length": 255, "nullable": false, "unique": true, "primaryKey": true, "generationType": "NONE", "skipFieldRevision": false, "objectType": "java" },
+    { "name": "diaSemana", "type": "integer", "length": 255, "nullable": false, "unique": false, "primaryKey": false, "skipFieldRevision": false, "objectType": "java" },
+    { "name": "horaInicio", "type": "time", "length": 255, "nullable": false, "unique": false, "primaryKey": false, "skipFieldRevision": false, "objectType": "java" },
+    { "name": "horaFim", "type": "time", "length": 255, "nullable": false, "unique": false, "primaryKey": false, "skipFieldRevision": false, "objectType": "java" },
+    { "name": "obrigatorio", "type": "boolean", "length": 255, "nullable": false, "unique": false, "primaryKey": false, "skipFieldRevision": false, "objectType": "java" }
+  ],
+  "relations": [
+    { "name": "horario", "type": "ManyToOne", "target": "HorarioEntity", "joinColumn": "horario_id", "nullable": false }
+  ]
+}

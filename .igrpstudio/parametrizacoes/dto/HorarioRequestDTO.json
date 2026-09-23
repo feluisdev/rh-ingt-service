@@ -1,0 +1,15 @@
+{
+  "type": "dto",
+  "module": "parametrizacoes",
+  "name": "HorarioRequest",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    { "name": "nome", "objectType": "java", "type": "string", "required": false, "primaryKey": false },
+    { "name": "controlo", "objectType": "java", "type": "string", "required": false, "primaryKey": false },
+    { "name": "periodoAfericao", "objectType": "java", "type": "string", "required": false, "primaryKey": false },
+    { "name": "duracaoDiaria", "objectType": "java", "type": "string", "required": false, "primaryKey": false },
+    { "name": "blocos", "objectType": "dto", "type": "HorarioBlocoDTO", "module": "parametrizacoes", "required": false, "primaryKey": false, "collectionType": "list" }
+  ],
+  "id": "horario_req_dto_001"
+}
