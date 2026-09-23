@@ -47,6 +47,7 @@ class OrganicaLookupAdapterTest {
                 "descricao",
                 null,
                 responsibleEmployeeId,
+                null,
                 true);
     }
 

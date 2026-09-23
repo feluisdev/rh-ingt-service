@@ -95,4 +95,35 @@ public class CreateOrganizationalUnitCommandHandlerTest {
         assertNull(captor.getValue().getResponsibleEmployeeId());
         verifyNoInteractions(funcionarioLookupPort);
     }
+
+    // V55 -- a area geografica, para os feriados que so valem num sitio. Sem validacao contra o
+    // catalogo por agora: o front ainda nao conhece o campo, e o passo e so guarda-lo.
+
+    @Test
+    void comAreaGuardaANormalizada() {
+        when(unitRepository.existsByCode("U1")).thenReturn(false);
+        when(unitRepository.save(any(OrganizationalUnit.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        var dto = requestDto(null);
+        dto.setAreaCkey(" MINDELO ");
+        handler.handle(new CreateOrganizationalUnitCommand(dto));
+
+        ArgumentCaptor<OrganizationalUnit> captor = ArgumentCaptor.forClass(OrganizationalUnit.class);
+        verify(unitRepository).save(captor.capture());
+        assertEquals("MINDELO", captor.getValue().getAreaCkey());
+    }
+
+    @Test
+    void areaEmBrancoEAusenciaDeArea() {
+        when(unitRepository.existsByCode("U1")).thenReturn(false);
+        when(unitRepository.save(any(OrganizationalUnit.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        var dto = requestDto(null);
+        dto.setAreaCkey("  ");
+        handler.handle(new CreateOrganizationalUnitCommand(dto));
+
+        ArgumentCaptor<OrganizationalUnit> captor = ArgumentCaptor.forClass(OrganizationalUnit.class);
+        verify(unitRepository).save(captor.capture());
+        assertNull(captor.getValue().getAreaCkey());
+    }
 }

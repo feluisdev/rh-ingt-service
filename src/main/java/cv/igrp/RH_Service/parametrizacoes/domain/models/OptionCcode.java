@@ -23,7 +23,10 @@ public enum OptionCcode {
     BANCO("BANCO", "Banco"),
     WORK_REGIME("WORK_REGIME", "Regime de Trabalho"),
     WORKER_STATE_REASON("WORKER_STATE_REASON", "Motivo de Mudança de Estado"),
-    RECORD_TYPE("RECORD_TYPE", "Tipo de Registo de Licença/Mobilidade");
+    RECORD_TYPE("RECORD_TYPE", "Tipo de Registo de Licença/Mobilidade"),
+    // Onde um feriado vale e onde uma unidade orgânica fica (V55). Não é CONCELHO: em Cabo
+    // Verde a instituição põe cá concelhos; noutro país põe o que lá houver.
+    AREA_GEOGRAFICA("AREA_GEOGRAFICA", "Área Geográfica");
 
     private final String code;
     private final String description;

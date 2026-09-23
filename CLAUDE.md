@@ -155,7 +155,7 @@ ENABLE_SWAGGER=true
 | `DocumentType` | parametrizacoes | Document type catalog; `allowed_extensions` (e.g. `pdf,docx`) + `categoryOptionId` FK→Option |
 | `LeaveType` | parametrizacoes | Leave type catalog; `deducts_balance`, `requires_approval`, `max_days_per_year`, `categoryOptionId` FK→Option |
 | `LeaveMobilitySubtype` | parametrizacoes | Mobility subtype; `record_type` ∈ {LICENCA, MOBILIDADE, AMBOS}; `affects_pay`, `counts_for_seniority`, `can_self_submit` |
-| `PublicHoliday` | parametrizacoes | National/municipal holidays; partial unique index on `(holiday_date) WHERE is_national AND is_active`; seed with 11 CV holidays for 2026 |
+| `PublicHoliday` | parametrizacoes | Institution holiday calendar; `is_recurring` (same day/month every year from the date's year) + optional `area_ckey` (Option `AREA_GEOGRAFICA`; the org unit says which area it is in). All active holidays count, not just national ones (V55). No DB unique index — one-active-national-per-day is application-only |
 
 Shared value objects: `ExternalID` (UUID wrapper), `Estado` enum (ATIVO/INATIVO). Each domain aggregate has its own typed `XId` that wraps `ExternalID` — see Domain Identity Pattern above.
 

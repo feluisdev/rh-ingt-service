@@ -1,9 +1,9 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
+import cv.igrp.RH_Service.colaboradores.application.services.CalendarioFeriadosService;
 import cv.igrp.RH_Service.colaboradores.application.services.SaldoAusenciaService;
 import cv.igrp.RH_Service.colaboradores.domain.models.OpcaoFaltaInjustificada;
 import cv.igrp.RH_Service.colaboradores.domain.models.PedidoAusencia;
-import cv.igrp.RH_Service.colaboradores.domain.repository.FeriadoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.PedidoAusenciaRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.TipoAusenciaRepository;
@@ -19,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import cv.igrp.RH_Service.colaboradores.application.dto.PedidoAusenciaCriadoResponseDTO;
 
 @Component("colabsCreatePedidoAusenciaCommandHandler")
@@ -30,7 +29,7 @@ public class CreatePedidoAusenciaCommandHandler
     private final PedidoAusenciaRepository pedidoRepository;
     private final FuncionarioRepository funcionarioRepository;
     private final TipoAusenciaRepository tipoAusenciaRepository;
-    private final FeriadoRepository feriadoRepository;
+    private final CalendarioFeriadosService calendarioFeriadosService;
     private final DiasUteisCalculator diasUteisCalculator;
     private final SaldoAusenciaService saldoAusenciaService;
 
@@ -48,7 +47,10 @@ public class CreatePedidoAusenciaCommandHandler
         if (!Boolean.TRUE.equals(tipo.getIsActive()))
             throw IgrpResponseStatusException.badRequest("Tipo de ausência inactivo: " + dto.getTipoAusenciaId());
 
-        var feriados = new HashSet<>(feriadoRepository.findAllNacionaisActivosByAno(dto.getDataInicio().getYear()));
+        // Os feriados do PERÍODO, não do ano de início: um pedido de 28 de Dezembro a 5 de
+        // Janeiro atravessa o 1 de Janeiro do ano seguinte.
+        var feriados = calendarioFeriadosService.feriadosDoColaborador(
+                funcionarioId, dto.getDataInicio(), dto.getDataFim());
         int numeroDias = diasUteisCalculator.calcular(dto.getDataInicio(), dto.getDataFim(), feriados);
 
         if (pedidoRepository.existsOverlapForFuncionario(funcionarioId, dto.getDataInicio(), dto.getDataFim()))

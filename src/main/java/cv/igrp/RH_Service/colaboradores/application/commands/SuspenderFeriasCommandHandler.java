@@ -1,9 +1,9 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
 import cv.igrp.RH_Service.colaboradores.application.dto.SuspensaoFeriasResponseDTO;
+import cv.igrp.RH_Service.colaboradores.application.services.CalendarioFeriadosService;
 import cv.igrp.RH_Service.colaboradores.application.services.SaldoAusenciaService;
 import cv.igrp.RH_Service.colaboradores.domain.models.PedidoAusencia;
-import cv.igrp.RH_Service.colaboradores.domain.repository.FeriadoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.PedidoAusenciaRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.SaldoAusenciaRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.TipoAusenciaRepository;
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 
 /**
  * <b>Suspender férias</b> — DL n.º 3/2010, art. 8.º.
@@ -50,7 +49,7 @@ public class SuspenderFeriasCommandHandler
     private final PedidoAusenciaRepository pedidoRepository;
     private final TipoAusenciaRepository tipoAusenciaRepository;
     private final SaldoAusenciaRepository saldoRepository;
-    private final FeriadoRepository feriadoRepository;
+    private final CalendarioFeriadosService calendarioFeriadosService;
     private final DiasUteisCalculator diasUteisCalculator;
     private final SaldoAusenciaService saldoAusenciaService;
 
@@ -80,7 +79,8 @@ public class SuspenderFeriasCommandHandler
 
         pedido.suspender(command.getData(), command.getMotivo(), LocalDate.now());
 
-        int diasGozados = diasUteisCalculator.calcular(inicio, pedido.getDataFim(), feriadosDoAno(inicio));
+        int diasGozados = diasUteisCalculator.calcular(inicio, pedido.getDataFim(),
+                calendarioFeriadosService.feriadosDoColaborador(pedido.getFuncionarioId(), inicio, pedido.getDataFim()));
         int diasRecuperados = Math.max(0, diasAntes - diasGozados);
 
         pedido.ajustarNumeroDias(diasGozados);
@@ -104,9 +104,5 @@ public class SuspenderFeriasCommandHandler
                 diasGozados,
                 diasRecuperados,
                 disponivel));
-    }
-
-    private java.util.Set<LocalDate> feriadosDoAno(LocalDate data) {
-        return new HashSet<>(feriadoRepository.findAllNacionaisActivosByAno(data.getYear()));
     }
 }

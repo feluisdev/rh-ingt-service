@@ -15,6 +15,8 @@ public class PublicHolidayResponseDTO {
     private String holidayDate;
     private Boolean isNational;
     private String description;
+    private Boolean isRecurring;
+    private String areaCkey;
     private Boolean isActive;
     private String estadoDesc;
 }

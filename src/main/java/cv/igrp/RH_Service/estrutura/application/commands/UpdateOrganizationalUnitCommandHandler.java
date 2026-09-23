@@ -56,8 +56,11 @@ public class UpdateOrganizationalUnitCommandHandler
         // real -- este campo passa a decidir quem avalia quem -- e esta pinado por
         // teste (UpdateOrganizationalUnitCommandHandlerTest, caso 4), nao apenas
         // documentado aqui.
+        // A área (V55) é a excepção à substituição total: o ecrã actual não a conhece, e um PUT
+        // que a omita não a pode apagar. Limpa-se enviando-a em branco.
+        String areaCkey = dto.getAreaCkey() != null ? dto.getAreaCkey() : unit.getAreaCkey();
         unit.atualizar(dto.getCode(), dto.getName(), dto.getAcronym(), dto.getUnitType(),
-                dto.getDescricao(), parentId, responsibleEmployeeId);
+                dto.getDescricao(), parentId, responsibleEmployeeId, areaCkey);
         var updated = unitRepository.save(unit);
 
         var responseDto = mapper.toDTO(updated);

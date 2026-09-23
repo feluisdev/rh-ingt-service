@@ -34,9 +34,15 @@ public class UpdatePublicHolidayCommandHandler implements CommandHandler<UpdateP
             .orElseThrow(() -> IgrpResponseStatusException.notFound(
                 "Não encontrado: " + command.getPublicHolidayId()));
 
-        boolean national = dto.getIsNational() != null && dto.getIsNational();
+        boolean national = Boolean.TRUE.equals(dto.getIsNational());
+        // Os dois campos da V55 que o pedido omitir ficam como estavam: um ecrã que ainda não
+        // os conhece não pode, ao gravar o nome, desmarcar a recorrência de um feriado. Limpa-se
+        // a área enviando-a em branco; desmarca-se a recorrência enviando false.
+        boolean recurring = dto.getIsRecurring() != null ? dto.getIsRecurring() : holiday.isRecurring();
+        String areaCkey = dto.getAreaCkey() != null ? dto.getAreaCkey() : holiday.getAreaCkey();
 
-        holiday.atualizar(dto.getName(), dto.getHolidayDate(), national, dto.getDescription());
+        holiday.atualizar(dto.getName(), dto.getHolidayDate(), national, dto.getDescription(),
+                recurring, areaCkey);
         PublicHoliday saved = publicHolidayRepository.save(holiday);
 
         return ResponseEntity.ok(publicHolidayMapper.toDTO(saved));

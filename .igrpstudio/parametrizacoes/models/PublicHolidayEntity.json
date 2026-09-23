@@ -65,6 +65,25 @@
       "primaryKey": false,
       "skipFieldRevision": false,
       "objectType": "java"
+    },
+    {
+      "name": "isRecurring",
+      "type": "boolean",
+      "length": 255,
+      "nullable": false,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false,
+      "objectType": "java"
+    },
+    {
+      "name": "areaCkey",
+      "type": "string",
+      "length": 100,
+      "nullable": true,
+      "unique": false,
+      "primaryKey": false,
+      "skipFieldRevision": false
     }
   ],
   "id": "public_holiday_entity_001",

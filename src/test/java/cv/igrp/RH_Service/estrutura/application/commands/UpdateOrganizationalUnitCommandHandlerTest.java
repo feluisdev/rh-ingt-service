@@ -54,7 +54,7 @@ public class UpdateOrganizationalUnitCommandHandlerTest {
 
     private static OrganizationalUnit existingUnit(OrganizationalUnitId id, UUID responsibleEmployeeId) {
         return OrganizationalUnit.reconstruir(id, "U1", "Unidade 1", "U1",
-                "DIRECAO", "desc", null, responsibleEmployeeId, true);
+                "DIRECAO", "desc", null, responsibleEmployeeId, null, true);
     }
 
     private static OrganizationalUnitRequestDTO requestDto(UUID responsibleEmployeeId) {
@@ -172,5 +172,42 @@ public class UpdateOrganizationalUnitCommandHandlerTest {
 
         assertNotNull(response.getBody());
         assertEquals("Fulano Tal", response.getBody().getResponsibleEmployeeName());
+    }
+
+    // V55 -- o PUT nao apaga a area que o front actual nao envia.
+
+    private OrganizationalUnit gravarComArea(String areaEnviada) {
+        UUID unitIdRaw = UUID.randomUUID();
+        OrganizationalUnitId unitId = OrganizationalUnitId.from(unitIdRaw);
+        var unidade = OrganizationalUnit.reconstruir(unitId, "U1", "Unidade 1", "U1",
+                "DIRECAO", "desc", null, null, "MINDELO", true);
+
+        when(unitRepository.findById(unitId)).thenReturn(Optional.of(unidade));
+        when(unitRepository.existsByCodeAndIdNot("U1", unitId)).thenReturn(false);
+        when(unitRepository.save(any(OrganizationalUnit.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(mapper.toDTO(any(OrganizationalUnit.class))).thenReturn(new OrganizationalUnitResponseDTO());
+
+        var dto = requestDto(null);
+        dto.setAreaCkey(areaEnviada);
+        handler.handle(new UpdateOrganizationalUnitCommand(unitIdRaw.toString(), dto));
+
+        ArgumentCaptor<OrganizationalUnit> captor = ArgumentCaptor.forClass(OrganizationalUnit.class);
+        verify(unitRepository).save(captor.capture());
+        return captor.getValue();
+    }
+
+    @Test
+    void putSemAreaMantemAQueEstava() {
+        assertEquals("MINDELO", gravarComArea(null).getAreaCkey());
+    }
+
+    @Test
+    void putComAreaEmBrancoLimpaA() {
+        assertNull(gravarComArea("").getAreaCkey());
+    }
+
+    @Test
+    void putComOutraAreaSubstitui() {
+        assertEquals("SAL", gravarComArea("SAL").getAreaCkey());
     }
 }

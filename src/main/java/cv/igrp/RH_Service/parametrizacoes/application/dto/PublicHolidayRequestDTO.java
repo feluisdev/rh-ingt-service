@@ -16,4 +16,6 @@ public class PublicHolidayRequestDTO {
     private LocalDate holidayDate;
     private Boolean isNational;
     private String description;
+    private Boolean isRecurring;
+    private String areaCkey;
 }

@@ -42,9 +42,10 @@ public class CreateOrganizationalUnitCommandHandler
 
         UUID responsibleEmployeeId = validateAndGetResponsibleEmployeeId(dto.getResponsibleEmployeeId());
 
-        OrganizationalUnit saved = unitRepository.save(
-                OrganizationalUnit.criar(dto.getCode(), dto.getName(), dto.getAcronym(),
-                        dto.getUnitType(), dto.getDescricao(), parentId, responsibleEmployeeId));
+        var unit = OrganizationalUnit.criar(dto.getCode(), dto.getName(), dto.getAcronym(),
+                dto.getUnitType(), dto.getDescricao(), parentId, responsibleEmployeeId, dto.getAreaCkey());
+
+        OrganizationalUnit saved = unitRepository.save(unit);
 
         return ResponseEntity.status(201).body(SuccessResponseDTO.de(saved.getId().getStringValor()));
     }

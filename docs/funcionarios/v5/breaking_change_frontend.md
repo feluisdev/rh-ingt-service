@@ -597,6 +597,29 @@ existentes -- estas duas colunas mandam descontar antiguidade e mexer em salario
 (`t_leave_mobility_subtype.affects_pay`), que nao sabe dizer "parcial". Por agora sao dois
 contratos diferentes: booleano nas licencas, enum nas ausencias.
 
+### 11.21 Feriados: recorrentes, com area, e todos contam (2026-09-23)
+
+**Nada deixa de funcionar**: sao campos novos e opcionais. O que muda e o **numero de dias** que um
+pedido de ausencia desconta.
+
+**1. `public-holidays` ganha `isRecurring` e `areaCkey`**, no pedido e na resposta.
+
+- `isRecurring: true` -- o feriado vale todos os anos no mesmo dia e mes. Os de data fixa do seed
+  vem marcados; os moveis (Sexta-feira Santa, Corpus Christi) continuam a ser um por ano.
+- `areaCkey` -- ckey do catalogo `AREA_GEOGRAFICA` (`/reference/options?ccode=AREA_GEOGRAFICA`).
+  Vazio = vale para todos. **422** num feriado nacional com area e num 29 de Fevereiro
+  recorrente. A area **nao** se valida ainda contra o catalogo.
+- O `PUT` **nao apaga** o que nao recebe: o ecra actual, que nao envia os dois campos, continua a
+  funcionar sem desmarcar nada. Para limpar a area envia-se `""`; para desmarcar, `false`.
+
+**2. `organizational-units` ganha `areaCkey`**, no pedido e na resposta, com o mesmo `PUT` que nao
+apaga. Vazio herda a da unidade-mae.
+
+**3. Os dias descontados podem mudar.** Passam a contar **todos** os feriados activos (antes so os
+nacionais) e os do periodo inteiro (antes so os do ano de inicio). Um pedido que atravesse um
+feriado municipal ou o Ano Novo desconta menos um dia do que descontava. O `numeroDias` da
+resposta ja reflecte isto -- nao ha nada a recalcular no ecra.
+
 - [ ] Select de `situacaoFuncional` no catálogo de estados.
 - [ ] Tratar `afectacaoEncerradaId` com `cessouVinculo: false` (activo, sem Lugar).
 - [ ] Retirar `AMBOS` dos selects de `recordType`.
@@ -624,3 +647,6 @@ contratos diferentes: booleano nas licencas, enum nas ausencias.
 - [ ] Campo `opcaoFaltaInjustificada` no pedido, visível **só** para tipos injustificados (422 nos dois sentidos).
 - [ ] Campo `efeitoRemuneracao` no ecrã de tipos de ausência (nasce `SEM_PERDA`).
 - [ ] Contar com que, numa instalação existente, nada disto venha classificado.
+- [ ] Caixa `isRecurring` e select de `areaCkey` (`AREA_GEOGRAFICA`) no ecrã de feriados (`""` limpa a área no `PUT`).
+- [ ] Select de `areaCkey` no ecrã de unidades orgânicas (vazio herda a da unidade-mãe).
+- [ ] Contar com que o `numeroDias` de um pedido desconte feriados municipais e os do ano seguinte.

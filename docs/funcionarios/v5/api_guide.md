@@ -1070,6 +1070,57 @@ Sem mobilidade em vigor, `exerceFuncoesUnidade*` é a unidade do próprio Lugar.
 
 Padrão CRUD comum: `GET`, `GET/{id}`, `POST`, `PUT/{id}`, `DELETE/{id}`, `PATCH/{id}/activate`, `GET/combobox`.
 
+### 9.1 Feriados — o calendário da instituição (V55)
+
+A contagem de **dias úteis** (pedidos de ausência, suspensão de férias) tira sábados, domingos e
+os feriados que se aplicam ao colaborador. O calendário é **da instituição**: ela cataloga os
+nacionais e os do sítio onde tem serviços, e **conta-se tudo o que estiver activo** — não só os
+nacionais, como antes.
+
+```json
+POST /api/v1/rh/catalogs/public-holidays
+{
+  "name": "Dia da Independência",
+  "holidayDate": "2026-07-05",
+  "isNational": true,
+  "isRecurring": true,
+  "areaCkey": null,
+  "description": "Feriado nacional"
+}
+```
+
+| Campo | O que diz |
+|---|---|
+| `isRecurring` | `true`: no mesmo dia e mês **todos os anos**, a partir do ano de `holidayDate`. Para os de data fixa. Os móveis (Sexta-feira Santa, Corpus Christi) carregam-se ano a ano, com `false`. Omisso = `false`. |
+| `areaCkey` | `ckey` do catálogo `AREA_GEOGRAFICA` (`/reference/options`). Nulo = vale para toda a gente, que é o caso normal. |
+
+**Recusas:**
+
+| Caso | Resposta |
+|---|---|
+| Feriado **nacional** com `areaCkey` — nacional é todo o território | 422 |
+| `isRecurring` a 29 de Fevereiro | 422 |
+| Já há um nacional activo nesse dia (um recorrente conta em todos os anos desde o seu) | 409 |
+
+**O `PUT` não apaga o que não recebe:** com `isRecurring` ou `areaCkey` omissos (nulos) fica o valor
+que já lá estava — um ecrã que ainda não conhece os campos não desmarca a recorrência ao corrigir
+um nome. A área limpa-se enviando `""`; a recorrência desmarca-se com `false`.
+
+**A área ainda não se valida contra o catálogo** (decisão de 2026-09-23, para não partir o
+front): um `ckey` inexistente é aceite, e o feriado simplesmente não conta para ninguém.
+
+**A área do colaborador vem da unidade orgânica.** `POST`/`PUT
+/api/v1/rh/estrutura/organizational-units` aceitam `areaCkey`, sem validação e com o mesmo `PUT`
+que não apaga o que não recebe; a resposta devolve-o. A área que conta é a da unidade onde o colaborador **exerce funções** no início do
+período — na mobilidade interna, a de destino — ou, se ela não tiver, a da unidade-mãe mais
+próxima que tenha. Mobilidade externa, sem Lugar ou sem área em lado nenhum: só contam os
+feriados sem área.
+
+**Os feriados contam-se no período inteiro** do pedido: um pedido de 28 de Dezembro a 5 de
+Janeiro apanha o 1 de Janeiro do ano seguinte.
+
+Regras: BR-PH-01 a BR-PH-07 em `regras_negocio.html`.
+
 ---
 
 ## 10. Self-service — `/api/v1/rh/me`

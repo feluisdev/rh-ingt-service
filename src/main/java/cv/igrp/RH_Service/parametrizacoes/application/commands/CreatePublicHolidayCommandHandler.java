@@ -26,16 +26,18 @@ public class CreatePublicHolidayCommandHandler implements CommandHandler<CreateP
         var dto = command.getPublicHolidayRequest();
 
         var holidayDate = dto.getHolidayDate();
-        boolean national = dto.getIsNational() != null && dto.getIsNational();
+        boolean national = Boolean.TRUE.equals(dto.getIsNational());
+        boolean recurring = Boolean.TRUE.equals(dto.getIsRecurring());
 
-        if (national && publicHolidayRepository.existsByHolidayDateAndNational(holidayDate, true)) {
+        var holiday = PublicHoliday.criar(dto.getName(), holidayDate, national, dto.getDescription(),
+                recurring, dto.getAreaCkey());
+
+        if (national && publicHolidayRepository.existeNacionalActivoNoDia(holidayDate, recurring)) {
             throw IgrpResponseStatusException.conflict(
                 "Já existe um feriado nacional activo na data '" + dto.getHolidayDate() + "'.");
         }
 
-        PublicHoliday saved = publicHolidayRepository.save(
-            PublicHoliday.criar(dto.getName(), holidayDate, national, dto.getDescription())
-        );
+        PublicHoliday saved = publicHolidayRepository.save(holiday);
 
         return ResponseEntity.status(201).body(SuccessResponseDTO.de(saved.getId().getStringValor()));
     }

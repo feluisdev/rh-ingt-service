@@ -37,4 +37,10 @@ public class PublicHolidayEntity extends AuditEntity {
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
+
+    @Column(name = "is_recurring", nullable = false)
+    private Boolean isRecurring;
+
+    @Column(name = "area_ckey", length = 100)
+    private String areaCkey;
 }

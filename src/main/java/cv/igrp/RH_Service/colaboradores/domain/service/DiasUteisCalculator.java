@@ -9,7 +9,7 @@ import java.util.Set;
 
 public final class DiasUteisCalculator {
 
-    public int calcular(LocalDate inicio, LocalDate fim, Set<LocalDate> feriadosNacionais) {
+    public int calcular(LocalDate inicio, LocalDate fim, Set<LocalDate> feriados) {
         if (inicio.isAfter(fim))
             throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
                     "A data de início não pode ser posterior à data de fim.");
@@ -18,7 +18,7 @@ public final class DiasUteisCalculator {
         LocalDate current = inicio;
         while (!current.isAfter(fim)) {
             DayOfWeek dow = current.getDayOfWeek();
-            if (dow != DayOfWeek.SATURDAY && dow != DayOfWeek.SUNDAY && !feriadosNacionais.contains(current))
+            if (dow != DayOfWeek.SATURDAY && dow != DayOfWeek.SUNDAY && !feriados.contains(current))
                 dias++;
             current = current.plusDays(1);
         }

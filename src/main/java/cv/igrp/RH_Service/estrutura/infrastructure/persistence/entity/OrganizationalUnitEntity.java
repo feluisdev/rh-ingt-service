@@ -49,6 +49,9 @@ public class OrganizationalUnitEntity extends AuditEntity {
     @JoinColumn(name = "responsible_employee_id")
     private FuncionarioEntity responsibleEmployee;
 
+    @Column(name = "area_ckey", length = 100)
+    private String areaCkey;
+
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 }

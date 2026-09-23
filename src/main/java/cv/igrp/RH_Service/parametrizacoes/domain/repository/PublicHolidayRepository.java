@@ -11,6 +11,10 @@ import java.util.Optional;
 public interface PublicHolidayRepository {
     PublicHoliday save(PublicHoliday publicHoliday);
     Optional<PublicHoliday> findById(PublicHolidayId id);
-    boolean existsByHolidayDateAndNational(LocalDate holidayDate, boolean national);
+    /**
+     * Já há um feriado nacional activo nesse dia (BR-PH-01). Para um {@code recorrente}, «nesse
+     * dia» é o mesmo dia e mês em qualquer ano a partir do da data.
+     */
+    boolean existeNacionalActivoNoDia(LocalDate data, boolean recorrente);
     PageResult<PublicHoliday> findAll(PublicHolidayFilter filter);
 }

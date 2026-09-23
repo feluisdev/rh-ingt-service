@@ -20,13 +20,18 @@ public class OrganizationalUnit {
     // funcionario de outro modulo, e um identificador tipado importado desse modulo
     // levaria o alcance cross-modulo para dentro do dominio de estrutura.
     private UUID responsibleEmployeeId;
+    // Onde a unidade fica, para os feriados que só valem numa área (V55): um ckey de
+    // AREA_GEOGRAFICA. Nula quer dizer «a da unidade-mãe»; nula até ao topo, só contam os
+    // feriados sem área.
+    private String areaCkey;
     private boolean active;
 
     private OrganizationalUnit() {}
 
     private OrganizationalUnit(OrganizationalUnitId id, String code, String name, String acronym,
                                 String unitType, String descricao,
-                                OrganizationalUnitId parentUnitId, UUID responsibleEmployeeId, boolean active) {
+                                OrganizationalUnitId parentUnitId, UUID responsibleEmployeeId,
+                                String areaCkey, boolean active) {
         this.id = id;
         this.code = code;
         this.name = name;
@@ -35,26 +40,29 @@ public class OrganizationalUnit {
         this.descricao = descricao;
         this.parentUnitId = parentUnitId;
         this.responsibleEmployeeId = responsibleEmployeeId;
+        this.areaCkey = normalizarArea(areaCkey);
         this.active = active;
     }
 
     public static OrganizationalUnit criar(String code, String name, String acronym,
                                             String unitType, String descricao,
-                                            OrganizationalUnitId parentUnitId, UUID responsibleEmployeeId) {
+                                            OrganizationalUnitId parentUnitId, UUID responsibleEmployeeId,
+                                            String areaCkey) {
         return new OrganizationalUnit(OrganizationalUnitId.gerarNovo(), code, name, acronym,
-                unitType, descricao, parentUnitId, responsibleEmployeeId, true);
+                unitType, descricao, parentUnitId, responsibleEmployeeId, areaCkey, true);
     }
 
     public static OrganizationalUnit reconstruir(OrganizationalUnitId id, String code, String name, String acronym,
                                                   String unitType, String descricao,
                                                   OrganizationalUnitId parentUnitId, UUID responsibleEmployeeId,
-                                                  boolean active) {
+                                                  String areaCkey, boolean active) {
         return new OrganizationalUnit(id, code, name, acronym, unitType, descricao, parentUnitId,
-                responsibleEmployeeId, active);
+                responsibleEmployeeId, areaCkey, active);
     }
 
     public void atualizar(String code, String name, String acronym, String unitType,
-                          String descricao, OrganizationalUnitId parentUnitId, UUID responsibleEmployeeId) {
+                          String descricao, OrganizationalUnitId parentUnitId, UUID responsibleEmployeeId,
+                          String areaCkey) {
         this.code = code;
         this.name = name;
         this.acronym = acronym;
@@ -62,6 +70,7 @@ public class OrganizationalUnit {
         this.descricao = descricao;
         this.parentUnitId = parentUnitId;
         this.responsibleEmployeeId = responsibleEmployeeId;
+        this.areaCkey = normalizarArea(areaCkey);
     }
 
     public void desativar() {
@@ -76,5 +85,9 @@ public class OrganizationalUnit {
             throw IgrpResponseStatusException.conflict("A unidade orgânica já está activa.");
         }
         this.active = true;
+    }
+
+    private static String normalizarArea(String areaCkey) {
+        return areaCkey == null || areaCkey.isBlank() ? null : areaCkey.trim();
     }
 }

@@ -41,6 +41,20 @@
       "primaryKey": false
     },
     {
+      "name": "isRecurring",
+      "objectType": "java",
+      "type": "boolean",
+      "required": false,
+      "primaryKey": false
+    },
+    {
+      "name": "areaCkey",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "primaryKey": false
+    },
+    {
       "name": "isActive",
       "objectType": "java",
       "type": "boolean",

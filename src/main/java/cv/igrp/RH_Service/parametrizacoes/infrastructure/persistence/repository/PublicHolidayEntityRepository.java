@@ -11,22 +11,45 @@ import java.util.List;
 import java.util.UUID;
 
 public interface PublicHolidayEntityRepository extends JpaRepository<PublicHolidayEntity, UUID>, JpaSpecificationExecutor<PublicHolidayEntity> {
-    boolean existsByHolidayDateAndIsNational(LocalDate holidayDate, Boolean isNational);
-    boolean existsByHolidayDateAndIsNationalTrueAndIsActiveTrue(LocalDate holidayDate);
-    List<PublicHolidayEntity> findAllByIsNationalTrueAndIsActiveTrue();
-    List<PublicHolidayEntity> findAllByIsActive(Boolean isActive);
-    List<PublicHolidayEntity> findAllByIsNational(Boolean isNational);
-    List<PublicHolidayEntity> findAllByIsNationalAndIsActive(Boolean isNational, Boolean isActive);
 
-    @Query("SELECT f FROM PublicHolidayEntity f WHERE year(f.holidayDate) = :ano")
-    List<PublicHolidayEntity> findAllByAno(@Param("ano") int ano);
+    /**
+     * Há um feriado nacional activo que já cai em {@code data}: nessa data exacta, ou
+     * recorrente no mesmo dia e mês desde um ano não posterior (BR-PH-01, V55).
+     */
+    @Query("""
+            SELECT count(f) > 0 FROM PublicHolidayEntity f
+            WHERE f.isActive = true AND f.isNational = true
+              AND ( (f.isRecurring = false AND f.holidayDate = :data)
+                 OR (f.isRecurring = true AND month(f.holidayDate) = :mes AND day(f.holidayDate) = :dia
+                     AND year(f.holidayDate) <= :ano) )""")
+    boolean existeNacionalActivoNaData(@Param("data") LocalDate data, @Param("mes") int mes,
+                                       @Param("dia") int dia, @Param("ano") int ano);
 
-    @Query("SELECT f FROM PublicHolidayEntity f WHERE year(f.holidayDate) = :ano AND f.isNational = :isNational")
-    List<PublicHolidayEntity> findAllByAnoAndIsNational(@Param("ano") int ano, @Param("isNational") Boolean isNational);
+    /**
+     * Um recorrente novo, a partir de {@code ano}, colide com um nacional activo no mesmo dia e
+     * mês que seja recorrente (vale sempre) ou pontual num ano igual ou posterior.
+     */
+    @Query("""
+            SELECT count(f) > 0 FROM PublicHolidayEntity f
+            WHERE f.isActive = true AND f.isNational = true
+              AND month(f.holidayDate) = :mes AND day(f.holidayDate) = :dia
+              AND (f.isRecurring = true OR year(f.holidayDate) >= :ano)""")
+    boolean existeNacionalActivoNoDiaDoAnoDesde(@Param("mes") int mes, @Param("dia") int dia,
+                                                @Param("ano") int ano);
 
-    @Query("SELECT f FROM PublicHolidayEntity f WHERE year(f.holidayDate) = :ano AND f.isActive = :isActive")
-    List<PublicHolidayEntity> findAllByAnoAndIsActive(@Param("ano") int ano, @Param("isActive") Boolean isActive);
-
-    @Query("SELECT f FROM PublicHolidayEntity f WHERE year(f.holidayDate) = :ano AND f.isNational = :isNational AND f.isActive = :isActive")
-    List<PublicHolidayEntity> findAllByAnoAndIsNationalAndIsActive(@Param("ano") int ano, @Param("isNational") Boolean isNational, @Param("isActive") Boolean isActive);
+    /**
+     * Os feriados activos que podem cair em [{@code inicio}, {@code fim}] para quem trabalha na
+     * {@code area} (nula: só os que não têm área). Os pontuais vêm já recortados ao período; os
+     * recorrentes vêm todos os que começaram até ao fim dele — projectá-los nos anos do período
+     * é aritmética de datas, e faz-se no domínio.
+     */
+    @Query("""
+            SELECT f FROM PublicHolidayEntity f
+            WHERE f.isActive = true
+              AND (f.areaCkey IS NULL OR f.areaCkey = :area)
+              AND ( (f.isRecurring = false AND f.holidayDate BETWEEN :inicio AND :fim)
+                 OR (f.isRecurring = true AND f.holidayDate <= :fim) )""")
+    List<PublicHolidayEntity> findAplicaveisNoPeriodo(@Param("inicio") LocalDate inicio,
+                                                      @Param("fim") LocalDate fim,
+                                                      @Param("area") String area);
 }

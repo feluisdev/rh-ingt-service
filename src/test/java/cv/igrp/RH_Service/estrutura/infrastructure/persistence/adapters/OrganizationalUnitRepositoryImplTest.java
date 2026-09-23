@@ -91,6 +91,7 @@ class OrganizationalUnitRepositoryImplTest {
                 null,
                 null,
                 UUID.randomUUID(),
+                null,
                 true
         );
     }

@@ -26,6 +26,7 @@ public class OrganizationalUnitMapper {
         entity.setDescricao(domain.getDescricao());
         entity.setParentUnit(refs.ref(OrganizationalUnitEntity.class, domain.getParentUnitId() != null ? domain.getParentUnitId().getValor() : null));
         entity.setResponsibleEmployee(refs.ref(FuncionarioEntity.class, domain.getResponsibleEmployeeId()));
+        entity.setAreaCkey(domain.getAreaCkey());
         entity.setIsActive(domain.isActive());
         return entity;
     }
@@ -43,6 +44,7 @@ public class OrganizationalUnitMapper {
                 entity.getDescricao(),
                 parentId,
                 refs.idOf(entity.getResponsibleEmployee(), FuncionarioEntity::getId),
+                entity.getAreaCkey(),
                 entity.getIsActive() != null && entity.getIsActive()
         );
     }
@@ -61,6 +63,7 @@ public class OrganizationalUnitMapper {
         dto.setDescricao(domain.getDescricao());
         dto.setParentUnitId(domain.getParentUnitId() != null ? domain.getParentUnitId().getValor() : null);
         dto.setResponsibleEmployeeId(domain.getResponsibleEmployeeId());
+        dto.setAreaCkey(domain.getAreaCkey());
         dto.setIsActive(domain.isActive());
         dto.setEstadoDesc(domain.isActive() ? "Ativo" : "Inativo");
         return dto;

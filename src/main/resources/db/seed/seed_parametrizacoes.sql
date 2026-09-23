@@ -186,22 +186,30 @@ INSERT INTO t_leave_mobility_subtype (id, code, name, description, record_type, 
 ON CONFLICT (code) DO NOTHING;
 
 -- =============================================================
--- 7. Feriados Nacionais de Cabo Verde 2026 (t_public_holiday)
--- 11 feriados nacionais (is_national=true)
--- Sexta-feira Santa 2026: 03 Abr (Páscoa a 05 Abr); Corpus Christi: 04 Jun
+-- 7. Feriados Nacionais de Cabo Verde (t_public_holiday)
+-- 11 feriados nacionais (is_national=true), sem área: valem para todo o território.
+-- Os NOVE de data fixa são recorrentes (V55): valem todos os anos a partir de 2026, e sem
+-- isso a aplicação deixava de conhecer feriado nenhum a 1 de Janeiro de 2027.
+-- Os DOIS móveis dependem da Páscoa e carregam-se ano a ano:
+--   2026 — Páscoa a 05 Abr: Sexta-feira Santa 03 Abr, Corpus Christi 04 Jun
+--   2027 — Páscoa a 28 Mar: Sexta-feira Santa 26 Mar, Corpus Christi 27 Mai
+-- Um feriado municipal entra com is_national=false e area_ckey de AREA_GEOGRAFICA; a
+-- unidade orgânica diz em que área fica.
 -- =============================================================
-INSERT INTO t_public_holiday (id, name, holiday_date, is_national, description, is_active, created_date, created_by) VALUES
-('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e101', 'Ano Novo',                      '2026-01-01', true, 'Feriado nacional', true, NOW(), 'seed'),
-('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e102', 'Dia da Liberdade e Democracia', '2026-01-13', true, 'Feriado nacional', true, NOW(), 'seed'),
-('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e103', 'Dia dos Heróis Nacionais',      '2026-01-20', true, 'Feriado nacional', true, NOW(), 'seed'),
-('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e104', 'Sexta-feira Santa',             '2026-04-03', true, 'Feriado nacional', true, NOW(), 'seed'),
-('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e105', 'Dia do Trabalhador',            '2026-05-01', true, 'Feriado nacional', true, NOW(), 'seed'),
-('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e106', 'Dia da Criança',                '2026-06-01', true, 'Feriado nacional', true, NOW(), 'seed'),
-('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e107', 'Corpus Christi',                '2026-06-04', true, 'Feriado nacional', true, NOW(), 'seed'),
-('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e108', 'Dia da Independência',          '2026-07-05', true, 'Feriado nacional', true, NOW(), 'seed'),
-('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e109', 'Assunção de Nossa Senhora',     '2026-08-15', true, 'Feriado nacional', true, NOW(), 'seed'),
-('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e110', 'Dia de Todos os Santos',        '2026-11-01', true, 'Feriado nacional', true, NOW(), 'seed'),
-('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e111', 'Natal',                         '2026-12-25', true, 'Feriado nacional', true, NOW(), 'seed')
+INSERT INTO t_public_holiday (id, name, holiday_date, is_national, is_recurring, description, is_active, created_date, created_by) VALUES
+('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e101', 'Ano Novo',                      '2026-01-01', true, true,  'Feriado nacional', true, NOW(), 'seed'),
+('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e102', 'Dia da Liberdade e Democracia', '2026-01-13', true, true,  'Feriado nacional', true, NOW(), 'seed'),
+('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e103', 'Dia dos Heróis Nacionais',      '2026-01-20', true, true,  'Feriado nacional', true, NOW(), 'seed'),
+('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e104', 'Sexta-feira Santa',             '2026-04-03', true, false, 'Feriado nacional', true, NOW(), 'seed'),
+('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e105', 'Dia do Trabalhador',            '2026-05-01', true, true,  'Feriado nacional', true, NOW(), 'seed'),
+('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e106', 'Dia da Criança',                '2026-06-01', true, true,  'Feriado nacional', true, NOW(), 'seed'),
+('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e107', 'Corpus Christi',                '2026-06-04', true, false, 'Feriado nacional', true, NOW(), 'seed'),
+('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e108', 'Dia da Independência',          '2026-07-05', true, true,  'Feriado nacional', true, NOW(), 'seed'),
+('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e109', 'Assunção de Nossa Senhora',     '2026-08-15', true, true,  'Feriado nacional', true, NOW(), 'seed'),
+('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e110', 'Dia de Todos os Santos',        '2026-11-01', true, true,  'Feriado nacional', true, NOW(), 'seed'),
+('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e111', 'Natal',                         '2026-12-25', true, true,  'Feriado nacional', true, NOW(), 'seed'),
+('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e112', 'Sexta-feira Santa',             '2027-03-26', true, false, 'Feriado nacional', true, NOW(), 'seed'),
+('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e113', 'Corpus Christi',                '2027-05-27', true, false, 'Feriado nacional', true, NOW(), 'seed')
 ON CONFLICT (id) DO NOTHING;
 
 -- =============================================================

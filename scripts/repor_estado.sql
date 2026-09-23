@@ -108,3 +108,26 @@ update t_leave_type set efeito_remuneracao='PERDA_TOTAL' where code='GREVE';
 --    injustificadas seria uma quota de faltar. O que ela desconta, se for essa a opcao do
 --    art. 43.o n.o 2, sao ferias.
 update t_leave_type set deducts_balance=false where code='FALTA_INJUSTIFICADA';
+
+--    E, pela mesma razao, a recorrencia da V55. A migracao nao marca feriado nenhum como
+--    recorrente (o catalogo e da instituicao); o seed ja os traz marcados, mas numa base ja
+--    criada o ON CONFLICT deixa-os como estavam -- e a 1 de Janeiro de 2027 a contagem de dias
+--    uteis ficava sem feriados. Os moveis de 2027 entram pela mesma razao.
+update t_public_holiday set is_recurring=true, area_ckey=null
+ where id in ('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e101','11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e102',
+              '11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e103','11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e105',
+              '11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e106','11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e108',
+              '11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e109','11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e110',
+              '11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e111');
+update t_public_holiday set is_active=true where created_by='seed';
+insert into t_public_holiday (id, name, holiday_date, is_national, is_recurring, description, is_active, created_date, created_by) values
+('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e112', 'Sexta-feira Santa', '2027-03-26', true, false, 'Feriado nacional', true, now(), 'seed'),
+('11e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e113', 'Corpus Christi',    '2027-05-27', true, false, 'Feriado nacional', true, now(), 'seed')
+on conflict (id) do nothing;
+
+-- 7. Feriados e areas que a bateria cria (V55). Os feriados de teste sao os que o seed nao
+--    trouxe; as areas de teste comecam por TST_. A area das unidades volta a nula: e o caso
+--    normal, e o que o F0 a F19 assumem.
+delete from t_public_holiday where created_by <> 'seed';
+delete from t_option_entity where ccode='AREA_GEOGRAFICA' and ckey like 'TST_%';
+update t_unidade_organica set area_ckey=null;

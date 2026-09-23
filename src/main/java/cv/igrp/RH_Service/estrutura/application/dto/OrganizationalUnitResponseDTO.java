@@ -21,6 +21,7 @@ public class OrganizationalUnitResponseDTO {
     private String parentUnitName;
     private UUID responsibleEmployeeId;
     private String responsibleEmployeeName;
+    private String areaCkey;
     private Boolean isActive;
     private String estadoDesc;
     private Long nColaboradores;

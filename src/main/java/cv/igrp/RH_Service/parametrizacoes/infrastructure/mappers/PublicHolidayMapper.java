@@ -17,6 +17,8 @@ public class PublicHolidayMapper {
         entity.setHolidayDate(domain.getHolidayDate());
         entity.setIsNational(domain.isNational());
         entity.setDescription(domain.getDescription());
+        entity.setIsRecurring(domain.isRecurring());
+        entity.setAreaCkey(domain.getAreaCkey());
         entity.setIsActive(domain.isActive());
         return entity;
     }
@@ -29,6 +31,8 @@ public class PublicHolidayMapper {
             entity.getHolidayDate(),
             entity.getIsNational() != null && entity.getIsNational(),
             entity.getDescription(),
+            Boolean.TRUE.equals(entity.getIsRecurring()),
+            entity.getAreaCkey(),
             entity.getIsActive() != null && entity.getIsActive()
         );
     }
@@ -41,6 +45,8 @@ public class PublicHolidayMapper {
         dto.setHolidayDate(domain.getHolidayDate().toString());
         dto.setIsNational(domain.isNational());
         dto.setDescription(domain.getDescription());
+        dto.setIsRecurring(domain.isRecurring());
+        dto.setAreaCkey(domain.getAreaCkey());
         dto.setIsActive(domain.isActive());
         dto.setEstadoDesc(Boolean.TRUE.equals(domain.isActive()) ? "Ativo" : "Inativo");
         return dto;

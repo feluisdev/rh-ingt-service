@@ -17,4 +17,5 @@ public class OrganizationalUnitRequestDTO {
     private String descricao;
     private UUID parentUnitId;
     private UUID responsibleEmployeeId;
+    private String areaCkey;
 }
