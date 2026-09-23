@@ -1,7 +1,7 @@
 # ============================
-# 1. BUILD STAGE (MAVEN)
+# 1. BUILD STAGE (MAVEN JAVA 26)
 # ============================
-FROM maven:3.9.9-eclipse-temurin-21-alpine AS build
+FROM maven:3-eclipse-temurin-26 AS build
 WORKDIR /app
 
 # Copiar pom.xml primeiro para resolver contexto
@@ -14,9 +14,9 @@ COPY src ./src
 RUN mvn -B clean package -DskipTests
 
 # ============================
-# 2. RUNTIME STAGE (JRE)
+# 2. RUNTIME STAGE (JRE JAVA 26)
 # ============================
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:26-jre
 WORKDIR /app
 
 # Copiar o jar executável da etapa de build
