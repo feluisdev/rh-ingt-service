@@ -1,0 +1,131 @@
+{
+  "type": "controller",
+  "name": "ParametroFerias",
+  "module": "parametrizacoes",
+  "description": "Parâmetros do mapa de férias por vigência (DL n.º 3/2010, arts. 5.º e 6.º)",
+  "basePath": "api/v1/rh/catalogs/parametros-ferias",
+  "actions": [
+    {
+      "actionName": "listParametrosFerias",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ParametroFeriasResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getParametroFeriasVigente",
+      "path": "vigente",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ParametroFeriasResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "integer",
+          "name": "ano",
+          "isRequired": false
+        }
+      ]
+    },
+    {
+      "actionName": "createParametroFerias",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ParametroFeriasRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "parametrizacoes"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "updateParametroFerias",
+      "path": "{parametroFeriasId}",
+      "method": "PUT",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ParametroFeriasRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "parametrizacoes"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ParametroFeriasResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "parametroFeriasId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    }
+  ]
+}

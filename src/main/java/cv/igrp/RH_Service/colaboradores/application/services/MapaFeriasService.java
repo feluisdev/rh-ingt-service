@@ -1,6 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.services;
 
-import cv.igrp.RH_Service.colaboradores.config.FeriasParametros;
+import cv.igrp.RH_Service.parametrizacoes.application.services.ParametrosFeriasService;
 import cv.igrp.RH_Service.colaboradores.domain.models.FeriasDoAno;
 import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
 import cv.igrp.RH_Service.colaboradores.domain.models.MapaFerias;
@@ -47,7 +47,7 @@ public class MapaFeriasService {
     private final FeriasService feriasService;
     private final CalendarioFeriadosService calendarioFeriadosService;
     private final DiasUteisCalculator diasUteisCalculator;
-    private final FeriasParametros parametros;
+    private final ParametrosFeriasService parametrosFerias;
 
     /** Art. 5.º n.º 4. Fora do prazo é aceite, com alerta. */
     @Transactional
@@ -55,7 +55,7 @@ public class MapaFeriasService {
                                         List<PeriodoFerias> periodos, String observacoes) {
         funcionario(funcionarioId);
         FeriasDoAno ferias = feriasDoAno(funcionarioId, ano);
-        List<String> alertas = ferias.indicarPreferencia(periodos, observacoes, hoje(), parametros.prazoPreferencia(ano));
+        List<String> alertas = ferias.indicarPreferencia(periodos, observacoes, hoje(), parametrosFerias.vigenteEm(ano).prazoPreferencia(ano));
         return new Resultado(feriasDoAnoRepository.save(ferias), alertas);
     }
 
@@ -93,7 +93,7 @@ public class MapaFeriasService {
         MapaFerias mapa = mapaFeriasRepository.save(MapaFerias.publicar(ano, hoje));
 
         List<String> alertas = new ArrayList<>();
-        LocalDate prazo = parametros.prazoMapa(ano);
+        LocalDate prazo = parametrosFerias.vigenteEm(ano).prazoMapa(ano);
         if (hoje.isAfter(prazo))
             alertas.add("Mapa dado a conhecer depois de " + prazo + " (art. 6.º n.º 1).");
         int semMarcacao = feriasDoAnoRepository.findFuncionariosActivosSemMarcacao(ano).size();
@@ -119,7 +119,8 @@ public class MapaFeriasService {
                 .orElse(FeriasService.DIAS_UTEIS_POR_LEI);
         boolean anoDeIngresso = funcionario.getDataAdmissao() != null
                 && funcionario.getDataAdmissao().getYear() == ano;
-        return new RegrasMarcacaoFerias(direito, maximoSeguidos, parametros.periodoMinimoInterpolado(),
+        var parametros = parametrosFerias.vigenteEm(ano);
+        return new RegrasMarcacaoFerias(direito, maximoSeguidos, parametros.getPeriodoMinimoInterpolado(),
                 anoDeIngresso, parametros.fixacaoInicio(ano), parametros.fixacaoFim(ano));
     }
 

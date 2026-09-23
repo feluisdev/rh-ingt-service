@@ -2,7 +2,7 @@ package cv.igrp.RH_Service.colaboradores.application.queries;
 
 import cv.igrp.RH_Service.colaboradores.application.dto.MapaFeriasLinhaDTO;
 import cv.igrp.RH_Service.colaboradores.application.dto.MapaFeriasResponseDTO;
-import cv.igrp.RH_Service.colaboradores.config.FeriasParametros;
+import cv.igrp.RH_Service.parametrizacoes.application.services.ParametrosFeriasService;
 import cv.igrp.RH_Service.colaboradores.domain.models.FeriasDoAno;
 import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
 import cv.igrp.RH_Service.colaboradores.domain.models.MapaFerias;
@@ -36,7 +36,7 @@ public class GetMapaFeriasQueryHandler implements QueryHandler<GetMapaFeriasQuer
     private final FeriasDoAnoRepository feriasDoAnoRepository;
     private final MapaFeriasRepository mapaFeriasRepository;
     private final FuncionarioRepository funcionarioRepository;
-    private final FeriasParametros parametros;
+    private final ParametrosFeriasService parametrosFerias;
 
     @IgrpQueryHandler
     public ResponseEntity<MapaFeriasResponseDTO> handle(GetMapaFeriasQuery query) {
@@ -52,7 +52,7 @@ public class GetMapaFeriasQueryHandler implements QueryHandler<GetMapaFeriasQuer
 
         var r = new MapaFeriasResponseDTO();
         r.setAno(ano);
-        r.setPrazoElaboracao(parametros.prazoMapa(ano));
+        r.setPrazoElaboracao(parametrosFerias.vigenteEm(ano).prazoMapa(ano));
         r.setPublicadoEm(mapaFeriasRepository.findByAno(ano).map(MapaFerias::getPublicadoEm).orElse(null));
 
         r.setLinhas(marcadas.stream().map(f -> {

@@ -4,7 +4,7 @@ import cv.igrp.RH_Service.colaboradores.application.dto.FeriasAlteracaoDTO;
 import cv.igrp.RH_Service.colaboradores.application.dto.FeriasAnoResponseDTO;
 import cv.igrp.RH_Service.colaboradores.application.dto.PeriodoFeriasDTO;
 import cv.igrp.RH_Service.colaboradores.application.services.MapaFeriasService;
-import cv.igrp.RH_Service.colaboradores.config.FeriasParametros;
+import cv.igrp.RH_Service.parametrizacoes.application.services.ParametrosFeriasService;
 import cv.igrp.RH_Service.colaboradores.domain.models.MapaFerias;
 import cv.igrp.RH_Service.colaboradores.domain.models.PeriodoFerias;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
@@ -27,7 +27,7 @@ public class GetFeriasDoAnoQueryHandler implements QueryHandler<GetFeriasDoAnoQu
     private final MapaFeriasService mapaFeriasService;
     private final MapaFeriasRepository mapaFeriasRepository;
     private final FuncionarioRepository funcionarioRepository;
-    private final FeriasParametros parametros;
+    private final ParametrosFeriasService parametrosFerias;
 
     @IgrpQueryHandler
     public ResponseEntity<FeriasAnoResponseDTO> handle(GetFeriasDoAnoQuery query) {
@@ -40,7 +40,7 @@ public class GetFeriasDoAnoQueryHandler implements QueryHandler<GetFeriasDoAnoQu
         r.setFuncionarioId(funcionarioId.getStringValor());
         r.setAno(ano);
         r.setDireito(mapaFeriasService.direitoParaMarcar(funcionarioId, ano));
-        r.setPrazoPreferencia(parametros.prazoPreferencia(ano));
+        r.setPrazoPreferencia(parametrosFerias.vigenteEm(ano).prazoPreferencia(ano));
         r.setMapaPublicadoEm(mapaFeriasRepository.findByAno(ano).map(MapaFerias::getPublicadoEm).orElse(null));
 
         mapaFeriasService.consultar(funcionarioId, ano).ifPresent(f -> {

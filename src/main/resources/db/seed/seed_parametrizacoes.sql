@@ -410,3 +410,13 @@ INSERT INTO t_option_entity (id, ccode, ckey, cvalue, locale, sort_order, active
 ('2f000001-0000-0000-0000-000000000011', 'WORKER_STATE_REASON', 'SUSPENSION_RETURN',       'Regresso de suspensão',         'pt',11, true, 'Retorno ao serviço activo após suspensão',            NOW(), 'system'),
 ('2f000001-0000-0000-0000-000000000012', 'WORKER_STATE_REASON', 'REINTEGRATION',           'Reintegração',                  'pt',12, true, 'Reintegração na sequência de decisão judicial/adm.',  NOW(), 'system')
 ON CONFLICT (id) DO NOTHING;
+
+-- =============================================================
+-- 9. Parâmetros do mapa de férias (t_parametro_ferias)
+-- Os valores do DL n.º 3/2010, arts. 5.º e 6.º, em vigor desde 2010. Um diploma novo é uma
+-- linha nova (POST /catalogs/parametros-ferias) com o ano em que passa a valer. Sem linha
+-- nenhuma, a aplicação usa estes mesmos valores (origem LEI).
+-- =============================================================
+INSERT INTO t_parametro_ferias (id, vigente_desde, prazo_preferencia, prazo_mapa, fixacao_inicio, fixacao_fim, periodo_minimo_interpolado, fundamento, created_date, created_by) VALUES
+('3a000001-0000-0000-0000-000000000001', 2010, '01-31', '03-31', '05-01', '10-31', 11, 'DL n.º 3/2010, arts. 5.º e 6.º', NOW(), 'system')
+ON CONFLICT DO NOTHING;

@@ -1,0 +1,17 @@
+{
+  "type": "dto",
+  "module": "parametrizacoes",
+  "name": "ParametroFeriasRequest",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    { "name": "vigenteDesde", "objectType": "java", "type": "integer", "required": false, "primaryKey": false },
+    { "name": "prazoPreferencia", "objectType": "java", "type": "string", "required": false, "primaryKey": false },
+    { "name": "prazoMapa", "objectType": "java", "type": "string", "required": false, "primaryKey": false },
+    { "name": "fixacaoInicio", "objectType": "java", "type": "string", "required": false, "primaryKey": false },
+    { "name": "fixacaoFim", "objectType": "java", "type": "string", "required": false, "primaryKey": false },
+    { "name": "periodoMinimoInterpolado", "objectType": "java", "type": "integer", "required": false, "primaryKey": false },
+    { "name": "fundamento", "objectType": "java", "type": "string", "required": false, "primaryKey": false }
+  ],
+  "id": "parametro_ferias_req_dto_001"
+}

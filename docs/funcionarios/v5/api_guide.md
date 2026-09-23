@@ -876,12 +876,13 @@ Até 31 de Janeiro; **depois é aceite com alerta** e fica `preferenciaForaDePra
 **Publicar** devolve 201 com alertas (fora do prazo de 31 de Março; colaboradores sem marcação);
 uma segunda vez é **409**.
 
-**Parâmetros** (`application.properties`, com a lei por omissão, sobreponíveis por variável de
-ambiente): `rh.ferias.mapa.prazo-preferencia` (01-31), `prazo-mapa` (03-31), `fixacao-inicio`
-(05-01), `fixacao-fim` (10-31), `periodo-minimo-interpolado` (11).
+**Parâmetros** — os prazos, a janela de fixação e o período mínimo interpolado vêm do catálogo
+`/api/v1/rh/catalogs/parametros-ferias`, por vigência, com a lei por omissão (§9.2). As datas e
+o mínimo que se aplicam a um ano são os da vigência desse ano.
 
 **Não coberto:** a preferência dos cônjuges no mesmo serviço (art. 5.º n.º 6) — não há ligação
-entre colaboradores; e a indicação da preferência pelo próprio, em `/me`.
+entre colaboradores; a indicação da preferência pelo próprio, em `/me`; e um aviso quando um
+pedido de férias não coincide com a marcação.
 
 Regras: BR-FER-13 a BR-FER-20.
 
@@ -1158,6 +1159,7 @@ Sem mobilidade em vigor, `exerceFuncoesUnidade*` é a unidade do próprio Lugar.
 | Subtipos de mobilidade | `/api/v1/rh/catalogs/leave-mobility-subtypes` |
 | Tipos de documento | `/api/v1/rh/catalogs/document-types` |
 | Feriados | `/api/v1/rh/catalogs/public-holidays` |
+| Parâmetros do mapa de férias (§9.2 — padrão próprio) | `/api/v1/rh/catalogs/parametros-ferias` |
 | Opções genéricas | `/api/v1/rh/reference/options` |
 
 Padrão CRUD comum: `GET`, `GET/{id}`, `POST`, `PUT/{id}`, `DELETE/{id}`, `PATCH/{id}/activate`, `GET/combobox`.
@@ -1212,6 +1214,59 @@ feriados sem área.
 Janeiro apanha o 1 de Janeiro do ano seguinte.
 
 Regras: BR-PH-01 a BR-PH-07 em `regras_negocio.html`.
+
+### 9.2 Parâmetros do mapa de férias — por vigência
+
+As datas e o período mínimo do mapa de férias (§6.6) vêm da tabela `t_parametro_ferias`, e não
+de `application.properties`: mudam-se pela API, sem tocar em código nem reiniciar. São **globais**,
+porque a lei é a mesma para todas as instituições, e têm **vigência**: cada linha vale a partir de
+`vigenteDesde` até à linha seguinte. Um diploma novo é uma linha nova, e os mapas dos anos
+anteriores continuam a ler as regras do seu tempo.
+
+| Método | Path | O quê |
+|---|---|---|
+| `GET` | `/api/v1/rh/catalogs/parametros-ferias` | todas as vigências, da mais antiga para a mais recente (lista, sem paginação) |
+| `GET` | `/api/v1/rh/catalogs/parametros-ferias/vigente?ano=2027` | a que vale no ano (sem `ano`: o corrente) |
+| `POST` | `/api/v1/rh/catalogs/parametros-ferias` | vigência nova → 201 com o `id` |
+| `PUT` | `/api/v1/rh/catalogs/parametros-ferias/{id}` | altera uma vigência → 200 |
+
+```json
+POST /api/v1/rh/catalogs/parametros-ferias
+{
+  "vigenteDesde": 2028,
+  "prazoPreferencia": "01-31",
+  "prazoMapa": "03-31",
+  "fixacaoInicio": "05-01",
+  "fixacaoFim": "10-31",
+  "periodoMinimoInterpolado": 11,
+  "fundamento": "Diploma n.º …"
+}
+```
+
+| Campo | O que diz | Lei (DL n.º 3/2010) |
+|---|---|---|
+| `prazoPreferencia` | até quando o trabalhador indica a preferência (art. 5.º n.º 4) | `01-31` |
+| `prazoMapa` | até quando o serviço elabora e dá conhecimento do mapa (art. 6.º n.º 1) | `03-31` |
+| `fixacaoInicio` · `fixacaoFim` | janela em que o dirigente fixa, sem acordo (art. 5.º n.º 5) | `05-01` · `10-31` |
+| `periodoMinimoInterpolado` | em gozo interpolado, um período tem pelo menos estes dias úteis (art. 5.º n.º 1) | `11` |
+
+A resposta traz ainda `origem`: `TABELA`, ou `LEI` quando nenhuma linha vigora no ano — então
+valem os valores da lei e o `id` vem nulo. O seed carrega a linha da lei, em vigor desde 2010.
+
+**Recusas:**
+
+| Caso | Resposta |
+|---|---|
+| data que não seja `MM-dd` válido todos os anos (inclui `02-29`) | 422 |
+| `prazoPreferencia` depois de `prazoMapa` | 422 |
+| `fixacaoInicio` depois de `fixacaoFim` (a janela é dentro do ano civil) | 422 |
+| `vigenteDesde` ausente ou sem quatro algarismos · `periodoMinimoInterpolado` < 1 | 422 |
+| já há uma vigência nesse ano (no `POST`, ou no `PUT` que mude `vigenteDesde`) | 409 |
+
+**O `PUT` não apaga o que não recebe:** campo omisso (nulo) fica como estava — muda-se um prazo
+sem reenviar os outros. O `fundamento` limpa-se enviando `""`.
+
+Regra: BR-FER-20.
 
 ---
 

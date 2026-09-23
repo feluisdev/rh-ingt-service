@@ -597,6 +597,17 @@ existentes -- estas duas colunas mandam descontar antiguidade e mexer em salario
 (`t_leave_mobility_subtype.affects_pay`), que nao sabe dizer "parcial". Por agora sao dois
 contratos diferentes: booleano nas licencas, enum nas ausencias.
 
+### 11.24 Parametros do mapa de ferias num catalogo (2026-09-23)
+
+**Nada deixa de funcionar**: os endpoints do mapa respondem igual. Os prazos e a janela de fixacao
+deixaram de vir de `application.properties` e passam a vir de um catalogo por vigencia.
+
+- `GET/POST /catalogs/parametros-ferias`, `PUT /catalogs/parametros-ferias/{id}` e
+  `GET /catalogs/parametros-ferias/vigente?ano=`. Ver `api_guide.md` §9.2.
+- Datas em texto `MM-dd`. O `PUT` nao apaga o que vem omisso.
+- A resposta traz `origem` (`TABELA` / `LEI`): com `LEI` nao ha linha para editar (`id` nulo) --
+  o ecra oferece criar uma vigencia.
+
 ### 11.23 Mapa de ferias (2026-09-23)
 
 **Nada deixa de funcionar**: sao cinco endpoints novos, e o pedido de ferias continua igual.
@@ -685,3 +696,4 @@ resposta ja reflecte isto -- nao ha nada a recalcular no ecra.
 - [ ] Ecrã de preferência de férias por colaborador e ano (vários períodos; alerta de fora de prazo).
 - [ ] Ecrã do mapa: marcações, lista de quem está sem marcação, e o botão de dar conhecimento (409 na segunda vez).
 - [ ] Marcação com `origem`; `fundamentacao` quando `FIXADA` interpolada; `motivoAlteracao` só com o mapa publicado.
+- [ ] Ecrã de parâmetros do mapa de férias: lista de vigências, criar uma nova (ano + datas `MM-dd` + mínimo interpolado) e editar.

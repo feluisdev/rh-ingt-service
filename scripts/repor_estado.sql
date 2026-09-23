@@ -153,3 +153,16 @@ insert into t_leave_type (id, code, description, deducts_balance, requires_appro
 ('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1f3', 'TE_PESQUISA', 'Trabalhador-estudante: pesquisas', false, true, 6,    null, null, 'PESSOAL', 'FALTA', 'SEM_PERDA',   'DIAS_UTEIS',    true, now(), 'system'),
 ('e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1f4', 'TE_LICENCA',  'Trabalhador-estudante: licenca',   false, true, 10,   null, null, 'PESSOAL', 'FALTA', 'PERDA_TOTAL', 'DIAS_UTEIS',    true, now(), 'system')
 on conflict (code) do nothing;
+
+-- 8. Parametros do mapa de ferias (t_parametro_ferias). Tabela do ddl-auto: pode ainda nao existir
+--    numa base acabada de criar, e numa ja criada o seed nao a enche. Volta a haver so a linha
+--    da lei (DL n.o 3/2010, desde 2010).
+DO $$ BEGIN
+  IF to_regclass('public.t_parametro_ferias') IS NOT NULL THEN
+    DELETE FROM t_parametro_ferias WHERE id <> '3a000001-0000-0000-0000-000000000001';
+    INSERT INTO t_parametro_ferias (id, vigente_desde, prazo_preferencia, prazo_mapa, fixacao_inicio, fixacao_fim, periodo_minimo_interpolado, fundamento, created_date, created_by)
+    VALUES ('3a000001-0000-0000-0000-000000000001', 2010, '01-31', '03-31', '05-01', '10-31', 11, 'DL n.o 3/2010, arts. 5.o e 6.o', now(), 'system')
+    ON CONFLICT (id) DO UPDATE SET vigente_desde=2010, prazo_preferencia='01-31', prazo_mapa='03-31',
+      fixacao_inicio='05-01', fixacao_fim='10-31', periodo_minimo_interpolado=11;
+  END IF;
+END $$;
