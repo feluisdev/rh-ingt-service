@@ -1534,6 +1534,11 @@ O trabalhador autenticado acede aos seus próprios dados (perfil derivado do Lug
 | `GET` | `/me/payroll-slips` · `/me/payroll-slips/{id}/download` | Recibos. |
 | `GET` | `/me/documents` · `/me/documents/{id}/download` | Documentos. |
 
+**`POST /me/leave-requests` segue as regras do pedido do RH** (§6.2 a §6.2e): conta os dias pela
+linha do catálogo (dias úteis ou seguidos) com os feriados do período, aplica os tectos, recusa
+sobreposição com **409** (antes 400) e aceita, opcionalmente, `startTime`/`endTime` (`HH:mm`) para um
+pedido em horas — a amamentação, por exemplo. Antes contava dias de calendário. Regra: BR-ME-03.
+
 ---
 
 ## 11. Auditoria — `/.../audit/{catalog}/{entityId}`

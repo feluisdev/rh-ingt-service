@@ -507,6 +507,7 @@
     <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
     <tr><td class="id">BR-ME-01</td><td>Os endpoints <code>/me</code> exigem que o funcionário exista.</td><td><span class="http h404">404</span></td><td class="src">GetMe*QueryHandler</td></tr>
     <tr><td class="id">BR-ME-02</td><td>Um <b>colaborador inactivo</b> não pode aceder aos seus dados de self-service (saldos, mobilidades, documentos, downloads).</td><td><span class="http h403">403</span></td><td class="src">GetMeLeaveBalances · GetMeLeaveMobilities · GetMeDocuments · GetMeDocumentDownloadUrl</td></tr>
+    <tr><td class="id">BR-ME-03</td><td><b>O pedido de ausência feito pelo próprio segue as regras do RH</b>: delega no mesmo caminho — contagem da linha do catálogo (BR-AUS-20), feriados do período, os três tectos, sobreposição (409), tipo injustificado recusado (422) e pedido em horas (<code>startTime</code>/<code>endTime</code>, BR-AUS-24). Antes contava dias de calendário e não via nada disto. Ficam do self-service: o utilizador autenticado, activo (403), e fim não anterior ao início (400).</td><td><span class="http h400">400</span> <span class="http h403">403</span> <span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">SelfServiceCriarPedidoAusenciaCommandHandler → CreatePedidoAusenciaCommandHandler</td></tr>
   </table>
 
   <!-- ============ ESTRUTURA ============ -->

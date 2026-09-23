@@ -597,6 +597,16 @@ existentes -- estas duas colunas mandam descontar antiguidade e mexer em salario
 (`t_leave_mobility_subtype.affects_pay`), que nao sabe dizer "parcial". Por agora sao dois
 contratos diferentes: booleano nas licencas, enum nas ausencias.
 
+### 11.29 Pedido de ausencia pelo proprio com as regras do RH (2026-09-23)
+
+`POST /me/leave-requests` passa a contar e validar como o pedido lancado pelo RH:
+
+- `numeroDias` pode mudar para o mesmo periodo: conta pela linha do catalogo (dias uteis ou
+  seguidos) e tira os feriados. Antes contava dias de calendario.
+- Os tectos aplicam-se: um pedido acima do tecto passa a dar **422**.
+- Sobreposicao com outro pedido passa de **400** para **409** (como no RH).
+- Novos campos opcionais `startTime`/`endTime` (`HH:mm`) para pedidos em horas.
+
 ### 11.28 Pedido de ausencia em horas e dispensa de amamentacao (2026-09-23)
 
 **Nada deixa de funcionar**: os campos sao novos e opcionais.

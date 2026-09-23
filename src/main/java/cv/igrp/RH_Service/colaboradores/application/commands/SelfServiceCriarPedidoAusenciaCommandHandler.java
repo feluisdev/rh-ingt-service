@@ -1,10 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
-import cv.igrp.RH_Service.colaboradores.application.services.SaldoAusenciaService;
-import cv.igrp.RH_Service.colaboradores.domain.models.PedidoAusencia;
+import cv.igrp.RH_Service.colaboradores.application.dto.PedidoAusenciaRequestDTO;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
-import cv.igrp.RH_Service.colaboradores.domain.repository.PedidoAusenciaRepository;
-import cv.igrp.RH_Service.colaboradores.domain.valueobject.TipoAusenciaId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
 import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
@@ -16,8 +13,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.temporal.ChronoUnit;
-
+/**
+ * Pedido de ausência feito pelo próprio ({@code /me}).
+ *
+ * <p>Segue <b>as mesmas regras</b> do pedido lançado pelo RH — delega no
+ * {@link CreatePedidoAusenciaCommandHandler}: contagem da linha do catálogo (art. 76.º, V56), feriados
+ * do período (V55), os três tectos (V53), a opção do art. 43.º n.º 2 e o pedido em horas (V58). Antes
+ * contava dias de calendário e não via nada disto. Aqui fica só o que é do self-service: quem pede é o
+ * utilizador autenticado, e tem de estar activo.
+ *
+ * <p>Sem opção do art. 43.º n.º 2: pelo self-service ninguém classifica uma falta sua como
+ * injustificada, e um tipo injustificado submetido por aqui é recusado pelo caminho comum (422).
+ */
 @Component("colabsSelfServiceCriarPedidoAusenciaCommandHandler")
 @RequiredArgsConstructor
 public class SelfServiceCriarPedidoAusenciaCommandHandler
@@ -25,8 +32,7 @@ public class SelfServiceCriarPedidoAusenciaCommandHandler
 
     private final CurrentEmployeeResolver currentEmployeeResolver;
     private final FuncionarioRepository funcionarioRepository;
-    private final PedidoAusenciaRepository pedidoAusenciaRepository;
-    private final SaldoAusenciaService saldoAusenciaService;
+    private final CreatePedidoAusenciaCommandHandler createPedidoAusenciaCommandHandler;
 
     @IgrpCommandHandler
     @Transactional
@@ -41,30 +47,20 @@ public class SelfServiceCriarPedidoAusenciaCommandHandler
         if (!Boolean.TRUE.equals(funcionario.getIsActive()))
             throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN, "Acesso negado: colaborador inactivo.");
 
-        var startDate = dto.getStartDate();
-        var endDate = dto.getEndDate();
-
-        if (endDate.isBefore(startDate))
+        if (dto.getEndDate().isBefore(dto.getStartDate()))
             throw IgrpResponseStatusException.badRequest("A data de fim não pode ser anterior à data de início.");
 
-        if (pedidoAusenciaRepository.existsOverlapForFuncionario(funcionarioId, startDate, endDate))
-            throw IgrpResponseStatusException.badRequest(
-                    "Já existe um pedido de ausência para o período indicado.");
+        var pedido = new PedidoAusenciaRequestDTO();
+        pedido.setTipoAusenciaId(dto.getLeaveTypeId().toString());
+        pedido.setDataInicio(dto.getStartDate());
+        pedido.setDataFim(dto.getEndDate());
+        pedido.setMotivo(dto.getNotes());
+        pedido.setHoraInicio(dto.getStartTime());
+        pedido.setHoraFim(dto.getEndTime());
 
-        int numeroDias = (int) ChronoUnit.DAYS.between(startDate, endDate) + 1;
-        var tipoAusenciaId = TipoAusenciaId.from(dto.getLeaveTypeId());
+        var criado = createPedidoAusenciaCommandHandler.handle(
+                new CreatePedidoAusenciaCommand(funcionarioId.getStringValor(), pedido)).getBody();
 
-        // Sem opção do art. 43.º n.º 2: pelo self-service ninguém classifica uma falta sua como
-        // injustificada, e a opção entre perder remuneração ou descontar nas férias é um acto do
-        // serviço. Um pedido de um tipo injustificado submetido por aqui é recusado.
-        var pedido = PedidoAusencia.criar(funcionarioId, tipoAusenciaId, startDate, endDate,
-                numeroDias, dto.getNotes(), null);
-
-        // Reserva os dias já na submissão, como no caminho do RH.
-        saldoAusenciaService.reservar(pedido);
-
-        var saved = pedidoAusenciaRepository.save(pedido);
-
-        return ResponseEntity.status(201).body(SuccessResponseDTO.de(saved.getId().getStringValor()));
+        return ResponseEntity.status(201).body(SuccessResponseDTO.de(criado.getId()));
     }
 }

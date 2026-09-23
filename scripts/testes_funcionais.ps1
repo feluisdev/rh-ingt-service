@@ -6,12 +6,14 @@ $base = 'http://localhost:8099/api/v1/rh'
 $script:resultados = @()
 
 function Chamar {
-    param([string]$Nome, [string]$Metodo, [string]$Rota, $Corpo = $null, [int]$Esperado = 200)
+    param([string]$Nome, [string]$Metodo, [string]$Rota, $Corpo = $null, [int]$Esperado = 200, [string]$Como = '')
     # Accept explicito: sem ele o servidor negoceia e devolve os erros em XML
     # (ProblemDetail), enquanto os sucessos vem em JSON. Um cliente que esqueca o
     # cabecalho fica com dois formatos na mesma API -- e o api_guide avisa disso.
     $params = @{ Method = $Metodo; Uri = "$base$Rota"; UseBasicParsing = $true; TimeoutSec = 90
                  Headers = @{ Accept = 'application/json' } }
+    # /me: em desenvolvimento, quem e o utilizador di-lo o cabecalho X-Employee-Id.
+    if ($Como) { $params.Headers['X-Employee-Id'] = $Como }
     if ($null -ne $Corpo) {
         $params.Body = ($Corpo | ConvertTo-Json -Depth 8 -Compress)
         $params.ContentType = 'application/json'
@@ -1570,6 +1572,21 @@ Chamar 'F27.17 aprovar' PATCH ($rotaP27 + '/' + $rTr.Dados.id + '/aprovar') @{ a
 $f27 = (Chamar 'F27.18 apuramento depois de justificar a meia hora' GET $rotaF).Dados
 $t27 = DiaF $f27 $ter25
 Verificar 'F27.19 a terca ficou sem falta, com 30 min justificados' (($t27.estado -eq 'SEM_FALTA') -and ($t27.minutosJustificados -eq 30)) ('(' + $t27.estado + ' ' + $t27.minutosJustificados + ')')
+
+Write-Host ''
+Write-Host '=========== F28 - PEDIDO DE AUSENCIA PELO PROPRIO (/me) COM AS REGRAS DO RH ==========='
+
+# Antes, o /me contava dias de calendario e nao via contagem, feriados nem tectos. Agora delega no
+# caminho do RH. O luto conta dias seguidos entre o primeiro e o ultimo dia util (V56).
+$s28 = PrimeiraSegunda ($anoFer + 1) 3
+$rMe1 = Chamar 'F28.1 luto pedido pelo proprio, de sexta a segunda' POST '/me/leave-requests' @{ leaveTypeId=$tLuto21.id; startDate=(Iso $s28.AddDays(4)); endDate=(Iso $s28.AddDays(7)); notes='luto' } 201 $colabB
+$pedMe = (@(Linhas (Chamar 'F28.2 ler os pedidos da Maria' GET ('/funcionarios/' + $colabB + '/pedidos-ausencia'))) | Where-Object { $_.id -eq $rMe1.Dados.id } | Select-Object -First 1)
+Verificar 'F28.3 contou como o RH: 4 dias seguidos' ($pedMe.numeroDias -eq 4) ('(' + $pedMe.numeroDias + ')')
+Chamar 'F28.4 NEG seminario de 7 dias pelo proprio passa do tecto' POST '/me/leave-requests' @{ leaveTypeId=$tSem21.id; startDate=(Iso $s28.AddDays(10)); endDate=(Iso $s28.AddDays(16)); notes='x' } 422 $colabB | Out-Null
+Chamar 'F28.5 NEG sobreposicao com o proprio pedido' POST '/me/leave-requests' @{ leaveTypeId=$tLuto21.id; startDate=(Iso $s28.AddDays(7)); endDate=(Iso $s28.AddDays(7)); notes='x' } 409 $colabB | Out-Null
+$rMe2 = Chamar 'F28.6 amamentacao em horas pelo proprio' POST '/me/leave-requests' @{ leaveTypeId=$tAmam.id; startDate=(Iso $s28.AddDays(21)); endDate=(Iso $s28.AddDays(60)); startTime='12:00'; endTime='13:00'; notes='amamentacao' } 201 $colabB
+$pedMe2 = (@(Linhas (Chamar 'F28.7 ler outra vez' GET ('/funcionarios/' + $colabB + '/pedidos-ausencia'))) | Where-Object { $_.id -eq $rMe2.Dados.id } | Select-Object -First 1)
+Verificar 'F28.8 ficou em horas, 60 min por dia' (($pedMe2.minutosPorDia -eq 60) -and ($pedMe2.horaInicio -like '12:00*')) ('(' + $pedMe2.minutosPorDia + ' ' + $pedMe2.horaInicio + ')')
 
 Write-Host ''
 Write-Host '=========== RESUMO ==========='

@@ -19,4 +19,7 @@ public class SelfServiceCriarPedidoAusenciaRequestDTO {
     @NotNull
     private LocalDate endDate;
     private String notes;
+    /** V58, opcionais: pedido em horas (HH:mm), como no caminho do RH -- ex.: amamentacao. */
+    private String startTime;
+    private String endTime;
 }

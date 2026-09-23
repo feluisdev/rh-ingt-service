@@ -51,6 +51,7 @@ docker exec postgres-ingt-rh sh -c "psql -U postgres -d recursoshumanos_db -q -f
 | **F25** registo diário | importação de picagens repetível (duplicadas não entram, as más vão para o relatório); dia calculado com períodos, intervalo e horas; anomalia sem saída; correcção exige motivo; anular fica visível; sábado dá alerta |
 | **F26** faltas por débito | sobre a semana do F25: dia com anomalia fica por corrigir; atraso de 30 min contra o horário fixo; dia sem marcações conta inteiro (SEM_REGISTO); domingo não se apura; um pedido aprovado tira o dia do apuramento |
 | **F27** pedido em horas (V58) | amamentação 1h+1h por dia durante 100 dias; a terceira passa do tecto diário; horas cruzadas 409, noutra hora cabe; tecto por ocorrência; férias em horas 422; terminar antes do fim acaba na véspera; meia hora justificada tira o atraso do apuramento |
+| **F28** pedido pelo próprio (/me) | segue as regras do RH: luto de sexta a segunda conta 4 dias seguidos; seminário de 7 dias passa do tecto (422); sobreposição 409; amamentação em horas pelo próprio |
 
 ## Repor o estado inicial
 
@@ -483,7 +484,16 @@ a amamentacao da manha ao 10.o dia (acaba na vespera, continua APROVADO). Por fi
 tratamento ambulatorio aprovada na terca do F25 cobre o atraso, e a terca passa a SEM_FALTA com 30 min
 justificados. O `repor_estado.sql` traz os cinco tipos novos (o seed nao os mete numa base ja criada).
 
+### F28 - pedido de ausencia pelo proprio (/me) com as regras do RH (2026-09-23)
+
+O `Chamar` ganhou o parametro opcional `-Como <funcionarioId>`, que envia o cabecalho `X-Employee-Id`
+(em desenvolvimento e assim que o `/me` sabe quem e o utilizador). A Maria pede pelo `/me` e o pedido
+conta como o do RH. Armadilha paga: a sobreposicao testada num sabado dava 422 («nao contem dias
+uteis», e bem) antes de chegar a sobreposicao; passou para a segunda-feira.
+
 ## Resultado da última execução
+
+**614 passos, 614 OK** (2026-09-23), duas execucoes seguidas com o `repor_estado.sql` entre elas.
 
 **606 passos, 606 OK** (2026-09-23), duas execucoes seguidas com o `repor_estado.sql` entre elas
 (F27 incluido; V58 aplicada).

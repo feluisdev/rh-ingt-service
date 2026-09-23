@@ -9,13 +9,13 @@ em tabela editável pela API. Um ponto por commit.
 
 ## Current state
 
-**Branch `fix-alinhamento-legislacao`**, **33 commits locais por enviar** (`origin_git_lab`).
+**Branch `fix-alinhamento-legislacao`**, **34 commits locais por enviar** (`origin_git_lab`).
 **Não fazer push sem o utilizador pedir** — merge para `master` no GitLab é deploy.
 
-- **Testes: 1046, 0 falhas** — correr na **cópia isolada** (ver Blockers).
-- **Bateria funcional: 606 passos**, 606 OK (2026-09-23, duas execuções seguidas). Blocos F20–F27
+- **Testes: 1049, 0 falhas** — correr na **cópia isolada** (ver Blockers).
+- **Bateria funcional: 614 passos**, 614 OK (2026-09-23, duas execuções seguidas). Blocos F20–F28
   cobrem V55, V56, mapa de férias, parâmetros de férias, horários, registo diário, faltas por débito e
-  pedido em horas (V58).
+  pedido em horas (V58) e pedido pelo próprio em `/me`.
 - Migrações até **`V58`**. Próxima livre: **V59** (só para alterar tabelas existentes).
 - **`openapi.json`**: 251 caminhos, 280 esquemas (regenerado com a app a correr).
 - **Sete jobs `@Scheduled`**, sem lock distribuído (fica para o framework de jobs).
@@ -94,6 +94,15 @@ framework de jobs (por último).
   (45 min/período); a duração de 6 meses vem do DL — por confirmar com o jurídico. Só tipos sem saldo,
   regime FALTA e sem tectos anuais/mensais; meios-dias de férias e tectos em horas ficam para depois.
   Fim antecipado: `PATCH …/terminar` (usa `suspenso_em`). O apuramento desconta as horas justificadas.
+- **`/me` pedido de ausência = regras do RH** (fix, 2026-09-23): o handler do self-service delega no
+  `CreatePedidoAusenciaCommandHandler` (antes contava dias de calendário, sem contagem/feriados/tectos).
+  Sobreposição passou de 400 para 409. Ganhou `startTime`/`endTime` opcionais.
+- **Registo pelo próprio (próximo tijolo, desenho aprovado nas opções):** picagem em tempo real em
+  `/me` **só em dias de TELETRABALHO/MISTO** (art. 170.º: presencial = presença no local, que a web
+  não prova; teletrabalho = disponibilidade); pedido de correcção PENDENTE validado pela **chefia
+  directa** (Lugar-pai) **ou pelo RH** (sempre; e quando a chefia está vaga); ninguém valida as suas;
+  `estado` na marcação (VALIDA/PENDENTE/REJEITADA), só VALIDA conta; dia com pendentes = POR_VALIDAR
+  no apuramento.
 - **Regra de trabalho** (utilizador): antes de desenhar, **lei + indústria + o que já existe** — e só
   depois propor; tabela nova só para conceito com ciclo de vida próprio.
 - **Mapa de férias — fica por fazer** (lacunas assinaladas, não adivinhadas): preferência dos
@@ -255,8 +264,8 @@ inventar omissões**. Meios-dias voltam à mesa aqui.
 
 ## Next step
 
-Apresentar o **desenho do registo pelo próprio (`/me`) com validação da chefia** — marcações de
-origem PROPRIO (sobretudo teletrabalho, art. 170.º n.º 2 da Lei 20) e o circuito de validação —,
-depois de ver a lei, a indústria e **o que já existe** (o `/me` actual, a chefia via Lugar/
-`parentPositionId`, a aprovação dos pedidos). **Sem implementar** até o utilizador aprovar. A seguir:
-fecho mensal (art. 75.º).
+Implementar o **registo pelo próprio com validação da chefia** (desenho com as opções aprovadas — ver
+Decisions): `POST /me/marcacoes` (tempo real, só TELETRABALHO/MISTO), `POST /me/marcacoes/correcoes`
+(PENDENTE), `GET /me/equipa/marcacoes-pendentes`, `PATCH /me/equipa/marcacoes/{id}/validar|rejeitar`,
+`PATCH /funcionarios/{id}/marcacoes/{mid}/validar|rejeitar` (RH). **Confirmar com o utilizador antes
+de começar.** A seguir: fecho mensal (art. 75.º).
