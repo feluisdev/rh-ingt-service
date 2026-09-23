@@ -18,6 +18,11 @@ correr `mvn -B clean test` antes, senao essa verificacao e saltada.
 Quando a suite corre numa copia isolada (por causa do servidor Java do VS Code, que
 escreve no mesmo target/ -- ver o handoff), apontar para os relatorios dessa copia:
     python scripts/verificar_handoff.py --relatorios <copia>/target/surefire-reports
+
+Tambem apanha o que envelhece FORA do "Current state" (visto num teste a frio, 2026-09-23):
+numeros repetidos noutras seccoes (Tests run, passos, ahead), frases de "proximo passo" fora do
+"Next step", a data "Updated" mais antiga do que o ultimo commit de codigo, e o bloco seguinte da
+bateria. Para provar o proprio verificador contra um handoff alterado: --handoff <ficheiro>.
 """
 import io
 import json
@@ -27,6 +32,8 @@ import subprocess
 import sys
 
 HANDOFF = ".claude/resume/rhFix.md"
+if "--handoff" in sys.argv:
+    HANDOFF = sys.argv[sys.argv.index("--handoff") + 1]
 RELATORIOS = "target/surefire-reports"
 if "--relatorios" in sys.argv:
     RELATORIOS = sys.argv[sys.argv.index("--relatorios") + 1]
@@ -45,7 +52,8 @@ s = io.open(HANDOFF, encoding="utf-8").read()
 # A seccao do framework de jobs cita caminhos do inss_core_service, que nao existem
 # aqui -- e o proprio handoff avisa disso. Fica fora da verificacao de caminhos.
 _i = s.find("### Framework de jobs")
-_f = s.find("### ", _i + 5) if _i >= 0 else -1
+# Acaba no titulo seguinte, seja "###" ou "##".
+_f = min([x for x in (s.find(chr(10) + "### ", _i + 5), s.find(chr(10) + "## ", _i + 5)) if x >= 0], default=-1) if _i >= 0 else -1
 s_caminhos = (s[:_i] + s[_f:]) if _i >= 0 and _f > _i else s
 
 falhas = []
@@ -136,6 +144,9 @@ if os.path.isdir(RELATORIOS):
             else:
                 err += int(m.group(1))
     afirma("total de testes", r"\*\*Testes: (\d+), 0 falhas", tot)
+    # O mesmo numero repetido noutra seccao (ex.: "esperado: Tests run: 1001") tambem tem de bater.
+    for dito in re.findall(r"Tests run:?\s*(\d+)", s):
+        verifica("Tests run citado (%s)" % dito, int(dito) == tot, "handoff diz %s, a realidade diz %d" % (dito, tot))
     verifica("suite verde", fal == 0 and err == 0,
              "%d falhas, %d erros no ultimo relatorio" % (fal, err))
 else:
@@ -147,6 +158,14 @@ if os.path.isfile(readme):
     m_r = re.search(r"\*\*(\d+) passos, \d+ OK\*\*", r)
     if m_r:
         afirma("passos da bateria", r"\*\*Bateria funcional: (\d+) passos", int(m_r.group(1)))
+        for dito in re.findall(r"(\d+) passos", s):
+            verifica("passos citados (%s)" % dito, int(dito) == int(m_r.group(1)),
+                     "handoff diz %s, o README diz %s" % (dito, m_r.group(1)))
+    # O bloco seguinte da bateria: um a mais do que o ultimo bloco Fnn do script.
+    ps1 = "scripts/testes_funcionais.ps1"
+    blocos = [int(b) for b in re.findall(r"=========== F(\d+)\b", io.open(ps1, encoding="utf-8").read())] if os.path.isfile(ps1) else []
+    if blocos:
+        afirma("proximo bloco da bateria", r"o próximo é o \*\*F(\d+)\*\*", max(blocos) + 1)
 
 api = "docs/funcionarios/v5/openapi.json"
 if os.path.isfile(api):
@@ -160,10 +179,28 @@ afirma("jobs @Scheduled",
        como=lambda palavra: {"Cinco": 5, "Seis": 6, "Sete": 7, "Oito": 8,
                              "Nove": 9}[palavra])
 
+# "ahead N" citado em qualquer lado (ex.: comentario num bloco de comandos).
+for dito in re.findall(r"ahead (\d+)", s):
+    real = int(shell("git log --oneline origin_git_lab/%s..HEAD | wc -l" % ramo) or 0)
+    verifica("ahead citado (%s)" % dito, int(dito) == real, "handoff diz %s, a realidade diz %d" % (dito, real))
+
+# A data do handoff nao pode ser mais antiga do que o ultimo commit de codigo.
+m_u = re.search(r"Updated: (\d{4}-\d{2}-\d{2} \d{2}:\d{2})", s)
+ultimo = shell("git log -1 --format=%ci -- src")[:16]
+if m_u and ultimo:
+    verifica("data do handoff", m_u.group(1) >= ultimo,
+             "Updated %s, mas o ultimo commit de codigo e de %s" % (m_u.group(1), ultimo))
+
+# "Proximo passo" so no Next step: fora dele e quase sempre uma frase que ja envelheceu.
+_n = s.find("## Next step")
+fora = s[:_n] if _n >= 0 else s
+for frase in re.findall(r"[^\n]*(?:próximo passo|passo seguinte|\(a seguir\))[^\n]*", fora, flags=re.I):
+    verifica("proximo passo fora do Next step", False, frase.strip()[:120])
+
 # ---------------------------------------------------------------- 3. estrutura
 for titulo in ["## Goal", "## Current state", "## Decisions made", "## Constraints",
                "## Blockers & risks", "## Relevant files", "## How to verify / resume",
-               "## Open questions", "## Next step"]:
+               "## Open questions", "## Plano em aberto", "## Next step"]:
     verifica("seccao " + titulo, s.count(titulo) == 1,
              "aparece %d vezes" % s.count(titulo))
 
