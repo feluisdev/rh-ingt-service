@@ -51,6 +51,7 @@ public class GetFaltasApuradasQueryHandler implements QueryHandler<GetFaltasApur
         dto.setFaltasParciais(r.faltasParciais());
         dto.setTotalFaltas(r.totalFaltas());
         dto.setDiasPorCorrigir(r.diasPorCorrigir());
+        dto.setDiasPorValidar(r.diasPorValidar());
         return ResponseEntity.ok(dto);
     }
 }

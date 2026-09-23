@@ -57,4 +57,21 @@ public class MarcacaoAssiduidadeEntity extends AuditEntity {
 
     @Column(name = "anulada_em")
     private LocalDateTime anuladaEm;
+
+    /**
+     * VALIDA, PENDENTE ou REJEITADA. Coluna nova numa tabela do ddl-auto que nunca chegou a produção:
+     * sem migração. Nula nas linhas de antes, que se lêem VALIDA; toda a escrita a preenche.
+     */
+    @Column(name = "estado", length = 12)
+    private String estado;
+
+    /** A chefia directa que decidiu a correcção; nulo quando foi o RH. */
+    @Column(name = "decidida_por")
+    private UUID decididaPor;
+
+    @Column(name = "decidida_em")
+    private LocalDateTime decididaEm;
+
+    @Column(name = "motivo_rejeicao", length = 500)
+    private String motivoRejeicao;
 }

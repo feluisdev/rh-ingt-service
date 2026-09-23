@@ -70,7 +70,7 @@ public final class ApuramentoFaltas {
 
     public record Resultado(List<DiaApurado> dias, List<Debito> debitos, int diasSemRegisto, int minutosParciais,
                             int periodoNormalMinutos, BigDecimal faltasParciais, BigDecimal totalFaltas,
-                            int diasPorCorrigir) {}
+                            int diasPorCorrigir, int diasPorValidar) {}
 
     public static Resultado apurar(List<Dia> dias) {
         List<DiaApurado> apurados = new ArrayList<>();
@@ -105,6 +105,7 @@ public final class ApuramentoFaltas {
                 .mapToInt(DiaApurado::minutosEmFalta).sum()
                 + debitos.stream().mapToInt(Debito::minutosDebito).sum();
         int porCorrigir = (int) apurados.stream().filter(a -> a.estado() == EstadoDiaApurado.POR_CORRIGIR).count();
+        int porValidar = (int) apurados.stream().filter(a -> a.estado() == EstadoDiaApurado.POR_VALIDAR).count();
 
         // O período normal diário de referência: a média do esperado nos dias de trabalho do mês.
         int[] esperadosTrabalho = apurados.stream()
@@ -115,7 +116,7 @@ public final class ApuramentoFaltas {
 
         BigDecimal faltasParciais = converter(parciais, referencia);
         return new Resultado(apurados, debitos, semRegisto, parciais, referencia, faltasParciais,
-                faltasParciais.add(BigDecimal.valueOf(semRegisto)), porCorrigir);
+                faltasParciais.add(BigDecimal.valueOf(semRegisto)), porCorrigir, porValidar);
     }
 
     /** Art. 13.º n.º 4: cada período inteiro é uma falta; o resto, até meio período, meia; acima, uma. */

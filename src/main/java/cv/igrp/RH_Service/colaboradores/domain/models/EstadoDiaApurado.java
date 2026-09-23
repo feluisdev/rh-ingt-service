@@ -19,6 +19,8 @@ public enum EstadoDiaApurado {
     SEM_HORARIO,
     /** O horário não tem blocos nesse dia da semana. */
     DESCANSO,
+    /** Há pedidos de correcção por decidir nesse dia: não se apura até a chefia ou o RH os decidirem. */
+    POR_VALIDAR,
     /** As marcações têm anomalias: não se apura sem as corrigir. */
     POR_CORRIGIR,
     SEM_FALTA,

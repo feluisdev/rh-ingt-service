@@ -25,10 +25,10 @@ public record DiaAssiduidade(LocalDate data, List<Periodo> periodos, List<Intege
         public int minutos() { return (int) Duration.between(entrada, saida).toMinutes(); }
     }
 
-    /** {@code marcacoes}: as do dia; as anuladas ignoram-se aqui. */
+    /** {@code marcacoes}: as do dia; só contam as válidas (nem anuladas, nem pendentes, nem rejeitadas). */
     public static DiaAssiduidade calcular(LocalDate data, List<MarcacaoAssiduidade> marcacoes) {
         List<MarcacaoAssiduidade> validas = marcacoes.stream()
-                .filter(m -> !m.isAnulada())
+                .filter(MarcacaoAssiduidade::conta)
                 .filter(m -> m.getMomento().toLocalDate().equals(data))
                 .sorted(Comparator.comparing(MarcacaoAssiduidade::getMomento))
                 .toList();

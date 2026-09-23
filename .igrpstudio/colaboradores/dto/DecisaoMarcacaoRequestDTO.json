@@ -1,0 +1,14 @@
+{
+  "type": "dto",
+  "name": "DecisaoMarcacaoRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

@@ -30,6 +30,15 @@ public class MarcacaoAssiduidade {
     private boolean anulada;
     private String motivoAnulacao;
     private LocalDateTime anuladaEm;
+    /**
+     * Se conta. Relógio, RH e picagem em tempo real nascem VALIDA; o pedido de correcção do próprio
+     * nasce PENDENTE e só conta validado pela chefia directa ou pelo RH.
+     */
+    private EstadoMarcacao estado = EstadoMarcacao.VALIDA;
+    /** Quem decidiu a correcção: a chefia directa (o seu id) ou nulo quando foi o RH. */
+    private FuncionarioId decididaPor;
+    private LocalDateTime decididaEm;
+    private String motivoRejeicao;
 
     private MarcacaoAssiduidade() {}
 
@@ -54,6 +63,28 @@ public class MarcacaoAssiduidade {
         return m;
     }
 
+    /**
+     * <b>Picagem em tempo real pelo próprio</b> ({@code /me}). A hora é a do servidor — o trabalhador
+     * não a escolhe —, e por isso vale como uma picagem de relógio: nasce VALIDA.
+     */
+    public static MarcacaoAssiduidade picarPeloProprio(FuncionarioId funcionarioId, SentidoMarcacao sentido,
+                                                       LocalDateTime agora) {
+        return registar(funcionarioId, agora, sentido, OrigemMarcacao.PROPRIO, null, null, agora);
+    }
+
+    /**
+     * <b>Pedido de correcção</b> do próprio: uma picagem esquecida, lançada depois. Motivo obrigatório;
+     * nasce PENDENTE e não conta até a chefia directa ou o RH a validarem.
+     */
+    public static MarcacaoAssiduidade pedirCorrecao(FuncionarioId funcionarioId, LocalDateTime momento,
+                                                    SentidoMarcacao sentido, String motivo, LocalDateTime agora) {
+        if (motivo == null || motivo.isBlank())
+            throw invalido("Um pedido de correcção diz porquê: o motivo é obrigatório.");
+        var m = registar(funcionarioId, momento, sentido, OrigemMarcacao.PROPRIO, motivo, null, agora);
+        m.estado = EstadoMarcacao.PENDENTE;
+        return m;
+    }
+
     public static MarcacaoAssiduidade reconstruir(MarcacaoAssiduidadeId id, FuncionarioId funcionarioId,
                                                   LocalDateTime momento, SentidoMarcacao sentido,
                                                   OrigemMarcacao origem, String motivo, String referenciaExterna,
@@ -70,6 +101,48 @@ public class MarcacaoAssiduidade {
         m.motivoAnulacao = motivoAnulacao;
         m.anuladaEm = anuladaEm;
         return m;
+    }
+
+    /** Lê a decisão guardada. Estado nulo (linhas de antes deste campo) lê-se VALIDA. */
+    public MarcacaoAssiduidade comDecisao(EstadoMarcacao estado, FuncionarioId decididaPor, LocalDateTime decididaEm,
+                                          String motivoRejeicao) {
+        this.estado = estado != null ? estado : EstadoMarcacao.VALIDA;
+        this.decididaPor = decididaPor;
+        this.decididaEm = decididaEm;
+        this.motivoRejeicao = motivoRejeicao;
+        return this;
+    }
+
+    /** Conta no dia: válida e não anulada. */
+    public boolean conta() {
+        return !anulada && estado == EstadoMarcacao.VALIDA;
+    }
+
+    public boolean isPendente() {
+        return !anulada && estado == EstadoMarcacao.PENDENTE;
+    }
+
+    /** {@code decisor} nulo quando decide o RH. */
+    public void validar(FuncionarioId decisor, LocalDateTime agora) {
+        exigirPendente();
+        this.estado = EstadoMarcacao.VALIDA;
+        this.decididaPor = decisor;
+        this.decididaEm = agora;
+    }
+
+    public void rejeitar(FuncionarioId decisor, String motivo, LocalDateTime agora) {
+        exigirPendente();
+        if (motivo == null || motivo.isBlank()) throw invalido("Rejeitar uma correcção exige motivo.");
+        this.estado = EstadoMarcacao.REJEITADA;
+        this.decididaPor = decisor;
+        this.decididaEm = agora;
+        this.motivoRejeicao = motivo.trim();
+    }
+
+    private void exigirPendente() {
+        if (anulada || estado != EstadoMarcacao.PENDENTE)
+            throw IgrpResponseStatusException.conflict("Só se decide uma correcção pendente. Estado: "
+                    + (anulada ? "ANULADA" : estado) + ".");
     }
 
     /** A marcação fica, anulada: é prova do que foi picado. O motivo é obrigatório. */

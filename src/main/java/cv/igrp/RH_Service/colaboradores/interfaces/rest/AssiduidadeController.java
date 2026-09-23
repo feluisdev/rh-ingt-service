@@ -107,4 +107,29 @@ public class AssiduidadeController {
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
+
+    @PatchMapping("funcionarios/{funcionarioId}/marcacoes/{marcacaoId}/validar")
+    @Operation(summary = "Validar um pedido de correcao (RH)")
+    @ApiResponse(responseCode = "200", description = "Validado",
+            content = @Content(schema = @Schema(implementation = SuccessResponseDTO.class)))
+    public ResponseEntity<SuccessResponseDTO> validarMarcacao(@PathVariable String funcionarioId, @PathVariable String marcacaoId) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(
+                new cv.igrp.RH_Service.colaboradores.application.commands.DecidirMarcacaoCommand(false, funcionarioId, marcacaoId, true, null));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @PatchMapping("funcionarios/{funcionarioId}/marcacoes/{marcacaoId}/rejeitar")
+    @Operation(summary = "Rejeitar um pedido de correcao (RH), com motivo")
+    @ApiResponse(responseCode = "200", description = "Rejeitado",
+            content = @Content(schema = @Schema(implementation = SuccessResponseDTO.class)))
+    public ResponseEntity<SuccessResponseDTO> rejeitarMarcacao(@PathVariable String funcionarioId, @PathVariable String marcacaoId,
+            @RequestBody cv.igrp.RH_Service.colaboradores.application.dto.DecisaoMarcacaoRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(
+                new cv.igrp.RH_Service.colaboradores.application.commands.DecidirMarcacaoCommand(false, funcionarioId, marcacaoId, false, request));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
 }

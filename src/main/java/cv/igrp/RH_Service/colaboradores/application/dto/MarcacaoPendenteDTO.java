@@ -4,24 +4,19 @@ import cv.igrp.framework.stereotype.IgrpDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
+/** Um pedido de correcção por decidir, na caixa da chefia. */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @IgrpDTO
-public class MarcacaoDTO {
+public class MarcacaoPendenteDTO {
     private String id;
+    private String funcionarioId;
+    private String numeroFuncionario;
+    private String funcionarioNome;
     private LocalDateTime momento;
     private String sentido;
-    private String origem;
     private String motivo;
-    private String referenciaExterna;
-    private boolean anulada;
-    private String motivoAnulacao;
-    private LocalDateTime anuladaEm;
-    /** VALIDA, PENDENTE ou REJEITADA. Só as válidas contam. */
-    private String estado;
-    private String motivoRejeicao;
 }

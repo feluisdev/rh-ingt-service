@@ -16,4 +16,7 @@ public interface PositionEntityRepository
     Optional<PositionEntity> findByNumeroLugar(String numeroLugar);
     Optional<PositionEntity> findByManagesUnit_IdAndIsActiveTrue(UUID managesUnitId);
     List<PositionEntity> findByUnidadeOrganica_IdAndIsActiveTrue(UUID unidadeOrganicaId);
+
+    /** Os Lugares que reportam directamente a este (parent_position_id). */
+    List<PositionEntity> findByParentPosition_IdAndIsActiveTrue(UUID parentPositionId);
 }

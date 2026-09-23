@@ -47,6 +47,7 @@ public class GetAssiduidadeQueryHandler implements QueryHandler<GetAssiduidadeQu
 
     private static MarcacaoDTO dto(MarcacaoAssiduidade m) {
         return new MarcacaoDTO(m.getId().getStringValor(), m.getMomento(), m.getSentido().name(), m.getOrigem().name(),
-                m.getMotivo(), m.getReferenciaExterna(), m.isAnulada(), m.getMotivoAnulacao(), m.getAnuladaEm());
+                m.getMotivo(), m.getReferenciaExterna(), m.isAnulada(), m.getMotivoAnulacao(), m.getAnuladaEm(),
+                m.getEstado().name(), m.getMotivoRejeicao());
     }
 }

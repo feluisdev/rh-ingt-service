@@ -16,4 +16,6 @@ public interface MarcacaoAssiduidadeRepository {
     /** Há alguma marcação válida (não anulada) nesse dia. */
     boolean existeValidaNoDia(FuncionarioId funcionarioId, LocalDate data);
     boolean existsByReferenciaExterna(String referenciaExterna);
+    /** Os pedidos de correcção por decidir destes colaboradores. */
+    List<MarcacaoAssiduidade> findPendentesDe(java.util.Collection<FuncionarioId> funcionarios);
 }

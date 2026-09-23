@@ -1,12 +1,30 @@
 {
   "type": "dto",
-  "name": "MarcacaoDTO",
+  "name": "MarcacaoPendenteDTO",
   "template": "classic",
   "module": "colaboradores",
   "attributes": [
     {
       "type": "string",
       "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "numeroFuncionario",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioNome",
       "objectType": "java",
       "required": false
     },
@@ -24,49 +42,7 @@
     },
     {
       "type": "string",
-      "name": "origem",
-      "objectType": "java",
-      "required": false
-    },
-    {
-      "type": "string",
       "name": "motivo",
-      "objectType": "java",
-      "required": false
-    },
-    {
-      "type": "string",
-      "name": "referenciaExterna",
-      "objectType": "java",
-      "required": false
-    },
-    {
-      "type": "boolean",
-      "name": "anulada",
-      "objectType": "java",
-      "required": false
-    },
-    {
-      "type": "string",
-      "name": "motivoAnulacao",
-      "objectType": "java",
-      "required": false
-    },
-    {
-      "type": "datetime",
-      "name": "anuladaEm",
-      "objectType": "java",
-      "required": false
-    },
-    {
-      "type": "string",
-      "name": "estado",
-      "objectType": "java",
-      "required": false
-    },
-    {
-      "type": "string",
-      "name": "motivoRejeicao",
       "objectType": "java",
       "required": false
     }

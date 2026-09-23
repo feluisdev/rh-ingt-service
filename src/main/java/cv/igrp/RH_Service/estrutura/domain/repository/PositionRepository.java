@@ -13,6 +13,8 @@ public interface PositionRepository {
     Optional<Position> findByNumeroLugar(String numeroLugar);
     Optional<Position> findResponsavelDeUnidade(UUID unidadeOrganicaId);
     List<Position> findByUnidade(UUID unidadeOrganicaId);
+    /** Os Lugares activos que reportam directamente a este. */
+    List<Position> findSubordinados(UUID parentPositionId);
     boolean existsByNumeroLugar(String numeroLugar);
     boolean existsByNumeroLugarAndIdNot(String numeroLugar, PositionId id);
 }

@@ -80,9 +80,12 @@ public class ApuramentoFaltasService {
             final LocalDate data = d;
             List<MarcacaoAssiduidade> doDia = marcacoes.stream().filter(m -> m.getMomento().toLocalDate().equals(data)).toList();
             DiaAssiduidade assiduidade = DiaAssiduidade.calcular(data, doDia);
-            boolean temValidas = doDia.stream().anyMatch(m -> !m.isAnulada());
+            boolean temValidas = doDia.stream().anyMatch(MarcacaoAssiduidade::conta);
 
             EstadoDiaApurado previo = estadoPrevio(funcionarioId, funcionario, data, hoje, isento, feriados, justificados);
+            // Um dia com correcções por decidir não se apura: o que conta ainda não está assente.
+            if (previo == null && doDia.stream().anyMatch(MarcacaoAssiduidade::isPendente))
+                previo = EstadoDiaApurado.POR_VALIDAR;
             var horario = previo == null ? horarioColaboradorService.vigente(funcionarioId, data).horario() : null;
             dias.add(new ApuramentoFaltas.Dia(data, previo, horario, assiduidade, temValidas,
                     horasJustificadas.getOrDefault(data, List.of())));

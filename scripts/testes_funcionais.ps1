@@ -1589,6 +1589,45 @@ $pedMe2 = (@(Linhas (Chamar 'F28.7 ler outra vez' GET ('/funcionarios/' + $colab
 Verificar 'F28.8 ficou em horas, 60 min por dia' (($pedMe2.minutosPorDia -eq 60) -and ($pedMe2.horaInicio -like '12:00*')) ('(' + $pedMe2.minutosPorDia + ' ' + $pedMe2.horaInicio + ')')
 
 Write-Host ''
+Write-Host '=========== F29 - REGISTO PELO PROPRIO E VALIDACAO (Lei 20/X/2023, art. 170.o) ==========='
+
+# Picagem em tempo real pelo proprio: so em teletrabalho ou misto. Hoje a Maria e presencial (o base).
+Chamar 'F29.1 NEG a Maria pica pelo /me num dia presencial' POST '/me/marcacoes' @{ sentido='ENTRADA' } 422 $colabB | Out-Null
+# Um dos admitidos do F11 (activo) passa a teletrabalho a partir de hoje, com o horario flexivel do F24.
+# O Francisco nao serve: no fim do F19 esta inactivo, e o /me recusa-o (403) -- tambem se prova.
+Chamar 'F29.2 NEG colaborador inactivo nao pica' POST '/me/marcacoes' @{ sentido='ENTRADA' } 403 $colabA | Out-Null
+Chamar 'F29.3 atribuir teletrabalho a um admitido do F11 a partir de hoje' POST ('/funcionarios/' + $colabFA + '/horarios') @{ horarioId=$hFlex; regimePrestacao='TELETRABALHO'; dataInicio=$hoje24 } 201 | Out-Null
+$rPic = Chamar 'F29.3b ele pica pelo /me em teletrabalho' POST '/me/marcacoes' @{ sentido='ENTRADA' } 201 $colabFA
+
+# Pedido de correcao: fica PENDENTE e nao conta ate ser validado.
+$ontem29 = (Get-Date).Date.AddDays(-1)
+$rotaA29 = '/funcionarios/' + $colabB + '/assiduidade?de=' + (Iso $ontem29) + '&ate=' + (Iso $ontem29)
+$rCor = Chamar 'F29.4 a Maria pede correcao de uma entrada de ontem' POST '/me/marcacoes/correcoes' @{ momento=((Iso $ontem29) + 'T08:00'); sentido='ENTRADA'; motivo='esqueci-me de picar' } 201 $colabB
+Chamar 'F29.5 NEG correcao sem motivo' POST '/me/marcacoes/correcoes' @{ momento=((Iso $ontem29) + 'T08:05'); sentido='ENTRADA' } 422 $colabB | Out-Null
+$d29 = @((Chamar 'F29.6 ler o dia de ontem' GET $rotaA29).Dados.dias)[0]
+$m29 = (@($d29.marcacoes) | Where-Object { $_.id -eq $rCor.Dados.id } | Select-Object -First 1)
+Verificar 'F29.7 a correcao esta PENDENTE e nao conta' (($m29.estado -eq 'PENDENTE') -and ($d29.minutosTrabalhados -eq 0) -and (@($d29.anomalias).Count -eq 0)) ('(' + $m29.estado + ')')
+
+# Quem decide: a chefia directa (pelo /me/equipa) ou o RH. O Francisco nao e chefia da Maria.
+Chamar 'F29.8 NEG quem nao e chefia directa nao valida' PATCH ('/me/equipa/marcacoes/' + $rCor.Dados.id + '/validar') $null 403 $colabFA | Out-Null
+Chamar 'F29.9 NEG ninguem valida as proprias' PATCH ('/me/equipa/marcacoes/' + $rCor.Dados.id + '/validar') $null 422 $colabB | Out-Null
+$rotaDec = '/funcionarios/' + $colabB + '/marcacoes/' + $rCor.Dados.id
+Chamar 'F29.10 NEG o RH rejeita sem motivo' PATCH ($rotaDec + '/rejeitar') @{ motivo='' } 422 | Out-Null
+Chamar 'F29.11 o RH valida' PATCH ($rotaDec + '/validar') $null 200 | Out-Null
+Chamar 'F29.12 NEG decidir outra vez' PATCH ($rotaDec + '/validar') $null 409 | Out-Null
+$d29b = @((Chamar 'F29.13 ler o dia depois de validar' GET $rotaA29).Dados.dias)[0]
+Verificar 'F29.14 validada, conta: a entrada sem saida e anomalia' (((@($d29b.marcacoes) | Where-Object { $_.id -eq $rCor.Dados.id }).estado -eq 'VALIDA') -and (@($d29b.anomalias) -contains 'ENTRADA_SEM_SAIDA')) ''
+
+$rCor2 = Chamar 'F29.15 outra correcao: a saida de ontem' POST '/me/marcacoes/correcoes' @{ momento=((Iso $ontem29) + 'T17:00'); sentido='SAIDA'; motivo='esqueci-me outra vez' } 201 $colabB
+Chamar 'F29.16 o RH rejeita, com motivo' PATCH ('/funcionarios/' + $colabB + '/marcacoes/' + $rCor2.Dados.id + '/rejeitar') @{ motivo='sem prova' } 200 | Out-Null
+$d29c = @((Chamar 'F29.17 ler o dia depois de rejeitar' GET $rotaA29).Dados.dias)[0]
+$m29c = (@($d29c.marcacoes) | Where-Object { $_.id -eq $rCor2.Dados.id } | Select-Object -First 1)
+Verificar 'F29.18 a rejeitada fica visivel e nao conta' (($m29c.estado -eq 'REJEITADA') -and ($m29c.motivoRejeicao -eq 'sem prova') -and ($d29c.minutosTrabalhados -eq 0)) ('(' + $m29c.estado + ')')
+$rPend = Chamar 'F29.19 a caixa de pendentes da Maria (nao chefia ninguem)' GET '/me/equipa/marcacoes-pendentes' $null 200 $colabB
+Verificar 'F29.20 vazia' (@(Linhas $rPend).Count -eq 0) ''
+Chamar 'F29.21 a Maria le a sua assiduidade pelo /me' GET ('/me/assiduidade?de=' + (Iso $ontem29) + '&ate=' + (Iso $ontem29)) $null 200 $colabB | Out-Null
+
+Write-Host ''
 Write-Host '=========== RESUMO ==========='
 $ok = ($script:resultados | Where-Object { $_.OK }).Count
 $total = $script:resultados.Count

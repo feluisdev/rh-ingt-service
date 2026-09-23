@@ -1043,6 +1043,24 @@ GET /api/v1/rh/funcionarios/{id}/assiduidade?de=2026-09-21&ate=2026-09-27
 
 Regras: BR-ASS-01 a BR-ASS-07.
 
+**Registo pelo próprio e validação da chefia** (`/me`):
+
+| Método | Path | O quê |
+|---|---|---|
+| `POST` | `/api/v1/rh/me/marcacoes` `{ "sentido": "ENTRADA" }` | picagem em tempo real — hora do servidor; **só em dias de TELETRABALHO ou MISTO** (422 no presencial) |
+| `POST` | `/api/v1/rh/me/marcacoes/correcoes` `{ "momento", "sentido", "motivo" }` | pedido de correcção — fica **PENDENTE** e não conta até ser validado |
+| `GET` | `/api/v1/rh/me/assiduidade?de=&ate=` | a minha assiduidade (a mesma leitura do RH) |
+| `GET` | `/api/v1/rh/me/equipa/marcacoes-pendentes` | a caixa da chefia: correcções por decidir da equipa directa |
+| `PATCH` | `/api/v1/rh/me/equipa/marcacoes/{id}/validar` · `…/rejeitar` `{ "motivo" }` | a chefia directa decide (403 se não for; 422 nas suas) |
+| `PATCH` | `/api/v1/rh/funcionarios/{id}/marcacoes/{mid}/validar` · `…/rejeitar` `{ "motivo" }` | o RH decide, sempre |
+
+A chefia directa é o titular do Lugar-pai (`parentPositionId`) do Lugar de quem pediu. Cada marcação
+traz `estado` (`VALIDA` · `PENDENTE` · `REJEITADA`) e `motivoRejeicao`; só as válidas contam. No
+apuramento de faltas (§6.9), um dia com correcções pendentes é `POR_VALIDAR` (`diasPorValidar`).
+Em desenvolvimento, o `/me` sabe quem é o utilizador pelo cabeçalho `X-Employee-Id`.
+
+Regras: BR-ASS-08 a BR-ASS-11.
+
 ### 6.9 Faltas por débito — apuramento do mês
 
 `GET /api/v1/rh/funcionarios/{id}/faltas-apuradas?mes=2026-09` — DL n.º 3/2010, art. 13.º. Cruza o

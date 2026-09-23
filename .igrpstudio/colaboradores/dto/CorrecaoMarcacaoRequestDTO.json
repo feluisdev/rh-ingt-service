@@ -1,0 +1,26 @@
+{
+  "type": "dto",
+  "name": "CorrecaoMarcacaoRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "datetime",
+      "name": "momento",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "sentido",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

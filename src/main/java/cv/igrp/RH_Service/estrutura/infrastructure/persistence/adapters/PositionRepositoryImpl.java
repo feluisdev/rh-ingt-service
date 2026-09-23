@@ -53,6 +53,13 @@ public class PositionRepositoryImpl implements PositionRepository {
 
     @Transactional(readOnly = true)
     @Override
+    public List<Position> findSubordinados(UUID parentPositionId) {
+        return entityRepository.findByParentPosition_IdAndIsActiveTrue(parentPositionId)
+                .stream().map(mapper::toDomain).toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public boolean existsByNumeroLugar(String numeroLugar) {
         return entityRepository.existsByNumeroLugar(numeroLugar);
     }

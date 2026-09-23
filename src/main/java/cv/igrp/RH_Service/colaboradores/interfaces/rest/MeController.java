@@ -10,6 +10,9 @@ import cv.igrp.framework.core.domain.CommandBus;
 import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.framework.stereotype.IgrpController;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -162,6 +165,77 @@ public class MeController {
     public ResponseEntity<FileUrlDTO> getMyDocumentDownloadUrl(@PathVariable String id) {
         LOGGER.debug("Operation started");
         ResponseEntity<FileUrlDTO> response = queryBus.handle(new GetMeDocumentDownloadUrlQuery(id));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    // ── Assiduidade: registo pelo próprio e validação da chefia ────────────────────────────
+
+    @PostMapping("marcacoes")
+    @Operation(summary = "Picagem em tempo real pelo proprio (so em teletrabalho ou regime misto); a hora e a do servidor")
+    @ApiResponse(responseCode = "201", description = "Picagem registada",
+            content = @Content(schema = @Schema(implementation = SuccessResponseDTO.class)))
+    public ResponseEntity<SuccessResponseDTO> picar(@RequestBody cv.igrp.RH_Service.colaboradores.application.dto.PicagemPropriaRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new cv.igrp.RH_Service.colaboradores.application.commands.PicarPeloProprioCommand(request));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @PostMapping("marcacoes/correcoes")
+    @Operation(summary = "Pedido de correcao do proprio (picagem esquecida); fica pendente ate a chefia ou o RH decidirem")
+    @ApiResponse(responseCode = "201", description = "Pedido registado",
+            content = @Content(schema = @Schema(implementation = SuccessResponseDTO.class)))
+    public ResponseEntity<SuccessResponseDTO> pedirCorrecao(@RequestBody cv.igrp.RH_Service.colaboradores.application.dto.CorrecaoMarcacaoRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new cv.igrp.RH_Service.colaboradores.application.commands.PedirCorrecaoMarcacaoCommand(request));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("assiduidade")
+    @Operation(summary = "A minha assiduidade num periodo: por dia e por semana")
+    @ApiResponse(responseCode = "200", description = "Assiduidade do periodo",
+            content = @Content(schema = @Schema(implementation = cv.igrp.RH_Service.colaboradores.application.dto.AssiduidadeResponseDTO.class)))
+    public ResponseEntity<cv.igrp.RH_Service.colaboradores.application.dto.AssiduidadeResponseDTO> minhaAssiduidade(
+            @RequestParam(value = "de") @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate de,
+            @RequestParam(value = "ate") @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate ate) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<cv.igrp.RH_Service.colaboradores.application.dto.AssiduidadeResponseDTO> response = queryBus.handle(new cv.igrp.RH_Service.colaboradores.application.queries.GetMinhaAssiduidadeQuery(de, ate));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("equipa/marcacoes-pendentes")
+    @Operation(summary = "Pedidos de correcao por decidir da minha equipa directa")
+    @ApiResponse(responseCode = "200", description = "Pendentes",
+            content = @Content(array = @io.swagger.v3.oas.annotations.media.ArraySchema(schema = @Schema(implementation = cv.igrp.RH_Service.colaboradores.application.dto.MarcacaoPendenteDTO.class))))
+    public ResponseEntity<java.util.List<cv.igrp.RH_Service.colaboradores.application.dto.MarcacaoPendenteDTO>> pendentesDaEquipa() {
+        LOGGER.debug("Operation started");
+        ResponseEntity<java.util.List<cv.igrp.RH_Service.colaboradores.application.dto.MarcacaoPendenteDTO>> response = queryBus.handle(new cv.igrp.RH_Service.colaboradores.application.queries.GetPendentesEquipaQuery());
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @PatchMapping("equipa/marcacoes/{id}/validar")
+    @Operation(summary = "Validar um pedido de correcao da minha equipa directa")
+    @ApiResponse(responseCode = "200", description = "Validado",
+            content = @Content(schema = @Schema(implementation = SuccessResponseDTO.class)))
+    public ResponseEntity<SuccessResponseDTO> validarDaEquipa(@PathVariable String id) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new cv.igrp.RH_Service.colaboradores.application.commands.DecidirMarcacaoCommand(true, null, id, true, null));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @PatchMapping("equipa/marcacoes/{id}/rejeitar")
+    @Operation(summary = "Rejeitar um pedido de correcao da minha equipa directa, com motivo")
+    @ApiResponse(responseCode = "200", description = "Rejeitado",
+            content = @Content(schema = @Schema(implementation = SuccessResponseDTO.class)))
+    public ResponseEntity<SuccessResponseDTO> rejeitarDaEquipa(@PathVariable String id,
+            @RequestBody cv.igrp.RH_Service.colaboradores.application.dto.DecisaoMarcacaoRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new cv.igrp.RH_Service.colaboradores.application.commands.DecidirMarcacaoCommand(true, null, id, false, request));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

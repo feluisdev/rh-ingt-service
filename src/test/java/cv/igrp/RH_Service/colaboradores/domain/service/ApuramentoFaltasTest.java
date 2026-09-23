@@ -191,6 +191,16 @@ class ApuramentoFaltasTest {
     }
 
     @Test
+    void diaPorValidarNaoSeApuraEConta() {
+        var porValidar = new ApuramentoFaltas.Dia(SEGUNDA, EstadoDiaApurado.POR_VALIDAR, null,
+                DiaAssiduidade.calcular(SEGUNDA, List.of()), false);
+        var r = ApuramentoFaltas.apurar(List.of(porValidar));
+        assertEquals(EstadoDiaApurado.POR_VALIDAR, r.dias().get(0).estado());
+        assertEquals(1, r.diasPorValidar());
+        assertEquals(0, r.diasSemRegisto());
+    }
+
+    @Test
     void oParcialSomaSeNoMesAntesDeConverter() {
         var h = fixo();
         // Tres atrasos de 30 min em tres dias: 90 min no mes -> meia falta, nao tres meias.

@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.colaboradores.domain.models.DiaAssiduidade;
 import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
 import cv.igrp.RH_Service.colaboradores.domain.models.MarcacaoAssiduidade;
 import cv.igrp.RH_Service.colaboradores.domain.models.OrigemMarcacao;
+import cv.igrp.RH_Service.colaboradores.domain.models.RegimePrestacao;
 import cv.igrp.RH_Service.colaboradores.domain.models.SentidoMarcacao;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.MarcacaoAssiduidadeRepository;
@@ -67,6 +68,7 @@ public class AssiduidadeService {
     private final PedidoAusenciaRepository pedidoAusenciaRepository;
     private final CalendarioFeriadosService calendarioFeriadosService;
     private final HorarioColaboradorService horarioColaboradorService;
+    private final ChefiaService chefiaService;
 
     /**
      * Lançamento pelo RH. Num dia que já tem marcações é uma correcção, e exige motivo. Num dia de
@@ -84,6 +86,68 @@ public class AssiduidadeService {
 
         var gravada = marcacaoRepository.save(marcacao);
         return new Resultado(gravada, alertas(funcionarioId, data));
+    }
+
+    /**
+     * <b>Picagem em tempo real pelo próprio</b> ({@code /me}): a hora é a do servidor. Só nos dias em
+     * que o regime de prestação do horário vigente é TELETRABALHO ou MISTO — no presencial, falta é a
+     * ausência <b>do local</b> (Lei n.º 20/X/2023, art. 170.º n.º 1), que uma picagem pela web não
+     * prova; no teletrabalho, é a indisponibilidade no horário (n.º 2), e aí o registo remoto é o meio.
+     */
+    @Transactional
+    public Resultado picarPeloProprio(FuncionarioId funcionarioId, SentidoMarcacao sentido) {
+        exigirActivo(funcionarioId);
+        LocalDateTime agora = agora();
+        var regime = horarioColaboradorService.vigente(funcionarioId, agora.toLocalDate()).regime();
+        if (regime != RegimePrestacao.TELETRABALHO && regime != RegimePrestacao.MISTO)
+            throw invalido("A picagem pelo próprio é para dias de teletrabalho ou regime misto; hoje o regime é "
+                    + (regime != null ? regime : "desconhecido") + ". Use o relógio, ou peça uma correcção.");
+        var gravada = marcacaoRepository.save(MarcacaoAssiduidade.picarPeloProprio(funcionarioId, sentido, agora));
+        return new Resultado(gravada, alertas(funcionarioId, agora.toLocalDate()));
+    }
+
+    /** <b>Pedido de correcção</b> do próprio: fica PENDENTE e não conta até ser validado. */
+    @Transactional
+    public MarcacaoAssiduidade pedirCorrecao(FuncionarioId funcionarioId, LocalDateTime momento,
+                                             SentidoMarcacao sentido, String motivo) {
+        exigirActivo(funcionarioId);
+        return marcacaoRepository.save(MarcacaoAssiduidade.pedirCorrecao(funcionarioId, momento, sentido, motivo, agora()));
+    }
+
+    /** Os pedidos de correcção por decidir da equipa directa de uma chefia. */
+    @Transactional(readOnly = true)
+    public List<MarcacaoAssiduidade> pendentesDaEquipa(FuncionarioId chefeId) {
+        return marcacaoRepository.findPendentesDe(chefiaService.equipaDirecta(chefeId));
+    }
+
+    /**
+     * Validar ou rejeitar um pedido de correcção. {@code chefe} presente: tem de ser a chefia directa de
+     * quem pediu (403) — e ninguém é chefia directa de si próprio. {@code chefe} nulo: é o RH, que decide
+     * sempre (e é o caminho quando a chefia está vaga ou não está definida).
+     */
+    @Transactional
+    public MarcacaoAssiduidade decidir(FuncionarioId chefe, FuncionarioId funcionarioId, MarcacaoAssiduidadeId id,
+                                       boolean validar, String motivo) {
+        var marcacao = marcacaoRepository.findById(id)
+                .filter(m -> funcionarioId == null || m.getFuncionarioId().equals(funcionarioId))
+                .orElseThrow(() -> IgrpResponseStatusException.notFound("Marcação não encontrada: " + id.getStringValor()));
+        if (chefe != null) {
+            if (chefe.equals(marcacao.getFuncionarioId()))
+                throw invalido("Ninguém valida as suas próprias marcações.");
+            if (!chefiaService.eChefeDirecto(chefe, marcacao.getFuncionarioId()))
+                throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN,
+                        "Só a chefia directa de quem pediu (ou o RH) decide esta correcção.");
+        }
+        if (validar) marcacao.validar(chefe, agora());
+        else marcacao.rejeitar(chefe, motivo, agora());
+        return marcacaoRepository.save(marcacao);
+    }
+
+    private void exigirActivo(FuncionarioId funcionarioId) {
+        var f = funcionarioRepository.findById(funcionarioId)
+                .orElseThrow(() -> IgrpResponseStatusException.notFound("Funcionário não encontrado: " + funcionarioId.getStringValor()));
+        if (!Boolean.TRUE.equals(f.getIsActive()))
+            throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN, "Acesso negado: colaborador inactivo.");
     }
 
     /** A marcação fica, anulada, com o motivo. É prova do que foi picado. */

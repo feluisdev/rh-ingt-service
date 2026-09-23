@@ -73,6 +73,12 @@
       "name": "diasPorCorrigir",
       "objectType": "java",
       "required": false
+    },
+    {
+      "type": "integer",
+      "name": "diasPorValidar",
+      "objectType": "java",
+      "required": false
     }
   ]
 }

@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.persistence.adapters;
 
+import cv.igrp.RH_Service.colaboradores.domain.models.EstadoMarcacao;
 import cv.igrp.RH_Service.colaboradores.domain.models.MarcacaoAssiduidade;
 import cv.igrp.RH_Service.colaboradores.domain.models.OrigemMarcacao;
 import cv.igrp.RH_Service.colaboradores.domain.models.SentidoMarcacao;
@@ -43,6 +44,10 @@ public class MarcacaoAssiduidadeRepositoryImpl implements MarcacaoAssiduidadeRep
         e.setAnulada(m.isAnulada());
         e.setMotivoAnulacao(m.getMotivoAnulacao());
         e.setAnuladaEm(m.getAnuladaEm());
+        e.setEstado(m.getEstado().name());
+        e.setDecididaPor(m.getDecididaPor() != null ? m.getDecididaPor().getValor() : null);
+        e.setDecididaEm(m.getDecididaEm());
+        e.setMotivoRejeicao(m.getMotivoRejeicao());
         return toDomain(entityRepository.save(e));
     }
 
@@ -67,6 +72,14 @@ public class MarcacaoAssiduidadeRepositoryImpl implements MarcacaoAssiduidadeRep
 
     @Transactional(readOnly = true)
     @Override
+    public List<MarcacaoAssiduidade> findPendentesDe(java.util.Collection<FuncionarioId> funcionarios) {
+        if (funcionarios.isEmpty()) return List.of();
+        return entityRepository.findPendentesDe(funcionarios.stream().map(FuncionarioId::getValor).toList())
+                .stream().map(this::toDomain).toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public boolean existsByReferenciaExterna(String referenciaExterna) {
         return entityRepository.existsByReferenciaExterna(referenciaExterna);
     }
@@ -82,6 +95,9 @@ public class MarcacaoAssiduidadeRepositoryImpl implements MarcacaoAssiduidadeRep
                 e.getReferenciaExterna(),
                 Boolean.TRUE.equals(e.getAnulada()),
                 e.getMotivoAnulacao(),
-                e.getAnuladaEm());
+                e.getAnuladaEm())
+                .comDecisao(e.getEstado() != null ? EstadoMarcacao.valueOf(e.getEstado()) : null,
+                        e.getDecididaPor() != null ? FuncionarioId.from(e.getDecididaPor()) : null,
+                        e.getDecididaEm(), e.getMotivoRejeicao());
     }
 }

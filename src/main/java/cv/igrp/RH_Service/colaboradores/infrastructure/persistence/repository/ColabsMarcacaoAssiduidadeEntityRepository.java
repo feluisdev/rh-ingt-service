@@ -29,4 +29,11 @@ public interface ColabsMarcacaoAssiduidadeEntityRepository extends JpaRepository
                               @Param("antes") LocalDateTime antes);
 
     boolean existsByReferenciaExterna(String referenciaExterna);
+
+    /** Os pedidos de correcção por decidir destes colaboradores, do mais antigo para o mais recente. */
+    @Query("""
+            SELECT m FROM ColabsMarcacaoAssiduidadeEntity m
+            WHERE m.funcionario.id IN :funcionarios AND m.estado = 'PENDENTE' AND m.anulada = false
+            ORDER BY m.momento""")
+    List<MarcacaoAssiduidadeEntity> findPendentesDe(@Param("funcionarios") List<UUID> funcionarios);
 }

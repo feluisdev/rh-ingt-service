@@ -597,6 +597,18 @@ existentes -- estas duas colunas mandam descontar antiguidade e mexer em salario
 (`t_leave_mobility_subtype.affects_pay`), que nao sabe dizer "parcial". Por agora sao dois
 contratos diferentes: booleano nas licencas, enum nas ausencias.
 
+### 11.30 Registo pelo proprio e validacao da chefia (2026-09-23)
+
+**Nada deixa de funcionar**: endpoints novos e campos novos nas respostas.
+
+- `/me`: `POST /me/marcacoes` (picagem em tempo real, so em teletrabalho/misto -- 422 no presencial),
+  `POST /me/marcacoes/correcoes` (fica PENDENTE), `GET /me/assiduidade`,
+  `GET /me/equipa/marcacoes-pendentes`, `PATCH /me/equipa/marcacoes/{id}/validar|rejeitar`.
+- RH: `PATCH /funcionarios/{id}/marcacoes/{mid}/validar|rejeitar`.
+- Cada marcacao traz `estado` (VALIDA/PENDENTE/REJEITADA) e `motivoRejeicao`; mostrar as pendentes a
+  parte. Faltas apuradas: estado de dia `POR_VALIDAR` e `diasPorValidar`.
+- O botao de picar so aparece a quem esta em teletrabalho/misto nesse dia (ler o horario vigente).
+
 ### 11.29 Pedido de ausencia pelo proprio com as regras do RH (2026-09-23)
 
 `POST /me/leave-requests` passa a contar e validar como o pedido lancado pelo RH:
@@ -763,4 +775,5 @@ resposta ja reflecte isto -- nao ha nada a recalcular no ecra.
 - [ ] Separador de horário no colaborador: histórico, atribuir a partir de uma data (horário + regime de prestação) e o horário vigente com a origem.
 - [ ] Ecrã de assiduidade do colaborador: semana/mês com períodos, horas trabalhadas vs esperadas, dias com anomalia destacados, e as acções corrigir e anular (com motivo).
 - [ ] Pedido de ausência: horas de início e fim (só para tipos que as admitem), e a acção terminar para pedidos em horas aprovados.
+- [ ] `/me`: botão de picar (só em teletrabalho/misto), pedido de correcção com motivo, e a caixa de pendentes da equipa para a chefia (validar/rejeitar).
 - [ ] Separador de faltas apuradas do mês: dias com falta e motivo, débitos da aferição, total em dias e meios-dias, e atalho para justificar (pedido de ausência).

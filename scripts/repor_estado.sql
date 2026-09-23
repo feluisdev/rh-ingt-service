@@ -28,6 +28,18 @@ BEGIN
   DELETE FROM t_payroll_slip   WHERE funcionario_id = ANY(extras);
   DELETE FROM t_qualificacao   WHERE funcionario_id = ANY(extras);
   DELETE FROM t_training       WHERE funcionario_id = ANY(extras);
+  -- Tabelas do ddl-auto (assiduidade, ferias): o F29 pica e atribui horario a um admitido do F11.
+  IF to_regclass('public.t_marcacao_assiduidade') IS NOT NULL THEN
+    DELETE FROM t_marcacao_assiduidade WHERE funcionario_id = ANY(extras);
+  END IF;
+  IF to_regclass('public.t_horario_colaborador') IS NOT NULL THEN
+    DELETE FROM t_horario_colaborador WHERE funcionario_id = ANY(extras);
+  END IF;
+  IF to_regclass('public.t_ferias_ano') IS NOT NULL THEN
+    DELETE FROM t_ferias_ano_alteracao WHERE ferias_ano_id IN (SELECT id FROM t_ferias_ano WHERE funcionario_id = ANY(extras));
+    DELETE FROM t_ferias_ano_periodo WHERE ferias_ano_id IN (SELECT id FROM t_ferias_ano WHERE funcionario_id = ANY(extras));
+    DELETE FROM t_ferias_ano WHERE funcionario_id = ANY(extras);
+  END IF;
   DELETE FROM t_funcionario    WHERE id = ANY(extras);
 END $$;
 

@@ -32,4 +32,6 @@ public class FaltasApuradasResponseDTO {
     private BigDecimal totalFaltas;
     /** Dias com anomalias nas marcações: não se apuram sem as corrigir. */
     private int diasPorCorrigir;
+    /** Dias com pedidos de correcção por decidir: não se apuram até a chefia ou o RH decidirem. */
+    private int diasPorValidar;
 }

@@ -9,15 +9,15 @@ em tabela editável pela API. Um ponto por commit.
 
 ## Current state
 
-**Branch `fix-alinhamento-legislacao`**, **34 commits locais por enviar** (`origin_git_lab`).
+**Branch `fix-alinhamento-legislacao`**, **35 commits locais por enviar** (`origin_git_lab`).
 **Não fazer push sem o utilizador pedir** — merge para `master` no GitLab é deploy.
 
-- **Testes: 1049, 0 falhas** — correr na **cópia isolada** (ver Blockers).
-- **Bateria funcional: 614 passos**, 614 OK (2026-09-23, duas execuções seguidas). Blocos F20–F28
+- **Testes: 1063, 0 falhas** — correr na **cópia isolada** (ver Blockers).
+- **Bateria funcional: 636 passos**, 636 OK (2026-09-23, duas execuções seguidas). Blocos F20–F29
   cobrem V55, V56, mapa de férias, parâmetros de férias, horários, registo diário, faltas por débito e
-  pedido em horas (V58) e pedido pelo próprio em `/me`.
+  pedido em horas (V58), pedido pelo próprio em `/me` e registo pelo próprio com validação.
 - Migrações até **`V58`**. Próxima livre: **V59** (só para alterar tabelas existentes).
-- **`openapi.json`**: 251 caminhos, 280 esquemas (regenerado com a app a correr).
+- **`openapi.json`**: 259 caminhos, 284 esquemas (regenerado com a app a correr).
 - **Sete jobs `@Scheduled`**, sem lock distribuído (fica para o framework de jobs).
 - Árvore limpa excepto `.claude/settings*.json` (não são desta sessão) e os textos das leis não
   versionados na raiz: `.lei20.txt` (Lei 20/X/2023), `.dl3.txt` (DL 3/2010, numa só linha),
@@ -35,7 +35,7 @@ em tabela editável pela API. Um ponto por commit.
 | `3386b1fc` | **Assiduidade, 1.º tijolo** — catálogo de horários, horário base, **`V57`** (horário da unidade orgânica), horário do colaborador com regime de prestação |
 
 **Plano:** 1 feriados ✔ · 2 dispensas ✔ · 3 mapa de férias ✔ · **4 — Assiduidade**: horários ✔ →
-registo diário ✔ → faltas por débito ✔ → pedido em horas + amamentação ✔ → **`/me` com validação da chefia (a seguir)** → relação mensal / fecho (art. 75.º) → trabalho suplementar → amamentação ·
+registo diário ✔ → faltas por débito ✔ → pedido em horas + amamentação ✔ → registo pelo próprio com validação ✔ → **fecho mensal (a seguir)** → relação mensal / fecho (art. 75.º) → trabalho suplementar → amamentação ·
 framework de jobs (por último).
 
 ## Decisions made — do not re-litigate
@@ -97,7 +97,7 @@ framework de jobs (por último).
 - **`/me` pedido de ausência = regras do RH** (fix, 2026-09-23): o handler do self-service delega no
   `CreatePedidoAusenciaCommandHandler` (antes contava dias de calendário, sem contagem/feriados/tectos).
   Sobreposição passou de 400 para 409. Ganhou `startTime`/`endTime` opcionais.
-- **Registo pelo próprio (próximo tijolo, desenho aprovado nas opções):** picagem em tempo real em
+- **Registo pelo próprio (feito):** picagem em tempo real em
   `/me` **só em dias de TELETRABALHO/MISTO** (art. 170.º: presencial = presença no local, que a web
   não prova; teletrabalho = disponibilidade); pedido de correcção PENDENTE validado pela **chefia
   directa** (Lugar-pai) **ou pelo RH** (sempre; e quando a chefia está vaga); ninguém valida as suas;
@@ -167,6 +167,8 @@ framework de jobs (por último).
   `colaboradores/domain/models/PedidoAusencia.java` — `definirHoras`, `terminar`, `ultimoDiaEmVigor`.
   `colaboradores/domain/models/TipoAusencia.java` — `motivoParaRecusarHoras`.
 - `db/migration/V58__pedido_ausencia_em_horas.sql`.
+- `colaboradores/application/services/ChefiaService.java` — chefia directa e equipa pelo Lugar-pai.
+  `AssiduidadeService.picarPeloProprio` · `pedirCorrecao` · `pendentesDaEquipa` · `decidir`.
 - `colaboradores/domain/service/ApuramentoFaltas.java` — tempo em falta por dia, débito da aferição,
   conversão do art. 13.º n.º 4. `colaboradores/application/services/ApuramentoFaltasService.java` —
   classifica os dias (feriado, pedido aprovado, licença, mobilidade externa, isenção...).
@@ -264,8 +266,9 @@ inventar omissões**. Meios-dias voltam à mesa aqui.
 
 ## Next step
 
-Implementar o **registo pelo próprio com validação da chefia** (desenho com as opções aprovadas — ver
-Decisions): `POST /me/marcacoes` (tempo real, só TELETRABALHO/MISTO), `POST /me/marcacoes/correcoes`
-(PENDENTE), `GET /me/equipa/marcacoes-pendentes`, `PATCH /me/equipa/marcacoes/{id}/validar|rejeitar`,
-`PATCH /funcionarios/{id}/marcacoes/{mid}/validar|rejeitar` (RH). **Confirmar com o utilizador antes
-de começar.** A seguir: fecho mensal (art. 75.º).
+Apresentar o **desenho do fecho mensal** (DL 3/2010, art. 75.º: relação mensal das faltas e licenças de
+cada funcionário, base do vencimento do mês seguinte; n.º 3: base do cômputo das férias do ano
+seguinte) — o que congela (esperado e apurado de cada dia), o que passa a injustificado (art. 43.º
+n.º 1 b)), quem fecha e reabre, e o bloqueio de marcações/pedidos num mês fechado. Antes: lei,
+indústria (fecho de período, acertos no período seguinte) e **o que já existe**. **Sem implementar**
+até o utilizador aprovar.

@@ -52,6 +52,7 @@ docker exec postgres-ingt-rh sh -c "psql -U postgres -d recursoshumanos_db -q -f
 | **F26** faltas por débito | sobre a semana do F25: dia com anomalia fica por corrigir; atraso de 30 min contra o horário fixo; dia sem marcações conta inteiro (SEM_REGISTO); domingo não se apura; um pedido aprovado tira o dia do apuramento |
 | **F27** pedido em horas (V58) | amamentação 1h+1h por dia durante 100 dias; a terceira passa do tecto diário; horas cruzadas 409, noutra hora cabe; tecto por ocorrência; férias em horas 422; terminar antes do fim acaba na véspera; meia hora justificada tira o atraso do apuramento |
 | **F28** pedido pelo próprio (/me) | segue as regras do RH: luto de sexta a segunda conta 4 dias seguidos; seminário de 7 dias passa do tecto (422); sobreposição 409; amamentação em horas pelo próprio |
+| **F29** registo pelo próprio | picagem pelo /me: presencial 422, inactivo 403, em teletrabalho 201; correcção fica PENDENTE e não conta; quem não é chefia 403, o próprio 422; RH rejeita sem motivo 422, valida, segunda vez 409; rejeitada fica visível e não conta |
 
 ## Repor o estado inicial
 
@@ -491,7 +492,21 @@ O `Chamar` ganhou o parametro opcional `-Como <funcionarioId>`, que envia o cabe
 conta como o do RH. Armadilha paga: a sobreposicao testada num sabado dava 422 («nao contem dias
 uteis», e bem) antes de chegar a sobreposicao; passou para a segunda-feira.
 
+### F29 - registo pelo proprio e validacao (2026-09-23)
+
+A picagem em tempo real prova-se com um admitido do F11 (activo) a quem se atribui teletrabalho a partir
+de hoje; o Francisco, inactivo no fim do F19, prova o 403. A Maria pede correcoes de ontem; o RH valida
+uma e rejeita outra. A validacao pela chefia directa fica nos testes unitarios: o seed nao tem Lugares
+com Lugar-pai, e no fim da bateria so a Maria tem Lugar.
+
+**Armadilha paga:** o `repor_estado.sql` apaga os admitidos do F11 no ponto 0, antes de tudo -- e o
+F29 deixou-lhes marcacoes e atribuicoes de horario. O DELETE falhou pelas chaves estrangeiras, o script
+parou, e a segunda corrida caiu em 223 passos por estado nao reposto. O ponto 0 passou a apagar primeiro
+as marcacoes, as atribuicoes e as ferias desses colaboradores.
+
 ## Resultado da última execução
+
+**636 passos, 636 OK** (2026-09-23), duas execucoes seguidas com o `repor_estado.sql` entre elas.
 
 **614 passos, 614 OK** (2026-09-23), duas execucoes seguidas com o `repor_estado.sql` entre elas.
 

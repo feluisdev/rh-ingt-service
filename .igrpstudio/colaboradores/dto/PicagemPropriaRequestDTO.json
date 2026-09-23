@@ -1,0 +1,14 @@
+{
+  "type": "dto",
+  "name": "PicagemPropriaRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "sentido",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

@@ -86,6 +86,36 @@
       "objectType": "java",
       "primaryKey": false,
       "nullable": true
+    },
+    {
+      "name": "estado",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "length": 12,
+      "nullable": true
+    },
+    {
+      "name": "decididaPor",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    },
+    {
+      "name": "decididaEm",
+      "type": "datetime",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    },
+    {
+      "name": "motivoRejeicao",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "length": 500,
+      "nullable": true
     }
   ]
 }
