@@ -62,6 +62,8 @@ class HorarioColaboradorServiceTest {
     @Mock private FuncionarioRepository funcionarioRepository;
     @Mock private ContratoRepository contratoRepository;
     @Mock private UnidadeDeExercicioService unidadeDeExercicio;
+    @Mock private cv.igrp.RH_Service.estrutura.application.services.HorarioDaUnidadeService horarioDaUnidadeService;
+    @Mock private cv.igrp.RH_Service.parametrizacoes.application.services.HorarioBaseService horarioBaseService;
 
     @InjectMocks private HorarioColaboradorService service;
 
@@ -74,6 +76,9 @@ class HorarioColaboradorServiceTest {
         when(unidadeDeExercicio.unidadeOndeExerceFuncoes(funcionario, DATA)).thenReturn(unidade);
         when(horarioColaboradorRepository.findVigente(funcionario, DATA)).thenReturn(Optional.empty());
         when(horarioRepository.findBase()).thenReturn(Optional.empty());
+        // Sem historico: o horario da unidade e a coluna; o base e o marcado.
+        when(horarioDaUnidadeService.horarioEm(any(), any())).thenAnswer(inv -> ((OrganizationalUnit) inv.getArgument(0)).getHorarioId());
+        when(horarioBaseService.baseEm(any())).thenAnswer(inv -> horarioRepository.findBase());
     }
 
     /** {@code horas} por dia, de segunda a sexta. */

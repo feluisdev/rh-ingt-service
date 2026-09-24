@@ -16,4 +16,5 @@ public interface OrganizationalUnitEntityRepository
     boolean existsByParentUnit_IdAndIsActiveTrue(UUID parentUnitId);
     Optional<OrganizationalUnitEntity> findByCode(String code);
     List<OrganizationalUnitEntity> findByIsActiveTrue();
+    List<OrganizationalUnitEntity> findAllByHorarioId(UUID horarioId);
 }

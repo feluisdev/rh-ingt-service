@@ -30,6 +30,7 @@ public class UpdateOrganizationalUnitCommandHandler
     private final OptionLookupPort optionLookupPort;
     private final FuncionarioLookupPort funcionarioLookupPort;
     private final HorarioDaUnidade horarioDaUnidade;
+    private final cv.igrp.RH_Service.estrutura.application.services.HorarioDaUnidadeService horarioDaUnidadeService;
 
     @IgrpCommandHandler
     public ResponseEntity<OrganizationalUnitResponseDTO> handle(UpdateOrganizationalUnitCommand command) {
@@ -63,10 +64,14 @@ public class UpdateOrganizationalUnitCommandHandler
         unit.atualizar(dto.getCode(), dto.getName(), dto.getAcronym(), dto.getUnitType(),
                 dto.getDescricao(), parentId, responsibleEmployeeId, areaCkey);
         // O horário (V57) segue a mesma excepção: omisso fica, em branco limpa.
-        if (dto.getHorarioId() != null) unit.definirHorario(horarioDaUnidade.validar(dto.getHorarioId()));
+        // Com data de efeito: de hoje (ou de horarioDesde, futura); os dias passados ficam com o que vigorava.
+        if (dto.getHorarioId() != null)
+            horarioDaUnidadeService.definir(unit, horarioDaUnidade.validar(dto.getHorarioId()), dto.getHorarioDesde());
         var updated = unitRepository.save(unit);
 
         var responseDto = mapper.toDTO(updated);
+        var horarioHoje = horarioDaUnidadeService.horarioEm(updated, java.time.LocalDate.now());
+        responseDto.setHorarioId(horarioHoje != null ? horarioHoje.getStringValor() : null);
         if (updated.getUnitType() != null) {
             optionLookupPort.findByCcodeAndCkey(OptionCcode.UNIT_TYPE.getCode(), updated.getUnitType())
                     .ifPresent(opt -> responseDto.setUnitTypeDesc(opt.cvalue()));

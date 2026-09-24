@@ -20,7 +20,9 @@ public interface ColabsPedidoAusenciaEntityRepository extends JpaRepository<Pedi
      */
     @Query("SELECT p FROM ColabsPedidoAusenciaEntity p " +
            "WHERE p.funcionario.id = :funcionarioId " +
-           "AND (:estado IS NULL OR UPPER(p.estado) = UPPER(:estado)) " +
+           // CAST: um :estado nulo ia para o PostgreSQL como bytea, e upper(bytea) nao existe -- o erro
+           // dependia da ordem das primeiras chamadas depois do arranque (500 intermitente).
+           "AND (:estado IS NULL OR UPPER(p.estado) = UPPER(CAST(:estado AS string))) " +
            "AND (:tipoAusenciaId IS NULL OR p.tipoAusencia.id = :tipoAusenciaId) " +
            "AND (:ano IS NULL OR YEAR(p.dataInicio) = :ano) " +
            "ORDER BY p.dataInicio DESC")

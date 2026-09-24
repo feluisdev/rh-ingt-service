@@ -20,4 +20,6 @@ public class OrganizationalUnitRequestDTO {
     private String areaCkey;
     /** V57. Omisso no PUT = mantém; em branco = limpa (segue a unidade-mãe). */
     private String horarioId;
+    /** Opcional: a partir de quando vale o horarioId (yyyy-MM-dd; hoje ou futura). Por omissao, hoje. */
+    private java.time.LocalDate horarioDesde;
 }

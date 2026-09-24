@@ -118,4 +118,10 @@ public class OrganizationalUnitRepositoryImpl implements OrganizationalUnitRepos
                 .map(mapper::toDomain)
                 .toList();
     }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<OrganizationalUnit> findAllByHorario(cv.igrp.RH_Service.parametrizacoes.domain.valueobject.HorarioId horarioId) {
+        return entityRepository.findAllByHorarioId(horarioId.getValor()).stream().map(mapper::toDomain).toList();
+    }
 }

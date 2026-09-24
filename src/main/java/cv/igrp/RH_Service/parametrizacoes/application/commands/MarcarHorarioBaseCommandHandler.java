@@ -1,7 +1,7 @@
 package cv.igrp.RH_Service.parametrizacoes.application.commands;
 
 import cv.igrp.RH_Service.parametrizacoes.application.dto.HorarioResponseDTO;
-import cv.igrp.RH_Service.parametrizacoes.domain.repository.HorarioRepository;
+import cv.igrp.RH_Service.parametrizacoes.application.services.HorarioBaseService;
 import cv.igrp.RH_Service.parametrizacoes.domain.valueobject.HorarioId;
 import cv.igrp.RH_Service.parametrizacoes.infrastructure.mappers.HorarioMapper;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
@@ -20,24 +20,13 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MarcarHorarioBaseCommandHandler implements CommandHandler<MarcarHorarioBaseCommand, ResponseEntity<HorarioResponseDTO>> {
 
-    private final HorarioRepository horarioRepository;
     private final HorarioMapper horarioMapper;
+    private final HorarioBaseService horarioBaseService;
 
     @IgrpCommandHandler
     @Transactional
     public ResponseEntity<HorarioResponseDTO> handle(MarcarHorarioBaseCommand command) {
-        var id = HorarioId.from(command.getHorarioId());
-        var horario = horarioRepository.findById(id)
-                .orElseThrow(() -> IgrpResponseStatusException.notFound("Horário não encontrado: " + command.getHorarioId()));
-        horario.marcarComoBase();
-
-        horarioRepository.findBase()
-                .filter(anterior -> !anterior.getId().equals(id))
-                .ifPresent(anterior -> {
-                    anterior.desmarcarBase();
-                    horarioRepository.save(anterior);
-                });
-
-        return ResponseEntity.ok(horarioMapper.toDTO(horarioRepository.save(horario)));
+        var horario = horarioBaseService.marcar(HorarioId.from(command.getHorarioId()), command.getDesde());
+        return ResponseEntity.ok(horarioBaseService.comBaseDeHoje(horarioMapper.toDTO(horario)));
     }
 }

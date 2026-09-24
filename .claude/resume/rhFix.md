@@ -1,4 +1,4 @@
-> Updated: 2026-09-24 09:40 (-01:00) — sessão de 2026-09-24 (unidade pela afectação da data)
+> Updated: 2026-09-24 10:55 (-01:00) — sessão de 2026-09-24 (horários com data de efeito)
 
 ## Goal
 
@@ -11,16 +11,16 @@ fora o processamento salarial (outra aplicação, integração futura) e o SIGDI
 
 ## Current state
 
-**Branch `fix-alinhamento-legislacao`**, **40 commits locais por enviar** (`origin_git_lab`).
+**Branch `fix-alinhamento-legislacao`**, **41 commits locais por enviar** (`origin_git_lab`).
 **Não fazer push sem o utilizador pedir** — merge para `master` no GitLab é deploy.
 
-- **Testes: 1106, 0 falhas** — correr na **cópia isolada** (ver Blockers).
-- **Bateria funcional: 695 passos**, 695 OK (2026-09-24, duas execuções seguidas com reposição
-  entre elas). Blocos F20–F32: feriados (V55), contagem (V56), mapa de férias, parâmetros de férias,
+- **Testes: 1120, 0 falhas** — correr na **cópia isolada** (ver Blockers).
+- **Bateria funcional: 715 passos**, 715 OK (2026-09-24, duas execuções seguidas com reposição
+  entre elas). Blocos F20–F33: feriados (V55), contagem (V56), mapa de férias, parâmetros de férias,
   horários, registo diário, faltas por débito, pedido em horas (V58), pedido pelo próprio em `/me`,
-  registo pelo próprio com validação, trabalho suplementar, relação mensal, aprovação dos pedidos de ausência.
+  registo pelo próprio com validação, trabalho suplementar, relação mensal, aprovação dos pedidos de ausência, horários com data de efeito.
 - Migrações até **`V58`**. Próxima livre: **V59** (só para alterar tabelas existentes).
-- **`openapi.json`**: 273 caminhos (regenerado com a app a correr).
+- **`openapi.json`**: 274 caminhos (regenerado com a app a correr).
 - **Sete jobs `@Scheduled`**, sem lock distribuído (fica para o framework de jobs).
 - `.claude/settings.json` e `.claude/settings.local.json` estão **versionados, com alterações locais
   que não entram em nenhum commit** (não são desta tarefa: nunca `git add -A`). Fora do git ficam os
@@ -45,7 +45,8 @@ fora o processamento salarial (outra aplicação, integração futura) e o SIGDI
 | `f9760dfe` | Trabalho suplementar (art. 155.º n.º 2 a)) — autorização, horas pelas marcações |
 | `01a615cf` | Relação mensal do art. 75.º (JSON e CSV); dias depois da cessação fora do vínculo |
 | `f60d0b0c` (24) | Pedidos de ausência: aprovação automática dos tipos sem aprovação; decisão pela chefia directa |
-| (2026-09-24) | Unidade onde exerce funções pela afectação da data (feriados e horário da unidade) |
+| `d9703e0c` (24) | Unidade onde exerce funções pela afectação da data (feriados e horário da unidade) |
+| (2026-09-24) | Horários com data de efeito (base e unidade com histórico; horário que vigorou é imutável; duplicar) |
 
 Mais os commits `docs` do handoff. **Plano geral:** 1 feriados ✔ · 2 dispensas ✔ · 3 mapa de férias ✔
 · 4 assiduidade ✔ (horários → registo → faltas → horas → próprio → suplementar → relação). O que
@@ -103,6 +104,14 @@ falta está em **Plano em aberto**.
   prova faltar, o RH cancela ou regista injustificada. Os outros decide **a chefia directa ou o RH, num
   só nível** (caixa `/me/equipa/pedidos-ausencia…`, rejeitar pela chefia exige motivo). Corrigido: o RH
   aprovava/rejeitava pedidos de outro colaborador pelo caminho (agora 404).
+- **Horários com data de efeito (2026-09-24):** o horário da unidade (`t_unidade_organica_horario`) e o
+  base (`t_horario_base`) têm histórico; mudam de hoje ou de uma data futura (`horarioDesde` no PUT da
+  unidade; `?desde=` no PATCH do base); data passada 422. **Um horário que já vigorou é imutável** (só o
+  nome; 409) — duplica-se (`POST …/duplicar`). Sem migração: sem histórico vale a coluna/marca antiga, e
+  a primeira mudança regista-a «desde sempre»; **o primeiro base da instituição vale desde sempre**. O
+  «já vigorou?» vai por `HorarioUtilizacaoPort` (parametrizacoes), implementada em colaboradores,
+  estrutura e no próprio base. Corrigido pelo caminho: listagem de pedidos com 500 intermitente
+  (`upper(bytea)`) e `workerStateId` nulo com 500.
 - **Adiados pelo utilizador (2026-09-24):** permissões por perfil e meios-dias de férias («ainda não»);
   **notificações = TODO** (esperam uma app de notificações; ficam `TODO(notificacoes)` no código).
   Nomes de endpoints e campos (inglês/português) **não se mudam agora** — só o funcionamento importa.
@@ -241,7 +250,7 @@ TE_PESQUISA `…e1f3`.
 ## Test / validation plan
 
 Para cada ponto novo: testes unitários (domínio e serviço), prova com a app, um bloco novo na
-bateria (o próximo é o **F33**) com positivos e negativos, e a bateria inteira duas vezes com
+bateria (o próximo é o **F34**) com positivos e negativos, e a bateria inteira duas vezes com
 reposição entre elas. Os blocos e as armadilhas pagas estão no `scripts/testes_funcionais_README.md`.
 
 ## Open questions
@@ -269,38 +278,34 @@ Ideias-chave: período vem de `agendadoPara`, parâmetros gravados na abertura, 
 
 Aprovado pelo utilizador em 2026-09-24, por esta ordem:
 
-1. **Horários com data de efeito** (ponto 3, 2.ª parte) — **desenhar primeiro**. Editar os blocos de
-   um horário, mudar o horário da unidade ou o base muda o passado. Recomendado: horário imutável depois
-   de usado (editar = 409, cria-se outro) + horário da unidade com histórico por datas (tabela de
-   atribuições; migrar a coluna `horario_id` da V57). Alternativa: versões dentro do horário.
-2. **Relatórios de gestão** (o utilizador: «podemos fazer») — desenhar primeiro: quais (balanço
+1. **Relatórios de gestão** (o utilizador: «podemos fazer») — desenhar primeiro: quais (balanço
    social, lista de antiguidade anual, efectivos por unidade/carreira, absentismo…), lei e indústria.
 
 Depois, ou a decidir:
-3. **Formação e disciplinar** como processos com fluxo (hoje são registos; a pena é texto livre) —
+2. **Formação e disciplinar** como processos com fluxo (hoje são registos; a pena é texto livre) —
    perguntar ao utilizador o que quer (ficou sem resposta).
-4. **Erros em XML**: com `jackson-dataformat-xml` no classpath, um `ProblemDetail` sai em
+3. **Erros em XML**: com `jackson-dataformat-xml` no classpath, um `ProblemDetail` sai em
    `application/problem+xml` a quem não pede nada, pede `*/*` ou é um navegador (provado com a app);
    os sucessos saem em JSON. Solução pronta: uma configuração global que põe o conversor XML no fim.
    O utilizador disse «depois vemos» (não remover a dependência; não pôr `produces` em 49 controladores).
-5. **Dados de demonstração credíveis** — marcações para os três colaboradores, **hierarquia de
+4. **Dados de demonstração credíveis** — marcações para os três colaboradores, **hierarquia de
    chefias** (Lugares com Lugar-pai: é o que falta para mostrar a caixa da chefia), e o nome da unidade
    SERV_RH duplamente codificado na **base** (`ServiÃ§o`; o ficheiro do seed está certo).
-6. **Mapa de férias** — cônjuges (art. 5.º n.º 6), preferência pelo próprio no `/me`, aviso de pedido
+5. **Mapa de férias** — cônjuges (art. 5.º n.º 6), preferência pelo próprio no `/me`, aviso de pedido
    fora da marcação.
-7. **Framework de jobs com lock distribuído** (por último; ver secção própria).
-8. Adiados/só a pedido: **permissões**, **meios-dias de férias**, **notificações** (TODO), **tectos em
+6. **Framework de jobs com lock distribuído** (por último; ver secção própria).
+7. Adiados/só a pedido: **permissões**, **meios-dias de férias**, **notificações** (TODO), **tectos em
    horas**, **fecho mensal** (integração salarial), **`areaCkey`** (tabela de geografia), renomear
    endpoints/campos.
-9. Arrumação: a secção «Como correr» do `testes_funcionais_README.md` manda correr na árvore de
+8. Arrumação: a secção «Como correr» do `testes_funcionais_README.md` manda correr na árvore de
     trabalho e repor «com o SQL do fim deste ficheiro» (desactualizado), e o cabeçalho do
     `repor_estado.sql` diz que é gerado do README (já não é); o `CLAUDE.md` diz 8091 no Swagger e no
     `.env` (é 8099); o `breaking_change_frontend.md` tem um `### Checklist` vazio entre a §11.18 e a
     §11.19, os itens colados ao fim da §11.21, e as §11.21–11.33 em ordem decrescente.
-10. Decisões do utilizador: **push** (merge para `master` = deploy); perguntas da secção Open questions.
+9. Decisões do utilizador: **push** (merge para `master` = deploy); perguntas da secção Open questions.
 
 ## Next step
 
-Seguir o **Plano em aberto** pela ordem aprovada: item 1 (horários com data de efeito) — **apresentar
-o desenho** (lei, indústria, o que já existe) e pedir aprovação antes de implementar. Antes de desenhar: lei, indústria
+Seguir o **Plano em aberto** pela ordem aprovada: item 1 (relatórios de gestão) — **apresentar o
+desenho** (quais, lei, indústria, o que já existe) e pedir aprovação antes de implementar. Antes de desenhar: lei, indústria
 e **o que já existe**; aprovação do desenho antes de implementar; um commit por ponto.

@@ -39,7 +39,7 @@ import java.util.UUID;
  */
 @Service
 @RequiredArgsConstructor
-public class HorarioColaboradorService {
+public class HorarioColaboradorService implements cv.igrp.RH_Service.parametrizacoes.application.port.HorarioUtilizacaoPort {
 
     public enum Origem { COLABORADOR, UNIDADE, BASE, NENHUM }
 
@@ -52,6 +52,8 @@ public class HorarioColaboradorService {
     private final FuncionarioRepository funcionarioRepository;
     private final ContratoRepository contratoRepository;
     private final UnidadeDeExercicioService unidadeDeExercicio;
+    private final cv.igrp.RH_Service.estrutura.application.services.HorarioDaUnidadeService horarioDaUnidadeService;
+    private final cv.igrp.RH_Service.parametrizacoes.application.services.HorarioBaseService horarioBaseService;
 
     @Transactional
     public Resultado atribuir(FuncionarioId funcionarioId, String horarioId, RegimePrestacao regime, LocalDate dataInicio) {
@@ -98,12 +100,13 @@ public class HorarioColaboradorService {
     /** O que valeria se a pessoa não tivesse horário próprio: o da unidade, ou o base. */
     private Vigente semAtribuicao(FuncionarioId funcionarioId, LocalDate data) {
         UUID unidade = unidadeDeExercicio.unidadeOndeExerceFuncoes(funcionarioId, data);
-        HorarioId daUnidade = unidadeDeExercicio.herdado(unidade, OrganizationalUnit::getHorarioId);
+        // O horário da unidade e o base também são os dessa data (têm histórico com data de efeito).
+        HorarioId daUnidade = unidadeDeExercicio.herdado(unidade, u -> horarioDaUnidadeService.horarioEm(u, data));
         if (daUnidade != null) {
             var horario = horarioRepository.findById(daUnidade);
             if (horario.isPresent()) return new Vigente(Origem.UNIDADE, horario.get(), RegimePrestacao.PRESENCIAL, null);
         }
-        return horarioRepository.findBase()
+        return horarioBaseService.baseEm(data)
                 .map(base -> new Vigente(Origem.BASE, base, RegimePrestacao.PRESENCIAL, null))
                 .orElse(new Vigente(Origem.NENHUM, null, null, null));
     }
@@ -133,5 +136,12 @@ public class HorarioColaboradorService {
 
     private static IgrpResponseStatusException invalido(String mensagem) {
         return IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY, mensagem);
+    }
+
+    /** Porta do catálogo: o horário já vigorou para algum colaborador (atribuição que começou antes da data). */
+    @Override
+    @Transactional(readOnly = true)
+    public boolean vigorouAntesDe(HorarioId horarioId, LocalDate data) {
+        return horarioColaboradorRepository.vigorouAntesDe(horarioId, data);
     }
 }

@@ -1,6 +1,9 @@
 package cv.igrp.RH_Service.parametrizacoes.application.commands;
 
 import cv.igrp.RH_Service.parametrizacoes.application.dto.HorarioResponseDTO;
+import cv.igrp.RH_Service.parametrizacoes.application.port.HorarioUtilizacaoPort;
+import cv.igrp.RH_Service.parametrizacoes.application.services.HorarioBaseService;
+import cv.igrp.RH_Service.parametrizacoes.domain.models.BlocoHorario;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.ControloHorario;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.Horario;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.PeriodoAfericao;
@@ -20,6 +23,9 @@ public class UpdateHorarioCommandHandler implements CommandHandler<UpdateHorario
 
     private final HorarioRepository horarioRepository;
     private final HorarioMapper horarioMapper;
+    private final HorarioBaseService horarioBaseService;
+    /** Quem atribui horários (colaborador, unidade, base) diz se este já vigorou. */
+    private final java.util.List<HorarioUtilizacaoPort> utilizacoes;
 
     @IgrpCommandHandler
     public ResponseEntity<HorarioResponseDTO> handle(UpdateHorarioCommand command) {
@@ -36,11 +42,24 @@ public class UpdateHorarioCommandHandler implements CommandHandler<UpdateHorario
         Integer duracao = dto.getDuracaoDiaria() != null ? horarioMapper.minutos(dto.getDuracaoDiaria())
                 : fixo ? null : horario.getDuracaoDiariaMinutos();
 
-        horario.atualizar(
-                dto.getNome() != null ? dto.getNome() : horario.getNome(),
-                controlo, periodo, duracao,
-                dto.getBlocos() != null ? horarioMapper.blocos(dto.getBlocos()) : horario.getBlocos());
+        java.util.List<BlocoHorario> blocos = dto.getBlocos() != null ? horarioMapper.blocos(dto.getBlocos()) : horario.getBlocos();
 
-        return ResponseEntity.ok(horarioMapper.toDTO(horarioRepository.save(horario)));
+        // Um horário que já vigorou num dia passado não muda: o apuramento desses dias faz-se contra
+        // ele (DL n.º 3/2010, art. 13.º). Só o nome muda; para outro conteúdo, duplica-se.
+        if (!horario.mesmoConteudo(controlo, periodo, duracao, blocos) && jaVigorou(horario))
+            throw IgrpResponseStatusException.conflict("O horário '" + horario.getNome() + "' já vigorou: os dias passados "
+                    + "apuram-se contra ele, por isso os blocos, o controlo, a aferição e a duração não mudam. "
+                    + "Duplique-o (POST /catalogs/horarios/{id}/duplicar) e atribua o novo a partir de uma data.");
+
+        horario.atualizar(dto.getNome() != null ? dto.getNome() : horario.getNome(), controlo, periodo, duracao, blocos);
+
+        return ResponseEntity.ok(horarioBaseService.comBaseDeHoje(horarioMapper.toDTO(horarioRepository.save(horario))));
     }
+
+    private boolean jaVigorou(Horario horario) {
+        var hoje = hoje();
+        return utilizacoes.stream().anyMatch(u -> u.vigorouAntesDe(horario.getId(), hoje));
+    }
+
+    protected java.time.LocalDate hoje() { return java.time.LocalDate.now(); }
 }

@@ -1595,7 +1595,8 @@ n.º 2) não está publicado. Os **limites legais não se validam** pela mesma r
 | `PUT` | `/api/v1/rh/catalogs/horarios/{id}` | altera → 200 |
 | `DELETE` | `/api/v1/rh/catalogs/horarios/{id}` | desactiva |
 | `PATCH` | `/api/v1/rh/catalogs/horarios/{id}/activate` | reactiva |
-| `PATCH` | `/api/v1/rh/catalogs/horarios/{id}/base` | marca como horário base (desmarca o anterior) → 200 |
+| `PATCH` | `/api/v1/rh/catalogs/horarios/{id}/base` `?desde=yyyy-MM-dd` | marca como horário base a partir de hoje (ou de `desde`, futura) → 200 |
+| `POST` | `/api/v1/rh/catalogs/horarios/{id}/duplicar` `?nome=` | cópia editável (não é base) → 201 |
 
 ```json
 POST /api/v1/rh/catalogs/horarios
@@ -1622,7 +1623,13 @@ POST /api/v1/rh/catalogs/horarios
 **Recusas:** bloco com início depois do fim ou a passar a meia-noite, blocos sobrepostos no mesmo
 dia, nenhum bloco, sem nome → 422; flexível sem período ou sem duração, duração que não cabe nos
 blocos de um dia, plataformas fixas que passam da duração → 422; período ou duração num fixo → 422;
-marcar um inactivo como base → 422; desactivar o base → 409 (marca-se primeiro outro).
+marcar um inactivo como base, ou com `desde` passado → 422; desactivar o base de hoje ou o agendado → 409.
+
+**Datas de efeito.** Um horário que **já vigorou** num dia passado (de um colaborador, de uma unidade
+ou como base) não muda de blocos, controlo, aferição ou duração → 409; só o nome. Duplica-se e
+atribui-se o novo a partir de uma data. O base e o horário da unidade mudam de hoje (ou de uma data
+futura); os dias passados ficam com o que vigorava. O `isBase` da resposta é o de hoje; o primeiro base
+da instituição vale desde sempre.
 
 **O `PUT` não apaga o que não recebe.** O período e a duração limpam-se em branco; passar a `FIXO`
 sem os enviar limpa-os. Os blocos, quando vêm, substituem os anteriores por inteiro. Desactivar não
@@ -1631,9 +1638,12 @@ retira o horário a quem já o tem.
 **O horário da unidade orgânica** (V57): `POST`/`PUT /api/v1/rh/estrutura/organizational-units`
 aceitam `horarioId`, opcional. Nulo quer dizer «o da unidade-mãe»; uma unidade sem horário nem na
 cadeia segue o horário base. Só se valida quando vem — um horário que exista e esteja activo, senão
-422 —, o `PUT` que o omita mantém-no, e `""` limpa-o. A resposta devolve-o.
+422 —, o `PUT` que o omita mantém-no, e `""` limpa-o. **Tem data de efeito:** vale a partir de hoje,
+ou de `horarioDesde` (campo novo, opcional, `yyyy-MM-dd`, hoje ou futura; passada → 422), e os dias
+passados ficam com o que vigorava. A resposta devolve o horário **de hoje** (uma mudança agendada só
+aparece na data).
 
-Regras: BR-HOR-01 a BR-HOR-07.
+Regras: BR-HOR-01 a BR-HOR-07, BR-HOR-11 a BR-HOR-14.
 
 ---
 

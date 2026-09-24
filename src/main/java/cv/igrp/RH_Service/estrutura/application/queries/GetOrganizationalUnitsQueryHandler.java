@@ -30,6 +30,7 @@ public class GetOrganizationalUnitsQueryHandler
 
     private final OrganizationalUnitRepository unitRepository;
     private final OrganizationalUnitMapper mapper;
+    private final cv.igrp.RH_Service.estrutura.application.services.HorarioDaUnidadeService horarioDaUnidadeService;
     private final PositionRepository positionRepository;
     private final AssignmentRepository assignmentRepository;
     private final OptionLookupPort optionLookupPort;
@@ -69,6 +70,8 @@ public class GetOrganizationalUnitsQueryHandler
 
         var content = pageResult.getData().stream().map(unit -> {
             var dto = mapper.toDTO(unit);
+            var horarioHoje = horarioDaUnidadeService.horarioEm(unit, java.time.LocalDate.now());
+            dto.setHorarioId(horarioHoje != null ? horarioHoje.getStringValor() : null);
             long ocupados = positionRepository.findByUnidade(unit.getId().getValor()).stream()
                     .filter(p -> assignmentRepository.temTitular(p.getId().getValor()))
                     .count();

@@ -9,11 +9,27 @@
       "actionName": "listHorarios",
       "method": "GET",
       "responses": {
-        "200": { "name": "OK", "content": { "application/json": { "schema": {
-          "type": "HorarioResponseDTO", "objectType": "dto", "name": "data", "collectionType": "list", "module": "parametrizacoes" } } } }
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "HorarioResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
       },
       "requestParams": [
-        { "type": "boolean", "name": "isActive", "isRequired": false }
+        {
+          "type": "boolean",
+          "name": "isActive",
+          "isRequired": false
+        }
       ]
     },
     {
@@ -21,62 +37,227 @@
       "path": "{horarioId}",
       "method": "GET",
       "responses": {
-        "200": { "name": "OK", "content": { "application/json": { "schema": {
-          "type": "HorarioResponseDTO", "objectType": "dto", "name": "data", "collectionType": "none", "module": "parametrizacoes" } } } }
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "HorarioResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
       },
-      "pathVariables": [ { "name": "horarioId", "type": "string", "isRequired": true } ]
+      "pathVariables": [
+        {
+          "name": "horarioId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     },
     {
       "actionName": "createHorario",
       "method": "POST",
-      "requestBody": { "content": { "application/json": { "schema": {
-        "type": "HorarioRequest", "collectionType": "none", "name": "data", "objectType": "dto", "module": "parametrizacoes" } } } },
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "HorarioRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "parametrizacoes"
+            }
+          }
+        }
+      },
       "responses": {
-        "201": { "name": "Created", "content": { "application/json": { "schema": {
-          "type": "SuccessResponseDTO", "objectType": "dto", "name": "data", "collectionType": "none", "module": "shared" } } } }
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
       }
     },
     {
       "actionName": "updateHorario",
       "path": "{horarioId}",
       "method": "PUT",
-      "requestBody": { "content": { "application/json": { "schema": {
-        "type": "HorarioRequest", "collectionType": "none", "name": "data", "objectType": "dto", "module": "parametrizacoes" } } } },
-      "responses": {
-        "200": { "name": "OK", "content": { "application/json": { "schema": {
-          "type": "HorarioResponseDTO", "objectType": "dto", "name": "data", "collectionType": "none", "module": "parametrizacoes" } } } }
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "HorarioRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "parametrizacoes"
+            }
+          }
+        }
       },
-      "pathVariables": [ { "name": "horarioId", "type": "string", "isRequired": true } ]
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "HorarioResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "horarioId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     },
     {
       "actionName": "desativarHorario",
       "path": "{horarioId}",
       "method": "DELETE",
       "responses": {
-        "200": { "name": "OK", "content": { "application/json": { "schema": {
-          "type": "SuccessResponseDTO", "objectType": "dto", "name": "data", "collectionType": "none", "module": "shared" } } } }
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
       },
-      "pathVariables": [ { "name": "horarioId", "type": "string", "isRequired": true } ]
+      "pathVariables": [
+        {
+          "name": "horarioId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     },
     {
       "actionName": "activateHorario",
       "path": "{horarioId}/activate",
       "method": "PATCH",
       "responses": {
-        "200": { "name": "OK", "content": { "application/json": { "schema": {
-          "type": "SuccessResponseDTO", "objectType": "dto", "name": "data", "collectionType": "none", "module": "shared" } } } }
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
       },
-      "pathVariables": [ { "name": "horarioId", "type": "string", "isRequired": true } ]
+      "pathVariables": [
+        {
+          "name": "horarioId",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     },
     {
       "actionName": "marcarHorarioBase",
       "path": "{horarioId}/base",
       "method": "PATCH",
       "responses": {
-        "200": { "name": "OK", "content": { "application/json": { "schema": {
-          "type": "HorarioResponseDTO", "objectType": "dto", "name": "data", "collectionType": "none", "module": "parametrizacoes" } } } }
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "HorarioResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
       },
-      "pathVariables": [ { "name": "horarioId", "type": "string", "isRequired": true } ]
+      "pathVariables": [
+        {
+          "name": "horarioId",
+          "type": "string",
+          "isRequired": true
+        }
+      ],
+      "requestParams": [
+        {
+          "type": "date",
+          "name": "desde",
+          "isRequired": false
+        }
+      ]
+    },
+    {
+      "actionName": "duplicarHorario",
+      "method": "POST",
+      "path": "{horarioId}/duplicar",
+      "pathVariables": [
+        {
+          "name": "horarioId",
+          "type": "string"
+        }
+      ],
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "nome",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "HorarioResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "parametrizacoes"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

@@ -17,11 +17,12 @@ public class GetHorarioQueryHandler implements QueryHandler<GetHorarioQuery, Res
 
     private final HorarioRepository horarioRepository;
     private final HorarioMapper horarioMapper;
+    private final cv.igrp.RH_Service.parametrizacoes.application.services.HorarioBaseService horarioBaseService;
 
     @IgrpQueryHandler
     public ResponseEntity<HorarioResponseDTO> handle(GetHorarioQuery query) {
         return horarioRepository.findById(HorarioId.from(query.getHorarioId()))
-                .map(horarioMapper::toDTO)
+                .map(horarioMapper::toDTO).map(horarioBaseService::comBaseDeHoje)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> IgrpResponseStatusException.notFound("Horário não encontrado: " + query.getHorarioId()));
     }

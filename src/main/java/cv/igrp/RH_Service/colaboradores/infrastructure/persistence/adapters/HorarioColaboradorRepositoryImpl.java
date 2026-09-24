@@ -62,4 +62,10 @@ public class HorarioColaboradorRepositoryImpl implements HorarioColaboradorRepos
                 e.getDataInicio(),
                 e.getDataFim());
     }
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    @Override
+    public boolean vigorouAntesDe(cv.igrp.RH_Service.parametrizacoes.domain.valueobject.HorarioId horarioId, LocalDate data) {
+        return entityRepository.existsByHorarioIdAndDataInicioBefore(horarioId.getValor(), data);
+    }
 }

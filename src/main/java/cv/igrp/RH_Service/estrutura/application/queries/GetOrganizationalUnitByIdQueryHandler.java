@@ -23,6 +23,7 @@ public class GetOrganizationalUnitByIdQueryHandler
 
     private final OrganizationalUnitRepository unitRepository;
     private final OrganizationalUnitMapper mapper;
+    private final cv.igrp.RH_Service.estrutura.application.services.HorarioDaUnidadeService horarioDaUnidadeService;
     private final PositionRepository positionRepository;
     private final AssignmentRepository assignmentRepository;
     private final OptionLookupPort optionLookupPort;
@@ -35,6 +36,9 @@ public class GetOrganizationalUnitByIdQueryHandler
                         "Unidade orgânica não encontrada: " + query.getUnitId()));
 
         var dto = mapper.toDTO(unit);
+        // O horario de hoje (uma mudanca agendada so conta na data).
+        var horarioHoje = horarioDaUnidadeService.horarioEm(unit, java.time.LocalDate.now());
+        dto.setHorarioId(horarioHoje != null ? horarioHoje.getStringValor() : null);
         // nColaboradores = ocupantes correntes = Lugares da unidade com afectação corrente (novo modelo)
         long ocupados = positionRepository.findByUnidade(unit.getId().getValor()).stream()
                 .filter(p -> assignmentRepository.temTitular(p.getId().getValor()))

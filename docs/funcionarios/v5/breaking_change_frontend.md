@@ -597,6 +597,16 @@ existentes -- estas duas colunas mandam descontar antiguidade e mexer em salario
 (`t_leave_mobility_subtype.affects_pay`), que nao sabe dizer "parcial". Por agora sao dois
 contratos diferentes: booleano nas licencas, enum nas ausencias.
 
+### 11.34 Horarios com data de efeito (2026-09-24)
+
+- **Muda um comportamento:** editar os blocos/controlo/afericao/duracao de um horario que ja vigorou da
+  **409** (so o nome muda). Oferecer "Duplicar" (`POST /catalogs/horarios/{id}/duplicar`, opcional
+  `?nome=`) e atribuir o novo a partir de uma data.
+- `PATCH /catalogs/horarios/{id}/base` aceita `?desde=yyyy-MM-dd` (hoje ou futura). `isBase` e o de hoje.
+- Unidade organica: campo novo opcional `horarioDesde` no `PUT` (hoje ou futura). A resposta traz o
+  `horarioId` de hoje; uma mudanca agendada so aparece na data.
+- Datas passadas: 422 (nao se reescreve o apuramento de dias ja passados).
+
 ### 11.33 Pedidos de ausencia: aprovacao automatica e decisao da chefia (2026-09-24)
 
 - **Muda um comportamento:** os tipos com `requiresApproval: false` (luto, casamento, doenca,
@@ -809,6 +819,7 @@ resposta ja reflecte isto -- nao ha nada a recalcular no ecra.
 - [ ] Separador de horário no colaborador: histórico, atribuir a partir de uma data (horário + regime de prestação) e o horário vigente com a origem.
 - [ ] Ecrã de assiduidade do colaborador: semana/mês com períodos, horas trabalhadas vs esperadas, dias com anomalia destacados, e as acções corrigir e anular (com motivo).
 - [ ] Pedido de ausência: horas de início e fim (só para tipos que as admitem), e a acção terminar para pedidos em horas aprovados.
+- [ ] Horários: botão «Duplicar» e aviso de 409 ao editar um horário que já vigorou; data de efeito (opcional) ao mudar o base e o horário da unidade.
 - [ ] Pedidos de ausência: caixa da chefia (aprovar/rejeitar com motivo); mostrar «aprovado automaticamente» nos tipos que não requerem aprovação.
 - [ ] Relação mensal: ecrã por unidade (mês, com subunidades), pendências em destaque, botão de descarregar o CSV.
 - [ ] Trabalho suplementar: separador no colaborador (mês, autorizado vs realizado por tipo de dia), pedido pelo próprio no `/me`, e a caixa de pendentes da chefia (autorizar/recusar).

@@ -1,0 +1,32 @@
+{
+  "type": "model",
+  "module": "parametrizacoes",
+  "name": "HorarioBaseEntity",
+  "tableName": "t_horario_base",
+  "audit": true,
+  "crud": false,
+  "revision": true,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": true,
+      "nullable": false
+    },
+    {
+      "name": "horarioId",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "desde",
+      "type": "date",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    }
+  ]
+}

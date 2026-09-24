@@ -59,6 +59,8 @@ public class MudarEstadoColaboradorCommandHandler
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Funcionário não encontrado: " + command.getFuncionarioId()));
 
+        if (req.getWorkerStateId() == null || req.getWorkerStateId().isBlank())
+            throw IgrpResponseStatusException.badRequest("O estado (workerStateId) é obrigatório.");
         var novoEstado = workerStateRepository
                 .findById(WorkerStateId.from(UUID.fromString(req.getWorkerStateId())))
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(

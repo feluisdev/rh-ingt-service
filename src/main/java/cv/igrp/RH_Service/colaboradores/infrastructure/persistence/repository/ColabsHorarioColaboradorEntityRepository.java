@@ -21,4 +21,6 @@ public interface ColabsHorarioColaboradorEntityRepository extends JpaRepository<
               AND h.dataInicio <= :data AND (h.dataFim IS NULL OR h.dataFim >= :data)""")
     Optional<HorarioColaboradorEntity> findVigente(@Param("funcionarioId") UUID funcionarioId,
                                                    @Param("data") LocalDate data);
+
+    boolean existsByHorarioIdAndDataInicioBefore(UUID horarioId, java.time.LocalDate data);
 }

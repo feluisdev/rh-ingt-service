@@ -4,14 +4,56 @@
   "module": "estrutura",
   "template": "classic",
   "attributes": [
-    {"name": "code", "type": "string", "required": false},
-    {"name": "name", "type": "string", "required": false},
-    {"name": "acronym", "type": "string", "required": false},
-    {"name": "unitType", "type": "string", "required": false},
-    {"name": "descricao", "type": "string", "required": false},
-    {"name": "parentUnitId", "type": "string", "required": false},
-    {"name": "responsibleEmployeeId", "type": "string", "required": false},
-    {"name": "areaCkey", "type": "string", "required": false},
-    {"name": "horarioId", "type": "string", "required": false}
+    {
+      "name": "code",
+      "type": "string",
+      "required": false
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "required": false
+    },
+    {
+      "name": "acronym",
+      "type": "string",
+      "required": false
+    },
+    {
+      "name": "unitType",
+      "type": "string",
+      "required": false
+    },
+    {
+      "name": "descricao",
+      "type": "string",
+      "required": false
+    },
+    {
+      "name": "parentUnitId",
+      "type": "string",
+      "required": false
+    },
+    {
+      "name": "responsibleEmployeeId",
+      "type": "string",
+      "required": false
+    },
+    {
+      "name": "areaCkey",
+      "type": "string",
+      "required": false
+    },
+    {
+      "name": "horarioId",
+      "type": "string",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "horarioDesde",
+      "objectType": "java",
+      "required": false
+    }
   ]
 }

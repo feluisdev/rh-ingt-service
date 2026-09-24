@@ -1,0 +1,39 @@
+{
+  "type": "model",
+  "module": "estrutura",
+  "name": "UnidadeOrganicaHorarioEntity",
+  "tableName": "t_unidade_organica_horario",
+  "audit": true,
+  "crud": false,
+  "revision": true,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": true,
+      "nullable": false
+    },
+    {
+      "name": "unidadeId",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "horarioId",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    },
+    {
+      "name": "desde",
+      "type": "date",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    }
+  ]
+}

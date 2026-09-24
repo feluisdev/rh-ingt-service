@@ -52,6 +52,7 @@ docker exec postgres-ingt-rh sh -c "psql -U postgres -d recursoshumanos_db -q -f
 | **F26** faltas por débito | sobre a semana do F25: dia com anomalia fica por corrigir; atraso de 30 min contra o horário fixo; dia sem marcações conta inteiro (SEM_REGISTO); domingo não se apura; um pedido aprovado tira o dia do apuramento |
 | **F27** pedido em horas (V58) | amamentação 1h+1h por dia durante 100 dias; a terceira passa do tecto diário; horas cruzadas 409, noutra hora cabe; tecto por ocorrência; férias em horas 422; terminar antes do fim acaba na véspera; meia hora justificada tira o atraso do apuramento |
 | **F28** pedido pelo próprio (/me) | segue as regras do RH: luto de sexta a segunda conta 4 dias seguidos; seminário de 7 dias passa do tecto (422); sobreposição 409; amamentação em horas pelo próprio |
+| **F33** horários com data de efeito | mudar os blocos do base (vigorou) 409, só o nome 200; duplicar dá cópia não-base editável; base com data passada 422; desactivar o base agendado 409; horário da unidade daqui a 3 dias: hoje ainda nenhum, antes vale o base, depois o da unidade; data passada 422 |
 | **F32** aprovação dos pedidos de ausência | luto nasce APROVADO com aprovação automática (aprovar outra vez 409); seminário nasce PENDENTE; pela caixa da chefia: a própria 422, quem não é chefia 403 (aprovar e rejeitar); RH pelo caminho de outro colaborador 404; RH aprova, segunda decisão 409; caixa da Maria vazia |
 | **F31** relação mensal | o mês do F25 pedido ao ministério com subunidades: a Maria uma vez, no SERV_RH, com os 90 min suplementares, os 30 min de tratamento ambulatório e COM_PENDENCIAS (segunda por corrigir); sem subunidades não entra; o mês corrente é provisório; CSV text/csv com cabeçalho e a linha dela; mês futuro, mal escrito, unidade vazia ou mal escrita 422; unidade inexistente 404 |
 | **F30** trabalho suplementar | RH autoriza depois a terça do F25 fora do horário (90 min realizados pelas marcações, dia útil); tocar no horário 422, sem motivo 422, hora mal escrita 422, sobreposto 409, inactivo 403; o apuramento separa 90 min suplementares; a Maria pede para um sábado (para trás 422), ela própria 422, quem não é chefia 403, RH recusa sem motivo 422, autoriza, segunda vez 409, cancela |
@@ -530,7 +531,21 @@ aprovado») deixou de correr, porque o tipo de teste desse pedido nao requer apr
 bateria sem o F32 passou de 681 para 680 passos, sem nenhuma falha. A decisao pela chefia directa fica
 nos testes unitarios, pela mesma razao do F29.
 
+### F33 - horarios com data de efeito (2026-09-24)
+
+Os horarios passaram a ter data de efeito, e a bateria cria-os hoje mas apura semanas passadas: o F24
+agenda agora o segundo base para daqui a 60 dias (o primeiro base vale desde sempre), e o F25 a F31
+apuram contra o base normal (08:00-12:30 e 14:00-17:30). Por isso o F27 justifica a meia hora em falta
+no fim do dia (17:00-17:30), e o F30 lanca as marcacoes das 18:00 as 19:30 e autoriza o suplementar das
+18:00 as 20:00. **Armadilha paga:** a listagem dos pedidos de ausencia dava 500 intermitente
+(`upper(bytea)`: o estado nulo ia para o PostgreSQL sem tipo), conforme a ordem das primeiras chamadas
+depois do arranque -- corrigido com `CAST(:estado AS string)`. O F16.11 e condicional (so corre se
+houver um Lugar vago noutra unidade): 714 ou 715 passos conforme o estado dos Lugares.
+
 ## Resultado da última execução
+
+**715 passos, 715 OK** (2026-09-24), duas execucoes seguidas com o `repor_estado.sql` entre elas
+(a primeira com 714: o F16.11 condicional nao correu; 0 falhas nas duas).
 
 **695 passos, 695 OK** (2026-09-24), duas execucoes seguidas com o `repor_estado.sql` entre elas
 (F32 incluido).

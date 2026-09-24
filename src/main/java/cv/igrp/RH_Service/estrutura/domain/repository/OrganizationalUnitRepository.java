@@ -30,4 +30,6 @@ public interface OrganizationalUnitRepository {
      * número mágico; um método sem paginação diz a verdade sobre o que faz.
      */
     List<OrganizationalUnit> findAllActive();
+    /** As unidades cuja coluna horario_id (V57) aponta para este horário. */
+    List<OrganizationalUnit> findAllByHorario(cv.igrp.RH_Service.parametrizacoes.domain.valueobject.HorarioId horarioId);
 }

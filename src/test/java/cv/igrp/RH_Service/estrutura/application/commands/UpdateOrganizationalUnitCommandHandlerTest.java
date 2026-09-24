@@ -49,6 +49,9 @@ public class UpdateOrganizationalUnitCommandHandlerTest {
     @Mock
     private FuncionarioLookupPort funcionarioLookupPort;
 
+    @Mock
+    private cv.igrp.RH_Service.estrutura.application.services.HorarioDaUnidadeService horarioDaUnidadeService;
+
     @InjectMocks
     private UpdateOrganizationalUnitCommandHandler handler;
 

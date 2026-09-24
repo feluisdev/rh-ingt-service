@@ -1442,9 +1442,10 @@ Verificar 'F24.24 a anterior fechou na vespera' (($hist24.Count -eq 2) -and ($hi
 Chamar 'F24.25 NEG regime de prestacao fora da lei' POST $rotaH @{ horarioId=$hNormal; regimePrestacao='REMOTO'; dataInicio=(Iso $dA.AddDays(60)) } 422 | Out-Null
 
 Chamar 'F24.26 NEG desactivar o horario base' DELETE ('/catalogs/horarios/' + $hNormal) $null 409 | Out-Null
-Chamar 'F24.27 marcar outro como base' PATCH ('/catalogs/horarios/' + $hAtend + '/base') $null 200 | Out-Null
-$rNormal2 = Chamar 'F24.28 ler o antigo base' GET ('/catalogs/horarios/' + $hNormal)
-Verificar 'F24.29 marcar outro desmarcou o anterior' ($rNormal2.Dados.isBase -eq $false) ''
+# O base tem data de efeito: o de atendimento passa a base daqui a 60 dias; ate la, e para tras, o normal.
+$rBase2 = Chamar 'F24.27 agendar outro base daqui a 60 dias' PATCH ('/catalogs/horarios/' + $hAtend + '/base?desde=' + (Iso (Get-Date).Date.AddDays(60))) $null 200
+$rNormal2 = Chamar 'F24.28 ler o base de hoje' GET ('/catalogs/horarios/' + $hNormal)
+Verificar 'F24.29 hoje o base continua o normal; o agendado ainda nao e' (($rNormal2.Dados.isBase -eq $true) -and ($rBase2.Dados.isBase -eq $false)) ''
 $corpoH.horarioId = ''
 $rPutH3 = Chamar 'F24.30 horarioId em branco limpa a unidade' PUT ('/estrutura/organizational-units/' + $uniH) $corpoH 200
 Verificar 'F24.31 a unidade ficou sem horario' ($null -eq $rPutH3.Dados.horarioId) ''
@@ -1565,9 +1566,9 @@ $rTerm = Chamar 'F27.13 terminar antes do fim' PATCH ($rotaP27 + '/' + $rA1.Dado
 Verificar 'F27.14 continua aprovado e acaba na vespera' (($rTerm.Dados.estado -eq 'APROVADO') -and ($rTerm.Dados.suspensoEm -eq (Iso $ini27.AddDays(10)))) ('(' + $rTerm.Dados.estado + ' ' + $rTerm.Dados.suspensoEm + ')')
 Chamar 'F27.15 NEG terminar outra vez' PATCH ($rotaP27 + '/' + $rA1.Dados.id + '/terminar') @{ data=(Iso $ini27.AddDays(20)); motivo='de novo' } 409 | Out-Null
 
-# No apuramento: a terca do F25 tinha 30 min de atraso (entrou as 08:00 contra o base das 07:30).
-# Um tratamento ambulatorio aprovado das 07:30 as 08:00 cobre-os.
-$rTr = Chamar 'F27.16 tratamento ambulatorio de meia hora na terca do F25' POST $rotaP27 (Horas27 $tTrat $ter25 $ter25 '07:30' '08:00') 201
+# No apuramento: a terca do F25 foi das 08:00 as 17:00 contra o base normal (ate as 17:30) -- 30 min
+# em falta no fim do dia. Um tratamento ambulatorio aprovado das 17:00 as 17:30 cobre-os.
+$rTr = Chamar 'F27.16 tratamento ambulatorio de meia hora na terca do F25' POST $rotaP27 (Horas27 $tTrat $ter25 $ter25 '17:00' '17:30') 201
 Chamar 'F27.17 aprovar' PATCH ($rotaP27 + '/' + $rTr.Dados.id + '/aprovar') @{ aprovadoPorId=$colabA; observacoesDecisao='comprovado' } 200 | Out-Null
 $f27 = (Chamar 'F27.18 apuramento depois de justificar a meia hora' GET $rotaF).Dados
 $t27 = DiaF $f27 $ter25
@@ -1630,14 +1631,16 @@ Chamar 'F29.21 a Maria le a sua assiduidade pelo /me' GET ('/me/assiduidade?de='
 Write-Host ''
 Write-Host '=========== F30 - TRABALHO SUPLEMENTAR (Lei 20/X/2023, art. 155.o n.o 2 a)) ==========='
 
-# A terca do F25 foi das 08:00 as 17:00 contra o base 07:30-15:30: das 15:30 as 17:00 e fora do
-# horario. O RH autoriza depois (caso urgente) das 15:30 as 17:30; realizado = 90 min, pelas marcacoes.
+# A terca do F25: o base normal vai ate as 17:30. A Maria voltou das 18:00 as 19:30 (o RH lanca as
+# marcacoes, com motivo) e o RH autoriza depois (caso urgente) das 18:00 as 20:00; realizado = 90 min.
 $rotaS = '/funcionarios/' + $colabB + '/trabalho-suplementar'
-Chamar 'F30.1 NEG num dia util o intervalo toca no horario' POST $rotaS @{ data=(Iso $ter25); horaInicio='15:00'; horaFim='17:00'; motivo='fecho' } 422 | Out-Null
-Chamar 'F30.2 NEG sem motivo' POST $rotaS @{ data=(Iso $ter25); horaInicio='15:30'; horaFim='17:30' } 422 | Out-Null
-Chamar 'F30.3 NEG hora mal escrita' POST $rotaS @{ data=(Iso $ter25); horaInicio='15h30'; horaFim='17:30'; motivo='x' } 422 | Out-Null
-$rS1 = Chamar 'F30.4 o RH autoriza depois: terca do F25, 15:30-17:30' POST $rotaS @{ data=(Iso $ter25); horaInicio='15:30'; horaFim='17:30'; motivo='fecho de contas urgente' } 201
-Chamar 'F30.5 NEG sobreposto ao ja autorizado' POST $rotaS @{ data=(Iso $ter25); horaInicio='17:00'; horaFim='18:00'; motivo='x' } 409 | Out-Null
+Chamar 'F30.0a marcacao de entrada as 18:00' POST ('/funcionarios/' + $colabB + '/marcacoes') @{ momento=((Iso $ter25) + 'T18:00'); sentido='ENTRADA'; motivo='voltou para o fecho' } 201 | Out-Null
+Chamar 'F30.0b marcacao de saida as 19:30' POST ('/funcionarios/' + $colabB + '/marcacoes') @{ momento=((Iso $ter25) + 'T19:30'); sentido='SAIDA'; motivo='voltou para o fecho' } 201 | Out-Null
+Chamar 'F30.1 NEG num dia util o intervalo toca no horario' POST $rotaS @{ data=(Iso $ter25); horaInicio='17:00'; horaFim='19:00'; motivo='fecho' } 422 | Out-Null
+Chamar 'F30.2 NEG sem motivo' POST $rotaS @{ data=(Iso $ter25); horaInicio='18:00'; horaFim='20:00' } 422 | Out-Null
+Chamar 'F30.3 NEG hora mal escrita' POST $rotaS @{ data=(Iso $ter25); horaInicio='18h00'; horaFim='20:00'; motivo='x' } 422 | Out-Null
+$rS1 = Chamar 'F30.4 o RH autoriza depois: terca do F25, 18:00-20:00' POST $rotaS @{ data=(Iso $ter25); horaInicio='18:00'; horaFim='20:00'; motivo='fecho de contas urgente' } 201
+Chamar 'F30.5 NEG sobreposto ao ja autorizado' POST $rotaS @{ data=(Iso $ter25); horaInicio='19:00'; horaFim='21:00'; motivo='x' } 409 | Out-Null
 Chamar 'F30.6 NEG colaborador inactivo' POST ('/funcionarios/' + $colabA + '/trabalho-suplementar') @{ data=(Iso $ter25); horaInicio='18:00'; horaFim='19:00'; motivo='x' } 403 | Out-Null
 $m30 = (Chamar 'F30.7 trabalho suplementar do mes do F25' GET ($rotaS + '?mes=' + $mes26)).Dados
 $s30 = (@($m30.trabalhos) | Where-Object { $_.id -eq $rS1.Dados.id } | Select-Object -First 1)
@@ -1738,6 +1741,39 @@ Chamar 'F32.12 o RH aprova' PATCH ($rotaP32 + '/' + $rSem32.Dados.id + '/aprovar
 Chamar 'F32.13 NEG decidir outra vez' PATCH ($rotaP32 + '/' + $rSem32.Dados.id + '/rejeitar') @{ aprovadoPorId=$colabA; observacoesDecisao='tarde' } 409 | Out-Null
 $rPend32 = Chamar 'F32.14 a caixa de pedidos da Maria (nao chefia ninguem)' GET '/me/equipa/pedidos-ausencia-pendentes' $null 200 $colabB
 Verificar 'F32.15 vazia' (@(Linhas $rPend32).Count -eq 0) ''
+
+Write-Host ''
+Write-Host '=========== F33 - HORARIOS COM DATA DE EFEITO ==========='
+
+# Um horario que ja vigorou nao muda de conteudo (so o nome): duplica-se. O horario da unidade e o base
+# mudam de hoje ou de uma data futura; os dias passados ficam com o que vigorava.
+$rotaHN = '/catalogs/horarios/' + $hNormal
+$corpoHN = @{ blocos=(Semana '09:00' '13:00' '14:00' '18:00' $true) }
+Chamar 'F33.1 NEG mudar os blocos do base (vigorou)' PUT $rotaHN $corpoHN 409 | Out-Null
+$rRen = Chamar 'F33.2 mudar so o nome do base' PUT $rotaHN @{ nome='TST Normal (base)' } 200
+Verificar 'F33.3 o nome mudou, os blocos nao' (($rRen.Dados.nome -eq 'TST Normal (base)') -and ($rRen.Dados.horasSemanais -eq '40:00')) ('(' + $rRen.Dados.nome + ')')
+$rDup = Chamar 'F33.4 duplicar o base' POST ($rotaHN + '/duplicar') $null 201
+Verificar 'F33.5 a copia nao e base e tem os mesmos blocos' ((-not $rDup.Dados.isBase) -and ($rDup.Dados.horasSemanais -eq '40:00') -and ($rDup.Dados.nome -like '*(c*pia)')) ('(' + $rDup.Dados.nome + ')')
+$hCopia = $rDup.Dados.id
+$rCopia = Chamar 'F33.6 a copia, que nunca vigorou, edita-se' PUT ('/catalogs/horarios/' + $hCopia) $corpoHN 200
+Verificar 'F33.7 blocos novos na copia' ($rCopia.Dados.horasSemanais -eq '40:00') ''
+Chamar 'F33.8 NEG marcar base numa data passada' PATCH ('/catalogs/horarios/' + $hCopia + '/base?desde=' + (Iso (Get-Date).Date.AddDays(-1))) $null 422 | Out-Null
+Chamar 'F33.9 NEG desactivar o base agendado' DELETE ('/catalogs/horarios/' + $hAtend) $null 409 | Out-Null
+
+# Unidade: a copia passa a horario da unidade daqui a 3 dias (a Maria tem horario proprio so daqui a 10).
+$corpoU33 = CorpoUnidade (Chamar 'F33.10 ler a unidade' GET ('/estrutura/organizational-units/' + $uniH)).Dados
+$corpoU33.horarioId = $hCopia
+$corpoU33.horarioDesde = Iso (Get-Date).Date.AddDays(3)
+$rU33 = Chamar 'F33.11 horario da unidade daqui a 3 dias' PUT ('/estrutura/organizational-units/' + $uniH) $corpoU33 200
+Verificar 'F33.12 hoje a unidade ainda nao tem horario' ($null -eq $rU33.Dados.horarioId) ('(' + $rU33.Dados.horarioId + ')')
+$v33a = Vigente (Iso (Get-Date).Date.AddDays(2))
+Verificar 'F33.13 antes da data vale o base' ($v33a.origem -eq 'BASE') ('(' + $v33a.origem + ')')
+$v33b = Vigente (Iso (Get-Date).Date.AddDays(5))
+Verificar 'F33.14 depois da data vale o da unidade' (($v33b.origem -eq 'UNIDADE') -and ($v33b.horario.id -eq $hCopia)) ('(' + $v33b.origem + ')')
+$corpoU33.horarioDesde = Iso (Get-Date).Date.AddDays(-1)
+Chamar 'F33.15 NEG horario da unidade numa data passada' PUT ('/estrutura/organizational-units/' + $uniH) $corpoU33 422 | Out-Null
+$corpoU33.horarioDesde = $null
+Chamar 'F33.16 a copia agendada para a unidade ainda nao vigorou: continua editavel' PUT ('/catalogs/horarios/' + $hCopia) @{ blocos=(Semana '08:00' '12:00' '13:00' '17:00' $true) } 200 | Out-Null
 
 Write-Host ''
 Write-Host '=========== RESUMO ==========='

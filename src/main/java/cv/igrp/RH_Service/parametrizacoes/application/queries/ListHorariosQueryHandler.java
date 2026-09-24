@@ -18,10 +18,11 @@ public class ListHorariosQueryHandler implements QueryHandler<ListHorariosQuery,
 
     private final HorarioRepository horarioRepository;
     private final HorarioMapper horarioMapper;
+    private final cv.igrp.RH_Service.parametrizacoes.application.services.HorarioBaseService horarioBaseService;
 
     @IgrpQueryHandler
     public ResponseEntity<List<HorarioResponseDTO>> handle(ListHorariosQuery query) {
         return ResponseEntity.ok(horarioRepository.findAll(query.getIsActive()).stream()
-                .map(horarioMapper::toDTO).toList());
+                .map(horarioMapper::toDTO).map(horarioBaseService::comBaseDeHoje).toList());
     }
 }

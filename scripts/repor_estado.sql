@@ -196,6 +196,12 @@ DO $$ BEGIN
   IF to_regclass('public.t_horario_colaborador') IS NOT NULL THEN
     DELETE FROM t_horario_colaborador;
   END IF;
+  IF to_regclass('public.t_horario_base') IS NOT NULL THEN
+    DELETE FROM t_horario_base;
+  END IF;
+  IF to_regclass('public.t_unidade_organica_horario') IS NOT NULL THEN
+    DELETE FROM t_unidade_organica_horario;
+  END IF;
   IF to_regclass('public.t_horario_bloco') IS NOT NULL THEN
     DELETE FROM t_horario_bloco;
   END IF;

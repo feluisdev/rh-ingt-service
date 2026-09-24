@@ -73,6 +73,19 @@ public class Horario {
         aplicar(nome, controlo, periodoAfericao, duracaoDiariaMinutos, blocos);
     }
 
+    /**
+     * Os mesmos blocos, controlo, aferição e duração, depois de normalizados (a ordem dos blocos não
+     * conta). Serve para saber se editar um horário que já vigorou o muda de facto.
+     */
+    public boolean mesmoConteudo(ControloHorario controlo, PeriodoAfericao periodoAfericao,
+                                 Integer duracaoDiariaMinutos, List<BlocoHorario> blocos) {
+        Horario outro = criar(nome, controlo, periodoAfericao, duracaoDiariaMinutos, blocos);
+        return outro.controlo == this.controlo
+                && java.util.Objects.equals(outro.periodoAfericao, this.periodoAfericao)
+                && java.util.Objects.equals(outro.duracaoDiariaMinutos, this.duracaoDiariaMinutos)
+                && outro.blocos.equals(this.blocos);
+    }
+
     public void desativar() {
         if (!active) throw IgrpResponseStatusException.conflict("O horário já está inactivo.");
         // Sem base, quem não tem horário na pessoa nem na unidade ficava sem período normal.

@@ -201,7 +201,7 @@ public class HorarioController {
     @PatchMapping("{horarioId}/base")
     @Operation(
         summary = "Marcar horário base da instituição",
-        description = "Vale para quem não tem horário na pessoa nem em nenhuma unidade da cadeia; desmarca o anterior",
+        description = "Vale para quem não tem horário na pessoa nem em nenhuma unidade da cadeia; a partir de hoje, ou de 'desde' (futura); os dias passados continuam com o anterior",
         responses = {
             @ApiResponse(
                 responseCode = "200",
@@ -213,11 +213,42 @@ public class HorarioController {
         }
     )
     public ResponseEntity<HorarioResponseDTO> marcarHorarioBase(
-        @PathVariable(value = "horarioId") String horarioId) {
+        @PathVariable(value = "horarioId") String horarioId,
+        @RequestParam(value = "desde", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate desde) {
 
         LOGGER.debug("Operation started");
 
-        final var command = new MarcarHorarioBaseCommand(horarioId);
+        final var command = new MarcarHorarioBaseCommand(horarioId, desde);
+        ResponseEntity<HorarioResponseDTO> response = commandBus.send(command);
+
+        LOGGER.debug("Operation finished");
+
+        return ResponseEntity.status(response.getStatusCode())
+            .headers(response.getHeaders())
+            .body(response.getBody());
+    }
+
+    @PostMapping("{horarioId}/duplicar")
+    @Operation(
+        summary = "Duplicar um horário",
+        description = "Uma cópia editável: um horário que já vigorou não se edita, duplica-se e atribui-se o novo a partir de uma data",
+        responses = {
+            @ApiResponse(
+                responseCode = "201",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = HorarioResponseDTO.class)
+                )
+            )
+        }
+    )
+    public ResponseEntity<HorarioResponseDTO> duplicarHorario(
+        @PathVariable(value = "horarioId") String horarioId,
+        @RequestParam(value = "nome", required = false) String nome) {
+
+        LOGGER.debug("Operation started");
+
+        final var command = new DuplicarHorarioCommand(horarioId, nome);
         ResponseEntity<HorarioResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");
