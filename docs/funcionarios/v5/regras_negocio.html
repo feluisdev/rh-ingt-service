@@ -640,7 +640,7 @@
     <tr><td class="id">BR-POS-02</td><td>O <b>número do lugar</b> é único.</td><td><span class="http h409">409</span></td><td class="src">CreatePositionCommandHandler</td></tr>
     <tr><td class="id">BR-POS-03</td><td>Estados do Lugar: <code>ATIVO</code> · <code>CONGELADO</code> · <code>EXTINTO</code>. Só um Lugar <b>ATIVO</b> e vago pode ser ocupado (ver BR-AF-02).</td><td>—</td><td class="src">Position</td></tr>
     <tr><td class="id">BR-POS-04</td><td>Um Lugar <b>EXTINTO não pode ser congelado</b>.</td><td><span class="http h409">409</span></td><td class="src">Position.congelar</td></tr>
-    <tr><td class="id">BR-POS-05</td><td>Um Lugar <b>EXTINTO não pode voltar a ATIVO</b> (extinção é terminal).</td><td><span class="http h409">409</span></td><td class="src">Position.reativar</td></tr>
+    <tr><td class="id">BR-POS-05</td><td>Um Lugar <code>EXTINTO</code> não pode voltar a <code>ATIVO</code> (extinção é terminal). <b>Limite:</b> o domínio sabe reactivar um Lugar <code>CONGELADO</code>, mas <b>nenhum endpoint o expõe</b> — hoje, congelar um Lugar não se desfaz pela API.</td><td><span class="http h409">409</span></td><td class="src">Position.reativarEstado (sem endpoint)</td></tr>
   </table>
 
   <!-- ============ CARREIRAS ============ -->

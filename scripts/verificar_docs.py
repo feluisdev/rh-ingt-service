@@ -20,6 +20,7 @@ O que confere (ambito nao-sigdi: /api/v1/rh/** e /documento/**):
   8. Ecras da apresentacao: cada caminho em <span class="rota"> existe no openapi.json, e cada
      data-campo existe no esquema do data-dto mais proximo (os ecras desenham-se dos DTOs).
   9. Ligacoes entre documentos (href="x.html", "x.md", "x.json") apontam para ficheiros que existem.
+ 10. A coluna Origem do catalogo de regras: cada Classe e Classe.metodo citado existe no codigo.
 
 Sai com 1 se houver falhas.
 """
@@ -349,11 +350,34 @@ for f, t in sorted(docs.items()):
         if not os.path.exists(os.path.join(V5, m.group(1))):
             falha('ligacoes: ' + f + ' aponta para ficheiro que nao existe', m.group(1))
 
+# ------------------------------------------------------------------ 10. origem das regras no codigo
+# a coluna Origem do catalogo cita Classe ou Classe.metodo: tem de existir no codigo (fora do sigdi)
+fontes = {}
+for base, _, fs in os.walk(JAVA):
+    if os.sep + 'sigdi' in base:
+        continue
+    for f in fs:
+        if f.endswith('.java'):
+            fontes.setdefault(f[:-5], []).append(ler(os.path.join(base, f)))
+n_origens = 0
+for m in re.finditer(r'<td class="id">(BR-[\w-]+)</td>.*?<td class="src">(.*?)</td>', regras, re.S):
+    br, src = m.group(1), re.sub(r'<[^>]+>', '', m.group(2))
+    src = re.sub(r'\S*\*\S*|@\w+|\([^)]*\)', ' ', src)  # nomes com * (familias), anotacoes, notas
+    for cls, met in re.findall(r'\b([A-Z][a-z][A-Za-z0-9]+)(?:\.([a-z][A-Za-z0-9]*))?', src):
+        n_origens += 1
+        # o catalogo abrevia ('Create/UpdateJobCommandHandler', 'GetMeLeaveBalances'): basta o prefixo de uma classe
+        donos = [c for c in fontes if c == cls] or [c for c in fontes if c.startswith(cls)]
+        if not donos:
+            falha('regras: origem com classe que nao existe', '%s -> %s' % (br, cls))
+        elif met and not re.search(r'\b' + re.escape(met) + r'\s*\(', ''.join(''.join(fontes[c]) for c in donos)):
+            falha('regras: origem com metodo que nao existe', '%s -> %s.%s' % (br, cls, met))
+
 # ------------------------------------------------------------------ resultado
 print('caminhos da API (RH): %d | documentados: %d' % (len(caminhos_api), len(caminhos_api) - len(sem_doc)))
 print('tabelas RH no codigo: %d | no modelo: %d' % (len(tabelas_codigo), len(tabelas_modelo)))
 print('regras definidas: %d' % len(definidas))
 print('ecras: %d rotas e %d campos conferidos' % (n_rotas, n_campos))
+print('origens das regras conferidas no codigo: %d' % n_origens)
 for a in avisos:
     print('aviso: ' + a)
 grupos = {}

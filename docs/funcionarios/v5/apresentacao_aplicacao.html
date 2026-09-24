@@ -173,8 +173,9 @@
   .fluxo .e.w{background:var(--warn-soft);border-color:transparent} .fluxo .e.r{background:var(--bad-soft);border-color:transparent}
   .fluxo .s{color:var(--muted)}
   svg.diag{width:100%;height:auto;display:block}
-  svg.diag text{fill:var(--ink);font-family:inherit}
-  svg.diag .muted{fill:var(--muted)}
+  svg.diag text{font-family:inherit}
+  svg.diag text:not([fill]){fill:var(--ink)}
+  svg.diag text.muted{fill:var(--muted)}
   footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
 
   /* interactividade */
@@ -495,7 +496,7 @@
         <tr><td>Base</td><td><code>http://localhost:8099/api/v1/rh</code> em desenvolvimento (porta do <code>SERVICE_PORT</code>)</td></tr>
         <tr><td>Contrato</td><td><code>openapi.json</code>, gerado do código; Swagger em <code>/swagger-ui.html</code></td></tr>
         <tr><td>Segurança</td><td><code>development</code>/<code>staging</code>: desligada. <code>production</code>: <code>Authorization: Bearer &lt;JWT&gt;</code> (Keycloak)</td></tr>
-        <tr><td>Cabeçalhos</td><td><code>Accept: application/json</code> sempre; <code>Content-Type: application/json</code> nos envios</td></tr>
+        <tr><td>Cabeçalhos</td><td><code>Accept: application/json</code>; <code>Content-Type: application/json</code> nos envios. Nos três <code>.csv</code>, <code>Accept: text/csv</code> (com <code>application/json</code> dão 406)</td></tr>
         <tr><td>Listas</td><td><code>pagina</code> (a partir de 0) e <code>tamanho</code> (20); resposta com <code>content</code>, <code>totalElements</code>, <code>pageNumber</code>, <code>pageSize</code>, <code>totalPages</code></td></tr>
         <tr><td>Selects</td><td><code>GET …/combobox</code> devolve <code>{key, label}</code>, com <code>key</code> = id</td></tr>
         <tr><td>Apagar</td><td>Desactivar (<code>isActive=false</code>); reactivar com <code>…/activate</code>. Nada se apaga fisicamente, salvo a formação</td></tr>
@@ -1245,7 +1246,7 @@
         <li><span class="br">BR-POS-01</span>N.º, cargo e unidade obrigatórios<span class="cod">400</span></li>
         <li><span class="br">BR-POS-02</span>N.º do Lugar único<span class="cod">409</span></li>
         <li><span class="br">BR-POS-03</span>Estados <code>ATIVO</code> · <code>CONGELADO</code> · <code>EXTINTO</code>; só ATIVO e vago se ocupa</li>
-        <li><span class="br">BR-POS-04</span><span class="br">BR-POS-05</span>Extinto não se congela nem volta a activo<span class="cod">409</span></li>
+        <li><span class="br">BR-POS-04</span><span class="br">BR-POS-05</span>Extinto não se congela nem volta a activo<span class="cod">409</span>; e um congelado <b>não se descongela pela API</b> (não há endpoint)</li>
         <li><span class="br">BR-AF-03</span>Uma cadeira, um titular (índice único na base de dados)<span class="cod">422</span></li>
         <li><span class="br">BR-AF-12</span>Provido é ter titular; com substituto e sem titular conta como vago</li>
       </ul></div></div>
@@ -2750,7 +2751,7 @@
   <div class="duas meio" style="margin-top:12px">
     <div class="painel"><h4>API</h4><div class="in">
       <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/assiduidade/relacao-mensal</span><span class="d">?mes=&amp;unidadeId=&amp;incluirSubunidades=true</span></div>
-      <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/assiduidade/relacao-mensal.csv</span><span class="d">«;», UTF-8 com BOM, decimais com vírgula</span></div>
+      <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/assiduidade/relacao-mensal.csv</span><span class="d">«;», UTF-8 com BOM, decimais com vírgula · <code>Accept: text/csv</code></span></div>
     </div></div>
     <div class="painel"><h4>Regras</h4><div class="in"><ul class="regras">
       <li><span class="br">BR-REL-01</span>Unidade obrigatória; mês futuro<span class="cod">422</span>; unidade inexistente<span class="cod">404</span></li>
@@ -3077,7 +3078,7 @@
     <div class="caixa w"><h4>Mapa de férias</h4><p>A preferência dos cônjuges no mesmo serviço (art. 5.º n.º 6).</p></div>
     <div class="caixa w"><h4>Lista de antiguidade</h4><p>Aprovar, afixar, reclamar e publicar (arts. 71.º a 74.º).</p></div>
     <div class="caixa w"><h4>Horários e suplementar</h4><p>Limites legais, turnos, nocturno e compensação em descanso — esperam o diploma de desenvolvimento (arts. 164.º n.º 4, 165.º).</p></div>
-    <div class="caixa w"><h4>Carreiras</h4><p>Habilitações e concurso não se verificam; o Lugar não confirma que a categoria é da carreira; requisitos de tempo de serviço das licenças (arts. 46.º, 48.º) não se verificam.</p></div>
+    <div class="caixa w"><h4>Carreiras</h4><p>Habilitações e concurso não se verificam; o Lugar não confirma que a categoria é da carreira, e um Lugar congelado não se descongela pela API; requisitos de tempo de serviço das licenças (arts. 46.º, 48.º) não se verificam.</p></div>
     <div class="caixa w"><h4>Outros</h4><p>Formação e disciplinar como processos com fluxo; acumulação de funções públicas (art. 21.º); área geográfica numa tabela própria; lock dos jobs.</p></div>
   </div>
   <div class="nota chave"><b>Fora do âmbito por decisão:</b> permuta, estágio probatório e reintegração judicial. Por confirmar com o jurídico: a soma mensal do art. 13.º n.º 4, a isenção de horário no trabalho suplementar (art. 155.º n.º 2 b)), a duração da dispensa de amamentação e o período dos 6 dias do art. 77.º n.º 3.</div>

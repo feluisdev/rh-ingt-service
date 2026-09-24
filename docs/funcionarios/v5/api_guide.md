@@ -15,7 +15,7 @@
 | **Prefixo comum** | `/api/v1/rh` |
 | **Swagger** | `/swagger-ui.html` (quando `ENABLE_SWAGGER=true`) |
 | **Autenticação** | `development`/`staging`: **desligada**. `production`: OAuth2 Resource Server + JWT (Keycloak) — enviar `Authorization: Bearer <token>`. |
-| **Cabeçalhos** | Enviar sempre `Accept: application/json`. Em `POST/PUT/PATCH`: `Content-Type: application/json`. |
+| **Cabeçalhos** | Enviar `Accept: application/json`. Em `POST/PUT/PATCH`: `Content-Type: application/json`. **Excepção:** os três endpoints `.csv` (relação mensal, lista de antiguidade, mapa de efectivos) respondem **406** a `application/json` — pedir com `Accept: text/csv` (ou `*/*`). |
 
 > **Nota:** sem `Accept: application/json`, alguns clientes recebem XML. Enviar sempre o header.
 
@@ -125,7 +125,7 @@ As operações com mais a dizer — o registo composto, os movimentos de carreir
 | `GET` | `/positions/{id}` | Detalhe de um Lugar. |
 | `POST` | `/positions` | Criar Lugar. |
 | `PUT` | `/positions/{id}` | Atualizar Lugar. |
-| `PATCH` | `/positions/{id}/freeze` | Congelar (estado `CONGELADO`). |
+| `PATCH` | `/positions/{id}/freeze` | Congelar (estado `CONGELADO`). **Não há endpoint para descongelar** (o domínio tem-no, a API não o expõe): congelar não se desfaz pela API. |
 | `DELETE` | `/positions/{id}` | Extinguir (estado `EXTINTO`). |
 
 **`PositionRequestDTO`**
@@ -1203,7 +1203,7 @@ Regras: BR-SUP-01 a BR-SUP-09, BR-ME-04.
 `GET /api/v1/rh/assiduidade/relacao-mensal?mes=2026-09&unidadeId={uuid}&incluirSubunidades=true` —
 DL n.º 3/2010, art. 75.º: as faltas e licenças de cada funcionário e a sua natureza, **por serviço**.
 **Só leitura**, calculada a cada pedido (o fecho do mês fica para quando houver integração salarial).
-`GET …/assiduidade/relacao-mensal.csv` com os mesmos parâmetros devolve o CSV (`text/csv`, anexo).
+`GET …/assiduidade/relacao-mensal.csv` com os mesmos parâmetros devolve o CSV (`text/csv`, anexo) — pedido com `Accept: text/csv`.
 
 ```json
 { "mes": "2026-08", "provisoria": false, "unidadeId": "…", "unidadeNome": "Ministério…", "incluirSubunidades": true,

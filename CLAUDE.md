@@ -193,7 +193,7 @@ tree was removed on 2026-09-05; do not reintroduce it or cite it as a plan.
 
 Every v5 document carries `Última alteração: AAAA-MM-DD` in its header — bump it whenever the document changes.
 Check the docs against the code with `PYTHONIOENCODING=utf-8 python scripts/verificar_docs.py` (API paths vs `openapi.json`,
-tables vs `@Table`, BR-* citations, HTML/anchors, guide sections, law article ranges, header dates, the presentation's screen fields and API paths, links between docs) — it must end with `FALHAS: 0`.
+tables vs `@Table`, BR-* citations, HTML/anchors, guide sections, law article ranges, header dates, the presentation's screen fields and API paths, links between docs, and that every class/method cited as a rule's origin exists) — it must end with `FALHAS: 0`.
 
 ### v4 / Legacy
 
