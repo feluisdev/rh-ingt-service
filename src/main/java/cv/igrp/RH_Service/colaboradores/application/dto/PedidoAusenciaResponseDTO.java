@@ -23,6 +23,8 @@ public class PedidoAusenciaResponseDTO {
     private String aprovadoPor;
     private LocalDate dataDecisao;
     private String observacoesDecisao;
+    /** Aprovado pelo sistema: o tipo não requer aprovação (sem decisor). */
+    private boolean aprovacaoAutomatica;
     private Boolean isActive;
     private String estadoDesc;
     /** Data a partir da qual as ferias deixaram de correr (art. 8.o). Nulo se nao houve suspensao. */

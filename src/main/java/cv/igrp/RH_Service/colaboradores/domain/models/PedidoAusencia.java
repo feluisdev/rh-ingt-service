@@ -147,6 +147,21 @@ public class PedidoAusencia {
         this.observacoesDecisao = observacoes;
     }
 
+    /**
+     * <b>Aprovação automática</b> — o tipo não requer aprovação ({@code requires_approval = false} no
+     * catálogo): são as faltas que a lei dá como direito (casamento, luto, doença, nascimento, greve —
+     * DL n.º 3/2010, art. 15.º), em que basta comunicar e provar. Fica sem decisor; se a prova faltar,
+     * o RH cancela ou regista falta injustificada.
+     */
+    public void aprovarAutomaticamente(LocalDate hoje) {
+        aprovar(null, hoje, "Aprovado automaticamente: o tipo não requer aprovação (basta comunicar e provar).");
+    }
+
+    /** Aprovado sem decisor: foi o sistema, porque o tipo não requer aprovação. */
+    public boolean isAprovacaoAutomatica() {
+        return EstadoPedidoAusencia.APROVADO.equals(estado) && aprovadoPor == null && dataDecisao != null;
+    }
+
     public void rejeitar(FuncionarioId aprovadoPorId, LocalDate dataDecisao, String observacoes) {
         if (!EstadoPedidoAusencia.PENDENTE.equals(this.estado))
             throw IgrpResponseStatusException.conflict("Só é possível rejeitar pedidos em estado PENDENTE. Estado actual: " + this.estado);

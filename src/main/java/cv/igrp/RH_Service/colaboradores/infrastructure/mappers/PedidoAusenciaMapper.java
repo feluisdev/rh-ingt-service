@@ -91,6 +91,7 @@ public class PedidoAusenciaMapper {
         r.setMotivo(p.getMotivo());
         r.setEstado(p.getEstadoTexto());
         r.setAprovadoPor(p.getAprovadoPor() != null ? p.getAprovadoPor().getStringValor() : null);
+        r.setAprovacaoAutomatica(p.isAprovacaoAutomatica());
         r.setDataDecisao(p.getDataDecisao());
         r.setObservacoesDecisao(p.getObservacoesDecisao());
         r.setOpcaoFaltaInjustificada(p.getOpcaoFaltaInjustificada() != null

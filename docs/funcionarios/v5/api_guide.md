@@ -753,6 +753,26 @@ omisso no `PUT` mantém, `0` limpa.
 
 Regras: BR-AUS-24 a BR-AUS-28, BR-FAL-07.
 
+### 6.2f Quem aprova um pedido de ausência
+
+- **Tipos que não requerem aprovação** (`requiresApproval: false` no catálogo — luto, casamento,
+  doença, nascimento, greve…): o pedido **nasce `APROVADO`**, sem decisor, e a resposta traz
+  `aprovacaoAutomatica: true`. Aprová-lo outra vez dá 409. Se a prova faltar, o RH cancela ou regista
+  falta injustificada.
+- **Os outros** nascem `PENDENTE` e decide, num só nível, **a chefia directa ou o RH**:
+
+| Quem | Método | Path |
+|---|---|---|
+| Chefia | `GET` | `/api/v1/rh/me/equipa/pedidos-ausencia-pendentes` — a caixa da equipa directa |
+| Chefia | `PATCH` | `/api/v1/rh/me/equipa/pedidos-ausencia/{id}/aprovar` `{ "motivo"? }` · `…/rejeitar` `{ "motivo" }` |
+| RH | `PATCH` | `/api/v1/rh/funcionarios/{id}/pedidos-ausencia/{pedidoId}/aprovar` · `…/rejeitar` (como antes) |
+
+A chefia directa é o titular do Lugar-pai do Lugar de quem pediu. 403 se não for; 422 nos próprios
+pedidos ou ao rejeitar sem motivo (pela chefia); 409 se já não estiver `PENDENTE`. Pelo RH, o pedido
+tem de ser do colaborador do caminho (404). Sem chefia definida, ou com a chefia vaga, decide o RH.
+
+Regras: BR-AUS-29, BR-AUS-30, BR-ME-05.
+
 ### 6.3 Férias: o saldo nasce sozinho
 
 **`POST /saldos-ausencia` deixou de ser o caminho para as férias.** O art. 2.º n.º 4 do DL n.º 3/2010 diz que «o direito a férias vence no dia 1 de Janeiro de cada ano» — e passou a ser o que acontece:

@@ -73,6 +73,14 @@ public class PedidoAusenciaRepositoryImpl implements PedidoAusenciaRepository {
 
     @Transactional(readOnly = true)
     @Override
+    public List<PedidoAusencia> findPendentesDe(java.util.Collection<FuncionarioId> funcionarios) {
+        if (funcionarios.isEmpty()) return List.of();
+        return entityRepository.findPendentesDe(funcionarios.stream().map(FuncionarioId::getValor).toList())
+                .stream().map(mapper::toDomain).toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public boolean existsSobreposicaoEmHoras(FuncionarioId funcionarioId, LocalDate dataInicio, LocalDate dataFim,
                                              java.time.LocalTime horaInicio, java.time.LocalTime horaFim) {
         return entityRepository.existsSobreposicaoEmHoras(funcionarioId.getValor(), dataInicio, dataFim, horaInicio, horaFim);

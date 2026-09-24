@@ -1,6 +1,6 @@
 {
   "type": "dto",
-  "name": "PedidoAusenciaResponse",
+  "name": "PedidoAusenciaPendenteDTO",
   "template": "classic",
   "module": "colaboradores",
   "attributes": [
@@ -18,7 +18,25 @@
     },
     {
       "type": "string",
-      "name": "tipoAusencia",
+      "name": "numeroFuncionario",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioNome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "tipoCodigo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "tipoNome",
       "objectType": "java",
       "required": false
     },
@@ -42,60 +60,6 @@
     },
     {
       "type": "string",
-      "name": "motivo",
-      "objectType": "java",
-      "required": false
-    },
-    {
-      "type": "string",
-      "name": "estado",
-      "objectType": "java",
-      "required": false
-    },
-    {
-      "type": "string",
-      "name": "aprovadoPor",
-      "objectType": "java",
-      "required": false
-    },
-    {
-      "type": "date",
-      "name": "dataDecisao",
-      "objectType": "java",
-      "required": false
-    },
-    {
-      "type": "string",
-      "name": "observacoesDecisao",
-      "objectType": "java",
-      "required": false
-    },
-    {
-      "type": "boolean",
-      "name": "isActive",
-      "objectType": "java",
-      "required": false
-    },
-    {
-      "type": "string",
-      "name": "estadoDesc",
-      "objectType": "java",
-      "required": false
-    },
-    {
-      "type": "date",
-      "name": "suspensoEm",
-      "objectType": "java",
-      "required": false
-    },
-    {
-      "type": "string",
-      "name": "suspensaoMotivo",
-      "objectType": "java",
-      "required": false
-    },
-    {
-      "type": "string",
       "name": "horaInicio",
       "objectType": "java",
       "required": false
@@ -113,8 +77,8 @@
       "required": false
     },
     {
-      "type": "boolean",
-      "name": "aprovacaoAutomatica",
+      "type": "string",
+      "name": "motivo",
       "objectType": "java",
       "required": false
     }

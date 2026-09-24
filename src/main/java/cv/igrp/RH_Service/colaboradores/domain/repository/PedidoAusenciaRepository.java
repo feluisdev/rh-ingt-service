@@ -17,6 +17,8 @@ public interface PedidoAusenciaRepository {
     boolean existsOverlapForFuncionario(FuncionarioId funcionarioId, LocalDate dataInicio, LocalDate dataFim);
     /** Os pedidos aprovados que tocam em [{@code dataInicio}, {@code dataFim}]. */
     List<PedidoAusencia> findAprovadosEntre(FuncionarioId funcionarioId, LocalDate dataInicio, LocalDate dataFim);
+    /** Os pedidos PENDENTE destes colaboradores, do que começa mais cedo para o mais tarde. */
+    List<PedidoAusencia> findPendentesDe(java.util.Collection<FuncionarioId> funcionarios);
     /** V58: há um pedido que colide com um pedido em horas nestas datas e horas. */
     boolean existsSobreposicaoEmHoras(FuncionarioId funcionarioId, LocalDate dataInicio, LocalDate dataFim,
                                       java.time.LocalTime horaInicio, java.time.LocalTime horaFim);

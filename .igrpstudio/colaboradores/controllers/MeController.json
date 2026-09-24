@@ -691,6 +691,108 @@
           }
         }
       }
+    },
+    {
+      "actionName": "pedidosAusenciaPendentesDaEquipa",
+      "method": "GET",
+      "path": "equipa/pedidos-ausencia-pendentes",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PedidoAusenciaPendenteDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "aprovarPedidoAusenciaDaEquipa",
+      "method": "PATCH",
+      "path": "equipa/pedidos-ausencia/{id}/aprovar",
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "DecisaoPedidoAusenciaRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        },
+        "required": false
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "rejeitarPedidoAusenciaDaEquipa",
+      "method": "PATCH",
+      "path": "equipa/pedidos-ausencia/{id}/rejeitar",
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "DecisaoPedidoAusenciaRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

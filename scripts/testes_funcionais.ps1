@@ -1714,6 +1714,32 @@ Chamar 'F31.17 NEG unidade mal escrita' GET ('/assiduidade/relacao-mensal?mes=' 
 Chamar 'F31.18 NEG unidade que nao existe' GET ('/assiduidade/relacao-mensal?mes=' + $mes26 + '&unidadeId=' + [guid]::NewGuid()) $null 404 | Out-Null
 
 Write-Host ''
+Write-Host '=========== F32 - PEDIDOS DE AUSENCIA: APROVACAO AUTOMATICA E DECISAO DA CHEFIA ==========='
+
+# Os tipos que o catalogo diz que nao requerem aprovacao (o direito do art. 15.o: luto, casamento,
+# doenca...) nascem APROVADOS, sem decisor. Os outros nascem PENDENTES e decide a chefia directa (pela
+# caixa /me/equipa) ou o RH. A decisao pela chefia fica nos testes unitarios (o seed nao tem Lugar-pai).
+$s32 = PrimeiraSegunda ($anoFer + 2) 5
+$rotaP32 = '/funcionarios/' + $colabB + '/pedidos-ausencia'
+$rLuto32 = Chamar 'F32.1 luto de segunda a terca (nao requer aprovacao)' POST $rotaP32 @{ tipoAusenciaId=$tLuto21.id; dataInicio=(Iso $s32); dataFim=(Iso $s32.AddDays(1)); motivo='falecimento' } 201
+Verificar 'F32.2 nasceu APROVADO' ($rLuto32.Dados.estado -eq 'APROVADO') ('(' + $rLuto32.Dados.estado + ')')
+$pLuto32 = (@(Linhas (Chamar 'F32.3 ler os pedidos da Maria' GET $rotaP32)) | Where-Object { $_.id -eq $rLuto32.Dados.id } | Select-Object -First 1)
+Verificar 'F32.4 aprovacao automatica, sem decisor' ($pLuto32.aprovacaoAutomatica -and (-not $pLuto32.aprovadoPor)) ('(' + $pLuto32.aprovacaoAutomatica + ')')
+Chamar 'F32.5 NEG aprovar o que ja nasceu aprovado' PATCH ($rotaP32 + '/' + $rLuto32.Dados.id + '/aprovar') @{ aprovadoPorId=$colabA; observacoesDecisao='x' } 409 | Out-Null
+
+$rSem32 = Chamar 'F32.6 seminario de dois dias (requer aprovacao)' POST $rotaP32 @{ tipoAusenciaId=$tSem21.id; dataInicio=(Iso $s32.AddDays(7)); dataFim=(Iso $s32.AddDays(8)); motivo='conferencia' } 201
+Verificar 'F32.7 nasceu PENDENTE' ($rSem32.Dados.estado -eq 'PENDENTE') ('(' + $rSem32.Dados.estado + ')')
+$rotaEq = '/me/equipa/pedidos-ausencia/' + $rSem32.Dados.id
+Chamar 'F32.8 NEG ninguem decide os seus proprios pedidos' PATCH ($rotaEq + '/aprovar') $null 422 $colabB | Out-Null
+Chamar 'F32.9 NEG quem nao e chefia directa nao aprova' PATCH ($rotaEq + '/aprovar') $null 403 $colabFA | Out-Null
+Chamar 'F32.10 NEG quem nao e chefia directa nao rejeita' PATCH ($rotaEq + '/rejeitar') @{ motivo='nao' } 403 $colabFA | Out-Null
+Chamar 'F32.11 NEG o RH pelo caminho de outro colaborador' PATCH ('/funcionarios/' + $colabFA + '/pedidos-ausencia/' + $rSem32.Dados.id + '/aprovar') @{ aprovadoPorId=$colabA; observacoesDecisao='x' } 404 | Out-Null
+Chamar 'F32.12 o RH aprova' PATCH ($rotaP32 + '/' + $rSem32.Dados.id + '/aprovar') @{ aprovadoPorId=$colabA; observacoesDecisao='deferido' } 200 | Out-Null
+Chamar 'F32.13 NEG decidir outra vez' PATCH ($rotaP32 + '/' + $rSem32.Dados.id + '/rejeitar') @{ aprovadoPorId=$colabA; observacoesDecisao='tarde' } 409 | Out-Null
+$rPend32 = Chamar 'F32.14 a caixa de pedidos da Maria (nao chefia ninguem)' GET '/me/equipa/pedidos-ausencia-pendentes' $null 200 $colabB
+Verificar 'F32.15 vazia' (@(Linhas $rPend32).Count -eq 0) ''
+
+Write-Host ''
 Write-Host '=========== RESUMO ==========='
 $ok = ($script:resultados | Where-Object { $_.OK }).Count
 $total = $script:resultados.Count

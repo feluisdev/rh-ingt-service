@@ -119,6 +119,9 @@ public class TipoAusencia {
     /** Ferias vencem-se; uma falta acontece. So o primeiro faz nascer saldo sozinho. */
     public boolean isFerias() { return regime == RegimeAusencia.FERIAS; }
 
+    /** Requer decisão da chefia ou do RH. Sem valor no catálogo, requer (o lado seguro). */
+    public boolean requerAprovacao() { return !Boolean.FALSE.equals(requiresApproval); }
+
     /**
      * Art. 43.º: falta injustificada. Quais o são di-lo a instituição pelo regime — nunca o
      * código —, mas o que daí decorre é da lei e não se configura.

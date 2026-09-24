@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.colaboradores.application.services.CalendarioFeriadosS
 import cv.igrp.RH_Service.colaboradores.application.services.SaldoAusenciaService;
 import cv.igrp.RH_Service.colaboradores.domain.models.OpcaoFaltaInjustificada;
 import cv.igrp.RH_Service.colaboradores.domain.models.PedidoAusencia;
+import cv.igrp.RH_Service.colaboradores.domain.models.TipoAusencia;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.PedidoAusenciaRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.TipoAusenciaRepository;
@@ -19,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 import cv.igrp.RH_Service.colaboradores.application.dto.PedidoAusenciaCriadoResponseDTO;
@@ -122,8 +124,10 @@ public class CreatePedidoAusenciaCommandHandler
         // Os dias ficam reservados desde a submissão: dois pedidos em simultâneo já não
         // podem esgotar duas vezes o mesmo saldo. Sem saldo suficiente, é 422 já aqui.
         saldoAusenciaService.reservar(pedido);
+        aprovarSeNaoRequer(tipo, pedido);
 
         var saved = pedidoRepository.save(pedido);
+        // TODO(notificacoes): avisar a chefia directa de um pedido PENDENTE, quando houver a app de notificacoes.
 
         return ResponseEntity.status(201).body(new PedidoAusenciaCriadoResponseDTO(
                 saved.getId().getStringValor(),
@@ -180,9 +184,21 @@ public class CreatePedidoAusenciaCommandHandler
                                 + jaPedidos + " pedidos nessas datas e este pede " + pedido.minutosPorDia() + ".");
         }
 
+        aprovarSeNaoRequer(tipo, pedido);
         var saved = pedidoRepository.save(pedido);
+        // TODO(notificacoes): avisar a chefia directa de um pedido PENDENTE, quando houver a app de notificacoes.
         return ResponseEntity.status(201).body(new PedidoAusenciaCriadoResponseDTO(
                 saved.getId().getStringValor(), 0, saved.getEstadoTexto(), saved.minutosPorDia()));
+    }
+
+    /**
+     * Um tipo que não requer aprovação (o direito do art. 15.º: casamento, luto, doença...) nasce
+     * aprovado, e os dias passam logo a gozados, como numa aprovação.
+     */
+    private void aprovarSeNaoRequer(TipoAusencia tipo, PedidoAusencia pedido) {
+        if (tipo.requerAprovacao()) return;
+        pedido.aprovarAutomaticamente(LocalDate.now());
+        saldoAusenciaService.confirmarGozo(pedido);
     }
 
     private static LocalTime hora(String valor, String campo) {

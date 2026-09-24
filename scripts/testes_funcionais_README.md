@@ -52,6 +52,7 @@ docker exec postgres-ingt-rh sh -c "psql -U postgres -d recursoshumanos_db -q -f
 | **F26** faltas por débito | sobre a semana do F25: dia com anomalia fica por corrigir; atraso de 30 min contra o horário fixo; dia sem marcações conta inteiro (SEM_REGISTO); domingo não se apura; um pedido aprovado tira o dia do apuramento |
 | **F27** pedido em horas (V58) | amamentação 1h+1h por dia durante 100 dias; a terceira passa do tecto diário; horas cruzadas 409, noutra hora cabe; tecto por ocorrência; férias em horas 422; terminar antes do fim acaba na véspera; meia hora justificada tira o atraso do apuramento |
 | **F28** pedido pelo próprio (/me) | segue as regras do RH: luto de sexta a segunda conta 4 dias seguidos; seminário de 7 dias passa do tecto (422); sobreposição 409; amamentação em horas pelo próprio |
+| **F32** aprovação dos pedidos de ausência | luto nasce APROVADO com aprovação automática (aprovar outra vez 409); seminário nasce PENDENTE; pela caixa da chefia: a própria 422, quem não é chefia 403 (aprovar e rejeitar); RH pelo caminho de outro colaborador 404; RH aprova, segunda decisão 409; caixa da Maria vazia |
 | **F31** relação mensal | o mês do F25 pedido ao ministério com subunidades: a Maria uma vez, no SERV_RH, com os 90 min suplementares, os 30 min de tratamento ambulatório e COM_PENDENCIAS (segunda por corrigir); sem subunidades não entra; o mês corrente é provisório; CSV text/csv com cabeçalho e a linha dela; mês futuro, mal escrito, unidade vazia ou mal escrita 422; unidade inexistente 404 |
 | **F30** trabalho suplementar | RH autoriza depois a terça do F25 fora do horário (90 min realizados pelas marcações, dia útil); tocar no horário 422, sem motivo 422, hora mal escrita 422, sobreposto 409, inactivo 403; o apuramento separa 90 min suplementares; a Maria pede para um sábado (para trás 422), ela própria 422, quem não é chefia 403, RH recusa sem motivo 422, autoriza, segunda vez 409, cancela |
 | **F29** registo pelo próprio | picagem pelo /me: presencial 422, inactivo 403, em teletrabalho 201; correcção fica PENDENTE e não conta; quem não é chefia 403, o próprio 422; RH rejeita sem motivo 422, valida, segunda vez 409; rejeitada fica visível e não conta |
@@ -522,7 +523,17 @@ SERV_RH, dois niveis abaixo. **Armadilha paga:** no PowerShell 5.1 o `Invoke-Web
 `text/csv` ja como texto, e o `GetString` sobre ele falhava em silencio (dentro do `try`); o passo aceita
 agora texto ou bytes.
 
+### F32 - aprovacao automatica e decisao da chefia (2026-09-24)
+
+Os tipos sem aprovacao nascem aprovados: o passo condicional do F26 («aprovar, se ainda nao estiver
+aprovado») deixou de correr, porque o tipo de teste desse pedido nao requer aprovacao -- por isso a
+bateria sem o F32 passou de 681 para 680 passos, sem nenhuma falha. A decisao pela chefia directa fica
+nos testes unitarios, pela mesma razao do F29.
+
 ## Resultado da última execução
+
+**695 passos, 695 OK** (2026-09-24), duas execucoes seguidas com o `repor_estado.sql` entre elas
+(F32 incluido).
 
 **681 passos, 681 OK** (2026-09-23), duas execucoes seguidas com o `repor_estado.sql` entre elas
 (F31 incluido).

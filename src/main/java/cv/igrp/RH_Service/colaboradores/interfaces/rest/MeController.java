@@ -308,4 +308,41 @@ public class MeController {
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
+
+    // ── Pedidos de ausência: decisão da chefia directa ─────────────────────────────────────
+
+    @GetMapping("equipa/pedidos-ausencia-pendentes")
+    @Operation(summary = "Pedidos de ausencia por decidir da minha equipa directa")
+    @ApiResponse(responseCode = "200", description = "Pendentes",
+            content = @Content(array = @io.swagger.v3.oas.annotations.media.ArraySchema(schema = @Schema(implementation = cv.igrp.RH_Service.colaboradores.application.dto.PedidoAusenciaPendenteDTO.class))))
+    public ResponseEntity<java.util.List<cv.igrp.RH_Service.colaboradores.application.dto.PedidoAusenciaPendenteDTO>> pedidosAusenciaPendentesDaEquipa() {
+        LOGGER.debug("Operation started");
+        ResponseEntity<java.util.List<cv.igrp.RH_Service.colaboradores.application.dto.PedidoAusenciaPendenteDTO>> response = queryBus.handle(new cv.igrp.RH_Service.colaboradores.application.queries.GetPedidosAusenciaPendentesEquipaQuery());
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @PatchMapping("equipa/pedidos-ausencia/{id}/aprovar")
+    @Operation(summary = "Aprovar um pedido de ausencia da minha equipa directa")
+    @ApiResponse(responseCode = "200", description = "Aprovado",
+            content = @Content(schema = @Schema(implementation = SuccessResponseDTO.class)))
+    public ResponseEntity<SuccessResponseDTO> aprovarPedidoAusenciaDaEquipa(@PathVariable String id,
+            @RequestBody(required = false) cv.igrp.RH_Service.colaboradores.application.dto.DecisaoPedidoAusenciaRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new cv.igrp.RH_Service.colaboradores.application.commands.DecidirPedidoAusenciaEquipaCommand(id, true, request));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @PatchMapping("equipa/pedidos-ausencia/{id}/rejeitar")
+    @Operation(summary = "Rejeitar um pedido de ausencia da minha equipa directa, com motivo")
+    @ApiResponse(responseCode = "200", description = "Rejeitado",
+            content = @Content(schema = @Schema(implementation = SuccessResponseDTO.class)))
+    public ResponseEntity<SuccessResponseDTO> rejeitarPedidoAusenciaDaEquipa(@PathVariable String id,
+            @RequestBody cv.igrp.RH_Service.colaboradores.application.dto.DecisaoPedidoAusenciaRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new cv.igrp.RH_Service.colaboradores.application.commands.DecidirPedidoAusenciaEquipaCommand(id, false, request));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
 }
