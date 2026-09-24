@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.services;
 
+import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
 import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.estrutura.domain.models.OrganizationalUnit;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -24,6 +26,10 @@ import java.util.function.Function;
  * <p>Serve o calendário de feriados (a área, V55) e o horário (V57), que perguntam o mesmo:
  * numa mobilidade interna, a unidade de destino; sem mobilidade, a do seu Lugar; numa mobilidade
  * <b>externa</b>, ou sem Lugar, nenhuma — trabalha noutra entidade, ou não se sabe onde.
+ *
+ * <p>O Lugar é o <b>dessa data</b>: o da afectação principal que a cobria, e não o de hoje — quem
+ * mudou de unidade não vê os meses passados recalculados com a unidade nova. Sem afectação que cubra
+ * a data (um intervalo entre afectações, dados antigos sem datas), vale a afectação actual, como antes.
  */
 @Service
 @RequiredArgsConstructor
@@ -45,10 +51,18 @@ public class UnidadeDeExercicioService {
             // Externa: trabalha noutra entidade, cujo calendário e horário não são nossos.
             return mobilidade.get().isDestinoInterno() ? mobilidade.get().getDestinationUnitId() : null;
 
-        return assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId)
+        Optional<Assignment> daData = assignmentRepository.findAllByFuncionarioOrderByDataInicioDesc(funcionarioId).stream()
+                .filter(a -> a.isPrincipal() && cobre(a, data))
+                .findFirst();
+        return daData.or(() -> assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId))
                 .flatMap(a -> positionRepository.findById(PositionId.from(a.getPositionId())))
                 .map(Position::getUnidadeOrganicaId)
                 .orElse(null);
+    }
+
+    private static boolean cobre(Assignment a, LocalDate data) {
+        return data != null && a.getDataInicio() != null && !a.getDataInicio().isAfter(data)
+                && (a.getDataFim() == null || !a.getDataFim().isBefore(data));
     }
 
     /**
