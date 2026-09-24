@@ -1,4 +1,4 @@
-> Updated: 2026-09-24 15:00 (-01:00) — plano de fecho, ponto 3 (indicadores do pessoal)
+> Updated: 2026-09-24 16:00 (-01:00) — plano de fecho concluído (ponto 4, dados de demonstração)
 
 ## Goal
 
@@ -11,14 +11,17 @@ fora o processamento salarial (outra aplicação, integração futura) e o SIGDI
 
 ## Current state
 
-**Branch `fix-alinhamento-legislacao`**, **46 commits locais por enviar** (`origin_git_lab`).
+**Branch `fix-alinhamento-legislacao`**, **48 commits locais por enviar** (`origin_git_lab`).
 **Não fazer push sem o utilizador pedir** — merge para `master` no GitLab é deploy.
 
-- **Testes: 1134, 0 falhas** — correr na **cópia isolada** (ver Blockers).
+- **Testes: 1135, 0 falhas** — correr na **cópia isolada** (ver Blockers).
 - **Bateria funcional: 751 passos**, 751 OK (2026-09-24, duas execuções seguidas com reposição
   entre elas). Blocos F20–F37: feriados (V55), contagem (V56), mapa de férias, parâmetros de férias,
   horários, registo diário, faltas por débito, pedido em horas (V58), pedido pelo próprio em `/me`,
   registo pelo próprio com validação, trabalho suplementar, relação mensal, aprovação dos pedidos de ausência, horários com data de efeito, lista de antiguidade, preferência de férias pelo próprio e aviso fora da marcação, mapa de efectivos, indicadores do pessoal.
+- **Dados de demonstração:** `scripts/dados_demonstracao.ps1` (guia em `scripts/dados_demonstracao_README.md`)
+  carrega pela API, numa base reposta, 12 colaboradores fictícios em três serviços com chefias,
+  marcações, ausências, férias, trabalho suplementar e uma promoção; o `repor_estado.sql` apaga-os.
 - Migrações até **`V58`**. Próxima livre: **V59** (só para alterar tabelas existentes).
 - **`openapi.json`**: 282 caminhos (regenerado com a app a correr).
 - **Sete jobs `@Scheduled`**, sem lock distribuído (fica para o framework de jobs).
@@ -50,7 +53,9 @@ fora o processamento salarial (outra aplicação, integração futura) e o SIGDI
 | `296c90a8` (24) | Relatórios: lista de antiguidade anual (DL 3/2010, arts. 69.º e 70.º), JSON e CSV |
 | `128c816a` (24) | Mapa de férias: preferência pelo próprio (/me) e aviso de pedido fora da marcação |
 | `3b66ca19` (24) | Relatórios: mapa de efectivos (Lei 20, art. 4.º al. aa)), por serviço, JSON e CSV |
-| (este) (24) | Relatórios: indicadores do pessoal (Lei 20, art. 38.º n.º 3), JSON |
+| `c3d1a689` (24) | Relatórios: indicadores do pessoal (Lei 20, art. 38.º n.º 3), JSON |
+| `ed873aee` (24) | Fix: os indicadores juntam «F»/«FEMININO» e «M»/«MASCULINO» |
+| (este) (24) | Dados de demonstração (`scripts/dados_demonstracao.ps1`, pela API) |
 
 Mais os commits `docs` do handoff. **Plano geral:** 1 feriados ✔ · 2 dispensas ✔ · 3 mapa de férias ✔
 · 4 assiduidade ✔ (horários → registo → faltas → horas → próprio → suplementar → relação). O que
@@ -117,7 +122,7 @@ falta está em **Plano em aberto**.
   estrutura e no próprio base. Corrigido pelo caminho: listagem de pedidos com 500 intermitente
   (`upper(bytea)`) e `workerStateId` nulo com 500.
 - **Relatórios de gestão (2026-09-24):** os três, por esta ordem, um commit cada — **lista de
-  antiguidade** (feita), **mapa de efectivos**, **indicadores do pessoal** (balanço social). Só leitura,
+  antiguidade**, **mapa de efectivos**, **indicadores do pessoal** (balanço social) — os três feitos. Só leitura,
   por unidade com subunidades, JSON e CSV, em `/relatorios/…`. Da lista, **só gerar**: o ciclo
   (aprovar, afixar, reclamações, publicar até 30/4) fica para depois. «Cargo» = carreira/categoria pelo
   escalão da afectação (fora da grelha, o Job); início no cargo = cadeia seguida na categoria;
@@ -211,7 +216,10 @@ Caminhos Java relativos a `src/main/java/cv/igrp/RH_Service/`; `db/...` relativo
   · `db/migration/V57__unidade_organica_horario.sql` · `db/migration/V58__pedido_ausencia_em_horas.sql`.
 - `db/seed/seed_parametrizacoes.sql` — feriados, tipos de ausência, parâmetros de férias.
 - `scripts/repor_estado.sql` · `scripts/testes_funcionais.ps1` · `scripts/testes_funcionais_README.md`
-  · `scripts/verificar_handoff.py`.
+  · `scripts/verificar_handoff.py` · `scripts/dados_demonstracao.ps1` · `scripts/dados_demonstracao.json`
+  · `scripts/dados_demonstracao_README.md`.
+- Relatórios (`colaboradores/`): `application/services/QuemEstaNoServico.java` · `ListaAntiguidadeService.java`
+  · `MapaEfectivosService.java` · `IndicadoresPessoalService.java` · `interfaces/rest/RelatoriosController.java`.
 - `docs/funcionarios/v5/regras_negocio.html` (BR-HOR, BR-ASS, BR-FAL, BR-AUS-24..28, BR-SUP, BR-REL, BR-ME)
   · `docs/funcionarios/v5/api_guide.md` (§6.7 a §6.11, §9.1 a §9.3)
   · `docs/funcionarios/v5/breaking_change_frontend.md` (§11.21 a §11.32 + checklist)
@@ -286,7 +294,7 @@ Ideias-chave: período vem de `agendadoPara`, parâmetros gravados na abertura, 
 
 ## Plano em aberto
 
-**Plano de fecho para a apresentação** (aprovado pelo utilizador em 2026-09-24: «vamos pôr tudo isso
+**Plano de fecho para a apresentação — concluído em 2026-09-24** (aprovado pelo utilizador em 2026-09-24: «vamos pôr tudo isso
 nesse plano e fechar; você vai fazer tudo de uma vez» — um commit por ponto, sem push):
 
 1. ✔ **Mapa de férias — preferência pelo próprio** (art. 5.º n.º 4): `PUT /me/ferias/{ano}/preferencia`,
@@ -298,7 +306,7 @@ nesse plano e fechar; você vai fazer tudo de uma vez» — um commit por ponto,
 3. ✔ **Indicadores do pessoal** (Lei 20, art. 38.º n.º 3 — balanço social): efectivos por vínculo,
    género, escalão etário, carreira e unidade; entradas e saídas no ano; absentismo e horas extras.
    JSON (o front desenha).
-4. **Dados de demonstração credíveis**: 12–15 colaboradores em 2–3 unidades com chefias (Lugar-pai),
+4. ✔ **Dados de demonstração credíveis**: 12–15 colaboradores em 2–3 unidades com chefias (Lugar-pai),
    um mês de marcações com faltas e atrasos, férias, pedidos aprovados e pendentes, horas extras, uma
    promoção; o nome do SERV_RH corrigido na base (`ServiÃ§o`).
 
@@ -318,6 +326,7 @@ nesse plano e fechar; você vai fazer tudo de uma vez» — um commit por ponto,
 
 ## Next step
 
-Executar o **plano de fecho** pela ordem (1 → 4), um commit por ponto, sem push; no fim, relatório ao
-utilizador. Se a sessão cair a meio: `git log` diz até onde se chegou. Antes de desenhar: lei, indústria
-e **o que já existe**; aprovação do desenho antes de implementar; um commit por ponto.
+O plano de fecho está feito. **Esperar pelo utilizador**: decide o push e o deploy para demonstração
+(merge para `master` = deploy) e qual dos adiados (secção Plano em aberto) entra a seguir. Nada
+se implementa sem essa escolha. Antes de desenhar o que vier: lei, indústria e **o que já
+existe**; aprovação do desenho antes de implementar; um commit por ponto.

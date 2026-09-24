@@ -46,6 +46,19 @@ BEGIN
   DELETE FROM t_funcionario    WHERE id = ANY(extras);
 END $$;
 
+-- 0b. O que os dados de demonstracao (scripts/dados_demonstracao.ps1) criam alem dos colaboradores:
+--     os Lugares DEMO-* e as unidades DEMO_*. Os colaboradores ja sairam no ponto 0.
+DO $$ BEGIN
+  UPDATE t_unidade_organica SET responsible_employee_id = NULL
+   WHERE responsible_employee_id IS NOT NULL
+     AND responsible_employee_id NOT IN (SELECT id FROM t_funcionario);
+  DELETE FROM t_position WHERE numero_lugar LIKE 'DEMO-%';
+  IF to_regclass('public.t_unidade_organica_horario') IS NOT NULL THEN
+    DELETE FROM t_unidade_organica_horario WHERE unidade_id IN (SELECT id FROM t_unidade_organica WHERE code LIKE 'DEMO\_%');
+  END IF;
+  DELETE FROM t_unidade_organica WHERE code LIKE 'DEMO\_%';
+END $$;
+
 -- 1. Afectacoes: fica so a do seed, com o escalao de partida.
 --    A clausula 'not in' apanha tambem as substituicoes e o que os movimentos criaram.
 delete from t_assignment where id not in (

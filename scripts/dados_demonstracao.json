@@ -1,0 +1,24 @@
+{
+  "_leia": "Dados de demonstração do RH-Service. Carregados por scripts/dados_demonstracao.ps1, pela API, numa base reposta (scripts/repor_estado.sql). Nomes fictícios.",
+  "servRhNome": "Serviço de Recursos Humanos",
+  "unidades": [
+    { "code": "DEMO_SFIN", "name": "Serviço Financeiro e Patrimonial", "acronym": "SFP" },
+    { "code": "DEMO_GJUR", "name": "Gabinete Jurídico", "acronym": "GJ" }
+  ],
+  "horarioBase": { "nome": "Horário normal (08:00-12:30 e 14:00-17:30)" },
+  "colaboradores": [
+    { "chave": "ana",     "nome": "Ana Lúcia Fortes",        "genero": "F", "nascimento": "1978-03-14", "admissao": "2008-02-01", "unidade": "SERV_RH",   "chefe": true,  "categoria": "Técnico Superior" },
+    { "chave": "carlos",  "nome": "Carlos Manuel Semedo",    "genero": "M", "nascimento": "1985-07-22", "admissao": "2012-09-03", "unidade": "SERV_RH",   "chefe": false, "categoria": "Técnico Superior" },
+    { "chave": "dulce",   "nome": "Dulce Maria Tavares",     "genero": "F", "nascimento": "1992-11-05", "admissao": "2018-01-15", "unidade": "SERV_RH",   "chefe": false, "categoria": "Assistente Técnico" },
+    { "chave": "edson",   "nome": "Edson Varela Lopes",      "genero": "M", "nascimento": "1999-04-30", "admissao": "2023-03-01", "unidade": "SERV_RH",   "chefe": false, "categoria": "Assistente Técnico" },
+    { "chave": "fatima",  "nome": "Fátima dos Santos Gomes", "genero": "F", "nascimento": "1974-01-19", "admissao": "2002-06-17", "unidade": "DEMO_SFIN", "chefe": true,  "categoria": "Técnico Superior" },
+    { "chave": "gilberto","nome": "Gilberto Monteiro Silva", "genero": "M", "nascimento": "1988-08-08", "admissao": "2014-05-05", "unidade": "DEMO_SFIN", "chefe": false, "categoria": "Técnico Superior" },
+    { "chave": "helena",  "nome": "Helena Rodrigues Pina",   "genero": "F", "nascimento": "1995-12-12", "admissao": "2020-10-01", "unidade": "DEMO_SFIN", "chefe": false, "categoria": "Assistente Técnico" },
+    { "chave": "ivo",     "nome": "Ivo Correia Almeida",     "genero": "M", "nascimento": "1965-02-27", "admissao": "1995-01-02", "unidade": "DEMO_SFIN", "chefe": false, "categoria": "Assistente Técnico" },
+    { "chave": "joana",   "nome": "Joana Brito Évora",       "genero": "F", "nascimento": "1983-06-03", "admissao": "2010-04-12", "unidade": "DEMO_GJUR", "chefe": true,  "categoria": "Técnico Superior" },
+    { "chave": "leonel",  "nome": "Leonel Andrade Fonseca",  "genero": "M", "nascimento": "1990-09-17", "admissao": "2016-11-21", "unidade": "DEMO_GJUR", "chefe": false, "categoria": "Técnico Superior" },
+    { "chave": "marta",   "nome": "Marta Neves Barbosa",     "genero": "F", "nascimento": "2001-05-25", "admissao": "ANO-02-01", "unidade": "DEMO_GJUR", "chefe": false, "categoria": "Assistente Técnico" },
+    { "chave": "nuno",    "nome": "Nuno Ramos Delgado",      "genero": "M", "nascimento": "1996-10-10", "admissao": "ANO-06-01", "unidade": "DEMO_GJUR", "chefe": false, "categoria": "Assistente Técnico" }
+  ],
+  "_notas": "admissao 'ANO-mm-dd' = no ano corrente (entradas do ano nos indicadores)."
+}

@@ -553,6 +553,10 @@ aparece com o inicio no cargo de 2015-06-01 (o seed) e 10 anos e 7 meses contado
 
 ## Resultado da última execução
 
+**751 passos, 751 OK** (2026-09-24), duas execucoes seguidas, a primeira numa base onde se tinham
+carregado os dados de demonstracao (`scripts/dados_demonstracao.ps1`) e depois reposta: o bloco 0b do
+`repor_estado.sql` apaga os Lugares `DEMO-*`, as unidades `DEMO_*` e os seus horarios.
+
 **751 passos, 751 OK** (2026-09-24), duas execucoes seguidas com o `repor_estado.sql` entre elas
 (F37 incluido). Armadilha paga: os admitidos do F11 nao tem Lugar em nenhum servico, logo nao
 entram nas entradas do ano do ministerio -- o F37 so verifica que entradas e saidas vem contadas.
