@@ -125,7 +125,8 @@ As operações com mais a dizer — o registo composto, os movimentos de carreir
 | `GET` | `/positions/{id}` | Detalhe de um Lugar. |
 | `POST` | `/positions` | Criar Lugar. |
 | `PUT` | `/positions/{id}` | Atualizar Lugar. |
-| `PATCH` | `/positions/{id}/freeze` | Congelar (estado `CONGELADO`). **Não há endpoint para descongelar** (o domínio tem-no, a API não o expõe): congelar não se desfaz pela API. |
+| `PATCH` | `/positions/{id}/freeze` | Congelar (estado `CONGELADO`): sai da dotação. Corpo `EstadoLugarRequestDTO`; recusa um Lugar com titular. |
+| `PATCH` | `/positions/{id}/unfreeze` | Descongelar: volta a `ATIVO` e à dotação. Corpo `EstadoLugarRequestDTO`. |
 | `DELETE` | `/positions/{id}` | Extinguir (estado `EXTINTO`). |
 
 **`PositionRequestDTO`**
@@ -146,9 +147,31 @@ As operações com mais a dizer — o registo composto, os movimentos de carreir
 ```
 id, numeroLugar, jobId, jobNome, unidadeOrganicaId, unidadeNome,
 careerId, careerNome, categoryId, categoryNome,
-parentPositionId, managesUnitId, estado, legalBase,
-isActive, foraDeGrelha, ocupado
+parentPositionId, managesUnitId, estado, estadoMotivo, estadoDespacho, estadoDesde,
+legalBase, isActive, foraDeGrelha, ocupado
 ```
+
+**Congelar e descongelar** — `PATCH /positions/{id}/freeze` e `PATCH /positions/{id}/unfreeze`, com o mesmo corpo:
+
+```json
+PATCH /api/v1/rh/estrutura/positions/{id}/freeze
+{ "motivo": "Sem dotação orçamental no OE 2027", "despachoNumero": "Desp. 12/2026" }
+→ 200 { "id": "…", "sucesso": true, "alertas": [] }
+```
+
+| Caso | Resposta |
+|---|---|
+| sem `motivo` (os dois) | 400 |
+| congelar um Lugar **com titular** — o titular sai primeiro (transferência ou cessação) | 422 |
+| congelar ou descongelar um Lugar `EXTINTO` | 409 |
+| congelar o já congelado · descongelar o já activo | 200 com `sucesso: false` e o motivo em `alertas` |
+| Lugar inexistente | 404 |
+
+O motivo, o despacho e a data do estado actual vêm em `estadoMotivo`, `estadoDespacho` e `estadoDesde`
+(nulos nos Lugares congelados antes da V59); o histórico está na auditoria. Um Lugar que não pode voltar
+**extingue-se** (`DELETE /positions/{id}`, definitivo). Regras: BR-POS-05 a BR-POS-07.
+
+> **Breaking:** `freeze` passou a exigir corpo com `motivo` — sem ele dá 400 (ver a secção 11.39 do `breaking_change_frontend.md`).
 
 **`WrapperListaPositionDTO`** (lista) = wrapper de paginação + `dotacao`, `ocupados`, `vagas`.
 

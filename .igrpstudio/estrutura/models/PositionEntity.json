@@ -14,6 +14,9 @@
     {"name": "parentPosition", "type": "relation", "relation": {"type": "ManyToOne", "entity": "PositionEntity", "fetchType": "lazy", "joinColumn": "parent_position_id", "module": "estrutura"}},
     {"name": "managesUnit", "type": "relation", "relation": {"type": "ManyToOne", "entity": "OrganizationalUnitEntity", "fetchType": "lazy", "joinColumn": "manages_unit_id", "module": "estrutura"}},
     {"name": "estado", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "estadoMotivo", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "estadoDespacho", "type": "string", "objectType": "java", "primaryKey": false},
+    {"name": "estadoDesde", "type": "date", "objectType": "java", "primaryKey": false},
     {"name": "legalBase", "type": "string", "objectType": "java", "primaryKey": false},
     {"name": "isActive", "type": "boolean", "objectType": "java", "primaryKey": false}
   ]

@@ -21,6 +21,7 @@ import cv.igrp.RH_Service.estrutura.application.queries.*;
 import cv.igrp.RH_Service.estrutura.application.dto.WrapperListaPositionDTO;
 import cv.igrp.RH_Service.estrutura.application.dto.PositionResponseDTO;
 import cv.igrp.RH_Service.estrutura.application.dto.PositionRequestDTO;
+import cv.igrp.RH_Service.estrutura.application.dto.EstadoLugarRequestDTO;
 
 import cv.igrp.RH_Service.shared.application.dto.SuccessResponseDTO;
 
@@ -153,7 +154,7 @@ public class PositionController {
 
     @PatchMapping("{positionId}/freeze")
     @Operation(
-        summary = "Congelar Lugar",
+        summary = "Congelar Lugar (sai da dotação; exige motivo; recusa um Lugar com titular)",
         responses = {
             @ApiResponse(
                 responseCode = "200",
@@ -162,11 +163,38 @@ public class PositionController {
         }
     )
     public ResponseEntity<SuccessResponseDTO> freezePosition(
+        @Valid @RequestBody EstadoLugarRequestDTO freezePositionRequest,
         @PathVariable(value = "positionId") String positionId) {
 
         LOGGER.debug("Operation started");
 
-        final var command = new CongelarPositionCommand(positionId);
+        final var command = new CongelarPositionCommand(freezePositionRequest, positionId);
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
+
+        LOGGER.debug("Operation finished");
+
+        return ResponseEntity.status(response.getStatusCode())
+            .headers(response.getHeaders())
+            .body(response.getBody());
+    }
+
+    @PatchMapping("{positionId}/unfreeze")
+    @Operation(
+        summary = "Descongelar Lugar (volta a ATIVO e à dotação; exige motivo)",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessResponseDTO.class))
+            )
+        }
+    )
+    public ResponseEntity<SuccessResponseDTO> unfreezePosition(
+        @Valid @RequestBody EstadoLugarRequestDTO unfreezePositionRequest,
+        @PathVariable(value = "positionId") String positionId) {
+
+        LOGGER.debug("Operation started");
+
+        final var command = new DescongelarPositionCommand(unfreezePositionRequest, positionId);
         ResponseEntity<SuccessResponseDTO> response = commandBus.send(command);
 
         LOGGER.debug("Operation finished");

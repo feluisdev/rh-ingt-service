@@ -48,6 +48,9 @@ public class PositionMapper {
         dto.setParentPositionId(str(domain.getParentPositionId()));
         dto.setManagesUnitId(str(domain.getManagesUnitId()));
         dto.setEstado(domain.getEstado());
+        dto.setEstadoMotivo(domain.getEstadoMotivo());
+        dto.setEstadoDespacho(domain.getEstadoDespacho());
+        dto.setEstadoDesde(domain.getEstadoDesde() != null ? domain.getEstadoDesde().toString() : null);
         dto.setLegalBase(domain.getLegalBase());
         dto.setIsActive(domain.isActive());
         dto.setForaDeGrelha(domain.isForaDeGrelha());
@@ -90,6 +93,9 @@ public class PositionMapper {
         entity.setParentPosition(refs.ref(PositionEntity.class, domain.getParentPositionId()));
         entity.setManagesUnit(refs.ref(OrganizationalUnitEntity.class, domain.getManagesUnitId()));
         entity.setEstado(domain.getEstado());
+        entity.setEstadoMotivo(domain.getEstadoMotivo());
+        entity.setEstadoDespacho(domain.getEstadoDespacho());
+        entity.setEstadoDesde(domain.getEstadoDesde());
         entity.setLegalBase(domain.getLegalBase());
         entity.setIsActive(domain.isActive());
         return entity;
@@ -97,7 +103,7 @@ public class PositionMapper {
 
     public Position toDomain(PositionEntity entity) {
         if (entity == null) return null;
-        return Position.reconstituir(
+        Position position = Position.reconstituir(
                 PositionId.from(entity.getId()),
                 entity.getNumeroLugar(),
                 entity.getJob().getId(),
@@ -110,5 +116,7 @@ public class PositionMapper {
                 entity.getLegalBase(),
                 entity.getIsActive() != null && entity.getIsActive()
         );
+        position.reconstituirMotivoDoEstado(entity.getEstadoMotivo(), entity.getEstadoDespacho(), entity.getEstadoDesde());
+        return position;
     }
 }

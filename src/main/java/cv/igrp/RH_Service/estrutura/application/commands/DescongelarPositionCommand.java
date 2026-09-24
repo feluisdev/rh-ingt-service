@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class CongelarPositionCommand implements Command {
+public class DescongelarPositionCommand implements Command {
     private final EstadoLugarRequestDTO request;
     private final String positionId;
 }

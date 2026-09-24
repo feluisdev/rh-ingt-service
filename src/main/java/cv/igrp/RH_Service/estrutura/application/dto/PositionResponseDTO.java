@@ -21,6 +21,11 @@ public class PositionResponseDTO {
     private String parentPositionId;
     private String managesUnitId;
     private String estado;
+    /** Porque está no estado actual (ao congelar ou descongelar); nulo nos Lugares de antes da V59. */
+    private String estadoMotivo;
+    private String estadoDespacho;
+    /** Data em que passou ao estado actual (yyyy-MM-dd). */
+    private String estadoDesde;
     private String legalBase;
     private Boolean isActive;
     private Boolean foraDeGrelha;

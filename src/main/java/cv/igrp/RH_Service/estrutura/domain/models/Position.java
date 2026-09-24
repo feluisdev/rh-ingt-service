@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.estrutura.domain.valueobject.PositionId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 /**
@@ -27,6 +28,9 @@ public class Position {
     private UUID parentPositionId;  // reporte estrutural (chefia)
     private UUID managesUnitId;     // unidade que este Lugar dirige (responsável)
     private String estado;
+    private String estadoMotivo;    // porque está no estado actual (congelar/descongelar)
+    private String estadoDespacho;
+    private LocalDate estadoDesde;
     private String legalBase;
     private boolean active;
 
@@ -99,18 +103,57 @@ public class Position {
         return this.careerId == null || this.categoryId == null;
     }
 
-    public void congelar() {
+    /**
+     * Congela o Lugar: sai da dotação e deixa de poder ser ocupado. É um acto administrativo
+     * (falta de dotação, reestruturação) e exige motivo; fica o motivo, o despacho e a data.
+     * Quem chama garante que o Lugar não tem titular — a ocupação é de colaboradores.
+     * Um Lugar que não pode voltar não se congela: extingue-se.
+     *
+     * @return {@code false} se já estava congelado (nada a fazer)
+     */
+    public boolean congelar(String motivo, String despachoNumero, LocalDate data) {
         if (EXTINTO.equals(this.estado)) {
             throw IgrpResponseStatusException.conflict("Um Lugar extinto não pode ser congelado.");
         }
+        if (CONGELADO.equals(this.estado)) {
+            return false;
+        }
+        registarMotivo(motivo, despachoNumero, data);
         this.estado = CONGELADO;
+        return true;
     }
 
-    public void reativarEstado() {
+    /**
+     * Descongela: o Lugar volta a {@code ATIVO} e à dotação. Também exige motivo.
+     *
+     * @return {@code false} se já estava activo (nada a fazer)
+     */
+    public boolean descongelar(String motivo, String despachoNumero, LocalDate data) {
         if (EXTINTO.equals(this.estado)) {
             throw IgrpResponseStatusException.conflict("Um Lugar extinto não pode voltar a ATIVO.");
         }
+        if (ATIVO.equals(this.estado)) {
+            return false;
+        }
+        registarMotivo(motivo, despachoNumero, data);
         this.estado = ATIVO;
+        return true;
+    }
+
+    private void registarMotivo(String motivo, String despachoNumero, LocalDate data) {
+        if (motivo == null || motivo.isBlank()) {
+            throw IgrpResponseStatusException.badRequest("O motivo é obrigatório.");
+        }
+        this.estadoMotivo = motivo.trim();
+        this.estadoDespacho = despachoNumero == null || despachoNumero.isBlank() ? null : despachoNumero.trim();
+        this.estadoDesde = data;
+    }
+
+    /** Só para a persistência: repõe o motivo gravado com o estado. */
+    public void reconstituirMotivoDoEstado(String motivo, String despachoNumero, LocalDate desde) {
+        this.estadoMotivo = motivo;
+        this.estadoDespacho = despachoNumero;
+        this.estadoDesde = desde;
     }
 
     public void extinguir() {

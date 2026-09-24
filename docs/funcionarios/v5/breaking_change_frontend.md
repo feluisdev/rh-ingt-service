@@ -88,7 +88,8 @@ CRUD de Lugares em `/api/v1/rh/estrutura/positions`:
 | Listar por unidade (+ vagas) | `GET /positions?unidadeId={id}` |
 | Criar Lugar | `POST /positions` |
 | Editar | `PUT /positions/{id}` |
-| Congelar | `PATCH /positions/{id}/freeze` |
+| Congelar | `PATCH /positions/{id}/freeze` — corpo `{motivo, despachoNumero?}` (ver 11.39) |
+| Descongelar | `PATCH /positions/{id}/unfreeze` — o mesmo corpo |
 | Extinguir | `DELETE /positions/{id}` |
 
 Ao criar, definir chefias:
@@ -820,6 +821,17 @@ deixaram de vir de `application.properties` e passam a vir de um catálogo por v
   efectivos por género, escalão etário, contrato, carreira e unidade (listas `{chave, valor}`),
   entradas, saídas, taxa de absentismo e horas extras. O gráfico é do front.
 
+### 11.39 Congelar exige motivo, e passa a poder descongelar-se (BREAKING, 2026-09-24)
+
+- **Muda um comportamento:** `PATCH /positions/{id}/freeze` passa a exigir corpo `{ "motivo": "…", "despachoNumero": "…" }`
+  (despacho opcional). **Sem corpo ou sem motivo dá 400** — o ecrã actual, que não manda corpo, tem de pedir o motivo.
+- **Não se congela um Lugar com titular:** 422. O ecrã não deve oferecer «Congelar» num Lugar provido (`ocupado: true`).
+- **Novo:** `PATCH /positions/{id}/unfreeze`, com o mesmo corpo — o Lugar volta a `ATIVO` e à dotação. Oferecer
+  «Descongelar» só nos Lugares `CONGELADO`.
+- Congelar o já congelado, ou descongelar o já activo: 200 com `sucesso: false` (nada a fazer). Extinto: 409 nos dois.
+- `PositionResponseDTO` ganha `estadoMotivo`, `estadoDespacho`, `estadoDesde` — mostrar no Lugar congelado porquê e desde quando.
+- Um Lugar que não pode voltar extingue-se (`DELETE /positions/{id}`); o congelamento é sempre reversível.
+
 ---
 
 ## 12. Checklist do alinhamento com a legislação (secção 11)
@@ -878,3 +890,4 @@ Por ordem das secções. Cada item remete para o ecrã correspondente em `aprese
 - [ ] Trabalho suplementar: separador no colaborador (mês, autorizado vs realizado por tipo de dia), pedido pelo próprio no `/me`, e a caixa de pendentes da chefia (autorizar/recusar).
 - [ ] `/me`: botão de picar (só em teletrabalho/misto), pedido de correcção com motivo, e a caixa de pendentes da equipa para a chefia (validar/rejeitar).
 - [ ] Separador de faltas apuradas do mês: dias com falta e motivo, débitos da aferição, total em dias e meios-dias, e atalho para justificar (pedido de ausência).
+- [ ] Congelar: pedir o motivo (e o despacho) e esconder a acção nos Lugares com titular; «Descongelar» nos congelados, com motivo; mostrar `estadoMotivo`/`estadoDesde`.

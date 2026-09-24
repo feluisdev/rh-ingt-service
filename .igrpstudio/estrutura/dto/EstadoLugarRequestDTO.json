@@ -1,0 +1,10 @@
+{
+  "type": "dto",
+  "name": "EstadoLugarRequestDTO",
+  "module": "estrutura",
+  "template": "classic",
+  "attributes": [
+    {"name": "motivo", "type": "string", "required": true},
+    {"name": "despachoNumero", "type": "string", "required": false}
+  ]
+}

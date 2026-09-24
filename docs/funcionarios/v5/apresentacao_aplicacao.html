@@ -1226,7 +1226,27 @@
             <tr><td>LUG-0006</td><td>Analista de Planeamento</td><td>Regime Geral / Assist. Técnico</td><td><span class="pill w">CONGELADO</span></td><td>—</td><td></td></tr>
             <tr><td>LUG-0007</td><td>Gestor de RH</td><td>Regime Especial / Téc. Reg. Especial</td><td><span class="pill ok">ATIVO</span></td><td><span class="pill">vago</span></td><td></td></tr>
           </table>
-          <div class="btns"><span class="btn">Congelar</span><span class="btn r">Extinguir</span></div>
+          <div class="btns"><span class="btn">Congelar…</span><span class="btn">Descongelar…</span><span class="btn r">Extinguir</span></div>
+          <div class="titulo" style="margin-top:10px">Congelar o LUG-0007</div>
+          <div class="form" data-dto="EstadoLugarRequestDTO">
+            <div class="campo l2" data-campo="motivo"><label>Motivo<span class="req">*</span><span class="api">motivo</span></label><div class="inp">Sem dotação orçamental no OE 2027</div><div class="ajuda">Obrigatório para congelar e para descongelar. Não se valida o texto.</div></div>
+            <div class="campo" data-campo="despachoNumero"><label>Despacho<span class="api">despachoNumero</span></label><div class="inp">Desp. 12/2026</div></div>
+          </div>
+          <div class="cenarios" data-alvo="r-congelar">
+            <b>Experimente:</b>
+            <button type="button" data-c="ok" class="on">Congelar um Lugar vago</button>
+            <button type="button" data-c="titular">Congelar um Lugar com titular</button>
+            <button type="button" data-c="semmot">Sem motivo</button>
+            <button type="button" data-c="desc">Descongelar</button>
+            <button type="button" data-c="ext">Descongelar um extinto</button>
+          </div>
+          <div class="respostas" id="r-congelar">
+            <div class="resp" data-c="ok"><div class="toast ok"><b>200</b> — CONGELADO: sai da dotação e das vagas; fica o motivo, o despacho e a data (<code>estadoMotivo</code>, <code>estadoDesde</code>). <span class="br">BR-POS-06</span></div></div>
+            <div class="resp" data-c="titular"><div class="toast bad"><b>422</b> — «O Lugar tem titular: não se congela um Lugar ocupado. O titular sai primeiro (transferência ou cessação).» <span class="br">BR-POS-06</span></div></div>
+            <div class="resp" data-c="semmot"><div class="toast bad"><b>400</b> — o motivo é obrigatório, para congelar e para descongelar. <span class="br">BR-POS-06</span><span class="br">BR-POS-07</span></div></div>
+            <div class="resp" data-c="desc"><div class="toast ok"><b>200</b> — volta a ATIVO e à dotação, com o motivo do descongelamento. <span class="br">BR-POS-07</span></div></div>
+            <div class="resp" data-c="ext"><div class="toast bad"><b>409</b> — um Lugar extinto não volta: a extinção é terminal. O que não pode voltar extingue-se; o congelamento é sempre reversível. <span class="br">BR-POS-05</span></div></div>
+          </div>
         </div>
       </div>
     </div>
@@ -1236,7 +1256,8 @@
         <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/estrutura/positions/{positionId}</span></div>
         <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/estrutura/positions</span></div>
         <div class="api-l"><b class="m put">PUT</b><span class="rota">/api/v1/rh/estrutura/positions/{positionId}</span><span class="d">reorganizar: a cadeira muda de unidade e quem lá está vai junto</span></div>
-        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/estrutura/positions/{positionId}/freeze</span><span class="d">CONGELADO</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/estrutura/positions/{positionId}/freeze</span><span class="d">congelar — <code>{motivo, despachoNumero?}</code></span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/estrutura/positions/{positionId}/unfreeze</span><span class="d">descongelar — o mesmo corpo</span></div>
         <div class="api-l"><b class="m delete">DELETE</b><span class="rota">/api/v1/rh/estrutura/positions/{positionId}</span><span class="d">EXTINTO (definitivo)</span></div>
         <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/colaboradores/assignments/unidade/{unidadeId}/vagas</span><span class="d">{dotacao, ocupados, vagas}</span></div>
         <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/colaboradores/assignments/unidade/{unidadeId}/vagas/lista</span><span class="d">só os vagos e ocupáveis — o picker</span></div>
@@ -1246,7 +1267,9 @@
         <li><span class="br">BR-POS-01</span>N.º, cargo e unidade obrigatórios<span class="cod">400</span></li>
         <li><span class="br">BR-POS-02</span>N.º do Lugar único<span class="cod">409</span></li>
         <li><span class="br">BR-POS-03</span>Estados <code>ATIVO</code> · <code>CONGELADO</code> · <code>EXTINTO</code>; só ATIVO e vago se ocupa</li>
-        <li><span class="br">BR-POS-04</span><span class="br">BR-POS-05</span>Extinto não se congela nem volta a activo<span class="cod">409</span>; e um congelado <b>não se descongela pela API</b> (não há endpoint)</li>
+        <li><span class="br">BR-POS-04</span><span class="br">BR-POS-05</span>Extinto não se congela nem volta a activo<span class="cod">409</span></li>
+        <li><span class="br">BR-POS-06</span>Congelar exige motivo<span class="cod">400</span> e um Lugar sem titular<span class="cod">422</span></li>
+        <li><span class="br">BR-POS-07</span>Descongelar exige motivo<span class="cod">400</span>; volta a ATIVO</li>
         <li><span class="br">BR-AF-03</span>Uma cadeira, um titular (índice único na base de dados)<span class="cod">422</span></li>
         <li><span class="br">BR-AF-12</span>Provido é ter titular; com substituto e sem titular conta como vago</li>
       </ul></div></div>
@@ -3078,7 +3101,7 @@
     <div class="caixa w"><h4>Mapa de férias</h4><p>A preferência dos cônjuges no mesmo serviço (art. 5.º n.º 6).</p></div>
     <div class="caixa w"><h4>Lista de antiguidade</h4><p>Aprovar, afixar, reclamar e publicar (arts. 71.º a 74.º).</p></div>
     <div class="caixa w"><h4>Horários e suplementar</h4><p>Limites legais, turnos, nocturno e compensação em descanso — esperam o diploma de desenvolvimento (arts. 164.º n.º 4, 165.º).</p></div>
-    <div class="caixa w"><h4>Carreiras</h4><p>Habilitações e concurso não se verificam; o Lugar não confirma que a categoria é da carreira, e um Lugar congelado não se descongela pela API; requisitos de tempo de serviço das licenças (arts. 46.º, 48.º) não se verificam.</p></div>
+    <div class="caixa w"><h4>Carreiras</h4><p>Habilitações e concurso não se verificam; o Lugar não confirma que a categoria é da carreira; requisitos de tempo de serviço das licenças (arts. 46.º, 48.º) não se verificam.</p></div>
     <div class="caixa w"><h4>Outros</h4><p>Formação e disciplinar como processos com fluxo; acumulação de funções públicas (art. 21.º); área geográfica numa tabela própria; lock dos jobs.</p></div>
   </div>
   <div class="nota chave"><b>Fora do âmbito por decisão:</b> permuta, estágio probatório e reintegração judicial. Por confirmar com o jurídico: a soma mensal do art. 13.º n.º 4, a isenção de horário no trabalho suplementar (art. 155.º n.º 2 b)), a duração da dispensa de amamentação e o período dos 6 dias do art. 77.º n.º 3.</div>

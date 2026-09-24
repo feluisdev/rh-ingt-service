@@ -54,6 +54,16 @@ public class PositionEntity extends AuditEntity {
     @Column(name = "estado", nullable = false, length = 20)
     private String estado;
 
+    /** Motivo, despacho e data do estado actual (congelar/descongelar, V59). */
+    @Column(name = "estado_motivo", length = 500)
+    private String estadoMotivo;
+
+    @Column(name = "estado_despacho", length = 120)
+    private String estadoDespacho;
+
+    @Column(name = "estado_desde")
+    private java.time.LocalDate estadoDesde;
+
     @Column(name = "legal_base", length = 255)
     private String legalBase;
 

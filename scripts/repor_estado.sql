@@ -78,6 +78,8 @@ update t_assignment set data_fim=null, is_current=true, assignment_type='PRINCIP
 -- 2. Lugares: o LUG-0006 e congelado de proposito; os outros voltam a ATIVO.
 update t_position set estado='ATIVO', is_active=true where numero_lugar <> 'LUG-0006';
 update t_position set estado='CONGELADO', is_active=true where numero_lugar = 'LUG-0006';
+--    V59: o motivo do estado (congelar/descongelar) volta a nulo, como nos Lugares de antes.
+update t_position set estado_motivo=null, estado_despacho=null, estado_desde=null;
 --    A promocao sem positionId reclassifica o Lugar: repor a categoria de origem.
 update t_position set category_id='71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e701'::uuid where numero_lugar in ('LUG-0001','LUG-0004');
 update t_position set category_id='71e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e702'::uuid where numero_lugar in ('LUG-0002','LUG-0003','LUG-0005','LUG-0006');
