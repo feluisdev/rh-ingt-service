@@ -52,6 +52,7 @@ docker exec postgres-ingt-rh sh -c "psql -U postgres -d recursoshumanos_db -q -f
 | **F26** faltas por débito | sobre a semana do F25: dia com anomalia fica por corrigir; atraso de 30 min contra o horário fixo; dia sem marcações conta inteiro (SEM_REGISTO); domingo não se apura; um pedido aprovado tira o dia do apuramento |
 | **F27** pedido em horas (V58) | amamentação 1h+1h por dia durante 100 dias; a terceira passa do tecto diário; horas cruzadas 409, noutra hora cabe; tecto por ocorrência; férias em horas 422; terminar antes do fim acaba na véspera; meia hora justificada tira o atraso do apuramento |
 | **F28** pedido pelo próprio (/me) | segue as regras do RH: luto de sexta a segunda conta 4 dias seguidos; seminário de 7 dias passa do tecto (422); sobreposição 409; amamentação em horas pelo próprio |
+| **F36** mapa de efectivos | mapa do ministério com subunidades: há Lugares e o da Maria está provido numa unidade (no fim da bateria, no DGP); totais = soma das unidades e providos + vagos = lugares; CSV; unidade mal escrita 422, inexistente 404 |
 | **F35** férias: preferência pelo próprio e fora da marcação | a Maria indica a preferência pelo /me e fica PROPRIO; inactivo 403; a equipa dela vazia; pedido de férias dentro da marcação sem aviso, fora dela aceite com o aviso do art. 6.º n.º 2 (RH e /me) |
 | **F34** lista de antiguidade | lista do ministério com subunidades: referência a 31/12 do ano anterior; a Maria uma vez, com início no cargo, posição e tempo contado; posições seguidas em cada cargo; CSV com cabeçalho e a linha dela; ano futuro 422, unidade mal escrita 422, inexistente 404 |
 | **F33** horários com data de efeito | mudar os blocos do base (vigorou) 409, só o nome 200; duplicar dá cópia não-base editável; base com data passada 422; desactivar o base agendado 409; horário da unidade daqui a 3 dias: hoje ainda nenhum, antes vale o base, depois o da unidade; data passada 422 |
@@ -550,6 +551,10 @@ Le a lista do ano corrente (referencia 31 de Dezembro do ano anterior) ao nivel 
 aparece com o inicio no cargo de 2015-06-01 (o seed) e 10 anos e 7 meses contados.
 
 ## Resultado da última execução
+
+**742 passos, 742 OK** (2026-09-24), duas execucoes seguidas com o `repor_estado.sql` entre elas
+(F36 incluido). Armadilha paga: no fim da bateria o Lugar principal da Maria e do DGP (os blocos de
+mobilidade e promocao mudam-na), e nao do SERV_RH -- o F36 nao presume a unidade.
 
 **736 passos, 736 OK** (2026-09-24), duas execucoes seguidas com o `repor_estado.sql` entre elas
 (F35 incluido).

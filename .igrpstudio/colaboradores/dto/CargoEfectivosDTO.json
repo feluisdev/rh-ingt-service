@@ -1,0 +1,50 @@
+{
+  "type": "dto",
+  "name": "CargoEfectivosDTO",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "carreira",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "categoria",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "foraDeGrelha",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "lugares",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "providos",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "vagos",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "congelados",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

@@ -1239,6 +1239,27 @@ DL n.º 3/2010, art. 69.º: a lista de cada serviço com referência a **31 de D
 
 Regras: BR-LAN-01 a BR-LAN-05.
 
+### 6.13 Mapa de efectivos — Lei n.º 20/X/2023, art. 4.º al. aa)
+
+`GET /api/v1/rh/relatorios/mapa-efectivos?unidadeId={uuid}&incluirSubunidades=true` — os postos de
+trabalho que o serviço tem **hoje**, por unidade e por cargo; `…/mapa-efectivos.csv` em CSV.
+
+```json
+{ "data": "2026-09-24", "unidadeId": "…", "unidadeNome": "…", "incluirSubunidades": true,
+  "lugares": 12, "providos": 9, "vagos": 3, "congelados": 1,
+  "unidades": [ { "unidadeId": "…", "codigo": "SERV_RH", "nome": "Serviço de Recursos Humanos",
+                  "lugares": 5, "providos": 4, "vagos": 1, "congelados": 0,
+                  "cargos": [ { "carreira": "Técnica", "categoria": "Técnico Principal", "foraDeGrelha": false,
+                                "lugares": 2, "providos": 2, "vagos": 0, "congelados": 0 } ] } ] }
+```
+
+- `lugares` = Lugares activos (a dotação); `providos` = com titular; `vagos` = activos sem titular;
+  `congelados` à parte. Os extintos não entram.
+- Por cargo: carreira e categoria do Lugar (fora da grelha, o cargo/Job); a categoria mais alta primeiro.
+- 422: `unidadeId` mal escrito. 404: unidade que não existe.
+
+Regras: BR-MEF-01 a BR-MEF-03.
+
 ### Sub-recurso `documentos` (padrão)
 ```
 POST   .../{ownerId}/documentos            # upload (multipart)

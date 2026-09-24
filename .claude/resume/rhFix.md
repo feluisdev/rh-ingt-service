@@ -1,4 +1,4 @@
-> Updated: 2026-09-24 12:05 (-01:00) — plano de fecho, ponto 1 (mapa de férias)
+> Updated: 2026-09-24 13:00 (-01:00) — plano de fecho, ponto 2 (mapa de efectivos)
 
 ## Goal
 
@@ -11,16 +11,16 @@ fora o processamento salarial (outra aplicação, integração futura) e o SIGDI
 
 ## Current state
 
-**Branch `fix-alinhamento-legislacao`**, **44 commits locais por enviar** (`origin_git_lab`).
+**Branch `fix-alinhamento-legislacao`**, **45 commits locais por enviar** (`origin_git_lab`).
 **Não fazer push sem o utilizador pedir** — merge para `master` no GitLab é deploy.
 
-- **Testes: 1129, 0 falhas** — correr na **cópia isolada** (ver Blockers).
-- **Bateria funcional: 736 passos**, 736 OK (2026-09-24, duas execuções seguidas com reposição
-  entre elas). Blocos F20–F35: feriados (V55), contagem (V56), mapa de férias, parâmetros de férias,
+- **Testes: 1131, 0 falhas** — correr na **cópia isolada** (ver Blockers).
+- **Bateria funcional: 742 passos**, 742 OK (2026-09-24, duas execuções seguidas com reposição
+  entre elas). Blocos F20–F36: feriados (V55), contagem (V56), mapa de férias, parâmetros de férias,
   horários, registo diário, faltas por débito, pedido em horas (V58), pedido pelo próprio em `/me`,
-  registo pelo próprio com validação, trabalho suplementar, relação mensal, aprovação dos pedidos de ausência, horários com data de efeito, lista de antiguidade, preferência de férias pelo próprio e aviso fora da marcação.
+  registo pelo próprio com validação, trabalho suplementar, relação mensal, aprovação dos pedidos de ausência, horários com data de efeito, lista de antiguidade, preferência de férias pelo próprio e aviso fora da marcação, mapa de efectivos.
 - Migrações até **`V58`**. Próxima livre: **V59** (só para alterar tabelas existentes).
-- **`openapi.json`**: 279 caminhos (regenerado com a app a correr).
+- **`openapi.json`**: 281 caminhos (regenerado com a app a correr).
 - **Sete jobs `@Scheduled`**, sem lock distribuído (fica para o framework de jobs).
 - `.claude/settings.json` e `.claude/settings.local.json` estão **versionados, com alterações locais
   que não entram em nenhum commit** (não são desta tarefa: nunca `git add -A`). Fora do git ficam os
@@ -257,7 +257,7 @@ TE_PESQUISA `…e1f3`.
 ## Test / validation plan
 
 Para cada ponto novo: testes unitários (domínio e serviço), prova com a app, um bloco novo na
-bateria (o próximo é o **F36**) com positivos e negativos, e a bateria inteira duas vezes com
+bateria (o próximo é o **F37**) com positivos e negativos, e a bateria inteira duas vezes com
 reposição entre elas. Os blocos e as armadilhas pagas estão no `scripts/testes_funcionais_README.md`.
 
 ## Open questions
@@ -290,7 +290,7 @@ nesse plano e fechar; você vai fazer tudo de uma vez» — um commit por ponto,
    `GET /me/ferias/{ano}`, `GET /me/equipa/ferias/{ano}` (a chefia directa vê a equipa); fica quem
    indicou (PROPRIO/RH). **Aviso de pedido de férias fora da marcação** (art. 6.º n.º 2): alerta na
    criação (RH e /me), sem bloquear; `foraDaMarcacao` na caixa da chefia.
-2. **Mapa de efectivos** (Lei 20, art. 4.º al. aa) e arts. 38.º–41.º): por unidade e cargo, os Lugares
+2. ✔ **Mapa de efectivos** (Lei 20, art. 4.º al. aa) e arts. 38.º–41.º): por unidade e cargo, os Lugares
    (activos, providos, vagos, congelados) e os efectivos; JSON e CSV em `/relatorios/`.
 3. **Indicadores do pessoal** (Lei 20, art. 38.º n.º 3 — balanço social): efectivos por vínculo,
    género, escalão etário, carreira e unidade; entradas e saídas no ano; absentismo e horas extras.

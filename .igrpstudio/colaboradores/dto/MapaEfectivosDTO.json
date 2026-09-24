@@ -1,0 +1,64 @@
+{
+  "type": "dto",
+  "name": "MapaEfectivosDTO",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "date",
+      "name": "data",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "unidadeId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "unidadeNome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "incluirSubunidades",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "lugares",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "providos",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "vagos",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "congelados",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "UnidadeEfectivosDTO",
+      "name": "unidades",
+      "objectType": "dto",
+      "collectionType": "list",
+      "module": "colaboradores",
+      "required": false
+    }
+  ]
+}

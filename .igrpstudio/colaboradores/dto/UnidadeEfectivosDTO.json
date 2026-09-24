@@ -1,0 +1,58 @@
+{
+  "type": "dto",
+  "name": "UnidadeEfectivosDTO",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "unidadeId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "codigo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "nome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "lugares",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "providos",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "vagos",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "congelados",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "CargoEfectivosDTO",
+      "name": "cargos",
+      "objectType": "dto",
+      "collectionType": "list",
+      "module": "colaboradores",
+      "required": false
+    }
+  ]
+}

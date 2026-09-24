@@ -3,7 +3,7 @@
   "name": "Relatorios",
   "module": "colaboradores",
   "basePath": "api/v1/rh/relatorios",
-  "description": "Relatórios de gestão de cada serviço: lista de antiguidade (DL n.º 3/2010, art. 69.º); só leitura",
+  "description": "Relatórios de gestão de cada serviço: lista de antiguidade (DL n.º 3/2010, art. 69.º), mapa de efectivos e indicadores do pessoal (Lei n.º 20/X/2023); só leitura",
   "actions": [
     {
       "actionName": "getListaAntiguidade",
@@ -53,6 +53,69 @@
           "name": "ano",
           "isRequired": false
         },
+        {
+          "type": "string",
+          "name": "unidadeId",
+          "isRequired": true
+        },
+        {
+          "type": "boolean",
+          "name": "incluirSubunidades",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "text/csv": {
+              "schema": {
+                "type": "string",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getMapaEfectivos",
+      "method": "GET",
+      "path": "mapa-efectivos",
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "unidadeId",
+          "isRequired": true
+        },
+        {
+          "type": "boolean",
+          "name": "incluirSubunidades",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "MapaEfectivosDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getMapaEfectivosCsv",
+      "method": "GET",
+      "path": "mapa-efectivos.csv",
+      "requestParams": [
         {
           "type": "string",
           "name": "unidadeId",

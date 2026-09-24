@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @IgrpController
 @RestController("colabsRelatoriosController")
 @RequestMapping(path = "api/v1/rh/relatorios")
-@Tag(name = "Relatorios", description = "Relatórios de gestão de cada serviço: lista de antiguidade (DL n.º 3/2010, art. 69.º); só leitura")
+@Tag(name = "Relatorios", description = "Relatórios de gestão de cada serviço: lista de antiguidade (DL n.º 3/2010, art. 69.º), mapa de efectivos e indicadores do pessoal (Lei n.º 20/X/2023); só leitura")
 public class RelatoriosController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RelatoriosController.class);
@@ -54,6 +54,33 @@ public class RelatoriosController {
             @RequestParam(value = "incluirSubunidades", required = false, defaultValue = "true") Boolean incluirSubunidades) {
         LOGGER.debug("Operation started");
         ResponseEntity<byte[]> response = queryBus.handle(new GetListaAntiguidadeCsvQuery(ano, unidadeId, incluirSubunidades));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("mapa-efectivos")
+    @Operation(summary = "Mapa de efectivos de um serviço (hoje): por unidade e cargo, os Lugares activos, providos, vagos e congelados")
+    @ApiResponse(responseCode = "200", description = "Mapa de efectivos",
+            content = @Content(schema = @Schema(implementation = cv.igrp.RH_Service.colaboradores.application.dto.MapaEfectivosDTO.class)))
+    public ResponseEntity<cv.igrp.RH_Service.colaboradores.application.dto.MapaEfectivosDTO> getMapaEfectivos(
+            @RequestParam(value = "unidadeId") String unidadeId,
+            @RequestParam(value = "incluirSubunidades", required = false, defaultValue = "true") Boolean incluirSubunidades) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<cv.igrp.RH_Service.colaboradores.application.dto.MapaEfectivosDTO> response = queryBus.handle(
+                new cv.igrp.RH_Service.colaboradores.application.queries.GetMapaEfectivosQuery(unidadeId, incluirSubunidades));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping(value = "mapa-efectivos.csv", produces = "text/csv")
+    @Operation(summary = "O mesmo mapa de efectivos em CSV (separador ;, UTF-8 com BOM)")
+    @ApiResponse(responseCode = "200", description = "Ficheiro CSV")
+    public ResponseEntity<byte[]> getMapaEfectivosCsv(
+            @RequestParam(value = "unidadeId") String unidadeId,
+            @RequestParam(value = "incluirSubunidades", required = false, defaultValue = "true") Boolean incluirSubunidades) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<byte[]> response = queryBus.handle(
+                new cv.igrp.RH_Service.colaboradores.application.queries.GetMapaEfectivosCsvQuery(unidadeId, incluirSubunidades));
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }

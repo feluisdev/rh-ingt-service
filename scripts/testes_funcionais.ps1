@@ -1825,6 +1825,24 @@ $rMe35 = Chamar 'F35.11 o mesmo pelo /me' POST '/me/leave-requests' @{ leaveType
 Verificar 'F35.12 o /me tambem avisa' ((@($rMe35.Dados.alertas) -join ' ') -like '*art. 6*') ''
 
 Write-Host ''
+Write-Host '=========== F36 - MAPA DE EFECTIVOS (Lei 20/X/2023, art. 4.o al. aa)) ==========='
+
+# Por unidade e cargo, os Lugares activos, providos, vagos e congelados (hoje).
+$m36 = (Chamar 'F36.1 mapa de efectivos do ministerio, com subunidades' GET ('/relatorios/mapa-efectivos?unidadeId=' + $uMin)).Dados
+# A Maria acaba a bateria num Lugar do DGP (os blocos anteriores mudam-na de unidade): e o provido.
+$u36 = (@($m36.unidades) | Where-Object { $_.providos -ge 1 } | Select-Object -First 1)
+Verificar 'F36.2 ha Lugares, e o da Maria esta provido numa das unidades' (($m36.lugares -ge 1) -and ($null -ne $u36)) ('(' + $u36.codigo + ': lugares=' + $u36.lugares + ' providos=' + $u36.providos + ')')
+$soma36 = 0; foreach ($u in @($m36.unidades)) { $soma36 += $u.lugares }
+Verificar 'F36.3 os totais somam as unidades; providos + vagos = lugares' (($m36.lugares -eq $soma36) -and (($m36.providos + $m36.vagos) -eq $m36.lugares)) ('(' + $m36.lugares + ' = ' + $m36.providos + ' + ' + $m36.vagos + ')')
+try {
+    $csv36 = Invoke-WebRequest -UseBasicParsing -TimeoutSec 90 -Uri ($base + '/relatorios/mapa-efectivos.csv?unidadeId=' + $uMin)
+    if ($csv36.Content -is [byte[]]) { $t36 = [System.Text.Encoding]::UTF8.GetString($csv36.Content) } else { $t36 = [string]$csv36.Content }
+} catch { $t36 = '' }
+Verificar 'F36.4 CSV com cabecalho' ((@($t36 -split "`r`n" | Where-Object { $_ })[0]) -like '*data;unidade_codigo;unidade;carreira;categoria*') ''
+Chamar 'F36.5 NEG unidade mal escrita' GET '/relatorios/mapa-efectivos?unidadeId=abc' $null 422 | Out-Null
+Chamar 'F36.6 NEG unidade que nao existe' GET ('/relatorios/mapa-efectivos?unidadeId=' + [guid]::NewGuid()) $null 404 | Out-Null
+
+Write-Host ''
 Write-Host '=========== RESUMO ==========='
 $ok = ($script:resultados | Where-Object { $_.OK }).Count
 $total = $script:resultados.Count
