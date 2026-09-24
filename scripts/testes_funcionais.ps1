@@ -84,7 +84,9 @@ Verificar 'F0.1b os tres colaboradores do seed existem' (($null -ne $colabA) -an
 Write-Host ('      A=' + $colabA + '  B=' + $colabB + '  C=' + $colabC)
 
 Chamar 'F0.2 detalhe do colaborador A' GET ('/funcionarios/' + $colabA + '/details') | Out-Null
-Chamar 'F0.3 unidade atual de A' GET ('/colaboradores/assignments/funcionario/' + $colabA + '/unidade-atual') | Out-Null
+$rUniA0 = Chamar 'F0.3 unidade atual de A' GET ('/colaboradores/assignments/funcionario/' + $colabA + '/unidade-atual')
+# A categoria do Lugar de origem de A: no reingresso (F6.9) volta a um Lugar da mesma (art. 122.o).
+$catA0 = (Chamar 'F0.3b Lugar de origem de A' GET ('/estrutura/positions/' + $rUniA0.Dados.positionId)).Dados.categoryId
 $rEstados = Chamar 'F0.4 catalogo de estados' GET '/catalogs/worker-states?pagina=0&tamanho=50'
 $rTipos = Chamar 'F0.5 catalogo de tipos de ausencia' GET '/catalogs/leave-types?pagina=0&tamanho=50'
 $rSubtipos = Chamar 'F0.6 catalogo de subtipos' GET '/catalogs/leave-mobility-subtypes?pagina=0&tamanho=50'
@@ -315,10 +317,14 @@ Verificar 'F6.5 ha escalao para usar' ($null -ne $escalaoC) ''
 $rVagas = Chamar 'F6.6 Lugares vagos da unidade' GET ('/colaboradores/assignments/unidade/' + $unidade + '/vagas/lista')
 $vagos = @(Linhas $rVagas)
 Verificar 'F6.7 ha Lugares vagos para escolher' ($vagos.Count -ge 1) ('(n=' + $vagos.Count + ')')
-$lugarLivre = ($vagos | Where-Object { $_.foraDeGrelha -ne $true -and $_.estado -eq 'ATIVO' } | Select-Object -First 1)
+$lugarLivre = ($vagos | Where-Object { $_.foraDeGrelha -ne $true -and $_.estado -eq 'ATIVO' -and $_.categoryId -eq $catA0 } | Select-Object -First 1)
 $rGradesL = Chamar 'F6.8 escaloes da categoria do Lugar vago' GET ('/categories/' + $lugarLivre.categoryId + '/grades')
 $escalaoL = (@(Linhas $rGradesL) | Where-Object { $_.isActive -ne $false } | Select-Object -First 1).id
-Chamar 'F6.9 reafectar A a um Lugar vago' POST '/colaboradores/assignments' @{ funcionarioId=$colabA; positionId=$lugarLivre.id; gradeId=$escalaoL; origem='ADMISSAO'; dataInicio='2026-11-01' } 201 | Out-Null
+# A ja teve Lugar: e um REINGRESSO, e a origem e do sistema (BR-AF-19).
+Chamar 'F6.9a NEG reingresso enviado como ADMISSAO' POST '/colaboradores/assignments' @{ funcionarioId=$colabA; positionId=$lugarLivre.id; gradeId=$escalaoL; origem='ADMISSAO'; dataInicio='2026-11-01' } 422 | Out-Null
+Chamar 'F6.9 reingresso de A num Lugar vago da sua categoria' POST '/colaboradores/assignments' @{ funcionarioId=$colabA; positionId=$lugarLivre.id; gradeId=$escalaoL; origem='REINGRESSO'; dataInicio='2026-11-01' } 201 | Out-Null
+# Quem ja tem Lugar muda-o por um movimento, nao por aqui (BR-AF-16).
+Chamar 'F6.9b NEG colocar quem ja tem Lugar' POST '/colaboradores/assignments' @{ funcionarioId=$colabA; positionId=$lugarLivre.id; gradeId=$escalaoL; dataInicio='2026-11-02' } 422 | Out-Null
 
 # Quem esta em funcoes nao se substitui.
 Chamar 'F6.10 NEG substituir titular em actividade' POST ('/funcionarios/' + $colabA + '/substituicao') @{ positionId=$lugarC; gradeId=$escalaoC; dataInicio='2026-11-02' } 422 | Out-Null
@@ -468,19 +474,27 @@ $dInicio  = $hoje.AddDays(-5).ToString('yyyy-MM-dd')
 $dFim     = $hoje.AddMonths(3).ToString('yyyy-MM-dd')
 $dProrrog = $hoje.AddMonths(6).ToString('yyyy-MM-dd')
 $dHoje    = $hoje.ToString('yyyy-MM-dd')
+# B sai do Lugar em $dInicio (licenca do F3): regressa e e recolocado depois disso
+$dReing   = $hoje.AddDays(-2).ToString('yyyy-MM-dd')
 $dFimExt  = $hoje.AddMonths(2).ToString('yyyy-MM-dd')
 
-Chamar 'F8.1 B regressa a actividade' PATCH ('/funcionarios/' + $colabB + '/worker-state') @{ workerStateId=$ws['ACTIVE'].id; dataEfectividade=$dOntem; motivoCkey='VAGA_DISPONIVEL' } 200 | Out-Null
+Chamar 'F8.1 B regressa a actividade' PATCH ('/funcionarios/' + $colabB + '/worker-state') @{ workerStateId=$ws['ACTIVE'].id; dataEfectividade=$dReing; motivoCkey='VAGA_DISPONIVEL' } 200 | Out-Null
 
 $rUnidades = Chamar 'F8.2 unidades organicas' GET '/estrutura/organizational-units?pagina=0&tamanho=20'
 $unidades = @(Linhas $rUnidades)
 Verificar 'F8.3 ha pelo menos duas unidades' ($unidades.Count -ge 2) ('(n=' + $unidades.Count + ')')
 
 $rVagas8 = Chamar 'F8.4 Lugares vagos' GET ('/colaboradores/assignments/unidade/' + $unidade7 + '/vagas/lista')
-$lugar8 = (@(Linhas $rVagas8) | Where-Object { $_.foraDeGrelha -ne $true -and $_.estado -eq 'ATIVO' } | Select-Object -First 1)
+# O B ja teve Lugar (ASS_TEC, no seed): volta por REINGRESSO, a um Lugar da sua categoria (art. 122.o, BR-AF-21).
+$catAt8 = (@(Linhas (Chamar 'F8.4b categorias' GET '/categories?pagina=0&tamanho=50')) | Where-Object { $_.code -eq 'ASS_TEC' } | Select-Object -First 1).id
+$lugar8 = (@(Linhas $rVagas8) | Where-Object { $_.foraDeGrelha -ne $true -and $_.estado -eq 'ATIVO' -and $_.categoryId -eq $catAt8 } | Select-Object -First 1)
+foreach ($u in $unidades) {
+    if ($null -ne $lugar8) { break }
+    $lugar8 = (@(Linhas (Chamar ('F8.4c Lugares vagos em ' + $u.name) GET ('/colaboradores/assignments/unidade/' + $u.id + '/vagas/lista'))) | Where-Object { $_.foraDeGrelha -ne $true -and $_.estado -eq 'ATIVO' -and $_.categoryId -eq $catAt8 } | Select-Object -First 1)
+}
 $rGrades8 = Chamar 'F8.5 escaloes da categoria' GET ('/categories/' + $lugar8.categoryId + '/grades')
 $escalao8 = (@(Linhas $rGrades8) | Where-Object { $_.isActive -ne $false } | Select-Object -First 1).id
-Chamar 'F8.6 afectar B ao Lugar vago' POST '/colaboradores/assignments' @{ funcionarioId=$colabB; positionId=$lugar8.id; gradeId=$escalao8; origem='ADMISSAO'; dataInicio=$dOntem } 201 | Out-Null
+Chamar 'F8.6 reingresso de B num Lugar vago da sua categoria' POST '/colaboradores/assignments' @{ funcionarioId=$colabB; positionId=$lugar8.id; gradeId=$escalao8; origem='REINGRESSO'; dataInicio=$dReing } 201 | Out-Null
 
 $rUniB = Chamar 'F8.7 onde esta o B' GET ('/colaboradores/assignments/funcionario/' + $colabB + '/unidade-atual')
 $lugarB = $rUniB.Dados.positionId
@@ -496,7 +510,7 @@ $subMob = ($subtipos | Where-Object { $_.recordType -eq 'MOBILIDADE' -and $_.ret
 Verificar 'F8.9 ha subtipo de mobilidade comum no catalogo' ($null -ne $subMob) ('(' + $subMob.code + ')')
 $destino = ($unidades | Where-Object { $_.id -ne $unidadeB } | Select-Object -First 1)
 
-$rMob = Chamar 'F8.10 criar mobilidade interna' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade') @{ subtipoId=$subMob.id; dataInicio=$dInicio; dataFim=$dFim; destinationUnitId=$destino.id; justification='requisicao' } 201
+$rMob = Chamar 'F8.10 criar mobilidade interna' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade') @{ subtipoId=$subMob.id; dataInicio=$dReing; dataFim=$dFim; destinationUnitId=$destino.id; justification='requisicao' } 201
 $mobId = $rMob.Dados.id
 
 # Forma de prestacao (art. 134.o n.o 2): quem nao diz nada esta em exclusividade, que e a
@@ -576,9 +590,9 @@ Write-Host '=========== F9 - PROMOCAO NAS DUAS FORMAS ==========='
 #   sem positionId  -> e o proprio Lugar que sobe de categoria (reclassificacao)
 # A modalidade nao se persiste: deduz-se do historico. Este bloco prova as duas.
 #
-# Contexto herdado: no fim do F8 so o B esta activo, e esta num Lugar TEC_SUP --
-# que e a categoria de topo. Nao ha para onde promover. Comeca-se por o colocar
-# na categoria de baixo, que e de onde se promove.
+# O B esta num Lugar TEC_SUP -- a categoria de topo; nao ha para onde o promover, e ninguem
+# se desce de categoria pela porta generica (BR-AF-16). Por isso cada forma da promocao usa um
+# colaborador novo, ADMITIDO num Lugar da categoria de baixo (a colocacao legitima).
 
 $rCats = Chamar 'F9.1 catalogo de categorias' GET '/categories?pagina=0&tamanho=50'
 $cats = @(Linhas $rCats)
@@ -596,27 +610,36 @@ $rGr9 = Chamar 'F9.5 escaloes da categoria de baixo' GET ('/categories/' + $catB
 $escBaixo = (@(Linhas $rGr9) | Where-Object { $_.isActive -ne $false } | Select-Object -First 1).id
 $dAfect9 = $hoje.AddDays(-20).ToString('yyyy-MM-dd')
 $dPromo  = $hoje.AddDays(-1).ToString('yyyy-MM-dd')
-Chamar 'F9.6 colocar B na categoria de baixo' POST '/colaboradores/assignments' @{ funcionarioId=$colabB; positionId=$lugarBaixo.id; gradeId=$escBaixo; origem='ADMISSAO'; dataInicio=$dAfect9 } 201 | Out-Null
+# Um vinculo que permita evoluir: nomeacao definitiva (EFETIVO).
+$tipoNomeacao = (@(Linhas (Chamar 'F9.5b tipos de contrato' GET '/catalogs/contract-types?pagina=0&tamanho=50')) | Where-Object { $_.code -eq 'NOMEACAO_DEFINITIVA' } | Select-Object -First 1).id
+$nifD = '4' + (Get-Date -Format 'MMddHHmmss')
+$colabD = (Chamar 'F9.6a admitir D (promocao com mudanca de Lugar)' POST '/funcionarios' @{ nomeCompleto='Promocao Muda Lugar'; dataNascimento='1991-04-04'; genero='F'; estadoCivil='SOLTEIRO'; nif=$nifD; dataAdmissao=$dAfect9 } 201).Dados.id
+Chamar 'F9.6b contrato de D' POST ('/funcionarios/' + $colabD + '/contratos') @{ contractTypeId=$tipoNomeacao; startDate=$dAfect9; regimeTrabalho='TEMPO_COMPLETO' } 201 | Out-Null
+Chamar 'F9.6 colocar D na categoria de baixo (ADMISSAO)' POST '/colaboradores/assignments' @{ funcionarioId=$colabD; positionId=$lugarBaixo.id; gradeId=$escBaixo; dataInicio=$dAfect9 } 201 | Out-Null
 
 # --- negativos, antes de gastar o cenario ---
-Chamar 'F9.7 NEG promover para a mesma categoria' POST ('/funcionarios/' + $colabB + '/promocao') @{ categoryId=$catBaixo.id; dataEfeito=$dPromo } 422 | Out-Null
-Chamar 'F9.8 NEG promover para Lugar de outra categoria' POST ('/funcionarios/' + $colabB + '/promocao') @{ categoryId=$catCima.id; positionId=$lugarBaixo.id; dataEfeito=$dPromo } 422 | Out-Null
-Chamar 'F9.9 NEG data de efeito anterior a afectacao' POST ('/funcionarios/' + $colabB + '/promocao') @{ categoryId=$catCima.id; dataEfeito=$hoje.AddDays(-60).ToString('yyyy-MM-dd') } 422 | Out-Null
-Chamar 'F9.10 NEG categoria inexistente' POST ('/funcionarios/' + $colabB + '/promocao') @{ categoryId='00000000-0000-4000-8000-000000000999'; dataEfeito=$dPromo } 404 | Out-Null
+Chamar 'F9.7 NEG promover para a mesma categoria' POST ('/funcionarios/' + $colabD + '/promocao') @{ categoryId=$catBaixo.id; dataEfeito=$dPromo } 422 | Out-Null
+Chamar 'F9.8 NEG promover para Lugar de outra categoria' POST ('/funcionarios/' + $colabD + '/promocao') @{ categoryId=$catCima.id; positionId=$lugarBaixo.id; dataEfeito=$dPromo } 422 | Out-Null
+Chamar 'F9.9 NEG data de efeito anterior a afectacao' POST ('/funcionarios/' + $colabD + '/promocao') @{ categoryId=$catCima.id; dataEfeito=$hoje.AddDays(-60).ToString('yyyy-MM-dd') } 422 | Out-Null
+Chamar 'F9.10 NEG categoria inexistente' POST ('/funcionarios/' + $colabD + '/promocao') @{ categoryId='00000000-0000-4000-8000-000000000999'; dataEfeito=$dPromo } 404 | Out-Null
 
 # --- forma 1: muda de Lugar ---
-$rProm1 = Chamar 'F9.11 promover COM positionId (muda de Lugar)' POST ('/funcionarios/' + $colabB + '/promocao') @{ categoryId=$catCima.id; positionId=$lugarCima.id; dataEfeito=$dPromo; despachoNumero='DESP-2026/90'; concursoRef='CI-2026/3' } 201
+$rProm1 = Chamar 'F9.11 promover COM positionId (muda de Lugar)' POST ('/funcionarios/' + $colabD + '/promocao') @{ categoryId=$catCima.id; positionId=$lugarCima.id; dataEfeito=$dPromo; despachoNumero='DESP-2026/90'; concursoRef='CI-2026/3' } 201
 Verificar 'F9.12 a aplicacao deduziu "mudanca de Lugar"' ($rProm1.Dados.lugarReclassificado -eq $false) ''
 Verificar 'F9.13 subiu da categoria de baixo para a de cima' (($rProm1.Dados.categoriaAnteriorId -eq $catBaixo.id) -and ($rProm1.Dados.categoriaNovaId -eq $catCima.id)) ('(' + $rProm1.Dados.categoriaAnterior + ' -> ' + $rProm1.Dados.categoriaNova + ')')
 
-$rUni9 = Chamar 'F9.14 onde esta o B depois da promocao' GET ('/colaboradores/assignments/funcionario/' + $colabB + '/unidade-atual')
+$rUni9 = Chamar 'F9.14 onde esta o D depois da promocao' GET ('/colaboradores/assignments/funcionario/' + $colabD + '/unidade-atual')
 Verificar 'F9.15 esta no Lugar de destino' ($rUni9.Dados.positionId -eq $lugarCima.id) ('(' + $rUni9.Dados.numeroLugar + ')')
 $rVagas9b = Chamar 'F9.16 vagas depois' GET ('/colaboradores/assignments/unidade/' + $unidadeB + '/vagas/lista')
 Verificar 'F9.17 o Lugar que deixou ficou vago' (@(@(Linhas $rVagas9b) | Where-Object { $_.id -eq $lugarBaixo.id }).Count -eq 1) ''
 
 # --- forma 2: o Lugar e que sobe ---
-Chamar 'F9.18 voltar a colocar B na categoria de baixo' POST '/colaboradores/assignments' @{ funcionarioId=$colabB; positionId=$lugarBaixo.id; gradeId=$escBaixo; origem='ADMISSAO'; dataInicio=$dAfect9 } 201 | Out-Null
-$rProm2 = Chamar 'F9.19 promover SEM positionId (o Lugar sobe)' POST ('/funcionarios/' + $colabB + '/promocao') @{ categoryId=$catCima.id; dataEfeito=$dPromo; despachoNumero='DESP-2026/91' } 201
+# O Lugar de baixo ficou vago com a promocao do D: entra outro colaborador novo, D2.
+$nifD2 = '3' + (Get-Date -Format 'MMddHHmmss')
+$colabD2 = (Chamar 'F9.18a admitir D2 (promocao em que o Lugar sobe)' POST '/funcionarios' @{ nomeCompleto='Promocao Lugar Sobe'; dataNascimento='1992-05-05'; genero='M'; estadoCivil='SOLTEIRO'; nif=$nifD2; dataAdmissao=$dPromo } 201).Dados.id
+Chamar 'F9.18b contrato de D2' POST ('/funcionarios/' + $colabD2 + '/contratos') @{ contractTypeId=$tipoNomeacao; startDate=$dPromo; regimeTrabalho='TEMPO_COMPLETO' } 201 | Out-Null
+Chamar 'F9.18 colocar D2 no Lugar de baixo (ADMISSAO)' POST '/colaboradores/assignments' @{ funcionarioId=$colabD2; positionId=$lugarBaixo.id; gradeId=$escBaixo; dataInicio=$dPromo } 201 | Out-Null
+$rProm2 = Chamar 'F9.19 promover SEM positionId (o Lugar sobe)' POST ('/funcionarios/' + $colabD2 + '/promocao') @{ categoryId=$catCima.id; dataEfeito=$hoje.ToString('yyyy-MM-dd'); despachoNumero='DESP-2026/91' } 201
 Verificar 'F9.20 a aplicacao deduziu "reclassificacao"' ($rProm2.Dados.lugarReclassificado -eq $true) ''
 Verificar 'F9.21 ficou no MESMO Lugar' ($rProm2.Dados.positionId -eq $lugarBaixo.id) ''
 
@@ -939,37 +962,43 @@ Verificar 'F16.4 e sao mesmo de unidades diferentes' ($unidadeOrigem16 -ne $unid
 $rGr16 = Chamar 'F16.5 escaloes dessa categoria' GET ('/categories/' + $lugarDestino16.categoryId + '/grades')
 $esc16 = (@(Linhas $rGr16) | Where-Object { $_.isActive -ne $false } | Select-Object -First 1).id
 $dAfect16 = $hoje.AddDays(-40).ToString('yyyy-MM-dd')
-Chamar 'F16.6 colocar B no Lugar de partida' POST '/colaboradores/assignments' @{ funcionarioId=$colabB; positionId=$lugarOrigem16.id; gradeId=$esc16; origem='ADMISSAO'; dataInicio=$dAfect16 } 201 | Out-Null
+# Quem se consolida e um colaborador novo, ADMITIDO no Lugar de partida: o B ja tem Lugar e
+# nao se muda pela porta generica (BR-AF-16).
+$tipoNomeacao16 = (@(Linhas (Chamar 'F16.5b tipos de contrato' GET '/catalogs/contract-types?pagina=0&tamanho=50')) | Where-Object { $_.code -eq 'NOMEACAO_DEFINITIVA' } | Select-Object -First 1).id
+$nifE = '2' + (Get-Date -Format 'MMddHHmmss')
+$colabE = (Chamar 'F16.6a admitir E' POST '/funcionarios' @{ nomeCompleto='Consolida Mobilidade'; dataNascimento='1987-06-06'; genero='F'; estadoCivil='SOLTEIRO'; nif=$nifE; dataAdmissao=$dAfect16 } 201).Dados.id
+Chamar 'F16.6b contrato de E' POST ('/funcionarios/' + $colabE + '/contratos') @{ contractTypeId=$tipoNomeacao16; startDate=$dAfect16; regimeTrabalho='TEMPO_COMPLETO' } 201 | Out-Null
+Chamar 'F16.6 colocar E no Lugar de partida (ADMISSAO)' POST '/colaboradores/assignments' @{ funcionarioId=$colabE; positionId=$lugarOrigem16.id; gradeId=$esc16; dataInicio=$dAfect16 } 201 | Out-Null
 
 $dIni16 = $hoje.AddDays(-20).ToString('yyyy-MM-dd')
 $dFim16 = $hoje.AddMonths(6).ToString('yyyy-MM-dd')
 $dCons16 = $hoje.ToString('yyyy-MM-dd')
-$rMob16 = Chamar 'F16.7 mobilidade para a unidade de destino' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade') @{ subtipoId=$subMob.id; dataInicio=$dIni16; dataFim=$dFim16; destinationUnitId=$unidadeDestino16; justification='mobilidade a consolidar' } 201
+$rMob16 = Chamar 'F16.7 mobilidade para a unidade de destino' POST ('/funcionarios/' + $colabE + '/licencas-mobilidade') @{ subtipoId=$subMob.id; dataInicio=$dIni16; dataFim=$dFim16; destinationUnitId=$unidadeDestino16; justification='mobilidade a consolidar' } 201
 $mob16 = $rMob16.Dados.id
-Chamar 'F16.8 aprovar a mobilidade' PUT ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mob16 + '/approve') $null 200 | Out-Null
+Chamar 'F16.8 aprovar a mobilidade' PUT ('/funcionarios/' + $colabE + '/licencas-mobilidade/' + $mob16 + '/approve') $null 200 | Out-Null
 
 # --- negativos, antes de gastar o cenario ---
-Chamar 'F16.9 NEG consolidar sem Lugar de destino' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mob16 + '/consolidar') @{ dataEfeito=$dCons16 } 400 | Out-Null
-Chamar 'F16.10 NEG Lugar de destino inexistente' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mob16 + '/consolidar') @{ positionId='00000000-0000-4000-8000-000000000999'; dataEfeito=$dCons16 } 404 | Out-Null
+Chamar 'F16.9 NEG consolidar sem Lugar de destino' POST ('/funcionarios/' + $colabE + '/licencas-mobilidade/' + $mob16 + '/consolidar') @{ dataEfeito=$dCons16 } 400 | Out-Null
+Chamar 'F16.10 NEG Lugar de destino inexistente' POST ('/funcionarios/' + $colabE + '/licencas-mobilidade/' + $mob16 + '/consolidar') @{ positionId='00000000-0000-4000-8000-000000000999'; dataEfeito=$dCons16 } 404 | Out-Null
 # O Lugar tem de ser do servico onde se esteve em mobilidade: e esse exercicio que se torna definitivo.
 $lugarOutraUnidade16 = ($vagasPorUnidade16 | Where-Object { $_.unidadeOrganicaId -ne $unidadeDestino16 -and $_.id -ne $lugarOrigem16.id } | Select-Object -First 1)
 if ($null -ne $lugarOutraUnidade16) {
-    Chamar 'F16.11 NEG Lugar que nao e da unidade de destino' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mob16 + '/consolidar') @{ positionId=$lugarOutraUnidade16.id; dataEfeito=$dCons16 } 422 | Out-Null
+    Chamar 'F16.11 NEG Lugar que nao e da unidade de destino' POST ('/funcionarios/' + $colabE + '/licencas-mobilidade/' + $mob16 + '/consolidar') @{ positionId=$lugarOutraUnidade16.id; dataEfeito=$dCons16 } 422 | Out-Null
 }
 Chamar 'F16.12 NEG mobilidade de outro colaborador pelo URL deste' POST ('/funcionarios/' + $colabFA + '/licencas-mobilidade/' + $mob16 + '/consolidar') @{ positionId=$lugarDestino16.id; dataEfeito=$dCons16 } 404 | Out-Null
 
 # --- o movimento ---
-$rCons16 = Chamar 'F16.13 consolidar a mobilidade' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mob16 + '/consolidar') @{ positionId=$lugarDestino16.id; dataEfeito=$dCons16; despachoNumero='DESP-2026/93' } 201
+$rCons16 = Chamar 'F16.13 consolidar a mobilidade' POST ('/funcionarios/' + $colabE + '/licencas-mobilidade/' + $mob16 + '/consolidar') @{ positionId=$lugarDestino16.id; dataEfeito=$dCons16; despachoNumero='DESP-2026/93' } 201
 Verificar 'F16.14 saiu do Lugar de origem para o de destino' (($rCons16.Dados.positionAnteriorId -eq $lugarOrigem16.id) -and ($rCons16.Dados.positionId -eq $lugarDestino16.id)) ('(' + $rCons16.Dados.numeroLugarAnterior + ' -> ' + $rCons16.Dados.numeroLugar + ')')
 Verificar 'F16.15 e mudou de unidade organica' ($rCons16.Dados.unidadeOrganicaId -eq $unidadeDestino16) ''
 Verificar 'F16.16 o ultimo dia em mobilidade e a vespera' ($rCons16.Dados.mobilidadeDataFim -like ($hoje.AddDays(-1).ToString('yyyy-MM-dd') + '*')) ('(' + $rCons16.Dados.mobilidadeDataFim + ')')
 
-$rUni16 = Chamar 'F16.17 onde esta o B depois' GET ('/colaboradores/assignments/funcionario/' + $colabB + '/unidade-atual')
+$rUni16 = Chamar 'F16.17 onde esta o E depois' GET ('/colaboradores/assignments/funcionario/' + $colabE + '/unidade-atual')
 Verificar 'F16.18 e titular do Lugar de destino' ($rUni16.Dados.positionId -eq $lugarDestino16.id) ('(' + $rUni16.Dados.numeroLugar + ')')
 $rVagasDest16 = Chamar 'F16.19 vagas da unidade de destino depois' GET ('/colaboradores/assignments/unidade/' + $unidadeDestino16 + '/vagas/lista')
 Verificar 'F16.19b o Lugar de destino deixou de estar vago' (@(@(Linhas $rVagasDest16) | Where-Object { $_.id -eq $lugarDestino16.id }).Count -eq 0) ''
 
-$rMobLida16 = Chamar 'F16.20 ler a mobilidade consolidada' GET ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mob16)
+$rMobLida16 = Chamar 'F16.20 ler a mobilidade consolidada' GET ('/funcionarios/' + $colabE + '/licencas-mobilidade/' + $mob16)
 Verificar 'F16.21 o despacho nao se desfez -- continua APPROVED' ($rMobLida16.Dados.status -eq 'APPROVED') ('(' + $rMobLida16.Dados.status + ')')
 Verificar 'F16.22 e o periodo esta TERMINADA' ($rMobLida16.Dados.estadoPeriodo -eq 'TERMINADA') ('(' + $rMobLida16.Dados.estadoPeriodo + ')')
 
@@ -977,7 +1006,7 @@ $rVagas16b = Chamar 'F16.23 vagas da unidade de origem depois' GET ('/colaborado
 Verificar 'F16.24 o Lugar que deixou ficou vago' (@(@(Linhas $rVagas16b) | Where-Object { $_.id -eq $lugarOrigem16.id }).Count -eq 1) ''
 
 # Consolidada uma vez, o periodo transitorio acabou: nao ha segundo a consolidar.
-Chamar 'F16.25 NEG consolidar duas vezes' POST ('/funcionarios/' + $colabB + '/licencas-mobilidade/' + $mob16 + '/consolidar') @{ positionId=$lugarOrigem16.id; dataEfeito=$dCons16 } 409 | Out-Null
+Chamar 'F16.25 NEG consolidar duas vezes' POST ('/funcionarios/' + $colabE + '/licencas-mobilidade/' + $mob16 + '/consolidar') @{ positionId=$lugarOrigem16.id; dataEfeito=$dCons16 } 409 | Out-Null
 
 Write-Host ''
 Write-Host '=========== F17 - REGRESSO DE COMISSAO DE SERVICO (art. 64.o n.o 2) ==========='

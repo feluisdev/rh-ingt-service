@@ -113,7 +113,7 @@ public class Position {
      */
     public boolean congelar(String motivo, String despachoNumero, LocalDate data) {
         if (EXTINTO.equals(this.estado)) {
-            throw IgrpResponseStatusException.conflict("Um Lugar extinto não pode ser congelado.");
+            throw IgrpResponseStatusException.conflict("Este Lugar foi extinto e não pode ser congelado.");
         }
         if (CONGELADO.equals(this.estado)) {
             return false;
@@ -130,7 +130,7 @@ public class Position {
      */
     public boolean descongelar(String motivo, String despachoNumero, LocalDate data) {
         if (EXTINTO.equals(this.estado)) {
-            throw IgrpResponseStatusException.conflict("Um Lugar extinto não pode voltar a ATIVO.");
+            throw IgrpResponseStatusException.conflict("Este Lugar foi extinto e não pode voltar a estar activo.");
         }
         if (ATIVO.equals(this.estado)) {
             return false;
@@ -142,7 +142,7 @@ public class Position {
 
     private void registarMotivo(String motivo, String despachoNumero, LocalDate data) {
         if (motivo == null || motivo.isBlank()) {
-            throw IgrpResponseStatusException.badRequest("O motivo é obrigatório.");
+            throw IgrpResponseStatusException.badRequest("Indique o motivo.");
         }
         this.estadoMotivo = motivo.trim();
         this.estadoDespacho = despachoNumero == null || despachoNumero.isBlank() ? null : despachoNumero.trim();

@@ -191,7 +191,7 @@ Cada um: `GET` (lista), `GET/{id}`, `POST`, `PUT/{id}`, `DELETE/{id}/deactivate`
 ### Afectação (Assignments) — `/api/v1/rh/colaboradores/assignments`
 | Método | Path | Descrição |
 |---|---|---|
-| `POST` | `/assignments` | Afectar um funcionário a um Lugar. |
+| `POST` | `/assignments` | **Colocar** num Lugar quem não tem nenhum: admissão ou reingresso. |
 | `GET` | `/funcionario/{id}/unidade-atual` | Lugar/unidade corrente do funcionário. |
 | `GET` | `/funcionario/{id}/chefe` | Chefe direto (via `parent_position_id`). |
 | `GET` | `/unidade/{id}/responsavel` | Responsável da unidade (via `manages_unit_id`). |
@@ -205,14 +205,32 @@ Cada um: `GET` (lista), `GET/{id}`, `POST`, `PUT/{id}`, `DELETE/{id}/deactivate`
   "positionId": "uuid",
   "gradeId": "uuid | null",        // obrigatório em Lugar de carreira; proibido fora de grelha
   "functionId": "uuid | null",
-  "origem": "ADMISSAO|PROGRESSAO|PROMOCAO|MOBILIDADE|TRANSFERENCIA",
+  "origem": "omitir | ADMISSAO | REINGRESSO",   // do sistema: tem de coincidir com a calculada
   "assignmentType": "PRINCIPAL",                          // único valor aceite aqui; default PRINCIPAL
   "dataInicio": "YYYY-MM-DD",
   "notes": "string | null"
 }
 ```
 
-**Regras (422):** Lugar não disponível (CONGELADO/EXTINTO) · Lugar já **tem titular** · Lugar de carreira sem `gradeId` · Lugar fora de grelha com `gradeId` · `assignmentType` fora da lista.
+**Para que serve.** É o único caso de escrita que nenhum movimento cobre: pôr num Lugar quem **não tem
+nenhum** — a pessoa criada com `POST /funcionarios` (sem o registo composto), e o **reingresso** de quem
+ficou sem Lugar (disponibilidade depois de uma licença que abriu vaga). Quem já tem Lugar muda-o por um
+movimento: progressão (5.4), promoção (5.5), transferência (5.6), mudança de carreira (5.9).
+
+| Caso | Resposta |
+|---|---|
+| colaborador inexistente | 404 |
+| inactivo · **já tem afectação principal corrente** (use o movimento) | 422 |
+| em inactividade fora do quadro — a licença que lhe tirou o Lugar ainda decorre | 422 |
+| sem contrato corrente `ATIVO`, ou a começar antes do contrato | 422 |
+| `origem` diferente da calculada (`ADMISSAO` na primeira vez, `REINGRESSO` depois) | 422 |
+| antes da admissão, ou sem ser depois do fim da última afectação | 422 |
+| reingresso num Lugar de carreira de **outra categoria** (art. 122.º) | 422 |
+| Lugar não disponível (CONGELADO/EXTINTO) · Lugar já **tem titular** · escalão obrigatório/proibido/de outra categoria · `assignmentType` fora da lista | 422 |
+
+No reingresso sem `gradeId`, mantém o escalão que tinha. Quem estava em **disponibilidade** passa ao
+estado de situação `ACTIVIDADE_NO_QUADRO`, com histórico; sem esse estado no catálogo, a resposta
+traz um alerta. O registo composto (5.2) passa pelas mesmas regras. Regras: BR-AF-13, BR-AF-15 a BR-AF-22.
 
 **Uma cadeira, um titular.** A regra do Lugar ocupado só se aplica a `assignmentType = PRINCIPAL`. Quem entra em `SUBSTITUICAO` **não exige que o Lugar esteja vago** e não desaloja o titular — é o que autoriza a substituição do funcionário temporariamente impedido (art. 73.º al. a) a c)). Em consequência, um Lugar com substituto e **sem** titular continua a contar como **vago** em `/unidade/{id}/vagas` e na lista do picker.
 
@@ -266,6 +284,9 @@ Cria funcionário + (opcional) contrato + **afectação a um Lugar vago** numa s
 ```
 
 **Resposta:** inclui `afectacaoId` (a afectação criada). **Não** existe `enquadramentoId`.
+
+**Com afectação, o contrato é obrigatório** (BR-AF-18): sem vínculo não há Lugar. A afectação do registo passa pelas regras
+da colocação (secção 4), e a origem é sempre `ADMISSAO`.
 
 > ⚠️ **Breaking change:** o registo já **não** aceita unidade/cargo/carreira/categoria — todos derivam do `positionId`. Ver `breaking_change_frontend.md`.
 
@@ -334,7 +355,7 @@ Sobe o colaborador para o **escalão imediatamente superior da mesma categoria**
 
 No histórico, a afectação corrente fecha na véspera de `dataEfeito` e abre-se uma nova com `origem = PROGRESSAO`. Regras completas: `regras_negocio.html`, secção 3.1 (BR-PRG-01 a 09).
 
-> Não usar `POST /assignments` com `origem=PROGRESSAO`: falha sempre, porque o Lugar já tem titular — o próprio colaborador.
+> Não usar `POST /assignments` para movimentos: quem já tem Lugar recebe 422 (BR-AF-16), e a `origem` só aceita `ADMISSAO` ou `REINGRESSO`.
 
 ### 5.5 Promoção — `POST /funcionarios/{id}/promocao`
 Passa o colaborador à **categoria imediatamente superior da mesma carreira**. Há duas formas e **não se indica qual**: infere-se do pedido.
@@ -1855,7 +1876,7 @@ Os que estão marcados **validado** são enums fechados no domínio: um valor fo
 
 | Enum | Valores | |
 |---|---|---|
-| `origem` (afectação) | `ADMISSAO`, `PROGRESSAO`, `PROMOCAO`, `TRANSFERENCIA`, `MUDANCA_CARREIRA`, `SUBSTITUICAO`, `CONSOLIDACAO` (e o legado `MOBILIDADE`) — posta pelo endpoint de cada movimento | |
+| `origem` (afectação) | `ADMISSAO`, `REINGRESSO`, `PROGRESSAO`, `PROMOCAO`, `TRANSFERENCIA`, `MUDANCA_CARREIRA`, `SUBSTITUICAO`, `CONSOLIDACAO` (e o legado `MOBILIDADE`) — posta pelo sistema | |
 | `assignmentType` | `PRINCIPAL`, `SUBSTITUICAO` — omisso vale `PRINCIPAL`. Em `POST /assignments` **só `PRINCIPAL` passa**: a `SUBSTITUICAO` cria-se pelo endpoint próprio (5.7) e dá 422 aqui. `ACUMULACAO` deixou de existir (art. 134.º n.º 2 al. b) é forma de prestação da mobilidade, não título). | **validado** |
 | `estado` (Lugar) | `ATIVO`, `CONGELADO`, `EXTINTO` (provido/vago é **derivado do titular**) | |
 | `recordType` (subtipo licença/mobilidade) | `LICENCA`, `MOBILIDADE` — o valor **`AMBOS` foi removido na V43** | **validado** |

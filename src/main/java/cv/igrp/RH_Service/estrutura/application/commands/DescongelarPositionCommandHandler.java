@@ -28,11 +28,10 @@ public class DescongelarPositionCommandHandler
     public ResponseEntity<SuccessResponseDTO> handle(DescongelarPositionCommand command) {
         EstadoLugarRequestDTO req = command.getRequest();
         if (req == null || req.getMotivo() == null || req.getMotivo().isBlank()) {
-            throw IgrpResponseStatusException.badRequest("O motivo é obrigatório para descongelar um Lugar.");
+            throw IgrpResponseStatusException.badRequest("Indique o motivo para descongelar o Lugar.");
         }
         Position position = positionRepository.findById(PositionId.from(command.getPositionId()))
-                .orElseThrow(() -> IgrpResponseStatusException.notFound(
-                        "Lugar não encontrado: " + command.getPositionId()));
+                .orElseThrow(() -> IgrpResponseStatusException.notFound("O Lugar indicado não existe."));
 
         if (!position.descongelar(req.getMotivo(), req.getDespachoNumero(), LocalDate.now())) {
             return ResponseEntity.ok(SuccessResponseDTO.semEfeito(command.getPositionId(), "O Lugar já está activo."));

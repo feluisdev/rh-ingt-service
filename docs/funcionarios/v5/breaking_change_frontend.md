@@ -126,8 +126,8 @@ O card de unidade pode mostrar **dotação / ocupados / vagas** (vêm no wrapper
 | Substituição | `POST /funcionarios/{id}/substituicao` | `positionId`, `dataInicio` (ver 11.5) |
 
 Todos fecham a afectação corrente na véspera da data de efeito e abrem uma nova (histórico), menos a
-substituição, que acrescenta uma afectação sem fechar a do substituto. `POST /assignments` com `origem=PROGRESSAO`
-falha sempre: o Lugar já tem titular — o próprio.
+substituição, que acrescenta uma afectação sem fechar a do substituto. `POST /assignments` só coloca quem não tem Lugar
+(ver 11.40): um movimento por essa porta dá 422.
 
 ---
 
@@ -832,6 +832,18 @@ deixaram de vir de `application.properties` e passam a vir de um catálogo por v
 - `PositionResponseDTO` ganha `estadoMotivo`, `estadoDespacho`, `estadoDesde` — mostrar no Lugar congelado porquê e desde quando.
 - Um Lugar que não pode voltar extingue-se (`DELETE /positions/{id}`); o congelamento é sempre reversível.
 
+### 11.40 `POST /assignments` passa a ser só a colocação (BREAKING, 2026-09-24)
+
+- **Quem já tem Lugar recebe 422** — os movimentos fazem-se pelos endpoints próprios (secção 5). A porta genérica
+  deixava mover pessoas sem nenhuma das regras dos movimentos.
+- **A `origem` é do sistema:** `ADMISSAO` na primeira vez, `REINGRESSO` para quem já teve Lugar. Omitir, ou enviar a
+  calculada; outro valor dá 422. Valor novo `REINGRESSO` nas listas de origem.
+- **Exige contrato corrente `ATIVO`** (e não começa antes dele) — também no registo composto: afectação sem contrato dá 422.
+- Recusa quem está em inactividade fora do quadro (licença em curso) e, no reingresso, um Lugar de outra categoria (art. 122.º).
+  Sem `gradeId` no reingresso mantém-se o escalão que tinha; quem estava em disponibilidade volta ao estado de actividade.
+- **Ecrã:** «Colocar num Lugar» só para colaboradores sem Lugar (`unidade-atual` sem `positionId`); no reingresso, filtrar os
+  Lugares vagos pela categoria que a pessoa tinha.
+
 ---
 
 ## 12. Checklist do alinhamento com a legislação (secção 11)
@@ -891,3 +903,4 @@ Por ordem das secções. Cada item remete para o ecrã correspondente em `aprese
 - [ ] `/me`: botão de picar (só em teletrabalho/misto), pedido de correcção com motivo, e a caixa de pendentes da equipa para a chefia (validar/rejeitar).
 - [ ] Separador de faltas apuradas do mês: dias com falta e motivo, débitos da aferição, total em dias e meios-dias, e atalho para justificar (pedido de ausência).
 - [ ] Congelar: pedir o motivo (e o despacho) e esconder a acção nos Lugares com titular; «Descongelar» nos congelados, com motivo; mostrar `estadoMotivo`/`estadoDesde`.
+- [ ] «Colocar num Lugar» só para quem não tem Lugar; sem campo de origem (é do sistema); no reingresso, Lugares vagos da categoria anterior; contrato antes da colocação.

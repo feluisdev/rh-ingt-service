@@ -1,12 +1,11 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
 import cv.igrp.RH_Service.colaboradores.application.dto.RegistarColaboradorResponseDTO;
-import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
+import cv.igrp.RH_Service.colaboradores.application.services.ColocacaoService;
 import cv.igrp.RH_Service.colaboradores.application.services.ContratoService;
 import cv.igrp.RH_Service.colaboradores.application.services.DadosBancariosService;
 import cv.igrp.RH_Service.colaboradores.application.services.ColaboradorDocumentoService;
 import cv.igrp.RH_Service.colaboradores.application.services.FuncionarioService;
-import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
 import cv.igrp.RH_Service.colaboradores.domain.models.TipoAfectacao;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.framework.core.domain.CommandHandler;
@@ -28,7 +27,7 @@ public class RegistarColaboradorCommandHandler
 
     private final FuncionarioService funcionarioService;
     private final ContratoService contratoService;
-    private final AssignmentService assignmentService;
+    private final ColocacaoService colocacaoService;
     private final DadosBancariosService dadosBancariosService;
     private final ColaboradorDocumentoService documentoService;
 
@@ -63,18 +62,16 @@ public class RegistarColaboradorCommandHandler
             LocalDate inicio = dto.getContrato() != null
                     ? dto.getContrato().getStartDate()
                     : (af.getDataInicio() != null ? af.getDataInicio() : funcionario.getDataAdmissao());
-            String origem = (af.getOrigem() == null || af.getOrigem().isBlank())
-                    ? Assignment.ADMISSAO : af.getOrigem();
-
-            var afectacao = assignmentService.afectar(
+            // A mesma colocacao da porta generica: sem contrato nao ha Lugar, e a origem e ADMISSAO.
+            var afectacao = colocacaoService.colocar(
                     funcionarioId,
                     UUID.fromString(af.getPositionId()),
                     parseUuid(af.getGradeId()),
                     parseUuid(af.getFunctionId()),
-                    origem,
+                    af.getOrigem(),
                     TipoAfectacao.de(af.getAssignmentType()),
                     inicio,
-                    af.getNotes());
+                    af.getNotes()).afectacao();
             afectacaoId = afectacao.getId().getStringValor();
         }
 

@@ -1,8 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
 import cv.igrp.RH_Service.colaboradores.application.dto.AfectacaoRequestDTO;
-import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
-import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
+import cv.igrp.RH_Service.colaboradores.application.services.ColocacaoService;
 import cv.igrp.RH_Service.colaboradores.domain.models.TipoAfectacao;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
@@ -26,7 +25,7 @@ public class AfectarColaboradorCommandHandler
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfectarColaboradorCommandHandler.class);
 
-    private final AssignmentService assignmentService;
+    private final ColocacaoService colocacaoService;
 
     @IgrpCommandHandler
     @Transactional
@@ -39,20 +38,20 @@ public class AfectarColaboradorCommandHandler
             throw IgrpResponseStatusException.badRequest("O Lugar (positionId) é obrigatório.");
 
         LocalDate dataInicio = dto.getDataInicio() != null ? dto.getDataInicio() : LocalDate.now();
-        String origem = (dto.getOrigem() == null || dto.getOrigem().isBlank())
-                ? Assignment.ADMISSAO : dto.getOrigem();
-
-        Assignment saved = assignmentService.afectar(
+        // Colocacao de quem nao tem Lugar (BR-AF-15 a BR-AF-22): a origem e do sistema, e quem
+        // ja tem Lugar muda-o por um movimento, nao por aqui.
+        ColocacaoService.Resultado r = colocacaoService.colocar(
                 FuncionarioId.from(dto.getFuncionarioId()),
                 UUID.fromString(dto.getPositionId()),
                 parse(dto.getGradeId()),
                 parse(dto.getFunctionId()),
-                origem,
+                dto.getOrigem(),
                 TipoAfectacao.de(dto.getAssignmentType()),
                 dataInicio,
                 dto.getNotes());
 
-        return ResponseEntity.status(201).body(SuccessResponseDTO.de(saved.getId().getStringValor()));
+        return ResponseEntity.status(201).body(
+                SuccessResponseDTO.de(r.afectacao().getId().getStringValor(), r.alertas().toArray(String[]::new)));
     }
 
     private static UUID parse(String v) {

@@ -36,11 +36,10 @@ public class CongelarPositionCommandHandler
     public ResponseEntity<SuccessResponseDTO> handle(CongelarPositionCommand command) {
         EstadoLugarRequestDTO req = command.getRequest();
         if (req == null || req.getMotivo() == null || req.getMotivo().isBlank()) {
-            throw IgrpResponseStatusException.badRequest("O motivo é obrigatório para congelar um Lugar.");
+            throw IgrpResponseStatusException.badRequest("Indique o motivo para congelar o Lugar.");
         }
         Position position = positionRepository.findById(PositionId.from(command.getPositionId()))
-                .orElseThrow(() -> IgrpResponseStatusException.notFound(
-                        "Lugar não encontrado: " + command.getPositionId()));
+                .orElseThrow(() -> IgrpResponseStatusException.notFound("O Lugar indicado não existe."));
 
         if (Position.CONGELADO.equals(position.getEstado())) {
             return ResponseEntity.ok(SuccessResponseDTO.semEfeito(command.getPositionId(), "O Lugar já está congelado."));
@@ -48,8 +47,8 @@ public class CongelarPositionCommandHandler
         if (!Position.EXTINTO.equals(position.getEstado())
                 && positionOccupancyPort.ocupados(List.of(position.getId().getValor())).contains(position.getId().getValor())) {
             throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "O Lugar '" + position.getNumeroLugar() + "' tem titular: não se congela um Lugar ocupado. "
-                            + "O titular sai primeiro (transferência ou cessação).");
+                    "O Lugar " + position.getNumeroLugar() + " está ocupado. Só se pode congelar um Lugar vago: "
+                            + "primeiro, o titular tem de sair (por transferência ou cessação).");
         }
 
         position.congelar(req.getMotivo(), req.getDespachoNumero(), LocalDate.now());
