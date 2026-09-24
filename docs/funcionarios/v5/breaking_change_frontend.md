@@ -597,6 +597,14 @@ existentes -- estas duas colunas mandam descontar antiguidade e mexer em salario
 (`t_leave_mobility_subtype.affects_pay`), que nao sabe dizer "parcial". Por agora sao dois
 contratos diferentes: booleano nas licencas, enum nas ausencias.
 
+### 11.35 Lista de antiguidade (2026-09-24)
+
+**Nada deixa de funcionar**: dois endpoints novos, so leitura.
+
+- `GET /relatorios/lista-antiguidade?ano=&unidadeId=&incluirSubunidades=true` (JSON) e `.csv`.
+- Ecra por cargo (carreira/categoria), com a posicao, a data de inicio no cargo, os dias descontados e o
+  tempo contado (anos/meses/dias); botao de descarregar o CSV.
+
 ### 11.34 Horarios com data de efeito (2026-09-24)
 
 - **Muda um comportamento:** editar os blocos/controlo/afericao/duracao de um horario que ja vigorou da
@@ -819,6 +827,7 @@ resposta ja reflecte isto -- nao ha nada a recalcular no ecra.
 - [ ] Separador de horário no colaborador: histórico, atribuir a partir de uma data (horário + regime de prestação) e o horário vigente com a origem.
 - [ ] Ecrã de assiduidade do colaborador: semana/mês com períodos, horas trabalhadas vs esperadas, dias com anomalia destacados, e as acções corrigir e anular (com motivo).
 - [ ] Pedido de ausência: horas de início e fim (só para tipos que as admitem), e a acção terminar para pedidos em horas aprovados.
+- [ ] Lista de antiguidade: ecrã por serviço e ano, agrupado por cargo, e o CSV para afixar.
 - [ ] Horários: botão «Duplicar» e aviso de 409 ao editar um horário que já vigorou; data de efeito (opcional) ao mudar o base e o horário da unidade.
 - [ ] Pedidos de ausência: caixa da chefia (aprovar/rejeitar com motivo); mostrar «aprovado automaticamente» nos tipos que não requerem aprovação.
 - [ ] Relação mensal: ecrã por unidade (mês, com subunidades), pendências em destaque, botão de descarregar o CSV.

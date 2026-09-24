@@ -410,6 +410,17 @@
     <tr><td class="id">BR-REL-08</td><td><b>CSV</b> (o «duplicado» do n.º 1, para a folha de cálculo): uma linha por colaborador, separador <code>;</code>, UTF-8 com BOM, decimais com vírgula; o detalhe por tipo numa coluna (<code>CODIGO=3d</code>, <code>CODIGO=90min</code>).</td><td>—</td><td class="src">GetRelacaoMensalCsvQueryHandler</td></tr>
   </table>
 
+  <h2 id="lista-antiguidade"><span class="n">5.6</span>Relatórios — lista de antiguidade (arts. 69.º e 70.º)</h2>
+  <p>DL n.º 3/2010, art. 69.º: cada serviço organiza em cada ano a lista de antiguidade dos seus funcionários com referência a 31 de Dezembro do ano anterior. <b>Só se gera</b> (JSON e CSV); a aprovação, a afixação, as reclamações e a publicação (arts. 71.º a 74.º) ficam para depois.</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-LAN-01</td><td><b>De cada serviço, com referência a 31 de Dezembro do ano anterior</b>: <code>ano</code> (por omissão, o corrente); um ano cuja referência ainda não chegou: 422. Unidade obrigatória, com as subunidades por omissão; quem entra são as afectações principais que cobrem a referência (como na relação mensal).</td><td><span class="http h404">404</span> <span class="http h422">422</span></td><td class="src">ListaAntiguidadeService · QuemEstaNoServico</td></tr>
+    <tr><td class="id">BR-LAN-02</td><td><b>O cargo</b> é a carreira e a categoria em 31 de Dezembro, pela categoria do escalão da afectação (uma promoção que reclassificou o Lugar também fica datada, porque abre afectação nova); fora da grelha, o cargo (Job) do Lugar.</td><td>—</td><td class="src">ListaAntiguidadeService.cargo</td></tr>
+    <tr><td class="id">BR-LAN-03</td><td><b>A data de início no cargo</b> (art. 69.º n.º 2 a)) é o começo da cadeia de afectações principais seguidas na mesma categoria: progressões de escalão e transferências não a cortam; uma interrupção (um dia sem afectação) corta.</td><td>—</td><td class="src">ListaAntiguidadeService.inicioNoCargo</td></tr>
+    <tr><td class="id">BR-LAN-04</td><td><b>Dias descontados e tempo contado no cargo</b> (art. 69.º n.º 2 b) e c); art. 70.º): os descontos da antiguidade (inactividade no quadro, licenças que não contam, vínculos que não contam, faltas injustificadas) recortados ao período no cargo; o tempo em anos, meses e dias com o ano de 365 e o mês de 30 dias. As observações (n.º 3) dizem os períodos descontados e o motivo.</td><td>—</td><td class="src">AntiguidadeService.calcularDesde</td></tr>
+    <tr><td class="id">BR-LAN-05</td><td><b>Ordem</b>: por carreira, a categoria mais alta primeiro (ordem de progressão), fora da grelha no fim; em cada cargo, pelo tempo contado no cargo (o maior primeiro) e, em empate, pelo tempo de serviço total desde a admissão. Cada linha traz a posição no cargo.</td><td>—</td><td class="src">ListaAntiguidadeService.lista</td></tr>
+  </table>
+
   <!-- ============ MOBILIDADE ============ -->
   <h2 id="mobilidade"><span class="n">6.</span>Licenças e mobilidade</h2>
   <p>Licenças especiais e mobilidades partilham um catálogo de subtipos (<code>record_type</code> ∈ LICENCA · MOBILIDADE). Fluxo com aprovação.</p>

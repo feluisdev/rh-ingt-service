@@ -147,7 +147,7 @@ class RelacaoMensalServiceTest {
 
     @BeforeEach
     void base() {
-        service = new RelacaoMensalService(unidadeRepository, assignmentRepository, funcionarioRepository,
+        service = new RelacaoMensalService(new QuemEstaNoServico(unidadeRepository, assignmentRepository), funcionarioRepository,
                 pedidoAusenciaRepository, tipoAusenciaRepository, licencaRepository, mobilidadeService,
                 calendarioFeriadosService, apuramentoFaltasService, trabalhoSuplementarService, new DiasUteisCalculator()) {
             @Override LocalDate hoje() { return LocalDate.of(2026, 9, 23); }

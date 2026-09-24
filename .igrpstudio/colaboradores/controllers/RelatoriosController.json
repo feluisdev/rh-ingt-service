@@ -1,0 +1,82 @@
+{
+  "type": "controller",
+  "name": "Relatorios",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh/relatorios",
+  "description": "Relatórios de gestão de cada serviço: lista de antiguidade (DL n.º 3/2010, art. 69.º); só leitura",
+  "actions": [
+    {
+      "actionName": "getListaAntiguidade",
+      "method": "GET",
+      "path": "lista-antiguidade",
+      "requestParams": [
+        {
+          "type": "integer",
+          "name": "ano",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "unidadeId",
+          "isRequired": true
+        },
+        {
+          "type": "boolean",
+          "name": "incluirSubunidades",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ListaAntiguidadeDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getListaAntiguidadeCsv",
+      "method": "GET",
+      "path": "lista-antiguidade.csv",
+      "requestParams": [
+        {
+          "type": "integer",
+          "name": "ano",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "unidadeId",
+          "isRequired": true
+        },
+        {
+          "type": "boolean",
+          "name": "incluirSubunidades",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "text/csv": {
+              "schema": {
+                "type": "string",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

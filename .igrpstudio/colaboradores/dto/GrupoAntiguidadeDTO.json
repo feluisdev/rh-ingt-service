@@ -1,0 +1,34 @@
+{
+  "type": "dto",
+  "name": "GrupoAntiguidadeDTO",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "carreira",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "categoria",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "foraDeGrelha",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "LinhaAntiguidadeDTO",
+      "name": "linhas",
+      "objectType": "dto",
+      "collectionType": "list",
+      "module": "colaboradores",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "type": "dto",
+  "name": "LinhaAntiguidadeDTO",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "integer",
+      "name": "posicao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "numeroFuncionario",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "nome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "unidadeCodigo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "unidadeNome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "escalao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataInicioNoCargo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "long",
+      "name": "diasDescontados",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "long",
+      "name": "diasContados",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "anos",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "meses",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "dias",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataAdmissao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "anosServico",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "mesesServico",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "diasServico",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "observacoes",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

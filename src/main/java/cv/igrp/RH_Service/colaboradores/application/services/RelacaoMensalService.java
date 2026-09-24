@@ -2,14 +2,12 @@ package cv.igrp.RH_Service.colaboradores.application.services;
 
 import cv.igrp.RH_Service.colaboradores.domain.filter.LicencaMobilidadeFilter;
 import cv.igrp.RH_Service.colaboradores.domain.filter.PedidoAusenciaFilter;
-import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
 import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
 import cv.igrp.RH_Service.colaboradores.domain.models.LicencaMobilidade;
 import cv.igrp.RH_Service.colaboradores.domain.models.PedidoAusencia;
 import cv.igrp.RH_Service.colaboradores.domain.models.SubtipoLicencaMobilidade;
 import cv.igrp.RH_Service.colaboradores.domain.models.TipoAusencia;
 import cv.igrp.RH_Service.colaboradores.domain.models.TipoDiaSuplementar;
-import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.LicencaMobilidadeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.PedidoAusenciaRepository;
@@ -18,8 +16,6 @@ import cv.igrp.RH_Service.colaboradores.domain.service.DiasUteisCalculator;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.TipoAusenciaId;
 import cv.igrp.RH_Service.estrutura.domain.models.OrganizationalUnit;
-import cv.igrp.RH_Service.estrutura.domain.repository.OrganizationalUnitRepository;
-import cv.igrp.RH_Service.estrutura.domain.valueobject.OrganizationalUnitId;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.ContagemDias;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.RegimeAusencia;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
@@ -80,8 +76,7 @@ public class RelacaoMensalService {
     public record Relacao(YearMonth mes, boolean provisoria, OrganizationalUnit raiz, boolean incluirSubunidades,
                           List<Unidade> unidades) {}
 
-    private final OrganizationalUnitRepository unidadeRepository;
-    private final AssignmentRepository assignmentRepository;
+    private final QuemEstaNoServico quemEstaNoServico;
     private final FuncionarioRepository funcionarioRepository;
     private final PedidoAusenciaRepository pedidoAusenciaRepository;
     private final TipoAusenciaRepository tipoAusenciaRepository;
@@ -98,30 +93,17 @@ public class RelacaoMensalService {
         if (unidadeId == null) throw invalido("A unidade orgânica é obrigatória: a relação é de cada serviço (art. 75.º n.º 1).");
         YearMonth corrente = YearMonth.from(hoje());
         if (mes.isAfter(corrente)) throw invalido("Não há relação de um mês que ainda não começou: " + mes + ".");
-        OrganizationalUnit raiz = unidadeRepository.findById(OrganizationalUnitId.from(unidadeId))
-                .orElseThrow(() -> IgrpResponseStatusException.notFound("Unidade orgânica não encontrada: " + unidadeId));
+        List<OrganizationalUnit> unidades = quemEstaNoServico.unidades(unidadeId, incluirSubunidades);
+        OrganizationalUnit raiz = unidades.get(0);
 
         LocalDate de = mes.atDay(1);
         LocalDate ate = mes.atEndOfMonth();
-        List<OrganizationalUnit> unidades = incluirSubunidades ? comDescendentes(raiz) : List.of(raiz);
-
         // Uma pessoa, uma unidade: a da afectação principal que chega mais longe no mês.
-        Map<UUID, Assignment> daPessoa = new LinkedHashMap<>();
-        Map<UUID, UUID> unidadeDaPessoa = new HashMap<>();
-        for (OrganizationalUnit u : unidades) {
-            for (Assignment a : assignmentRepository.findAllByUnidadeOrganicaEntre(u.getId().getValor(), de, ate)) {
-                if (!a.isPrincipal()) continue;
-                UUID pessoa = a.getFuncionarioId().getValor();
-                Assignment actual = daPessoa.get(pessoa);
-                if (actual == null || chegaMaisLonge(a, actual, ate)) {
-                    daPessoa.put(pessoa, a);
-                    unidadeDaPessoa.put(pessoa, u.getId().getValor());
-                }
-            }
-        }
+        Map<UUID, UUID> unidadeDaPessoa = new LinkedHashMap<>();
+        quemEstaNoServico.colocacoes(unidades, de, ate).forEach((pessoa, c) -> unidadeDaPessoa.put(pessoa, c.unidadeId()));
 
         Map<UUID, Funcionario> pessoas = new HashMap<>();
-        for (Funcionario f : funcionarioRepository.findAllByIds(daPessoa.keySet())) pessoas.put(f.getId().getValor(), f);
+        for (Funcionario f : funcionarioRepository.findAllByIds(unidadeDaPessoa.keySet())) pessoas.put(f.getId().getValor(), f);
         Map<TipoAusenciaId, Optional<TipoAusencia>> tipos = new HashMap<>();
 
         Map<UUID, List<Linha>> porUnidade = new LinkedHashMap<>();
@@ -243,34 +225,6 @@ public class RelacaoMensalService {
         } catch (IgrpResponseStatusException e) {
             return 0;
         }
-    }
-
-    /** A afectação que chega mais longe no mês; em empate, a que começou depois. */
-    private static boolean chegaMaisLonge(Assignment a, Assignment b, LocalDate ate) {
-        LocalDate fa = a.getDataFim() == null || a.getDataFim().isAfter(ate) ? ate : a.getDataFim();
-        LocalDate fb = b.getDataFim() == null || b.getDataFim().isAfter(ate) ? ate : b.getDataFim();
-        if (!fa.equals(fb)) return fa.isAfter(fb);
-        return a.getDataInicio() != null && b.getDataInicio() != null && a.getDataInicio().isAfter(b.getDataInicio());
-    }
-
-    /** A unidade e as suas descendentes activas, pela árvore de {@code parentUnitId}, a raiz primeiro. */
-    private List<OrganizationalUnit> comDescendentes(OrganizationalUnit raiz) {
-        Map<UUID, List<OrganizationalUnit>> filhos = new HashMap<>();
-        for (OrganizationalUnit u : unidadeRepository.findAllActive())
-            if (u.getParentUnitId() != null)
-                filhos.computeIfAbsent(u.getParentUnitId().getValor(), k -> new ArrayList<>()).add(u);
-        List<OrganizationalUnit> todas = new ArrayList<>();
-        List<OrganizationalUnit> fila = new ArrayList<>(List.of(raiz));
-        Set<UUID> vistas = new java.util.HashSet<>();
-        while (!fila.isEmpty()) {
-            OrganizationalUnit u = fila.remove(0);
-            if (!vistas.add(u.getId().getValor())) continue;
-            todas.add(u);
-            List<OrganizationalUnit> deU = new ArrayList<>(filhos.getOrDefault(u.getId().getValor(), List.of()));
-            deU.sort(Comparator.comparing(x -> x.getName() == null ? "" : x.getName()));
-            fila.addAll(deU);
-        }
-        return todas;
     }
 
     LocalDate hoje() { return LocalDate.now(); }

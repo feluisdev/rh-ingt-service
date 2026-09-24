@@ -1,0 +1,46 @@
+{
+  "type": "dto",
+  "name": "ListaAntiguidadeDTO",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "integer",
+      "name": "ano",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "referencia",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "unidadeId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "unidadeNome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "incluirSubunidades",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "GrupoAntiguidadeDTO",
+      "name": "grupos",
+      "objectType": "dto",
+      "collectionType": "list",
+      "module": "colaboradores",
+      "required": false
+    }
+  ]
+}

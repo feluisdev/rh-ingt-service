@@ -103,14 +103,24 @@ public class AntiguidadeService {
                     "O colaborador não tem data de admissão — não há por onde começar a contagem.");
 
         LocalDate referencia = ate != null ? ate : LocalDate.now();
+        return CalculadoraAntiguidade.calcular(funcionario.getDataAdmissao(), referencia, exclusoes(funcionarioId, referencia));
+    }
 
+    /**
+     * O tempo contado desde {@code inicio} (por exemplo, a entrada na categoria — a antiguidade «no
+     * cargo» da lista do art. 69.º do DL n.º 3/2010), com os mesmos descontos, recortados ao intervalo.
+     */
+    public CalculadoraAntiguidade.Antiguidade calcularDesde(FuncionarioId funcionarioId, LocalDate inicio, LocalDate ate) {
+        return CalculadoraAntiguidade.calcular(inicio, ate, exclusoes(funcionarioId, ate));
+    }
+
+    private List<PeriodoExcluido> exclusoes(FuncionarioId funcionarioId, LocalDate referencia) {
         List<PeriodoExcluido> exclusoes = new ArrayList<>();
         exclusoes.addAll(periodosEmSituacaoQueNaoConta(funcionarioId, referencia));
         exclusoes.addAll(periodosDeLicencaQueNaoConta(funcionarioId));
         exclusoes.addAll(periodosDeVinculoQueNaoConta(funcionarioId));
         exclusoes.addAll(periodosDeFaltaInjustificada(funcionarioId));
-
-        return CalculadoraAntiguidade.calcular(funcionario.getDataAdmissao(), referencia, exclusoes);
+        return exclusoes;
     }
 
     /**

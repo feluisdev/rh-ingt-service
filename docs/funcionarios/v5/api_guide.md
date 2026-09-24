@@ -1198,6 +1198,33 @@ DL n.º 3/2010, art. 75.º: as faltas e licenças de cada funcionário e a sua n
 
 Regras: BR-REL-01 a BR-REL-08, BR-FAL-08.
 
+### 6.12 Lista de antiguidade — arts. 69.º e 70.º
+
+`GET /api/v1/rh/relatorios/lista-antiguidade?ano=2026&unidadeId={uuid}&incluirSubunidades=true` —
+DL n.º 3/2010, art. 69.º: a lista de cada serviço com referência a **31 de Dezembro do ano anterior**,
+**por cargo** e, em cada cargo, **pela antiguidade no cargo**. `…/lista-antiguidade.csv` devolve o CSV
+(para afixar e publicar). Só se gera; o ciclo de aprovação, reclamação e publicação fica para depois.
+
+```json
+{ "ano": 2026, "referencia": "2025-12-31", "unidadeId": "…", "unidadeNome": "…", "incluirSubunidades": true,
+  "grupos": [ { "carreira": "Técnica", "categoria": "Técnico Principal", "foraDeGrelha": false,
+                "linhas": [ { "posicao": 1, "numeroFuncionario": "0000002", "nome": "Maria Santos",
+                              "unidadeCodigo": "SERV_RH", "escalao": "TP-2", "dataInicioNoCargo": "2024-03-01",
+                              "diasDescontados": 0, "diasContados": 671, "anos": 1, "meses": 10, "dias": 1,
+                              "dataAdmissao": "2020-01-01", "anosServico": 6, "mesesServico": 0, "diasServico": 0,
+                              "observacoes": null } ] } ] }
+```
+
+- **Cargo**: a carreira e a categoria em 31 de Dezembro (pelo escalão da afectação); fora da grelha,
+  o cargo (Job) do Lugar, num grupo «Fora de grelha» no fim.
+- **Início no cargo**: o começo da cadeia de afectações seguidas na mesma categoria (progressões e
+  transferências não cortam; uma interrupção corta).
+- **Tempo contado**: dias no cargo menos os descontos da lei, em anos/meses/dias (365/30 dias);
+  `observacoes` diz os períodos descontados e o motivo. O tempo de serviço total desempata.
+- 422: ano cuja referência ainda não chegou, `unidadeId` mal escrito. 404: unidade que não existe.
+
+Regras: BR-LAN-01 a BR-LAN-05.
+
 ### Sub-recurso `documentos` (padrão)
 ```
 POST   .../{ownerId}/documentos            # upload (multipart)

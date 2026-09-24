@@ -1776,6 +1776,32 @@ $corpoU33.horarioDesde = $null
 Chamar 'F33.16 a copia agendada para a unidade ainda nao vigorou: continua editavel' PUT ('/catalogs/horarios/' + $hCopia) @{ blocos=(Semana '08:00' '12:00' '13:00' '17:00' $true) } 200 | Out-Null
 
 Write-Host ''
+Write-Host '=========== F34 - LISTA DE ANTIGUIDADE (DL 3/2010, arts. 69.o e 70.o) ==========='
+
+# Com referencia a 31 de Dezembro do ano anterior, por cargo e, em cada cargo, por antiguidade no cargo.
+$ano34 = (Get-Date).Year
+$rotaL = '/relatorios/lista-antiguidade?ano=' + $ano34 + '&unidadeId=' + $uMin
+$l34 = (Chamar 'F34.1 lista de antiguidade do ministerio, com subunidades' GET $rotaL).Dados
+Verificar 'F34.2 referencia a 31 de Dezembro do ano anterior' ($l34.referencia -eq (($ano34 - 1).ToString() + '-12-31')) ('(' + $l34.referencia + ')')
+$linhas34 = @($l34.grupos | ForEach-Object { $_.linhas } | Where-Object { $_.funcionarioId -eq $colabB })
+Verificar 'F34.3 a Maria aparece uma vez' ($linhas34.Count -eq 1) ('(' + $linhas34.Count + ')')
+$m34 = $linhas34[0]
+Verificar 'F34.4 com data de inicio no cargo, posicao e tempo contado' (($null -ne $m34.dataInicioNoCargo) -and ($m34.posicao -ge 1) -and ($m34.diasContados -gt 0)) ('(' + $m34.dataInicioNoCargo + ', ' + $m34.anos + 'a ' + $m34.meses + 'm ' + $m34.dias + 'd)')
+$ok34 = $true
+foreach ($g in @($l34.grupos)) { $p = 0; foreach ($x in @($g.linhas)) { if ($x.posicao -ne ($p + 1)) { $ok34 = $false }; $p = $x.posicao } }
+Verificar 'F34.5 em cada cargo, posicoes seguidas a partir de 1' $ok34 ''
+try {
+    $csv34 = Invoke-WebRequest -UseBasicParsing -TimeoutSec 90 -Uri ($base + '/relatorios/lista-antiguidade.csv?ano=' + $ano34 + '&unidadeId=' + $uMin)
+    if ($csv34.Content -is [byte[]]) { $t34 = [System.Text.Encoding]::UTF8.GetString($csv34.Content) } else { $t34 = [string]$csv34.Content }
+    $tipo34 = $csv34.Headers['Content-Type']
+} catch { $t34 = ''; $tipo34 = '' }
+$csvL34 = @($t34 -split "`r`n" | Where-Object { $_ })
+Verificar 'F34.6 CSV com cabecalho e a linha da Maria' (($tipo34 -like 'text/csv*') -and ($csvL34[0] -like '*ano;referencia;carreira;categoria;posicao*') -and (@($csvL34 | Where-Object { $_ -like '*;0000002;*' }).Count -eq 1)) ('(' + $csvL34.Count + ' linhas)')
+Chamar 'F34.7 NEG ano futuro' GET ('/relatorios/lista-antiguidade?ano=' + ($ano34 + 1) + '&unidadeId=' + $uMin) $null 422 | Out-Null
+Chamar 'F34.8 NEG unidade mal escrita' GET ('/relatorios/lista-antiguidade?ano=' + $ano34 + '&unidadeId=abc') $null 422 | Out-Null
+Chamar 'F34.9 NEG unidade que nao existe' GET ('/relatorios/lista-antiguidade?ano=' + $ano34 + '&unidadeId=' + [guid]::NewGuid()) $null 404 | Out-Null
+
+Write-Host ''
 Write-Host '=========== RESUMO ==========='
 $ok = ($script:resultados | Where-Object { $_.OK }).Count
 $total = $script:resultados.Count

@@ -1,4 +1,4 @@
-> Updated: 2026-09-24 10:55 (-01:00) — sessão de 2026-09-24 (horários com data de efeito)
+> Updated: 2026-09-24 11:30 (-01:00) — sessão de 2026-09-24 (lista de antiguidade)
 
 ## Goal
 
@@ -11,16 +11,16 @@ fora o processamento salarial (outra aplicação, integração futura) e o SIGDI
 
 ## Current state
 
-**Branch `fix-alinhamento-legislacao`**, **41 commits locais por enviar** (`origin_git_lab`).
+**Branch `fix-alinhamento-legislacao`**, **42 commits locais por enviar** (`origin_git_lab`).
 **Não fazer push sem o utilizador pedir** — merge para `master` no GitLab é deploy.
 
-- **Testes: 1120, 0 falhas** — correr na **cópia isolada** (ver Blockers).
-- **Bateria funcional: 715 passos**, 715 OK (2026-09-24, duas execuções seguidas com reposição
-  entre elas). Blocos F20–F33: feriados (V55), contagem (V56), mapa de férias, parâmetros de férias,
+- **Testes: 1123, 0 falhas** — correr na **cópia isolada** (ver Blockers).
+- **Bateria funcional: 724 passos**, 724 OK (2026-09-24, duas execuções seguidas com reposição
+  entre elas). Blocos F20–F34: feriados (V55), contagem (V56), mapa de férias, parâmetros de férias,
   horários, registo diário, faltas por débito, pedido em horas (V58), pedido pelo próprio em `/me`,
-  registo pelo próprio com validação, trabalho suplementar, relação mensal, aprovação dos pedidos de ausência, horários com data de efeito.
+  registo pelo próprio com validação, trabalho suplementar, relação mensal, aprovação dos pedidos de ausência, horários com data de efeito, lista de antiguidade.
 - Migrações até **`V58`**. Próxima livre: **V59** (só para alterar tabelas existentes).
-- **`openapi.json`**: 274 caminhos (regenerado com a app a correr).
+- **`openapi.json`**: 276 caminhos (regenerado com a app a correr).
 - **Sete jobs `@Scheduled`**, sem lock distribuído (fica para o framework de jobs).
 - `.claude/settings.json` e `.claude/settings.local.json` estão **versionados, com alterações locais
   que não entram em nenhum commit** (não são desta tarefa: nunca `git add -A`). Fora do git ficam os
@@ -46,7 +46,8 @@ fora o processamento salarial (outra aplicação, integração futura) e o SIGDI
 | `01a615cf` | Relação mensal do art. 75.º (JSON e CSV); dias depois da cessação fora do vínculo |
 | `f60d0b0c` (24) | Pedidos de ausência: aprovação automática dos tipos sem aprovação; decisão pela chefia directa |
 | `d9703e0c` (24) | Unidade onde exerce funções pela afectação da data (feriados e horário da unidade) |
-| (2026-09-24) | Horários com data de efeito (base e unidade com histórico; horário que vigorou é imutável; duplicar) |
+| `36959801` (24) | Horários com data de efeito (base e unidade com histórico; horário que vigorou é imutável; duplicar) |
+| (2026-09-24) | Relatórios: lista de antiguidade anual (DL 3/2010, arts. 69.º e 70.º), JSON e CSV |
 
 Mais os commits `docs` do handoff. **Plano geral:** 1 feriados ✔ · 2 dispensas ✔ · 3 mapa de férias ✔
 · 4 assiduidade ✔ (horários → registo → faltas → horas → próprio → suplementar → relação). O que
@@ -112,6 +113,12 @@ falta está em **Plano em aberto**.
   «já vigorou?» vai por `HorarioUtilizacaoPort` (parametrizacoes), implementada em colaboradores,
   estrutura e no próprio base. Corrigido pelo caminho: listagem de pedidos com 500 intermitente
   (`upper(bytea)`) e `workerStateId` nulo com 500.
+- **Relatórios de gestão (2026-09-24):** os três, por esta ordem, um commit cada — **lista de
+  antiguidade** (feita), **mapa de efectivos**, **indicadores do pessoal** (balanço social). Só leitura,
+  por unidade com subunidades, JSON e CSV, em `/relatorios/…`. Da lista, **só gerar**: o ciclo
+  (aprovar, afixar, reclamações, publicar até 30/4) fica para depois. «Cargo» = carreira/categoria pelo
+  escalão da afectação (fora da grelha, o Job); início no cargo = cadeia seguida na categoria;
+  `QuemEstaNoServico` partilhado com a relação mensal.
 - **Adiados pelo utilizador (2026-09-24):** permissões por perfil e meios-dias de férias («ainda não»);
   **notificações = TODO** (esperam uma app de notificações; ficam `TODO(notificacoes)` no código).
   Nomes de endpoints e campos (inglês/português) **não se mudam agora** — só o funcionamento importa.
@@ -250,7 +257,7 @@ TE_PESQUISA `…e1f3`.
 ## Test / validation plan
 
 Para cada ponto novo: testes unitários (domínio e serviço), prova com a app, um bloco novo na
-bateria (o próximo é o **F34**) com positivos e negativos, e a bateria inteira duas vezes com
+bateria (o próximo é o **F35**) com positivos e negativos, e a bateria inteira duas vezes com
 reposição entre elas. Os blocos e as armadilhas pagas estão no `scripts/testes_funcionais_README.md`.
 
 ## Open questions
@@ -278,8 +285,9 @@ Ideias-chave: período vem de `agendadoPara`, parâmetros gravados na abertura, 
 
 Aprovado pelo utilizador em 2026-09-24, por esta ordem:
 
-1. **Relatórios de gestão** (o utilizador: «podemos fazer») — desenhar primeiro: quais (balanço
-   social, lista de antiguidade anual, efectivos por unidade/carreira, absentismo…), lei e indústria.
+1. **Relatórios de gestão** — lista de antiguidade ✔; a seguir o **mapa de efectivos** (Lei 20, art. 4.º
+   al. aa) e arts. 38.º–41.º: funções e postos de trabalho que o serviço tem, face ao quadro), depois os
+   **indicadores do pessoal** (art. 38.º n.º 3). Desenhar cada um antes de implementar.
 
 Depois, ou a decidir:
 2. **Formação e disciplinar** como processos com fluxo (hoje são registos; a pena é texto livre) —
@@ -306,6 +314,6 @@ Depois, ou a decidir:
 
 ## Next step
 
-Seguir o **Plano em aberto** pela ordem aprovada: item 1 (relatórios de gestão) — **apresentar o
-desenho** (quais, lei, indústria, o que já existe) e pedir aprovação antes de implementar. Antes de desenhar: lei, indústria
+Seguir o **Plano em aberto**: item 1, o **mapa de efectivos** — apresentar o desenho (lei, indústria,
+o que já existe: Lugares, provimento, vagas) e pedir aprovação antes de implementar. Antes de desenhar: lei, indústria
 e **o que já existe**; aprovação do desenho antes de implementar; um commit por ponto.
