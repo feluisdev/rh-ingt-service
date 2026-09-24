@@ -345,4 +345,40 @@ public class MeController {
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
+
+    // ── Férias: preferência pelo próprio e a equipa para a chefia ─────────────────────────
+
+    @GetMapping("ferias/{ano}")
+    @Operation(summary = "As minhas ferias do ano: preferencia, marcacao e alteracoes")
+    @ApiResponse(responseCode = "200", description = "Ferias do ano",
+            content = @Content(schema = @Schema(implementation = cv.igrp.RH_Service.colaboradores.application.dto.FeriasAnoResponseDTO.class)))
+    public ResponseEntity<cv.igrp.RH_Service.colaboradores.application.dto.FeriasAnoResponseDTO> minhasFerias(@PathVariable Integer ano) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<cv.igrp.RH_Service.colaboradores.application.dto.FeriasAnoResponseDTO> response = queryBus.handle(new cv.igrp.RH_Service.colaboradores.application.queries.GetMinhasFeriasQuery(ano));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @PutMapping("ferias/{ano}/preferencia")
+    @Operation(summary = "Indicar a minha preferencia de ferias (art. 5.o n.o 4); fora do prazo e aceite com alerta")
+    @ApiResponse(responseCode = "200", description = "Preferencia registada",
+            content = @Content(schema = @Schema(implementation = SuccessResponseDTO.class)))
+    public ResponseEntity<SuccessResponseDTO> indicarMinhaPreferencia(@PathVariable Integer ano,
+            @RequestBody cv.igrp.RH_Service.colaboradores.application.dto.FeriasPreferenciaRequestDTO request) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<SuccessResponseDTO> response = commandBus.send(new cv.igrp.RH_Service.colaboradores.application.commands.IndicarMinhaPreferenciaFeriasCommand(ano, request));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
+
+    @GetMapping("equipa/ferias/{ano}")
+    @Operation(summary = "Preferencias e marcacoes de ferias da minha equipa directa")
+    @ApiResponse(responseCode = "200", description = "Ferias da equipa",
+            content = @Content(array = @io.swagger.v3.oas.annotations.media.ArraySchema(schema = @Schema(implementation = cv.igrp.RH_Service.colaboradores.application.dto.FeriasEquipaLinhaDTO.class))))
+    public ResponseEntity<java.util.List<cv.igrp.RH_Service.colaboradores.application.dto.FeriasEquipaLinhaDTO>> feriasDaEquipa(@PathVariable Integer ano) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<java.util.List<cv.igrp.RH_Service.colaboradores.application.dto.FeriasEquipaLinhaDTO>> response = queryBus.handle(new cv.igrp.RH_Service.colaboradores.application.queries.GetFeriasEquipaQuery(ano));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
 }

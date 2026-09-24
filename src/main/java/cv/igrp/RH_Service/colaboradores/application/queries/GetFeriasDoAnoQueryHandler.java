@@ -48,6 +48,7 @@ public class GetFeriasDoAnoQueryHandler implements QueryHandler<GetFeriasDoAnoQu
             r.setPreferenciaIndicadaEm(f.getPreferenciaIndicadaEm());
             r.setPreferenciaForaDePrazo(f.isPreferenciaForaDePrazo());
             r.setPreferenciaObservacoes(f.getPreferenciaObservacoes());
+            r.setPreferenciaIndicadaPor(f.getPreferenciaIndicadaPor() != null ? f.getPreferenciaIndicadaPor().name() : null);
             r.setMarcacao(dtos(f.getMarcacao()));
             r.setOrigem(f.getOrigem() != null ? f.getOrigem().name() : null);
             r.setFundamentacao(f.getFundamentacao());

@@ -793,6 +793,100 @@
           }
         }
       }
+    },
+    {
+      "actionName": "minhasFerias",
+      "method": "GET",
+      "path": "ferias/{ano}",
+      "pathVariables": [
+        {
+          "name": "ano",
+          "type": "integer"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "FeriasAnoResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "indicarMinhaPreferencia",
+      "method": "PUT",
+      "path": "ferias/{ano}/preferencia",
+      "pathVariables": [
+        {
+          "name": "ano",
+          "type": "integer"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "FeriasPreferenciaRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "feriasDaEquipa",
+      "method": "GET",
+      "path": "equipa/ferias/{ano}",
+      "pathVariables": [
+        {
+          "name": "ano",
+          "type": "integer"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "FeriasEquipaLinhaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

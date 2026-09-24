@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.colaboradores.application.services;
 
 import cv.igrp.RH_Service.parametrizacoes.application.services.ParametrosFeriasService;
 import cv.igrp.RH_Service.colaboradores.domain.models.FeriasDoAno;
+import cv.igrp.RH_Service.colaboradores.domain.models.OrigemPreferenciaFerias;
 import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
 import cv.igrp.RH_Service.colaboradores.domain.models.MapaFerias;
 import cv.igrp.RH_Service.colaboradores.domain.models.MotivoAlteracaoMapaFerias;
@@ -49,14 +50,51 @@ public class MapaFeriasService {
     private final DiasUteisCalculator diasUteisCalculator;
     private final ParametrosFeriasService parametrosFerias;
 
-    /** Art. 5.º n.º 4. Fora do prazo é aceite, com alerta. */
+    /** Art. 5.º n.º 4. Fora do prazo é aceite, com alerta. Pelo RH. */
     @Transactional
     public Resultado indicarPreferencia(FuncionarioId funcionarioId, int ano,
                                         List<PeriodoFerias> periodos, String observacoes) {
-        funcionario(funcionarioId);
+        return indicarPreferencia(funcionarioId, ano, periodos, observacoes, OrigemPreferenciaFerias.RH);
+    }
+
+    /** O mesmo, dizendo quem indica. O próprio ({@code /me}) tem de estar activo (403). */
+    @Transactional
+    public Resultado indicarPreferencia(FuncionarioId funcionarioId, int ano, List<PeriodoFerias> periodos,
+                                        String observacoes, OrigemPreferenciaFerias origem) {
+        Funcionario f = funcionario(funcionarioId);
+        if (origem == OrigemPreferenciaFerias.PROPRIO && !Boolean.TRUE.equals(f.getIsActive()))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.FORBIDDEN, "Acesso negado: colaborador inactivo.");
         FeriasDoAno ferias = feriasDoAno(funcionarioId, ano);
-        List<String> alertas = ferias.indicarPreferencia(periodos, observacoes, hoje(), parametrosFerias.vigenteEm(ano).prazoPreferencia(ano));
+        List<String> alertas = ferias.indicarPreferencia(periodos, observacoes, hoje(),
+                parametrosFerias.vigenteEm(ano).prazoPreferencia(ano), origem);
         return new Resultado(feriasDoAnoRepository.save(ferias), alertas);
+    }
+
+    /**
+     * <b>Um pedido de férias fora da marcação</b> (art. 6.º n.º 2): o aviso, se o houver. Não recusa —
+     * depois de dado a conhecer, o mapa só se altera por acordo ou conveniência de serviço fundamentada,
+     * e isso regista-se na marcação. Sem marcação no ano, só avisa com o mapa já dado a conhecer.
+     */
+    @Transactional(readOnly = true)
+    public Optional<String> avisoForaDaMarcacao(FuncionarioId funcionarioId, LocalDate inicio, LocalDate fim) {
+        if (inicio == null || fim == null || fim.isBefore(inicio)) return Optional.empty();
+        int ano = inicio.getYear();
+        boolean mapaConhecido = mapaFeriasRepository.findByAno(ano).isPresent()
+                || hoje().isAfter(parametrosFerias.vigenteEm(ano).prazoMapa(ano));
+        Optional<FeriasDoAno> ferias = feriasDoAnoRepository.findByFuncionarioIdAndAno(funcionarioId, ano);
+        boolean temMarcacao = ferias.map(FeriasDoAno::temMarcacao).orElse(false);
+        if (!temMarcacao)
+            return mapaConhecido ? Optional.of("Não há férias marcadas no mapa de " + ano + ": gozá-las é uma alteração ao mapa, "
+                    + "que exige acordo ou conveniência de serviço fundamentada (art. 6.º n.º 2) — registe-a na marcação.")
+                    : Optional.empty();
+        if (ferias.get().cabeNaMarcacao(inicio, fim)) return Optional.empty();
+        String marcadas = ferias.get().getMarcacao().stream().map(p -> p.inicio() + " a " + p.fim())
+                .collect(java.util.stream.Collectors.joining(", "));
+        return Optional.of(mapaConhecido
+                ? "O pedido (" + inicio + " a " + fim + ") está fora das férias marcadas no mapa de " + ano + " (" + marcadas
+                        + "). Depois de dado a conhecer, o mapa só se altera por acordo ou conveniência de serviço fundamentada "
+                        + "(art. 6.º n.º 2): registe a alteração na marcação."
+                : "O pedido (" + inicio + " a " + fim + ") não coincide com as férias marcadas para " + ano + " (" + marcadas + ").");
     }
 
     /** Arts. 5.º e 6.º n.º 2: marca, ou altera a marcação com o motivo que a lei exige. */

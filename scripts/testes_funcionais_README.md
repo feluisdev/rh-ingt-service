@@ -52,6 +52,7 @@ docker exec postgres-ingt-rh sh -c "psql -U postgres -d recursoshumanos_db -q -f
 | **F26** faltas por débito | sobre a semana do F25: dia com anomalia fica por corrigir; atraso de 30 min contra o horário fixo; dia sem marcações conta inteiro (SEM_REGISTO); domingo não se apura; um pedido aprovado tira o dia do apuramento |
 | **F27** pedido em horas (V58) | amamentação 1h+1h por dia durante 100 dias; a terceira passa do tecto diário; horas cruzadas 409, noutra hora cabe; tecto por ocorrência; férias em horas 422; terminar antes do fim acaba na véspera; meia hora justificada tira o atraso do apuramento |
 | **F28** pedido pelo próprio (/me) | segue as regras do RH: luto de sexta a segunda conta 4 dias seguidos; seminário de 7 dias passa do tecto (422); sobreposição 409; amamentação em horas pelo próprio |
+| **F35** férias: preferência pelo próprio e fora da marcação | a Maria indica a preferência pelo /me e fica PROPRIO; inactivo 403; a equipa dela vazia; pedido de férias dentro da marcação sem aviso, fora dela aceite com o aviso do art. 6.º n.º 2 (RH e /me) |
 | **F34** lista de antiguidade | lista do ministério com subunidades: referência a 31/12 do ano anterior; a Maria uma vez, com início no cargo, posição e tempo contado; posições seguidas em cada cargo; CSV com cabeçalho e a linha dela; ano futuro 422, unidade mal escrita 422, inexistente 404 |
 | **F33** horários com data de efeito | mudar os blocos do base (vigorou) 409, só o nome 200; duplicar dá cópia não-base editável; base com data passada 422; desactivar o base agendado 409; horário da unidade daqui a 3 dias: hoje ainda nenhum, antes vale o base, depois o da unidade; data passada 422 |
 | **F32** aprovação dos pedidos de ausência | luto nasce APROVADO com aprovação automática (aprovar outra vez 409); seminário nasce PENDENTE; pela caixa da chefia: a própria 422, quem não é chefia 403 (aprovar e rejeitar); RH pelo caminho de outro colaborador 404; RH aprova, segunda decisão 409; caixa da Maria vazia |
@@ -549,6 +550,9 @@ Le a lista do ano corrente (referencia 31 de Dezembro do ano anterior) ao nivel 
 aparece com o inicio no cargo de 2015-06-01 (o seed) e 10 anos e 7 meses contados.
 
 ## Resultado da última execução
+
+**736 passos, 736 OK** (2026-09-24), duas execucoes seguidas com o `repor_estado.sql` entre elas
+(F35 incluido).
 
 **724 passos, 724 OK** (2026-09-24), duas execucoes seguidas com o `repor_estado.sql` entre elas
 (F34 incluido).

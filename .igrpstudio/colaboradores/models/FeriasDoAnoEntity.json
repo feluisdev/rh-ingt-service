@@ -66,6 +66,14 @@
       "type": "date",
       "objectType": "java",
       "primaryKey": false
+    },
+    {
+      "name": "preferenciaIndicadaPor",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "length": 10,
+      "nullable": true
     }
   ]
 }

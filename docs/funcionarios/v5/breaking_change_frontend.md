@@ -597,6 +597,16 @@ existentes -- estas duas colunas mandam descontar antiguidade e mexer em salario
 (`t_leave_mobility_subtype.affects_pay`), que nao sabe dizer "parcial". Por agora sao dois
 contratos diferentes: booleano nas licencas, enum nas ausencias.
 
+### 11.36 Mapa de ferias: preferencia pelo proprio e pedido fora da marcacao (2026-09-24)
+
+**Nada deixa de funcionar**: endpoints novos e campos novos.
+
+- `/me`: `GET /me/ferias/{ano}`, `PUT /me/ferias/{ano}/preferencia`, `GET /me/equipa/ferias/{ano}`.
+- Ferias do ano: campo `preferenciaIndicadaPor` (PROPRIO/RH).
+- Criacao de pedido de ausencia: resposta com `alertas` (ex.: ferias fora da marcacao do mapa) --
+  mostrar ao utilizador. No `/me` os alertas vem no `SuccessResponseDTO`.
+- Caixa da chefia: `foraDaMarcacao` em cada pedido pendente.
+
 ### 11.35 Lista de antiguidade (2026-09-24)
 
 **Nada deixa de funcionar**: dois endpoints novos, so leitura.
@@ -827,6 +837,7 @@ resposta ja reflecte isto -- nao ha nada a recalcular no ecra.
 - [ ] Separador de horário no colaborador: histórico, atribuir a partir de uma data (horário + regime de prestação) e o horário vigente com a origem.
 - [ ] Ecrã de assiduidade do colaborador: semana/mês com períodos, horas trabalhadas vs esperadas, dias com anomalia destacados, e as acções corrigir e anular (com motivo).
 - [ ] Pedido de ausência: horas de início e fim (só para tipos que as admitem), e a acção terminar para pedidos em horas aprovados.
+- [ ] Férias no `/me`: indicar a preferência até 31 de Janeiro, ver a marcação; a chefia vê a da equipa. Mostrar o aviso de pedido fora da marcação.
 - [ ] Lista de antiguidade: ecrã por serviço e ano, agrupado por cargo, e o CSV para afixar.
 - [ ] Horários: botão «Duplicar» e aviso de 409 ao editar um horário que já vigorou; data de efeito (opcional) ao mudar o base e o horário da unidade.
 - [ ] Pedidos de ausência: caixa da chefia (aprovar/rejeitar com motivo); mostrar «aprovado automaticamente» nos tipos que não requerem aprovação.

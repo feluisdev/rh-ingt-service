@@ -36,6 +36,7 @@ public class CreatePedidoAusenciaCommandHandler
     private final CalendarioFeriadosService calendarioFeriadosService;
     private final DiasUteisCalculator diasUteisCalculator;
     private final SaldoAusenciaService saldoAusenciaService;
+    private final cv.igrp.RH_Service.colaboradores.application.services.MapaFeriasService mapaFeriasService;
 
     @IgrpCommandHandler
     @Transactional
@@ -129,11 +130,16 @@ public class CreatePedidoAusenciaCommandHandler
         var saved = pedidoRepository.save(pedido);
         // TODO(notificacoes): avisar a chefia directa de um pedido PENDENTE, quando houver a app de notificacoes.
 
-        return ResponseEntity.status(201).body(new PedidoAusenciaCriadoResponseDTO(
+        var resposta = new PedidoAusenciaCriadoResponseDTO(
                 saved.getId().getStringValor(),
                 saved.getNumeroDias(),
                 saved.getEstadoTexto(),
-                0));
+                0);
+        // Art. 6.º n.º 2: férias fora da marcação do mapa -- avisa, não recusa.
+        if (tipo.isFerias() && mapaFeriasService != null)
+            mapaFeriasService.avisoForaDaMarcacao(funcionarioId, dto.getDataInicio(), dto.getDataFim())
+                    .ifPresent(resposta.getAlertas()::add);
+        return ResponseEntity.status(201).body(resposta);
     }
 
     /**

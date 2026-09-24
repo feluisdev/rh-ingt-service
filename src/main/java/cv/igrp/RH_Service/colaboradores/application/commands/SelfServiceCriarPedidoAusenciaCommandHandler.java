@@ -61,6 +61,7 @@ public class SelfServiceCriarPedidoAusenciaCommandHandler
         var criado = createPedidoAusenciaCommandHandler.handle(
                 new CreatePedidoAusenciaCommand(funcionarioId.getStringValor(), pedido)).getBody();
 
-        return ResponseEntity.status(201).body(SuccessResponseDTO.de(criado.getId()));
+        return ResponseEntity.status(201).body(SuccessResponseDTO.de(criado.getId(),
+                criado.getAlertas() != null ? criado.getAlertas().toArray(String[]::new) : new String[0]));
     }
 }

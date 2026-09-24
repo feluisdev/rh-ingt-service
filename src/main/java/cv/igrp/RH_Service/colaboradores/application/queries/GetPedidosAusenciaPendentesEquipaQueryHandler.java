@@ -32,6 +32,7 @@ public class GetPedidosAusenciaPendentesEquipaQueryHandler
     private final DecisaoPedidoAusenciaService decisaoService;
     private final FuncionarioRepository funcionarioRepository;
     private final TipoAusenciaRepository tipoAusenciaRepository;
+    private final cv.igrp.RH_Service.colaboradores.application.services.MapaFeriasService mapaFeriasService;
 
     @IgrpQueryHandler
     public ResponseEntity<List<PedidoAusenciaPendenteDTO>> handle(GetPedidosAusenciaPendentesEquipaQuery query) {
@@ -49,7 +50,9 @@ public class GetPedidosAusenciaPendentesEquipaQueryHandler
                     p.getDataInicio(), p.getDataFim(), p.getNumeroDias(),
                     p.getHoraInicio() != null ? p.getHoraInicio().toString() : null,
                     p.getHoraFim() != null ? p.getHoraFim().toString() : null,
-                    p.minutosPorDia(), p.getMotivo());
+                    p.minutosPorDia(), p.getMotivo(),
+                    t != null && t.isFerias()
+                            && mapaFeriasService.avisoForaDaMarcacao(p.getFuncionarioId(), p.getDataInicio(), p.getDataFim()).isPresent());
         }).toList());
     }
 }

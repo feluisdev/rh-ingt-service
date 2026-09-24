@@ -27,6 +27,13 @@
       "name": "minutosPorDia",
       "objectType": "java",
       "required": false
+    },
+    {
+      "type": "string",
+      "name": "alertas",
+      "objectType": "java",
+      "collectionType": "list",
+      "required": false
     }
   ]
 }

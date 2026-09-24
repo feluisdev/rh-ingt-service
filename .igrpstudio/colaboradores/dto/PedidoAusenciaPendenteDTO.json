@@ -81,6 +81,12 @@
       "name": "motivo",
       "objectType": "java",
       "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "foraDaMarcacao",
+      "objectType": "java",
+      "required": false
     }
   ]
 }

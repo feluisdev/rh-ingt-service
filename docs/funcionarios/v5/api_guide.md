@@ -956,7 +956,21 @@ o mínimo que se aplicam a um ano são os da vigência desse ano.
 entre colaboradores; a indicação da preferência pelo próprio, em `/me`; e um aviso quando um
 pedido de férias não coincide com a marcação.
 
-Regras: BR-FER-13 a BR-FER-20.
+**Pelo próprio e pela chefia** (`/me`):
+
+| Método | Path | O quê |
+|---|---|---|
+| `GET` | `/api/v1/rh/me/ferias/{ano}` | as minhas férias: preferência, marcação, alterações |
+| `PUT` | `/api/v1/rh/me/ferias/{ano}/preferencia` | indicar a preferência (o mesmo corpo do RH); inactivo → 403 |
+| `GET` | `/api/v1/rh/me/equipa/ferias/{ano}` | a chefia directa vê a preferência e a marcação da equipa |
+
+A resposta das férias traz `preferenciaIndicadaPor` (`PROPRIO` · `RH`).
+
+**Pedido de férias fora da marcação** (art. 6.º n.º 2): a criação do pedido (RH ou `/me`) **não
+recusa**, mas a resposta traz um alerta em `alertas` — depois de o mapa ser dado a conhecer, é uma
+alteração ao mapa, que se regista na marcação. Na caixa da chefia (§6.2f), `foraDaMarcacao: true`.
+
+Regras: BR-FER-13 a BR-FER-22.
 
 ### 6.7 Horário do colaborador — assiduidade, primeiro passo
 

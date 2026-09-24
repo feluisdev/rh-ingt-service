@@ -19,6 +19,8 @@ public class FeriasAnoResponseDTO {
     private LocalDate preferenciaIndicadaEm;
     private boolean preferenciaForaDePrazo;
     private String preferenciaObservacoes;
+    /** PROPRIO ou RH. */
+    private String preferenciaIndicadaPor;
 
     private List<PeriodoFeriasDTO> marcacao = new ArrayList<>();
     private String origem;

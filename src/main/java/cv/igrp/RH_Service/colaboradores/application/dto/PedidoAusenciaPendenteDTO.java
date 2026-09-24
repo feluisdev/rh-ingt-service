@@ -27,4 +27,6 @@ public class PedidoAusenciaPendenteDTO {
     private String horaFim;
     private int minutosPorDia;
     private String motivo;
+    /** Férias fora da marcação do mapa: aprová-las altera o mapa (art. 6.º n.º 2). */
+    private boolean foraDaMarcacao;
 }

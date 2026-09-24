@@ -31,4 +31,11 @@ public class PedidoAusenciaCriadoResponseDTO {
 
     /** V58: minutos por dia de um pedido em horas; zero num de dias inteiros. */
     private int minutosPorDia;
+
+    /** Avisos que não impedem o pedido (ex.: férias fora da marcação do mapa, art. 6.º n.º 2). Vazio, nunca nulo. */
+    private java.util.List<String> alertas = new java.util.ArrayList<>();
+
+    public PedidoAusenciaCriadoResponseDTO(String id, Integer numeroDias, String estado, int minutosPorDia) {
+        this(id, numeroDias, estado, minutosPorDia, new java.util.ArrayList<>());
+    }
 }

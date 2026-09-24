@@ -1802,6 +1802,29 @@ Chamar 'F34.8 NEG unidade mal escrita' GET ('/relatorios/lista-antiguidade?ano='
 Chamar 'F34.9 NEG unidade que nao existe' GET ('/relatorios/lista-antiguidade?ano=' + $ano34 + '&unidadeId=' + [guid]::NewGuid()) $null 404 | Out-Null
 
 Write-Host ''
+Write-Host '=========== F35 - MAPA DE FERIAS: PREFERENCIA PELO PROPRIO E PEDIDO FORA DA MARCACAO ==========='
+
+# A preferencia (art. 5.o n.o 4) pode ser indicada pelo proprio no /me; a chefia directa ve a da equipa.
+$ano35 = $anoMapa + 1
+$set35 = PrimeiraSegunda $ano35 9
+$rPref35 = Chamar 'F35.1 a Maria indica a preferencia pelo /me' PUT ('/me/ferias/' + $ano35 + '/preferencia') @{ periodos=@(@{ dataInicio=(Iso $set35); dataFim=(Iso $set35.AddDays(18)) }); observacoes='Setembro' } 200 $colabB
+$f35 = (Chamar 'F35.2 a Maria le as suas ferias' GET ('/me/ferias/' + $ano35) $null 200 $colabB).Dados
+Verificar 'F35.3 a preferencia ficou, indicada pelo proprio' ((@($f35.preferencia).Count -eq 1) -and ($f35.preferenciaIndicadaPor -eq 'PROPRIO')) ('(' + $f35.preferenciaIndicadaPor + ')')
+Chamar 'F35.4 NEG colaborador inactivo nao indica' PUT ('/me/ferias/' + $ano35 + '/preferencia') @{ periodos=@(@{ dataInicio=(Iso $set35); dataFim=(Iso $set35.AddDays(18)) }) } 403 $colabA | Out-Null
+$eq35 = Chamar 'F35.5 as ferias da equipa da Maria (nao chefia ninguem)' GET ('/me/equipa/ferias/' + $ano35) $null 200 $colabB
+Verificar 'F35.6 vazia' (@(Linhas $eq35).Count -eq 0) ''
+
+# Um pedido de ferias fora da marcacao do mapa (ja dado a conhecer no F22) da aviso, sem recusar.
+$rotaP35 = '/funcionarios/' + $colabB + '/pedidos-ausencia'
+$rDentro = Chamar 'F35.7 pedido de ferias dentro da marcacao' POST $rotaP35 @{ tipoAusenciaId=$tFer27.id; dataInicio=(Iso $setMapa2.AddDays(1)); dataFim=(Iso $setMapa2.AddDays(3)); motivo='ferias' } 201
+Verificar 'F35.8 sem aviso' (@($rDentro.Dados.alertas).Count -eq 0) ('(' + (@($rDentro.Dados.alertas) -join ' | ') + ')')
+$nov35 = PrimeiraSegunda $anoMapa 11
+$rFora = Chamar 'F35.9 pedido de ferias fora da marcacao' POST $rotaP35 @{ tipoAusenciaId=$tFer27.id; dataInicio=(Iso $nov35.AddDays(1)); dataFim=(Iso $nov35.AddDays(3)); motivo='ferias' } 201
+Verificar 'F35.10 aceite, com o aviso do art. 6.o n.o 2' ((@($rFora.Dados.alertas) -join ' ') -like '*art. 6*') ('(' + @($rFora.Dados.alertas).Count + ' alerta)')
+$rMe35 = Chamar 'F35.11 o mesmo pelo /me' POST '/me/leave-requests' @{ leaveTypeId=$tFer27.id; startDate=(Iso $nov35.AddDays(8)); endDate=(Iso $nov35.AddDays(9)); notes='ferias' } 201 $colabB
+Verificar 'F35.12 o /me tambem avisa' ((@($rMe35.Dados.alertas) -join ' ') -like '*art. 6*') ''
+
+Write-Host ''
 Write-Host '=========== RESUMO ==========='
 $ok = ($script:resultados | Where-Object { $_.OK }).Count
 $total = $script:resultados.Count

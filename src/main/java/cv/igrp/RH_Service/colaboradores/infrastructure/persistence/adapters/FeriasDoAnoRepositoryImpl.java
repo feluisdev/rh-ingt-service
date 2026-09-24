@@ -43,6 +43,7 @@ public class FeriasDoAnoRepositoryImpl implements FeriasDoAnoRepository {
         e.setPreferenciaIndicadaEm(f.getPreferenciaIndicadaEm());
         e.setPreferenciaForaDePrazo(f.isPreferenciaForaDePrazo());
         e.setPreferenciaObservacoes(f.getPreferenciaObservacoes());
+        e.setPreferenciaIndicadaPor(f.getPreferenciaIndicadaPor() != null ? f.getPreferenciaIndicadaPor().name() : null);
         e.setOrigem(f.getOrigem() != null ? f.getOrigem().name() : null);
         e.setFundamentacao(f.getFundamentacao());
         e.setMarcadaEm(f.getMarcadaEm());
@@ -124,6 +125,8 @@ public class FeriasDoAnoRepositoryImpl implements FeriasDoAnoRepository {
                 preferencia, e.getPreferenciaIndicadaEm(), e.isPreferenciaForaDePrazo(), e.getPreferenciaObservacoes(),
                 marcacao, e.getOrigem() != null ? OrigemMarcacaoFerias.valueOf(e.getOrigem()) : null,
                 e.getFundamentacao(), e.getMarcadaEm(),
-                alteracoes);
+                alteracoes)
+                .comPreferenciaIndicadaPor(e.getPreferenciaIndicadaPor() != null
+                        ? cv.igrp.RH_Service.colaboradores.domain.models.OrigemPreferenciaFerias.valueOf(e.getPreferenciaIndicadaPor()) : null);
     }
 }

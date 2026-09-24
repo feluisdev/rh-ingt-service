@@ -48,6 +48,10 @@ public class FeriasDoAnoEntity extends AuditEntity {
     @Column(name = "preferencia_observacoes", length = 500)
     private String preferenciaObservacoes;
 
+    /** PROPRIO ou RH. Coluna nova numa tabela do ddl-auto que ainda nao chegou a producao: sem migracao. */
+    @Column(name = "preferencia_indicada_por", length = 10)
+    private String preferenciaIndicadaPor;
+
     /** ACORDO (art. 5.o n.o 3) ou FIXADA pelo dirigente (n.o 5). Nulo enquanto nao ha marcacao. */
     @Column(name = "origem", length = 20)
     private String origem;

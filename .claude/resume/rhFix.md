@@ -1,4 +1,4 @@
-> Updated: 2026-09-24 11:30 (-01:00) — sessão de 2026-09-24 (lista de antiguidade)
+> Updated: 2026-09-24 12:05 (-01:00) — plano de fecho, ponto 1 (mapa de férias)
 
 ## Goal
 
@@ -11,16 +11,16 @@ fora o processamento salarial (outra aplicação, integração futura) e o SIGDI
 
 ## Current state
 
-**Branch `fix-alinhamento-legislacao`**, **43 commits locais por enviar** (`origin_git_lab`).
+**Branch `fix-alinhamento-legislacao`**, **44 commits locais por enviar** (`origin_git_lab`).
 **Não fazer push sem o utilizador pedir** — merge para `master` no GitLab é deploy.
 
-- **Testes: 1123, 0 falhas** — correr na **cópia isolada** (ver Blockers).
-- **Bateria funcional: 724 passos**, 724 OK (2026-09-24, duas execuções seguidas com reposição
-  entre elas). Blocos F20–F34: feriados (V55), contagem (V56), mapa de férias, parâmetros de férias,
+- **Testes: 1129, 0 falhas** — correr na **cópia isolada** (ver Blockers).
+- **Bateria funcional: 736 passos**, 736 OK (2026-09-24, duas execuções seguidas com reposição
+  entre elas). Blocos F20–F35: feriados (V55), contagem (V56), mapa de férias, parâmetros de férias,
   horários, registo diário, faltas por débito, pedido em horas (V58), pedido pelo próprio em `/me`,
-  registo pelo próprio com validação, trabalho suplementar, relação mensal, aprovação dos pedidos de ausência, horários com data de efeito, lista de antiguidade.
+  registo pelo próprio com validação, trabalho suplementar, relação mensal, aprovação dos pedidos de ausência, horários com data de efeito, lista de antiguidade, preferência de férias pelo próprio e aviso fora da marcação.
 - Migrações até **`V58`**. Próxima livre: **V59** (só para alterar tabelas existentes).
-- **`openapi.json`**: 276 caminhos (regenerado com a app a correr).
+- **`openapi.json`**: 279 caminhos (regenerado com a app a correr).
 - **Sete jobs `@Scheduled`**, sem lock distribuído (fica para o framework de jobs).
 - `.claude/settings.json` e `.claude/settings.local.json` estão **versionados, com alterações locais
   que não entram em nenhum commit** (não são desta tarefa: nunca `git add -A`). Fora do git ficam os
@@ -257,7 +257,7 @@ TE_PESQUISA `…e1f3`.
 ## Test / validation plan
 
 Para cada ponto novo: testes unitários (domínio e serviço), prova com a app, um bloco novo na
-bateria (o próximo é o **F35**) com positivos e negativos, e a bateria inteira duas vezes com
+bateria (o próximo é o **F36**) com positivos e negativos, e a bateria inteira duas vezes com
 reposição entre elas. Os blocos e as armadilhas pagas estão no `scripts/testes_funcionais_README.md`.
 
 ## Open questions
@@ -283,37 +283,38 @@ Ideias-chave: período vem de `agendadoPara`, parâmetros gravados na abertura, 
 
 ## Plano em aberto
 
-Aprovado pelo utilizador em 2026-09-24, por esta ordem:
+**Plano de fecho para a apresentação** (aprovado pelo utilizador em 2026-09-24: «vamos pôr tudo isso
+nesse plano e fechar; você vai fazer tudo de uma vez» — um commit por ponto, sem push):
 
-1. **Relatórios de gestão** — lista de antiguidade ✔; a seguir o **mapa de efectivos** (Lei 20, art. 4.º
-   al. aa) e arts. 38.º–41.º: funções e postos de trabalho que o serviço tem, face ao quadro), depois os
-   **indicadores do pessoal** (art. 38.º n.º 3). Desenhar cada um antes de implementar.
+1. ✔ **Mapa de férias — preferência pelo próprio** (art. 5.º n.º 4): `PUT /me/ferias/{ano}/preferencia`,
+   `GET /me/ferias/{ano}`, `GET /me/equipa/ferias/{ano}` (a chefia directa vê a equipa); fica quem
+   indicou (PROPRIO/RH). **Aviso de pedido de férias fora da marcação** (art. 6.º n.º 2): alerta na
+   criação (RH e /me), sem bloquear; `foraDaMarcacao` na caixa da chefia.
+2. **Mapa de efectivos** (Lei 20, art. 4.º al. aa) e arts. 38.º–41.º): por unidade e cargo, os Lugares
+   (activos, providos, vagos, congelados) e os efectivos; JSON e CSV em `/relatorios/`.
+3. **Indicadores do pessoal** (Lei 20, art. 38.º n.º 3 — balanço social): efectivos por vínculo,
+   género, escalão etário, carreira e unidade; entradas e saídas no ano; absentismo e horas extras.
+   JSON (o front desenha).
+4. **Dados de demonstração credíveis**: 12–15 colaboradores em 2–3 unidades com chefias (Lugar-pai),
+   um mês de marcações com faltas e atrasos, férias, pedidos aprovados e pendentes, horas extras, uma
+   promoção; o nome do SERV_RH corrigido na base (`ServiÃ§o`).
 
-Depois, ou a decidir:
-2. **Formação e disciplinar** como processos com fluxo (hoje são registos; a pena é texto livre) —
-   perguntar ao utilizador o que quer (ficou sem resposta).
-3. **Erros em XML**: com `jackson-dataformat-xml` no classpath, um `ProblemDetail` sai em
-   `application/problem+xml` a quem não pede nada, pede `*/*` ou é um navegador (provado com a app);
-   os sucessos saem em JSON. Solução pronta: uma configuração global que põe o conversor XML no fim.
-   O utilizador disse «depois vemos» (não remover a dependência; não pôr `produces` em 49 controladores).
-4. **Dados de demonstração credíveis** — marcações para os três colaboradores, **hierarquia de
-   chefias** (Lugares com Lugar-pai: é o que falta para mostrar a caixa da chefia), e o nome da unidade
-   SERV_RH duplamente codificado na **base** (`ServiÃ§o`; o ficheiro do seed está certo).
-5. **Mapa de férias** — cônjuges (art. 5.º n.º 6), preferência pelo próprio no `/me`, aviso de pedido
-   fora da marcação.
-6. **Framework de jobs com lock distribuído** (por último; ver secção própria).
-7. Adiados/só a pedido: **permissões**, **meios-dias de férias**, **notificações** (TODO), **tectos em
-   horas**, **fecho mensal** (integração salarial), **`areaCkey`** (tabela de geografia), renomear
-   endpoints/campos.
-8. Arrumação: a secção «Como correr» do `testes_funcionais_README.md` manda correr na árvore de
-    trabalho e repor «com o SQL do fim deste ficheiro» (desactualizado), e o cabeçalho do
-    `repor_estado.sql` diz que é gerado do README (já não é); o `CLAUDE.md` diz 8091 no Swagger e no
-    `.env` (é 8099); o `breaking_change_frontend.md` tem um `### Checklist` vazio entre a §11.18 e a
-    §11.19, os itens colados ao fim da §11.21, e as §11.21–11.33 em ordem decrescente.
-9. Decisões do utilizador: **push** (merge para `master` = deploy); perguntas da secção Open questions.
+**Depois do fecho (fica em aberto, consciente):**
+- Decisões do utilizador: **push** e deploy para um ambiente de demonstração (merge para `master` =
+  deploy); perguntas da secção Open questions.
+- Adiados pelo utilizador: **permissões**, **meios-dias de férias**, **notificações** (TODO),
+  **erros em XML** (configuração global pronta), **formação e disciplinar** como processos, **cônjuges**
+  no mapa de férias (art. 5.º n.º 6), o **ciclo** da lista de antiguidade (aprovar/afixar/reclamar/
+  publicar), **tectos em horas**, **fecho mensal** (integração salarial), **`areaCkey`** (geografia),
+  renomear endpoints/campos, **framework de jobs com lock distribuído**.
+- Arrumação: a secção «Como correr» do `testes_funcionais_README.md` manda correr na árvore de
+  trabalho e repor «com o SQL do fim deste ficheiro» (desactualizado), e o cabeçalho do
+  `repor_estado.sql` diz que é gerado do README (já não é); o `CLAUDE.md` diz 8091 no Swagger e no
+  `.env` (é 8099); o `breaking_change_frontend.md` tem um `### Checklist` vazio entre a §11.18 e a
+  §11.19, os itens colados ao fim da §11.21, e as §11.21 em diante em ordem decrescente.
 
 ## Next step
 
-Seguir o **Plano em aberto**: item 1, o **mapa de efectivos** — apresentar o desenho (lei, indústria,
-o que já existe: Lugares, provimento, vagas) e pedir aprovação antes de implementar. Antes de desenhar: lei, indústria
+Executar o **plano de fecho** pela ordem (1 → 4), um commit por ponto, sem push; no fim, relatório ao
+utilizador. Se a sessão cair a meio: `git log` diz até onde se chegou. Antes de desenhar: lei, indústria
 e **o que já existe**; aprovação do desenho antes de implementar; um commit por ponto.

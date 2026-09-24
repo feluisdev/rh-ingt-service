@@ -38,6 +38,8 @@ public class FeriasDoAno {
     private LocalDate preferenciaIndicadaEm;
     private boolean preferenciaForaDePrazo;
     private String preferenciaObservacoes;
+    /** Quem a indicou: o próprio ou o RH. Nulo nas linhas de antes deste campo. */
+    private OrigemPreferenciaFerias preferenciaIndicadaPor;
 
     private List<PeriodoFerias> marcacao = new ArrayList<>();
     private OrigemMarcacaoFerias origem;
@@ -78,6 +80,21 @@ public class FeriasDoAno {
         return f;
     }
 
+    /** Lê quem indicou a preferência (guardado à parte da reconstituição). */
+    public FeriasDoAno comPreferenciaIndicadaPor(OrigemPreferenciaFerias origem) {
+        this.preferenciaIndicadaPor = origem;
+        return this;
+    }
+
+    /**
+     * O período [{@code inicio}, {@code fim}] cabe inteiro num período marcado? Um pedido de férias fora
+     * da marcação altera o mapa (art. 6.º n.º 2).
+     */
+    public boolean cabeNaMarcacao(LocalDate inicio, LocalDate fim) {
+        return marcacao.stream().anyMatch(p -> p.inicio() != null && p.fim() != null
+                && !inicio.isBefore(p.inicio()) && !fim.isAfter(p.fim()));
+    }
+
     public boolean temPreferencia() { return !preferencia.isEmpty(); }
     public boolean temMarcacao() { return !marcacao.isEmpty(); }
 
@@ -99,7 +116,14 @@ public class FeriasDoAno {
      */
     public List<String> indicarPreferencia(List<PeriodoFerias> periodos, String observacoes,
                                            LocalDate hoje, LocalDate prazo) {
+        return indicarPreferencia(periodos, observacoes, hoje, prazo, OrigemPreferenciaFerias.RH);
+    }
+
+    /** O mesmo, dizendo quem indicou: o próprio ({@code /me}) ou o RH. */
+    public List<String> indicarPreferencia(List<PeriodoFerias> periodos, String observacoes,
+                                           LocalDate hoje, LocalDate prazo, OrigemPreferenciaFerias origem) {
         validarPeriodos(periodos, "A preferência");
+        this.preferenciaIndicadaPor = origem;
         this.preferencia = ordenar(periodos);
         this.preferenciaObservacoes = observacoes;
         this.preferenciaIndicadaEm = hoje;
