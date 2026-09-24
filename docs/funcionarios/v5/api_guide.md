@@ -2,12 +2,16 @@
 
 > Fonte de verdade do contrato REST do núcleo RH (exclui o módulo `sigdi`).
 > Documentação **v5** — supersede a `v4`. pt-PT.
+> Última alteração: 2026-09-24
+>
+> O manual ecrã a ecrã (com os campos, a API e as regras de cada ecrã) é o `apresentacao_aplicacao.html`;
+> este guia é o contrato para quem integra. Ambos são conferidos contra o código por `scripts/verificar_docs.py`.
 
 ## 1. Base, autenticação e cabeçalhos
 
 | Item | Valor |
 |---|---|
-| **Base URL (dev)** | `http://localhost:8091` (ou a porta de `SERVICE_PORT`) |
+| **Base URL (dev)** | `http://localhost:8099` (a porta de `SERVICE_PORT` no `.env`) |
 | **Prefixo comum** | `/api/v1/rh` |
 | **Swagger** | `/swagger-ui.html` (quando `ENABLE_SWAGGER=true`) |
 | **Autenticação** | `development`/`staging`: **desligada**. `production`: OAuth2 Resource Server + JWT (Keycloak) — enviar `Authorization: Bearer <token>`. |
@@ -25,8 +29,13 @@ curl -s -o docs/funcionarios/v5/openapi.json http://localhost:8099/v3/api-docs
 
 Quem implementa um cliente deve **ler o `openapi.json` para as formas** e este guia para o resto, porque há duas coisas que o gerado ainda não diz:
 
-1. **Os erros.** Só 6 das 328 operações declaram respostas 4xx. As regras de negócio e os **422** vivem aqui e no `regras_negocio.html`.
-2. **Algumas respostas.** *(resolvido)* As 237 operações não-sigdi têm hoje esquema de resposta declarado.
+1. **Os erros.** Das 393 operações (301 do núcleo RH, contando `/documento`), só 6 declaram respostas 4xx. As regras de negócio e os **422** vivem aqui e no `regras_negocio.html`.
+2. **Algumas respostas.** *(resolvido)* As 301 operações do núcleo RH têm todas esquema de resposta declarado.
+
+> **Testar a documentação.** `PYTHONIOENCODING=utf-8 python scripts/verificar_docs.py` confere que cada caminho da API
+> está neste guia (e que o guia não cita caminhos que não existem), que cada campo desenhado nos ecrãs da apresentação
+> existe no DTO do `openapi.json`, as tabelas do modelo relacional, as regras BR-*, os artigos da lei e as datas.
+> Tem de acabar com `FALHAS: 0`. Para confirmar que o `openapi.json` está em dia, compará-lo com o da app a correr.
 
 Regenerar o `openapi.json` sempre que se acrescente ou mude um endpoint.
 
@@ -61,7 +70,7 @@ As operações que só têm a dizer **o que foi afectado e se correu bem** devol
 }
 ```
 
-Cobre os `POST` de criação, os `PUT` de actualização, as desactivações (`DELETE`) e as reactivações (`activate`) — 85 operações ao todo.
+Cobre os `POST` de criação, os `PUT` de actualização, as desactivações (`DELETE`), as reactivações (`activate`) e as decisões simples (aprovar, rejeitar, validar, anular…) — 113 operações ao todo.
 
 As operações com mais a dizer têm **DTO próprio**. Nenhuma operação devolve já um objecto livre:
 
@@ -206,6 +215,9 @@ Cada um: `GET` (lista), `GET/{id}`, `POST`, `PUT/{id}`, `DELETE/{id}/deactivate`
 | `POST` | `/funcionarios/{id}/promocao` | **Promoção** para a categoria seguinte (ver 5.5). |
 | `POST` | `/funcionarios/{id}/transferencia` | **Transferência** para outro Lugar (ver 5.6). |
 | `POST` | `/funcionarios/{id}/substituicao` | **Substituição** de um titular impedido (ver 5.7). |
+| `GET` | `/funcionarios/{id}/substituicoes` | Substituições, nos dois papéis (ver 5.7). |
+| `GET` | `/funcionarios/{id}/antiguidade` | **Antiguidade** a uma data (ver 5.8). |
+| `POST` | `/funcionarios/{id}/mudanca-carreira` | **Mudança de carreira** (ver 5.9). |
 | `GET` | `/funcionarios/{id}/details` | Detalhe agregado (inclui bloco `enquadramento` derivado do Lugar, por compat). O bloco `contrato` traz `vinculoLaboralId`, `vinculoLaboralCode` e `vinculoLaboralDesc`, **derivados** do tipo de contrato. |
 | `GET` | `/funcionarios/combobox` | Combobox. |
 
@@ -501,7 +513,7 @@ O `motivo` de um período fundido junta os dois motivos: o resultado continua a 
 | Colaborador inexistente | **404** |
 | Sem data de admissão (não há por onde começar) | **422** |
 
-> **Lacuna conhecida:** as **faltas injustificadas** não contam para antiguidade (art. 43.º n.º 2), mas `t_leave_type` não tem coluna que diga quais o são — só o subtipo de licença tem classificação de antiguidade. Está assinalado em vez de adivinhado a partir do código do tipo.
+> **Faltas injustificadas:** não contam para antiguidade (art. 43.º n.º 2). Era uma lacuna, fechada pela V54: os tipos de regime `FALTA_INJUSTIFICADA` descontam sempre, e o período aparece em `periodosDescontados` com o artigo no motivo (§6.2c, BR-ANT-06, BR-AUS-16).
 
 ---
 
@@ -570,7 +582,7 @@ Todos seguem o padrão CRUD + (quando aplicável) `documentos`:
 
 | Recurso | Base |
 |---|---|
-| Contratos | `/funcionarios/{id}/contratos` — + `close`, `suspend`, `activate`, `documentos` (**todos `PUT`**). **`close` = cessação do vínculo** (ver nota abaixo) |
+| Contratos | `/funcionarios/{id}/contratos` — + `PUT /funcionarios/{id}/contratos/{contratoId}/close`, `PUT /funcionarios/{id}/contratos/{contratoId}/suspend`, `PUT /funcionarios/{id}/contratos/{contratoId}/activate` e `documentos`. **`close` = cessação do vínculo** (ver nota em 6.5) |
 | Dados bancários | `/funcionarios/{id}/dados-bancarios` |
 | Dependentes | `/funcionarios/{id}/dependentes` |
 | Qualificações | `/funcionarios/{id}/qualificacoes` — + `documentos` |
@@ -582,6 +594,11 @@ Todos seguem o padrão CRUD + (quando aplicável) `documentos`:
 | Saldos de ausência | `/funcionarios/{id}/saldos-ausencia` |
 | Licenças/mobilidade | `/funcionarios/{id}/licencas-mobilidade` (ver 7) |
 | Substituições | `/funcionarios/{id}/substituicoes` — leitura, nos dois papéis (ver 5.7) |
+| Mapa de férias | `/funcionarios/{id}/ferias/{ano}` — + `preferencia`, `marcacao` (ver 6.6) |
+| Horários | `/funcionarios/{id}/horarios` — + `vigente` (ver 6.7) |
+| Marcações e assiduidade | `/funcionarios/{id}/marcacoes` — + `anular`, `validar`, `rejeitar`; `/funcionarios/{id}/assiduidade` (ver 6.8) |
+| Faltas apuradas | `/funcionarios/{id}/faltas-apuradas` (ver 6.9) |
+| Trabalho suplementar | `/funcionarios/{id}/trabalho-suplementar` — + `autorizar`, `recusar`, `cancelar` (ver 6.10) |
 
 
 ### 6.1 Ausências ou licença? — qual dos dois usar
@@ -596,7 +613,10 @@ Há dois recursos para uma pessoa se ausentar, e a escolha **não é de gosto**:
 
 O eixo é **curto contra prolongado**: a ausência conta-se em dias e desconta de um saldo anual; a licença tem início e fim, é autorizada caso a caso e **pode tirar o Lugar** ao funcionário.
 
-> **Isto não é gestão de assiduidade.** Não há horário, registo de ponto, atrasos nem horas em débito. O pedido de ausência guarda datas e um **número inteiro de dias** — meio dia é inexprimível, e o art. 13.º n.º 4 exige meios períodos. O tipo `FALTA_INJUSTIFICADA` existe no catálogo, mas os efeitos que o art. 43.º n.º 2 lhe manda (não contar antiguidade, perda de remuneração ou desconto nas férias) **não têm campo** onde viver.
+> **E a assiduidade?** Existe, ao lado: horários (§6.7), marcações (§6.8), faltas por débito (§6.9), trabalho
+> suplementar (§6.10) e a relação mensal (§6.11). O pedido de ausência é a parte **pedida e decidida**; a assiduidade
+> é a parte **medida**. As duas encontram-se no apuramento: um pedido aprovado tira o dia (ou as horas) das faltas.
+> O pedido aceita horas desde a V58 (§6.2e); os **meios-dias de férias** (art. 2.º n.º 6) ficaram adiados.
 
 ### 6.2 Saldo de ausências — quando é que os dias saem
 
@@ -890,8 +910,11 @@ As transições do pedido são todas `PATCH`, e não `PUT` — ao contrário das
 | Verbo | Path | Quem |
 |---|---|---|
 | `POST` | `/funcionarios/{id}/pedidos-ausencia` | submeter (reserva os dias) |
-| `PATCH` | `/funcionarios/{id}/pedidos-ausencia/{pedidoId}/aprovar` | RH |
-| `PATCH` | `/funcionarios/{id}/pedidos-ausencia/{pedidoId}/rejeitar` | RH |
+| `PATCH` | `/funcionarios/{id}/pedidos-ausencia/{pedidoId}/aprovar` | RH — corpo `{ "aprovadoPorId", "observacoesDecisao"? }` |
+| `PATCH` | `/funcionarios/{id}/pedidos-ausencia/{pedidoId}/rejeitar` | RH — o mesmo corpo |
+| `PATCH` | `/funcionarios/{id}/pedidos-ausencia/{pedidoId}/suspender` | RH — só férias (6.5) |
+| `PATCH` | `/funcionarios/{id}/pedidos-ausencia/{pedidoId}/terminar` | RH — só pedidos em horas (6.2e) |
+| `PATCH` | `/me/equipa/pedidos-ausencia/{id}/aprovar` · `…/rejeitar` | a chefia directa (6.2f) |
 | `PATCH` | `/funcionarios/{id}/pedidos-ausencia/{pedidoId}/cancelar` | RH (qualquer colaborador) ou o próprio via self-service |
 
 **Quem cancela:** `PATCH /funcionarios/{id}/pedidos-ausencia/{pedidoId}/cancelar` é o caminho do RH e serve para cancelar o pedido de qualquer colaborador — antes devolvia **403** a quem não fosse o próprio. O colaborador usa o self-service, que só o deixa cancelar o que é seu e enquanto estiver `PENDENTE`.
@@ -953,8 +976,7 @@ uma segunda vez é **409**.
 o mínimo que se aplicam a um ano são os da vigência desse ano.
 
 **Não coberto:** a preferência dos cônjuges no mesmo serviço (art. 5.º n.º 6) — não há ligação
-entre colaboradores; a indicação da preferência pelo próprio, em `/me`; e um aviso quando um
-pedido de férias não coincide com a marcação.
+entre colaboradores. (A preferência pelo próprio e o aviso de pedido fora da marcação existem: abaixo.)
 
 **Pelo próprio e pela chefia** (`/me`):
 
@@ -1146,11 +1168,11 @@ terço da remuneração base (n.º 7) são do processamento salarial.
 |---|---|---|---|
 | RH | `POST` | `/api/v1/rh/funcionarios/{id}/trabalho-suplementar` | lançar — nasce **AUTORIZADO** (também para um dia passado: `autorizacaoPosterior`) |
 | RH | `GET` | `/api/v1/rh/funcionarios/{id}/trabalho-suplementar?mes=2026-09` | o mês: cada um com tipo de dia e horas realizadas; totais dos autorizados |
-| RH | `PATCH` | `…/trabalho-suplementar/{tid}/autorizar` · `…/recusar` `{ "motivo" }` · `…/cancelar` `{ "motivo" }` | decidir um PEDIDO; cancelar um pedido ou autorizado |
+| RH | `PATCH` | `/api/v1/rh/funcionarios/{id}/trabalho-suplementar/{tid}/autorizar` · `/api/v1/rh/funcionarios/{id}/trabalho-suplementar/{tid}/recusar` `{ "motivo" }` · `…/cancelar` `{ "motivo" }` | decidir um PEDIDO; cancelar um pedido ou autorizado |
 | Próprio | `POST` · `GET` | `/api/v1/rh/me/trabalho-suplementar` · `?mes=` | pedir (hoje ou para a frente — nasce **PEDIDO**) e ler o seu mês |
 | Chefia | `POST` | `/api/v1/rh/me/equipa/trabalho-suplementar` `{ "funcionarioId", … }` | lançar para a equipa directa — nasce AUTORIZADO |
 | Chefia | `GET` | `/api/v1/rh/me/equipa/trabalho-suplementar-pendente` | a caixa: pedidos por decidir da equipa directa |
-| Chefia | `PATCH` | `/api/v1/rh/me/equipa/trabalho-suplementar/{id}/autorizar` · `…/recusar` | decidir (403 se não for a chefia directa; 422 nos seus) |
+| Chefia | `PATCH` | `/api/v1/rh/me/equipa/trabalho-suplementar/{id}/autorizar` · `/api/v1/rh/me/equipa/trabalho-suplementar/{id}/recusar` `{ "motivo" }` | decidir (403 se não for a chefia directa; 422 nos seus) |
 
 ```json
 POST /api/v1/rh/funcionarios/{id}/trabalho-suplementar
@@ -1284,6 +1306,20 @@ social de um serviço num ano. **Devolve números; o gráfico é do front.**
 - `horasSuplementares`: trabalho suplementar realizado no ano (pelas marcações).
 
 Regras: BR-IND-01 a BR-IND-05.
+
+### 6.15 Ficheiros — `/documento`
+
+Os ficheiros vivem no MinIO. O ecrã carrega primeiro o ficheiro e depois regista os metadados no dono
+(colaborador, contrato, qualificação, formação, recibo, processo disciplinar, licença):
+
+| Método | Path | O quê |
+|---|---|---|
+| `POST` | `/documento/private/{folder}` | multipart `file` numa pasta privada (`FUNCIONARIO`) → `{ "fileId", "displayName" }` |
+| `POST` | `/documento/public/{path}` | multipart `file` numa pasta pública → o mesmo |
+| `GET` | `/documento?fileId=` | ligação temporária assinada → `FileUrlDTO` `{ "url" }` |
+
+Estes três estão fora do prefixo `/api/v1/rh`. Com o `fileId` (como `fileKey`), regista-se o documento no dono pelo
+sub-recurso `documentos` abaixo, que valida o tipo, o tipo activo e a extensão (BR-DOC-01 a BR-DOC-03).
 
 ### Sub-recurso `documentos` (padrão)
 ```
@@ -1499,7 +1535,7 @@ Três campos do subtipo dizem o que a licença faz ao Lugar:
 |---|---|---|
 | `positionEffect` | `MANTEM` · `ABRE_VAGA` | Se o Lugar fica ocupado ou vago enquanto a licença dura |
 | `vacancyAfterDays` | inteiro ou nulo | Abre vaga só se a duração exceder este número de dias; nulo abre logo |
-| `returnEffect` | `REGRESSA_LUGAR` · `DISPONIBILIDADE` | O que acontece ao funcionário quando a licença termina |
+| `returnEffect` | `REGRESSA_LUGAR` · `DISPONIBILIDADE` · `REGRESSA_OU_CESSA` | O que acontece ao funcionário quando a licença termina (o terceiro é a comissão de serviço, 7.0d) |
 
 No `approve` (ou `ativar`), se o subtipo abrir vaga para aquela duração:
 - a **afectação corrente é encerrada** na data de início e o Lugar fica vago;
@@ -1740,12 +1776,33 @@ O trabalhador autenticado acede aos seus próprios dados (perfil derivado do Lug
 
 | Método | Path | Descrição |
 |---|---|---|
-| `GET` | `/me/profile` | Perfil (unidade/cargo/carreira do Lugar; escalão da afectação). |
-| `GET` | `/me/leave-requests` · `POST /me/leave-requests` · `PUT /me/leave-requests/{id}/cancel` | Pedidos de ausência próprios. |
+| `GET` | `/me/profile` | Perfil (unidade/cargo/carreira do Lugar; escalão da afectação; mobilidade em vigor). |
+| `GET` · `POST` | `/me/leave-requests` | Pedidos de ausência próprios (`?status=&leaveTypeId=&year=`); submeter com as regras do RH. |
+| `PUT` | `/me/leave-requests/{id}/cancel` | Cancelar o seu, só enquanto `PENDENTE`. |
 | `GET` | `/me/leave-balances` | Saldos. |
-| `GET/POST` | `/me/leaves-mobilities` · `GET /me/leaves-mobilities/{id}` | Mobilidades próprias. |
+| `GET` · `POST` | `/me/leaves-mobilities` · `GET /me/leaves-mobilities/{id}` | Licenças e mobilidades próprias; pedir só nos subtipos `canSelfSubmit`. |
+| `GET` | `/me/ferias/{ano}` · `PUT /me/ferias/{ano}/preferencia` | As minhas férias e a preferência (§6.6). |
+| `GET` | `/me/assiduidade?de=&ate=` | A minha assiduidade (§6.8). |
+| `POST` | `/me/marcacoes` · `/me/marcacoes/correcoes` | Picar (só teletrabalho/misto) e pedir correcção (§6.8). |
+| `GET` · `POST` | `/me/trabalho-suplementar` | O meu trabalho suplementar do mês e pedir (§6.10). |
 | `GET` | `/me/payroll-slips` · `/me/payroll-slips/{id}/download` | Recibos. |
 | `GET` | `/me/documents` · `/me/documents/{id}/download` | Documentos. |
+
+**A caixa da chefia directa** (titular do Lugar-pai), em `/me/equipa`:
+
+| Método | Path | Descrição |
+|---|---|---|
+| `GET` | `/me/equipa/pedidos-ausencia-pendentes` | Pedidos por decidir (§6.2f). |
+| `PATCH` | `/me/equipa/pedidos-ausencia/{id}/aprovar` · `…/rejeitar` | Decidir. |
+| `GET` | `/me/equipa/marcacoes-pendentes` | Correcções por validar (§6.8). |
+| `PATCH` | `/me/equipa/marcacoes/{id}/validar` · `…/rejeitar` | Decidir. |
+| `GET` | `/me/equipa/trabalho-suplementar-pendente` | Trabalho suplementar por autorizar (§6.10). |
+| `POST` | `/me/equipa/trabalho-suplementar` | Lançar para alguém da equipa. |
+| `PATCH` | `/me/equipa/trabalho-suplementar/{id}/autorizar` · `…/recusar` | Decidir. |
+| `GET` | `/me/equipa/ferias/{ano}` | Férias da equipa (§6.6). |
+
+Quem é «eu»: em produção, o utilizador do JWT ligado ao funcionário pelo perfil IAM; em desenvolvimento, o cabeçalho
+`X-Employee-Id`. Um colaborador inactivo recebe **403** (BR-ME-02).
 
 **`POST /me/leave-requests` segue as regras do pedido do RH** (§6.2 a §6.2e): conta os dias pela
 linha do catálogo (dias úteis ou seguidos) com os feriados do período, aplica os tectos, recusa
@@ -1775,15 +1832,33 @@ Os que estão marcados **validado** são enums fechados no domínio: um valor fo
 
 | Enum | Valores | |
 |---|---|---|
-| `origem` (afectação) | `ADMISSAO`, `PROGRESSAO`, `PROMOCAO`, `MOBILIDADE`, `TRANSFERENCIA`, `SUBSTITUICAO` | |
+| `origem` (afectação) | `ADMISSAO`, `PROGRESSAO`, `PROMOCAO`, `TRANSFERENCIA`, `MUDANCA_CARREIRA`, `SUBSTITUICAO`, `CONSOLIDACAO` (e o legado `MOBILIDADE`) — posta pelo endpoint de cada movimento | |
 | `assignmentType` | `PRINCIPAL`, `SUBSTITUICAO` — omisso vale `PRINCIPAL`. Em `POST /assignments` **só `PRINCIPAL` passa**: a `SUBSTITUICAO` cria-se pelo endpoint próprio (5.7) e dá 422 aqui. `ACUMULACAO` deixou de existir (art. 134.º n.º 2 al. b) é forma de prestação da mobilidade, não título). | **validado** |
 | `estado` (Lugar) | `ATIVO`, `CONGELADO`, `EXTINTO` (provido/vago é **derivado do titular**) | |
 | `recordType` (subtipo licença/mobilidade) | `LICENCA`, `MOBILIDADE` — o valor **`AMBOS` foi removido na V43** | **validado** |
 | `situacaoFuncional` (estado do trabalhador) | `ACTIVIDADE_NO_QUADRO`, `ACTIVIDADE_FORA_QUADRO`, `INACTIVIDADE_NO_QUADRO`, `INACTIVIDADE_FORA_QUADRO`, `DISPONIBILIDADE`, `APOSENTACAO` — pode ser nulo | **validado** |
 | `positionEffect` (subtipo) | `MANTEM`, `ABRE_VAGA` | **validado** |
-| `returnEffect` (subtipo) | `REGRESSA_LUGAR`, `DISPONIBILIDADE` | **validado** |
+| `returnEffect` (subtipo) | `REGRESSA_LUGAR`, `DISPONIBILIDADE`, `REGRESSA_OU_CESSA` | **validado** |
 | `status` (contrato) | `ATIVO`, `SUSPENSO`, `CESSADO` — obrigatório desde a V44 | **validado** |
 | `estado` (pedido de ausência) | `PENDENTE`, `APROVADO`, `REJEITADO`, `CANCELADO` | **validado** |
+| `status` · `estadoPeriodo` (licença/mobilidade) | `PENDING`, `APPROVED`, `REJECTED`, `CANCELLED` · `POR_INICIAR`, `EM_CURSO`, `TERMINADA` | |
+| `formaPrestacao` (mobilidade) | `TEMPO_INTEIRO`, `ACUMULACAO` | **validado** |
+| `regime` (tipo de ausência) | `FERIAS`, `FALTA`, `FALTA_INJUSTIFICADA` | **validado** |
+| `contagem` (tipo de ausência) | `DIAS_UTEIS`, `DIAS_SEGUIDOS` | **validado** |
+| `efeitoRemuneracao` (tipo de ausência) | `SEM_PERDA`, `PERDA_PARCIAL`, `PERDA_TOTAL`, `PERDA_VENCIMENTO_EXERCICIO`, `DEPENDE_DA_OPCAO` | **validado** |
+| `opcaoFaltaInjustificada` (pedido) | `PERDA_REMUNERACAO`, `DESCONTO_FERIAS` | **validado** |
+| `regimeTrabalho` (contrato) | `TEMPO_COMPLETO`, `TEMPO_PARCIAL`, `ISENCAO_HORARIO`, `DEDICACAO_EXCLUSIVA` | **validado** |
+| `origem` · `motivoAlteracao` (mapa de férias) | `ACORDO`, `FIXADA` · `ACORDO`, `CONVENIENCIA_SERVICO` | **validado** |
+| `preferenciaIndicadaPor` (férias) | `PROPRIO`, `RH` | |
+| `controlo` · `periodoAfericao` (horário) | `FIXO`, `FLEXIVEL` · `SEMANA`, `MES` | **validado** |
+| `regimePrestacao` (horário do colaborador) | `PRESENCIAL`, `TELETRABALHO`, `MISTO` | **validado** |
+| `origem` (horário vigente) | `COLABORADOR`, `UNIDADE`, `BASE`, `NENHUM` | |
+| `sentido` · `origem` · `estado` (marcação) | `ENTRADA`, `SAIDA` · `MANUAL`, `IMPORTADO`, `PROPRIO` · `VALIDA`, `PENDENTE`, `REJEITADA` | **validado** |
+| `anomalias` (dia) | `ENTRADA_SEM_SAIDA`, `SAIDA_SEM_ENTRADA`, `ENTRADAS_SEGUIDAS` | |
+| `estado` · `motivo` (dia apurado) | `COM_FALTA`, `SEM_FALTA`, `POR_CORRIGIR`, `POR_VALIDAR`, `FUTURO`, `FORA_DO_VINCULO`, `ISENTO`, `FERIADO`, `AUSENCIA_JUSTIFICADA`, `LICENCA`, `MOBILIDADE_EXTERNA`, `SEM_HORARIO`, `DESCANSO` · `SEM_REGISTO`, `INCOMPLETO`, `PLATAFORMA` | |
+| `estado` · `tipoDia` (trabalho suplementar) | `PEDIDO`, `AUTORIZADO`, `RECUSADO`, `CANCELADO` · `DIA_UTIL`, `DESCANSO`, `FERIADO` | |
+| `estado` (linha da relação mensal) | `COMPLETA`, `COM_PENDENCIAS` | |
+| `estado` (chefe / responsável) | `PROVIDO`, `CHEFIA_VAGA`, `SEM_CHEFIA_DEFINIDA` | |
 
 ---
 

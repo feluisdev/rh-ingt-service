@@ -33,7 +33,7 @@ mvn test -Dtest=JobCommandHandlerTest   # Run a single test class
 docker build -t sipprog-rh-backend:latest .
 ```
 
-Swagger UI is available at `http://localhost:8091/swagger-ui.html` when `ENABLE_SWAGGER=true`.
+Swagger UI is available at `http://localhost:8099/swagger-ui.html` when `ENABLE_SWAGGER=true`.
 
 ## Architecture
 
@@ -123,7 +123,7 @@ Hibernate Envers is enabled. All audited entities track create/update timestamps
 
 From `.env` (dev defaults):
 ```
-SERVICE_PORT=8091
+SERVICE_PORT=8099
 SERVICE_PROFILE=development
 POSTGRES_HOST=localhost
 POSTGRES_DATABASE=recursoshumanos_db
@@ -152,8 +152,8 @@ ENABLE_SWAGGER=true
 | `WorkerState` | parametrizacoes | Worker status catalog; `is_core=true` blocks deactivation (ACTIVE, INACTIVE are protected) |
 | `VinculoLaboral` | parametrizacoes | Employment situation catalog (informally "ProfessionalSituation"); `countsSeniority`, `eligibleForProgression` |
 | `ContractType` | parametrizacoes | Contract type catalog (per Decreto-Lei 4/2024) |
-| `DocumentType` | parametrizacoes | Document type catalog; `allowed_extensions` (e.g. `pdf,docx`) + `categoryOptionId` FK→Option |
-| `LeaveType` | parametrizacoes | Leave type catalog; `deducts_balance`, `requires_approval`, `max_days_per_year`, `categoryOptionId` FK→Option |
+| `DocumentType` | parametrizacoes | Document type catalog; `allowed_extensions` (e.g. `pdf,docx`) + `category` (String holding an Option `DOC_CATEGORY` ckey — not an FK) |
+| `LeaveType` | parametrizacoes | Leave type catalog; `deducts_balance`, `requires_approval`, `regime` (FERIAS/FALTA/FALTA_INJUSTIFICADA), `contagem` (DIAS_UTEIS/DIAS_SEGUIDOS), three day caps (year/occurrence/month), `max_minutos_por_dia`, `efeito_remuneracao`, `category` (String, Option `LEAVE_CATEGORY` ckey — not an FK) |
 | `LeaveMobilitySubtype` | parametrizacoes | Mobility subtype; `record_type` ∈ {LICENCA, MOBILIDADE, AMBOS}; `affects_pay`, `counts_for_seniority`, `can_self_submit` |
 | `PublicHoliday` | parametrizacoes | Institution holiday calendar; `is_recurring` (same day/month every year from the date's year) + optional `area_ckey` (Option `AREA_GEOGRAFICA`; the org unit says which area it is in). All active holidays count, not just national ones (V55). No DB unique index — one-active-national-per-day is application-only |
 
@@ -189,9 +189,12 @@ tree was removed on 2026-09-05; do not reintroduce it or cite it as a plan.
 - `openapi.json` — the OpenAPI contract **generated from the code** by springdoc. Regenerate after adding or changing an endpoint:
   `curl -s -o docs/funcionarios/v5/openapi.json http://localhost:8099/v3/api-docs` (app running, dev profile).
   It carries paths, params and schemas; it does *not* carry the business rules or the 422s — those live in `api_guide.md` and `regras_negocio.html`.
-- `guia_configuracao_registo.html` — configuration and registration walkthrough
-- `apresentacao_aplicacao.html` — application walkthrough
+- `apresentacao_aplicacao.html` — the interactive user manual: every screen (fields drawn from the real DTOs), the API it calls, its BR-* rules and the law articles, from configuration to reports, with scenario buttons, simulators and quizzes. `verificar_docs.py` checks each `data-dto`/`data-campo` against `openapi.json` and each `<span class="rota">` path. (It replaced `guia_configuracao_registo.html`, removed on 2026-09-24.)
 - `breaking_change_frontend.md` — front-end breaking changes
+
+Every v5 document carries `Última alteração: AAAA-MM-DD` in its header — bump it whenever the document changes.
+Check the docs against the code with `PYTHONIOENCODING=utf-8 python scripts/verificar_docs.py` (API paths vs `openapi.json`,
+tables vs `@Table`, BR-* citations, HTML/anchors, guide sections, law article ranges, header dates, the presentation's screen fields and API paths, links between docs) — it must end with `FALHAS: 0`.
 
 ### v4 / Legacy
 

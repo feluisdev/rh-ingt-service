@@ -68,7 +68,7 @@
     <div class="kicker">RH-Service · SIGDI / SIPPROG</div>
     <h1>Modelo de Negócio</h1>
     <p>Como o microserviço de Recursos Humanos representa pessoas, lugares e movimentos na Administração Pública de Cabo Verde — a lógica de negócio por detrás das entidades e dos endpoints.</p>
-    <div class="meta">Documentação <b>v5</b> · fonte de verdade · supersede a pasta <code>v4</code> (mantida como arquivo) · âmbito: núcleo RH (exclui módulo <code>sigdi</code>)</div>
+    <div class="meta">Documentação <b>v5</b> · fonte de verdade · supersede a pasta <code>v4</code> (mantida como arquivo) · âmbito: núcleo RH (exclui módulo <code>sigdi</code>)<br>Última alteração: 2026-09-24</div>
   </div>
 </header>
 <div class="wrap">
@@ -85,28 +85,33 @@
       <a href="#movimentos">7. Movimentos: admissão, progressão, mobilidade, cessação</a><br>
       <a href="#ausencias">8. Ausências, licenças e mobilidade</a><br>
       <a href="#dois-sitios">8.1 Porque há dois sítios para faltar</a><br>
-      <a href="#assiduidade">8.2 O que isto não é: assiduidade</a><br>
-      <a href="#glossario">9. Glossário</a>
+      <a href="#assiduidade">8.2 Ausências e assiduidade: pedido contra medido</a><br>
+      <a href="#ferias">9. Férias: direito, mapa e gozo</a><br>
+      <a href="#assiduidade-fluxo">10. Assiduidade: do horário à relação mensal</a><br>
+      <a href="#chefia">11. Quem decide: chefia directa, RH e o próprio</a><br>
+      <a href="#relatorios">12. Relatórios que a lei pede</a><br>
+      <a href="#automatico">13. O que acontece sozinho, e o que fica por fazer</a><br>
+      <a href="#glossario">14. Glossário</a>
     </div>
   </div>
 
   <h2 id="o-que"><span class="n">1.</span>O que é a aplicação</h2>
   <p class="lead">O <b>RH-Service</b> é o microserviço de gestão de Recursos Humanos da plataforma SIGDI/SIPPROG, para a Administração Pública cabo-verdiana. Gere o ciclo de vida completo do trabalhador público: quem é, onde está colocado, com que vínculo e carreira, e todos os movimentos ao longo do tempo.</p>
   <div class="grid c3">
-    <div class="card"><b>Pessoas</b><p class="lead" style="font-size:14px">Funcionários, dependentes, qualificações, formações, dados bancários, documentos e recibos.</p></div>
+    <div class="card"><b>Pessoas</b><p class="lead" style="font-size:14px">Funcionários, dependentes, qualificações, formações, dados bancários, documentos, recibos e processos disciplinares.</p></div>
     <div class="card"><b>Estrutura</b><p class="lead" style="font-size:14px">Unidades orgânicas, cargos, funções e o <b>Mapa de Pessoal</b> (Lugares) que a organização pode prover.</p></div>
-    <div class="card"><b>Movimentos</b><p class="lead" style="font-size:14px">Admissão, afectação a um Lugar, mobilidade, ausências, licenças, mudanças de estado e cessação.</p></div>
+    <div class="card"><b>Movimentos e tempo</b><p class="lead" style="font-size:14px">Admissão, progressão, promoção, transferência, mudança de carreira, substituição, mobilidade, licenças, estados e cessação — e o tempo de trabalho: horários, marcações, faltas, trabalho suplementar, férias.</p></div>
   </div>
   <div class="callout key"><b>Princípio v5:</b> a organização define <b>Lugares</b> (cadeiras no quadro de pessoal); as pessoas são <b>afectadas</b> a esses Lugares ao longo do tempo. A unidade, o cargo e a carreira de uma pessoa <b>derivam do Lugar</b> que ocupa — não são guardados na pessoa.</div>
 
   <h2 id="bc"><span class="n">2.</span>Domínios de negócio (bounded contexts)</h2>
   <p>O código organiza-se em módulos que correspondem a áreas de negócio distintas. Este documento cobre todos exceto o <code>sigdi</code> (avaliação SIADAP / objetivos estratégicos), que é um domínio próprio.</p>
   <div class="grid c2">
-    <div class="bc"><h4>colaboradores</h4><p>A pessoa e tudo o que lhe pertence: funcionário, contrato, dependentes, qualificações, formações, dados bancários, documentos, recibos, processos disciplinares, ausências/licenças, e a <b>Afectação</b> (ligação pessoa↔Lugar).</p></div>
+    <div class="bc"><h4>colaboradores</h4><p>A pessoa e tudo o que lhe pertence: funcionário, contrato, dependentes, qualificações, formações, dados bancários, documentos, recibos, processos disciplinares, ausências/licenças, a <b>Afectação</b> (ligação pessoa↔Lugar), o horário de cada pessoa, as marcações, o trabalho suplementar, o mapa de férias e os relatórios (relação mensal, lista de antiguidade, mapa de efectivos, indicadores).</p></div>
     <div class="bc estrutura"><h4>estrutura</h4><p>O esqueleto organizacional: unidades orgânicas, cargos (<i>job</i>), funções e o <b>Lugar</b> (<i>position</i>) — a unidade central do Mapa de Pessoal.</p></div>
     <div class="bc carreiras"><h4>carreiras</h4><p>A grelha PCFR: carreira → categoria → escalão (<i>grade</i>). Define a progressão vertical e salarial no regime da função pública.</p></div>
-    <div class="bc param"><h4>parametrizacoes</h4><p>Catálogos de referência: estados do trabalhador, tipos de contrato, tipos de documento, tipos de ausência, subtipos de mobilidade, feriados, vínculos laborais e opções genéricas.</p></div>
-    <div class="bc self"><h4>self-service (/me)</h4><p>Acesso do próprio trabalhador aos seus dados: perfil, pedidos e saldos de ausência, mobilidades, recibos e documentos.</p></div>
+    <div class="bc param"><h4>parametrizacoes</h4><p>Catálogos de referência: estados do trabalhador, tipos de contrato, tipos de documento, tipos de ausência, subtipos de licença/mobilidade, feriados (com área), vínculos laborais, <b>horários</b> (e o horário base), <b>parâmetros do mapa de férias</b> e opções genéricas.</p></div>
+    <div class="bc self"><h4>self-service (/me)</h4><p>O portal do próprio (perfil, pedidos e saldos de ausência, preferência de férias, picagem em teletrabalho e correcções, trabalho suplementar, licenças, recibos, documentos) e a <b>caixa da chefia directa</b> (<code>/me/equipa</code>).</p></div>
     <div class="bc"><h4>shared</h4><p>Transversais: segurança, auditoria (Envers), paginação, exceções, perfil IAM do utilizador.</p></div>
   </div>
 
@@ -166,7 +171,7 @@ flowchart TB
       <li>É <b>versionada no tempo</b>: fechar a corrente antes de abrir a nova (histórico completo).</li>
     </ul></div>
   </div>
-  <div class="callout rule"><b>Uma cadeira, um titular.</b> A base de dados garante, por índice único parcial, que cada Lugar tem no máximo uma afectação corrente <code>PRINCIPAL</code> (V45). Tentar dar titular a um Lugar que já o tem devolve <code>422</code>. Quem entra a outro título — substituição, acumulação — não disputa a titularidade e não exige que o Lugar esteja vago.</div>
+  <div class="callout rule"><b>Uma cadeira, um titular.</b> A base de dados garante, por índice único parcial, que cada Lugar tem no máximo uma afectação corrente <code>PRINCIPAL</code> (V45). Tentar dar titular a um Lugar que já o tem devolve <code>422</code>. Quem entra a outro título — hoje só a <b>substituição</b> — não disputa a titularidade e não exige que o Lugar esteja vago. (A «acumulação» saiu: é uma forma de prestação da mobilidade, não um título.)</div>
 
   <div class="diagram">
     <p class="cap">Um Lugar ao longo do tempo — afectações sucessivas (SCD Tipo 2)</p>
@@ -188,7 +193,7 @@ flowchart LR
     <tr><th>Pergunta de negócio</th><th>Como se responde no modelo</th></tr>
     <tr><td>Quem dirige a unidade X?</td><td>O Lugar com <code>manages_unit_id = X</code>, e a sua afectação corrente.</td></tr>
     <tr><td>A quem reporta este Lugar?</td><td><code>parent_position_id</code> → Lugar chefe → afectação corrente.</td></tr>
-    <tr><td>Quantos Lugares/vagas tem a unidade?</td><td>Dotação = nº de Lugares; ocupados = com afectação corrente; vagas = dotação − ocupados.</td></tr>
+    <tr><td>Quantos Lugares/vagas tem a unidade?</td><td>Dotação = nº de Lugares ocupáveis (sem congelados nem extintos); ocupados = com <b>titular</b> corrente; vagas = dotação − ocupados.</td></tr>
   </table>
 
   <h2 id="pcfr"><span class="n">5.</span>Carreira, categoria e escalão (PCFR)</h2>
@@ -238,7 +243,10 @@ stateDiagram-v2
     <tr><td><b>Progressão</b></td><td>Nova afectação, <b>mesmo Lugar</b>, muda o escalão.</td><td><code>PROGRESSAO</code></td></tr>
     <tr><td><b>Promoção</b></td><td>Sobe uma categoria, <b>duas formas</b>: com <code>positionId</code> muda para um Lugar vago dessa categoria; sem ele é o <b>próprio Lugar que sobe</b> (reclassificação). A modalidade infere-se do pedido e <b>não se guarda</b>.</td><td><code>PROMOCAO</code></td></tr>
     <tr><td><b>Mobilidade transitória</b></td><td><b>Não toca na afectação.</b> O titular <b>mantém o Lugar</b> (art. 135.º n.º 7); regista-se apenas onde exerce funções e até quando. Encerrar é só fechar o registo.</td><td>—</td></tr>
-    <tr><td><b>Transferência</b></td><td>Mudança <b>definitiva</b> de Lugar, mantendo carreira, categoria e escalão (se a categoria mudasse seria promoção). É também a forma da mobilidade definitiva.</td><td><code>TRANSFERENCIA</code></td></tr>
+    <tr><td><b>Transferência</b></td><td>Mudança <b>definitiva</b> de Lugar, mantendo carreira, categoria e escalão (se a categoria mudasse seria promoção).</td><td><code>TRANSFERENCIA</code></td></tr>
+    <tr><td><b>Mudança de carreira</b></td><td>Passa a um Lugar <b>vago</b> de <b>outra carreira</b>; o escalão é o da categoria de destino (não se herda). Não há reclassificação: mudar um Lugar de carreira é decisão de organograma.</td><td><code>MUDANCA_CARREIRA</code></td></tr>
+    <tr><td><b>Consolidação da mobilidade</b></td><td>A mobilidade interna torna-se <b>definitiva</b> (art. 132.º n.º 4): titular de um Lugar vago do destino, <b>mesmo cargo e categoria</b>, escalão mantido. É a única via pela qual uma mobilidade toca na afectação.</td><td><code>CONSOLIDACAO</code></td></tr>
+    <tr><td><b>Regresso de comissão de serviço</b></td><td>Quem tinha Lugar regressa a ele; quem foi recrutado para a comissão <b>cessa</b> a relação (art. 64.º n.º 2). Deriva-se do percurso, não de um campo.</td><td>—</td></tr>
     <tr><td><b>Licença que abre vaga</b></td><td>Encerra a afectação e liberta o Lugar, <b>sem cessar o vínculo</b>. Quais e a partir de quantos dias vem do <b>subtipo</b>, não do código.</td><td>—</td></tr>
     <tr><td><b>Substituição</b></td><td>Ocupa o Lugar de um titular <b>temporariamente impedido</b>, sem o desalojar (art. 73.º al. a) a c) e art. 91.º n.º 1 al. a)). Não exige Lugar vago, não torna o Lugar provido, e <b>caduca sozinha</b> quando o impedimento cessa (art. 77.º n.º 2).</td><td><code>SUBSTITUICAO</code></td></tr>
     <tr><td><b>Cessação / Reforma</b></td><td>Encerra a afectação corrente; o Lugar volta a vago. Dois caminhos equivalentes: estado de cessação ou <code>close</code> do contrato.</td><td>—</td></tr>
@@ -277,25 +285,92 @@ sequenceDiagram
   <div class="callout rule"><b>O eixo é curto contra prolongado.</b> Uma falta conta-se em dias e desconta de um saldo anual; uma licença tem início e fim, é autorizada caso a caso e pode <b>tirar o Lugar</b> ao funcionário. São mecânicas diferentes porque a lei lhes dá efeitos diferentes.</div>
   <div class="callout warn"><b>A mobilidade está na tabela das licenças mas não é uma delas.</b> Vem de outro diploma e a pessoa não está ausente. Partilham a tabela e o catálogo por conveniência; o <code>record_type</code> é que as separa, e as regras divergem — a mobilidade nunca abre vaga (art. 135.º n.º 7).</div>
 
-  <h3 id="assiduidade">8.2 O que isto <i>não</i> é: assiduidade</h3>
-  <p>Gestão de ausências e gestão de assiduidade não são a mesma coisa, e a aplicação só tem a primeira.</p>
-  <p><b>Ausências</b> é a parte <b>pedida e aprovada</b>: alguém submete, o RH decide, o saldo mexe-se. <b>Assiduidade</b> é a parte <b>medida</b>: horário, registo de entrada e saída, atrasos, horas em débito, trabalho suplementar. Disso <b>não há nada</b>.</p>
-  <p>Não é um detalhe de nomenclatura — é o que impede a aplicação de cumprir a própria definição legal de falta:</p>
-  <ul>
-    <li><b>Art. 13.º n.º 1</b> — falta é a ausência de <b>parte</b> do período diário de presença obrigatória. Sem horário registado, não existe «parte».</li>
-    <li><b>Art. 13.º n.º 4</b> — as ausências curtas <b>somam-se</b>: menos de meio período conta meio, mais de meio conta um período inteiro. O pedido guarda datas e um número inteiro de dias: <b>meio dia é inexprimível</b>.</li>
-    <li><b>Art. 13.º n.º 2</b> — em horário flexível, o <b>débito de tempo</b> no fim do período de aferição é falta. Exige saldo de horas.</li>
-  </ul>
-  <p>E os efeitos legais das faltas também não têm onde viver: o <b>art. 16.º n.º 2</b> manda perder parte da remuneração em certos motivos, e o <b>art. 43.º n.º 2</b> manda que as injustificadas não contem para antiguidade e impliquem perda de remuneração <i>ou</i> desconto nas férias. O catálogo <code>LeaveType</code> tem <code>deducts_balance</code>, <code>requires_approval</code> e <code>max_days_per_year</code> — e mais nada.</p>
-  <div class="callout warn"><b>Configura-se o catálogo de motivos, não o regime.</b> Pode criar-se o tipo «falta por casamento» com o limite de 6 dias do art. 15.º al. a). Não se pode dizer o que ele faz ao vencimento nem à antiguidade.</div>
-  <div class="callout rule"><b>A licença parental é ausência, não licença</b> (art. 171.º n.º 2 contra art. 172.º): <code>MATERNIDADE</code> 90 dias, <code>PATERNIDADE</code> 10 dias úteis.</div>
+  <h3 id="assiduidade">8.2 Ausências e assiduidade: pedido contra medido</h3>
+  <p><b>Ausências</b> é a parte <b>pedida e decidida</b>: alguém submete, a chefia directa ou o RH decide, o saldo mexe-se. <b>Assiduidade</b> é a parte <b>medida</b>: horário, marcações, faltas por débito, trabalho suplementar. A aplicação tem as duas, e encontram-se no apuramento das faltas: um pedido aprovado tira do débito o dia (ou as horas) que cobre.</p>
+  <table>
+    <tr><th>A lei pede</th><th>Como a aplicação responde</th></tr>
+    <tr><td><b>DL 3/2010, art. 13.º n.º 1</b> — falta é a ausência da totalidade <b>ou parte</b> do período diário</td><td>O horário diz o período; as marcações dizem a presença; os blocos não cobertos são falta (motivo <code>INCOMPLETO</code>).</td></tr>
+    <tr><td><b>art. 13.º n.º 2</b> — no flexível, o débito no fim do período de aferição é falta</td><td>Horários <code>FLEXIVEL</code> com duração diária e aferição semanal ou mensal; o débito apura-se no fim do período.</td></tr>
+    <tr><td><b>art. 13.º n.os 3 e 4</b> — as ausências curtas somam-se: até meio período conta meio, acima conta um</td><td>O parcial soma-se no mês e converte-se pelo período normal diário.</td></tr>
+    <tr><td><b>art. 16.º</b> — efeito na remuneração</td><td><code>efeitoRemuneracao</code> no tipo de ausência — informação para quem processa vencimentos.</td></tr>
+    <tr><td><b>art. 43.º n.º 2</b> — injustificadas não contam antiguidade e dão a opção perda/desconto</td><td>Regime <code>FALTA_INJUSTIFICADA</code> (desconta sempre) e <code>opcaoFaltaInjustificada</code> no pedido.</td></tr>
+    <tr><td><b>art. 76.º</b> — fins-de-semana e feriados intercalados contam, salvo «dias úteis»</td><td><code>contagem</code> ∈ <code>DIAS_UTEIS</code> · <code>DIAS_SEGUIDOS</code> em cada tipo.</td></tr>
+  </table>
+  <div class="callout rule"><b>A licença parental é ausência, não licença</b> (Lei 20/X/2023, art. 172.º): <code>MATERNIDADE</code> 90 dias, <code>PATERNIDADE</code> 10 dias úteis. A amamentação são duas horas por dia (art. 172.º n.º 3): um pedido <b>em horas</b>.</div>
   <div class="grid c3">
-    <div class="card"><b>Pedido de ausência</b><p class="lead" style="font-size:13.5px">submeter → aprovar / rejeitar / cancelar. Os dias são <b>reservados na submissão</b> e só passam a gozados na aprovação.</p></div>
-    <div class="card"><b>Licença / mobilidade</b><p class="lead" style="font-size:13.5px">criar → aprovar → (encerrar / cancelar). A <b>mobilidade não mexe na afectação</b>; a licença só mexe se o subtipo disser que abre vaga.</p></div>
-    <div class="card"><b>Saldos</b><p class="lead" style="font-size:13.5px">três números: dias de direito, <b>pendentes</b> (reservados) e <b>gozados</b>. Sem saldo, o pedido é recusado logo na submissão.</p></div>
+    <div class="card"><b>Pedido de ausência</b><p class="lead" style="font-size:13.5px">em dias ou em horas. Os tipos que são direito (luto, casamento, doença…) nascem <b>aprovados</b>; os outros decide a chefia directa ou o RH. Os dias são <b>reservados na submissão</b>.</p></div>
+    <div class="card"><b>Licença / mobilidade</b><p class="lead" style="font-size:13.5px">criar → deferir → o período começa e acaba sozinho (job diário) → regresso antecipado ou cancelamento. A <b>mobilidade não mexe na afectação</b>; a licença só mexe se o subtipo disser que abre vaga.</p></div>
+    <div class="card"><b>Saldos</b><p class="lead" style="font-size:13.5px">direito, do ano anterior, reservados, gozados, cedidos. O de férias <b>nasce sozinho</b>; sem saldo, o pedido é recusado logo na submissão.</p></div>
   </div>
 
-  <h2 id="glossario"><span class="n">9.</span>Glossário</h2>
+  <h2 id="ferias"><span class="n">9.</span>Férias: direito, mapa e gozo</h2>
+  <p>Três coisas diferentes, que a lei separa e a aplicação também: o <b>direito</b> (quantos dias), o <b>mapa</b> (quando se vão gozar) e o <b>gozo</b> (o pedido de férias).</p>
+  <table>
+    <tr><th>Momento</th><th>O que acontece</th><th>Lei (DL 3/2010)</th></tr>
+    <tr><td>Admissão e 1 de Janeiro</td><td>O saldo nasce sozinho e o job diário actualiza-o. 22 dias úteis (ou o do catálogo); no ano de ingresso, proporcional aos trimestres completos a partir de 90 dias de serviço.</td><td>arts. 2.º e 3.º</td></tr>
+    <tr><td>Até 31 de Janeiro</td><td>O trabalhador indica a <b>preferência</b> (pelo portal ou pelo RH). Fora do prazo é aceite, com alerta.</td><td>art. 5.º n.º 4</td></tr>
+    <tr><td>Marcação</td><td>Por <b>acordo</b>, ou <b>fixada</b> pelo dirigente entre 1 de Maio e 31 de Outubro; em gozo interpolado, um período de 11 dias úteis.</td><td>art. 5.º</td></tr>
+    <tr><td>Até 31 de Março</td><td>O serviço <b>dá conhecimento</b> do mapa — não há aprovação. Depois, alterar exige acordo ou conveniência de serviço fundamentada.</td><td>art. 6.º</td></tr>
+    <tr><td>Gozo</td><td>O pedido de férias desconta o saldo. Fora da marcação dá aviso, não recusa.</td><td>art. 6.º n.º 2</td></tr>
+    <tr><td>Interrupção</td><td>Doença, parentalidade ou serviço <b>suspendem</b> as férias; os dias voltam ao saldo.</td><td>art. 8.º</td></tr>
+    <tr><td>Fim do ano</td><td>O que não se gozou por motivo de serviço <b>acumula-se</b> para o ano seguinte, por acto do RH com motivo — uma vez.</td><td>art. 7.º</td></tr>
+  </table>
+  <div class="callout key"><b>Os prazos e a janela vivem num catálogo por vigência</b> (<code>t_parametro_ferias</code>), com a lei por omissão: um diploma novo é uma linha nova, e os anos passados continuam a ler as regras do seu tempo.</div>
+
+  <h2 id="assiduidade-fluxo"><span class="n">10.</span>Assiduidade: do horário à relação mensal</h2>
+  <div class="diagram">
+    <p class="cap">Cada passo lê o anterior; nada se guarda que se possa calcular</p>
+    <pre class="mermaid">
+flowchart LR
+  H["Horário<br/><small>colaborador → unidade → base</small>"]:::a --> M["Marcações<br/><small>relógio · RH · próprio</small>"]:::a
+  M --> D["Dia calculado<br/><small>períodos · horas · anomalias</small>"]:::b
+  P["Pedidos aprovados<br/><small>dias ou horas</small>"]:::c --> F
+  D --> F["Faltas por débito<br/><small>mês, art. 13.º</small>"]:::b
+  S["Trabalho suplementar<br/><small>autorizado</small>"]:::c --> F
+  F --> R["Relação mensal<br/><small>art. 75.º · JSON e CSV</small>"]:::d
+  classDef a fill:#e8f0fe,stroke:#1f6feb;
+  classDef b fill:#e6f4ec,stroke:#1a7f4b;
+  classDef c fill:#fcefe0,stroke:#b25e09;
+  classDef d fill:#efe9fb,stroke:#6b3fc4;
+    </pre>
+  </div>
+  <table>
+    <tr><th>Peça</th><th>O essencial</th></tr>
+    <tr><td><b>Horário</b></td><td>Catálogo da instituição, com nome livre (a modalidade) e controlo <code>FIXO</code> ou <code>FLEXIVEL</code>. Vale, por data, o do colaborador, senão o da unidade onde exerce funções (ou da mãe), senão o base. Tem data de efeito, e um horário que já vigorou não se edita — duplica-se. Regime de prestação presencial, teletrabalho ou misto (Lei 20/X/2023, art. 166.º).</td></tr>
+    <tr><td><b>Marcações</b></td><td>A prova do que aconteceu. Nunca se apagam: corrigem-se com outra e a errada anula-se, com motivo. O relógio importa-se de forma repetível; o próprio pica só em teletrabalho/misto (art. 170.º) e pede correcções, que a chefia directa ou o RH validam.</td></tr>
+    <tr><td><b>Faltas por débito</b></td><td>Calculam-se a cada leitura, dia a dia: sem registo, incompleto, plataforma; o parcial soma-se no mês. Um dia com anomalias ou correcções pendentes não se apura até o RH o tratar.</td></tr>
+    <tr><td><b>Trabalho suplementar</b></td><td>Uma autorização de um intervalo de um dia (Lei 20/X/2023, art. 155.º). As horas realizadas saem das marcações; o tipo de dia (útil, descanso, feriado) calcula-se. Só horas — o suplemento é do processamento salarial.</td></tr>
+    <tr><td><b>Relação mensal</b></td><td>As faltas e licenças de cada funcionário e a sua natureza, por serviço (DL 3/2010, art. 75.º). O <b>fecho</b> do mês (congelar, bloquear) espera a integração salarial.</td></tr>
+  </table>
+
+  <h2 id="chefia"><span class="n">11.</span>Quem decide: chefia directa, RH e o próprio</h2>
+  <p>A <b>chefia directa</b> não é um campo: é o titular do <b>Lugar-pai</b> (<code>parent_position_id</code>) do Lugar do colaborador — muda sozinha quando muda quem ocupa esse Lugar. Tem uma caixa no portal: pedidos de ausência, correcções de marcações, trabalho suplementar e as férias da equipa. Decide <b>num só nível</b>; ninguém decide o que é seu; com a chefia vaga ou não definida, decide o RH, que pode sempre decidir.</p>
+  <div class="grid c3">
+    <div class="card"><b>O próprio</b><p class="lead" style="font-size:13.5px">Pede ausências, indica a preferência de férias, pica em teletrabalho e pede correcções, pede horas extras, consulta recibos e documentos — com as regras do RH.</p></div>
+    <div class="card"><b>A chefia directa</b><p class="lead" style="font-size:13.5px">Aprova ou rejeita (com motivo), valida correcções, lança e autoriza trabalho suplementar da equipa directa.</p></div>
+    <div class="card"><b>O RH</b><p class="lead" style="font-size:13.5px">Configura, admite, move, regista e decide tudo; cancela, suspende, acumula, publica o mapa, gera os relatórios.</p></div>
+  </div>
+
+  <h2 id="relatorios"><span class="n">12.</span>Relatórios que a lei pede</h2>
+  <table>
+    <tr><th>Relatório</th><th>O que é</th><th>Lei</th></tr>
+    <tr><td><b>Relação mensal</b></td><td>faltas e licenças de cada funcionário, por serviço e mês (JSON, CSV)</td><td>DL 3/2010, art. 75.º</td></tr>
+    <tr><td><b>Lista de antiguidade</b></td><td>por cargo e antiguidade no cargo, com referência a 31/12 do ano anterior (JSON, CSV)</td><td>DL 3/2010, arts. 69.º e 70.º</td></tr>
+    <tr><td><b>Mapa de efectivos</b></td><td>Lugares activos, providos, vagos e congelados, por unidade e cargo (JSON, CSV)</td><td>Lei 20/X/2023, art. 4.º al. aa)</td></tr>
+    <tr><td><b>Indicadores do pessoal</b></td><td>o balanço social: efectivos por género, idade, contrato, carreira e unidade; entradas e saídas; absentismo; horas extras (JSON)</td><td>Lei 20/X/2023, art. 38.º n.º 3</td></tr>
+  </table>
+  <p>Todos são <b>só leitura</b> e pedem-se por unidade, com as subunidades por omissão. Quem entra lê-se pelas afectações da data de referência, e não pelo Lugar de hoje.</p>
+
+  <h2 id="automatico"><span class="n">13.</span>O que acontece sozinho, e o que fica por fazer</h2>
+  <table>
+    <tr><th>Sozinho</th><th>Quando</th></tr>
+    <tr><td>O saldo de férias do ano nasce e cresce</td><td>job diário, 00:05</td></tr>
+    <tr><td>As licenças entram em vigor na data de início e terminam na data de fim; o regresso aplica-se e as substituições caducam</td><td>job diário, 00:15</td></tr>
+    <tr><td>A substituição acaba quando o titular regressa</td><td>no momento da mudança de estado, do fim da licença ou da cessação</td></tr>
+  </table>
+  <div class="callout warn"><b>Por fazer, conscientemente:</b> remuneração e fecho mensal (integração salarial), perfis de permissão, notificações, meios-dias de férias, a preferência dos cônjuges no mapa de férias (art. 5.º n.º 6), o ciclo da lista de antiguidade (arts. 71.º a 74.º), os limites legais dos horários (diploma de desenvolvimento), formação e disciplinar como processos, e o lock distribuído dos jobs.</div>
+
+  <h2 id="glossario"><span class="n">14.</span>Glossário</h2>
   <table>
     <tr><th>Termo</th><th>Significado</th><th>No código</th></tr>
     <tr><td>Lugar</td><td>Cadeira do quadro de pessoal.</td><td><code>t_position</code> / <code>Position</code></td></tr>
@@ -304,11 +379,17 @@ sequenceDiagram
     <tr><td>Provido / Vago</td><td>Lugar com / sem <b>titular</b> corrente (derivado).</td><td>campo <code>ocupado</code> nas respostas</td></tr>
     <tr><td>SCD Tipo 2</td><td>Historização: fecha-se a versão corrente antes de abrir a nova.</td><td><code>is_current</code>, <code>data_fim</code></td></tr>
     <tr><td>Fora de grelha</td><td>Lugar sem carreira/categoria (sem escalão).</td><td><code>career_id = null</code></td></tr>
+    <tr><td>Situação funcional</td><td>Uma das seis situações do art. 117.º; decide os efeitos de um estado.</td><td><code>situacao_funcional</code></td></tr>
+    <tr><td>Chefia directa</td><td>O titular do Lugar-pai.</td><td><code>parent_position_id</code></td></tr>
+    <tr><td>Horário vigente</td><td>O do colaborador, senão o da unidade, senão o base, numa data.</td><td><code>horarios/vigente</code></td></tr>
+    <tr><td>Marcação</td><td>Picagem de entrada ou saída; nunca se apaga.</td><td><code>t_marcacao_assiduidade</code></td></tr>
+    <tr><td>Falta por débito</td><td>Tempo do horário não cumprido, apurado das marcações.</td><td><code>faltas-apuradas</code></td></tr>
+    <tr><td>Mapa de férias</td><td>O plano das férias do ano; dá-se a conhecer.</td><td><code>t_ferias_ano</code>, <code>t_ferias_mapa</code></td></tr>
   </table>
 
   <footer>
     RH-Service · Documentação v5 · Modelo de Negócio · pt-PT<br>
-    Fonte de verdade do refactor Position Management. Documentos irmãos: <code>modelo_relacional.html</code>, <code>api_guide.md</code>/<code>.html</code>, <code>breaking_change_frontend.md</code>/<code>.html</code>.
+    Fonte de verdade do refactor Position Management. Documentos irmãos: <a href="apresentacao_aplicacao.html">apresentacao_aplicacao.html</a> (o manual, ecrã a ecrã), <a href="regras_negocio.html">regras_negocio.html</a>, <a href="modelo_relacional.html">modelo_relacional.html</a>, <a href="api_guide.md">api_guide.md</a>, <a href="breaking_change_frontend.md">breaking_change_frontend.md</a>.
   </footer>
 </div>
 <script>mermaid.initialize({startOnLoad:true, theme:'neutral', flowchart:{curve:'basis'}});</script>

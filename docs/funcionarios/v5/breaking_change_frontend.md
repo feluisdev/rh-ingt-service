@@ -2,6 +2,11 @@
 
 > Guia de migração do frontend para o novo modelo de **Mapa de Pessoal** (Lugares + Afectações).
 > Refactor assumido como *breaking change*. pt-PT.
+> Última alteração: 2026-09-24
+>
+> As secções 1 a 10 descrevem a passagem ao Mapa de Pessoal; a secção 11 junta, por ordem de data, o que mudou
+> com o alinhamento à legislação (Lei n.º 20/X/2023 e DL n.º 3/2010), e a 12 é o checklist dessa parte.
+> Para ver cada ecrã com os seus campos, a API e as regras: `apresentacao_aplicacao.html`.
 
 ## TL;DR — o que muda
 
@@ -70,7 +75,7 @@ GET /api/v1/rh/colaboradores/assignments/unidade/{unidadeId}/vagas/lista
 
 Cada Lugar traz `jobNome`, `unidadeNome`, `careerNome`, `categoryNome`, `foraDeGrelha`, `ocupado`. Ao selecionar, preencher os campos derivados e (se `foraDeGrelha=false`) pedir o **escalão** (`gradeId`).
 
-> Filtrar o picker de escalões pela categoria do Lugar (`grade.categoryId == position.categoryId`) — a API ainda não valida isto no servidor.
+> Filtrar o picker de escalões pela categoria do Lugar (`GET /categories/{categoryId}/grades`). O servidor também valida: um escalão de outra categoria dá **422** (BR-AF-06). O que a API **não** valida é a categoria pertencer à carreira ao criar o Lugar — essa cascata é do ecrã.
 
 ---
 
@@ -105,17 +110,23 @@ O card de unidade pode mostrar **dotação / ocupados / vagas** (vêm no wrapper
 
 ---
 
-## 5. Afectação direta (progressão, promoção, transferência)
+## 5. Movimentos (progressão, promoção, transferência, mudança de carreira, substituição)
 
-Para movimentos fora do registo inicial: `POST /api/v1/rh/colaboradores/assignments`:
-```jsonc
-{
-  "funcionarioId": "uuid", "positionId": "uuid",
-  "gradeId": "uuid|null", "origem": "PROGRESSAO|PROMOCAO|TRANSFERENCIA",
-  "dataInicio": "YYYY-MM-DD"
-}
-```
-A afectação anterior é fechada automaticamente (histórico).
+> **Esta secção foi reescrita.** Uma versão anterior mandava fazer os movimentos por `POST /colaboradores/assignments`
+> com `origem`. Deixou de ser assim: cada movimento tem endpoint próprio, com as suas regras, e a porta genérica só
+> aceita a titularidade (`PRINCIPAL`) — ver 11.15.
+
+| Movimento | Endpoint | Corpo |
+|---|---|---|
+| Progressão | `POST /funcionarios/{id}/progressao` | `dataEfeito` (o escalão é o seguinte, escolhido pelo sistema) |
+| Promoção | `POST /funcionarios/{id}/promocao` | `categoryId`, `dataEfeito`; `positionId` e `gradeId` opcionais |
+| Transferência | `POST /funcionarios/{id}/transferencia` | `positionId`, `dataEfeito`; `functionId` opcional |
+| Mudança de carreira | `POST /funcionarios/{id}/mudanca-carreira` | `positionId`, `dataEfeito` (ver 11.14) |
+| Substituição | `POST /funcionarios/{id}/substituicao` | `positionId`, `dataInicio` (ver 11.5) |
+
+Todos fecham a afectação corrente na véspera da data de efeito e abrem uma nova (histórico), menos a
+substituição, que acrescenta uma afectação sem fechar a do substituto. `POST /assignments` com `origem=PROGRESSAO`
+falha sempre: o Lugar já tem titular — o próprio.
 
 ---
 
@@ -150,7 +161,7 @@ O destino identifica-se pela **unidade** ou pela **entidade**, e nunca por um Lu
 ## 7. Mudança de estado
 
 `PATCH /api/v1/rh/funcionarios/{id}/worker-state` — request **inalterado**.
-Efeito novo: `RETIRED`/`INACTIVE` **encerram a afectação corrente** → o Lugar volta a vago.
+Efeito novo: um estado com `endsEmployment` (no seed, `RETIRED` e `INACTIVE`) **cessa o vínculo** e encerra a afectação corrente → o Lugar volta a vago. Os outros estados produzem os efeitos da sua **situação funcional** (ver 11.1).
 
 ---
 
@@ -158,8 +169,8 @@ Efeito novo: `RETIRED`/`INACTIVE` **encerram a afectação corrente** → o Luga
 
 | Removido | Usar |
 |---|---|
-| `GET/POST /funcionarios/{id}/enquadramentos` | `POST /colaboradores/assignments` |
-| `GET/POST /funcionarios/{id}/colocacoes` | `POST /colaboradores/assignments` |
+| `GET/POST /funcionarios/{id}/enquadramentos` | `GET .../assignments/funcionario/{id}/unidade-atual` para ler; os movimentos da secção 5 para mudar |
+| `GET/POST /funcionarios/{id}/colocacoes` | o mesmo |
 | auditoria catálogo `enquadramentos` | catálogo `assignments` |
 
 O bloco `enquadramento` **ainda aparece** em `GET /funcionarios/{id}/details` (mesma forma, por compatibilidade) — mas é **derivado** do Lugar; não há CRUD de enquadramento.
@@ -170,8 +181,8 @@ O bloco `enquadramento` **ainda aparece** em `GET /funcionarios/{id}/details` (m
 
 | Enum | Valores |
 |---|---|
-| `origem` | ADMISSAO · PROGRESSAO · PROMOCAO · MOBILIDADE · TRANSFERENCIA |
-| `assignmentType` | PRINCIPAL · SUBSTITUICAO |
+| `origem` | ADMISSAO · PROGRESSAO · PROMOCAO · TRANSFERENCIA · MUDANCA_CARREIRA · SUBSTITUICAO · CONSOLIDACAO (e o legado MOBILIDADE) |
+| `assignmentType` | PRINCIPAL · SUBSTITUICAO (em `POST /assignments` só PRINCIPAL) |
 | `estado` (Lugar) | ATIVO · CONGELADO · EXTINTO |
 
 **Provido/Vago** não é enum — usar o campo booleano `ocupado` das respostas de Lugar.
@@ -183,9 +194,10 @@ O bloco `enquadramento` **ainda aparece** em `GET /funcionarios/{id}/details` (m
 - [ ] Ecrã de admissão: remover inputs de unidade/cargo/carreira/categoria; adicionar **picker de Lugar vago** + escalão.
 - [ ] Trocar `enquadramentoId` por `afectacaoId` na leitura da resposta de registo.
 - [ ] Novo ecrã de **gestão do Mapa de Pessoal** (Lugares + chefias + vagas).
-- [ ] Mobilidade: adicionar campo **`destinationPositionId`**.
+- [ ] Mobilidade: destino por **`destinationUnitId`** (interna) ou **`entidadeDestino`** (externa); `destinationPositionId` é legado e não se envia.
 - [ ] Remover chamadas a `/enquadramentos` e `/colocacoes`.
 - [ ] Usar as novas queries (unidade-atual, chefe, responsavel, vagas) onde antes se lia colocação/enquadramento.
+- [ ] Movimentos pelos endpoints próprios (secção 5), e não por `POST /assignments`.
 - [ ] Cabeçalho `Accept: application/json` em todas as chamadas.
 
 > Contrato completo: `api_guide.md`. Modelo: `modelo_negocio.html`, `modelo_relacional.html`.
@@ -271,76 +283,76 @@ Não sobrou nenhuma. O que não cabia no `SuccessResponseDTO` ganhou DTO própri
 
 As operações que já tinham DTO próprio não mudaram: registo composto, progressão, promoção, transferência, substituição, mudança de estado.
 
-### 11.8 Licenca/mobilidade: a decisao e o periodo separam-se (BREAKING, 2026-09-22)
+### 11.8 Licença/mobilidade: a decisão e o período separam-se (BREAKING, 2026-09-22)
 
-O `status` guardava duas coisas ao mesmo tempo: o que foi despachado e onde a licenca estava no
-seu periodo. O art. 44.o do DL n.o 3/2010 separa-as em numeros seguidos -- o n.o 1 define a
-licenca como ausencia prolongada (um **periodo**), o n.o 2 faz a concessao depender do **despacho**
-(um acto). Agora o registo tambem as separa.
+O `status` guardava duas coisas ao mesmo tempo: o que foi despachado e onde a licença estava no seu
+período. O art. 44.º do DL n.º 3/2010 separa-as em números seguidos — o n.º 1 define a licença como
+ausência prolongada (um **período**), o n.º 2 faz a concessão depender do **despacho** (um acto).
+Agora o registo também as separa.
 
 | Campo | Eixo | Valores |
 |---|---|---|
-| `status` | decisao | `PENDING` / `APPROVED` / `REJECTED` / `CANCELLED` |
-| `estadoPeriodo` (**novo**) | periodo, hoje | `POR_INICIAR` / `EM_CURSO` / `TERMINADA`, ou `null` se nao estiver deferida |
+| `status` | decisão | `PENDING` / `APPROVED` / `REJECTED` / `CANCELLED` |
+| `estadoPeriodo` (**novo**) | período, hoje | `POR_INICIAR` / `EM_CURSO` / `TERMINADA`, ou `null` se não estiver deferida |
 
 **`ACTIVE` e `CLOSED` deixaram de existir.** Mapeamento para quem os lia:
 
 | Antes | Agora |
 |---|---|
-| `status == "ACTIVE"` para saber se esta de licenca | `estadoPeriodo == "EM_CURSO"` |
+| `status == "ACTIVE"` para saber se está de licença | `estadoPeriodo == "EM_CURSO"` |
 | `status == "ACTIVE"` para saber se foi deferida | `status == "APPROVED"` |
 | `status == "CLOSED"` | `estadoPeriodo == "TERMINADA"` |
 
-**O que muda nos ecras:**
+**O que muda nos ecrãs:**
 
-- **Deferir deixou de por em vigor.** Aprovar uma licenca que comeca daqui a um mes devolve
-  `afectacaoEncerradaId` a nulo e **nao** muda o estado do trabalhador. O ecra nao deve anunciar
-  "vaga aberta" na aprovacao: isso acontece na data de inicio, aplicado por um job diario.
-- **Um registo deferido pode nao estar a decorrer.** Uma lista que mostre "de licenca" tem de
-  filtrar por `estadoPeriodo`, nao por `status`.
-- **`PUT /{id}/close` passou a ser o regresso antecipado** (art. 46.o n.o 4) e devolve **409**
-  se a licenca ainda nao comecou (use `cancel`) ou se ja terminou (nao ha nada a fechar --
+- **Deferir deixou de pôr em vigor.** Aprovar uma licença que começa daqui a um mês devolve
+  `afectacaoEncerradaId` a nulo e **não** muda o estado do trabalhador. O ecrã não deve anunciar
+  «vaga aberta» na aprovação: isso acontece na data de início, aplicado por um job diário.
+- **Um registo deferido pode não estar a decorrer.** Uma lista que mostre «de licença» tem de
+  filtrar por `estadoPeriodo`, não por `status`.
+- **`PUT /{id}/close` passou a ser o regresso antecipado** (art. 46.º n.º 4) e devolve **409**
+  se a licença ainda não começou (use `cancel`) ou se já terminou (não há nada a fechar —
   termina sozinha na data de fim).
-- **`PUT /{id}/cancel` devolve 409** depois de a licenca comecar. Ai a saida e o regresso
+- **`PUT /{id}/cancel` devolve 409** depois de a licença começar. Aí a saída é o regresso
   antecipado.
-- **A `dataFim` depois do regresso fica na vespera** do dia em que a pessoa voltou, porque a data
-  de regresso e o primeiro dia de volta ao servico.
+- **A `dataFim` depois do regresso fica na véspera** do dia em que a pessoa voltou, porque a data
+  de regresso é o primeiro dia de volta ao serviço.
 
-### 11.9 Ferias: o saldo deixa de ser criado a mao (2026-09-22)
+### 11.9 Férias: o saldo deixa de ser criado à mão (2026-09-22)
 
-O art. 2.o n.o 4 do DL n.o 3/2010 diz que o direito a ferias vence a 1 de Janeiro. Ate agora o
-saldo era escrito por alguem atraves de `POST /funcionarios/{id}/saldos-ausencia`; passou a
+O art. 2.º n.º 4 do DL n.º 3/2010 diz que o direito a férias vence a 1 de Janeiro. Até agora o
+saldo era escrito por alguém através de `POST /funcionarios/{id}/saldos-ausencia`; passou a
 nascer sozinho.
 
-**O que muda nos ecras:**
+**O que muda nos ecrãs:**
 
-- **Nao criar saldos de ferias a mao.** O saldo existe a partir da admissao. Um ecra que peca
-  "dias de direito" ao utilizador para as ferias esta a duplicar o que a lei ja fixou. O
-  endpoint continua a existir para os restantes tipos de ausencia.
-- **Zero dias nao e erro.** Quem e admitido em Novembro ou Dezembro tem saldo de ferias a
-  **zero** ate perfazer 90 dias de servico (art. 3.o). O ecra deve mostrar zero, e nao
-  "sem saldo configurado".
+- **Não criar saldos de férias à mão.** O saldo existe a partir da admissão. Um ecrã que peça
+  «dias de direito» ao utilizador para as férias está a duplicar o que a lei já fixou. O
+  endpoint continua a existir para os restantes tipos de ausência.
+- **Zero dias não é erro.** Quem é admitido em Novembro ou Dezembro tem saldo de férias a
+  **zero** até perfazer 90 dias de serviço (art. 3.º). O ecrã deve mostrar zero, e não
+  «sem saldo configurado».
 - **O direito cresce durante o ano de ingresso**, a cada trimestre completo. Um valor lido em
-  Maio pode nao ser o mesmo em Agosto -- nao vale a pena guarda-lo em cache do lado do cliente.
+  Maio pode não ser o mesmo em Agosto — não vale a pena guardá-lo em cache do lado do cliente.
 
-**Campo novo no catalogo de tipos de ausencia** (`/catalogs/leave-types`):
+**Campo novo no catálogo de tipos de ausência** (`/catalogs/leave-types`):
 
 | Campo | Valores | Para que serve |
 |---|---|---|
-| `regime` | `FERIAS` / `FALTA` | o capitulo do DL n.o 3/2010 a que a linha obedece |
+| `regime` | `FERIAS` / `FALTA` (e `FALTA_INJUSTIFICADA`, ver 11.20) | o capítulo do DL n.º 3/2010 a que a linha obedece |
 
-- Na **criacao**, omitido vale `FALTA`.
-- Na **actualizacao**, omitido **mantem** o que esta -- nao apaga a classificacao.
-- Um valor fora da lista devolve **422**: os regimes sao os da lei, a instituicao mapeia mas nao
+- Na **criação**, omitido vale `FALTA`.
+- Na **actualização**, omitido **mantém** o que está — não apaga a classificação.
+- Um valor fora da lista devolve **422**: os regimes são os da lei, a instituição mapeia mas não
   inventa.
-- Um ecra de administracao do catalogo deve expor este campo, porque e ele -- e nao o codigo --
+- Um ecrã de administração do catálogo deve expor este campo, porque é ele — e não o código —
   que determina a que linha se aplica o vencimento anual.
 
-### 11.10 Acumulacao de ferias (2026-09-22)
+### 11.10 Acumulação de férias (2026-09-22)
 
 Endpoint novo: **`POST /funcionarios/{id}/saldos-ausencia/{saldoId}/acumular`**, corpo
-`{ "dias": N, "motivo": "..." }`. O `motivo` e **obrigatorio** -- o art. 7.o n.o 1 do
-DL n.o 3/2010 so permite a acumulacao quando, por motivo de servico, as ferias nao puderam ser
+`{ "dias": N, "motivo": "..." }`. O `motivo` é **obrigatório** — o art. 7.º n.º 1 do
+DL n.º 3/2010 só permite a acumulação quando, por motivo de serviço, as férias não puderam ser
 gozadas nesse ano. Sem ele, **400**.
 
 **Campos novos no `SaldoAusenciaResponseDTO`:**
@@ -348,90 +360,90 @@ gozadas nesse ano. Sem ele, **400**.
 | Campo | Significado |
 |---|---|
 | `diasAcumulados` | dias vindos do ano anterior |
-| `acumulacaoMotivo` | porque e que nao puderam ser gozados |
-| `diasTransportados` | dias ja cedidos ao ano seguinte |
+| `acumulacaoMotivo` | porque é que não puderam ser gozados |
+| `diasTransportados` | dias já cedidos ao ano seguinte |
 | `diasAcumulaveis` | quanto deste ano ainda pode seguir para o seguinte |
 
-**O `diasDisponiveis` mudou de formula:** passou a ser
-`diasDireito + diasAcumulados - gozados - pendentes - transportados`. Um ecra que somasse
-`diasDireito - gozados` a mao passa a dar um numero diferente do da API -- use o campo.
+**O `diasDisponiveis` mudou de fórmula:** passou a ser
+`diasDireito + diasAcumulados − gozados − pendentes − transportados`. Um ecrã que somasse
+`diasDireito − gozados` à mão passa a dar um número diferente do da API — use o campo.
 
-**Um ecra de saldo deve mostrar `diasDireito` e `diasAcumulados` separados.** Sao coisas
+**Um ecrã de saldo deve mostrar `diasDireito` e `diasAcumulados` separados.** São coisas
 diferentes: um venceu-se este ano, o outro sobrou do anterior e tem prazo.
 
-### 11.11 Suspensao de ferias (2026-09-22)
+### 11.11 Suspensão de férias (2026-09-22)
 
 Endpoint novo: **`PATCH /funcionarios/{id}/pedidos-ausencia/{pedidoId}/suspender`**, corpo
-`{ "data": "YYYY-MM-DD", "motivo": "..." }`. O `motivo` e **obrigatorio** (400 sem ele) e a
-`data` nao pode ser futura (400).
+`{ "data": "YYYY-MM-DD", "motivo": "..." }`. O `motivo` é **obrigatório** (400 sem ele) e a
+`data` não pode ser futura (400).
 
 **Campos novos no `PedidoAusenciaResponseDTO`:** `suspensoEm` e `suspensaoMotivo`.
 
-**O estado NAO muda.** Umas ferias interrompidas continuam `APROVADO` -- a decisao foi tomada e
-nao se desfaz; o que encurta e a `dataFim`. Um ecra que queira distinguir umas ferias
-interrompidas de umas ferias que sempre tiveram aquela duracao tem de olhar para `suspensoEm`,
-nao para o estado.
+**O estado NÃO muda.** Umas férias interrompidas continuam `APROVADO` — a decisão foi tomada e
+não se desfaz; o que encurta é a `dataFim`. Um ecrã que queira distinguir umas férias
+interrompidas de umas férias que sempre tiveram aquela duração tem de olhar para `suspensoEm`,
+não para o estado.
 
-**O `numeroDias` do pedido e reescrito** para os dias efectivamente gozados, e a diferenca volta
-ao saldo. Um ecra que tenha guardado o numero antigo passa a divergir da API -- releia o pedido.
+**O `numeroDias` do pedido é reescrito** para os dias efectivamente gozados, e a diferença volta
+ao saldo. Um ecrã que tenha guardado o número antigo passa a divergir da API — releia o pedido.
 
-### 11.12 Ler as substituicoes (2026-09-22)
+### 11.12 Ler as substituições (2026-09-22)
 
-Endpoint novo: **`GET /funcionarios/{id}/substituicoes`** (`?apenasCorrentes=true` para so as que
-estao em vigor). Nao quebra nada -- preenche uma lacuna: ate aqui a substituicao criava-se e
+Endpoint novo: **`GET /funcionarios/{id}/substituicoes`** (`?apenasCorrentes=true` para só as que
+estão em vigor). Não quebra nada — preenche uma lacuna: até aqui a substituição criava-se e
 nada a mostrava.
 
-Cada linha traz `papel` (`SUBSTITUTO` ou `TITULAR`), a contraparte (id, nome, numero), o Lugar
-coberto (id, numero, unidade) e o periodo. **A `dataFim` vem nula enquanto durar** -- a
-substituicao caduca com o regresso do titular (art. 77.o n.o 2), nao numa data combinada, por
-isso um ecra nao deve pedir nem mostrar uma data de fim prevista.
+Cada linha traz `papel` (`SUBSTITUTO` ou `TITULAR`), a contraparte (id, nome, número), o Lugar
+coberto (id, número, unidade) e o período. **A `dataFim` vem nula enquanto durar** — a
+substituição caduca com o regresso do titular (art. 77.º n.º 2), não numa data combinada, por
+isso um ecrã não deve pedir nem mostrar uma data de fim prevista.
 
-Um ecra de RH que mostre um Lugar passa a poder dizer quem la esta em substituicao; um ecra de
-colaborador passa a poder dizer quem o substitui enquanto esta impedido.
+Um ecrã de RH que mostre um Lugar passa a poder dizer quem lá está em substituição; um ecrã de
+colaborador passa a poder dizer quem o substitui enquanto está impedido.
 
 ### 11.13 Antiguidade (2026-09-22)
 
-Endpoint novo: **`GET /funcionarios/{id}/antiguidade`** (`?ate=YYYY-MM-DD` opcional). Nao quebra
-nada -- ate aqui a antiguidade **nao se calculava em lado nenhum**.
+Endpoint novo: **`GET /funcionarios/{id}/antiguidade`** (`?ate=YYYY-MM-DD` opcional). Não quebra
+nada — até aqui a antiguidade **não se calculava em lado nenhum**.
 
 Devolve `diasTotais`, `diasDescontados`, `diasContados`, `anos`/`meses`/`dias` e a lista
 `periodosDescontados[]` com `inicio`, `fim`, `dias` e `motivo`.
 
-**Mostre os periodos, nao so o total.** Quem discorda de uma antiguidade quer ver que periodos
-foram descontados e porque -- e e isso que torna a conta defensavel a frente de um colaborador.
+**Mostre os períodos, não só o total.** Quem discorda de uma antiguidade quer ver que períodos
+foram descontados e porquê — e é isso que torna a conta defensável à frente de um colaborador.
 
-**Nao guarde o valor em cache.** A antiguidade e derivada e recalculada a cada leitura: muda
-quando muda o estado do colaborador, quando se defere uma licenca, ou quando se corrige uma data
+**Não guarde o valor em cache.** A antiguidade é derivada e recalculada a cada leitura: muda
+quando muda o estado do colaborador, quando se defere uma licença, ou quando se corrige uma data
 do passado.
 
-### 11.14 Mudanca de carreira (2026-09-22)
+### 11.14 Mudança de carreira (2026-09-22)
 
-Endpoint novo, **nao breaking** -- nada do que existia mudou de forma:
+Endpoint novo, **não breaking** — nada do que existia mudou de forma:
 
 ```
 POST /api/v1/rh/funcionarios/{funcionarioId}/mudanca-carreira
 ```
 
-Ate agora nao havia como mudar de carreira: a promocao exige a **mesma carreira** e a
-transferencia a **mesma categoria**. Se o ecra oferecia a mudanca de carreira por
-`POST /assignments` com `origem: PROMOCAO` ou `TRANSFERENCIA`, **deixe de o fazer** -- passa
-pelos endpoints proprios, e estes recusam-no.
+Até agora não havia como mudar de carreira: a promoção exige a **mesma carreira** e a
+transferência a **mesma categoria**. Se o ecrã oferecia a mudança de carreira por
+`POST /assignments` com `origem: PROMOCAO` ou `TRANSFERENCIA`, **deixe de o fazer** — passa
+pelos endpoints próprios, e estes recusam-no.
 
-Corpo: `positionId` e `dataEfeito` obrigatorios; `gradeId`, `functionId`, `despachoNumero`,
+Corpo: `positionId` e `dataEfeito` obrigatórios; `gradeId`, `functionId`, `despachoNumero`,
 `concursoRef` e `observacoes` opcionais. Devolve `201` com `MudancaCarreiraResponseDTO`, que
-traz as **duas pontas da grelha** -- `carreiraAnterior`/`carreiraNova`,
-`categoriaAnterior`/`categoriaNova` -- e o Lugar de onde veio.
+traz as **duas pontas da grelha** — `carreiraAnterior`/`carreiraNova`,
+`categoriaAnterior`/`categoriaNova` — e o Lugar de onde veio.
 
-**O que o ecra tem de fazer diferente dos outros movimentos:**
+**O que o ecrã tem de fazer diferente dos outros movimentos:**
 
 - **Filtrar os Lugares vagos por carreira DIFERENTE da actual.** Um destino da mesma carreira
-  da 422. Nao ha a forma "o Lugar sobe" que a promocao tem: **exige-se Lugar vago**.
-- **Oferecer o escalao da categoria de destino**, nao o actual. Ao contrario da transferencia,
-  o escalao **nao se herda**: `gradeId` de outra categoria da 422, e sem `gradeId` entra-se
-  pelo primeiro escalao activo.
-- **Nao prometa validacao de habilitacoes.** Nao existe: a carreira nao tem campo que diga o
-  requisito. Como o concurso na promocao, `despachoNumero` e `concursoRef` sao registo, nao
-  verificacao.
+  dá 422. Não há a forma «o Lugar sobe» que a promoção tem: **exige-se Lugar vago**.
+- **Oferecer o escalão da categoria de destino**, não o actual. Ao contrário da transferência,
+  o escalão **não se herda**: `gradeId` de outra categoria dá 422, e sem `gradeId` entra-se
+  pelo primeiro escalão activo.
+- **Não prometa validação de habilitações.** Não existe: a carreira não tem campo que diga o
+  requisito. Como o concurso na promoção, `despachoNumero` e `concursoRef` são registo, não
+  verificação.
 
 ### 11.15 A `ACUMULACAO` saiu, e o `POST /assignments` só aceita `PRINCIPAL` (BREAKING, 2026-09-22)
 
@@ -439,13 +451,13 @@ traz as **duas pontas da grelha** -- `carreiraAnterior`/`carreiraNova`,
 
 **1. `ACUMULACAO` deixou de existir** como valor de `assignmentType`. Fundava-se no art. 134.º
 n.º 2 al. b) da Lei n.º 20/X/2023, mas esse artigo trata da *forma de prestação da mobilidade*
--- «em regime de acumulação, quando o funcionário passa a exercer funções noutro serviço, em
-acumulação com as do serviço de origem» -- e não de um título para ocupar um segundo Lugar.
+— «em regime de acumulação, quando o funcionário passa a exercer funções noutro serviço, em
+acumulação com as do serviço de origem» — e não de um título para ocupar um segundo Lugar.
 Como a mobilidade transitória é *sem ocupação do lugar do quadro* (art. 135.º n.º 7), uma
 mobilidade em acumulação **não cria afectação nenhuma**. **Retire `ACUMULACAO` dos selects.**
 
 **2. `POST /assignments` só aceita `PRINCIPAL`.** Enviar `SUBSTITUICAO` passa a dar **422**, a
-remeter para `POST /funcionarios/{id}/substituicao`. Se algum ecra criava substituições pela
+remeter para `POST /funcionarios/{id}/substituicao`. Se algum ecrã criava substituições pela
 porta genérica, **mude-o**: as criadas por aí ficavam sem ligação ao titular e sem nenhuma das
 regras da substituição.
 
@@ -454,212 +466,282 @@ corrente nem em auditoria.
 
 ### 11.16 Mobilidade: forma de prestação (2026-09-22)
 
-Campo novo, **nao breaking**: `formaPrestacao` em `POST/PUT
+Campo novo, **não breaking**: `formaPrestacao` em `POST/PUT
 /funcionarios/{id}/licencas-mobilidade` e na resposta da leitura.
 
-Valores: `TEMPO_INTEIRO` (omisso) e `ACUMULACAO`, do art. 134.o n.o 2 da Lei 20/X/2023. Quem
-nao enviar nada fica em exclusividade, que e a regra do art. 20.o.
+Valores: `TEMPO_INTEIRO` (omisso) e `ACUMULACAO`, do art. 134.º n.º 2 da Lei 20/X/2023. Quem
+não enviar nada fica em exclusividade, que é a regra do art. 20.º.
 
-**E aqui que a acumulacao vive agora.** Se o ecra tinha (ou ia ter) acumulacao como
-`assignmentType`, e este o campo a usar -- ver 11.15. Uma mobilidade em acumulacao **continua
-a nao criar afectacao nenhuma**: o Lugar de origem nao muda, e o `positionId` em
+**É aqui que a acumulação vive agora.** Se o ecrã tinha (ou ia ter) acumulação como
+`assignmentType`, é este o campo a usar — ver 11.15. Uma mobilidade em acumulação **continua
+a não criar afectação nenhuma**: o Lugar de origem não muda, e o `positionId` em
 `/unidade-atual` fica igual.
 
-So se define enquanto o processo esta `PENDING`; depois do despacho da **409**. Num subtipo de
-licenca da **422**.
+Só se define enquanto o processo está `PENDING`; depois do despacho dá **409**. Num subtipo de
+licença dá **422**.
 
 ### 11.17 Consolidar a mobilidade (2026-09-22)
 
-Endpoint novo, **nao breaking**:
+Endpoint novo, **não breaking**:
 
 ```
 POST /api/v1/rh/funcionarios/{funcionarioId}/licencas-mobilidade/{licencaId}/consolidar
 ```
 
-Torna definitiva uma mobilidade transitoria (art. 132.o n.o 4). A pessoa deixa de estar em
-mobilidade e passa a ser **titular de um Lugar vago do servico de destino**.
+Torna definitiva uma mobilidade transitória (art. 132.º n.º 4). A pessoa deixa de estar em
+mobilidade e passa a ser **titular de um Lugar vago do serviço de destino**.
 
-**O que o ecra tem de fazer:**
+**O que o ecrã tem de fazer:**
 
-- Oferecer a accao **so em mobilidades internas ja comecadas** e deferidas. Externa da 422; por
-  iniciar da 409 (para desistir dela e o cancelamento).
+- Oferecer a acção **só em mobilidades internas já começadas** e deferidas. Externa dá 422; por
+  iniciar dá 409 (para desistir dela é o cancelamento).
 - **Filtrar os Lugares vagos por unidade de destino da mobilidade E pelo mesmo cargo e categoria
-  do Lugar actual.** Qualquer outra coisa da 422 -- mudar de categoria ou funcao exigiria
-  concurso comum interno (art. 135.o n.o 6).
-- Nao oferecer escolha de escalao: mantem-se, porque a categoria e a mesma.
-- Depois da consolidacao, `/unidade-atual` passa a dar o **Lugar novo** e `emMobilidade` fica
-  `false`. A mobilidade fica `APPROVED` com `dataFim` na **vespera** da data de efeito.
+  do Lugar actual.** Qualquer outra coisa dá 422 — mudar de categoria ou função exigiria
+  concurso comum interno (art. 135.º n.º 6).
+- Não oferecer escolha de escalão: mantém-se, porque a categoria é a mesma.
+- Depois da consolidação, `/unidade-atual` passa a dar o **Lugar novo** e `emMobilidade` fica
+  `false`. A mobilidade fica `APPROVED` com `dataFim` na **véspera** da data de efeito.
 
-### 11.18 Regresso de comissao de servico pode cessar o vinculo (BREAKING de comportamento, 2026-09-22)
+### 11.18 Regresso de comissão de serviço pode cessar o vínculo (BREAKING de comportamento, 2026-09-22)
 
-Nao ha endpoint novo nem campo novo. O que muda e **o que acontece no fim de uma comissao de
-servico**.
+Não há endpoint novo nem campo novo. O que muda é **o que acontece no fim de uma comissão de
+serviço**.
 
-Art. 64.o n.o 2: cessada a comissao, o nomeado regressa a situacao de que era titular antes dela
-"quando constituida e consolidada por tempo indeterminado, ou, **no caso contrario, cessa a
-relacao juridica de emprego publico**".
+Art. 64.º n.º 2: cessada a comissão, o nomeado regressa à situação de que era titular antes dela
+«quando constituída e consolidada por tempo indeterminado, ou, **no caso contrário, cessa a
+relação jurídica de emprego público**».
 
-Ate agora o catalogo tinha a comissao como `REGRESSA_LUGAR` sem condicao: devolvia ao Lugar de
-origem **toda a gente**, incluindo quem foi recrutado PARA a comissao e nunca teve Lugar. Passa a
+Até agora o catálogo tinha a comissão como `REGRESSA_LUGAR` sem condição: devolvia ao Lugar de
+origem **toda a gente**, incluindo quem foi recrutado PARA a comissão e nunca teve Lugar. Passa a
 haver um terceiro valor de `return_effect`, `REGRESSA_OU_CESSA`, e com ele:
 
-- quem **tem** afectacao corrente regressa a ela, como antes;
-- quem **nao tem** ve a relacao de emprego publico **cessar** -- contrato encerrado, estado de
-  cessacao, registo no historico.
+- quem **tem** afectação corrente regressa a ela, como antes;
+- quem **não tem** vê a relação de emprego público **cessar** — contrato encerrado, estado de
+  cessação, registo no histórico.
 
-**O que o ecra tem de fazer:** ao fechar uma comissao (`close`) ou ao mostrar o resultado do job
-diario, **contar com que o colaborador possa vir cessado**. Nao assuma que depois de uma
-mobilidade a pessoa continua activa. O `estadoAtribuidoId` da resposta traz o estado de cessacao
+**O que o ecrã tem de fazer:** ao fechar uma comissão (`close`) ou ao mostrar o resultado do job
+diário, **contar com que o colaborador possa vir cessado**. Não assuma que depois de uma
+mobilidade a pessoa continua activa. O `estadoAtribuidoId` da resposta traz o estado de cessação
 quando foi esse o caso.
 
-Nos selects de `returnEffect` (configuracao de subtipos) acrescente `REGRESSA_OU_CESSA`.
+Nos selects de `returnEffect` (configuração de subtipos) acrescente `REGRESSA_OU_CESSA`.
 
-**Catalogo:** o `MOB_COMISSAO` do seed passou a `REGRESSA_OU_CESSA`, com 1095 dias e sem limite de
-renovacoes (art. 60.o n.o 1: tres anos, sucessivamente renovavel), em vez de 365 com uma
-prorrogacao. Instalacoes existentes tem de reclassificar o seu proprio catalogo -- nao ha migracao
-que o faca por elas, porque o catalogo e da instituicao.
+**Catálogo:** o `MOB_COMISSAO` do seed passou a `REGRESSA_OU_CESSA`, com 1095 dias e sem limite de
+renovações (art. 60.º n.º 1: três anos, sucessivamente renovável), em vez de 365 com uma
+prorrogação. Instalações existentes têm de reclassificar o seu próprio catálogo — não há migração
+que o faça por elas, porque o catálogo é da instituição.
 
-### Checklist
+### 11.19 Tipos de ausência: três tectos de dias, e não um (2026-09-22)
 
-### 11.19 Tipos de ausencia: tres tectos de dias, e nao um (2026-09-22)
-
-O tipo de ausencia tinha um so campo de limite, `maxDaysPerYear`, e o pedido somava sempre o **ano
-civil**. Passa a ter **tres**, todos opcionais:
+O tipo de ausência tinha um só campo de limite, `maxDaysPerYear`, e o pedido somava sempre o **ano
+civil**. Passa a ter **três**, todos opcionais:
 
 | Campo | O que limita |
 |---|---|
 | `maxDaysPerYear` | o total do ano civil |
 | `maxDaysPerOccurrence` | os dias de **cada pedido** |
-| `maxDaysPerMonth` | o total do mes civil |
+| `maxDaysPerMonth` | o total do mês civil |
 
-Nao ha campo removido nem renomeado: quem so conhecer o `maxDaysPerYear` continua a funcionar.
+Não há campo removido nem renomeado: quem só conhecer o `maxDaysPerYear` continua a funcionar.
 
-**Porque foi preciso.** O art. 15.o n.o 1 do DL n.o 3/2010 quase nunca fala em anos -- "ate 6, POR
-OCASIAO do casamento", "ate 8, por motivo de FALECIMENTO do conjuge", "duas por CADA prova". Com
-esses numeros escritos no tecto anual, o segundo funeral do mesmo ano era recusado e, ao mesmo
-tempo, oito dias seguidos de uma so vez passavam. A al. q) mostra porque sao tres valores
-independentes: "6 dias em cada ano civil **e um dia por mes**" -- os dois tectos valem juntos.
+**Porque foi preciso.** O art. 15.º n.º 1 do DL n.º 3/2010 quase nunca fala em anos — «até 6, POR
+OCASIÃO do casamento», «até 8, por motivo de FALECIMENTO do cônjuge», «duas por CADA prova». Com
+esses números escritos no tecto anual, o segundo funeral do mesmo ano era recusado e, ao mesmo
+tempo, oito dias seguidos de uma só vez passavam. A al. q) mostra porque são três valores
+independentes: «6 dias em cada ano civil **e um dia por mês**» — os dois tectos valem juntos.
 
-**Nulo quer dizer sem limite desta natureza**, nao zero. E o caso da greve e das obrigacoes legais.
+**Nulo quer dizer sem limite desta natureza**, não zero. É o caso da greve e das obrigações legais.
 
-**O que o ecra tem de fazer:**
+**O que o ecrã tem de fazer:**
 
-- mostrar os tres campos na configuracao do tipo de ausencia, e deixar claro que vazio e "sem
-  limite" -- um `0` passa a dar **400**, porque um limite de zero dias diz-se desactivando a linha;
-- tratar o **422** da criacao do pedido a ler a mensagem: ha agora tres recusas diferentes ("no
-  maximo N dias de cada vez", "limite mensal", "limite anual"), e a que interessa mostrar e a que
+- mostrar os três campos na configuração do tipo de ausência, e deixar claro que vazio é «sem
+  limite» — um `0` passa a dar **400**, porque um limite de zero dias diz-se desactivando a linha;
+- tratar o **422** da criação do pedido a ler a mensagem: há agora três recusas diferentes («no
+  máximo N dias de cada vez», «limite mensal», «limite anual»), e a que interessa mostrar é a que
   veio;
-- contar com mais linhas no catalogo: o seed traz agora as alineas do art. 15.o
+- contar com mais linhas no catálogo: o seed traz agora as alíneas do art. 15.º
   (`CASAMENTO`, `LUTO`, `LUTO_OUTRO_GRAU`, `NASCIMENTO_FILHO`, `PROVA_EXAME`,
   `ASSISTENCIA_FAMILIA`, `AUTORIZADA_DIRIGENTE`, `CONTA_FERIAS`, `GREVE`, `OBRIGACAO_LEGAL`,
-  `DOENCA_ATESTADO`). Um select de tipos com altura fixa para meia duzia de linhas fica curto.
+  `DOENCA_ATESTADO`). Um select de tipos com altura fixa para meia dúzia de linhas fica curto.
 
-**Catalogo:** como no MOB_COMISSAO, o seed **nao corrige** linhas ja existentes
-(`ON CONFLICT DO NOTHING`). Numa instalacao a rodar, o `LUTO` continua a dizer 5 dias por ano ate
-alguem o reclassificar pela API -- e, a partir da V53, e pela API que se faz, sem tocar em codigo.
+**Catálogo:** como no `MOB_COMISSAO`, o seed **não corrige** linhas já existentes
+(`ON CONFLICT DO NOTHING`). Numa instalação a rodar, o `LUTO` continua a dizer 5 dias por ano até
+alguém o reclassificar pela API — e, a partir da V53, é pela API que se faz, sem tocar em código.
 
-### 11.20 Faltas injustificadas e efeito na remuneracao (2026-09-22)
+### 11.20 Faltas injustificadas e efeito na remuneração (2026-09-22)
 
-Duas coisas que vivem na mesma frase do art. 43.o n.o 2 do DL n.o 3/2010.
+Duas coisas que vivem na mesma frase do art. 43.º n.º 2 do DL n.º 3/2010.
 
-**1. `regime` passa a ter tres valores**, e nao dois: `FERIAS` · `FALTA` · `FALTA_INJUSTIFICADA`.
-Um select que so conheca os dois primeiros deixa de mostrar linhas validas.
+**1. `regime` passa a ter três valores**, e não dois: `FERIAS` · `FALTA` · `FALTA_INJUSTIFICADA`.
+Um select que só conheça os dois primeiros deixa de mostrar linhas válidas.
 
-Classificar um tipo como injustificado tem consequencias que o ecra deve deixar claras a quem
-classifica: **as faltas desse tipo passam a descontar antiguidade**, sempre, e isso nao se
-desliga. E deliberado -- a lei nao da a opcao.
+Classificar um tipo como injustificado tem consequências que o ecrã deve deixar claras a quem
+classifica: **as faltas desse tipo passam a descontar antiguidade**, sempre, e isso não se
+desliga. É deliberado — a lei não dá a opção.
 
-**2. `POST /funcionarios/{id}/pedidos-ausencia` ganha `opcaoFaltaInjustificada`** --
+**2. `POST /funcionarios/{id}/pedidos-ausencia` ganha `opcaoFaltaInjustificada`** —
 `PERDA_REMUNERACAO` ou `DESCONTO_FERIAS`:
 
-- **obrigatoria** quando o tipo escolhido e injustificado: sem ela da **422**;
-- **recusada** quando nao e: com ela da **422**.
+- **obrigatória** quando o tipo escolhido é injustificado: sem ela dá **422**;
+- **recusada** quando não é: com ela dá **422**.
 
-O formulario tem de reagir ao tipo escolhido, mostrando o campo so quando o tipo tem
-`regime = FALTA_INJUSTIFICADA`. A opcao vem de volta no `GET` dos pedidos, no mesmo campo.
+O formulário tem de reagir ao tipo escolhido, mostrando o campo só quando o tipo tem
+`regime = FALTA_INJUSTIFICADA`. A opção vem de volta no `GET` dos pedidos, no mesmo campo.
 
-Pelo **self-service** este campo nao existe: um pedido de um tipo injustificado submetido por ai
-e recusado, porque ninguem classifica uma falta sua como injustificada.
+Pelo **self-service** este campo não existe: um pedido de um tipo injustificado submetido por aí
+é recusado, porque ninguém classifica uma falta sua como injustificada.
 
-**3. O tipo de ausencia ganha `efeitoRemuneracao`** -- `SEM_PERDA` · `PERDA_PARCIAL` ·
-`PERDA_TOTAL` · `PERDA_VENCIMENTO_EXERCICIO` · `DEPENDE_DA_OPCAO` (art. 16.o).
+**3. O tipo de ausência ganha `efeitoRemuneracao`** — `SEM_PERDA` · `PERDA_PARCIAL` ·
+`PERDA_TOTAL` · `PERDA_VENCIMENTO_EXERCICIO` · `DEPENDE_DA_OPCAO` (art. 16.º).
 
-A aplicacao **nao calcula remuneracao**: e informacao para o sistema que a processa. Para o
-front-end, e mais um campo de classificacao no ecra de tipos de ausencia, que nasce `SEM_PERDA`
+A aplicação **não calcula remuneração**: é informação para o sistema que a processa. Para o
+front-end, é mais um campo de classificação no ecrã de tipos de ausência, que nasce `SEM_PERDA`
 e recusa valores fora da lista com 422.
 
-**Catalogo:** como no MOB_COMISSAO e nos limites da V53, a migracao **nao classifica** as linhas
-existentes -- estas duas colunas mandam descontar antiguidade e mexer em salarios. Tudo fica em
-`SEM_PERDA` e no regime que ja tinha, e a classificacao faz-se pela API. Numa instalacao a rodar,
-**nenhuma falta desconta antiguidade ate alguem classificar o tipo**, que e a direccao segura.
+**Catálogo:** como no `MOB_COMISSAO` e nos limites da V53, a migração **não classifica** as linhas
+existentes — estas duas colunas mandam descontar antiguidade e mexer em salários. Tudo fica em
+`SEM_PERDA` e no regime que já tinha, e a classificação faz-se pela API. Numa instalação a rodar,
+**nenhuma falta desconta antiguidade até alguém classificar o tipo**, que é a direcção segura.
 
-**Nota:** nas licencas esta informacao ja existia como booleano
-(`t_leave_mobility_subtype.affects_pay`), que nao sabe dizer "parcial". Por agora sao dois
-contratos diferentes: booleano nas licencas, enum nas ausencias.
+**Nota:** nas licenças esta informação já existia como booleano
+(`t_leave_mobility_subtype.affects_pay`), que não sabe dizer «parcial». Por agora são dois
+contratos diferentes: booleano nas licenças, enum nas ausências.
 
-### 11.38 Indicadores do pessoal (2026-09-24)
+### 11.21 Feriados: recorrentes, com área, e todos contam (2026-09-23)
 
-**Nada deixa de funcionar**: um endpoint novo, so leitura.
+**Nada deixa de funcionar**: são campos novos e opcionais. O que muda é o **número de dias** que um
+pedido de ausência desconta.
 
-- `GET /relatorios/indicadores?unidadeId=&incluirSubunidades=true&ano=` -- numeros para graficos:
-  efectivos por genero, escalao etario, contrato, carreira e unidade (listas `{chave, valor}`),
-  entradas, saidas, taxa de absentismo e horas extras. O grafico e do front.
+**1. `public-holidays` ganha `isRecurring` e `areaCkey`**, no pedido e na resposta.
 
-### 11.37 Mapa de efectivos (2026-09-24)
+- `isRecurring: true` — o feriado vale todos os anos no mesmo dia e mês. Os de data fixa do seed
+  vêm marcados; os móveis (Sexta-feira Santa, Corpus Christi) continuam a ser um por ano.
+- `areaCkey` — ckey do catálogo `AREA_GEOGRAFICA` (`/reference/options?ccode=AREA_GEOGRAFICA`).
+  Vazio = vale para todos. **422** num feriado nacional com área e num 29 de Fevereiro
+  recorrente. A área **não** se valida ainda contra o catálogo.
+- O `PUT` **não apaga** o que não recebe: o ecrã actual, que não envia os dois campos, continua a
+  funcionar sem desmarcar nada. Para limpar a área envia-se `""`; para desmarcar, `false`.
 
-**Nada deixa de funcionar**: dois endpoints novos, so leitura.
+**2. `organizational-units` ganha `areaCkey`**, no pedido e na resposta, com o mesmo `PUT` que não
+apaga. Vazio herda a da unidade-mãe.
 
-- `GET /relatorios/mapa-efectivos?unidadeId=&incluirSubunidades=true` (JSON) e `.csv`.
-- Ecra por unidade e cargo: lugares, providos, vagos, congelados, com totais.
+**3. Os dias descontados podem mudar.** Passam a contar **todos** os feriados activos (antes só os
+nacionais) e os do período inteiro (antes só os do ano de início). Um pedido que atravesse um
+feriado municipal ou o Ano Novo desconta menos um dia do que descontava. O `numeroDias` da
+resposta já reflecte isto — não há nada a recalcular no ecrã.
 
-### 11.36 Mapa de ferias: preferencia pelo proprio e pedido fora da marcacao (2026-09-24)
+### 11.22 Tipos de ausência: dias úteis ou seguidos, e três dispensas novas (2026-09-23)
 
-**Nada deixa de funcionar**: endpoints novos e campos novos.
+**Nada deixa de funcionar**: `contagem` é um campo novo e opcional em `leave-types` (pedido e
+resposta) e no `tipoAusencia` dos pedidos e saldos. Valores: `DIAS_UTEIS` · `DIAS_SEGUIDOS`. Omisso
+na criação vale `DIAS_UTEIS`; omisso no `PUT` mantém o que está. Valor fora dos dois dá **422**.
 
-- `/me`: `GET /me/ferias/{ano}`, `PUT /me/ferias/{ano}/preferencia`, `GET /me/equipa/ferias/{ano}`.
-- Ferias do ano: campo `preferenciaIndicadaPor` (PROPRIO/RH).
-- Criacao de pedido de ausencia: resposta com `alertas` (ex.: ferias fora da marcacao do mapa) --
-  mostrar ao utilizador. No `/me` os alertas vem no `SuccessResponseDTO`.
-- Caixa da chefia: `foraDaMarcacao` em cada pedido pendente.
+**O que muda são os números.** Num tipo em `DIAS_SEGUIDOS`, o `numeroDias` do pedido passa a contar
+os fins-de-semana e feriados **intercalados** (art. 76.º do DL n.º 3/2010): um luto de sexta a
+segunda passa de 2 dias para 4. Os das pontas não contam. Numa instalação existente nada muda até
+alguém classificar o tipo — a migração deixou tudo em `DIAS_UTEIS`.
 
-### 11.35 Lista de antiguidade (2026-09-24)
+**Três tipos novos no seed:** `SEMINARIO` (máx. 5 dias seguidos por pedido), `TE_PESQUISA` (6 dias
+úteis por ano) e `TE_LICENCA` (10 dias úteis por ano, com desconto no vencimento). Todos pedem
+aprovação.
 
-**Nada deixa de funcionar**: dois endpoints novos, so leitura.
+### 11.23 Mapa de férias (2026-09-23)
 
-- `GET /relatorios/lista-antiguidade?ano=&unidadeId=&incluirSubunidades=true` (JSON) e `.csv`.
-- Ecra por cargo (carreira/categoria), com a posicao, a data de inicio no cargo, os dias descontados e o
-  tempo contado (anos/meses/dias); botao de descarregar o CSV.
+**Nada deixa de funcionar**: são cinco endpoints novos, e o pedido de férias continua igual.
 
-### 11.34 Horarios com data de efeito (2026-09-24)
+- `GET /funcionarios/{id}/ferias/{ano}` (+ `PUT …/preferencia`, `PUT …/marcacao`) e
+  `GET /ferias/mapa/{ano}`, `POST /ferias/mapa/{ano}/publicar`. Ver `api_guide.md` §6.6.
+- A **preferência** fora de prazo é aceite: mostrar o alerta, não tratar como erro.
+- A **marcação** tem `origem` obrigatória (`ACORDO` / `FIXADA`); `FIXADA` só entre Maio e Outubro,
+  e interpolada precisa de `fundamentacao`.
+- Depois de **publicado**, alterar pede `motivoAlteracao` (`ACORDO` / `CONVENIENCIA_SERVICO`) e, na
+  conveniência, `fundamentacao`. O ecrã só deve mostrar estes campos quando `mapaPublicadoEm` vem
+  preenchido.
+- Publicar duas vezes dá **409**.
 
-- **Muda um comportamento:** editar os blocos/controlo/afericao/duracao de um horario que ja vigorou da
-  **409** (so o nome muda). Oferecer "Duplicar" (`POST /catalogs/horarios/{id}/duplicar`, opcional
-  `?nome=`) e atribuir o novo a partir de uma data.
-- `PATCH /catalogs/horarios/{id}/base` aceita `?desde=yyyy-MM-dd` (hoje ou futura). `isBase` e o de hoje.
-- Unidade organica: campo novo opcional `horarioDesde` no `PUT` (hoje ou futura). A resposta traz o
-  `horarioId` de hoje; uma mudanca agendada so aparece na data.
-- Datas passadas: 422 (nao se reescreve o apuramento de dias ja passados).
+### 11.24 Parâmetros do mapa de férias num catálogo (2026-09-23)
 
-### 11.33 Pedidos de ausencia: aprovacao automatica e decisao da chefia (2026-09-24)
+**Nada deixa de funcionar**: os endpoints do mapa respondem igual. Os prazos e a janela de fixação
+deixaram de vir de `application.properties` e passam a vir de um catálogo por vigência.
 
-- **Muda um comportamento:** os tipos com `requiresApproval: false` (luto, casamento, doenca,
-  nascimento, greve...) passam a nascer `APROVADO` (antes `PENDENTE`). Um ecra que mostrava estes
-  pedidos na lista "por aprovar" deixa de os ver la; aprova-los da 409.
-- Campo novo na resposta do pedido: `aprovacaoAutomatica` (boolean).
-- Caixa da chefia: `GET /me/equipa/pedidos-ausencia-pendentes`,
-  `PATCH /me/equipa/pedidos-ausencia/{id}/aprovar` (corpo opcional `{ "motivo" }`) e `.../rejeitar`
-  (`{ "motivo" }` obrigatorio).
-- Caminho do RH igual; um pedido de outro colaborador no caminho passa a dar 404.
+- `GET/POST /catalogs/parametros-ferias`, `PUT /catalogs/parametros-ferias/{id}` e
+  `GET /catalogs/parametros-ferias/vigente?ano=`. Ver `api_guide.md` §9.2.
+- Datas em texto `MM-dd`. O `PUT` não apaga o que vem omisso.
+- A resposta traz `origem` (`TABELA` / `LEI`): com `LEI` não há linha para editar (`id` nulo) —
+  o ecrã oferece criar uma vigência.
 
-### 11.32 Relacao mensal do art. 75.o (2026-09-23)
+### 11.25 Horários: catálogo, unidade orgânica e colaborador (2026-09-23)
 
-**Nada deixa de funcionar**: dois endpoints novos, so leitura.
+**Nada deixa de funcionar**: são endpoints novos e um campo opcional novo na unidade orgânica.
 
-- `GET /assiduidade/relacao-mensal?mes=yyyy-MM&unidadeId=...&incluirSubunidades=true` (JSON) e
-  `GET /assiduidade/relacao-mensal.csv` (mesmos parametros; descarregar como ficheiro).
-- Ecra por unidade: uma linha por colaborador, com o `estado` (COMPLETA/COM_PENDENCIAS) em destaque e
-  a indicacao `provisoria` no mes corrente.
-- Faltas apuradas: os dias depois do fim do vinculo passam a `FORA_DO_VINCULO` (antes COM_FALTA/SEM_REGISTO).
+- Catálogo `/catalogs/horarios` (lista sem paginação, `GET/{id}`, `POST`, `PUT`, `DELETE`,
+  `PATCH /{id}/activate`, `PATCH /{id}/base`). Ver `api_guide.md` §9.3.
+- Unidade orgânica: `horarioId` opcional no `POST`/`PUT` e na resposta. O `PUT` que não o envia
+  **mantém-no**; `""` limpa. Só dá 422 quando vem preenchido com um horário inexistente ou inactivo.
+- Colaborador: `GET/POST /funcionarios/{id}/horarios` e `GET /funcionarios/{id}/horarios/vigente?data=`.
+  Ver `api_guide.md` §6.7. A resposta do vigente diz a `origem` (`COLABORADOR`, `UNIDADE`, `BASE`,
+  `NENHUM`): o ecrã deve mostrar de onde vem o horário.
+- Horas em `HH:mm`; dias da semana de 1 (segunda) a 7 (domingo).
+- A atribuição pode devolver 201 **com alerta** (tempo parcial com horário de horas completas):
+  mostrar, não tratar como erro.
+
+### 11.26 Registo diário de assiduidade (2026-09-23)
+
+**Nada deixa de funcionar**: são endpoints novos.
+
+- `POST /funcionarios/{id}/marcacoes`, `PATCH /funcionarios/{id}/marcacoes/{mid}/anular`,
+  `POST /assiduidade/importacao` e `GET /funcionarios/{id}/assiduidade?de=&ate=`. Ver
+  `api_guide.md` §6.8.
+- Uma marcação **não se edita nem se apaga**: o ecrã oferece «corrigir» (nova marcação, com motivo
+  se o dia já tiver marcações) e «anular» (com motivo). As anuladas continuam a vir, marcadas.
+- Mostrar as `anomalias` do dia: são os dias a corrigir.
+- O lançamento pode devolver 201 **com alerta** (ausência aprovada, feriado, fim-de-semana).
+
+### 11.27 Faltas por débito (2026-09-23)
+
+**Nada deixa de funcionar**: é um endpoint novo, só de leitura.
+
+- `GET /funcionarios/{id}/faltas-apuradas?mes=yyyy-MM`. Ver `api_guide.md` §6.9.
+- É um **cálculo**, não um registo: muda quando se corrige uma marcação ou se aprova um pedido. O
+  ecrã deve dizer que o mês ainda não está fechado.
+- Mostrar os dias `POR_CORRIGIR` e os `SEM_REGISTO` à parte: são o que o RH trata antes do fecho.
+- `faltasParciais` e `totalFaltas` são decimais em meios (0.5, 1, 1.5…).
+
+### 11.28 Pedido de ausência em horas e dispensa de amamentação (2026-09-23)
+
+**Nada deixa de funcionar**: os campos são novos e opcionais.
+
+- Pedido de ausência: `horaInicio`/`horaFim` opcionais (`HH:mm`). Sem eles, dias inteiros como
+  sempre. Com eles, as horas valem em cada dia do intervalo; a resposta traz `minutosPorDia` e
+  `numeroDias` = 0. Ver `api_guide.md` §6.2e.
+- Mostrar os campos de hora só para tipos que os admitem (sem saldo, regime FALTA, sem tectos
+  anuais/mensais) — ex.: `DISPENSA_AMAMENTACAO`, `TRATAMENTO_AMBULATORIO`.
+- `PATCH /funcionarios/{id}/pedidos-ausencia/{pid}/terminar` `{data, motivo}`: fim antecipado de um
+  pedido em horas aprovado.
+- Catálogo de tipos de ausência: `maxMinutosPorDia` opcional (omisso mantém, 0 limpa).
+- Faltas apuradas: cada dia traz `minutosJustificados`.
+
+### 11.29 Pedido de ausência pelo próprio com as regras do RH (2026-09-23)
+
+`POST /me/leave-requests` passa a contar e validar como o pedido lançado pelo RH:
+
+- `numeroDias` pode mudar para o mesmo período: conta pela linha do catálogo (dias úteis ou
+  seguidos) e tira os feriados. Antes contava dias de calendário.
+- Os tectos aplicam-se: um pedido acima do tecto passa a dar **422**.
+- Sobreposição com outro pedido passa de **400** para **409** (como no RH).
+- Novos campos opcionais `startTime`/`endTime` (`HH:mm`) para pedidos em horas.
+
+### 11.30 Registo pelo próprio e validação da chefia (2026-09-23)
+
+**Nada deixa de funcionar**: endpoints novos e campos novos nas respostas.
+
+- `/me`: `POST /me/marcacoes` (picagem em tempo real, só em teletrabalho/misto — 422 no presencial),
+  `POST /me/marcacoes/correcoes` (fica PENDENTE), `GET /me/assiduidade`,
+  `GET /me/equipa/marcacoes-pendentes`, `PATCH /me/equipa/marcacoes/{id}/validar|rejeitar`.
+- RH: `PATCH /funcionarios/{id}/marcacoes/{mid}/validar|rejeitar`.
+- Cada marcação traz `estado` (VALIDA/PENDENTE/REJEITADA) e `motivoRejeicao`; mostrar as pendentes à
+  parte. Faltas apuradas: estado de dia `POR_VALIDAR` e `diasPorValidar`.
+- O botão de picar só aparece a quem está em teletrabalho/misto nesse dia (ler o horário vigente).
 
 ### 11.31 Trabalho suplementar (horas extras) (2026-09-23)
 
@@ -669,146 +751,80 @@ contratos diferentes: booleano nas licencas, enum nas ausencias.
   `PATCH /funcionarios/{id}/trabalho-suplementar/{tid}/autorizar|recusar|cancelar`.
 - `/me`: `POST|GET /me/trabalho-suplementar`, `POST /me/equipa/trabalho-suplementar`,
   `GET /me/equipa/trabalho-suplementar-pendente`, `PATCH /me/equipa/trabalho-suplementar/{id}/autorizar|recusar`.
-- Horas em `HH:mm`. Mostrar `tipoDia` (DIA_UTIL/DESCANSO/FERIADO), autorizado vs realizado, e assinalar
-  `autorizacaoPosterior` e `semRegisto`.
+- Horas em `HH:mm`. Mostrar `tipoDia` (DIA_UTIL/DESCANSO/FERIADO), autorizado contra realizado, e
+  assinalar `autorizacaoPosterior` e `semRegisto`.
 - Faltas apuradas: cada dia traz `minutosSuplementares` (fora de `minutosTrabalhados`).
-- Sem valores em dinheiro: so horas.
+- Sem valores em dinheiro: só horas.
 
-### 11.30 Registo pelo proprio e validacao da chefia (2026-09-23)
+### 11.32 Relação mensal do art. 75.º (2026-09-23)
 
-**Nada deixa de funcionar**: endpoints novos e campos novos nas respostas.
+**Nada deixa de funcionar**: dois endpoints novos, só leitura.
 
-- `/me`: `POST /me/marcacoes` (picagem em tempo real, so em teletrabalho/misto -- 422 no presencial),
-  `POST /me/marcacoes/correcoes` (fica PENDENTE), `GET /me/assiduidade`,
-  `GET /me/equipa/marcacoes-pendentes`, `PATCH /me/equipa/marcacoes/{id}/validar|rejeitar`.
-- RH: `PATCH /funcionarios/{id}/marcacoes/{mid}/validar|rejeitar`.
-- Cada marcacao traz `estado` (VALIDA/PENDENTE/REJEITADA) e `motivoRejeicao`; mostrar as pendentes a
-  parte. Faltas apuradas: estado de dia `POR_VALIDAR` e `diasPorValidar`.
-- O botao de picar so aparece a quem esta em teletrabalho/misto nesse dia (ler o horario vigente).
+- `GET /assiduidade/relacao-mensal?mes=yyyy-MM&unidadeId=...&incluirSubunidades=true` (JSON) e
+  `GET /assiduidade/relacao-mensal.csv` (mesmos parâmetros; descarregar como ficheiro).
+- Ecrã por unidade: uma linha por colaborador, com o `estado` (COMPLETA/COM_PENDENCIAS) em destaque e
+  a indicação `provisoria` no mês corrente.
+- Faltas apuradas: os dias depois do fim do vínculo passam a `FORA_DO_VINCULO` (antes COM_FALTA/SEM_REGISTO).
 
-### 11.29 Pedido de ausencia pelo proprio com as regras do RH (2026-09-23)
+### 11.33 Pedidos de ausência: aprovação automática e decisão da chefia (2026-09-24)
 
-`POST /me/leave-requests` passa a contar e validar como o pedido lancado pelo RH:
+- **Muda um comportamento:** os tipos com `requiresApproval: false` (luto, casamento, doença,
+  nascimento, greve…) passam a nascer `APROVADO` (antes `PENDENTE`). Um ecrã que mostrava estes
+  pedidos na lista «por aprovar» deixa de os ver lá; aprová-los dá 409.
+- Campo novo na resposta do pedido: `aprovacaoAutomatica` (boolean).
+- Caixa da chefia: `GET /me/equipa/pedidos-ausencia-pendentes`,
+  `PATCH /me/equipa/pedidos-ausencia/{id}/aprovar` (corpo opcional `{ "motivo" }`) e `.../rejeitar`
+  (`{ "motivo" }` obrigatório).
+- Caminho do RH igual; um pedido de outro colaborador no caminho passa a dar 404.
 
-- `numeroDias` pode mudar para o mesmo periodo: conta pela linha do catalogo (dias uteis ou
-  seguidos) e tira os feriados. Antes contava dias de calendario.
-- Os tectos aplicam-se: um pedido acima do tecto passa a dar **422**.
-- Sobreposicao com outro pedido passa de **400** para **409** (como no RH).
-- Novos campos opcionais `startTime`/`endTime` (`HH:mm`) para pedidos em horas.
+### 11.34 Horários com data de efeito (2026-09-24)
 
-### 11.28 Pedido de ausencia em horas e dispensa de amamentacao (2026-09-23)
+- **Muda um comportamento:** editar os blocos/controlo/aferição/duração de um horário que já vigorou dá
+  **409** (só o nome muda). Oferecer «Duplicar» (`POST /catalogs/horarios/{id}/duplicar`, opcional
+  `?nome=`) e atribuir o novo a partir de uma data.
+- `PATCH /catalogs/horarios/{id}/base` aceita `?desde=yyyy-MM-dd` (hoje ou futura). `isBase` é o de hoje.
+- Unidade orgânica: campo novo opcional `horarioDesde` no `PUT` (hoje ou futura). A resposta traz o
+  `horarioId` de hoje; uma mudança agendada só aparece na data.
+- Datas passadas: 422 (não se reescreve o apuramento de dias já passados).
 
-**Nada deixa de funcionar**: os campos sao novos e opcionais.
+### 11.35 Lista de antiguidade (2026-09-24)
 
-- Pedido de ausencia: `horaInicio`/`horaFim` opcionais (`HH:mm`). Sem eles, dias inteiros como
-  sempre. Com eles, as horas valem em cada dia do intervalo; a resposta traz `minutosPorDia` e
-  `numeroDias` = 0. Ver `api_guide.md` §6.2e.
-- Mostrar os campos de hora so para tipos que os admitem (sem saldo, regime FALTA, sem tectos
-  anuais/mensais) -- ex.: `DISPENSA_AMAMENTACAO`, `TRATAMENTO_AMBULATORIO`.
-- `PATCH /funcionarios/{id}/pedidos-ausencia/{pid}/terminar` `{data, motivo}`: fim antecipado de um
-  pedido em horas aprovado.
-- Catalogo de tipos de ausencia: `maxMinutosPorDia` opcional (omisso mantem, 0 limpa).
-- Faltas apuradas: cada dia traz `minutosJustificados`.
+**Nada deixa de funcionar**: dois endpoints novos, só leitura.
 
-### 11.27 Faltas por debito (2026-09-23)
+- `GET /relatorios/lista-antiguidade?ano=&unidadeId=&incluirSubunidades=true` (JSON) e `.csv`.
+- Ecrã por cargo (carreira/categoria), com a posição, a data de início no cargo, os dias descontados e o
+  tempo contado (anos/meses/dias); botão de descarregar o CSV.
 
-**Nada deixa de funcionar**: e um endpoint novo, so de leitura.
+### 11.36 Mapa de férias: preferência pelo próprio e pedido fora da marcação (2026-09-24)
 
-- `GET /funcionarios/{id}/faltas-apuradas?mes=yyyy-MM`. Ver `api_guide.md` §6.9.
-- E um **calculo**, nao um registo: muda quando se corrige uma marcacao ou se aprova um pedido. O
-  ecra deve dizer que o mes ainda nao esta fechado.
-- Mostrar os dias `POR_CORRIGIR` e os `SEM_REGISTO` a parte: sao o que o RH trata antes do fecho.
-- `faltasParciais` e `totalFaltas` sao decimais em meios (0.5, 1, 1.5...).
+**Nada deixa de funcionar**: endpoints novos e campos novos.
 
-### 11.26 Registo diario de assiduidade (2026-09-23)
+- `/me`: `GET /me/ferias/{ano}`, `PUT /me/ferias/{ano}/preferencia`, `GET /me/equipa/ferias/{ano}`.
+- Férias do ano: campo `preferenciaIndicadaPor` (PROPRIO/RH).
+- Criação de pedido de ausência: resposta com `alertas` (ex.: férias fora da marcação do mapa) —
+  mostrar ao utilizador. No `/me` os alertas vêm no `SuccessResponseDTO`.
+- Caixa da chefia: `foraDaMarcacao` em cada pedido pendente.
 
-**Nada deixa de funcionar**: sao endpoints novos.
+### 11.37 Mapa de efectivos (2026-09-24)
 
-- `POST /funcionarios/{id}/marcacoes`, `PATCH /funcionarios/{id}/marcacoes/{mid}/anular`,
-  `POST /assiduidade/importacao` e `GET /funcionarios/{id}/assiduidade?de=&ate=`. Ver
-  `api_guide.md` §6.8.
-- Uma marcacao **nao se edita nem se apaga**: o ecra oferece "corrigir" (nova marcacao, com motivo
-  se o dia ja tiver marcacoes) e "anular" (com motivo). As anuladas continuam a vir, marcadas.
-- Mostrar as `anomalias` do dia: sao os dias a corrigir.
-- O lancamento pode devolver 201 **com alerta** (ausencia aprovada, feriado, fim-de-semana).
+**Nada deixa de funcionar**: dois endpoints novos, só leitura.
 
-### 11.25 Horarios: catalogo, unidade organica e colaborador (2026-09-23)
+- `GET /relatorios/mapa-efectivos?unidadeId=&incluirSubunidades=true` (JSON) e `.csv`.
+- Ecrã por unidade e cargo: lugares, providos, vagos, congelados, com totais.
 
-**Nada deixa de funcionar**: sao endpoints novos e um campo opcional novo na unidade organica.
+### 11.38 Indicadores do pessoal (2026-09-24)
 
-- Catalogo `/catalogs/horarios` (lista sem paginacao, `GET/{id}`, `POST`, `PUT`, `DELETE`,
-  `PATCH /{id}/activate`, `PATCH /{id}/base`). Ver `api_guide.md` §9.3.
-- Unidade organica: `horarioId` opcional no `POST`/`PUT` e na resposta. O `PUT` que nao o envia
-  **mantem-no**; `""` limpa. So da 422 quando vem preenchido com um horario inexistente ou inactivo.
-- Colaborador: `GET/POST /funcionarios/{id}/horarios` e `GET /funcionarios/{id}/horarios/vigente?data=`.
-  Ver `api_guide.md` §6.7. A resposta do vigente diz a `origem` (`COLABORADOR`, `UNIDADE`, `BASE`,
-  `NENHUM`): o ecra deve mostrar de onde vem o horario.
-- Horas em `HH:mm`; dias da semana de 1 (segunda) a 7 (domingo).
-- A atribuicao pode devolver 201 **com alerta** (tempo parcial com horario de horas completas):
-  mostrar, nao tratar como erro.
+**Nada deixa de funcionar**: um endpoint novo, só leitura.
 
-### 11.24 Parametros do mapa de ferias num catalogo (2026-09-23)
+- `GET /relatorios/indicadores?unidadeId=&incluirSubunidades=true&ano=` — números para gráficos:
+  efectivos por género, escalão etário, contrato, carreira e unidade (listas `{chave, valor}`),
+  entradas, saídas, taxa de absentismo e horas extras. O gráfico é do front.
 
-**Nada deixa de funcionar**: os endpoints do mapa respondem igual. Os prazos e a janela de fixacao
-deixaram de vir de `application.properties` e passam a vir de um catalogo por vigencia.
+---
 
-- `GET/POST /catalogs/parametros-ferias`, `PUT /catalogs/parametros-ferias/{id}` e
-  `GET /catalogs/parametros-ferias/vigente?ano=`. Ver `api_guide.md` §9.2.
-- Datas em texto `MM-dd`. O `PUT` nao apaga o que vem omisso.
-- A resposta traz `origem` (`TABELA` / `LEI`): com `LEI` nao ha linha para editar (`id` nulo) --
-  o ecra oferece criar uma vigencia.
+## 12. Checklist do alinhamento com a legislação (secção 11)
 
-### 11.23 Mapa de ferias (2026-09-23)
-
-**Nada deixa de funcionar**: sao cinco endpoints novos, e o pedido de ferias continua igual.
-
-- `GET/PUT /funcionarios/{id}/ferias/{ano}` (+ `/preferencia`, `/marcacao`) e
-  `GET /ferias/mapa/{ano}`, `POST /ferias/mapa/{ano}/publicar`. Ver `api_guide.md` §6.6.
-- A **preferencia** fora de prazo e aceite: mostrar o alerta, nao tratar como erro.
-- A **marcacao** tem `origem` obrigatoria (`ACORDO` / `FIXADA`); `FIXADA` so entre Maio e Outubro,
-  e interpolada precisa de `fundamentacao`.
-- Depois de **publicado**, alterar pede `motivoAlteracao` (`ACORDO` / `CONVENIENCIA_SERVICO`) e, na
-  conveniencia, `fundamentacao`. O ecra so deve mostrar estes campos quando `mapaPublicadoEm` vem
-  preenchido.
-- Publicar duas vezes da **409**.
-
-### 11.22 Tipos de ausencia: dias uteis ou seguidos, e tres dispensas novas (2026-09-23)
-
-**Nada deixa de funcionar**: `contagem` e um campo novo e opcional em `leave-types` (pedido e
-resposta) e no `tipoAusencia` dos pedidos e saldos. Valores: `DIAS_UTEIS` · `DIAS_SEGUIDOS`. Omisso
-na criacao vale `DIAS_UTEIS`; omisso no `PUT` mantem o que esta. Valor fora dos dois da **422**.
-
-**O que muda sao os numeros.** Num tipo em `DIAS_SEGUIDOS`, o `numeroDias` do pedido passa a contar
-os fins-de-semana e feriados **intercalados** (art. 76.o do DL n.o 3/2010): um luto de sexta a
-segunda passa de 2 dias para 4. Os das pontas nao contam. Numa instalacao existente nada muda ate
-alguem classificar o tipo -- a migracao deixou tudo em `DIAS_UTEIS`.
-
-**Tres tipos novos no seed:** `SEMINARIO` (max. 5 dias seguidos por pedido), `TE_PESQUISA` (6 dias
-uteis por ano) e `TE_LICENCA` (10 dias uteis por ano, com desconto no vencimento). Todos pedem
-aprovacao.
-
-### 11.21 Feriados: recorrentes, com area, e todos contam (2026-09-23)
-
-**Nada deixa de funcionar**: sao campos novos e opcionais. O que muda e o **numero de dias** que um
-pedido de ausencia desconta.
-
-**1. `public-holidays` ganha `isRecurring` e `areaCkey`**, no pedido e na resposta.
-
-- `isRecurring: true` -- o feriado vale todos os anos no mesmo dia e mes. Os de data fixa do seed
-  vem marcados; os moveis (Sexta-feira Santa, Corpus Christi) continuam a ser um por ano.
-- `areaCkey` -- ckey do catalogo `AREA_GEOGRAFICA` (`/reference/options?ccode=AREA_GEOGRAFICA`).
-  Vazio = vale para todos. **422** num feriado nacional com area e num 29 de Fevereiro
-  recorrente. A area **nao** se valida ainda contra o catalogo.
-- O `PUT` **nao apaga** o que nao recebe: o ecra actual, que nao envia os dois campos, continua a
-  funcionar sem desmarcar nada. Para limpar a area envia-se `""`; para desmarcar, `false`.
-
-**2. `organizational-units` ganha `areaCkey`**, no pedido e na resposta, com o mesmo `PUT` que nao
-apaga. Vazio herda a da unidade-mae.
-
-**3. Os dias descontados podem mudar.** Passam a contar **todos** os feriados activos (antes so os
-nacionais) e os do periodo inteiro (antes so os do ano de inicio). Um pedido que atravesse um
-feriado municipal ou o Ano Novo desconta menos um dia do que descontava. O `numeroDias` da
-resposta ja reflecte isto -- nao ha nada a recalcular no ecra.
+Por ordem das secções. Cada item remete para o ecrã correspondente em `apresentacao_aplicacao.html`.
 
 - [ ] Select de `situacaoFuncional` no catálogo de estados.
 - [ ] Tratar `afectacaoEncerradaId` com `cessouVinculo: false` (activo, sem Lugar).
