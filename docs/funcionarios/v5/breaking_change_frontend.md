@@ -200,7 +200,7 @@ O bloco `enquadramento` **ainda aparece** em `GET /funcionarios/{id}/details` (m
 - [ ] Movimentos pelos endpoints próprios (secção 5), e não por `POST /assignments`.
 - [ ] Cabeçalho `Accept: application/json` em todas as chamadas.
 
-> Contrato completo: `api_guide.md`. Modelo: `modelo_negocio.html`, `modelo_relacional.html`.
+> Contrato completo: `api_guide.md`. Conceitos e ecrãs: `apresentacao_aplicacao.html`. Tabelas: `modelo_relacional.html`.
 
 ---
 

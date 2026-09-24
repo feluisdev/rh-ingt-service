@@ -244,80 +244,82 @@
 <div class="grupo"><b>A · Introdução</b>
 <a href="#ideia"><span class="n">1</span>A aplicação numa página</a>
 <a href="#conceitos"><span class="n">2</span>Os quatro conceitos que explicam tudo</a>
-<a href="#actores"><span class="n">3</span>Quem usa a aplicação — três papéis</a>
-<a href="#convencoes"><span class="n">4</span>Como a API responde — convenções que todos os ecrãs seguem</a>
-<a href="#ordem"><span class="n">5</span>A ordem de configuração</a>
+<a href="#modulos"><span class="n">3</span>Como está arrumada por dentro</a>
+<a href="#ciclo"><span class="n">4</span>O ciclo de vida do colaborador</a>
+<a href="#actores"><span class="n">5</span>Quem usa a aplicação — três papéis</a>
+<a href="#convencoes"><span class="n">6</span>Como a API responde — convenções que todos os ecrãs seguem</a>
+<a href="#ordem"><span class="n">7</span>A ordem de configuração</a>
 </div>
 <div class="grupo"><b>B · Configuração: catálogos</b>
-<a href="#cat-opcoes"><span class="n">6</span>Opções genéricas — as listas pequenas</a>
-<a href="#cat-estados"><span class="n">7</span>Estados do trabalhador e situação funcional</a>
-<a href="#cat-contratos"><span class="n">8</span>Vínculos laborais e tipos de contrato</a>
-<a href="#cat-documentos"><span class="n">9</span>Tipos de documento</a>
-<a href="#cat-feriados"><span class="n">10</span>Feriados — o calendário da instituição</a>
-<a href="#cat-ausencias"><span class="n">11</span>Tipos de ausência — férias e faltas</a>
-<a href="#cat-licencas"><span class="n">12</span>Subtipos de licença e de mobilidade</a>
-<a href="#cat-param-ferias"><span class="n">13</span>Parâmetros do mapa de férias</a>
-<a href="#cat-horarios"><span class="n">14</span>Horários de trabalho e horário base</a>
+<a href="#cat-opcoes"><span class="n">8</span>Opções genéricas — as listas pequenas</a>
+<a href="#cat-estados"><span class="n">9</span>Estados do trabalhador e situação funcional</a>
+<a href="#cat-contratos"><span class="n">10</span>Vínculos laborais e tipos de contrato</a>
+<a href="#cat-documentos"><span class="n">11</span>Tipos de documento</a>
+<a href="#cat-feriados"><span class="n">12</span>Feriados — o calendário da instituição</a>
+<a href="#cat-ausencias"><span class="n">13</span>Tipos de ausência — férias e faltas</a>
+<a href="#cat-licencas"><span class="n">14</span>Subtipos de licença e de mobilidade</a>
+<a href="#cat-param-ferias"><span class="n">15</span>Parâmetros do mapa de férias</a>
+<a href="#cat-horarios"><span class="n">16</span>Horários de trabalho e horário base</a>
 </div>
 <div class="grupo"><b>C · Configuração: estrutura</b>
-<a href="#est-unidades"><span class="n">15</span>Unidades orgânicas — a árvore do serviço</a>
-<a href="#est-cargos"><span class="n">16</span>Cargos e funções</a>
-<a href="#est-carreiras"><span class="n">17</span>Carreiras, categorias e escalões</a>
-<a href="#est-lugares"><span class="n">18</span>Lugares — o Mapa de Pessoal</a>
+<a href="#est-unidades"><span class="n">17</span>Unidades orgânicas — a árvore do serviço</a>
+<a href="#est-cargos"><span class="n">18</span>Cargos e funções</a>
+<a href="#est-carreiras"><span class="n">19</span>Carreiras, categorias e escalões</a>
+<a href="#est-lugares"><span class="n">20</span>Lugares — o Mapa de Pessoal</a>
 </div>
 <div class="grupo"><b>D · Admissão e ficha</b>
-<a href="#adm-registo"><span class="n">19</span>Admitir um colaborador — o registo composto</a>
-<a href="#adm-ficha"><span class="n">20</span>A ficha do colaborador</a>
-<a href="#adm-contratos"><span class="n">21</span>Contratos — renovar, suspender, cessar</a>
-<a href="#adm-dossier"><span class="n">22</span>Família, qualificações, formações e dados bancários</a>
-<a href="#adm-documentos"><span class="n">23</span>Documentos, recibos e processos disciplinares</a>
-<a href="#quiz-d"><span class="n">24</span>Teste: configuração e admissão</a>
+<a href="#adm-registo"><span class="n">21</span>Admitir um colaborador — o registo composto</a>
+<a href="#adm-ficha"><span class="n">22</span>A ficha do colaborador</a>
+<a href="#adm-contratos"><span class="n">23</span>Contratos — renovar, suspender, cessar</a>
+<a href="#adm-dossier"><span class="n">24</span>Família, qualificações, formações e dados bancários</a>
+<a href="#adm-documentos"><span class="n">25</span>Documentos, recibos e processos disciplinares</a>
+<a href="#quiz-d"><span class="n">26</span>Teste: configuração e admissão</a>
 </div>
 <div class="grupo"><b>E · Movimentos</b>
-<a href="#mov-mapa"><span class="n">25</span>Os movimentos, lado a lado</a>
-<a href="#mov-progressao"><span class="n">26</span>Progressão — o escalão seguinte</a>
-<a href="#mov-promocao"><span class="n">27</span>Promoção — a categoria seguinte, de duas maneiras</a>
-<a href="#mov-transferencia"><span class="n">28</span>Transferência e mudança de carreira</a>
-<a href="#mov-substituicao"><span class="n">29</span>Substituição do titular temporariamente impedido</a>
-<a href="#mov-estado"><span class="n">30</span>Mudança de estado e cessação</a>
-<a href="#mov-antiguidade"><span class="n">31</span>Antiguidade — calculada, nunca guardada</a>
-<a href="#quiz-e"><span class="n">32</span>Teste: movimentos</a>
+<a href="#mov-mapa"><span class="n">27</span>Os movimentos, lado a lado</a>
+<a href="#mov-progressao"><span class="n">28</span>Progressão — o escalão seguinte</a>
+<a href="#mov-promocao"><span class="n">29</span>Promoção — a categoria seguinte, de duas maneiras</a>
+<a href="#mov-transferencia"><span class="n">30</span>Transferência e mudança de carreira</a>
+<a href="#mov-substituicao"><span class="n">31</span>Substituição do titular temporariamente impedido</a>
+<a href="#mov-estado"><span class="n">32</span>Mudança de estado e cessação</a>
+<a href="#mov-antiguidade"><span class="n">33</span>Antiguidade — calculada, nunca guardada</a>
+<a href="#quiz-e"><span class="n">34</span>Teste: movimentos</a>
 </div>
 <div class="grupo"><b>F · Licenças e mobilidade</b>
-<a href="#lic-porque"><span class="n">33</span>Ausência, licença ou mobilidade — qual usar</a>
-<a href="#lic-licencas"><span class="n">34</span>Licenças — a decisão e o período</a>
-<a href="#lic-mobilidade"><span class="n">35</span>Mobilidade — destino, prorrogação e consolidação</a>
-<a href="#quiz-f"><span class="n">36</span>Teste: licenças e mobilidade</a>
+<a href="#lic-porque"><span class="n">35</span>Ausência, licença ou mobilidade — qual usar</a>
+<a href="#lic-licencas"><span class="n">36</span>Licenças — a decisão e o período</a>
+<a href="#lic-mobilidade"><span class="n">37</span>Mobilidade — destino, prorrogação e consolidação</a>
+<a href="#quiz-f"><span class="n">38</span>Teste: licenças e mobilidade</a>
 </div>
 <div class="grupo"><b>G · Férias e ausências</b>
-<a href="#fer-saldo"><span class="n">37</span>O saldo de férias — nasce sozinho</a>
-<a href="#fer-mapa"><span class="n">38</span>Mapa de férias — preferência, marcação e publicação</a>
-<a href="#aus-pedido"><span class="n">39</span>Pedido de ausência — dias, horas e contagem</a>
-<a href="#aus-decisao"><span class="n">40</span>Decidir, cancelar, suspender e terminar</a>
-<a href="#quiz-g"><span class="n">41</span>Teste: férias e ausências</a>
+<a href="#fer-saldo"><span class="n">39</span>O saldo de férias — nasce sozinho</a>
+<a href="#fer-mapa"><span class="n">40</span>Mapa de férias — preferência, marcação e publicação</a>
+<a href="#aus-pedido"><span class="n">41</span>Pedido de ausência — dias, horas e contagem</a>
+<a href="#aus-decisao"><span class="n">42</span>Decidir, cancelar, suspender e terminar</a>
+<a href="#quiz-g"><span class="n">43</span>Teste: férias e ausências</a>
 </div>
 <div class="grupo"><b>H · Assiduidade</b>
-<a href="#ass-horario"><span class="n">42</span>O horário de cada colaborador</a>
-<a href="#ass-registo"><span class="n">43</span>Registo diário — marcações e relógio</a>
-<a href="#ass-faltas"><span class="n">44</span>Faltas por débito — o apuramento do mês</a>
-<a href="#ass-suplementar"><span class="n">45</span>Trabalho suplementar — horas extras</a>
-<a href="#ass-relacao"><span class="n">46</span>Relação mensal — o instrumento do art. 75.º</a>
-<a href="#quiz-h"><span class="n">47</span>Teste: assiduidade</a>
+<a href="#ass-horario"><span class="n">44</span>O horário de cada colaborador</a>
+<a href="#ass-registo"><span class="n">45</span>Registo diário — marcações e relógio</a>
+<a href="#ass-faltas"><span class="n">46</span>Faltas por débito — o apuramento do mês</a>
+<a href="#ass-suplementar"><span class="n">47</span>Trabalho suplementar — horas extras</a>
+<a href="#ass-relacao"><span class="n">48</span>Relação mensal — o instrumento do art. 75.º</a>
+<a href="#quiz-h"><span class="n">49</span>Teste: assiduidade</a>
 </div>
 <div class="grupo"><b>I · Portal e chefia</b>
-<a href="#me-portal"><span class="n">48</span>O meu portal — o que o colaborador faz sozinho</a>
-<a href="#me-chefia"><span class="n">49</span>A caixa da chefia directa</a>
+<a href="#me-portal"><span class="n">50</span>O meu portal — o que o colaborador faz sozinho</a>
+<a href="#me-chefia"><span class="n">51</span>A caixa da chefia directa</a>
 </div>
 <div class="grupo"><b>J · Relatórios</b>
-<a href="#rel-antiguidade"><span class="n">50</span>Lista de antiguidade</a>
-<a href="#rel-efectivos"><span class="n">51</span>Mapa de efectivos</a>
-<a href="#rel-indicadores"><span class="n">52</span>Indicadores do pessoal — o balanço social</a>
+<a href="#rel-antiguidade"><span class="n">52</span>Lista de antiguidade</a>
+<a href="#rel-efectivos"><span class="n">53</span>Mapa de efectivos</a>
+<a href="#rel-indicadores"><span class="n">54</span>Indicadores do pessoal — o balanço social</a>
 </div>
 <div class="grupo"><b>K · Transversais</b>
-<a href="#tr-historico"><span class="n">53</span>Histórico, auditoria e tarefas automáticas</a>
-<a href="#tr-limites"><span class="n">54</span>O que a aplicação ainda não faz — dito para ninguém contar com isso</a>
-<a href="#tr-lei"><span class="n">55</span>A lei, artigo a artigo — onde está na aplicação</a>
-<a href="#tr-glossario"><span class="n">56</span>Glossário</a>
+<a href="#tr-historico"><span class="n">55</span>Histórico, auditoria e tarefas automáticas</a>
+<a href="#tr-limites"><span class="n">56</span>O que a aplicação ainda não faz — dito para ninguém contar com isso</a>
+<a href="#tr-lei"><span class="n">57</span>A lei, artigo a artigo — onde está na aplicação</a>
+<a href="#tr-glossario"><span class="n">58</span>Glossário</a>
 </div>
 </div>
 </div>
@@ -386,9 +388,72 @@
   <p style="font-size:13px;color:var(--muted)">Provido/vago não é um campo: um Lugar está provido quando tem uma afectação corrente do tipo <code>PRINCIPAL</code>. Um substituto não o torna provido. <span class="br">BR-AF-03</span><span class="br">BR-AF-12</span></p>
 </section>
 
+<section class="slide" id="modulos" data-parte="A · Introdução">
+  <div class="parte">Parte A · Introdução</div>
+  <h2><span class="n">3</span>Como está arrumada por dentro</h2>
+  <p class="lead">O código divide-se em módulos, um por área de negócio. Não é preciso conhecê-los para usar a aplicação, mas explicam onde vive cada regra e porque é que o caminho da API começa como começa. As dependências só vão num sentido: os catálogos e a grelha não dependem de nada; a estrutura depende deles; os colaboradores dependem de todos.</p>
+  <div class="duas">
+    <svg class="diag" viewBox="0 0 620 300" role="img" aria-label="Dependências entre módulos: colaboradores depende de estrutura, carreiras e parametrizações; estrutura depende de carreiras e parametrizações">
+      <defs><marker id="seta3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8aa0b8"/></marker></defs>
+      <rect x="200" y="15" width="220" height="62" rx="11" fill="#e7f0fe" stroke="#1f6feb" stroke-width="2"/><text x="310" y="41" text-anchor="middle" font-size="15" font-weight="800" fill="#0f2c55">colaboradores</text><text x="310" y="60" text-anchor="middle" font-size="11" fill="#0f2c55">pessoa · afectação · tempo · relatórios · /me</text>
+      <rect x="200" y="120" width="220" height="56" rx="11" fill="#efe8fb" stroke="#6b3fc4" stroke-width="2"/><text x="310" y="144" text-anchor="middle" font-size="15" font-weight="800" fill="#2a1a4a">estrutura</text><text x="310" y="162" text-anchor="middle" font-size="11" fill="#2a1a4a">unidades · cargos · funções · Lugares</text>
+      <rect x="40" y="225" width="220" height="56" rx="11" fill="#e5f4eb" stroke="#1a7f4b" stroke-width="2"/><text x="150" y="249" text-anchor="middle" font-size="15" font-weight="800" fill="#10402a">carreiras</text><text x="150" y="267" text-anchor="middle" font-size="11" fill="#10402a">carreira → categoria → escalão</text>
+      <rect x="360" y="225" width="220" height="56" rx="11" fill="#fcefdf" stroke="#a85a08" stroke-width="2"/><text x="470" y="249" text-anchor="middle" font-size="15" font-weight="800" fill="#4a2a04">parametrizacoes</text><text x="470" y="267" text-anchor="middle" font-size="11" fill="#4a2a04">catálogos · feriados · horários</text>
+      <line x1="310" y1="77" x2="310" y2="118" stroke="#8aa0b8" stroke-width="1.8" marker-end="url(#seta3)"/>
+      <line x1="270" y1="176" x2="180" y2="223" stroke="#8aa0b8" stroke-width="1.8" marker-end="url(#seta3)"/>
+      <line x1="350" y1="176" x2="440" y2="223" stroke="#8aa0b8" stroke-width="1.8" marker-end="url(#seta3)"/>
+      <path d="M200,50 C60,60 40,150 110,223" fill="none" stroke="#8aa0b8" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#seta3)"/>
+      <path d="M420,50 C560,60 580,150 510,223" fill="none" stroke="#8aa0b8" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#seta3)"/>
+    </svg>
+    <table>
+      <tr><th>Módulo</th><th>O que tem</th><th>Caminho da API</th></tr>
+      <tr><td><b>colaboradores</b></td><td>Funcionário, contrato, afectação e movimentos, dossier, ausências, férias, licenças e mobilidade, horário do colaborador, marcações, faltas, trabalho suplementar, relatórios, portal <code>/me</code></td><td><code>/funcionarios</code> · <code>/colaboradores</code> · <code>/assiduidade</code> · <code>/ferias</code> · <code>/relatorios</code> · <code>/me</code></td></tr>
+      <tr><td><b>estrutura</b></td><td>Unidades orgânicas (com área e horário), cargos, funções, Lugares</td><td><code>/estrutura</code></td></tr>
+      <tr><td><b>carreiras</b></td><td>A grelha PCFR</td><td><code>/careers</code> · <code>/categories</code> · <code>/grades</code></td></tr>
+      <tr><td><b>parametrizacoes</b></td><td>Estados, vínculos, contratos, documentos, ausências, licenças, feriados, horários, parâmetros de férias, opções</td><td><code>/catalogs</code> · <code>/reference/options</code></td></tr>
+      <tr><td><b>shared</b></td><td>Segurança, auditoria, ficheiros (MinIO), perfil IAM</td><td><code>/documento</code></td></tr>
+    </table>
+  </div>
+  <div class="nota chave"><b>Uma excepção à direcção:</b> a estrutura precisa de saber quem é um funcionário (o «responsável» da unidade). Fá-lo por uma única porta (<code>FuncionarioLookupPort</code>), em vez de depender do módulo dos colaboradores. O módulo <code>sigdi</code> (avaliação de desempenho) é à parte e não entra neste manual.</div>
+</section>
+
+<section class="slide" id="ciclo" data-parte="A · Introdução">
+  <div class="parte">Parte A · Introdução</div>
+  <h2><span class="n">4</span>O ciclo de vida do colaborador</h2>
+  <p class="lead">Do registo à saída, o colaborador passa pelas situações da lei (Lei n.º 20/X/2023, art. 117.º). Cada seta é uma acção registada, com data; nada do que ficou para trás se apaga. O que decide cada efeito — perder o Lugar, suspender o contrato, contar antiguidade — é a <b>situação funcional</b> do estado, não o seu nome.</p>
+  <svg class="diag" viewBox="0 0 1100 330" role="img" aria-label="Ciclo de vida: registo, actividade no quadro, actividade fora do quadro, inactividade no e fora do quadro, disponibilidade e cessação">
+    <defs><marker id="seta4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8aa0b8"/></marker></defs>
+    <g font-size="12">
+      <rect x="10" y="130" width="130" height="56" rx="28" fill="#e7f0fe" stroke="#1f6feb"/><text x="75" y="154" text-anchor="middle" font-weight="700" fill="#0f2c55">Registo</text><text x="75" y="171" text-anchor="middle" font-size="10.5" fill="#0f2c55">num Lugar vago</text>
+      <rect x="220" y="120" width="210" height="76" rx="12" fill="#e5f4eb" stroke="#1a7f4b" stroke-width="2.5"/><text x="325" y="146" text-anchor="middle" font-weight="800" fill="#10402a">ACTIVIDADE NO QUADRO</text><text x="325" y="164" text-anchor="middle" font-size="10.5" fill="#10402a">no seu Lugar · art. 118.º</text><text x="325" y="181" text-anchor="middle" font-size="10.5" fill="#10402a">progride · é promovido · transfere-se</text>
+      <rect x="520" y="10" width="220" height="62" rx="12" fill="#e0f3f2" stroke="#0b7a75"/><text x="630" y="35" text-anchor="middle" font-weight="700" fill="#063b39">ACTIVIDADE FORA DO QUADRO</text><text x="630" y="54" text-anchor="middle" font-size="10.5" fill="#063b39">mobilidade · comissão · mantém o Lugar</text>
+      <rect x="520" y="95" width="220" height="62" rx="12" fill="#fcefdf" stroke="#a85a08"/><text x="630" y="120" text-anchor="middle" font-weight="700" fill="#4a2a04">INACTIVIDADE NO QUADRO</text><text x="630" y="139" text-anchor="middle" font-size="10.5" fill="#4a2a04">licença que mantém · suspensão</text>
+      <rect x="520" y="180" width="220" height="62" rx="12" fill="#fdecea" stroke="#b42318"/><text x="630" y="205" text-anchor="middle" font-weight="700" fill="#5a120c">INACTIVIDADE FORA DO QUADRO</text><text x="630" y="224" text-anchor="middle" font-size="10.5" fill="#5a120c">licença que abre vaga · sem Lugar</text>
+      <rect x="840" y="180" width="200" height="62" rx="12" fill="#efe8fb" stroke="#6b3fc4"/><text x="940" y="205" text-anchor="middle" font-weight="700" fill="#2a1a4a">DISPONIBILIDADE</text><text x="940" y="224" text-anchor="middle" font-size="10.5" fill="#2a1a4a">aguarda vaga · art. 122.º</text>
+      <rect x="520" y="262" width="220" height="56" rx="28" fill="#eef2f7" stroke="#5a6878"/><text x="630" y="286" text-anchor="middle" font-weight="700" fill="#1b2430">Cessação / aposentação</text><text x="630" y="303" text-anchor="middle" font-size="10.5" fill="#1b2430">liberta o Lugar</text>
+      <line x1="140" y1="158" x2="218" y2="158" stroke="#8aa0b8" stroke-width="1.8" marker-end="url(#seta4)"/>
+      <line x1="430" y1="135" x2="518" y2="48" stroke="#8aa0b8" stroke-width="1.6" marker-end="url(#seta4)"/>
+      <line x1="430" y1="150" x2="518" y2="126" stroke="#8aa0b8" stroke-width="1.6" marker-end="url(#seta4)"/>
+      <line x1="430" y1="172" x2="518" y2="205" stroke="#8aa0b8" stroke-width="1.6" marker-end="url(#seta4)"/>
+      <line x1="740" y1="211" x2="838" y2="211" stroke="#8aa0b8" stroke-width="1.8" marker-end="url(#seta4)"/>
+      <path d="M940,180 C940,84 800,84 700,84 L420,84 C350,84 330,98 330,118" fill="none" stroke="#8aa0b8" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#seta4)"/>
+      <line x1="370" y1="196" x2="518" y2="285" stroke="#8aa0b8" stroke-width="1.6" marker-end="url(#seta4)"/>
+      <text x="778" y="202" font-size="10.5" class="muted">regresso</text>
+      <text x="760" y="79" font-size="10.5" class="muted">nova afectação, quando houver vaga</text>
+      <text x="462" y="112" font-size="10.5" class="muted">e regresso</text>
+    </g>
+  </svg>
+  <div class="grid g3">
+    <div class="caixa o"><h4>Nem toda a ausência tira o Lugar</h4><p>Umas licenças guardam o Lugar; outras, mais longas, libertam-no. Quem o perdeu não o recupera no regresso: fica em disponibilidade, a contar tempo, até a instituição o colocar num Lugar livre. Que licença faz o quê é configuração do subtipo.</p></div>
+    <div class="caixa w"><h4>Sem Lugar não é cessado</h4><p>A inactividade fora do quadro encerra a afectação mas o vínculo mantém-se: a pessoa continua activa. A resposta diz <code>cessouVinculo: false</code>.</p></div>
+    <div class="caixa r"><h4>Cessar tem um só caminho</h4><p>Um estado de cessação ou o encerramento do contrato fazem o mesmo: contrato cessado, afectação encerrada, estado mudado, histórico.</p></div>
+  </div>
+  <p style="font-size:13px">Ver <a href="#cat-estados">Estados do trabalhador</a> · <a href="#mov-estado">Mudança de estado</a> · <a href="#lic-licencas">Licenças</a>. <span class="br">BR-SIT-03</span><span class="br">BR-LIC-04</span><span class="br">BR-EST-07</span></p>
+</section>
+
 <section class="slide" id="actores" data-parte="A · Introdução">
   <div class="parte">Parte A · Introdução</div>
-  <h2><span class="n">3</span>Quem usa a aplicação — três papéis</h2>
+  <h2><span class="n">5</span>Quem usa a aplicação — três papéis</h2>
   <p class="lead">A mesma regra aplica-se venha o pedido de onde vier; o que muda é quem pode fazer o quê. Não há ainda perfis de permissão configuráveis (adiado): hoje os papéis distinguem-se pelo caminho da API.</p>
   <div class="grid g3">
     <div class="caixa b"><h4>Recursos Humanos</h4><p>Configura os catálogos e a estrutura, admite, move, regista e decide tudo — em <code>/api/v1/rh/…</code>. É o caminho que decide sempre, também quando a chefia está vaga ou não existe.</p></div>
@@ -421,7 +486,7 @@
 
 <section class="slide" id="convencoes" data-parte="A · Introdução">
   <div class="parte">Parte A · Introdução</div>
-  <h2><span class="n">4</span>Como a API responde — convenções que todos os ecrãs seguem</h2>
+  <h2><span class="n">6</span>Como a API responde — convenções que todos os ecrãs seguem</h2>
   <p class="lead">Estas convenções valem para todos os diapositivos seguintes. Um ecrã que as siga uma vez segue-as sempre.</p>
   <div class="duas meio">
     <div>
@@ -461,7 +526,7 @@
 
 <section class="slide" id="ordem" data-parte="A · Introdução">
   <div class="parte">Parte A · Introdução</div>
-  <h2><span class="n">5</span>A ordem de configuração</h2>
+  <h2><span class="n">7</span>A ordem de configuração</h2>
   <p class="lead">Cada passo depende do anterior. O seed de instalação já traz boa parte dos catálogos com os valores da lei; a instituição revê-os e acrescenta os seus. Saltar um passo dá 400/404/422 mais à frente.</p>
   <svg class="diag" viewBox="0 0 1100 230" role="img" aria-label="Ordem de configuração: catálogos, horários e férias, estrutura, carreiras, lugares, admissão">
     <defs><marker id="seta2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8aa0b8"/></marker></defs>
@@ -498,7 +563,7 @@
 
 <section class="slide" id="cat-opcoes" data-parte="B · Configuração: catálogos">
   <div class="parte">Parte B · Configuração: catálogos</div>
-  <h2><span class="n">6</span>Opções genéricas — as listas pequenas</h2>
+  <h2><span class="n">8</span>Opções genéricas — as listas pequenas</h2>
   <p class="lead">Estado civil, sexo, nacionalidade, ilha, concelho, tipo de unidade, grau de parentesco, nível de habilitação, tipo de formação, banco, regime de trabalho, motivos de mudança de estado, categorias de documentos e de ausências, área geográfica dos feriados… Cada lista é um <code>ccode</code>; cada linha, uma chave (<code>ckey</code>) com um texto (<code>cvalue</code>) por língua.</p>
   <div class="duas">
     <div class="ecra" data-dto="OptionRequestDTO">
@@ -546,7 +611,7 @@
 
 <section class="slide" id="cat-estados" data-parte="B · Configuração: catálogos">
   <div class="parte">Parte B · Configuração: catálogos</div>
-  <h2><span class="n">7</span>Estados do trabalhador e situação funcional</h2>
+  <h2><span class="n">9</span>Estados do trabalhador e situação funcional</h2>
   <p class="lead">É o passo de configuração mais importante. Cada estado que a instituição usa (Activo, Suspenso, Aposentado…) diz em qual das <b>seis situações da lei</b> o funcionário fica perante o quadro. É da situação — e não do código do estado — que decorrem os efeitos: abrir vaga, suspender o contrato, contar antiguidade, permitir substituição, cessar.</p>
   <div class="duas">
     <div>
@@ -600,7 +665,7 @@
 
 <section class="slide" id="cat-contratos" data-parte="B · Configuração: catálogos">
   <div class="parte">Parte B · Configuração: catálogos</div>
-  <h2><span class="n">8</span>Vínculos laborais e tipos de contrato</h2>
+  <h2><span class="n">10</span>Vínculos laborais e tipos de contrato</h2>
   <p class="lead">O <b>vínculo</b> é a natureza da relação (efectivo, contratado, em comissão, estagiário, prestador) e decide duas coisas: se o tempo conta para a antiguidade e se a pessoa pode progredir. O <b>tipo de contrato</b> aponta ao vínculo. O vínculo de um colaborador nunca se guarda nele: lê-se do contrato corrente → tipo → vínculo.</p>
   <div class="duas meio">
     <div class="ecra" data-dto="VinculoLaboralRequestDTO">
@@ -656,7 +721,7 @@
 
 <section class="slide" id="cat-documentos" data-parte="B · Configuração: catálogos">
   <div class="parte">Parte B · Configuração: catálogos</div>
-  <h2><span class="n">9</span>Tipos de documento</h2>
+  <h2><span class="n">11</span>Tipos de documento</h2>
   <p class="lead">Que documentos se anexam ao processo do colaborador e em que formatos: documento de identificação, diploma, contrato assinado, atestado, recibo… O tipo de documento de identificação do funcionário também vem daqui.</p>
   <div class="duas">
     <div class="ecra" data-dto="DocumentTypeRequestDTO">
@@ -692,7 +757,7 @@
 
 <section class="slide" id="cat-feriados" data-parte="B · Configuração: catálogos">
   <div class="parte">Parte B · Configuração: catálogos</div>
-  <h2><span class="n">10</span>Feriados — o calendário da instituição</h2>
+  <h2><span class="n">12</span>Feriados — o calendário da instituição</h2>
   <p class="lead">Os feriados tiram-se aos dias úteis dos pedidos de ausência, das férias marcadas, do tempo esperado de cada dia e do trabalho suplementar (que num feriado é de outro tipo). O calendário é da instituição: os nacionais e os do sítio onde tem serviços. <b>Contam todos os feriados activos</b>, e os de um período inteiro (um pedido de 28 de Dezembro a 5 de Janeiro apanha o Ano Novo seguinte).</p>
   <div class="duas">
     <div>
@@ -736,7 +801,7 @@
 
 <section class="slide" id="cat-ausencias" data-parte="B · Configuração: catálogos">
   <div class="parte">Parte B · Configuração: catálogos</div>
-  <h2><span class="n">11</span>Tipos de ausência — férias e faltas</h2>
+  <h2><span class="n">13</span>Tipos de ausência — férias e faltas</h2>
   <p class="lead">Cada linha é um motivo de ausência da instituição (férias, luto, casamento, doença, greve, amamentação…). Os nomes e códigos são dela; as classificações são da lei, e são elas que decidem o comportamento: a que capítulo do DL n.º 3/2010 obedece, como se contam os dias, que tectos tem, o que faz à remuneração e se precisa de aprovação.</p>
   <div class="duas">
     <div class="ecra" data-dto="LeaveTypeRequestDTO">
@@ -790,7 +855,7 @@
 
 <section class="slide" id="cat-licencas" data-parte="B · Configuração: catálogos">
   <div class="parte">Parte B · Configuração: catálogos</div>
-  <h2><span class="n">12</span>Subtipos de licença e de mobilidade</h2>
+  <h2><span class="n">14</span>Subtipos de licença e de mobilidade</h2>
   <p class="lead">A ausência prolongada (licença) e o exercício de funções noutro sítio (mobilidade) partilham um catálogo. Cada subtipo diz se é licença ou mobilidade e o que faz: ao vencimento, à antiguidade, ao Lugar — e o que acontece no regresso. Os prazos variam com o motivo, por isso vivem aqui e não no código.</p>
   <div class="duas">
     <div class="ecra" data-dto="LeaveMobilitySubtypeRequestDTO">
@@ -847,7 +912,7 @@
 
 <section class="slide" id="cat-param-ferias" data-parte="B · Configuração: catálogos">
   <div class="parte">Parte B · Configuração: catálogos</div>
-  <h2><span class="n">13</span>Parâmetros do mapa de férias</h2>
+  <h2><span class="n">15</span>Parâmetros do mapa de férias</h2>
   <p class="lead">Os prazos e a janela do mapa de férias vêm de uma tabela por vigência, e não do código: um diploma novo é uma linha nova, e os mapas dos anos anteriores continuam a ler as regras do seu tempo. Sem nenhuma linha em vigor valem os do DL n.º 3/2010 (a resposta diz <code>origem: LEI</code>). São globais — a lei é a mesma para todas as instituições.</p>
   <div class="duas">
     <div class="ecra" data-dto="ParametroFeriasRequestDTO">
@@ -886,7 +951,7 @@
 
 <section class="slide" id="cat-horarios" data-parte="B · Configuração: catálogos">
   <div class="parte">Parte B · Configuração: catálogos</div>
-  <h2><span class="n">14</span>Horários de trabalho e horário base</h2>
+  <h2><span class="n">16</span>Horários de trabalho e horário base</h2>
   <p class="lead">Os horários que a instituição usa. O <b>nome é livre</b> e é nele que se diz a modalidade (rígido, desfasado, jornada contínua…): o diploma que as define ainda não foi publicado, e por isso os limites legais também não se validam. O código só conhece o <b>controlo</b>: <b>FIXO</b> (o período normal são os blocos) ou <b>FLEXIVEL</b> (cumpre-se uma duração diária, com plataformas fixas, e a falta é o débito no fim do período de aferição). Um horário é o <b>base</b>: vale para quem não tem horário próprio nem na unidade.</p>
   <div class="duas">
     <div class="ecra" data-dto="HorarioRequestDTO">
@@ -940,7 +1005,7 @@
 
 <section class="slide" id="est-unidades" data-parte="C · Configuração: estrutura">
   <div class="parte">Parte C · Configuração: estrutura</div>
-  <h2><span class="n">15</span>Unidades orgânicas — a árvore do serviço</h2>
+  <h2><span class="n">17</span>Unidades orgânicas — a árvore do serviço</h2>
   <p class="lead">A orgânica do organismo, de cima para baixo: ministério → direcção-geral → serviço → secção. Cada unidade pode dizer <b>em que área geográfica fica</b> (para os feriados locais) e <b>que horário</b> segue quem lá trabalha sem horário próprio. Ambos se herdam da unidade-mãe quando ficam vazios.</p>
   <div class="duas">
     <div>
@@ -1009,7 +1074,7 @@
 
 <section class="slide" id="est-cargos" data-parte="C · Configuração: estrutura">
   <div class="parte">Parte C · Configuração: estrutura</div>
-  <h2><span class="n">16</span>Cargos e funções</h2>
+  <h2><span class="n">18</span>Cargos e funções</h2>
   <p class="lead">O <b>cargo</b> (<i>job</i>) é a designação que fica na placa do Lugar — «Gestor de Recursos Humanos», «Técnico de Finanças». A <b>função</b> é a tarefa concreta que a pessoa exerce naquele período, e escolhe-se na afectação. Uma função pode pertencer a um cargo (só se escolhe em Lugares desse cargo) ou a nenhum (serve a qualquer cargo).</p>
   <div class="duas meio">
     <div class="ecra" data-dto="JobRequestDTO">
@@ -1062,7 +1127,7 @@
 
 <section class="slide" id="est-carreiras" data-parte="C · Configuração: estrutura">
   <div class="parte">Parte C · Configuração: estrutura</div>
-  <h2><span class="n">17</span>Carreiras, categorias e escalões</h2>
+  <h2><span class="n">19</span>Carreiras, categorias e escalões</h2>
   <p class="lead">A grelha em três níveis encaixados: a <b>carreira</b> (a família profissional), a <b>categoria</b> (o grau, com uma ordem de progressão) e o <b>escalão</b> (o degrau, com o índice e o valor-base). O Lugar diz a carreira e a categoria; a afectação diz o escalão da pessoa. Nos ecrãs, a cascata é sempre carreira → categoria → escalão.</p>
   <div class="grid g3">
     <div class="ecra" data-dto="CareerRequestDTO">
@@ -1128,7 +1193,7 @@
 
 <section class="slide" id="est-lugares" data-parte="C · Configuração: estrutura">
   <div class="parte">Parte C · Configuração: estrutura</div>
-  <h2><span class="n">18</span>Lugares — o Mapa de Pessoal</h2>
+  <h2><span class="n">20</span>Lugares — o Mapa de Pessoal</h2>
   <p class="lead">Aqui tudo converge. Cada Lugar é uma cadeira do quadro: um número, uma unidade, um cargo, e — se for de carreira — uma carreira e uma categoria. Um Lugar sem carreira é <b>fora de grelha</b> (a afectação não terá escalão). A <b>chefia</b> desenha-se nos Lugares: o <code>parentPositionId</code> diz a que Lugar este reporta (é assim que se sabe a chefia directa) e o <code>managesUnitId</code> diz que unidade este Lugar dirige.</p>
   <div class="duas">
     <div>
@@ -1194,7 +1259,7 @@
 
 <section class="slide" id="adm-registo" data-parte="D · Admissão e ficha">
   <div class="parte">Parte D · Admissão e ficha do colaborador</div>
-  <h2><span class="n">19</span>Admitir um colaborador — o registo composto</h2>
+  <h2><span class="n">21</span>Admitir um colaborador — o registo composto</h2>
   <p class="lead">Uma só chamada, uma só transacção: a pessoa, o contrato, a afectação a um <b>Lugar vago</b>, os dados bancários e os documentos. O ecrã nunca envia a unidade, o cargo ou a carreira: escolhe-se o Lugar e tudo isso vem dele. Se qualquer passo falhar (Lugar ocupado, escalão errado, NIF repetido), não fica nada gravado.</p>
   <div class="fluxo"><span class="e b">1 · Unidade</span><span class="s">→</span><span class="e b">2 · Lugar vago</span><span class="s">→</span><span class="e b">3 · Escalão e função</span><span class="s">→</span><span class="e">4 · Dados pessoais</span><span class="s">→</span><span class="e">5 · Contrato</span><span class="s">→</span><span class="e">6 · Bancários e documentos</span><span class="s">→</span><span class="e o">Registar</span></div>
   <div class="duas">
@@ -1316,7 +1381,7 @@
 
 <section class="slide" id="adm-ficha" data-parte="D · Admissão e ficha">
   <div class="parte">Parte D · Admissão e ficha do colaborador</div>
-  <h2><span class="n">20</span>A ficha do colaborador</h2>
+  <h2><span class="n">22</span>A ficha do colaborador</h2>
   <p class="lead">O ponto de partida do dia-a-dia do RH. A lista filtra por unidade e por carreira através da <b>afectação corrente</b> (não há colunas destas na pessoa). A ficha junta os dados pessoais, o contrato corrente, o enquadramento derivado do Lugar, os dados bancários, a mobilidade em vigor e onde a pessoa exerce funções.</p>
   <div class="duas">
     <div class="ecra" data-dto="UnidadeAtualResponseDTO">
@@ -1355,7 +1420,7 @@
 
 <section class="slide" id="adm-contratos" data-parte="D · Admissão e ficha">
   <div class="parte">Parte D · Admissão e ficha do colaborador</div>
-  <h2><span class="n">21</span>Contratos — renovar, suspender, cessar</h2>
+  <h2><span class="n">23</span>Contratos — renovar, suspender, cessar</h2>
   <p class="lead">Um colaborador tem um contrato corrente de cada vez, com o histórico dos anteriores. <b>Renovar ou substituir</b> é criar o contrato novo: o anterior fecha-se sozinho na véspera, sem tocar no Lugar nem no estado. <b>Suspender e reactivar</b> são normalmente consequência da mudança de estado. <b>Encerrar</b> (<code>close</code>) é a cessação do vínculo — com os mesmos efeitos que mudar para um estado de cessação.</p>
   <div class="duas">
     <div class="ecra" data-dto="CloseContratoRequestDTO">
@@ -1414,7 +1479,7 @@
 
 <section class="slide" id="adm-dossier" data-parte="D · Admissão e ficha">
   <div class="parte">Parte D · Admissão e ficha do colaborador</div>
-  <h2><span class="n">22</span>Família, qualificações, formações e dados bancários</h2>
+  <h2><span class="n">24</span>Família, qualificações, formações e dados bancários</h2>
   <p class="lead">O dossier que acompanha a pessoa ao longo da carreira. Todos seguem o mesmo padrão: listar, criar, editar, desactivar e reactivar; as qualificações e as formações aceitam documentos anexos. Duas salvaguardas transversais: <b>só se escreve no dossier de um colaborador activo</b>, e <b>cada registo pertence ao seu dono</b> — o de outra pessoa é tratado como inexistente (404).</p>
   <div class="grid g2">
     <div class="ecra" data-dto="DependenteRequestDTO">
@@ -1478,7 +1543,7 @@
 
 <section class="slide" id="adm-documentos" data-parte="D · Admissão e ficha">
   <div class="parte">Parte D · Admissão e ficha do colaborador</div>
-  <h2><span class="n">23</span>Documentos, recibos e processos disciplinares</h2>
+  <h2><span class="n">25</span>Documentos, recibos e processos disciplinares</h2>
   <p class="lead">Os ficheiros vivem no armazenamento de objectos (MinIO); a aplicação guarda os metadados e liga-os ao dono — o colaborador, um contrato, uma qualificação, uma formação, um recibo, um processo disciplinar, uma licença. O download é por uma ligação temporária assinada.</p>
   <div class="fluxo"><span class="e b">1 · Carregar o ficheiro</span><span class="s">→ <code>fileId</code> →</span><span class="e b">2 · Registar os metadados no dono</span><span class="s">→</span><span class="e o">3 · Pedir a ligação de download</span></div>
   <div class="duas">
@@ -1547,7 +1612,7 @@
 
 <section class="slide quiz-slide" id="quiz-d" data-parte="D · Admissão e ficha">
   <div class="parte">Parte D · Verificação</div>
-  <h2><span class="n">24</span>Teste: configuração e admissão</h2>
+  <h2><span class="n">26</span>Teste: configuração e admissão</h2>
   <p class="lead">Escolha uma resposta; a correcção explica a regra.</p>
   <div class="quiz">
     <div class="q" data-certa="b">
@@ -1592,7 +1657,7 @@
 
 <section class="slide" id="mov-mapa" data-parte="E · Movimentos">
   <div class="parte">Parte E · Movimentos</div>
-  <h2><span class="n">25</span>Os movimentos, lado a lado</h2>
+  <h2><span class="n">27</span>Os movimentos, lado a lado</h2>
   <p class="lead">Cada movimento tem o seu endpoint e as suas regras. Todos seguem a mesma mecânica de histórico: a afectação corrente fecha-se na <b>véspera da data de efeito</b> e abre-se uma nova com a origem do movimento — nada se reescreve. Não se usa a porta genérica <code>POST /assignments</code> para movimentar ninguém.</p>
   <div class="tabela-scroll"><table>
     <tr><th>Movimento</th><th>Muda de Lugar?</th><th>Carreira / categoria / escalão</th><th>Exige Lugar vago?</th><th>Vínculo que permita evoluir?</th><th>Endpoint</th><th>Origem</th></tr>
@@ -1610,7 +1675,7 @@
 
 <section class="slide" id="mov-progressao" data-parte="E · Movimentos">
   <div class="parte">Parte E · Movimentos</div>
-  <h2><span class="n">26</span>Progressão — o escalão seguinte</h2>
+  <h2><span class="n">28</span>Progressão — o escalão seguinte</h2>
   <p class="lead">A pessoa sobe para o escalão imediatamente superior da mesma categoria. Mantém o Lugar, a função e a categoria; muda o nível remuneratório. <b>O escalão não se escolhe</b>: é o próximo escalão activo da categoria do Lugar.</p>
   <div class="duas">
     <div class="ecra" data-dto="ProgressaoRequestDTO">
@@ -1660,7 +1725,7 @@
 
 <section class="slide" id="mov-promocao" data-parte="E · Movimentos">
   <div class="parte">Parte E · Movimentos</div>
-  <h2><span class="n">27</span>Promoção — a categoria seguinte, de duas maneiras</h2>
+  <h2><span class="n">29</span>Promoção — a categoria seguinte, de duas maneiras</h2>
   <p class="lead">A pessoa passa à categoria imediatamente superior da mesma carreira (por concurso interno, com dotação). Há duas formas e <b>não se escolhe qual</b> — infere-se do pedido: com um Lugar de destino, muda de cadeira; sem ele, é o próprio Lugar que sobe de categoria (reclassificação).</p>
   <div class="duas">
     <div class="ecra" data-dto="PromocaoRequestDTO">
@@ -1714,7 +1779,7 @@
 
 <section class="slide" id="mov-transferencia" data-parte="E · Movimentos">
   <div class="parte">Parte E · Movimentos</div>
-  <h2><span class="n">28</span>Transferência e mudança de carreira</h2>
+  <h2><span class="n">30</span>Transferência e mudança de carreira</h2>
   <p class="lead">A <b>transferência</b> muda a pessoa de cadeira de forma definitiva sem subir na grelha: mesma carreira, mesma categoria, e o escalão viaja com ela; muda a unidade, porque vem do Lugar. A <b>mudança de carreira</b> é a única maneira de passar a outra carreira: exige um Lugar vago dessa carreira, e o escalão passa a ser o da nova categoria (quem posiciona é o acto administrativo).</p>
   <div class="duas meio">
     <div class="ecra" data-dto="TransferenciaRequestDTO">
@@ -1772,7 +1837,7 @@
 
 <section class="slide" id="mov-substituicao" data-parte="E · Movimentos">
   <div class="parte">Parte E · Movimentos</div>
-  <h2><span class="n">29</span>Substituição do titular temporariamente impedido</h2>
+  <h2><span class="n">31</span>Substituição do titular temporariamente impedido</h2>
   <p class="lead">Quando o titular de um Lugar está impedido mas não o perde — em comissão, requisição, licença até três anos, suspenso —, alguém pode substituí-lo (contrato a termo do art. 73.º al. a) a c), ou nomeação em substituição do art. 91.º n.º 1 al. a)). O substituto <b>não desaloja</b> o titular: as duas afectações coexistem no mesmo Lugar, e o Lugar continua a contar como provido pelo titular. <b>Não há data de fim</b>: acaba sozinha quando o titular regressa.</p>
   <div class="duas">
     <div class="ecra" data-dto="SubstituicaoRequestDTO">
@@ -1833,7 +1898,7 @@
 
 <section class="slide" id="mov-estado" data-parte="E · Movimentos">
   <div class="parte">Parte E · Movimentos</div>
-  <h2><span class="n">30</span>Mudança de estado e cessação</h2>
+  <h2><span class="n">32</span>Mudança de estado e cessação</h2>
   <p class="lead">Mudar o estado de um colaborador aplica os efeitos da <b>situação funcional</b> do estado de destino. Um estado que cessa o vínculo (<code>endsEmployment</code>) faz o mesmo que o encerramento do contrato: é o caminho único da cessação.</p>
   <div class="duas">
     <div>
@@ -1887,7 +1952,7 @@
 
 <section class="slide" id="mov-antiguidade" data-parte="E · Movimentos">
   <div class="parte">Parte E · Movimentos</div>
-  <h2><span class="n">31</span>Antiguidade — calculada, nunca guardada</h2>
+  <h2><span class="n">33</span>Antiguidade — calculada, nunca guardada</h2>
   <p class="lead">O tempo de serviço a uma data, descontando o que a lei manda não contar. Recalcula-se a cada leitura: um número gravado ficaria errado na primeira vez que alguém corrigisse uma data do passado. Conta dias de calendário, com os dois extremos.</p>
   <div class="duas">
     <div class="ecra" data-dto="AntiguidadeResponseDTO">
@@ -1938,7 +2003,7 @@
 
 <section class="slide quiz-slide" id="quiz-e" data-parte="E · Movimentos">
   <div class="parte">Parte E · Verificação</div>
-  <h2><span class="n">32</span>Teste: movimentos</h2>
+  <h2><span class="n">34</span>Teste: movimentos</h2>
   <div class="quiz">
     <div class="q" data-certa="c">
       <p><b>1.</b> A Maria vai trabalhar seis meses para a Câmara Municipal da Praia e depois volta. Que movimento é?</p>
@@ -1982,19 +2047,27 @@
 
 <section class="slide" id="lic-porque" data-parte="F · Licenças e mobilidade">
   <div class="parte">Parte F · Licenças e mobilidade</div>
-  <h2><span class="n">33</span>Ausência, licença ou mobilidade — qual usar</h2>
+  <h2><span class="n">35</span>Ausência, licença ou mobilidade — qual usar</h2>
   <p class="lead">Há dois sítios para uma pessoa não estar no seu posto, e a escolha não é de gosto: segue a divisão da lei. O eixo é <b>curto contra prolongado</b> — e a mobilidade nem é ausência: a pessoa trabalha, noutro sítio.</p>
   <div class="grid g3">
     <div class="caixa b"><h4>Pedido de ausência</h4><p><b>Férias</b> (DL 3/2010, cap. II) e <b>faltas</b> — ausência de um dia ou parte dele (art. 13.º). Conta-se em dias (ou horas), pode descontar de um saldo anual, decide a chefia directa ou o RH.</p><p style="margin-top:6px"><span class="rota">/funcionarios/{funcionarioId}/pedidos-ausencia</span></p></div>
     <div class="caixa a"><h4>Licença</h4><p>«Ausência prolongada do serviço, mediante autorização» (art. 44.º) — as sete modalidades do art. 45.º. Tem início e fim, depende de despacho e <b>pode tirar o Lugar</b> ao funcionário.</p><p style="margin-top:6px"><span class="rota">/funcionarios/{funcionarioId}/licencas-mobilidade</span> · subtipo <code>LICENCA</code></p></div>
     <div class="caixa t"><h4>Mobilidade</h4><p>Exercer funções noutro serviço ou entidade (Lei 20/X/2023, arts. 132.º a 135.º). <b>Nunca tira o Lugar</b> (art. 135.º n.º 7); o tempo conta na origem (art. 137.º).</p><p style="margin-top:6px"><span class="rota">/funcionarios/{funcionarioId}/licencas-mobilidade</span> · subtipo <code>MOBILIDADE</code></p></div>
   </div>
+  <table>
+    <tr><th>Na lei</th><th>O que é</th><th>Onde vive na aplicação</th></tr>
+    <tr><td>Férias — DL 3/2010, cap. II</td><td>Direito anual</td><td rowspan="2">Pedidos de ausência e saldos — contados em dias úteis ou seguidos, ou em horas</td></tr>
+    <tr><td>Faltas — cap. III</td><td>Ausência de um dia ou parte dele (art. 13.º n.º 1), justificada ou injustificada</td></tr>
+    <tr><td>Licenças — cap. IV</td><td>Ausência prolongada, mediante autorização (art. 44.º); sete modalidades (art. 45.º)</td><td rowspan="2">Licenças e mobilidade — com efeito no Lugar e no estado</td></tr>
+    <tr><td>Mobilidade — Lei 20/X/2023, arts. 132.º a 135.º</td><td>Não é ausência: a pessoa trabalha noutro sítio</td></tr>
+  </table>
+  <p style="font-size:13px">A mobilidade partilha a tabela e o catálogo das licenças por conveniência; o tipo do subtipo (<code>LICENCA</code> ou <code>MOBILIDADE</code>) é que as separa, e as regras divergem — a mobilidade nunca abre vaga.</p>
   <div class="nota chave"><b>A licença parental é ausência, não licença:</b> <code>MATERNIDADE</code> (90 dias) e <code>PATERNIDADE</code> (10 dias úteis) são tipos de ausência, porque não suspendem o vínculo (Lei 20/X/2023, art. 172.º). <span class="br">BR-LIC-07</span></div>
 </section>
 
 <section class="slide" id="lic-licencas" data-parte="F · Licenças e mobilidade">
   <div class="parte">Parte F · Licenças e mobilidade</div>
-  <h2><span class="n">34</span>Licenças — a decisão e o período</h2>
+  <h2><span class="n">36</span>Licenças — a decisão e o período</h2>
   <p class="lead">A lei separa o despacho (um acto) da ausência (um período), e o registo também: <code>status</code> é a <b>decisão</b> (<code>PENDING</code> · <code>APPROVED</code> · <code>REJECTED</code> · <code>CANCELLED</code>) e <code>estadoPeriodo</code> é <b>onde a licença está hoje</b> (<code>POR_INICIAR</code> · <code>EM_CURSO</code> · <code>TERMINADA</code>). Deferir não é pôr em vigor: os efeitos no Lugar aplicam-se na data de início, e o período acaba sozinho na data de fim.</p>
   <div class="fluxo"><span class="e">PENDING</span><span class="s">— approve →</span><span class="e b">APPROVED · POR_INICIAR</span><span class="s">— data de início (job 00:15) →</span><span class="e w">APPROVED · EM_CURSO</span><span class="s">— data de fim ou close →</span><span class="e o">APPROVED · TERMINADA</span><span class="s">·</span><span class="e r">REJECTED</span><span class="e r">CANCELLED</span></div>
   <div class="duas">
@@ -2054,7 +2127,7 @@
 
 <section class="slide" id="lic-mobilidade" data-parte="F · Licenças e mobilidade">
   <div class="parte">Parte F · Licenças e mobilidade</div>
-  <h2><span class="n">35</span>Mobilidade — destino, prorrogação e consolidação</h2>
+  <h2><span class="n">37</span>Mobilidade — destino, prorrogação e consolidação</h2>
   <p class="lead">A mobilidade transitória regista <b>onde a pessoa exerce funções e até quando</b>; a afectação não se toca. O destino é uma unidade nossa (interna) ou uma entidade de fora (externa). Dura em regra um ano, prorrogável uma vez por igual período; a comissão de serviço dura três anos, renovável. Pode tornar-se <b>definitiva</b> (consolidação): então sim, a pessoa passa a titular de um Lugar vago do destino.</p>
   <div class="duas">
     <div>
@@ -2114,7 +2187,7 @@
 
 <section class="slide quiz-slide" id="quiz-f" data-parte="F · Licenças e mobilidade">
   <div class="parte">Parte F · Verificação</div>
-  <h2><span class="n">36</span>Teste: licenças e mobilidade</h2>
+  <h2><span class="n">38</span>Teste: licenças e mobilidade</h2>
   <div class="quiz">
     <div class="q" data-certa="b">
       <p><b>1.</b> Aprovou-se hoje uma licença de longa duração que começa em Janeiro. O Lugar já está vago?</p>
@@ -2144,7 +2217,7 @@
 
 <section class="slide" id="fer-saldo" data-parte="G · Férias e ausências">
   <div class="parte">Parte G · Férias e ausências</div>
-  <h2><span class="n">37</span>O saldo de férias — nasce sozinho</h2>
+  <h2><span class="n">39</span>O saldo de férias — nasce sozinho</h2>
   <p class="lead">«O direito a férias vence no dia 1 de Janeiro de cada ano» (DL 3/2010, art. 2.º n.º 4) — e é o que a aplicação faz: o saldo nasce na admissão e um job diário (00:05) cria o do ano a quem não o tenha e actualiza o direito que cresceu. São 22 dias úteis (art. 2.º n.º 3), ou o <code>maxDaysPerYear</code> do tipo de regime <code>FERIAS</code>. No ano de ingresso é proporcional (art. 3.º).</p>
   <div class="duas">
     <div>
@@ -2197,7 +2270,7 @@
 
 <section class="slide" id="fer-mapa" data-parte="G · Férias e ausências">
   <div class="parte">Parte G · Férias e ausências</div>
-  <h2><span class="n">38</span>Mapa de férias — preferência, marcação e publicação</h2>
+  <h2><span class="n">40</span>Mapa de férias — preferência, marcação e publicação</h2>
   <p class="lead"><b>Marcar não é gozar.</b> O mapa é o plano do ano: o trabalhador indica a preferência até 31 de Janeiro; as férias marcam-se por acordo ou, na falta dele, o dirigente fixa-as entre 1 de Maio e 31 de Outubro; o serviço dá conhecimento do mapa até 31 de Março (não há «aprovação»). Depois disso, alterar exige acordo ou conveniência de serviço fundamentada, e fica registado o antes e o depois. O gozo continua a ser o pedido de férias.</p>
   <div class="duas">
     <div>
@@ -2264,7 +2337,7 @@
 
 <section class="slide" id="aus-pedido" data-parte="G · Férias e ausências">
   <div class="parte">Parte G · Férias e ausências</div>
-  <h2><span class="n">39</span>Pedido de ausência — dias, horas e contagem</h2>
+  <h2><span class="n">41</span>Pedido de ausência — dias, horas e contagem</h2>
   <p class="lead">O mesmo pedido serve para férias e para todas as faltas. O servidor conta os dias pela <b>contagem do tipo</b> (úteis ou seguidos, art. 76.º) com os feriados do colaborador, aplica os três tectos, recusa sobreposições e reserva o saldo. Com <code>horaInicio</code>/<code>horaFim</code> é um pedido <b>em horas</b>, que vale em cada dia do intervalo (amamentação, tratamento ambulatório, consulta pré-natal…).</p>
   <div class="duas">
     <div>
@@ -2338,7 +2411,7 @@
 
 <section class="slide" id="aus-decisao" data-parte="G · Férias e ausências">
   <div class="parte">Parte G · Férias e ausências</div>
-  <h2><span class="n">40</span>Decidir, cancelar, suspender e terminar</h2>
+  <h2><span class="n">42</span>Decidir, cancelar, suspender e terminar</h2>
   <p class="lead">Os tipos que requerem aprovação decide-os <b>a chefia directa ou o RH, num só nível</b> — a decisão é final. Depois de aprovado, as férias podem ser <b>suspensas</b> (doença, parentalidade, razões imperiosas de serviço, art. 8.º) e um pedido em horas pode <b>terminar antes</b> (a amamentação que acaba mais cedo). Em ambos a decisão fica e o que encurta é o período.</p>
   <div class="duas">
     <div>
@@ -2392,7 +2465,7 @@
 
 <section class="slide quiz-slide" id="quiz-g" data-parte="G · Férias e ausências">
   <div class="parte">Parte G · Verificação</div>
-  <h2><span class="n">41</span>Teste: férias e ausências</h2>
+  <h2><span class="n">43</span>Teste: férias e ausências</h2>
   <div class="quiz">
     <div class="q" data-certa="b">
       <p><b>1.</b> Um luto de sexta a segunda, num tipo em dias seguidos. Quantos dias?</p>
@@ -2429,7 +2502,7 @@
 
 <section class="slide" id="ass-horario" data-parte="H · Assiduidade">
   <div class="parte">Parte H · Assiduidade</div>
-  <h2><span class="n">42</span>O horário de cada colaborador</h2>
+  <h2><span class="n">44</span>O horário de cada colaborador</h2>
   <p class="lead">Que horário cumpre a pessoa num dado dia? A aplicação resolve-o por data, por esta ordem: <b>1.</b> o atribuído ao colaborador; <b>2.</b> o da unidade onde exerce funções nesse dia (na mobilidade interna, a de destino), ou o da unidade-mãe mais próxima que tenha um; <b>3.</b> o horário base; <b>4.</b> nenhum, enquanto não houver base. Na atribuição diz-se também o <b>regime de prestação</b>: presencial, teletrabalho ou misto (Lei 20/X/2023, art. 166.º).</p>
   <div class="duas">
     <div class="ecra" data-dto="HorarioColaboradorRequestDTO">
@@ -2480,7 +2553,7 @@
 
 <section class="slide" id="ass-registo" data-parte="H · Assiduidade">
   <div class="parte">Parte H · Assiduidade</div>
-  <h2><span class="n">43</span>Registo diário — marcações e relógio</h2>
+  <h2><span class="n">45</span>Registo diário — marcações e relógio</h2>
   <p class="lead">Guardam-se as <b>marcações</b> — entrada ou saída, com a hora — e o dia <b>calcula-se</b> delas: períodos, intervalos, horas trabalhadas contra as esperadas pelo horário, e anomalias. Uma marcação <b>nunca se apaga</b>: corrige-se com outra (com motivo) e a errada anula-se (com motivo), ficando visível. Três origens convivem: o relógio (importação), o RH e o próprio.</p>
   <div class="duas">
     <div>
@@ -2547,7 +2620,7 @@
 
 <section class="slide" id="ass-faltas" data-parte="H · Assiduidade">
   <div class="parte">Parte H · Assiduidade</div>
-  <h2><span class="n">44</span>Faltas por débito — o apuramento do mês</h2>
+  <h2><span class="n">46</span>Faltas por débito — o apuramento do mês</h2>
   <p class="lead">«Considera-se falta a ausência do funcionário durante a totalidade ou <b>parte</b> do período diário de presença obrigatória» (DL 3/2010, art. 13.º n.º 1). O apuramento cruza as marcações com o horário de cada dia e com os pedidos aprovados. <b>Calcula-se a cada leitura</b>: aprovar um pedido que cubra o dia tira-o daqui. No fixo, falta são os blocos não cobertos (atrasos, saídas antecipadas); no flexível, as plataformas não cobertas e o débito no fim da aferição.</p>
   <div class="duas">
     <div>
@@ -2596,7 +2669,7 @@
 
 <section class="slide" id="ass-suplementar" data-parte="H · Assiduidade">
   <div class="parte">Parte H · Assiduidade</div>
-  <h2><span class="n">45</span>Trabalho suplementar — horas extras</h2>
+  <h2><span class="n">47</span>Trabalho suplementar — horas extras</h2>
   <p class="lead">Trabalho para além do horário, em dia de descanso ou em feriado, mandado ou autorizado pela Administração (Lei 20/X/2023, art. 155.º n.º 2 a)). Autoriza-se um <b>intervalo de um dia</b>; as horas realizadas <b>não se declaram — saem das marcações</b> dentro do intervalo; o tipo de dia calcula-se. Só horas: o suplemento e o tecto de um terço da remuneração são do processamento salarial.</p>
   <div class="fluxo"><span class="e">PEDIDO (pelo próprio)</span><span class="s">→</span><span class="e o">AUTORIZADO</span><span class="s">·</span><span class="e r">RECUSADO</span><span class="s">→</span><span class="e r">CANCELADO (RH)</span><span class="s">· o RH e a chefia lançam já AUTORIZADO</span></div>
   <div class="duas">
@@ -2657,7 +2730,7 @@
 
 <section class="slide" id="ass-relacao" data-parte="H · Assiduidade">
   <div class="parte">Parte H · Assiduidade</div>
-  <h2><span class="n">46</span>Relação mensal — o instrumento do art. 75.º</h2>
+  <h2><span class="n">48</span>Relação mensal — o instrumento do art. 75.º</h2>
   <p class="lead">«Cada serviço deve elaborar em duplicado, no fim de cada mês, uma relação das faltas e licenças de cada funcionário e sua natureza, servindo o duplicado de base ao processamento de vencimento no mês seguinte» (DL 3/2010, art. 75.º n.º 1). É só leitura, por unidade (com subunidades), em JSON e em CSV para a folha de cálculo. No mês corrente é provisória. O fecho (congelar e bloquear o mês) fica para quando houver integração com o processamento salarial.</p>
   <div class="ecra" data-dto="RelacaoMensalDTO">
     <div class="barra"><i></i><i></i><i></i><span>RH · Assiduidade › Relação mensal › Ministério das Finanças › Agosto de 2026</span></div>
@@ -2695,7 +2768,7 @@
 
 <section class="slide quiz-slide" id="quiz-h" data-parte="H · Assiduidade">
   <div class="parte">Parte H · Verificação</div>
-  <h2><span class="n">47</span>Teste: assiduidade</h2>
+  <h2><span class="n">49</span>Teste: assiduidade</h2>
   <div class="quiz">
     <div class="q" data-certa="c">
       <p><b>1.</b> Três atrasos de 30 minutos no mês, com um período normal de 8 horas. Quantas faltas?</p>
@@ -2732,7 +2805,7 @@
 
 <section class="slide" id="me-portal" data-parte="I · Portal e chefia">
   <div class="parte">Parte I · Portal do colaborador e caixa da chefia</div>
-  <h2><span class="n">48</span>O meu portal — o que o colaborador faz sozinho</h2>
+  <h2><span class="n">50</span>O meu portal — o que o colaborador faz sozinho</h2>
   <p class="lead">O próprio consulta e submete o que é rotina, sem passar pelo RH, e com as mesmas regras do RH. Quem é «eu» vem do token (em produção) ou do cabeçalho <code>X-Employee-Id</code> (em desenvolvimento). Um colaborador inactivo não entra.</p>
   <div class="duas">
     <div class="ecra" data-dto="MeProfileResponseDTO">
@@ -2789,7 +2862,7 @@
 
 <section class="slide" id="me-chefia" data-parte="I · Portal e chefia">
   <div class="parte">Parte I · Portal do colaborador e caixa da chefia</div>
-  <h2><span class="n">49</span>A caixa da chefia directa</h2>
+  <h2><span class="n">51</span>A caixa da chefia directa</h2>
   <p class="lead">A chefia directa é o <b>titular do Lugar-pai</b> do Lugar do colaborador. Tem, no seu portal, uma caixa com o que a equipa directa espera dela: pedidos de ausência por decidir, correcções de marcações por validar, trabalho suplementar por autorizar, e as férias da equipa. Decide num só nível — a decisão é final. Se a chefia estiver vaga ou não definida, decide o RH.</p>
   <div class="duas">
     <div class="ecra" data-dto="PedidoAusenciaPendenteDTO">
@@ -2843,7 +2916,7 @@
 
 <section class="slide" id="rel-antiguidade" data-parte="J · Relatórios">
   <div class="parte">Parte J · Relatórios</div>
-  <h2><span class="n">50</span>Lista de antiguidade</h2>
+  <h2><span class="n">52</span>Lista de antiguidade</h2>
   <p class="lead">«Os serviços devem organizar em cada ano listas de antiguidade dos seus funcionários com referência a 31 de Dezembro do ano anterior», ordenadas pelos cargos e, em cada cargo, pela antiguidade nele (DL 3/2010, art. 69.º). Gera-se por serviço, em JSON e em CSV para afixar. O ciclo seguinte — aprovar, afixar, reclamar, publicar (arts. 71.º a 74.º) — ainda não está na aplicação.</p>
   <div class="duas">
     <div class="ecra" data-dto="ListaAntiguidadeDTO">
@@ -2878,7 +2951,7 @@
 
 <section class="slide" id="rel-efectivos" data-parte="J · Relatórios">
   <div class="parte">Parte J · Relatórios</div>
-  <h2><span class="n">51</span>Mapa de efectivos</h2>
+  <h2><span class="n">53</span>Mapa de efectivos</h2>
   <p class="lead">O documento com as funções e o número de postos de trabalho que o serviço detém (Lei 20/X/2023, art. 4.º al. aa); arts. 38.º a 41.º): por unidade e por cargo, os Lugares activos (a dotação), os providos, os vagos e os congelados — o estado de hoje.</p>
   <div class="duas">
     <div class="ecra" data-dto="MapaEfectivosDTO">
@@ -2912,7 +2985,7 @@
 
 <section class="slide" id="rel-indicadores" data-parte="J · Relatórios">
   <div class="parte">Parte J · Relatórios</div>
-  <h2><span class="n">52</span>Indicadores do pessoal — o balanço social</h2>
+  <h2><span class="n">54</span>Indicadores do pessoal — o balanço social</h2>
   <p class="lead">Os relatórios de actividades publicitam «dados e indicadores sobre o pessoal existente, independentemente da natureza do vínculo» (Lei 20/X/2023, art. 38.º n.º 3). A API devolve os números; o gráfico é do ecrã. Referência: hoje, no ano corrente; 31 de Dezembro, num ano passado.</p>
   <div class="duas">
     <div class="ecra" data-dto="IndicadoresPessoalDTO">
@@ -2956,7 +3029,7 @@
 
 <section class="slide" id="tr-historico" data-parte="K · Transversais">
   <div class="parte">Parte K · Transversais</div>
-  <h2><span class="n">53</span>Histórico, auditoria e tarefas automáticas</h2>
+  <h2><span class="n">55</span>Histórico, auditoria e tarefas automáticas</h2>
   <p class="lead">A aplicação não guarda só o estado de hoje: guarda a história. As afectações e os contratos fecham-se e abrem-se (nunca se reescrevem); as marcações anulam-se (nunca se apagam); os horários que vigoraram ficam imutáveis. E cada alteração a um registo auditado fica com quem, quando e o quê.</p>
   <div class="duas">
     <div>
@@ -2994,7 +3067,7 @@
 
 <section class="slide" id="tr-limites" data-parte="K · Transversais">
   <div class="parte">Parte K · Transversais</div>
-  <h2><span class="n">54</span>O que a aplicação ainda não faz — dito para ninguém contar com isso</h2>
+  <h2><span class="n">56</span>O que a aplicação ainda não faz — dito para ninguém contar com isso</h2>
   <p class="lead">Cada limite está assinalado em vez de adivinhado: quando a lei remete para um diploma que não existe, ou quando falta um dado que a aplicação não tem, não se inventa uma regra.</p>
   <div class="grid g3">
     <div class="caixa r"><h4>Remuneração</h4><p>Não calcula vencimentos, suplementos nem compensações (férias não gozadas na cessação, art. 12.º; suspensão por serviço, art. 8.º n.º 7). Guarda dias, horas e o efeito na remuneração para quem processa.</p></div>
@@ -3012,7 +3085,7 @@
 
 <section class="slide" id="tr-lei" data-parte="K · Transversais">
   <div class="parte">Parte K · Transversais</div>
-  <h2><span class="n">55</span>A lei, artigo a artigo — onde está na aplicação</h2>
+  <h2><span class="n">57</span>A lei, artigo a artigo — onde está na aplicação</h2>
   <div class="duas meio">
     <div class="tabela-scroll"><table>
       <tr><th colspan="2">Lei n.º 20/X/2023 (emprego público)</th></tr>
@@ -3049,7 +3122,7 @@
 
 <section class="slide" id="tr-glossario" data-parte="K · Transversais">
   <div class="parte">Parte K · Transversais</div>
-  <h2><span class="n">56</span>Glossário</h2>
+  <h2><span class="n">58</span>Glossário</h2>
   <div class="tabela-scroll"><table>
     <tr><th>Termo</th><th>Em linguagem simples</th><th>Na API</th></tr>
     <tr><td><b>Lugar</b></td><td>Uma cadeira do quadro de pessoal, numa unidade, com um cargo.</td><td><code>position</code></td></tr>
@@ -3073,7 +3146,7 @@
 
 <footer>
   RH-Service · Manual da Aplicação · pt-PT · Documentação v5<br>
-  Documentos irmãos: <a href="regras_negocio.html">regras_negocio.html</a> (catálogo de regras BR-*), <a href="modelo_negocio.html">modelo_negocio.html</a> (o negócio), <a href="modelo_relacional.html">modelo_relacional.html</a> (as tabelas), <a href="api_guide.md">api_guide.md</a> (o contrato REST, com os erros), <a href="openapi.json">openapi.json</a> (gerado do código) e <a href="breaking_change_frontend.md">breaking_change_frontend.md</a> (o que muda para o front).<br>
+  Documentos irmãos: <a href="regras_negocio.html">regras_negocio.html</a> (catálogo de regras BR-*), <a href="modelo_relacional.html">modelo_relacional.html</a> (as tabelas), <a href="api_guide.md">api_guide.md</a> (o contrato REST, com os erros), <a href="openapi.json">openapi.json</a> (gerado do código) e <a href="breaking_change_frontend.md">breaking_change_frontend.md</a> (o que muda para o front).<br>
   Os ecrãs são ilustrações: os rótulos são sugestões, os nomes dos campos (a cinzento) são os da API e são conferidos contra o <code>openapi.json</code> por <code>scripts/verificar_docs.py</code>.
 </footer>
 </div>

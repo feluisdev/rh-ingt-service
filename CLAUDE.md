@@ -183,13 +183,12 @@ docs(sigdi): ...
 tree was removed on 2026-09-05; do not reintroduce it or cite it as a plan.
 
 - `modelo_relacional.html` — ER model, table-by-table reference, conventions
-- `modelo_negocio.html` — business model
 - `regras_negocio.html` — numbered business-rule catalogue (BR-*, non-sigdi scope)
 - `api_guide.md` — REST API guide (only the Markdown; the HTML twin was removed on 2026-09-19 because it kept drifting)
 - `openapi.json` — the OpenAPI contract **generated from the code** by springdoc. Regenerate after adding or changing an endpoint:
   `curl -s -o docs/funcionarios/v5/openapi.json http://localhost:8099/v3/api-docs` (app running, dev profile).
   It carries paths, params and schemas; it does *not* carry the business rules or the 422s — those live in `api_guide.md` and `regras_negocio.html`.
-- `apresentacao_aplicacao.html` — the interactive user manual: every screen (fields drawn from the real DTOs), the API it calls, its BR-* rules and the law articles, from configuration to reports, with scenario buttons, simulators and quizzes. `verificar_docs.py` checks each `data-dto`/`data-campo` against `openapi.json` and each `<span class="rota">` path. (It replaced `guia_configuracao_registo.html`, removed on 2026-09-24.)
+- `apresentacao_aplicacao.html` — the interactive user manual: every screen (fields drawn from the real DTOs), the API it calls, its BR-* rules and the law articles, from configuration to reports, with scenario buttons, simulators and quizzes. `verificar_docs.py` checks each `data-dto`/`data-campo` against `openapi.json` and each `<span class="rota">` path. (It replaced `guia_configuracao_registo.html` and `modelo_negocio.html`, both removed on 2026-09-24: concepts live here, the rules catalogue in `regras_negocio.html`.)
 - `breaking_change_frontend.md` — front-end breaking changes
 
 Every v5 document carries `Última alteração: AAAA-MM-DD` in its header — bump it whenever the document changes.
