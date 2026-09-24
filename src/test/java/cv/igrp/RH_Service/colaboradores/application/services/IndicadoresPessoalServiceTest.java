@@ -114,7 +114,7 @@ class IndicadoresPessoalServiceTest {
 
     @Test
     void efectivosEntradasSaidasEAbsentismo() {
-        var maria = pessoa("F", LocalDate.of(1990, 5, 1), LocalDate.of(2015, 6, 1), true);   // 35 anos
+        var maria = pessoa("FEMININO", LocalDate.of(1990, 5, 1), LocalDate.of(2015, 6, 1), true);   // 35 anos
         pessoa("M", LocalDate.of(1970, 1, 1), LocalDate.of(2025, 3, 1), true);              // 55, entrou em 2025
         var joana = pessoa("F", LocalDate.of(2000, 1, 1), LocalDate.of(2020, 1, 1), false);  // saiu em 2025
         when(apuramentoFaltasService.fimDoVinculo(joana)).thenReturn(LocalDate.of(ANO, 6, 30));
@@ -156,6 +156,14 @@ class IndicadoresPessoalServiceTest {
     void anoFuturoOuSemUnidadeE422() {
         assertEquals(422, assertThrows(IgrpResponseStatusException.class, () -> service.indicadores(unidadeId, true, 2027)).getStatusCode().value());
         assertEquals(422, assertThrows(IgrpResponseStatusException.class, () -> service.indicadores(null, true, ANO)).getStatusCode().value());
+    }
+
+    @Test
+    void generoJuntaAsDuasGrafias() {
+        assertEquals("F", IndicadoresPessoalService.genero("FEMININO"));
+        assertEquals("F", IndicadoresPessoalService.genero("f"));
+        assertEquals("M", IndicadoresPessoalService.genero("MASCULINO"));
+        assertEquals("Não indicado", IndicadoresPessoalService.genero(" "));
     }
 
     @Test

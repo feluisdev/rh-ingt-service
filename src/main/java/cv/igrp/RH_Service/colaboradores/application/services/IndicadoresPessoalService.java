@@ -104,7 +104,7 @@ public class IndicadoresPessoalService {
             Funcionario f = pessoas.get(e.getKey());
             if (f == null) continue;
             efectivos++;
-            genero.merge(texto(f.getGenero(), "Não indicado"), 1, Integer::sum);
+            genero.merge(genero(f.getGenero()), 1, Integer::sum);
             etario.merge(escalaoEtario(f.getDataNascimento(), referencia), 1, Integer::sum);
             contrato.merge(tipoDeContrato(f), 1, Integer::sum);
             carreira.merge(carreiraDe(e.getValue().afectacao().getGradeId()), 1, Integer::sum);
@@ -143,6 +143,15 @@ public class IndicadoresPessoalService {
                 : BigDecimal.valueOf(diasFalta * 100L).divide(BigDecimal.valueOf(potenciais), 2, RoundingMode.HALF_UP);
         return new Indicadores(anoRef, referencia, unidades.get(0), incluirSubunidades, efectivos, genero, etario, contrato,
                 carreira, unidade, entradas, saidas, diasFalta, potenciais, taxa, minutosSuplementares);
+    }
+
+    /** O catálogo SEX guarda «F»/«M»; o enum {@code Sexo} e o seed, «FEMININO»/«MASCULINO»: contam juntos. */
+    static String genero(String g) {
+        if (g == null || g.isBlank()) return "Não indicado";
+        String v = g.trim().toUpperCase();
+        if (v.equals("F") || v.equals("FEMININO")) return "F";
+        if (v.equals("M") || v.equals("MASCULINO")) return "M";
+        return g.trim();
     }
 
     static String escalaoEtario(LocalDate nascimento, LocalDate referencia) {

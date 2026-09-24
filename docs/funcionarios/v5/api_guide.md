@@ -1278,6 +1278,8 @@ social de um serviço num ano. **Devolve números; o gráfico é do front.**
 
 - Referência: hoje no ano corrente; 31 de Dezembro num ano passado. Ano futuro → 422.
 - `efectivos`: afectação principal no serviço na referência; cada `por…` soma os efectivos.
+- `porGenero`: «F» e «M». Há colaboradores gravados com «FEMININO»/«MASCULINO» (o seed, o enum
+  `Sexo`) e com «F»/«M» (o catálogo `SEX`); contam juntos. Sem género → «Não indicado».
 - `taxaAbsentismo`: dias úteis de faltas aprovadas (sem férias) ÷ dias úteis de vínculo × 100.
 - `horasSuplementares`: trabalho suplementar realizado no ano (pelas marcações).
 
