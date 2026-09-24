@@ -1,0 +1,20 @@
+{
+  "type": "dto",
+  "name": "ContagemDTO",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "chave",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "valor",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

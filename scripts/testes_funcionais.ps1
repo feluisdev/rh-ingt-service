@@ -1843,6 +1843,21 @@ Chamar 'F36.5 NEG unidade mal escrita' GET '/relatorios/mapa-efectivos?unidadeId
 Chamar 'F36.6 NEG unidade que nao existe' GET ('/relatorios/mapa-efectivos?unidadeId=' + [guid]::NewGuid()) $null 404 | Out-Null
 
 Write-Host ''
+Write-Host '=========== F37 - INDICADORES DO PESSOAL (Lei 20/X/2023, art. 38.o n.o 3) ==========='
+
+# Os numeros do balanco social de um servico num ano; o grafico e do front.
+$i37 = (Chamar 'F37.1 indicadores do ministerio no ano corrente' GET ('/relatorios/indicadores?unidadeId=' + $uMin)).Dados
+Verificar 'F37.2 ha efectivos, e as distribuicoes somam o total' (($i37.efectivos -ge 1) -and ((@($i37.porGenero) | Measure-Object -Property valor -Sum).Sum -eq $i37.efectivos) -and ((@($i37.porUnidade) | Measure-Object -Property valor -Sum).Sum -eq $i37.efectivos)) ('(' + $i37.efectivos + ' efectivos)')
+Verificar 'F37.3 escaloes etarios, carreira e contrato presentes' ((@($i37.porEscalaoEtario).Count -ge 5) -and (@($i37.porCarreira).Count -ge 1) -and (@($i37.porTipoContrato).Count -ge 1)) ''
+Verificar 'F37.4 absentismo e horas extras calculados' (($null -ne $i37.taxaAbsentismo) -and ($i37.diasUteisPotenciais -gt 0) -and ($null -ne $i37.horasSuplementares)) ('(absentismo=' + $i37.taxaAbsentismo + '% horas extras=' + $i37.horasSuplementares + ')')
+# Os admitidos do F11 nao tem Lugar (nao estao em nenhum servico): as entradas contam so quem passou pelo servico.
+Verificar 'F37.5 entradas e saidas contadas' (($null -ne $i37.entradas) -and ($null -ne $i37.saidas) -and ($i37.entradas -ge 0) -and ($i37.saidas -ge 0)) ('(' + $i37.entradas + ' entradas, ' + $i37.saidas + ' saidas)')
+$i37b = (Chamar 'F37.6 um ano passado' GET ('/relatorios/indicadores?unidadeId=' + $uMin + '&ano=' + ((Get-Date).Year - 1))).Dados
+Verificar 'F37.7 com referencia a 31 de Dezembro' ($i37b.referencia -eq (((Get-Date).Year - 1).ToString() + '-12-31')) ('(' + $i37b.referencia + ')')
+Chamar 'F37.8 NEG ano futuro' GET ('/relatorios/indicadores?unidadeId=' + $uMin + '&ano=' + ((Get-Date).Year + 1)) $null 422 | Out-Null
+Chamar 'F37.9 NEG unidade que nao existe' GET ('/relatorios/indicadores?unidadeId=' + [guid]::NewGuid()) $null 404 | Out-Null
+
+Write-Host ''
 Write-Host '=========== RESUMO ==========='
 $ok = ($script:resultados | Where-Object { $_.OK }).Count
 $total = $script:resultados.Count

@@ -140,6 +140,44 @@
           }
         }
       }
+    },
+    {
+      "actionName": "getIndicadoresPessoal",
+      "method": "GET",
+      "path": "indicadores",
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "unidadeId",
+          "isRequired": true
+        },
+        {
+          "type": "boolean",
+          "name": "incluirSubunidades",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "ano",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "IndicadoresPessoalDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

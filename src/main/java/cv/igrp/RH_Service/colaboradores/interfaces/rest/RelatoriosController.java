@@ -84,4 +84,19 @@ public class RelatoriosController {
         LOGGER.debug("Operation finished");
         return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
     }
+
+    @GetMapping("indicadores")
+    @Operation(summary = "Indicadores do pessoal de um serviço num ano (balanço social): efectivos por género, escalão etário, contrato, carreira e unidade; entradas, saídas, absentismo e horas extras")
+    @ApiResponse(responseCode = "200", description = "Indicadores",
+            content = @Content(schema = @Schema(implementation = cv.igrp.RH_Service.colaboradores.application.dto.IndicadoresPessoalDTO.class)))
+    public ResponseEntity<cv.igrp.RH_Service.colaboradores.application.dto.IndicadoresPessoalDTO> getIndicadoresPessoal(
+            @RequestParam(value = "unidadeId") String unidadeId,
+            @RequestParam(value = "incluirSubunidades", required = false, defaultValue = "true") Boolean incluirSubunidades,
+            @RequestParam(value = "ano", required = false) Integer ano) {
+        LOGGER.debug("Operation started");
+        ResponseEntity<cv.igrp.RH_Service.colaboradores.application.dto.IndicadoresPessoalDTO> response = queryBus.handle(
+                new cv.igrp.RH_Service.colaboradores.application.queries.GetIndicadoresPessoalQuery(unidadeId, incluirSubunidades, ano));
+        LOGGER.debug("Operation finished");
+        return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(response.getBody());
+    }
 }

@@ -1,4 +1,4 @@
-> Updated: 2026-09-24 13:00 (-01:00) — plano de fecho, ponto 2 (mapa de efectivos)
+> Updated: 2026-09-24 15:00 (-01:00) — plano de fecho, ponto 3 (indicadores do pessoal)
 
 ## Goal
 
@@ -11,16 +11,16 @@ fora o processamento salarial (outra aplicação, integração futura) e o SIGDI
 
 ## Current state
 
-**Branch `fix-alinhamento-legislacao`**, **45 commits locais por enviar** (`origin_git_lab`).
+**Branch `fix-alinhamento-legislacao`**, **46 commits locais por enviar** (`origin_git_lab`).
 **Não fazer push sem o utilizador pedir** — merge para `master` no GitLab é deploy.
 
-- **Testes: 1131, 0 falhas** — correr na **cópia isolada** (ver Blockers).
-- **Bateria funcional: 742 passos**, 742 OK (2026-09-24, duas execuções seguidas com reposição
-  entre elas). Blocos F20–F36: feriados (V55), contagem (V56), mapa de férias, parâmetros de férias,
+- **Testes: 1134, 0 falhas** — correr na **cópia isolada** (ver Blockers).
+- **Bateria funcional: 751 passos**, 751 OK (2026-09-24, duas execuções seguidas com reposição
+  entre elas). Blocos F20–F37: feriados (V55), contagem (V56), mapa de férias, parâmetros de férias,
   horários, registo diário, faltas por débito, pedido em horas (V58), pedido pelo próprio em `/me`,
-  registo pelo próprio com validação, trabalho suplementar, relação mensal, aprovação dos pedidos de ausência, horários com data de efeito, lista de antiguidade, preferência de férias pelo próprio e aviso fora da marcação, mapa de efectivos.
+  registo pelo próprio com validação, trabalho suplementar, relação mensal, aprovação dos pedidos de ausência, horários com data de efeito, lista de antiguidade, preferência de férias pelo próprio e aviso fora da marcação, mapa de efectivos, indicadores do pessoal.
 - Migrações até **`V58`**. Próxima livre: **V59** (só para alterar tabelas existentes).
-- **`openapi.json`**: 281 caminhos (regenerado com a app a correr).
+- **`openapi.json`**: 282 caminhos (regenerado com a app a correr).
 - **Sete jobs `@Scheduled`**, sem lock distribuído (fica para o framework de jobs).
 - `.claude/settings.json` e `.claude/settings.local.json` estão **versionados, com alterações locais
   que não entram em nenhum commit** (não são desta tarefa: nunca `git add -A`). Fora do git ficam os
@@ -48,6 +48,9 @@ fora o processamento salarial (outra aplicação, integração futura) e o SIGDI
 | `d9703e0c` (24) | Unidade onde exerce funções pela afectação da data (feriados e horário da unidade) |
 | `36959801` (24) | Horários com data de efeito (base e unidade com histórico; horário que vigorou é imutável; duplicar) |
 | `296c90a8` (24) | Relatórios: lista de antiguidade anual (DL 3/2010, arts. 69.º e 70.º), JSON e CSV |
+| `128c816a` (24) | Mapa de férias: preferência pelo próprio (/me) e aviso de pedido fora da marcação |
+| `3b66ca19` (24) | Relatórios: mapa de efectivos (Lei 20, art. 4.º al. aa)), por serviço, JSON e CSV |
+| (este) (24) | Relatórios: indicadores do pessoal (Lei 20, art. 38.º n.º 3), JSON |
 
 Mais os commits `docs` do handoff. **Plano geral:** 1 feriados ✔ · 2 dispensas ✔ · 3 mapa de férias ✔
 · 4 assiduidade ✔ (horários → registo → faltas → horas → próprio → suplementar → relação). O que
@@ -257,7 +260,7 @@ TE_PESQUISA `…e1f3`.
 ## Test / validation plan
 
 Para cada ponto novo: testes unitários (domínio e serviço), prova com a app, um bloco novo na
-bateria (o próximo é o **F37**) com positivos e negativos, e a bateria inteira duas vezes com
+bateria (o próximo é o **F38**) com positivos e negativos, e a bateria inteira duas vezes com
 reposição entre elas. Os blocos e as armadilhas pagas estão no `scripts/testes_funcionais_README.md`.
 
 ## Open questions
@@ -292,7 +295,7 @@ nesse plano e fechar; você vai fazer tudo de uma vez» — um commit por ponto,
    criação (RH e /me), sem bloquear; `foraDaMarcacao` na caixa da chefia.
 2. ✔ **Mapa de efectivos** (Lei 20, art. 4.º al. aa) e arts. 38.º–41.º): por unidade e cargo, os Lugares
    (activos, providos, vagos, congelados) e os efectivos; JSON e CSV em `/relatorios/`.
-3. **Indicadores do pessoal** (Lei 20, art. 38.º n.º 3 — balanço social): efectivos por vínculo,
+3. ✔ **Indicadores do pessoal** (Lei 20, art. 38.º n.º 3 — balanço social): efectivos por vínculo,
    género, escalão etário, carreira e unidade; entradas e saídas no ano; absentismo e horas extras.
    JSON (o front desenha).
 4. **Dados de demonstração credíveis**: 12–15 colaboradores em 2–3 unidades com chefias (Lugar-pai),

@@ -1260,6 +1260,29 @@ trabalho que o serviço tem **hoje**, por unidade e por cargo; `…/mapa-efectiv
 
 Regras: BR-MEF-01 a BR-MEF-03.
 
+### 6.14 Indicadores do pessoal — Lei n.º 20/X/2023, art. 38.º n.º 3
+
+`GET /api/v1/rh/relatorios/indicadores?unidadeId={uuid}&incluirSubunidades=true&ano=2026` — o balanço
+social de um serviço num ano. **Devolve números; o gráfico é do front.**
+
+```json
+{ "ano": 2026, "referencia": "2026-09-24", "unidadeId": "…", "unidadeNome": "…", "incluirSubunidades": true,
+  "efectivos": 14,
+  "porGenero": [ { "chave": "F", "valor": 8 }, { "chave": "M", "valor": 6 } ],
+  "porEscalaoEtario": [ { "chave": "<30", "valor": 2 }, { "chave": "30-39", "valor": 5 }, … ],
+  "porTipoContrato": [ … ], "porCarreira": [ … ], "porUnidade": [ … ],
+  "entradas": 2, "saidas": 1,
+  "diasFalta": 37, "diasUteisPotenciais": 2604, "taxaAbsentismo": 1.42,
+  "minutosSuplementares": 2520, "horasSuplementares": 42.00 }
+```
+
+- Referência: hoje no ano corrente; 31 de Dezembro num ano passado. Ano futuro → 422.
+- `efectivos`: afectação principal no serviço na referência; cada `por…` soma os efectivos.
+- `taxaAbsentismo`: dias úteis de faltas aprovadas (sem férias) ÷ dias úteis de vínculo × 100.
+- `horasSuplementares`: trabalho suplementar realizado no ano (pelas marcações).
+
+Regras: BR-IND-01 a BR-IND-05.
+
 ### Sub-recurso `documentos` (padrão)
 ```
 POST   .../{ownerId}/documentos            # upload (multipart)

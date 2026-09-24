@@ -597,6 +597,14 @@ existentes -- estas duas colunas mandam descontar antiguidade e mexer em salario
 (`t_leave_mobility_subtype.affects_pay`), que nao sabe dizer "parcial". Por agora sao dois
 contratos diferentes: booleano nas licencas, enum nas ausencias.
 
+### 11.38 Indicadores do pessoal (2026-09-24)
+
+**Nada deixa de funcionar**: um endpoint novo, so leitura.
+
+- `GET /relatorios/indicadores?unidadeId=&incluirSubunidades=true&ano=` -- numeros para graficos:
+  efectivos por genero, escalao etario, contrato, carreira e unidade (listas `{chave, valor}`),
+  entradas, saidas, taxa de absentismo e horas extras. O grafico e do front.
+
 ### 11.37 Mapa de efectivos (2026-09-24)
 
 **Nada deixa de funcionar**: dois endpoints novos, so leitura.
@@ -844,6 +852,7 @@ resposta ja reflecte isto -- nao ha nada a recalcular no ecra.
 - [ ] Separador de horário no colaborador: histórico, atribuir a partir de uma data (horário + regime de prestação) e o horário vigente com a origem.
 - [ ] Ecrã de assiduidade do colaborador: semana/mês com períodos, horas trabalhadas vs esperadas, dias com anomalia destacados, e as acções corrigir e anular (com motivo).
 - [ ] Pedido de ausência: horas de início e fim (só para tipos que as admitem), e a acção terminar para pedidos em horas aprovados.
+- [ ] Indicadores: painel do serviço (gráficos por género, idade, contrato, carreira, unidade; absentismo; horas extras; entradas e saídas).
 - [ ] Mapa de efectivos: ecrã por unidade e cargo (lugares, providos, vagos, congelados) e o CSV.
 - [ ] Férias no `/me`: indicar a preferência até 31 de Janeiro, ver a marcação; a chefia vê a da equipa. Mostrar o aviso de pedido fora da marcação.
 - [ ] Lista de antiguidade: ecrã por serviço e ano, agrupado por cargo, e o CSV para afixar.
