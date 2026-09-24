@@ -187,6 +187,11 @@ for dito in re.findall(r"ahead (\d+)", s):
 # A data do handoff nao pode ser mais antiga do que o ultimo commit de codigo.
 m_u = re.search(r"Updated: (\d{4}-\d{2}-\d{2} \d{2}:\d{2})", s)
 ultimo = shell("git log -1 --format=%ci -- src")[:16]
+# Quando o handoff entra no proprio commit do codigo, a hora do commit e sempre posterior ao
+# "Updated" (escreve-se antes de commitar): nesse caso nao ha nada a apontar.
+_commit_codigo = shell("git log -1 --format=%H -- src")
+if _commit_codigo and HANDOFF.replace(chr(92), "/") in shell("git show --name-only --format= " + _commit_codigo):
+    ultimo = ""
 if m_u and ultimo:
     verifica("data do handoff", m_u.group(1) >= ultimo,
              "Updated %s, mas o ultimo commit de codigo e de %s" % (m_u.group(1), ultimo))

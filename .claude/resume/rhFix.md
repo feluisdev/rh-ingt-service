@@ -11,7 +11,7 @@ fora o processamento salarial (outra aplicação, integração futura) e o SIGDI
 
 ## Current state
 
-**Branch `fix-alinhamento-legislacao`**, **42 commits locais por enviar** (`origin_git_lab`).
+**Branch `fix-alinhamento-legislacao`**, **43 commits locais por enviar** (`origin_git_lab`).
 **Não fazer push sem o utilizador pedir** — merge para `master` no GitLab é deploy.
 
 - **Testes: 1123, 0 falhas** — correr na **cópia isolada** (ver Blockers).
@@ -47,7 +47,7 @@ fora o processamento salarial (outra aplicação, integração futura) e o SIGDI
 | `f60d0b0c` (24) | Pedidos de ausência: aprovação automática dos tipos sem aprovação; decisão pela chefia directa |
 | `d9703e0c` (24) | Unidade onde exerce funções pela afectação da data (feriados e horário da unidade) |
 | `36959801` (24) | Horários com data de efeito (base e unidade com histórico; horário que vigorou é imutável; duplicar) |
-| (2026-09-24) | Relatórios: lista de antiguidade anual (DL 3/2010, arts. 69.º e 70.º), JSON e CSV |
+| `296c90a8` (24) | Relatórios: lista de antiguidade anual (DL 3/2010, arts. 69.º e 70.º), JSON e CSV |
 
 Mais os commits `docs` do handoff. **Plano geral:** 1 feriados ✔ · 2 dispensas ✔ · 3 mapa de férias ✔
 · 4 assiduidade ✔ (horários → registo → faltas → horas → próprio → suplementar → relação). O que
