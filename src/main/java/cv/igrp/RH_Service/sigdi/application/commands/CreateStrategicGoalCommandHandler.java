@@ -1,14 +1,12 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
-import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.constants.StrategicGoalsPerspective;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateStategicGoalDTO;
+import cv.igrp.RH_Service.sigdi.application.service.StrategicGoalWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.InstitutionalIdentityRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
-import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.StrategicGoalMapper;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
@@ -28,16 +26,16 @@ public class CreateStrategicGoalCommandHandler
 
   private final InstitutionalIdentityRepository identityRepository;
   private final StrategicGoalRepository goalRepository;
-  private final PaaSubmissionPeriodRepository periodRepository;
+  private final StrategicGoalWindowPolicy windowPolicy;
   private final StrategicGoalMapper goalMapper;
 
   public CreateStrategicGoalCommandHandler(InstitutionalIdentityRepository identityRepository,
       StrategicGoalRepository goalRepository,
-      PaaSubmissionPeriodRepository periodRepository,
+      StrategicGoalWindowPolicy windowPolicy,
       StrategicGoalMapper goalMapper) {
     this.identityRepository = identityRepository;
     this.goalRepository = goalRepository;
-    this.periodRepository = periodRepository;
+    this.windowPolicy = windowPolicy;
     this.goalMapper = goalMapper;
   }
 
@@ -53,10 +51,9 @@ public class CreateStrategicGoalCommandHandler
       throw IgrpResponseStatusException.badRequest(
           "O ano é obrigatório para a submissão de objetivos estratégicos PAA/BSC.");
     }
-    periodRepository.findActiveByTypeAndYearAndPurpose(
-            PaaLevel.UNIT_LEVEL, request.getYear(), Purpose.PAA_BSC_OBJECTIVES)
-        .orElseThrow(() -> IgrpResponseStatusException.badRequest(
-            "Prazo não configurado para a submissão de objetivos estratégicos PAA/BSC"));
+    // Fase 136-06: critério movido para StrategicGoalWindowPolicy -- deixa de ser consulta em
+    // linha, para não repetir a terceira cópia do mesmo critério.
+    windowPolicy.requireOpenFor(request.getYear());
 
     var activeIdentity = identityRepository.findActive()
         .orElseThrow(() -> IgrpResponseStatusException.notFound(

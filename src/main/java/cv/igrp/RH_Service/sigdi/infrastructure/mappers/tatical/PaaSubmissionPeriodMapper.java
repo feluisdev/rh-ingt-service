@@ -19,10 +19,15 @@ public class PaaSubmissionPeriodMapper {
                 entity.getStartDate(),
                 entity.getEndDate(),
                 entity.getStatus(),
-                entity.getYear()
+                entity.getYear(),
+                entity.getCreatedDate(),
+                entity.getCreatedBy()
         );
     }
 
+    // toEntity intentionally does NOT write createdDate/createdBy: the only writer of those two
+    // columns is AuditingEntityListener over updatable=false columns (created_date/created_by in
+    // AuditEntity). Writing them here would aggravate A-132-101, which D-19 expressly forbids.
     public PaaSubmissionPeriodEntity toEntity(PaaSubmissionPeriod domain) {
         if (domain == null) return null;
 

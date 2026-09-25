@@ -3,23 +3,18 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.security.SecurityContextHelper;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
-import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.dto.BudgetInfoDTO;
 import cv.igrp.RH_Service.sigdi.application.port.EconomicClassifierPort;
 import cv.igrp.RH_Service.sigdi.application.port.FuncionarioLookupPort;
 import cv.igrp.RH_Service.sigdi.application.port.OrganicaLookupPort;
+import cv.igrp.RH_Service.sigdi.application.service.ActivityApprovalHistoryRecorder;
+import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
-import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.Budget;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.DateRange;
-import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.TacticalActivitiesEntity;
-import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.TaticalActivityHistoryEntity;
-import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.TacticalActivitiesEntityRepository;
-import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.TaticalActivityHistoryEntityRepository;
-import java.util.UUID;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import org.springframework.http.HttpStatus;
@@ -42,9 +37,8 @@ public class CreateTacticalActivityCommandHandler
   private final SecurityContextHelper securityContextHelper;
   private final OrganicaLookupPort organicaLookupPort;
   private final FuncionarioLookupPort funcionarioLookupPort;
-  private final TaticalActivityHistoryEntityRepository historyRepository;
-  private final TacticalActivitiesEntityRepository entityRepository;
-  private final PaaSubmissionPeriodRepository periodRepository;
+  private final ActivityApprovalHistoryRecorder historyRecorder;
+  private final PaaActivityWindowPolicy windowPolicy;
 
   public CreateTacticalActivityCommandHandler(EconomicClassifierPort economicClassifierPort,
       StrategicGoalRepository goalRepository,
@@ -52,18 +46,16 @@ public class CreateTacticalActivityCommandHandler
       SecurityContextHelper securityContextHelper,
       OrganicaLookupPort organicaLookupPort,
       FuncionarioLookupPort funcionarioLookupPort,
-      TaticalActivityHistoryEntityRepository historyRepository,
-      TacticalActivitiesEntityRepository entityRepository,
-      PaaSubmissionPeriodRepository periodRepository) {
+      ActivityApprovalHistoryRecorder historyRecorder,
+      PaaActivityWindowPolicy windowPolicy) {
     this.economicClassifierPort = economicClassifierPort;
     this.goalRepository = goalRepository;
     this.activityRepository = activityRepository;
     this.securityContextHelper = securityContextHelper;
     this.organicaLookupPort = organicaLookupPort;
     this.funcionarioLookupPort = funcionarioLookupPort;
-    this.historyRepository = historyRepository;
-    this.entityRepository = entityRepository;
-    this.periodRepository = periodRepository;
+    this.historyRecorder = historyRecorder;
+    this.windowPolicy = windowPolicy;
   }
 
   @IgrpCommandHandler
@@ -110,10 +102,10 @@ public class CreateTacticalActivityCommandHandler
         : PaaLevel.UNIT_LEVEL;
 
     // PRAZO-03: fail-closed deadline enforcement — no active PAA period for the
-    // resolved level/current year blocks activity creation (BLOQ-02).
-    periodRepository.findActiveByTypeAndYearAndPurpose(paaLevel, java.time.Year.now().getValue(), Purpose.PAA)
-        .orElseThrow(() -> IgrpResponseStatusException.badRequest(
-            "Prazo não configurado para a submissão de atividades do PAA"));
+    // resolved level/current year blocks activity creation (BLOQ-02). 136-11: consulta
+    // movida para o dono único do critério (PaaActivityWindowPolicy), que já lê o ano no
+    // fuso de Cabo Verde.
+    windowPolicy.requireOpenFor(paaLevel);
 
     TacticalActivity activity = TacticalActivity.create(
         securityContextHelper.getCurrentInstitutionId(),
@@ -131,23 +123,11 @@ public class CreateTacticalActivityCommandHandler
 
     TacticalActivity saved = activityRepository.save(activity);
 
-    // Save initial history
-    TacticalActivitiesEntity actEntity = entityRepository.findById(saved.getId().getValor().getValor()).orElse(null);
-    if (actEntity != null) {
-      TaticalActivityHistoryEntity history = new TaticalActivityHistoryEntity();
-      history.setId(UUID.randomUUID());
-      history.setInstitutionId(actEntity.getInstitutionId());
-      history.setActivityId(actEntity);
-      history.setAction(saved.getStatus().getCode());
-      try {
-        history.setActorId(UUID.fromString(securityContextHelper.getCurrentUserId()));
-      } catch (Exception e) {
-        history.setActorId(null);
-      }
-      history.setFromStatus("NEW");
-      history.setToStatus(saved.getStatus().getCode());
-      historyRepository.save(history);
-    }
+    // A-135-2AB (Phase 136, plano 136-10): escrita de histórico movida para o colaborador
+    // único (ActivityApprovalHistoryRecorder), depois do save -- mesmo comportamento de antes
+    // (fromStatus = "NEW", toStatus/action = estado inicial da atividade criada).
+    historyRecorder.record(saved.getId(), "NEW", saved.getStatus().getCode(),
+        saved.getStatus().getCode(), null);
 
     TacticalActivityResponseDTO response = new TacticalActivityResponseDTO();
     response.setId(saved.getId().getValor().getValor());

@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import cv.igrp.RH_Service.shared.application.constants.Estado;
@@ -70,6 +72,18 @@ public class CreateStrategyMapLinkCommandHandlerTest {
             StrategicGoalsPerspective perspective) {
         return StrategicGoal.reconstruct(StrategicGoalId.gerarNovo(), UUID.randomUUID(), identityId,
                 "Objetivo de teste", perspective, BigDecimal.ONE, Estado.A, "Descrição de teste",
+                null, null, 2026, List.of());
+    }
+
+    /**
+     * The same goal, cancelled. Estado.I is the persisted code for "Inativo" and is what
+     * StrategicGoal.isActive() answers false to -- the status is compared through the aggregate
+     * and never as a string, here or in the handler.
+     */
+    private StrategicGoal cancelledGoalWithPerspective(InstitutionalIdentityId identityId,
+            StrategicGoalsPerspective perspective) {
+        return StrategicGoal.reconstruct(StrategicGoalId.gerarNovo(), UUID.randomUUID(), identityId,
+                "Objetivo cancelado de teste", perspective, BigDecimal.ONE, Estado.I, "Descrição de teste",
                 null, null, 2026, List.of());
     }
 
@@ -287,6 +301,79 @@ public class CreateStrategyMapLinkCommandHandlerTest {
                 assertThrows(IgrpResponseStatusException.class, () -> handler.handle(command));
 
         assertEquals("Já existe um link com os mesmos goals", ex.getBody().getTitle());
+    }
+
+    /**
+     * FIX-10 / A-125-01, wave 5 of Phase 130. The pair is chosen so that the ONLY thing wrong with
+     * it is the status: LEARNING(4) -> PROCESS(3) is the direction the rule allows, and it is the
+     * very pair aprendizagemParaProcessosIsValid above proves is accepted when both goals are
+     * active. If this test ever passes for the wrong reason, that one stops passing.
+     */
+    @Test
+    void cancelledSourceGoalIsRejectedAndNeverSaved() {
+        InstitutionalIdentity identity = activeIdentity();
+        StrategicGoal sourceGoal =
+                cancelledGoalWithPerspective(identity.getId(), StrategicGoalsPerspective.LEARNING);
+        StrategicGoal targetGoal = goalWithPerspective(identity.getId(), StrategicGoalsPerspective.PROCESS);
+        stubGoals(identity, sourceGoal, targetGoal);
+
+        CreateStrategyMapLinkCommand command =
+                new CreateStrategyMapLinkCommand(linkDto(sourceGoal.getId(), targetGoal.getId()));
+
+        IgrpResponseStatusException ex =
+                assertThrows(IgrpResponseStatusException.class, () -> handler.handle(command));
+
+        // The message names WHICH end is cancelled. "One of the two goals is cancelled" would make
+        // the user open both to find out.
+        assertEquals("Não é possível ligar: o objetivo de origem está cancelado", ex.getBody().getTitle());
+        verify(linkRepository, never()).save(any(StrategyMapLink.class));
+    }
+
+    @Test
+    void cancelledTargetGoalIsRejectedAndNeverSaved() {
+        InstitutionalIdentity identity = activeIdentity();
+        StrategicGoal sourceGoal = goalWithPerspective(identity.getId(), StrategicGoalsPerspective.LEARNING);
+        StrategicGoal targetGoal =
+                cancelledGoalWithPerspective(identity.getId(), StrategicGoalsPerspective.PROCESS);
+        stubGoals(identity, sourceGoal, targetGoal);
+
+        CreateStrategyMapLinkCommand command =
+                new CreateStrategyMapLinkCommand(linkDto(sourceGoal.getId(), targetGoal.getId()));
+
+        IgrpResponseStatusException ex =
+                assertThrows(IgrpResponseStatusException.class, () -> handler.handle(command));
+
+        assertEquals("Não é possível ligar: o objetivo de destino está cancelado", ex.getBody().getTitle());
+        verify(linkRepository, never()).save(any(StrategyMapLink.class));
+    }
+
+    /**
+     * The other half of the guard, and the half a guard is usually missing: that it did not close
+     * the legitimate path. Two ACTIVE goals in a valid direction are still created, and the save
+     * still happens. Without this case, a guard that refused everything would look correct.
+     */
+    @Test
+    void bothGoalsActiveIsStillAcceptedAfterTheStatusGuard() {
+        InstitutionalIdentity identity = activeIdentity();
+        StrategicGoal sourceGoal = goalWithPerspective(identity.getId(), StrategicGoalsPerspective.LEARNING);
+        StrategicGoal targetGoal = goalWithPerspective(identity.getId(), StrategicGoalsPerspective.PROCESS);
+        stubGoals(identity, sourceGoal, targetGoal);
+        when(perspectiveConfigRepository.findByCode("LEARNING"))
+                .thenReturn(Optional.of(perspectiveConfig("LEARNING", 4)));
+        when(perspectiveConfigRepository.findByCode("PROCESS"))
+                .thenReturn(Optional.of(perspectiveConfig("PROCESS", 3)));
+        when(linkRepository.findBySourceAndTarget(sourceGoal.getId(), targetGoal.getId()))
+                .thenReturn(Optional.empty());
+        when(linkRepository.save(any(StrategyMapLink.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        CreateStrategyMapLinkCommand command =
+                new CreateStrategyMapLinkCommand(linkDto(sourceGoal.getId(), targetGoal.getId()));
+
+        ResponseEntity<StrategyMapLinkResponseDTO> response = handler.handle(command);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        verify(linkRepository).save(any(StrategyMapLink.class));
     }
 
     @Test

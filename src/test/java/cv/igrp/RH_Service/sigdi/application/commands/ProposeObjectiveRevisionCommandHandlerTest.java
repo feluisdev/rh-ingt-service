@@ -3,6 +3,8 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -12,16 +14,13 @@ import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
 import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
-import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
-import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapInterimFeedbackDTO;
+import cv.igrp.RH_Service.sigdi.application.service.SiadapObjectivesWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapInterimFeedback;
 import cv.igrp.RH_Service.sigdi.domain.compliance.repository.SiadapEvaluationRepository;
 import cv.igrp.RH_Service.sigdi.domain.compliance.repository.SiadapInterimFeedbackRepository;
 import cv.igrp.RH_Service.sigdi.domain.compliance.valueobject.ObjectiveRevision;
-import cv.igrp.RH_Service.sigdi.domain.tatical.models.PaaSubmissionPeriod;
-import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.compliance.SiadapInterimFeedbackMapper;
 
 import java.math.BigDecimal;
@@ -49,7 +48,7 @@ class ProposeObjectiveRevisionCommandHandlerTest {
     private SiadapEvaluationRepository evaluationRepository;
 
     @Mock
-    private PaaSubmissionPeriodRepository periodRepository;
+    private SiadapObjectivesWindowPolicy windowPolicy;
 
     @Mock
     private SiadapInterimFeedbackMapper mapper;
@@ -87,8 +86,6 @@ class ProposeObjectiveRevisionCommandHandlerTest {
 
         when(evaluationRepository.findById(any())).thenReturn(Optional.of(evaluation));
         when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.from(evaluation.getEvaluatorId()));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.INDIVIDUAL_LEVEL, YEAR, Purpose.SIADAP_INTERIM))
-                .thenReturn(Optional.of(org.mockito.Mockito.mock(PaaSubmissionPeriod.class)));
         when(feedbackRepository.findByEvaluationId(evalUuid)).thenReturn(Optional.of(feedback));
         when(feedbackRepository.save(any(SiadapInterimFeedback.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -100,6 +97,8 @@ class ProposeObjectiveRevisionCommandHandlerTest {
         ResponseEntity<SiadapInterimFeedbackDTO> response = handler.handle(command);
 
         assertEquals(200, response.getStatusCode().value());
+
+        verify(windowPolicy, times(1)).requireRevisionOpenFor(YEAR);
 
         ArgumentCaptor<SiadapInterimFeedback> captor = ArgumentCaptor.forClass(SiadapInterimFeedback.class);
         verify(feedbackRepository, times(1)).save(captor.capture());
@@ -141,16 +140,17 @@ class ProposeObjectiveRevisionCommandHandlerTest {
 
         assertEquals(403, exception.getBody().getStatus());
         verify(feedbackRepository, never()).save(any());
+        verify(windowPolicy, never()).requireRevisionOpenFor(anyInt());
     }
 
     @Test
-    void throwsBadRequestWhenNoActivePeriodExists() {
+    void throwsBadRequestWhenWindowPolicyRefusesTheEvaluationYear() {
         SiadapEvaluation evaluation = buildEvaluation();
 
         when(evaluationRepository.findById(any())).thenReturn(Optional.of(evaluation));
         when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.from(evaluation.getEvaluatorId()));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.INDIVIDUAL_LEVEL, YEAR, Purpose.SIADAP_INTERIM))
-                .thenReturn(Optional.empty());
+        doThrow(IgrpResponseStatusException.badRequest("Prazo não configurado para este ano"))
+                .when(windowPolicy).requireRevisionOpenFor(YEAR);
 
         ProposeObjectiveRevisionCommand command = new ProposeObjectiveRevisionCommand(
                 evaluation.getId().getStringValor(), UUID.randomUUID().toString());

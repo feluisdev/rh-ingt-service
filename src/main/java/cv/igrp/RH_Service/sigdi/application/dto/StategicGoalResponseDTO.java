@@ -59,4 +59,17 @@ public class StategicGoalResponseDTO  {
 
   private List<StrategicIndicatorDTO> indicators = new ArrayList<>();
 
+  // FIX-09 / A-124-02: the links that the rule in force would no longer allow to be created,
+  // produced by StrategyLinkCoherencePolicy AFTER the goal is saved. Decision 2 of
+  // 130-CONTEXT.md is WARN AND SAVE: this list travels on a 200 next to the saved goal, and it is
+  // never an error payload -- routing it through the error path would make the product look like
+  // it failed when it saved, which is the mirror image of the defect being fixed.
+  //
+  // NO INITIALIZER, unlike "indicators" above, and the difference is deliberate: this field must
+  // stay null when there is nothing to warn about, so that "no warning" is a state of its own
+  // rather than an empty list a caller has to interpret. A regeneration by iGRP Studio would
+  // delete this field and the warning would stop reaching the user without anything failing --
+  // UpdateStategicGoalDtoPerspectiveContractTest fails in that case.
+  private List<IncoherentLinkDTO> incoherentLinks;
+
 }

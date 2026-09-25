@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapInterimFeedbackDTO;
+import cv.igrp.RH_Service.sigdi.application.service.SiadapObjectivesWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapInterimFeedback;
 import cv.igrp.RH_Service.sigdi.domain.compliance.repository.SiadapEvaluationRepository;
@@ -40,6 +41,7 @@ public class AcceptObjectiveRevisionCommandHandler
 
   private final SiadapInterimFeedbackRepository feedbackRepository;
   private final SiadapEvaluationRepository evaluationRepository;
+  private final SiadapObjectivesWindowPolicy windowPolicy;
   private final SiadapInterimFeedbackMapper mapper;
   private final CurrentEmployeeResolver currentEmployeeResolver;
 
@@ -57,6 +59,13 @@ public class AcceptObjectiveRevisionCommandHandler
     if (!currentEmployeeId.equals(evaluation.getEmployeeId()))
       throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN,
           "Apenas o avaliado desta avaliação pode aceitar revisões de objetivos");
+
+    // D-47 (2026-09-10): A-132-115 found this handler -- the act that actually fixes the
+    // objective revision -- saved twice without consulting the SIADAP_INTERIM window at all.
+    // Placed here, in the validation block alongside the other refusals, and deliberately
+    // BEFORE either aggregate is read for mutation: never between the two save() calls below,
+    // per this class's own ordering contract (see class javadoc).
+    windowPolicy.requireRevisionOpenFor(evaluation.getYear());
 
     UUID evalUuid = UUID.fromString(command.getEvaluationId());
     SiadapInterimFeedback feedback = feedbackRepository.findByEvaluationId(evalUuid)

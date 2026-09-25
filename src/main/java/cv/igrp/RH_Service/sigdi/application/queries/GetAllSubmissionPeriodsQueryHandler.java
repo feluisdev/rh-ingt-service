@@ -55,6 +55,8 @@ public class GetAllSubmissionPeriodsQueryHandler implements QueryHandler<GetAllS
             dto.setYear(p.getYear());
             dto.setPurpose(p.getPurpose().getCode());
             dto.setPurposeDesc(p.getPurpose().getDescription());
+            dto.setCreatedDate(p.getCreatedDate());
+            dto.setCreatedBy(p.getCreatedBy());
 
             long days = ChronoUnit.DAYS.between(LocalDate.now(AppTimeZone.CABO_VERDE), p.getEndDate());
             // NAV-03 (ACH-M-03): this used to be Math.max(0, days), which reported an expired

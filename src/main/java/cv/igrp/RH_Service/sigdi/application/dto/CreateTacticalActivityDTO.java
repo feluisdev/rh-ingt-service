@@ -36,9 +36,14 @@ public class CreateTacticalActivityDTO  {
 	@Size(max = 2000, message = "O campo <descriptionWhat> não pode ter mais de 2000 caracteres")
   
   private String descriptionWhat ;
-  @Size(min = 1, message = "O campo <justificationWhy> deve ter pelo menos 1 caractere")
+  // Editado manualmente apesar do cabeçalho "DO NOT MODIFY" -- mesmo precedente do commit
+  // 613207ed (A-135-2AA): o campo já tinha limite no cliente (ActivitySchema.justification_why,
+  // src/app/(myapp)/types/tactical.ts:197-199, min(10)) que o servidor nunca exigiu. O manifesto
+  // (.igrpstudio/sigdi/dto/CreateTacticalActivityDTO.json) já sabe exprimir minLength e foi
+  // atualizado no mesmo commit -- 136-09, D-52.
+  @Size(min = 10, message = "O campo <justificationWhy> deve ter pelo menos 10 caracteres")
 	@Size(max = 2000, message = "O campo <justificationWhy> não pode ter mais de 2000 caracteres")
-  
+
   private String justificationWhy ;
   @Size(min = 1, message = "O campo <locationWhere> deve ter pelo menos 1 caractere")
 	@Size(max = 2000, message = "O campo <locationWhere> não pode ter mais de 2000 caracteres")

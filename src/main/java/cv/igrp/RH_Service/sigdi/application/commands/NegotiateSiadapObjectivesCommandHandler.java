@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapEvaluationDTO;
+import cv.igrp.RH_Service.sigdi.application.service.SiadapObjectivesWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;
 import cv.igrp.RH_Service.sigdi.domain.compliance.repository.SiadapEvaluationRepository;
 import cv.igrp.RH_Service.sigdi.domain.compliance.valueobject.SiadapEvaluationId;
@@ -23,6 +24,7 @@ public class NegotiateSiadapObjectivesCommandHandler
 
   private final SiadapEvaluationRepository evaluationRepository;
   private final SiadapEvaluationMapper mapper;
+  private final SiadapObjectivesWindowPolicy windowPolicy;
   private final CurrentEmployeeResolver currentEmployeeResolver;
 
   @IgrpCommandHandler
@@ -39,6 +41,13 @@ public class NegotiateSiadapObjectivesCommandHandler
     if (!currentEmployeeId.equals(evaluation.getEmployeeId()))
       throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN,
           "Apenas o avaliado desta avaliação pode solicitar negociação dos objetivos propostos");
+
+    // D-47 (2026-09-10): A-132-114 found the negotiate step of contractualization saved without
+    // consulting the SIADAP window at all. It now consults the same class
+    // ContractualizeObjectivesCommandHandler and AcceptSiadapObjectivesCommandHandler consult, so
+    // propose/negotiate/accept can no longer disagree about whether the window is open
+    // (Plano 136-05).
+    windowPolicy.requireContractualizationOpenFor(evaluation.getYear());
 
     // WR-02: persist the avaliado's justification so the avaliador can see why negotiation
     // was requested when reopening the evaluation (single "last comment" field, no history).

@@ -41,6 +41,26 @@ public class UpsertSiadapConfigCommandHandler
       }
     }
 
+    if (req.getGoodScore() != null && req.getExcellentScore() != null) {
+      if (req.getExcellentScore().compareTo(req.getGoodScore()) <= 0) {
+        throw IgrpResponseStatusException.badRequest(
+            "A nota mínima de Excelente deve ser superior à nota mínima de Bom");
+      }
+    }
+
+    if (req.getGoodQuota() != null && req.getExcellentQuota() != null) {
+      if (req.getGoodQuota().compareTo(java.math.BigDecimal.ZERO) < 0
+          || req.getExcellentQuota().compareTo(java.math.BigDecimal.ZERO) < 0) {
+        throw IgrpResponseStatusException.badRequest(
+            "As quotas de diferenciação de desempenho não podem ser negativas");
+      }
+      java.math.BigDecimal totalQuota = req.getGoodQuota().add(req.getExcellentQuota());
+      if (totalQuota.compareTo(new java.math.BigDecimal("100")) > 0) {
+        throw IgrpResponseStatusException.badRequest(
+            "A soma das quotas de Bom e Excelente não pode exceder 100%");
+      }
+    }
+
     SiadapConfig config = configRepository.findByFiscalYear(year)
         .map(existing -> existing.update(
             req.getGoodScore(),

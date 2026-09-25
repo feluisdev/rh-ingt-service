@@ -302,6 +302,49 @@ class PaaSubmissionPeriodOpeningSchedulerTest {
     }
 
     /**
+     * A-132-102 (Fase 136, plano 07): o Javadoc de classe passou a declarar, como primeiro
+     * parágrafo, que este agendador nunca escreve um {@link PaaSubmissionPeriod}. Este teste
+     * torna essa declaração executável -- prova, por {@code verify}, que
+     * {@link PaaSubmissionPeriodRepository#save} nunca é chamado, tanto numa passagem que gera
+     * lote como numa que não gera nada, cobrindo os dois braços do defeito que a ficha descreve
+     * (um nome de método que promete escrita e uma classe que só lê e gera formulários).
+     */
+    @Test
+    void generateFormsForOpenPeriodsNeverSavesAPeriodWhenABatchIsGenerated() {
+        LocalDate today = LocalDate.now(AppTimeZone.CABO_VERDE);
+        PaaSubmissionPeriod period = buildActivePeriod(today);
+
+        when(periodRepository.findOpenActiveOn(eq(today), eq(BATCH_SIZE))).thenReturn(List.of(period));
+        when(formGenerationBatchRepository.findByPeriodId(period.getId())).thenReturn(List.of());
+        when(periodFormGenerationService.generateFor(any(), anyBooleanDryRun()))
+                .thenReturn(buildBatch(period.getId(), FormGenerationBatchStatus.COMPLETED));
+
+        scheduler.generateFormsForOpenPeriods();
+
+        verify(periodFormGenerationService, times(1)).generateFor(eq(period), eq(false));
+        verify(periodRepository, never()).save(any());
+    }
+
+    /**
+     * Mesma prova, braço "nada para gerar" -- um lote terminal já existente bloqueia a
+     * regeneração, e mesmo aí o repositório de períodos continua sem ser gravado.
+     */
+    @Test
+    void generateFormsForOpenPeriodsNeverSavesAPeriodWhenNothingIsGenerated() {
+        LocalDate today = LocalDate.now(AppTimeZone.CABO_VERDE);
+        PaaSubmissionPeriod period = buildActivePeriod(today);
+
+        when(periodRepository.findOpenActiveOn(eq(today), eq(BATCH_SIZE))).thenReturn(List.of(period));
+        when(formGenerationBatchRepository.findByPeriodId(period.getId()))
+                .thenReturn(List.of(buildBatch(period.getId(), FormGenerationBatchStatus.COMPLETED)));
+
+        scheduler.generateFormsForOpenPeriods();
+
+        verify(periodFormGenerationService, never()).generateFor(any(), anyBoolean());
+        verify(periodRepository, never()).save(any());
+    }
+
+    /**
      * Legenda da garantia, não a garantia. Quem impede que um estado novo do enum fique por
      * classificar é o compilador: {@code blocksRegeneration} é um {@code switch} de expressão sem
      * ramo {@code default}, e uma constante por tratar quebra a compilação. Este teste existe

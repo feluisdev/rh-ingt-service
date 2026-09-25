@@ -18,6 +18,17 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
+ * <b>A-132-102 (Fase 136, plano 07): esta classe nunca escreve um {@link PaaSubmissionPeriod}.</b>
+ * Não há, neste ficheiro, uma única chamada a {@code PaaSubmissionPeriodRepository.save} -- o
+ * agendador só lê períodos já a decorrer (via {@code findOpenActiveOn}) e gera lotes de
+ * formulários a partir deles. Quem grava um {@link PaaSubmissionPeriod} de facto, na abertura, é
+ * {@code CreatePaaSubmissionPeriodCommandHandler}, chamado pelo pedido explícito de criação de
+ * janela -- este agendador não participa nesse gesto. O nome desta classe, herdado do
+ * {@code PRZ-01} (onde "abertura" significa "o primeiro dia em que o período está a decorrer"),
+ * descreve o <i>gatilho</i> que despoleta o varrimento, não o <i>efeito</i> de gravar um período
+ * -- e foi essa ambiguidade nome/efeito que produziu o {@code A-132-102}: um leitor apressado do
+ * nome da classe podia concluir, sem ler o corpo, que ela abre períodos.
+ * <p>
  * Agendador diário que despoleta a geração automática de formulários (Fase 119, {@code PRZ-01})
  * assim que um {@link PaaSubmissionPeriod} começa a decorrer. O agregado não tem evento de
  * abertura -- nasce {@code OPEN} com um {@code startDate} que pode estar no futuro; "abertura",

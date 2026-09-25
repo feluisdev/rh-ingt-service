@@ -69,6 +69,34 @@ public class CreateStrategyMapLinkCommandHandler
     var targetGoal = goalRepository.findById(targetId)
         .orElseThrow(() -> IgrpResponseStatusException.badRequest("targetGoalId inválido"));
 
+    // Closes A-125-01 (Média, FIX-10): the nine guards this handler already ran never consulted
+    // the goals' status, so a link to a CANCELLED goal was created without a word. Decision 3 of
+    // 130-CONTEXT.md is REFUSE and not warn: the other nine all refuse with
+    // IgrpResponseStatusException.badRequest, and a tenth that only warned would be the single
+    // exception in a handler built end to end to refuse.
+    //
+    // WHY THE POSITION IS HERE AND NOT EARLIER. A goal's status can only be read once the goal has
+    // been found, so this cannot precede the two findById calls above. And it deliberately runs
+    // BEFORE the active-identity ownership check that follows: refusing by status first would
+    // answer "that goal is cancelled" about a goal belonging to ANOTHER identity, handing a prober
+    // a fact about data outside the active identity. Ownership is checked after, so the answer
+    // stays inside the identity the caller is already entitled to see.
+    //
+    // THE GUARD IS FOR CREATING. IT NEVER READS, FILTERS OR DELETES WHAT IS ALREADY STORED.
+    // The links already in this database point at cancelled goals -- they are the finding
+    // materialised -- and they CONTINUE TO EXIST AND TO BE RETURNED by every read path. Applying
+    // this rule on reading or on rendering would make them vanish, and with them the evidence.
+    // Where a stored link has to be NAMED rather than refused, that is StrategyLinkCoherencePolicy
+    // (which warns, with reason GOAL_CANCELLED), never this handler.
+    if (!sourceGoal.isActive()) {
+      throw IgrpResponseStatusException.badRequest(
+          "Não é possível ligar: o objetivo de origem está cancelado");
+    }
+    if (!targetGoal.isActive()) {
+      throw IgrpResponseStatusException.badRequest(
+          "Não é possível ligar: o objetivo de destino está cancelado");
+    }
+
     if (!activeIdentity.getId().equals(sourceGoal.getIdentityId())
         || !activeIdentity.getId().equals(targetGoal.getIdentityId())) {
       throw IgrpResponseStatusException.badRequest("Os goals devem pertencer à identity ativa");

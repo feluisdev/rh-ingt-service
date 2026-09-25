@@ -18,4 +18,10 @@ public class ListSiadapEvaluationsQuery implements Query {
   private String status;
   private String pageNumber;
   private String pageSize;
+  private String evaluatorId;
+
+  public ListSiadapEvaluationsQuery(Integer year, String organicUnitId, String status, String pageNumber, String pageSize) {
+    this(year, organicUnitId, status, pageNumber, pageSize, null);
+  }
 }
+

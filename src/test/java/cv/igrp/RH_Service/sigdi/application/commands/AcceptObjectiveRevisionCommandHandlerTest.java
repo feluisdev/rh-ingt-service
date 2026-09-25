@@ -3,6 +3,8 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -13,6 +15,7 @@ import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
 import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapInterimFeedbackDTO;
+import cv.igrp.RH_Service.sigdi.application.service.SiadapObjectivesWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapInterimFeedback;
 import cv.igrp.RH_Service.sigdi.domain.compliance.repository.SiadapEvaluationRepository;
@@ -47,6 +50,9 @@ class AcceptObjectiveRevisionCommandHandlerTest {
 
     @Mock
     private SiadapInterimFeedbackMapper mapper;
+
+    @Mock
+    private SiadapObjectivesWindowPolicy windowPolicy;
 
     @Mock
     private CurrentEmployeeResolver currentEmployeeResolver;
@@ -118,6 +124,8 @@ class AcceptObjectiveRevisionCommandHandlerTest {
 
         assertEquals(200, response.getStatusCode().value());
 
+        verify(windowPolicy, times(1)).requireRevisionOpenFor(YEAR);
+
         ArgumentCaptor<SiadapInterimFeedback> feedbackCaptor = ArgumentCaptor.forClass(SiadapInterimFeedback.class);
         verify(feedbackRepository, times(1)).save(feedbackCaptor.capture());
 
@@ -169,6 +177,37 @@ class AcceptObjectiveRevisionCommandHandlerTest {
                 () -> handler.handle(command));
 
         assertEquals(403, exception.getBody().getStatus());
+        verify(feedbackRepository, never()).save(any());
+        verify(evaluationRepository, never()).save(any());
+        verify(windowPolicy, never()).requireRevisionOpenFor(anyInt());
+    }
+
+    // D-47 / A-132-115: accept saved TWICE without consulting the SIADAP_INTERIM window at all.
+    // The refusal must land in the validation block, before either aggregate is read for
+    // mutation -- this is the contraprova over the object passed to save(), not the status code
+    // (D-56): neither repository's save() may be invoked when the window is refused.
+    @Test
+    void throwsBadRequestWhenWindowPolicyRefusesTheEvaluationYearAndNeitherAggregateSaves() {
+        SiadapEvaluation evaluation = buildInProgressEvaluation();
+        UUID evalUuid = UUID.fromString(evaluation.getId().getStringValor());
+        UUID revisionId = UUID.randomUUID();
+
+        when(evaluationRepository.findById(any())).thenReturn(Optional.of(evaluation));
+        when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.from(evaluation.getEmployeeId()));
+        doThrow(IgrpResponseStatusException.badRequest("Prazo não configurado para este ano"))
+                .when(windowPolicy).requireRevisionOpenFor(YEAR);
+
+        AcceptObjectiveRevisionCommand command = new AcceptObjectiveRevisionCommand(
+                evalUuid.toString(), revisionId.toString());
+
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(command));
+
+        assertEquals(400, exception.getBody().getStatus());
+        assertEquals("Prazo não configurado para este ano", exception.getBody().getTitle());
+        // The refusal happens before feedbackRepository.findByEvaluationId is even reached,
+        // so neither of the two aggregates this handler mutates is ever read, let alone saved.
+        verify(feedbackRepository, never()).findByEvaluationId(any());
         verify(feedbackRepository, never()).save(any());
         verify(evaluationRepository, never()).save(any());
     }

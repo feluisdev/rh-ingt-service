@@ -2,6 +2,8 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.dto.ActivityWorkflowResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.service.ActivityApprovalHistoryRecorder;
+import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
 import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.TacticalActivityId;
@@ -20,9 +22,15 @@ public class ApproveTacticalActivityCommandHandler
   private static final Logger LOGGER = LoggerFactory.getLogger(ApproveTacticalActivityCommandHandler.class);
 
   private final TacticalActivityRepository repository;
+  private final PaaActivityWindowPolicy windowPolicy;
+  private final ActivityApprovalHistoryRecorder historyRecorder;
 
-  public ApproveTacticalActivityCommandHandler(TacticalActivityRepository repository) {
+  public ApproveTacticalActivityCommandHandler(TacticalActivityRepository repository,
+      PaaActivityWindowPolicy windowPolicy,
+      ActivityApprovalHistoryRecorder historyRecorder) {
     this.repository = repository;
+    this.windowPolicy = windowPolicy;
+    this.historyRecorder = historyRecorder;
   }
 
   @IgrpCommandHandler
@@ -35,11 +43,21 @@ public class ApproveTacticalActivityCommandHandler
     TacticalActivity activity = repository.findByIdFull(id)
         .orElseThrow(() -> IgrpResponseStatusException.notFound("TacticalActivity não encontrada"));
 
+    // A-132-111 / POR-02 (Phase 134): submission window checked before the state transition,
+    // sourced from the loaded entity's paaLevel -- the client cannot pick it (D-27).
+    windowPolicy.requireOpenFor(activity.getPaaLevel());
+
     String previousStatus = activity.getStatus().getCode();
     TacticalActivity approved = activity.approve();
     repository.save(approved);
 
     String comment = (command.getWorkflowcomment() != null) ? command.getWorkflowcomment().getComment() : null;
+
+    // A-135-2AB (Phase 136, plano 136-10): rasto de auditoria escrito depois do save, dentro
+    // da mesma fronteira @Transactional -- nunca antes, porque gravaria histórico de uma
+    // transição que ainda podia falhar.
+    historyRecorder.record(approved.getId(), previousStatus, approved.getStatus().getCode(),
+        approved.getStatus().getCode(), comment);
 
     ActivityWorkflowResponseDTO response = new ActivityWorkflowResponseDTO();
     response.setActivityId(approved.getId().getValor().getValor());

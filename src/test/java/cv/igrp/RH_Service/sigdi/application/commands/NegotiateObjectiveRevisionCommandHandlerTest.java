@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -15,6 +17,7 @@ import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
 import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
 import cv.igrp.RH_Service.sigdi.application.dto.NegotiateObjectiveRevisionRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapInterimFeedbackDTO;
+import cv.igrp.RH_Service.sigdi.application.service.SiadapObjectivesWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapInterimFeedback;
 import cv.igrp.RH_Service.sigdi.domain.compliance.repository.SiadapEvaluationRepository;
@@ -48,6 +51,9 @@ class NegotiateObjectiveRevisionCommandHandlerTest {
 
     @Mock
     private SiadapInterimFeedbackMapper mapper;
+
+    @Mock
+    private SiadapObjectivesWindowPolicy windowPolicy;
 
     @Mock
     private CurrentEmployeeResolver currentEmployeeResolver;
@@ -93,6 +99,8 @@ class NegotiateObjectiveRevisionCommandHandlerTest {
         ResponseEntity<SiadapInterimFeedbackDTO> response = handler.handle(command);
 
         assertEquals(200, response.getStatusCode().value());
+
+        verify(windowPolicy, times(1)).requireRevisionOpenFor(YEAR);
 
         ArgumentCaptor<SiadapInterimFeedback> captor = ArgumentCaptor.forClass(SiadapInterimFeedback.class);
         verify(feedbackRepository, times(1)).save(captor.capture());
@@ -163,6 +171,31 @@ class NegotiateObjectiveRevisionCommandHandlerTest {
                 () -> handler.handle(command));
 
         assertEquals(403, exception.getBody().getStatus());
+        verify(feedbackRepository, never()).save(any());
+        verify(windowPolicy, never()).requireRevisionOpenFor(anyInt());
+    }
+
+    // D-47 / A-132-115: RECONC-03's scope was widened -- negotiate must refuse outside the
+    // SIADAP_INTERIM window, matching the comment this task rewrote in the handler.
+    @Test
+    void throwsBadRequestWhenWindowPolicyRefusesTheEvaluationYear() {
+        SiadapEvaluation evaluation = buildEvaluation();
+        UUID evalUuid = UUID.fromString(evaluation.getId().getStringValor());
+        UUID revisionId = UUID.randomUUID();
+        SiadapInterimFeedback feedback = buildFeedbackWithPendingRevision(evalUuid, revisionId);
+
+        when(evaluationRepository.findById(any())).thenReturn(Optional.of(evaluation));
+        when(currentEmployeeResolver.resolve()).thenReturn(FuncionarioId.from(evaluation.getEmployeeId()));
+        doThrow(IgrpResponseStatusException.badRequest("Prazo não configurado para este ano"))
+                .when(windowPolicy).requireRevisionOpenFor(YEAR);
+
+        NegotiateObjectiveRevisionCommand command = new NegotiateObjectiveRevisionCommand(
+                evalUuid.toString(), revisionId.toString(), null);
+
+        IgrpResponseStatusException exception = assertThrows(IgrpResponseStatusException.class,
+                () -> handler.handle(command));
+
+        assertEquals(400, exception.getBody().getStatus());
         verify(feedbackRepository, never()).save(any());
     }
 }
