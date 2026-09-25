@@ -1,0 +1,151 @@
+{
+  "type": "dto",
+  "name": "ListaAntiguidadeOficial",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "ano",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "referencia",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "unidadeId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "incluirSubunidades",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "aprovadaPor",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataAprovacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataAfixacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "localAfixacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "fimPrazoReclamacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "fimPrazoReclamacaoEstrangeiro",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataDefinitiva",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "publicacaoSerie",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "publicacaoNumero",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "publicacaoData",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "foraDoPrazoPublicacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivoAnulacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "versao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "totalLinhas",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "LinhaListaAntiguidadeDTO",
+      "name": "linhas",
+      "objectType": "dto",
+      "module": "colaboradores",
+      "collectionType": "list",
+      "required": false
+    },
+    {
+      "type": "ReclamacaoAntiguidadeDTO",
+      "name": "reclamacoes",
+      "objectType": "dto",
+      "module": "colaboradores",
+      "collectionType": "list",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "alertas",
+      "objectType": "java",
+      "collectionType": "list",
+      "required": false
+    }
+  ]
+}

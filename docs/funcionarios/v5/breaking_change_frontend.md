@@ -886,6 +886,15 @@ deixaram de vir de `application.properties` e passam a vir de um catálogo por v
 - Upload de ficheiros: `POST /documento/private` (sem pasta) passa a aceitar-se e grava em `outros`; uma pasta desconhecida também cai em
   `outros` (antes dava 400).
 
+### 11.45 Lista de antiguidade oficial — o ciclo (2026-09-25)
+
+**Nada deixa de funcionar**: endpoints novos (guia §18); a lista gerada (`/relatorios/lista-antiguidade`) não muda.
+
+- Ecrã «Listas de antiguidade»: aprovar a partir da gerada, afixar, recalcular, tornar definitiva, publicar, anular.
+- Reclamações por lista: registar, decidir, recurso e decisão do recurso; mostrar os `alertas` das respostas.
+- `/me`: «A minha antiguidade» (`GET /me/listas-antiguidade`) e reclamar (`POST /me/listas-antiguidade/{id}/reclamacoes`).
+- Notificações novas: `LISTA_ANTIGUIDADE_AFIXADA`, `RECLAMACAO_ANTIGUIDADE` (recurso `LISTA_ANTIGUIDADE`).
+
 ## 12. Checklist do alinhamento com a legislação (secção 11)
 
 Por ordem das secções. Cada item remete para o ecrã correspondente em `apresentacao_aplicacao.html`.

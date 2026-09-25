@@ -293,6 +293,10 @@ Reutilizo `Formacao` (registo do histórico) — o fim de uma acção com aprove
   depois de fechado, **factos com data de efeito no mês fechado vão para o mês seguinte** (`mes_competencia`)
   — não se reescreve o que o salarial já recebeu **[ind.]**; lançamentos que mexam em dias de um mês fechado
   (marcações, pedidos) ficam permitidos mas assinalados como "após fecho" (ajuste no mês seguinte).
+- **Divisão confirmada com o utilizador (2026-09-25):** o RH parametriza o **bruto base no escalão** (`t_grade.salary_base`)
+  e é a fonte de quem está em que escalão, situação, dias e horas; a integração calcula remunerações, suplementos,
+  **descontos** (IUR, segurança social, quotas) e líquido. A fazer aqui: os factos de movimento passam a levar o
+  **bruto do escalão à data** (`remuneracaoBase`) além do `escalaoId`.
 - Exportação: `GET /salarial/exportacao?mes=` — JSON e CSV com os factos + relação mensal congelada, por
   identificador do colaborador (número e NIF). Contrato versionado (`versao: 1`). Canal (API/ficheiro/Kafka)
   = **por decidir com a equipa do salarial** — a exportação por API fica pronta; o resto fica `TODO`.

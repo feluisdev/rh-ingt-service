@@ -57,7 +57,7 @@
     <div class="kicker">RH-Service · SIGDI / SIPPROG</div>
     <h1>Modelo Relacional</h1>
     <p>As tabelas do núcleo RH e como se relacionam. Na persistência, as ligações são associações <code>@ManyToOne</code> sobre colunas <code>*_id</code> (com duas excepções deliberadas, ver §1); o domínio refere-se às outras entidades por identidade tipada. As tabelas que nasceram depois da V54 são criadas pelo Hibernate (<code>ddl-auto</code>) e várias referem o catálogo de horários por UUID sem FK — cada caso está assinalado.</p>
-    <div class="meta">Documentação <b>v5</b> · 52 tabelas (exclui <code>sigdi</code>) · PostgreSQL 17 · auditoria Envers (<code>_aud</code> em <code>audit_schema</code>)<br>Última alteração: 2026-09-25</div>
+    <div class="meta">Documentação <b>v5</b> · 55 tabelas (exclui <code>sigdi</code>) · PostgreSQL 17 · auditoria Envers (<code>_aud</code> em <code>audit_schema</code>)<br>Última alteração: 2026-09-25</div>
   </div>
 </header>
 <div class="wrap">
@@ -327,6 +327,16 @@ erDiagram
   </table>
   <!-- /secao:tab-documentos-emitidos -->
 
+  <!-- secao:tab-lista-antiguidade -->
+  <h3 id="tab-lista-antiguidade">Lista de antiguidade oficial (colaboradores)</h3>
+  <table>
+    <tr><th>Tabela</th><th>Módulo</th><th>Descrição</th></tr>
+    <tr><td><code>t_lista_antiguidade</code></td><td><span class="mod m-col">colaboradores</span></td><td><b>Lista oficial</b> de um serviço num ano. <code>ano</code>, <code>referencia</code> (31/12 do ano anterior), <code>unidade_id</code> (sem FK), <code>incluir_subunidades</code>, <code>estado</code> ∈ APROVADA · AFIXADA · DEFINITIVA · PUBLICADA · ANULADA, <code>aprovada_por</code>, <code>data_aprovacao</code>, <code>data_afixacao</code>, <code>local_afixacao</code>, <code>data_definitiva</code>, <code>publicacao_serie</code>/<code>_numero</code>/<code>_data</code>, <code>motivo_anulacao</code>, <code>versao</code>. <b>Criada pelo ddl-auto, sem migração.</b></td></tr>
+    <tr><td><code>t_lista_antiguidade_linha</code></td><td><span class="mod m-col">colaboradores</span></td><td>As linhas congeladas: <code>lista_id</code>→<code>t_lista_antiguidade</code>, <code>grupo</code>, <code>carreira</code>, <code>categoria</code>, <code>fora_de_grelha</code>, <code>posicao</code>, <code>funcionario_id</code> (sem FK), <code>numero_funcionario</code>, <code>nome</code>, <code>unidade_id</code>, <code>escalao</code>, <code>inicio_no_cargo</code>, <code>dias_descontados</code>, <code>dias_no_cargo</code> (e anos/meses/dias), <code>dias_totais</code> (e anos/meses/dias). <b>Criada pelo ddl-auto, sem migração.</b></td></tr>
+    <tr><td><code>t_reclamacao_antiguidade</code></td><td><span class="mod m-col">colaboradores</span></td><td><b>Reclamação</b>: <code>lista_id</code>, <code>funcionario_id</code>, <code>fundamento</code> ∈ OMISSAO · GRADUACAO · SITUACAO · CONTAGEM, <code>texto</code>, <code>no_estrangeiro</code>, <code>pelo_proprio</code>, <code>data_apresentacao</code>, <code>estado</code> ∈ APRESENTADA · DEFERIDA · INDEFERIDA, <code>decisao</code>, <code>data_decisao</code>, <code>recurso_em</code>, <code>recurso_texto</code>, <code>recurso_resultado</code> (PROVIDO/NAO_PROVIDO), <code>recurso_decisao</code>, <code>recurso_decidido_em</code>. <b>Criada pelo ddl-auto, sem migração.</b></td></tr>
+  </table>
+  <!-- /secao:tab-lista-antiguidade -->
+
   <h2 id="ref"><span class="n">8.</span>Referência completa de tabelas (não-sigdi)</h2>
   <table>
     <tr><th>#</th><th>Tabela</th><th>Módulo</th><th>Entidade JPA</th><th>FKs (colunas <code>*_id</code>)</th></tr>
@@ -382,6 +392,9 @@ erDiagram
     <tr><td>50</td><td><code>t_documento_emitido</code></td><td><span class="mod m-col">col</span></td><td>DocumentoEmitidoEntity</td><td>funcionario_id</td></tr>
     <tr><td>51</td><td><code>t_numeracao_documento</code></td><td><span class="mod m-col">col</span></td><td>NumeracaoDocumentoEntity</td><td>—</td></tr>
     <tr><td>52</td><td><code>t_pedido_declaracao</code></td><td><span class="mod m-col">col</span></td><td>PedidoDeclaracaoEntity</td><td>funcionario_id, documento_id</td></tr>
+    <tr><td>53</td><td><code>t_lista_antiguidade</code></td><td><span class="mod m-col">col</span></td><td>ListaAntiguidadeEntity</td><td>— (<code>unidade_id</code> sem FK)</td></tr>
+    <tr><td>54</td><td><code>t_lista_antiguidade_linha</code></td><td><span class="mod m-col">col</span></td><td>ListaAntiguidadeLinhaEntity</td><td>lista_id (<code>funcionario_id</code> sem FK)</td></tr>
+    <tr><td>55</td><td><code>t_reclamacao_antiguidade</code></td><td><span class="mod m-col">col</span></td><td>ReclamacaoAntiguidadeEntity</td><td>lista_id, funcionario_id</td></tr>
   </table>
   <p class="lead" style="font-size:13.5px">Todas as FKs acima são associações <code>@ManyToOne</code> com <code>@JoinColumn</code>, <b>excepto</b> as duas assinaladas a negrito (<code>t_document.reference_id</code> e <code>t_iam_user_profile.funcionario_id</code>), que permanecem colunas UUID sem FK declarada, e as referências a <code>t_horario</code> marcadas «sem FK física» (o horário nasce pelo <code>ddl-auto</code>, depois do Flyway, e a V57 não podia apontar-lhe). As tabelas 31 a 44 nasceram pelo <code>ddl-auto</code>, sem migração; as invariantes que seriam <code>CHECK</code> vivem no domínio. Todas são auditadas (Envers), <b>excepto</b> <code>t_scheduler_execucao</code>, que já é ela própria um registo histórico.</p>
   <p class="lead" style="font-size:13.5px"><b>Tarefas agendadas (43–44).</b> <code>t_scheduler_job</code> é a configuração de cada job (<code>cron</code>, <code>frequencia</code>, <code>timezone</code>, <code>activo</code>, <code>max_tentativas</code>, <code>timeout_segundos</code>) e a fonte de verdade do agendamento — é semeada no arranque a partir do código e muda-se pela API (guia, 11b). <code>proxima_execucao</code> é o que deixa detectar um disparo que não aconteceu; e a própria linha serve de lock entre réplicas (<code>SELECT … FOR UPDATE</code> antes de abrir uma execução). <code>t_scheduler_execucao</code> tem uma linha por execução: <code>disparo</code> (AGENDADO/MANUAL), <code>agendado_para</code> (o instante previsto, de onde o job tira o dia a tratar), <code>inicio</code>/<code>fim</code>/<code>duracao_ms</code>, <code>estado</code>, os contadores, <code>parametros</code> e <code>detalhes</code> (jsonb), <code>tentativa</code> e <code>execucao_pai_id</code> (a execução repetida). Todos os instantes estão na hora de Cabo Verde. Só as colunas de configuração de <code>t_scheduler_job</code> são auditadas; <code>ultima_execucao</code>, <code>ultimo_estado</code> e <code>proxima_execucao</code> não, para o histórico não se encher de ruído.</p>

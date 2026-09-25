@@ -1,0 +1,117 @@
+{
+  "type": "dto",
+  "name": "ReclamacaoAntiguidade",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "listaId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "nome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "fundamento",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "texto",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "noEstrangeiro",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "peloProprio",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataApresentacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "decisao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataDecisao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "recursoEm",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "recursoTexto",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "recursoResultado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "recursoDecisao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "recursoDecididoEm",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "alertas",
+      "objectType": "java",
+      "collectionType": "list",
+      "required": false
+    }
+  ]
+}

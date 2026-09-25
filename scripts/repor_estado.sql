@@ -40,6 +40,9 @@ BEGIN
   IF to_regclass('public.t_documento_emitido') IS NOT NULL THEN
     DELETE FROM t_documento_emitido WHERE funcionario_id = ANY(extras);
   END IF;
+  IF to_regclass('public.t_reclamacao_antiguidade') IS NOT NULL THEN
+    DELETE FROM t_reclamacao_antiguidade WHERE funcionario_id = ANY(extras);
+  END IF;
   -- Diario de factos para o salarial (FK para t_funcionario): sai antes dos colaboradores.
   IF to_regclass('public.t_facto_rh') IS NOT NULL THEN
     DELETE FROM t_facto_rh WHERE funcionario_id = ANY(extras);
@@ -230,6 +233,15 @@ DO $$ BEGIN
   END IF;
   IF to_regclass('public.t_numeracao_documento') IS NOT NULL THEN
     DELETE FROM t_numeracao_documento;
+  END IF;
+  IF to_regclass('public.t_reclamacao_antiguidade') IS NOT NULL THEN
+    DELETE FROM t_reclamacao_antiguidade;
+  END IF;
+  IF to_regclass('public.t_lista_antiguidade_linha') IS NOT NULL THEN
+    DELETE FROM t_lista_antiguidade_linha;
+  END IF;
+  IF to_regclass('public.t_lista_antiguidade') IS NOT NULL THEN
+    DELETE FROM t_lista_antiguidade;
   END IF;
   IF to_regclass('public.t_notificacao_envio') IS NOT NULL THEN
     DELETE FROM t_notificacao_envio;

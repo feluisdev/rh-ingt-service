@@ -2056,3 +2056,31 @@ nem saltos por erro). **Código de verificação** impresso no rodapé do PDF, c
 **Pasta por omissão nos ficheiros (`/documento/private/{folder}`):** sem pasta, ou com uma pasta que não existe, o ficheiro vai para
 `outros` (`DocumentoFolder.OUTROS`); as declarações vão para `documentos_emitidos`.
 <!-- /secao:declaracoes -->
+
+<!-- secao:lista-antiguidade-ciclo -->
+## 18. Lista de antiguidade oficial — `/api/v1/rh/listas-antiguidade`
+
+DL n.º 3/2010, arts. 71.º–74.º (BR-LAN-06..15). A lista **gerada** continua em `GET /relatorios/lista-antiguidade` (§6.12); a **oficial**
+congela-a e segue o ciclo: `APROVADA` → `AFIXADA` → `DEFINITIVA` → `PUBLICADA` (ou `ANULADA`).
+
+| Método | Caminho | O quê |
+|---|---|---|
+| POST | `/api/v1/rh/listas-antiguidade` | Aprovar e congelar (`ano`, `unidadeId`, `incluirSubunidades`, `aprovadaPor`, `dataAprovacao`) |
+| GET | `/api/v1/rh/listas-antiguidade?ano=&unidadeId=` | As listas (cabeçalho) |
+| GET | `/api/v1/rh/listas-antiguidade/{listaId}` | Uma lista com as linhas e as reclamações |
+| PATCH | `/api/v1/rh/listas-antiguidade/{listaId}/afixar` | `data`, `local` — abre o prazo e avisa cada pessoa da lista |
+| PATCH | `/api/v1/rh/listas-antiguidade/{listaId}/recalcular` | Voltar a gerar as linhas (antes de definitiva) |
+| PATCH | `/api/v1/rh/listas-antiguidade/{listaId}/definitiva` | Depois do prazo e sem reclamações por decidir |
+| PATCH | `/api/v1/rh/listas-antiguidade/{listaId}/publicar` | `serie`, `numero`, `data` do Boletim Oficial (aviso se depois de 30/4) |
+| PATCH | `/api/v1/rh/listas-antiguidade/{listaId}/anular` | `motivo` |
+| POST | `/api/v1/rh/listas-antiguidade/{listaId}/reclamacoes` | O RH regista (`funcionarioId`, `fundamento`, `texto`, `noEstrangeiro`) |
+| PATCH | `/api/v1/rh/listas-antiguidade/{listaId}/reclamacoes/{reclamacaoId}/decidir` | `deferida`, `decisao` |
+| PATCH | `/api/v1/rh/listas-antiguidade/{listaId}/reclamacoes/{reclamacaoId}/recurso` | `texto` (20 dias; 60 no estrangeiro) |
+| PATCH | `/api/v1/rh/listas-antiguidade/{listaId}/reclamacoes/{reclamacaoId}/recurso/decidir` | `provido`, `decisao` |
+| GET | `/api/v1/rh/me/listas-antiguidade` | As listas onde apareço (só a minha linha e as minhas reclamações) |
+| POST | `/api/v1/rh/me/listas-antiguidade/{listaId}/reclamacoes` | Reclamar (o próprio) |
+
+**Prazos:** reclamação 30 dias depois da afixação (`fimPrazoReclamacao`), 60 no estrangeiro (`fimPrazoReclamacaoEstrangeiro`); decisão
+notificada em 30 dias (aviso se passar); recurso 20 dias depois da decisão. **Fundamentos:** `OMISSAO` (o único de quem não consta),
+`GRADUACAO`, `SITUACAO`, `CONTAGEM`. As respostas das decisões e da publicação trazem `alertas` quando um prazo da lei foi ultrapassado.
+<!-- /secao:lista-antiguidade-ciclo -->

@@ -103,6 +103,7 @@
       <a href="#factos-salariais">14. Fronteira salarial — diário de factos</a><br>
       <a href="#aposentacao">15. Aposentação e limite de idade</a><br>
       <a href="#declaracoes">16. Declarações e documentos emitidos</a><br>
+      <a href="#ciclo-lista-antiguidade">17. Lista de antiguidade — o ciclo (arts. 71.º–74.º)</a><br>
       <a href="#invariantes">12. Invariantes transversais</a>
     </div>
   </div>
@@ -756,6 +757,24 @@
     <tr><td class="id">BR-DEC-08</td><td><b>Verificação pública</b> pelo código impresso (<code>/verificacao/documentos/{codigo}</code>, sem autenticação): responde tipo, número, data, titular e se foi anulado. Um código que não existe dá <code>valido: false</code> (não 404). O código tem 10 caracteres sem letras que se confundem.</td><td>—</td><td class="src">EmissaoDocumentosService.verificar · VerificarDocumentoQueryHandler</td></tr>
   </table>
   <!-- /secao:declaracoes -->
+
+  <!-- secao:ciclo-lista-antiguidade -->
+  <h2 id="ciclo-lista-antiguidade"><span class="n">17.</span>Lista de antiguidade — o ciclo (arts. 71.º–74.º)</h2>
+  <p>A lista gerada (§5.7, BR-LAN-01..05) é uma consulta; a <b>oficial</b> é um documento: congela-se na aprovação e segue o ciclo do DL n.º 3/2010 — afixação, reclamações e recursos, lista definitiva e publicação no Boletim Oficial até 30 de Abril.</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-LAN-06</td><td><b>Aprovar é congelar</b> (art. 71.º n.º 1): a lista gerada hoje para o ano e o serviço guarda-se linha a linha — o que o art. 69.º n.º 2 manda mostrar, com o nome e o número como estavam. Exige quem aprova (o dirigente). <b>Uma lista activa por serviço e ano</b> (409; anule-a para aprovar outra).</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">ListaAntiguidadeOficial.aprovar · CicloListaAntiguidadeService.aprovar</td></tr>
+    <tr><td class="id">BR-LAN-07</td><td><b>Afixar</b> (art. 71.º n.º 1): data (não antes da aprovação) e local anunciado. Abre o prazo de reclamação e <b>avisa cada pessoa da lista</b> com a data-limite.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">ListaAntiguidadeOficial.afixar · CicloListaAntiguidadeService.afixar</td></tr>
+    <tr><td class="id">BR-LAN-08</td><td><b>Prazo de reclamação</b>: 30 dias consecutivos a contar da afixação (art. 72.º n.º 1); <b>60</b> para quem presta serviço no estrangeiro (art. 74.º) — assinalado na reclamação. Fora do prazo, ou com a lista por afixar: 422.</td><td><span class="http h422">422</span></td><td class="src">ListaAntiguidadeOficial.fimPrazoReclamacao · aceitaReclamacao</td></tr>
+    <tr><td class="id">BR-LAN-09</td><td><b>Recalcular</b> enquanto não é definitiva: volta a gerar as linhas (depois de corrigidos os dados de uma reclamação deferida); a versão sobe. Definitiva ou publicada: 409.</td><td><span class="http h409">409</span></td><td class="src">ListaAntiguidadeOficial.recalcular</td></tr>
+    <tr><td class="id">BR-LAN-10</td><td><b>Fundamentos</b> (art. 72.º n.º 2): omissão, graduação, situação na lista ou contagem do tempo. Quem não consta só reclama por omissão. Reclama o próprio em <code>/me</code> ou o RH regista; avisa a caixa do RH. <i>O n.º 3 (não se reclama do que listas anteriores já consideraram) fica para quem decide — o sistema não o sabe distinguir.</i></td><td><span class="http h422">422</span></td><td class="src">ReclamacaoAntiguidade.apresentar · CicloListaAntiguidadeService.reclamar</td></tr>
+    <tr><td class="id">BR-LAN-11</td><td><b>Decisão</b> do dirigente (art. 72.º n.º 4), fundamentada; notifica-se em 30 dias (n.º 5) — depois disso, decide-se na mesma e a resposta avisa. Deferida: o aviso lembra de corrigir os dados e recalcular. Avisa o reclamante com o prazo de recurso.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">ReclamacaoAntiguidade.decidir · CicloListaAntiguidadeService.decidir</td></tr>
+    <tr><td class="id">BR-LAN-12</td><td><b>Recurso</b> para o membro do Governo (art. 73.º): em 20 dias a contar da decisão (60 no estrangeiro, art. 74.º); um por reclamação; regista-se a decisão (provido ou não) e avisa o reclamante.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">ReclamacaoAntiguidade.recorrer · decidirRecurso</td></tr>
+    <tr><td class="id">BR-LAN-13</td><td><b>Definitiva</b>: só depois do prazo geral de reclamação e sem reclamações por decidir (409).</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">ListaAntiguidadeOficial.tornarDefinitiva</td></tr>
+    <tr><td class="id">BR-LAN-14</td><td><b>Publicação</b> no Boletim Oficial (art. 71.º n.º 2): série, número e data; <b>até 30 de Abril</b> — depois disso regista-se na mesma e a resposta avisa (<code>foraDoPrazoPublicacao</code>).</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">ListaAntiguidadeOficial.publicar · foraDoPrazoDePublicacao</td></tr>
+    <tr><td class="id">BR-LAN-15</td><td><b>Anular</b> antes de publicada, com motivo (409 depois). <b>/me</b>: cada um vê as listas afixadas, definitivas ou publicadas onde aparece — só a sua linha e as suas reclamações.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">ListaAntiguidadeOficial.anular · CicloListaAntiguidadeService.visiveisPara</td></tr>
+  </table>
+  <!-- /secao:ciclo-lista-antiguidade -->
 
   <!-- ============ INVARIANTES ============ -->
   <h2 id="invariantes"><span class="n">12.</span>Invariantes transversais</h2>

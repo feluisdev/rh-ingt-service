@@ -1,0 +1,128 @@
+{
+  "type": "dto",
+  "name": "LinhaListaAntiguidade",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "integer",
+      "name": "grupo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "carreira",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "categoria",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "foraDeGrelha",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "posicao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "numeroFuncionario",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "nome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "unidadeId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "escalao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "inicioNoCargo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "long",
+      "name": "diasDescontados",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "long",
+      "name": "diasNoCargo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "anosNoCargo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "mesesNoCargo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "diasNoCargoResto",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "long",
+      "name": "diasTotais",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "anosTotal",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "mesesTotal",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "diasTotalResto",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,524 @@
+{
+  "type": "controller",
+  "name": "ListaAntiguidade",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh",
+  "description": "O ciclo da lista de antiguidade (DL n.º 3/2010, arts. 69.º–74.º): aprovar e congelar, afixar, reclamações e recursos, lista definitiva e publicação no Boletim Oficial",
+  "actions": [
+    {
+      "actionName": "aprovarListaAntiguidade",
+      "method": "POST",
+      "path": "listas-antiguidade",
+      "summary": "Aprovar a lista de antiguidade de um serviço num ano: a lista gerada congela-se",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ListaAntiguidadeRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ListaAntiguidadeOficialDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getListasAntiguidade",
+      "method": "GET",
+      "path": "listas-antiguidade",
+      "summary": "As listas de antiguidade oficiais (cabeçalho), filtradas por ano e serviço",
+      "requestParams": [
+        {
+          "type": "integer",
+          "name": "ano",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "unidadeId",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ListaAntiguidadeOficialDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getListaAntiguidade",
+      "method": "GET",
+      "path": "listas-antiguidade/{listaId}",
+      "summary": "Uma lista oficial com as linhas congeladas e as reclamações",
+      "pathVariables": [
+        {
+          "name": "listaId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ListaAntiguidadeOficialDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "afixarListaAntiguidade",
+      "method": "PATCH",
+      "path": "listas-antiguidade/{listaId}/afixar",
+      "summary": "Afixar (data e local): abre o prazo de reclamação e avisa cada pessoa da lista",
+      "pathVariables": [
+        {
+          "name": "listaId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ListaAntiguidadeRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ListaAntiguidadeOficialDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "recalcularListaAntiguidade",
+      "method": "PATCH",
+      "path": "listas-antiguidade/{listaId}/recalcular",
+      "summary": "Voltar a gerar as linhas (depois de corrigidos os dados de uma reclamação deferida)",
+      "pathVariables": [
+        {
+          "name": "listaId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ListaAntiguidadeOficialDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "tornarDefinitivaListaAntiguidade",
+      "method": "PATCH",
+      "path": "listas-antiguidade/{listaId}/definitiva",
+      "summary": "Tornar a lista definitiva: prazo de reclamação esgotado e reclamações decididas",
+      "pathVariables": [
+        {
+          "name": "listaId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ListaAntiguidadeOficialDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "publicarListaAntiguidade",
+      "method": "PATCH",
+      "path": "listas-antiguidade/{listaId}/publicar",
+      "summary": "Registar a publicação no Boletim Oficial (série, número e data); até 30 de Abril",
+      "pathVariables": [
+        {
+          "name": "listaId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ListaAntiguidadeRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ListaAntiguidadeOficialDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "anularListaAntiguidade",
+      "method": "PATCH",
+      "path": "listas-antiguidade/{listaId}/anular",
+      "summary": "Anular a lista (antes de publicada), com motivo",
+      "pathVariables": [
+        {
+          "name": "listaId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ListaAntiguidadeRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ListaAntiguidadeOficialDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "reclamarListaAntiguidade",
+      "method": "POST",
+      "path": "listas-antiguidade/{listaId}/reclamacoes",
+      "summary": "Registar uma reclamação (RH), no prazo, com um dos fundamentos da lei",
+      "pathVariables": [
+        {
+          "name": "listaId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ReclamacaoAntiguidadeRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ReclamacaoAntiguidadeDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "decidirReclamacaoAntiguidade",
+      "method": "PATCH",
+      "path": "listas-antiguidade/{listaId}/reclamacoes/{reclamacaoId}/decidir",
+      "summary": "Decidir a reclamação (dirigente): deferida ou indeferida, fundamentada",
+      "pathVariables": [
+        {
+          "name": "listaId",
+          "type": "string"
+        },
+        {
+          "name": "reclamacaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ReclamacaoAntiguidadeRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ReclamacaoAntiguidadeDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "recorrerReclamacaoAntiguidade",
+      "method": "PATCH",
+      "path": "listas-antiguidade/{listaId}/reclamacoes/{reclamacaoId}/recurso",
+      "summary": "Registar o recurso da decisão, no prazo (20 dias; 60 no estrangeiro)",
+      "pathVariables": [
+        {
+          "name": "listaId",
+          "type": "string"
+        },
+        {
+          "name": "reclamacaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ReclamacaoAntiguidadeRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ReclamacaoAntiguidadeDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "decidirRecursoAntiguidade",
+      "method": "PATCH",
+      "path": "listas-antiguidade/{listaId}/reclamacoes/{reclamacaoId}/recurso/decidir",
+      "summary": "Registar a decisão do recurso (membro do Governo)",
+      "pathVariables": [
+        {
+          "name": "listaId",
+          "type": "string"
+        },
+        {
+          "name": "reclamacaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ReclamacaoAntiguidadeRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ReclamacaoAntiguidadeDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getMinhasListasAntiguidade",
+      "method": "GET",
+      "path": "me/listas-antiguidade",
+      "summary": "As listas afixadas, definitivas ou publicadas onde apareço, com a minha linha e as minhas reclamações",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ListaAntiguidadeOficialDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "reclamarMinhaListaAntiguidade",
+      "method": "POST",
+      "path": "me/listas-antiguidade/{listaId}/reclamacoes",
+      "summary": "Reclamar da lista de antiguidade (o próprio), no prazo",
+      "pathVariables": [
+        {
+          "name": "listaId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ReclamacaoAntiguidadeRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ReclamacaoAntiguidadeDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

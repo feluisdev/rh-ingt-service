@@ -1,0 +1,50 @@
+{
+  "type": "dto",
+  "name": "ReclamacaoAntiguidadeRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "fundamento",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "texto",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "noEstrangeiro",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "deferida",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "provido",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "decisao",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}
