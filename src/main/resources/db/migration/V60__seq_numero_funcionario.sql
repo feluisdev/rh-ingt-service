@@ -1,6 +1,12 @@
 -- =============================================================
--- V39 — seq_numero_funcionario (reposição)
+-- V60 — seq_numero_funcionario (reposição)
 -- -------------------------------------------------------------
+-- Nasceu como V39 neste branch. Passou a V60 em 2026-09-25 porque o master
+-- do GitLab (já em produção) publicou entretanto a sua própria V39
+-- (siadap_evaluation_acknowledgement), e duas V39 impedem o Flyway de
+-- arrancar. Nenhuma das V40..V59 depende da sequência, e esta migração é
+-- idempotente, por isso correr depois delas não muda nada.
+--
 -- A sequência era criada pela antiga V24__create_colaboradores_tables.sql,
 -- removida no reset de migrações (commit 03867b3d). A V8 recriou t_funcionario
 -- mas não a sequência, pelo que FuncionarioService.criarFuncionario falha com
