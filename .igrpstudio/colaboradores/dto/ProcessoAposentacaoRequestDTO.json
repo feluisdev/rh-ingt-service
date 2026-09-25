@@ -1,0 +1,32 @@
+{
+  "type": "dto",
+  "name": "ProcessoAposentacaoRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "modalidade",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataPrevista",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "fundamentacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "acordoFuncionario",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

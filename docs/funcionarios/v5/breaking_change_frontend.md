@@ -864,6 +864,16 @@ deixaram de vir de `application.properties` e passam a vir de um catálogo por v
 - `GET /salarial/funcionarios/{id}/factos` — separador «Factos para o salarial» na ficha do colaborador.
 - Os movimentos, a colocação, a mudança de estado e a cessação passam a registar o facto; as respostas não mudam.
 
+### 11.43 Aposentação e limite de idade (2026-09-25)
+
+**Nada deixa de funcionar**: endpoints novos (guia §16).
+
+- Ficha do colaborador: separador «Aposentação» com `GET /funcionarios/{id}/aposentacao` (datas, condições, processos, prorrogações)
+  e as acções do processo (`deferir`, `indeferir`, `desligar`, `concluir`, `cancelar`) e da prorrogação (`autorizar`, `indeferir`).
+- Relatórios: «Aposentações previstas» com `GET /relatorios/aposentacao?unidadeId=&ate=` (e `.csv`).
+- `/me`: «A minha aposentação» (`GET /me/aposentacao`) e o pedido da antecipada ou da pré-aposentação (`POST /me/aposentacao/processos`).
+- Notificações novas: `LIMITE_IDADE_PROXIMO` e `PROCESSO_APOSENTACAO` (recurso `PROCESSO_APOSENTACAO`, `PRORROGACAO_PERMANENCIA`, `FUNCIONARIO`).
+
 ## 12. Checklist do alinhamento com a legislação (secção 11)
 
 Por ordem das secções. Cada item remete para o ecrã correspondente em `apresentacao_aplicacao.html`.

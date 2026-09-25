@@ -112,8 +112,8 @@ public class Notificador {
                 LocalDateTime agora = agora();
                 Notificacao n = repository.save(Notificacao.criar(destinatario, perfil, tipo, titulo, texto,
                         recursoTipo, recursoId, agora));
-                if (porEmail) repository.enfileirarEmail(n.getId(), agora);
-                return Optional.of(n);
+                if (porEmail && n != null) repository.enfileirarEmail(n.getId(), agora);
+                return Optional.ofNullable(n);
             } catch (IllegalArgumentException e) {
                 LOGGER.warn("Notificação {} não enviada: {}", tipo, e.getMessage());
                 return Optional.empty();

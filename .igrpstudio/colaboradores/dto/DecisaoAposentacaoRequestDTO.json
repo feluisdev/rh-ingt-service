@@ -1,0 +1,56 @@
+{
+  "type": "dto",
+  "name": "DecisaoAposentacaoRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "despachoNumero",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "despachoData",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataPrevista",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "data",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "decimal",
+      "name": "percentagemPrestacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "workerStateId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "observacao",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

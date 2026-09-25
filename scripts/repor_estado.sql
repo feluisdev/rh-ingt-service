@@ -28,6 +28,12 @@ BEGIN
   DELETE FROM t_payroll_slip   WHERE funcionario_id = ANY(extras);
   DELETE FROM t_qualificacao   WHERE funcionario_id = ANY(extras);
   DELETE FROM t_training       WHERE funcionario_id = ANY(extras);
+  IF to_regclass('public.t_processo_aposentacao') IS NOT NULL THEN
+    DELETE FROM t_processo_aposentacao WHERE funcionario_id = ANY(extras);
+  END IF;
+  IF to_regclass('public.t_prorrogacao_permanencia') IS NOT NULL THEN
+    DELETE FROM t_prorrogacao_permanencia WHERE funcionario_id = ANY(extras);
+  END IF;
   -- Diario de factos para o salarial (FK para t_funcionario): sai antes dos colaboradores.
   IF to_regclass('public.t_facto_rh') IS NOT NULL THEN
     DELETE FROM t_facto_rh WHERE funcionario_id = ANY(extras);
@@ -204,6 +210,12 @@ END $$;
 -- 8b. Notificacoes e diario de factos (tabelas do ddl-auto): sao efeito dos testes e dos dados
 --     de demonstracao, e saem todos -- a base volta ao seed.
 DO $$ BEGIN
+  IF to_regclass('public.t_processo_aposentacao') IS NOT NULL THEN
+    DELETE FROM t_processo_aposentacao;
+  END IF;
+  IF to_regclass('public.t_prorrogacao_permanencia') IS NOT NULL THEN
+    DELETE FROM t_prorrogacao_permanencia;
+  END IF;
   IF to_regclass('public.t_notificacao_envio') IS NOT NULL THEN
     DELETE FROM t_notificacao_envio;
   END IF;

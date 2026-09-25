@@ -1,0 +1,62 @@
+{
+  "type": "dto",
+  "name": "ProrrogacaoPermanencia",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataPedido",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "propostaFundamentada",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "validaAte",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "despachoNumero",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "despachoData",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivoIndeferimento",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

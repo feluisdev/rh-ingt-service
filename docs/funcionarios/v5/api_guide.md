@@ -1997,3 +1997,33 @@ e `dados` (ex.: `lugarId`, `escalaoId`, `funcaoId`, `origem`; `estado`, `situaca
 
 O diário **só cresce**: uma correcção aparece como um facto novo. O fecho do mês e a exportação acompanham-no (secção de fecho mensal).
 <!-- /secao:factos-salariais -->
+
+<!-- secao:aposentacao -->
+## 16. Aposentação e limite de idade — `/api/v1/rh/funcionarios/{id}/aposentacao`
+
+Lei n.º 20/X/2023, arts. 48.º e 173.º–179.º (BR-APO-01..12). O vínculo cessa aos **65 anos** (até aos **70** com prorrogação
+autorizada); a antecipada a pedido exige **34 anos de serviço**; a pré-aposentação, **58 anos e 30 de serviço**.
+
+| Método | Caminho | O quê |
+|---|---|---|
+| GET | `/api/v1/rh/funcionarios/{funcionarioId}/aposentacao` | Situação: `faz65`, `faz70`, `prorrogadoAte`, `limiteEfectivo`, tempo de serviço, `completa34Anos`, `preAposentacaoPossivel`, processos e prorrogações |
+| POST | `/api/v1/rh/funcionarios/{funcionarioId}/aposentacao/processos` | Abrir um processo (`modalidade`, `dataPrevista`, `fundamentacao`, `acordoFuncionario`) |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/aposentacao/processos/{processoId}/deferir` | `despachoNumero`, `despachoData`, `dataPrevista` |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/aposentacao/processos/{processoId}/indeferir` | `motivo` |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/aposentacao/processos/{processoId}/desligar` | `data`; na pré-aposentação `percentagemPrestacao` (70–80); `workerStateId` opcional |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/aposentacao/processos/{processoId}/concluir` | `data` da aposentação; `workerStateId` opcional (por omissão, o estado de aposentação do catálogo) |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/aposentacao/processos/{processoId}/cancelar` | `motivo` (só antes da desligação) |
+| POST | `/api/v1/rh/funcionarios/{funcionarioId}/aposentacao/prorrogacoes` | `manifestacaoVontade`, `propostaFundamentada`, `validaAte` |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/aposentacao/prorrogacoes/{prorrogacaoId}/autorizar` | `despachoNumero`, `despachoData` |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/aposentacao/prorrogacoes/{prorrogacaoId}/indeferir` | `motivo` |
+| GET | `/api/v1/rh/relatorios/aposentacao?unidadeId=&incluirSubunidades=&ate=` | Quem atinge o limite, os 34 anos ou a pré-aposentação até `ate` (por omissão, 12 meses) (e `.csv`) |
+| GET | `/api/v1/rh/me/aposentacao` | A minha situação |
+| POST | `/api/v1/rh/me/aposentacao/processos` | Pedir a antecipada ou a pré-aposentação (o próprio) |
+
+**Ciclo:** `PEDIDO` → `DEFERIDO` (despacho) → `DESLIGADO` (inactividade no quadro aguardando aposentação; na pré-aposentação, o início
+dela) → `CONCLUIDO` (a cessação: contrato cessado, afectação encerrada, estado de aposentação, facto `APOSENTACAO`). `INDEFERIDO` e
+`CANCELADO` terminam-no. Na **antecipada** o Lugar deixado fica **extinto** (art. 178.º). Erros: 422 (condição por cumprir — a mensagem
+diz a data em que se cumpre; despacho ou motivo em falta; prestação fora de 70–80%), 409 (processo em curso; passo fora de ordem).
+
+**Avisos:** o job `RH_ALERTA_APOSENTACAO` avisa o RH 180, 90 e 30 dias antes do limite e no dia; o colaborador, aos 180 e no dia.
+<!-- /secao:aposentacao -->

@@ -1,0 +1,40 @@
+{
+  "type": "dto",
+  "name": "RelatorioAposentacao",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "date",
+      "name": "dataReferencia",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "ate",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "unidadeId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "total",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "SituacaoAposentacaoDTO",
+      "name": "linhas",
+      "objectType": "dto",
+      "module": "colaboradores",
+      "collectionType": "list",
+      "required": false
+    }
+  ]
+}

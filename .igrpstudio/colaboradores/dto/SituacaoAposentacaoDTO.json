@@ -1,0 +1,140 @@
+{
+  "type": "dto",
+  "name": "SituacaoAposentacao",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "numeroFuncionario",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "nome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataNascimento",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "idade",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "faz65",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "faz70",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "prorrogadoAte",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "limiteEfectivo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "long",
+      "name": "diasServico",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "anosServico",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "mesesServico",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "diasServicoResto",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "completa34Anos",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "preAposentacaoPossivel",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "podeAntecipada",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "podePreAposentacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "ProcessoAposentacaoDTO",
+      "name": "processoEmCurso",
+      "objectType": "dto",
+      "module": "colaboradores",
+      "required": false
+    },
+    {
+      "type": "ProcessoAposentacaoDTO",
+      "name": "processos",
+      "objectType": "dto",
+      "module": "colaboradores",
+      "collectionType": "list",
+      "required": false
+    },
+    {
+      "type": "ProrrogacaoPermanenciaDTO",
+      "name": "prorrogacoes",
+      "objectType": "dto",
+      "module": "colaboradores",
+      "collectionType": "list",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "alertas",
+      "objectType": "java",
+      "collectionType": "list",
+      "required": false
+    }
+  ]
+}

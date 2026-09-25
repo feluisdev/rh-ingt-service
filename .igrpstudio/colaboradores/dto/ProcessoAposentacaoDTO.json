@@ -1,0 +1,104 @@
+{
+  "type": "dto",
+  "name": "ProcessoAposentacao",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "modalidade",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "iniciativa",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataPedido",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataPrevista",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "fundamentacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "acordoFuncionario",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "despachoNumero",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "despachoData",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivoIndeferimento",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataDesligacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "decimal",
+      "name": "percentagemPrestacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataAposentacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivoCancelamento",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

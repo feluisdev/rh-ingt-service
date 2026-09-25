@@ -123,12 +123,12 @@ def controller(caminho):
         if summ:
             a['summary'] = summ.group(1)
         pvs, rps, body = [], [], None
-        for p in re.split(r',\s*(?=@)', params.strip()):
+        for p in re.split(r',\s*(?=@(?:PathVariable|RequestParam|RequestBody|RequestHeader|ModelAttribute))', params.strip()):
             p = p.strip()
             if not p:
                 continue
             pv = re.match(r'@PathVariable(?:\([^)]*\))?\s+([\w<>]+)\s+(\w+)', p)
-            rp = re.match(r'@RequestParam\(([^)]*)\)\s+([\w<>]+)\s+(\w+)', p)
+            rp = re.match(r'@RequestParam\(([^)]*)\)\s+(?:@[\w.]+(?:\((?:[^()]|\([^()]*\))*\))?\s+)*([\w<>]+)\s+(\w+)', p)
             rb = re.match(r'@RequestBody(?:\([^)]*\))?\s+([\w<>.]+)\s+(\w+)', p)
             if pv:
                 pvs.append({'name': pv.group(2), 'type': TIPOS.get(pv.group(1), 'string')})

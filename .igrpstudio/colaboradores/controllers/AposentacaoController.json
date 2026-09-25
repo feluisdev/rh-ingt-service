@@ -1,0 +1,566 @@
+{
+  "type": "controller",
+  "name": "Aposentacao",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh",
+  "description": "Aposentação e limite de idade (Lei n.º 20/X/2023, arts. 48.º e 173.º–179.º): situação de cada colaborador, relatório por serviço, processo de aposentação e prorrogação para além dos 65 anos",
+  "actions": [
+    {
+      "actionName": "getSituacaoAposentacao",
+      "method": "GET",
+      "path": "funcionarios/{funcionarioId}/aposentacao",
+      "summary": "A situação do colaborador perante a aposentação: limite de idade, tempo de serviço, condições, processos e prorrogações",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SituacaoAposentacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "abrirProcessoAposentacao",
+      "method": "POST",
+      "path": "funcionarios/{funcionarioId}/aposentacao/processos",
+      "summary": "Abrir um processo de aposentação (RH)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ProcessoAposentacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessoAposentacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "deferirProcessoAposentacao",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/aposentacao/processos/{processoId}/deferir",
+      "summary": "Deferir o processo: o despacho que autoriza",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "DecisaoAposentacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessoAposentacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "indeferirProcessoAposentacao",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/aposentacao/processos/{processoId}/indeferir",
+      "summary": "Indeferir o processo, com motivo",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "DecisaoAposentacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessoAposentacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "desligarProcessoAposentacao",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/aposentacao/processos/{processoId}/desligar",
+      "summary": "Desligar do serviço aguardando a aposentação, ou iniciar a pré-aposentação (com a percentagem da prestação)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "DecisaoAposentacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessoAposentacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "concluirProcessoAposentacao",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/aposentacao/processos/{processoId}/concluir",
+      "summary": "Concluir: a aposentação cessa o vínculo na data indicada",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "DecisaoAposentacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessoAposentacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "cancelarProcessoAposentacao",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/aposentacao/processos/{processoId}/cancelar",
+      "summary": "Cancelar o processo antes da desligação, com motivo",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "DecisaoAposentacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessoAposentacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "pedirProrrogacaoPermanencia",
+      "method": "POST",
+      "path": "funcionarios/{funcionarioId}/aposentacao/prorrogacoes",
+      "summary": "Pedir a permanência ao serviço para além dos 65 anos (até aos 70)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ProrrogacaoPermanenciaRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProrrogacaoPermanenciaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "autorizarProrrogacaoPermanencia",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/aposentacao/prorrogacoes/{prorrogacaoId}/autorizar",
+      "summary": "Autorizar a permanência (despacho)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "prorrogacaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ProrrogacaoPermanenciaRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProrrogacaoPermanenciaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "indeferirProrrogacaoPermanencia",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/aposentacao/prorrogacoes/{prorrogacaoId}/indeferir",
+      "summary": "Indeferir a permanência, com motivo",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "prorrogacaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ProrrogacaoPermanenciaRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProrrogacaoPermanenciaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getRelatorioAposentacao",
+      "method": "GET",
+      "path": "relatorios/aposentacao",
+      "summary": "Quem, no serviço, atinge o limite de idade ou reúne as condições da antecipada ou da pré-aposentação até uma data (por omissão, 12 meses)",
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "unidadeId",
+          "isRequired": true
+        },
+        {
+          "type": "boolean",
+          "name": "incluirSubunidades",
+          "isRequired": false
+        },
+        {
+          "type": "date",
+          "name": "ate",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "RelatorioAposentacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getRelatorioAposentacaoCsv",
+      "method": "GET",
+      "path": "relatorios/aposentacao.csv",
+      "summary": "O mesmo relatório em CSV (separador ;, UTF-8 com BOM)",
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "unidadeId",
+          "isRequired": true
+        },
+        {
+          "type": "boolean",
+          "name": "incluirSubunidades",
+          "isRequired": false
+        },
+        {
+          "type": "date",
+          "name": "ate",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "text/csv": {
+              "schema": {
+                "type": "string",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getMinhaSituacaoAposentacao",
+      "method": "GET",
+      "path": "me/aposentacao",
+      "summary": "A minha situação perante a aposentação",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SituacaoAposentacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "pedirMinhaAposentacao",
+      "method": "POST",
+      "path": "me/aposentacao/processos",
+      "summary": "Pedir a aposentação antecipada ou a pré-aposentação (o próprio)",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ProcessoAposentacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessoAposentacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
