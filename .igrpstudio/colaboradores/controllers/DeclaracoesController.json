@@ -1,0 +1,409 @@
+{
+  "type": "controller",
+  "name": "Declaracoes",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh",
+  "description": "Declarações e documentos emitidos pelo RH: pedido (pelo próprio ou pelo RH), emissão numerada em PDF (guardado no MinIO), anulação e verificação pública pelo código",
+  "actions": [
+    {
+      "actionName": "emitirDeclaracao",
+      "method": "POST",
+      "path": "funcionarios/{funcionarioId}/declaracoes",
+      "summary": "Emitir uma declaração (RH): regista o pedido e emite logo o PDF numerado",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "PedidoDeclaracaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PedidoDeclaracaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getDeclaracoes",
+      "method": "GET",
+      "path": "funcionarios/{funcionarioId}/declaracoes",
+      "summary": "Os pedidos de declaração do colaborador, com o documento emitido",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PedidoDeclaracaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getDeclaracoesPorEmitir",
+      "method": "GET",
+      "path": "declaracoes/por-emitir",
+      "summary": "A caixa do RH: os pedidos de declaração por emitir, dos mais antigos para os mais recentes",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PedidoDeclaracaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "emitirPedidoDeclaracao",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/declaracoes/{pedidoId}/emitir",
+      "summary": "Emitir um pedido de declaração",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "pedidoId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PedidoDeclaracaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "recusarPedidoDeclaracao",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/declaracoes/{pedidoId}/recusar",
+      "summary": "Recusar um pedido de declaração, com motivo",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "pedidoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "PedidoDeclaracaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PedidoDeclaracaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getDocumentosEmitidos",
+      "method": "GET",
+      "path": "funcionarios/{funcionarioId}/documentos-emitidos",
+      "summary": "Os documentos emitidos para o colaborador (declarações, cartão, extractos)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "DocumentoEmitidoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getLinkDocumentoEmitido",
+      "method": "GET",
+      "path": "documentos-emitidos/{documentoId}/link",
+      "summary": "O link (assinado, temporário) para descarregar o PDF do documento",
+      "pathVariables": [
+        {
+          "name": "documentoId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "FileUrlDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "anularDocumentoEmitido",
+      "method": "PATCH",
+      "path": "documentos-emitidos/{documentoId}/anular",
+      "summary": "Anular um documento emitido, com motivo (a verificação passa a dizer que foi anulado)",
+      "pathVariables": [
+        {
+          "name": "documentoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AnulacaoDocumentoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "DocumentoEmitidoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "verificarDocumento",
+      "method": "GET",
+      "path": "verificacao/documentos/{codigo}",
+      "summary": "Verificação pública de um documento pelo código impresso (não exige autenticação)",
+      "pathVariables": [
+        {
+          "name": "codigo",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "VerificacaoDocumentoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "pedirMinhaDeclaracao",
+      "method": "POST",
+      "path": "me/declaracoes",
+      "summary": "Pedir uma declaração (o próprio); o RH emite-a",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "PedidoDeclaracaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PedidoDeclaracaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getMinhasDeclaracoes",
+      "method": "GET",
+      "path": "me/declaracoes",
+      "summary": "Os meus pedidos de declaração",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PedidoDeclaracaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getMeusDocumentosEmitidos",
+      "method": "GET",
+      "path": "me/documentos-emitidos",
+      "summary": "Os meus documentos emitidos",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "DocumentoEmitidoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getLinkMeuDocumentoEmitido",
+      "method": "GET",
+      "path": "me/documentos-emitidos/{documentoId}/link",
+      "summary": "O link para descarregar um documento meu",
+      "pathVariables": [
+        {
+          "name": "documentoId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "FileUrlDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

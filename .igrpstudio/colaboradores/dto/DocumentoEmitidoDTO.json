@@ -1,0 +1,74 @@
+{
+  "type": "dto",
+  "name": "DocumentoEmitido",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "tipo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "numero",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "titulo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "datetime",
+      "name": "emitidoEm",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "codigoVerificacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "impressaoDigital",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "anulado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "datetime",
+      "name": "anuladoEm",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivoAnulacao",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

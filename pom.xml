@@ -171,6 +171,18 @@
             <version>${igrp.version}</version>
         </dependency>
 
+        <!-- PDF dos documentos emitidos (declaracoes, certidoes, cartao profissional): HTML -> PDF -->
+        <dependency>
+            <groupId>io.github.openhtmltopdf</groupId>
+            <artifactId>openhtmltopdf-pdfbox</artifactId>
+            <version>1.1.37</version>
+        </dependency>
+        <!-- Modelos dos documentos (Thymeleaf, motor standalone; CSS 2.1 simples, o que o openhtmltopdf suporta) -->
+        <dependency>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf</artifactId>
+        </dependency>
+
         <!-- TESTES -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

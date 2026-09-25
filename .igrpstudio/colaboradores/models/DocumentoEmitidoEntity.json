@@ -1,0 +1,115 @@
+{
+  "type": "model",
+  "module": "colaboradores",
+  "name": "DocumentoEmitidoEntity",
+  "tableName": "t_documento_emitido",
+  "audit": true,
+  "crud": false,
+  "revision": true,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": true,
+      "nullable": false
+    },
+    {
+      "name": "tipo",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 30
+    },
+    {
+      "name": "numero",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 30
+    },
+    {
+      "name": "funcionario",
+      "type": "relation",
+      "relation": {
+        "type": "ManyToOne",
+        "entity": "FuncionarioEntity",
+        "fetchType": "lazy",
+        "joinColumn": "funcionario_id",
+        "module": "colaboradores"
+      }
+    },
+    {
+      "name": "titulo",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true,
+      "length": 200
+    },
+    {
+      "name": "emitidoEm",
+      "type": "datetime",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "codigoVerificacao",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 20
+    },
+    {
+      "name": "ficheiro",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 300
+    },
+    {
+      "name": "impressaoDigital",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 64
+    },
+    {
+      "name": "referenciaTipo",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true,
+      "length": 40
+    },
+    {
+      "name": "referenciaId",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true,
+      "length": 60
+    },
+    {
+      "name": "anuladoEm",
+      "type": "datetime",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    },
+    {
+      "name": "motivoAnulacao",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true,
+      "length": 500
+    }
+  ]
+}

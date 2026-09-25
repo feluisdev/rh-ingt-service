@@ -2027,3 +2027,32 @@ diz a data em que se cumpre; despacho ou motivo em falta; prestação fora de 70
 
 **Avisos:** o job `RH_ALERTA_APOSENTACAO` avisa o RH 180, 90 e 30 dias antes do limite e no dia; o colaborador, aos 180 e no dia.
 <!-- /secao:aposentacao -->
+
+<!-- secao:declaracoes -->
+## 17. Declarações e documentos emitidos — `/api/v1/rh/funcionarios/{id}/declaracoes`
+
+BR-DEC-01..08. O PDF é gerado no acto de emitir e fica no **MinIO**; descarrega-se por link assinado (`FileUrlDTO.url`, temporário).
+Modelos **de teste** até a instituição aprovar os oficiais.
+
+| Método | Caminho | O quê |
+|---|---|---|
+| POST | `/api/v1/rh/funcionarios/{funcionarioId}/declaracoes` | O RH emite logo (`tipo`, `finalidade`) → `PedidoDeclaracaoDTO` com o `documento` |
+| GET | `/api/v1/rh/funcionarios/{funcionarioId}/declaracoes` | Os pedidos do colaborador |
+| GET | `/api/v1/rh/declaracoes/por-emitir` | A caixa do RH: pedidos do próprio por emitir |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/declaracoes/{pedidoId}/emitir` | Emitir um pedido |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/declaracoes/{pedidoId}/recusar` | Recusar (`motivo`) |
+| GET | `/api/v1/rh/funcionarios/{funcionarioId}/documentos-emitidos` | Os documentos emitidos para o colaborador |
+| GET | `/api/v1/rh/documentos-emitidos/{documentoId}/link` | Link assinado para o PDF |
+| PATCH | `/api/v1/rh/documentos-emitidos/{documentoId}/anular` | Anular (`motivo`) |
+| GET | `/api/v1/rh/verificacao/documentos/{codigo}` | **Pública** (sem autenticação): `valido`, `anulado`, `tipo`, `numero`, `emitidoEm`, `titular` |
+| POST | `/api/v1/rh/me/declaracoes` | O próprio pede (`tipo`, `finalidade`) |
+| GET | `/api/v1/rh/me/declaracoes` | Os meus pedidos |
+| GET | `/api/v1/rh/me/documentos-emitidos` | Os meus documentos |
+| GET | `/api/v1/rh/me/documentos-emitidos/{documentoId}/link` | Link para um documento meu (404 se não for meu) |
+
+**Tipos:** `VINCULO`, `TEMPO_SERVICO`, `ANTIGUIDADE_CATEGORIA`, `SITUACAO_FUNCIONAL`. **Numeração** `DEC-2026-000001` (sem repetidos
+nem saltos por erro). **Código de verificação** impresso no rodapé do PDF, com o endereço da verificação.
+
+**Pasta por omissão nos ficheiros (`/documento/private/{folder}`):** sem pasta, ou com uma pasta que não existe, o ficheiro vai para
+`outros` (`DocumentoFolder.OUTROS`); as declarações vão para `documentos_emitidos`.
+<!-- /secao:declaracoes -->

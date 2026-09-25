@@ -103,7 +103,9 @@ public class SecurityConfig {
       http.authorizeHttpRequests(authorize -> authorize
               .requestMatchers(
                   "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
-                  "/swagger-resources/**", "/webjars/**", "/actuator/**"
+                  "/swagger-resources/**", "/webjars/**", "/actuator/**",
+                  // Verificação pública de documentos emitidos (quem recebe uma declaração confirma-a)
+                  "/api/v1/rh/verificacao/**"
               )
               .permitAll()
               .anyRequest()

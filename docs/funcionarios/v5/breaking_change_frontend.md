@@ -874,6 +874,18 @@ deixaram de vir de `application.properties` e passam a vir de um catálogo por v
 - `/me`: «A minha aposentação» (`GET /me/aposentacao`) e o pedido da antecipada ou da pré-aposentação (`POST /me/aposentacao/processos`).
 - Notificações novas: `LIMITE_IDADE_PROXIMO` e `PROCESSO_APOSENTACAO` (recurso `PROCESSO_APOSENTACAO`, `PRORROGACAO_PERMANENCIA`, `FUNCIONARIO`).
 
+### 11.44 Declarações e documentos emitidos (2026-09-25)
+
+**Nada deixa de funcionar**: endpoints novos (guia §17).
+
+- Ficha do colaborador: «Declarações» (`POST/GET /funcionarios/{id}/declaracoes`, emitir e recusar) e «Documentos emitidos»
+  (`GET /funcionarios/{id}/documentos-emitidos`, descarregar por `GET /documentos-emitidos/{id}/link`, anular).
+- Caixa do RH: `GET /declaracoes/por-emitir`.
+- `/me`: pedir (`POST /me/declaracoes`), ver os pedidos e descarregar os documentos (`/me/documentos-emitidos/{id}/link`).
+- Página pública de verificação: `GET /verificacao/documentos/{codigo}` (sem login).
+- Upload de ficheiros: `POST /documento/private` (sem pasta) passa a aceitar-se e grava em `outros`; uma pasta desconhecida também cai em
+  `outros` (antes dava 400).
+
 ## 12. Checklist do alinhamento com a legislação (secção 11)
 
 Por ordem das secções. Cada item remete para o ecrã correspondente em `apresentacao_aplicacao.html`.

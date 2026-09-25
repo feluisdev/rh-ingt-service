@@ -1,0 +1,56 @@
+{
+  "type": "dto",
+  "name": "VerificacaoDocumento",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "codigo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "valido",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "anulado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "tipo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "numero",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "titulo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "datetime",
+      "name": "emitidoEm",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "titular",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

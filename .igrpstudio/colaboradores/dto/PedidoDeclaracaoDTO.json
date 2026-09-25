@@ -1,0 +1,75 @@
+{
+  "type": "dto",
+  "name": "PedidoDeclaracao",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "numeroFuncionario",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "nome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "tipo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "finalidade",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "pedidoPeloProprio",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataPedido",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivoRecusa",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "DocumentoEmitidoDTO",
+      "name": "documento",
+      "objectType": "dto",
+      "module": "colaboradores",
+      "required": false
+    }
+  ]
+}

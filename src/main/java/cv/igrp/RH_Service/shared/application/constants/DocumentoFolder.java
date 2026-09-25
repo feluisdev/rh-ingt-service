@@ -13,7 +13,10 @@ import java.util.stream.Collectors;
 
 public enum DocumentoFolder implements IgrpEnum<String> {
 
-  FUNCIONARIO("funcionario_documents", "funcionario_documents")
+  FUNCIONARIO("funcionario_documents", "funcionario_documents"),
+  DOCUMENTOS_EMITIDOS("documentos_emitidos", "documentos_emitidos"),
+  /** Pasta por omissão: o ficheiro que não diz para onde vai (ou diz uma pasta que não existe). */
+  OUTROS("outros", "outros")
   ;
 
   private final String code;
@@ -55,6 +58,21 @@ public enum DocumentoFolder implements IgrpEnum<String> {
   * @return The <enum> value for the given code
   * @throws IllegalArgumentException if no enum value exists for the given code
   */
+  /**
+  * A pasta pedida, por código ou por nome (sem distinguir maiúsculas); em branco ou desconhecida, {@link #OUTROS}.
+  */
+  public static DocumentoFolder ouOutros(String valor) {
+    if (valor == null || valor.isBlank()) return OUTROS;
+    String v = valor.trim();
+    return fromCode(v.toLowerCase()).orElseGet(() -> Arrays.stream(values())
+        .filter(f -> f.name().equalsIgnoreCase(v)).findFirst().orElse(OUTROS));
+  }
+
+  /** A pasta dada, ou {@link #OUTROS} se não vier nenhuma. */
+  public static DocumentoFolder ouOutros(DocumentoFolder folder) {
+    return folder != null ? folder : OUTROS;
+  }
+
   public static DocumentoFolder fromCodeOrThrow(String code) {
     return fromCode(code).orElseThrow(() -> new IllegalArgumentException("Código inválido para DocumentoFolder: " + code));
   }

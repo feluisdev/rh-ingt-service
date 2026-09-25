@@ -31,7 +31,7 @@ public class DocumentoService {
 
     try {
       var uniqueFilename = buildUniqueFilename(file.getOriginalFilename());
-      var uniqueFilePath = "%s/%s".formatted(folder.getCode(), uniqueFilename);
+      var uniqueFilePath = "%s/%s".formatted(DocumentoFolder.ouOutros(folder).getCode(), uniqueFilename);
 
       minioService.uploadFile(
           file.getBytes(),
@@ -95,6 +95,22 @@ public class DocumentoService {
         System.currentTimeMillis(),
         extension
     );
+  }
+
+  /**
+   * Grava no MinIO um ficheiro gerado pelo servidor (ex.: o PDF de uma declaração) e devolve o caminho.
+   * {@code nome} é o nome legível (ex.: {@code DEC-2026-000001.pdf}); o caminho fica único.
+   */
+  public String guardarGerado(DocumentoFolder folder, String nome, byte[] conteudo, String contentType) {
+    try {
+      var caminho = "%s/%s".formatted(DocumentoFolder.ouOutros(folder).getCode(), buildUniqueFilename(nome));
+      minioService.uploadFile(conteudo, caminho, contentType);
+      return caminho;
+    } catch (Exception e) {
+      LOGGER.error("Falha ao guardar o ficheiro gerado '{}' na pasta {}", nome, folder, e);
+      throw IgrpResponseStatusException.of(HttpStatus.INTERNAL_SERVER_ERROR,
+          "Não foi possível guardar o documento. Tente de novo dentro de momentos.");
+    }
   }
 
   public ResponseEntity<FileUrlDTO> getPresignedLink(String fileId) {

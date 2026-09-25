@@ -57,7 +57,7 @@
     <div class="kicker">RH-Service · SIGDI / SIPPROG</div>
     <h1>Modelo Relacional</h1>
     <p>As tabelas do núcleo RH e como se relacionam. Na persistência, as ligações são associações <code>@ManyToOne</code> sobre colunas <code>*_id</code> (com duas excepções deliberadas, ver §1); o domínio refere-se às outras entidades por identidade tipada. As tabelas que nasceram depois da V54 são criadas pelo Hibernate (<code>ddl-auto</code>) e várias referem o catálogo de horários por UUID sem FK — cada caso está assinalado.</p>
-    <div class="meta">Documentação <b>v5</b> · 49 tabelas (exclui <code>sigdi</code>) · PostgreSQL 17 · auditoria Envers (<code>_aud</code> em <code>audit_schema</code>)<br>Última alteração: 2026-09-25</div>
+    <div class="meta">Documentação <b>v5</b> · 52 tabelas (exclui <code>sigdi</code>) · PostgreSQL 17 · auditoria Envers (<code>_aud</code> em <code>audit_schema</code>)<br>Última alteração: 2026-09-25</div>
   </div>
 </header>
 <div class="wrap">
@@ -317,6 +317,16 @@ erDiagram
   </table>
   <!-- /secao:tab-aposentacao -->
 
+  <!-- secao:tab-documentos-emitidos -->
+  <h3 id="tab-documentos-emitidos">Declarações e documentos emitidos (colaboradores)</h3>
+  <table>
+    <tr><th>Tabela</th><th>Módulo</th><th>Descrição</th></tr>
+    <tr><td><code>t_documento_emitido</code></td><td><span class="mod m-col">colaboradores</span></td><td><b>Documento emitido</b> (só metadados — o PDF está no MinIO). <code>tipo</code> ∈ DECLARACAO · CARTAO_PROFISSIONAL · EXTRACTO_PUBLICACAO, <code>numero</code> (único), <code>funcionario_id</code>→<code>t_funcionario</code>, <code>titulo</code>, <code>emitido_em</code>, <code>codigo_verificacao</code> (único), <code>ficheiro</code> (caminho no MinIO), <code>impressao_digital</code> (SHA-256 do PDF), <code>referencia_tipo</code>/<code>referencia_id</code>, <code>anulado_em</code>, <code>motivo_anulacao</code>. <b>Criada pelo ddl-auto, sem migração.</b></td></tr>
+    <tr><td><code>t_numeracao_documento</code></td><td><span class="mod m-col">colaboradores</span></td><td>O último número dado em cada série e ano (<code>id</code> = <code>DEC-2026</code>, <code>serie</code>, <code>ano</code>, <code>ultimo</code>); tranca-se ao reservar o seguinte. Não auditada. <b>Criada pelo ddl-auto, sem migração.</b></td></tr>
+    <tr><td><code>t_pedido_declaracao</code></td><td><span class="mod m-col">colaboradores</span></td><td><b>Pedido de declaração.</b> <code>funcionario_id</code>, <code>tipo</code> ∈ VINCULO · TEMPO_SERVICO · ANTIGUIDADE_CATEGORIA · SITUACAO_FUNCIONAL, <code>finalidade</code>, <code>estado</code> ∈ PEDIDA · EMITIDA · RECUSADA, <code>pedido_pelo_proprio</code>, <code>data_pedido</code>, <code>documento_id</code>→<code>t_documento_emitido</code>, <code>motivo_recusa</code>. <b>Criada pelo ddl-auto, sem migração.</b></td></tr>
+  </table>
+  <!-- /secao:tab-documentos-emitidos -->
+
   <h2 id="ref"><span class="n">8.</span>Referência completa de tabelas (não-sigdi)</h2>
   <table>
     <tr><th>#</th><th>Tabela</th><th>Módulo</th><th>Entidade JPA</th><th>FKs (colunas <code>*_id</code>)</th></tr>
@@ -369,6 +379,9 @@ erDiagram
     <tr><td>47</td><td><code>t_facto_rh</code></td><td><span class="mod m-col">col</span></td><td>FactoRhEntity</td><td>funcionario_id</td></tr>
     <tr><td>48</td><td><code>t_processo_aposentacao</code></td><td><span class="mod m-col">col</span></td><td>ProcessoAposentacaoEntity</td><td>funcionario_id</td></tr>
     <tr><td>49</td><td><code>t_prorrogacao_permanencia</code></td><td><span class="mod m-col">col</span></td><td>ProrrogacaoPermanenciaEntity</td><td>funcionario_id</td></tr>
+    <tr><td>50</td><td><code>t_documento_emitido</code></td><td><span class="mod m-col">col</span></td><td>DocumentoEmitidoEntity</td><td>funcionario_id</td></tr>
+    <tr><td>51</td><td><code>t_numeracao_documento</code></td><td><span class="mod m-col">col</span></td><td>NumeracaoDocumentoEntity</td><td>—</td></tr>
+    <tr><td>52</td><td><code>t_pedido_declaracao</code></td><td><span class="mod m-col">col</span></td><td>PedidoDeclaracaoEntity</td><td>funcionario_id, documento_id</td></tr>
   </table>
   <p class="lead" style="font-size:13.5px">Todas as FKs acima são associações <code>@ManyToOne</code> com <code>@JoinColumn</code>, <b>excepto</b> as duas assinaladas a negrito (<code>t_document.reference_id</code> e <code>t_iam_user_profile.funcionario_id</code>), que permanecem colunas UUID sem FK declarada, e as referências a <code>t_horario</code> marcadas «sem FK física» (o horário nasce pelo <code>ddl-auto</code>, depois do Flyway, e a V57 não podia apontar-lhe). As tabelas 31 a 44 nasceram pelo <code>ddl-auto</code>, sem migração; as invariantes que seriam <code>CHECK</code> vivem no domínio. Todas são auditadas (Envers), <b>excepto</b> <code>t_scheduler_execucao</code>, que já é ela própria um registo histórico.</p>
   <p class="lead" style="font-size:13.5px"><b>Tarefas agendadas (43–44).</b> <code>t_scheduler_job</code> é a configuração de cada job (<code>cron</code>, <code>frequencia</code>, <code>timezone</code>, <code>activo</code>, <code>max_tentativas</code>, <code>timeout_segundos</code>) e a fonte de verdade do agendamento — é semeada no arranque a partir do código e muda-se pela API (guia, 11b). <code>proxima_execucao</code> é o que deixa detectar um disparo que não aconteceu; e a própria linha serve de lock entre réplicas (<code>SELECT … FOR UPDATE</code> antes de abrir uma execução). <code>t_scheduler_execucao</code> tem uma linha por execução: <code>disparo</code> (AGENDADO/MANUAL), <code>agendado_para</code> (o instante previsto, de onde o job tira o dia a tratar), <code>inicio</code>/<code>fim</code>/<code>duracao_ms</code>, <code>estado</code>, os contadores, <code>parametros</code> e <code>detalhes</code> (jsonb), <code>tentativa</code> e <code>execucao_pai_id</code> (a execução repetida). Todos os instantes estão na hora de Cabo Verde. Só as colunas de configuração de <code>t_scheduler_job</code> são auditadas; <code>ultima_execucao</code>, <code>ultimo_estado</code> e <code>proxima_execucao</code> não, para o histórico não se encher de ruído.</p>

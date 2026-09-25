@@ -10,6 +10,20 @@
         "funcionario_documents",
         "funcionario_documents"
       ]
+    },
+    {
+      "name": "DocumentosEmitidos",
+      "attributes": [
+        "documentos_emitidos",
+        "documentos_emitidos"
+      ]
+    },
+    {
+      "name": "Outros",
+      "attributes": [
+        "outros",
+        "outros"
+      ]
     }
   ],
   "attributes": [

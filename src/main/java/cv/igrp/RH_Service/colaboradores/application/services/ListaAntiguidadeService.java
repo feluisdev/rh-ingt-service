@@ -144,6 +144,22 @@ public class ListaAntiguidadeService {
     }
 
     /**
+     * Desde quando o colaborador está no cargo (categoria, ou o Job fora de grelha) em que estava na
+     * {@code referencia} — a mesma contagem da lista de antiguidade. Vazio sem afectação principal nessa data.
+     * Serve a declaração de antiguidade (BR-DEC).
+     */
+    public Optional<LocalDate> inicioNoCargo(Funcionario f, LocalDate referencia) {
+        Map<UUID, Optional<Grade>> escaloes = new HashMap<>();
+        Map<UUID, Optional<Position>> lugares = new HashMap<>();
+        return assignmentRepository.findAllByFuncionarioOrderByDataInicioDesc(f.getId()).stream()
+                .filter(Assignment::isPrincipal)
+                .filter(a -> a.getDataInicio() != null && !a.getDataInicio().isAfter(referencia)
+                        && (a.getDataFim() == null || !a.getDataFim().isBefore(referencia)))
+                .findFirst()
+                .map(a -> inicioNoCargo(f, a, cargo(a, escaloes, lugares), referencia, escaloes, lugares));
+    }
+
+    /**
      * O início da cadeia de afectações principais seguidas no mesmo cargo, a partir da que vale na
      * referência. Uma interrupção (um dia sem afectação) corta a cadeia.
      */

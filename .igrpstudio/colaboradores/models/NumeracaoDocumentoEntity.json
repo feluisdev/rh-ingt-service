@@ -1,0 +1,41 @@
+{
+  "type": "model",
+  "module": "colaboradores",
+  "name": "NumeracaoDocumentoEntity",
+  "tableName": "t_numeracao_documento",
+  "audit": false,
+  "crud": false,
+  "revision": false,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": true,
+      "nullable": false,
+      "length": 20
+    },
+    {
+      "name": "serie",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 10
+    },
+    {
+      "name": "ano",
+      "type": "integer",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "ultimo",
+      "type": "integer",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    }
+  ]
+}

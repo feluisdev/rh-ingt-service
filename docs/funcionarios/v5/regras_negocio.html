@@ -102,6 +102,7 @@
       <a href="#notificacoes">13. Notificações na aplicação</a><br>
       <a href="#factos-salariais">14. Fronteira salarial — diário de factos</a><br>
       <a href="#aposentacao">15. Aposentação e limite de idade</a><br>
+      <a href="#declaracoes">16. Declarações e documentos emitidos</a><br>
       <a href="#invariantes">12. Invariantes transversais</a>
     </div>
   </div>
@@ -739,6 +740,22 @@
     <tr><td class="id">BR-APO-12</td><td><b>Cancelar</b> só antes da desligação, com motivo (409 depois: o processo conclui-se com a aposentação). <b>Relatório</b> por serviço: quem atinge o limite efectivo, os 34 anos ou as condições da pré-aposentação até uma data (por omissão, 12 meses), ou tem processo em curso — pela data mais próxima; JSON e CSV.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">ProcessoAposentacao.cancelar · AposentacaoService.relatorio</td></tr>
   </table>
   <!-- /secao:aposentacao -->
+
+  <!-- secao:declaracoes -->
+  <h2 id="declaracoes"><span class="n">16.</span>Declarações e documentos emitidos</h2>
+  <p>O colaborador pede em <code>/me</code> (ou o RH emite logo); o RH emite ou recusa. Cada documento emitido tem um número da sua série, um código de verificação e um PDF gerado de um modelo (Thymeleaf) que vai para o <b>MinIO</b> — a base guarda só os metadados. Os modelos são <b>de teste</b> até a instituição aprovar os seus (decisão de 2026-09-25). Serve também o cartão profissional e os extractos para publicação.</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-DEC-01</td><td><b>Tipos</b> (enum): VINCULO (desde quando exerce, vínculo, carreira, categoria, escalão, cargo, função, serviço), TEMPO_SERVICO (o tempo contado, com os descontos da lei — BR-ANT), ANTIGUIDADE_CATEGORIA (desde quando está na categoria, a mesma contagem da lista de antiguidade) e SITUACAO_FUNCIONAL (o estado de hoje). <i>Indústria: as declarações mais pedidas.</i></td><td><span class="http h422">422</span></td><td class="src">PedidoDeclaracao · DeclaracoesService.paragrafos</td></tr>
+    <tr><td class="id">BR-DEC-02</td><td><b>Quem pede</b>: o próprio em <code>/me</code> — fica PEDIDA e avisa a caixa do RH; o RH — regista e emite logo. A <code>finalidade</code> («para efeitos de …») entra no documento.</td><td>—</td><td class="src">DeclaracoesService.pedir</td></tr>
+    <tr><td class="id">BR-DEC-03</td><td><b>Emitir ou recusar</b> só um pedido PEDIDO (409); recusar exige motivo (422). Ambos avisam o colaborador.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">PedidoDeclaracao.emitida · recusar · DeclaracoesService.emitir</td></tr>
+    <tr><td class="id">BR-DEC-04</td><td><b>Os dados são os de hoje</b> e ficam congelados no PDF. A de vínculo não se emite a quem já cessou (use a de tempo de serviço); a de tempo de serviço exige a data de admissão; a de antiguidade exige Lugar à data.</td><td><span class="http h422">422</span></td><td class="src">DeclaracoesService.paragrafos</td></tr>
+    <tr><td class="id">BR-DEC-05</td><td><b>Numeração por série e ano</b>: <code>DEC-2026-000001</code> (declarações), <code>CIP-…</code> (cartão), <code>EXT-…</code> (extractos). A série tranca-se (<code>SELECT … FOR UPDATE</code>) ao dar o número: duas réplicas nunca dão o mesmo, e um erro na emissão não gasta número (a transacção desfaz-se).</td><td>—</td><td class="src">TipoDocumentoEmitido · DocumentoEmitidoRepositoryImpl.proximoNumero</td></tr>
+    <tr><td class="id">BR-DEC-06</td><td><b>O PDF vai para o MinIO</b> (pasta <code>documentos_emitidos</code>), gerado uma vez no acto de emitir; a base guarda o número, o código, o caminho do ficheiro e o <b>SHA-256</b> do PDF (prova de que não foi trocado). Descarrega-se por link assinado e temporário; o próprio só descarrega os seus (404).</td><td><span class="http h404">404</span></td><td class="src">EmissaoDocumentosService.emitir · link · DocumentoEmitido</td></tr>
+    <tr><td class="id">BR-DEC-07</td><td><b>Não se corrige, anula-se</b> (com motivo; 409 se já anulado) e emite-se outro.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">DocumentoEmitido.anular</td></tr>
+    <tr><td class="id">BR-DEC-08</td><td><b>Verificação pública</b> pelo código impresso (<code>/verificacao/documentos/{codigo}</code>, sem autenticação): responde tipo, número, data, titular e se foi anulado. Um código que não existe dá <code>valido: false</code> (não 404). O código tem 10 caracteres sem letras que se confundem.</td><td>—</td><td class="src">EmissaoDocumentosService.verificar · VerificarDocumentoQueryHandler</td></tr>
+  </table>
+  <!-- /secao:declaracoes -->
 
   <!-- ============ INVARIANTES ============ -->
   <h2 id="invariantes"><span class="n">12.</span>Invariantes transversais</h2>

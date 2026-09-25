@@ -1,0 +1,86 @@
+{
+  "type": "model",
+  "module": "colaboradores",
+  "name": "PedidoDeclaracaoEntity",
+  "tableName": "t_pedido_declaracao",
+  "audit": true,
+  "crud": false,
+  "revision": true,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": true,
+      "nullable": false
+    },
+    {
+      "name": "funcionario",
+      "type": "relation",
+      "relation": {
+        "type": "ManyToOne",
+        "entity": "FuncionarioEntity",
+        "fetchType": "lazy",
+        "joinColumn": "funcionario_id",
+        "module": "colaboradores"
+      }
+    },
+    {
+      "name": "tipo",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 30
+    },
+    {
+      "name": "finalidade",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true,
+      "length": 300
+    },
+    {
+      "name": "estado",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 20
+    },
+    {
+      "name": "pedidoPeloProprio",
+      "type": "boolean",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "dataPedido",
+      "type": "date",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "documento",
+      "type": "relation",
+      "relation": {
+        "type": "ManyToOne",
+        "entity": "DocumentoEmitidoEntity",
+        "fetchType": "lazy",
+        "joinColumn": "documento_id",
+        "module": "colaboradores"
+      }
+    },
+    {
+      "name": "motivoRecusa",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true,
+      "length": 500
+    }
+  ]
+}

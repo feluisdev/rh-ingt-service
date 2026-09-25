@@ -28,7 +28,7 @@ public class DocumentController {
   }
 
   @PostMapping(
-      path = "private/{folder}",
+      path = {"private", "private/{folder}"},
       consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE
   )
@@ -49,9 +49,10 @@ public class DocumentController {
       }
   )
   public ResponseEntity<FileResponseDTO> upload(
-      @PathVariable DocumentoFolder folder,
+      @PathVariable(name = "folder", required = false) String folder,
       @Parameter(description = "File to upload", required = true) @RequestParam(name = "file") MultipartFile uploadFile) {
-    return documentoService.save(folder, uploadFile);
+    // Sem pasta, ou com uma pasta que não existe, o ficheiro vai para OUTROS.
+    return documentoService.save(DocumentoFolder.ouOutros(folder), uploadFile);
   }
 
   @PostMapping(

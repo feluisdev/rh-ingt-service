@@ -1,0 +1,26 @@
+{
+  "type": "dto",
+  "name": "PedidoDeclaracaoRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "tipo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "finalidade",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}
