@@ -1,0 +1,32 @@
+{
+  "type": "dto",
+  "name": "PeriodoProvaRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "avaliacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "fundamentacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "data",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "workerStateId",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

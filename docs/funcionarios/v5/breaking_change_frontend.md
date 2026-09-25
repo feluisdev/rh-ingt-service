@@ -910,6 +910,14 @@ deixaram de vir de `application.properties` e passam a vir de um catálogo por v
 - Ficha do colaborador: «Cartão profissional» — emitir, entregar, devolver, anular; mostrar `valido`/`motivoInvalidade`.
 - `/me/cartao-profissional`. Notificação nova: `CARTAO_PROFISSIONAL`.
 
+### 11.48 Entrada ao serviço — provimento e períodos de prova (2026-09-25)
+
+**Nada deixa de funcionar**: endpoints novos (guia §21).
+
+- Ficha do colaborador: «Entrada ao serviço» — registar o provimento; ver o estágio/período experimental; concluir, cessar, denunciar.
+- `/me/tutorias`: o tutor vê os estagiários e remete o relatório.
+- Notificações novas: `PERIODO_PROVA`, `CONTRATO_TERMO_A_TERMINAR`.
+
 ## 12. Checklist do alinhamento com a legislação (secção 11)
 
 Por ordem das secções. Cada item remete para o ecrã correspondente em `apresentacao_aplicacao.html`.

@@ -1,0 +1,30 @@
+{
+  "type": "dto",
+  "name": "EntradaServico",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "ProvimentoDTO",
+      "name": "provimentos",
+      "objectType": "dto",
+      "module": "colaboradores",
+      "collectionType": "list",
+      "required": false
+    },
+    {
+      "type": "PeriodoProvaDTO",
+      "name": "periodos",
+      "objectType": "dto",
+      "module": "colaboradores",
+      "collectionType": "list",
+      "required": false
+    }
+  ]
+}

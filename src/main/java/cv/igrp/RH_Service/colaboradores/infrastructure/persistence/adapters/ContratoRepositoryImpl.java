@@ -34,6 +34,12 @@ public class ContratoRepositoryImpl implements ContratoRepository {
 
     @Transactional(readOnly = true)
     @Override
+    public List<Contrato> findCorrentesComFimEntre(java.time.LocalDate de, java.time.LocalDate ate) {
+        return entityRepository.findCorrentesComFimEntre(de, ate).stream().map(mapper::toDomain).toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public Optional<Contrato> findCurrentByFuncionarioId(FuncionarioId funcionarioId) {
         return entityRepository.findByFuncionario_IdAndIsCurrentTrue(funcionarioId.getValor())
                 .map(mapper::toDomain);

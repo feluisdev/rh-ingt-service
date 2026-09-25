@@ -1,0 +1,276 @@
+{
+  "type": "controller",
+  "name": "EntradaServico",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh",
+  "description": "Entrada ao serviço (Lei n.º 20/X/2023, arts. 52.º–81.º): provimento e posse, estágio probatório (1 ano, tutor, relatório) e período experimental (60/30 dias)",
+  "actions": [
+    {
+      "actionName": "registarProvimento",
+      "method": "POST",
+      "path": "funcionarios/{funcionarioId}/provimentos",
+      "summary": "Registar o provimento (forma de vínculo, despacho e posse); abre o estágio probatório ou o período experimental",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ProvimentoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProvimentoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getEntradaServico",
+      "method": "GET",
+      "path": "funcionarios/{funcionarioId}/provimentos",
+      "summary": "Os provimentos e os períodos de prova do colaborador",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "EntradaServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "concluirPeriodoProva",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/periodos-prova/{periodoId}/concluir",
+      "summary": "Decidir no fim do período (por omissão, com a avaliação do relatório do tutor)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "periodoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "PeriodoProvaRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PeriodoProvaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "cessarPeriodoProva",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/periodos-prova/{periodoId}/cessar",
+      "summary": "Cessação antecipada por relatório (acto) fundamentado",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "periodoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "PeriodoProvaRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PeriodoProvaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "denunciarPeriodoProva",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/periodos-prova/{periodoId}/denunciar",
+      "summary": "Registar a denúncia do contrato pelo agente no período experimental (sem aviso prévio)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "periodoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "PeriodoProvaRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PeriodoProvaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getMinhasTutorias",
+      "method": "GET",
+      "path": "me/tutorias",
+      "summary": "Os estágios probatórios em curso de que sou tutor",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PeriodoProvaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "remeterRelatorioEstagio",
+      "method": "PATCH",
+      "path": "me/tutorias/{periodoId}/relatorio",
+      "summary": "Remeter o relatório final do estágio (o tutor): avaliação e fundamentação",
+      "pathVariables": [
+        {
+          "name": "periodoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "PeriodoProvaRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PeriodoProvaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

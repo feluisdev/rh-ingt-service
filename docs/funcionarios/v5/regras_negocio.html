@@ -106,6 +106,7 @@
       <a href="#ciclo-lista-antiguidade">17. Lista de antiguidade — o ciclo (arts. 71.º–74.º)</a><br>
       <a href="#publicacoes">18. Publicações no Boletim Oficial</a><br>
       <a href="#cartao-profissional">19. Cartão de identificação profissional</a><br>
+      <a href="#entrada-servico">20. Entrada ao serviço — provimento, estágio probatório e período experimental</a><br>
       <a href="#invariantes">12. Invariantes transversais</a>
     </div>
   </div>
@@ -805,6 +806,28 @@
     <tr><td class="id">BR-CID-06</td><td><b>Não substitui</b> o documento de identificação civil (n.º 4) — dito no verso. O próprio vê os seus em <code>/me/cartao-profissional</code>.</td><td>—</td><td class="src">GetCartoesProfissionaisQueryHandler</td></tr>
   </table>
   <!-- /secao:cartao-profissional -->
+
+  <!-- secao:entrada-servico -->
+  <h2 id="entrada-servico"><span class="n">20.</span>Entrada ao serviço — provimento, estágio probatório e período experimental</h2>
+  <p>Lei n.º 20/X/2023, arts. 52.º–81.º e 94.º n.º 3. O provimento é o acto (forma de vínculo, despacho, posse); o estágio probatório (nomeação provisória e contrato de estágio) e o período experimental (contratos a termo) acompanham-no. Tabelas <code>t_provimento</code> e <code>t_periodo_prova</code>.</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-PRV-01</td><td><b>Formas de vínculo</b> (enum): NOMEACAO_PROVISORIA (art. 57.º), NOMEACAO_DEFINITIVA (58.º), COMISSAO_SERVICO (59.º–64.º), CONTRATO_GESTAO (65.º–68.º), CONTRATO_ESTAGIO (72.º), CONTRATO_INDETERMINADO (70.º), CONTRATO_TERMO_CERTO e CONTRATO_TERMO_INCERTO (73.º–80.º).</td><td><span class="http h422">422</span></td><td class="src">ModalidadeProvimento</td></tr>
+    <tr><td class="id">BR-PRV-02</td><td><b>Posse</b> (art. 63.º): determina o início de funções e a data de efeitos; obrigatória, nunca antes do despacho.</td><td><span class="http h422">422</span></td><td class="src">Provimento.registar</td></tr>
+    <tr><td class="id">BR-PRV-03</td><td><b>Só a quem está ao serviço</b>; o provimento não substitui o registo, o contrato nem a colocação — acompanha-os. <i>A publicação da entrada nasce da admissão (BR-PUB-02); a do provimento seguinte (a nomeação definitiva), deste.</i></td><td><span class="http h422">422</span></td><td class="src">ProvimentoService.registar</td></tr>
+    <tr><td class="id">BR-PRV-04</td><td><b>Estágio probatório</b> (arts. 57.º, 72.º): abre-se com a nomeação provisória e o contrato de estágio; dura <b>1 ano</b> desde a posse; <b>tutor obrigatório</b>, ao serviço, que não seja o próprio. O tutor é avisado com a data do fim.</td><td><span class="http h422">422</span></td><td class="src">PeriodoProva.estagio · ProvimentoService.registar</td></tr>
+    <tr><td class="id">BR-PRV-05</td><td><b>Período experimental</b> (arts. 79.º, 80.º): nos contratos a termo; <b>60 dias</b> no termo certo de 6 meses ou mais (e no incerto que se preveja superior), <b>30 dias</b> nos restantes. O termo certo exige o contrato com a data do termo; o incerto, a duração prevista.</td><td><span class="http h422">422</span></td><td class="src">PeriodoProva.experimental</td></tr>
+    <tr><td class="id">BR-PRV-06</td><td><b>Quem já era definitivo noutra carreira</b> faz o estágio em comissão de serviço e, sem sucesso, regressa à carreira de origem, onde o tempo conta (arts. 57.º n.os 2 e 5, 72.º n.os 7 e 8) — não sai.</td><td>—</td><td class="src">Provimento · ProvimentoService.semSucesso</td></tr>
+    <tr><td class="id">BR-PRV-07</td><td><b>Relatório do tutor</b> (art. 72.º n.º 4): o tutor remete-o em <code>/me/tutorias</code> (403 a outro), com avaliação e fundamentação; avisa o RH. Pode registar-se antes do fim e corrigir-se até à decisão.</td><td><span class="http h403">403</span> <span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">PeriodoProva.registarRelatorio · ProvimentoService.registarRelatorio</td></tr>
+    <tr><td class="id">BR-PRV-08</td><td><b>Decisão no fim</b>: não antes do fim previsto (antes é cessação antecipada); por omissão, com a avaliação do relatório; no estágio, fundamentada.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">PeriodoProva.concluir</td></tr>
+    <tr><td class="id">BR-PRV-09</td><td><b>Com sucesso</b>: o estágio passa a nomeação definitiva (da provisória) ou a contrato por tempo indeterminado (do de estágio), num provimento novo a partir do dia seguinte ao fim, que regista o facto PROVIMENTO — e daí a publicação (BR-PUB-02). O tempo do estágio conta na carreira e categoria (art. 72.º n.º 5).</td><td>—</td><td class="src">ModalidadeProvimento.depoisDoEstagio · ProvimentoService.concluir</td></tr>
+    <tr><td class="id">BR-PRV-10</td><td><b>Sem sucesso</b>: no estágio, exoneração obrigatória (arts. 57.º n.º 4, 94.º n.º 3); no período experimental, cessação do contrato (art. 81.º n.º 1) — pelo caminho único da cessação, na data do fim, com o estado indicado ou o de cessação por omissão.</td><td>—</td><td class="src">ProvimentoService.semSucesso · CessacaoService.cessar</td></tr>
+    <tr><td class="id">BR-PRV-11</td><td><b>Cessação antecipada</b> (art. 72.º n.º 6; art. 81.º n.º 1): por relatório (acto) fundamentado, quando manifestamente não revela as competências; os efeitos são os de sem sucesso.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">PeriodoProva.cessarAntecipadamente</td></tr>
+    <tr><td class="id">BR-PRV-12</td><td><b>Denúncia</b> pelo agente (art. 81.º n.º 2): só no período experimental, sem aviso prévio nem justa causa; cessa o contrato.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">PeriodoProva.denunciar · ProvimentoService.denunciar</td></tr>
+    <tr><td class="id">BR-PRV-13</td><td><b>Avisos</b> (job <code>RH_ALERTA_ENTRADA_SERVICO</code>, 06:40): a 30 dias do fim do período (RH e tutor); no dia a seguir ao fim, se falta a decisão (RH).</td><td>—</td><td class="src">AlertaPeriodosProvaJob</td></tr>
+    <tr><td class="id">BR-PRV-14</td><td><b>Contratos a terminar</b>: a 30 dias do termo de um contrato corrente, o RH é avisado (renovar dentro do limite do tipo, ou deixar caducar).</td><td>—</td><td class="src">AlertaPeriodosProvaJob · ContratoRepository.findCorrentesComFimEntre</td></tr>
+  </table>
+  <!-- /secao:entrada-servico -->
 
   <!-- ============ INVARIANTES ============ -->
   <h2 id="invariantes"><span class="n">12.</span>Invariantes transversais</h2>

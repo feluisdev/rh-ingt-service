@@ -2116,3 +2116,25 @@ em `/documentos-emitidos/{id}/link`.
 | PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/cartao-profissional/{cartaoId}/anular` | `motivo` |
 | GET | `/api/v1/rh/me/cartao-profissional` | Os meus cartões |
 <!-- /secao:cartao-profissional -->
+
+<!-- secao:entrada-servico -->
+## 21. Entrada ao serviço — `/api/v1/rh/funcionarios/{id}/provimentos`
+
+Lei n.º 20/X/2023, arts. 52.º–81.º (BR-PRV-01..14). Depois do registo, do contrato e da colocação, o RH regista o **provimento**:
+a forma de vínculo, o despacho e a **posse**. A nomeação provisória e o contrato de estágio abrem o **estágio probatório** (1 ano,
+tutor); os contratos a termo, o **período experimental** (60 ou 30 dias).
+
+| Método | Caminho | O quê |
+|---|---|---|
+| POST | `/api/v1/rh/funcionarios/{funcionarioId}/provimentos` | `modalidade`, `despachoNumero`, `despachoData`, `dataPosse`, `concursoRef`, `vemDeOutraCarreira`, `tutorId`, `mesesPrevistos` |
+| GET | `/api/v1/rh/funcionarios/{funcionarioId}/provimentos` | Os provimentos e os períodos de prova (`EntradaServicoDTO`) |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/periodos-prova/{periodoId}/concluir` | Decidir no fim (`avaliacao`, `fundamentacao`, `data`; `workerStateId` se sem sucesso) |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/periodos-prova/{periodoId}/cessar` | Cessação antecipada fundamentada |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/periodos-prova/{periodoId}/denunciar` | Denúncia pelo agente (período experimental) |
+| GET | `/api/v1/rh/me/tutorias` | Os estágios de que sou tutor |
+| PATCH | `/api/v1/rh/me/tutorias/{periodoId}/relatorio` | O tutor remete o relatório (`avaliacao`, `fundamentacao`, `data`) |
+
+**Com sucesso:** nasce o provimento seguinte (nomeação definitiva / contrato por tempo indeterminado) e o facto `PROVIMENTO` (daí a
+publicação). **Sem sucesso:** a cessação do vínculo na data do fim (exoneração obrigatória; cessação do contrato), salvo quem vem de
+outra carreira, que regressa. As respostas trazem `alertas` com o que o RH ainda tem de fazer.
+<!-- /secao:entrada-servico -->
