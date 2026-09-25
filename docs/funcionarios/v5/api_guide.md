@@ -1948,3 +1948,32 @@ Os que estão marcados **validado** são enums fechados no domínio: um valor fo
 | catálogo audit `enquadramentos` | catálogo audit `assignments` |
 
 Ver `breaking_change_frontend.md` para o guia de migração do frontend.
+
+<!-- secao:notificacoes -->
+## 14. Notificações — `/api/v1/rh/me/notificacoes` e `/api/v1/rh/notificacoes`
+
+Avisos na aplicação, escritos pelo próprio sistema quando acontece algo que alguém tem de saber (BR-NOT-01..06).
+O front **só lê e marca lidas**; não há POST — quem cria é o código. O envio por correio electrónico ainda não existe
+(fica numa fila, *TODO(smtp)*).
+
+| Método | Caminho | O quê |
+|---|---|---|
+| GET | `/api/v1/rh/me/notificacoes?naoLidas=&page=&size=` | As minhas, das mais recentes para as mais antigas (`WrapperListaNotificacoesDTO`, com `naoLidas`) |
+| GET | `/api/v1/rh/me/notificacoes/contagem` | Quantas estão por ler (o número no sino) |
+| PATCH | `/api/v1/rh/me/notificacoes/{notificacaoId}/lida` | Marcar lida uma minha (404 se for de outra pessoa) |
+| PATCH | `/api/v1/rh/me/notificacoes/lidas` | Marcar lidas todas as minhas; devolve quantas mudaram |
+| GET | `/api/v1/rh/notificacoes?perfil=RH&naoLidas=&page=&size=` | A caixa partilhada do RH |
+| PATCH | `/api/v1/rh/notificacoes/{notificacaoId}/lida?perfil=RH` | Marcar lida uma da caixa do RH (fica lida para todo o RH) |
+
+`NotificacaoDTO`: `id`, `tipo` (ex.: `PEDIDO_AUSENCIA_PENDENTE`, `PEDIDO_AUSENCIA_DECIDIDO` — para o ícone), `titulo`, `texto`,
+`recursoTipo` + `recursoId` (ex.: `PEDIDO_AUSENCIA` e o id do pedido — para abrir o ecrã certo), `perfil` (nulo nas pessoais),
+`criadaEm`, `lidaEm`, `lida`.
+
+**Quem recebe o quê (hoje):** pedido de ausência por decidir → a chefia directa (sem chefia, a caixa do RH); pedido decidido →
+quem pediu. Cada frente nova acrescenta os seus avisos (ver as secções seguintes).
+
+**Para programadores:** notificar é uma linha, de qualquer módulo —
+`notificador.para(funcionarioId).tipo(TipoNotificacao.X).titulo("…").texto("…").recurso("TIPO", id).enviar()`;
+`notificador.paraRh()…`; `notificador.para(chefiaService.chefeDirecto(id))…` (sem chefia não faz nada). Um tipo novo
+acrescenta-se ao enum `TipoNotificacao`.
+<!-- /secao:notificacoes -->

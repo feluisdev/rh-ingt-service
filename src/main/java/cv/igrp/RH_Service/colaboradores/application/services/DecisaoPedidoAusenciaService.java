@@ -29,6 +29,7 @@ public class DecisaoPedidoAusenciaService {
     private final PedidoAusenciaRepository pedidoRepository;
     private final SaldoAusenciaService saldoAusenciaService;
     private final ChefiaService chefiaService;
+    private final AvisosAusencia avisosAusencia;
 
     /**
      * {@code chefe} presente: decide a chefia directa, e fica ela como decisora. {@code chefe} nulo:
@@ -42,8 +43,9 @@ public class DecisaoPedidoAusenciaService {
         if (chefe != null) exigirChefiaDe(chefe, pedido.getFuncionarioId());
         pedido.aprovar(chefe != null ? chefe : decisorRh, LocalDate.now(), texto(observacoes));
         saldoAusenciaService.confirmarGozo(pedido);
-        // TODO(notificacoes): avisar quem pediu da decisao, quando houver a app de notificacoes.
-        return pedidoRepository.save(pedido);
+        var gravado = pedidoRepository.save(pedido);
+        avisosAusencia.pedidoDecidido(gravado);
+        return gravado;
     }
 
     /** Como {@link #aprovar}; pela chefia, rejeitar exige motivo. */
@@ -57,8 +59,9 @@ public class DecisaoPedidoAusenciaService {
         }
         pedido.rejeitar(chefe != null ? chefe : decisorRh, LocalDate.now(), texto(motivo));
         saldoAusenciaService.libertarReserva(pedido);
-        // TODO(notificacoes): avisar quem pediu da decisao, quando houver a app de notificacoes.
-        return pedidoRepository.save(pedido);
+        var gravado = pedidoRepository.save(pedido);
+        avisosAusencia.pedidoDecidido(gravado);
+        return gravado;
     }
 
     /** Os pedidos por decidir da equipa directa de uma chefia. */

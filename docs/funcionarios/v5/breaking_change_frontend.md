@@ -2,7 +2,7 @@
 
 > Guia de migração do frontend para o novo modelo de **Mapa de Pessoal** (Lugares + Afectações).
 > Refactor assumido como *breaking change*. pt-PT.
-> Última alteração: 2026-09-24
+> Última alteração: 2026-09-25
 >
 > As secções 1 a 10 descrevem a passagem ao Mapa de Pessoal; a secção 11 junta, por ordem de data, o que mudou
 > com o alinhamento à legislação (Lei n.º 20/X/2023 e DL n.º 3/2010), e a 12 é o checklist dessa parte.
@@ -845,6 +845,16 @@ deixaram de vir de `application.properties` e passam a vir de um catálogo por v
   Lugares vagos pela categoria que a pessoa tinha.
 
 ---
+
+### 11.41 Notificações na aplicação (2026-09-25)
+
+**Nada deixa de funcionar**: endpoints novos, só leitura e marcar lida (guia §14).
+
+- Sino: `GET /me/notificacoes/contagem` → `naoLidas`; lista `GET /me/notificacoes?naoLidas=true`; abrir uma →
+  `PATCH /me/notificacoes/{id}/lida`; "marcar todas" → `PATCH /me/notificacoes/lidas`.
+- Caixa do RH: `GET /notificacoes?perfil=RH` e `PATCH /notificacoes/{id}/lida?perfil=RH`.
+- Cada notificação traz `recursoTipo` + `recursoId` para abrir o ecrã certo (hoje: `PEDIDO_AUSENCIA`).
+- Os pedidos de ausência passam a avisar: por decidir → a chefia directa (sem chefia, a caixa do RH); decidido → quem pediu.
 
 ## 12. Checklist do alinhamento com a legislação (secção 11)
 

@@ -38,6 +38,7 @@ class DecisaoPedidoAusenciaServiceTest {
     @Mock private PedidoAusenciaRepository pedidoRepository;
     @Mock private SaldoAusenciaService saldoAusenciaService;
     @Mock private ChefiaService chefiaService;
+    @Mock private cv.igrp.RH_Service.colaboradores.application.services.AvisosAusencia avisosAusencia;
     @InjectMocks private DecisaoPedidoAusenciaService service;
 
     private final FuncionarioId maria = FuncionarioId.gerarNovo();

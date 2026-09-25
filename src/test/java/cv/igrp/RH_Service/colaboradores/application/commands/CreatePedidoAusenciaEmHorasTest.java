@@ -57,6 +57,7 @@ class CreatePedidoAusenciaEmHorasTest {
     @Mock private CalendarioFeriadosService calendarioFeriadosService;
     @Mock private DiasUteisCalculator diasUteisCalculator;
     @Mock private SaldoAusenciaService saldoAusenciaService;
+    @Mock private cv.igrp.RH_Service.colaboradores.application.services.AvisosAusencia avisosAusencia;
 
     @InjectMocks private CreatePedidoAusenciaCommandHandler handler;
 

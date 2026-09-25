@@ -37,6 +37,7 @@ public class CreatePedidoAusenciaCommandHandler
     private final DiasUteisCalculator diasUteisCalculator;
     private final SaldoAusenciaService saldoAusenciaService;
     private final cv.igrp.RH_Service.colaboradores.application.services.MapaFeriasService mapaFeriasService;
+    private final cv.igrp.RH_Service.colaboradores.application.services.AvisosAusencia avisosAusencia;
 
     @IgrpCommandHandler
     @Transactional
@@ -128,7 +129,7 @@ public class CreatePedidoAusenciaCommandHandler
         aprovarSeNaoRequer(tipo, pedido);
 
         var saved = pedidoRepository.save(pedido);
-        // TODO(notificacoes): avisar a chefia directa de um pedido PENDENTE, quando houver a app de notificacoes.
+        avisosAusencia.pedidoCriado(saved);
 
         var resposta = new PedidoAusenciaCriadoResponseDTO(
                 saved.getId().getStringValor(),
@@ -192,7 +193,7 @@ public class CreatePedidoAusenciaCommandHandler
 
         aprovarSeNaoRequer(tipo, pedido);
         var saved = pedidoRepository.save(pedido);
-        // TODO(notificacoes): avisar a chefia directa de um pedido PENDENTE, quando houver a app de notificacoes.
+        avisosAusencia.pedidoCriado(saved);
         return ResponseEntity.status(201).body(new PedidoAusenciaCriadoResponseDTO(
                 saved.getId().getStringValor(), 0, saved.getEstadoTexto(), saved.minutosPorDia()));
     }
