@@ -28,6 +28,10 @@ BEGIN
   DELETE FROM t_payroll_slip   WHERE funcionario_id = ANY(extras);
   DELETE FROM t_qualificacao   WHERE funcionario_id = ANY(extras);
   DELETE FROM t_training       WHERE funcionario_id = ANY(extras);
+  -- Diario de factos para o salarial (FK para t_funcionario): sai antes dos colaboradores.
+  IF to_regclass('public.t_facto_rh') IS NOT NULL THEN
+    DELETE FROM t_facto_rh WHERE funcionario_id = ANY(extras);
+  END IF;
   -- Tabelas do ddl-auto (assiduidade, ferias): o F29 pica e atribui horario a um admitido do F11.
   IF to_regclass('public.t_trabalho_suplementar') IS NOT NULL THEN
     DELETE FROM t_trabalho_suplementar WHERE funcionario_id = ANY(extras);
@@ -194,6 +198,20 @@ DO $$ BEGIN
     VALUES ('3a000001-0000-0000-0000-000000000001', 2010, '01-31', '03-31', '05-01', '10-31', 11, 'DL n.o 3/2010, arts. 5.o e 6.o', now(), 'system')
     ON CONFLICT (id) DO UPDATE SET vigente_desde=2010, prazo_preferencia='01-31', prazo_mapa='03-31',
       fixacao_inicio='05-01', fixacao_fim='10-31', periodo_minimo_interpolado=11;
+  END IF;
+END $$;
+
+-- 8b. Notificacoes e diario de factos (tabelas do ddl-auto): sao efeito dos testes e dos dados
+--     de demonstracao, e saem todos -- a base volta ao seed.
+DO $$ BEGIN
+  IF to_regclass('public.t_notificacao_envio') IS NOT NULL THEN
+    DELETE FROM t_notificacao_envio;
+  END IF;
+  IF to_regclass('public.t_notificacao') IS NOT NULL THEN
+    DELETE FROM t_notificacao;
+  END IF;
+  IF to_regclass('public.t_facto_rh') IS NOT NULL THEN
+    DELETE FROM t_facto_rh;
   END IF;
 END $$;
 

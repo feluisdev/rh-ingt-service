@@ -53,6 +53,7 @@ class AssignmentServiceProgressaoTest {
     @Mock private CategoryRepository categoryRepository;
     @Mock private FunctionRepository functionRepository;
 
+    @org.mockito.Mock private cv.igrp.RH_Service.colaboradores.application.services.DiarioFactos diarioFactos;
     @InjectMocks private AssignmentService service;
 
     private final FuncionarioId funcionarioId = FuncionarioId.gerarNovo();
@@ -111,6 +112,9 @@ class AssignmentServiceProgressaoTest {
 
         assertEquals(e1, resultado.escalaoAnterior());
         assertEquals(e3, resultado.escalaoNovo());
+        // BR-FAC-02: a progressao fica no diario de factos para o salarial
+        verify(diarioFactos).movimento(org.mockito.ArgumentMatchers.eq(cv.igrp.RH_Service.colaboradores.domain.models.TipoFactoRh.PROGRESSAO),
+                org.mockito.ArgumentMatchers.eq(nova), any());
     }
 
     @Test

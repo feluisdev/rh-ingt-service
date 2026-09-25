@@ -64,6 +64,7 @@ class ColocacaoServiceTest {
     @Mock CategoryRepository categoryRepository;
     @Mock WorkerStateRepository workerStateRepository;
     @Mock HistoricoEstadoColaboradorRepository historicoRepository;
+    @org.mockito.Mock private cv.igrp.RH_Service.colaboradores.application.services.DiarioFactos diarioFactos;
     @InjectMocks ColocacaoService service;
 
     private final FuncionarioId funcionarioId = FuncionarioId.gerarNovo();

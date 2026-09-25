@@ -1,0 +1,92 @@
+{
+  "type": "controller",
+  "name": "Salarial",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh/salarial",
+  "description": "Fronteira com o processamento salarial: os factos do RH que a outra aplicação consome (admissões, movimentos, cessações…), por mês de processamento; sem valores",
+  "actions": [
+    {
+      "actionName": "getFactosSalariais",
+      "method": "GET",
+      "path": "factos",
+      "summary": "Os factos que entram num mês de processamento, pela ordem em que foram registados",
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "mes",
+          "isRequired": true
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "FactosSalariaisDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getFactosSalariaisCsv",
+      "method": "GET",
+      "path": "factos.csv",
+      "summary": "Os mesmos factos em CSV (separador ;, UTF-8 com BOM)",
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "mes",
+          "isRequired": true
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "text/csv": {
+              "schema": {
+                "type": "string",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getFactosDoFuncionario",
+      "method": "GET",
+      "path": "funcionarios/{funcionarioId}/factos",
+      "summary": "Os factos de um colaborador, do mais recente para o mais antigo",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "FactosSalariaisDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

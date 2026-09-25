@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.services;
 
+import cv.igrp.RH_Service.colaboradores.domain.models.TipoFactoRh;
 import cv.igrp.RH_Service.carreiras.domain.repository.CategoryRepository;
 import cv.igrp.RH_Service.carreiras.domain.repository.GradeRepository;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CategoryId;
@@ -58,6 +59,7 @@ public class ColocacaoService {
     private final CategoryRepository categoryRepository;
     private final WorkerStateRepository workerStateRepository;
     private final HistoricoEstadoColaboradorRepository historicoRepository;
+    private final DiarioFactos diarioFactos;
 
     public record Resultado(Assignment afectacao, String origem, List<String> alertas) {}
 
@@ -148,6 +150,8 @@ public class ColocacaoService {
                         + "um estado de actividade no quadro para o qual o passar.");
             }
         }
+        diarioFactos.movimento(Assignment.ADMISSAO.equals(origem) ? TipoFactoRh.ADMISSAO : TipoFactoRh.REINGRESSO,
+                afectacao, Assignment.ADMISSAO.equals(origem) ? "Admissão: colocação no primeiro Lugar" : "Reingresso num Lugar vago da sua categoria");
         return new Resultado(afectacao, origem, alertas);
     }
 

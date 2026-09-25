@@ -52,6 +52,7 @@ class CessacaoServiceTest {
     @Mock private AssignmentService assignmentService;
     @Mock private SubstituicaoService substituicaoService;
 
+    @org.mockito.Mock private cv.igrp.RH_Service.colaboradores.application.services.DiarioFactos diarioFactos;
     @InjectMocks private CessacaoService service;
 
     private final FuncionarioId funcionarioId = FuncionarioId.gerarNovo();

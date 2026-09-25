@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.services;
 
+import cv.igrp.RH_Service.colaboradores.domain.models.TipoFactoRh;
 import cv.igrp.RH_Service.colaboradores.domain.models.Contrato;
 import cv.igrp.RH_Service.colaboradores.domain.models.EstadoContrato;
 import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
@@ -44,6 +45,7 @@ public class CessacaoService {
     private final HistoricoEstadoColaboradorRepository historicoRepository;
     private final AssignmentService assignmentService;
     private final SubstituicaoService substituicaoService;
+    private final DiarioFactos diarioFactos;
 
     /**
      * Resultado da cessação: o estado atribuído, o contrato cessado (se havia) e se a afectação
@@ -102,6 +104,15 @@ public class CessacaoService {
         historicoRepository.save(HistoricoEstadoColaborador.criar(
                 funcionarioId, estadoAnteriorId, estadoCessacao.getId().getValor(),
                 motivo, dataEfeito, observacao));
+
+        var dados = new java.util.LinkedHashMap<String, Object>();
+        dados.put("estado", estadoCessacao.getCode());
+        estadoCessacao.situacao().ifPresent(s -> dados.put("situacaoFuncional", s.name()));
+        dados.put("motivo", motivo);
+        dados.put("contratoId", contratoCessadoId);
+        dados.put("afectacaoEncerradaId", afectacaoEncerradaId);
+        diarioFactos.registar(funcionarioId, TipoFactoRh.CESSACAO, dataEfeito, "WORKER_STATE",
+                estadoCessacao.getId().getStringValor(), "Cessação: " + estadoCessacao.getDescription(), dados);
 
         return new Cessacao(funcionario, estadoCessacao, estadoAnteriorId,
                 contratoCessadoId, afectacaoEncerradaId, dataEfeito);

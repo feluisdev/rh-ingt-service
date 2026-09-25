@@ -856,6 +856,14 @@ deixaram de vir de `application.properties` e passam a vir de um catálogo por v
 - Cada notificação traz `recursoTipo` + `recursoId` para abrir o ecrã certo (hoje: `PEDIDO_AUSENCIA`).
 - Os pedidos de ausência passam a avisar: por decidir → a chefia directa (sem chefia, a caixa do RH); decidido → quem pediu.
 
+### 11.42 Fronteira salarial — diário de factos (2026-09-25)
+
+**Nada deixa de funcionar**: endpoints novos, só leitura (guia §15).
+
+- `GET /salarial/factos?mes=yyyy-MM` (e `.csv`) — ecrã de consulta do RH e contrato de leitura com o salarial (`versao: 1`).
+- `GET /salarial/funcionarios/{id}/factos` — separador «Factos para o salarial» na ficha do colaborador.
+- Os movimentos, a colocação, a mudança de estado e a cessação passam a registar o facto; as respostas não mudam.
+
 ## 12. Checklist do alinhamento com a legislação (secção 11)
 
 Por ordem das secções. Cada item remete para o ecrã correspondente em `apresentacao_aplicacao.html`.

@@ -78,6 +78,7 @@ class CessacaoPelosDoisCaminhosTest {
         @Mock private CessacaoService cessacaoService;
         @Mock private AssignmentService assignmentService;
 
+        @org.mockito.Mock private cv.igrp.RH_Service.colaboradores.application.services.DiarioFactos diarioFactos;
         @InjectMocks private MudarEstadoColaboradorCommandHandler handler;
 
         private MudarEstadoColaboradorCommand command(WorkerState novoEstado) {

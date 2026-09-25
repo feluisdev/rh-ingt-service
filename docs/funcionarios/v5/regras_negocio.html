@@ -100,6 +100,7 @@
       <a href="#carreiras">10. Carreiras — PCFR</a><br>
       <a href="#param">11. Parametrizações (catálogos)</a><br>
       <a href="#notificacoes">13. Notificações na aplicação</a><br>
+      <a href="#factos-salariais">14. Fronteira salarial — diário de factos</a><br>
       <a href="#invariantes">12. Invariantes transversais</a>
     </div>
   </div>
@@ -703,6 +704,19 @@
     <tr><td class="id">BR-NOT-06</td><td><b>Cada um lê as suas</b>: marcar lida uma notificação de outra pessoa é 404, como se não existisse. Páginas de 20 por omissão, no máximo 100; <code>naoLidas=true</code> filtra na consulta.</td><td><span class="http h404">404</span> <span class="http h422">422</span></td><td class="src">NotificacaoService.marcarLida · minhas</td></tr>
   </table>
   <!-- /secao:notificacoes -->
+
+  <!-- secao:factos-salariais -->
+  <h2 id="factos-salariais"><span class="n">14.</span>Fronteira salarial — diário de factos</h2>
+  <p>O processamento de remunerações e descontos é de outra aplicação (integração). O RH é quem <b>produz os factos</b> que ela consome: admissões, movimentos, mudanças de situação, cessações — e, com as frentes seguintes, penas, missões, acidentes. Cada facto fica num diário que só cresce (<code>t_facto_rh</code>), lido por mês de processamento. Sem valores: os montantes são do salarial. O fecho mensal e a exportação (DL n.º 3/2010, art. 75.º) vêm depois (BR-FEC).</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-FAC-01</td><td><b>Que factos</b> (enum <code>TipoFactoRh</code>): ADMISSAO, REINGRESSO, PROGRESSAO, PROMOCAO, TRANSFERENCIA, MUDANCA_CARREIRA, CONSOLIDACAO_MOBILIDADE, MUDANCA_SITUACAO, CESSACAO — e os das frentes seguintes (PROVIMENTO, COMISSAO_SERVICO, SUSPENSAO_PREVENTIVA, PENA_DISCIPLINAR, MISSAO_SERVICO, ACIDENTE_SERVICO, PRE_APOSENTACAO, APOSENTACAO).</td><td>—</td><td class="src">TipoFactoRh</td></tr>
+    <tr><td class="id">BR-FAC-02</td><td><b>Registam-se na mesma transacção do acto</b>, pelo serviço que o faz: colocação (admissão/reingresso), progressão, promoção, transferência, mudança de carreira, consolidação da mobilidade, mudança de estado que não cessa, cessação. Um movimento leva nos dados o Lugar, o escalão, a função e a origem da afectação nova; a mudança de estado e a cessação levam o código do estado, a situação funcional e o motivo.</td><td>—</td><td class="src">DiarioFactos.registar · movimento · ColocacaoService.colocar · CessacaoService.cessar · MudarEstadoColaboradorCommandHandler</td></tr>
+    <tr><td class="id">BR-FAC-03</td><td><b>Mês de competência</b>: o mês da data de efeito — excepto quando esse mês já estiver fechado (BR-FEC): então entra no primeiro mês aberto, assinalado como <code>ajusteDeMesAnterior</code>.</td><td>—</td><td class="src">CompetenciaSalarial.competencia · FactoRh.isAjusteDeMesAnterior</td></tr>
+    <tr><td class="id">BR-FAC-04</td><td><b>Imutável</b>: o diário só cresce. Uma correcção é um facto novo (ex.: a anulação de uma progressão aparece como o movimento que a desfaz), nunca a reescrita do que o salarial pode já ter lido.</td><td>—</td><td class="src">FactoRh · FactoRhRepositoryImpl.save</td></tr>
+    <tr><td class="id">BR-FAC-05</td><td><b>Contrato de leitura, versão 1</b>: por mês (<code>GET /salarial/factos?mes=</code>, JSON e CSV) e por colaborador, com o número, o NIF e o nome para o salarial identificar a pessoa. Mês mal escrito: 422.</td><td><span class="http h422">422</span></td><td class="src">GetFactosSalariaisQueryHandler · GetFactosSalariaisCsvQueryHandler</td></tr>
+  </table>
+  <!-- /secao:factos-salariais -->
 
   <!-- ============ INVARIANTES ============ -->
   <h2 id="invariantes"><span class="n">12.</span>Invariantes transversais</h2>

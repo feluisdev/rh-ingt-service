@@ -134,6 +134,7 @@ class SituacaoFuncionalTest {
         @Mock private AssignmentService assignmentService;
         @Mock private SubstituicaoService substituicaoService;
 
+        @org.mockito.Mock private cv.igrp.RH_Service.colaboradores.application.services.DiarioFactos diarioFactos;
         @InjectMocks private MudarEstadoColaboradorCommandHandler handler;
 
         private static WorkerState estado(String code, SituacaoFuncional situacao) {

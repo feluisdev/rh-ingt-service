@@ -1977,3 +1977,23 @@ quem pediu. Cada frente nova acrescenta os seus avisos (ver as secções seguint
 `notificador.paraRh()…`; `notificador.para(chefiaService.chefeDirecto(id))…` (sem chefia não faz nada). Um tipo novo
 acrescenta-se ao enum `TipoNotificacao`.
 <!-- /secao:notificacoes -->
+
+<!-- secao:factos-salariais -->
+## 15. Fronteira salarial — `/api/v1/rh/salarial`
+
+O processamento de remunerações e descontos é de outra aplicação. Este serviço entrega-lhe **os factos do RH** (BR-FAC-01..05),
+sem valores. Contrato de leitura **versão 1** (`versao` na resposta).
+
+| Método | Caminho | O quê |
+|---|---|---|
+| GET | `/api/v1/rh/salarial/factos?mes=yyyy-MM` | Os factos que entram nesse mês de processamento, pela ordem em que foram registados (`FactosSalariaisDTO`) |
+| GET | `/api/v1/rh/salarial/factos.csv?mes=yyyy-MM` | O mesmo em CSV (`;`, UTF-8 com BOM; `dados` como `chave=valor, …`) |
+| GET | `/api/v1/rh/salarial/funcionarios/{funcionarioId}/factos` | Os factos de um colaborador, do mais recente para o mais antigo |
+
+Cada `FactoRhDTO`: `tipo` (ADMISSAO, REINGRESSO, PROGRESSAO, PROMOCAO, TRANSFERENCIA, MUDANCA_CARREIRA, CONSOLIDACAO_MOBILIDADE,
+MUDANCA_SITUACAO, CESSACAO, …), `dataEfeito`, `mesCompetencia`, `ajusteDeMesAnterior` (a data é de um mês já fechado),
+`numeroFuncionario`, `nif`, `nome`, `descricao` (legível), `referenciaTipo` + `referenciaId` (o acto: `AFECTACAO`, `WORKER_STATE`, …)
+e `dados` (ex.: `lugarId`, `escalaoId`, `funcaoId`, `origem`; `estado`, `situacaoFuncional`, `motivo`).
+
+O diário **só cresce**: uma correcção aparece como um facto novo. O fecho do mês e a exportação acompanham-no (secção de fecho mensal).
+<!-- /secao:factos-salariais -->

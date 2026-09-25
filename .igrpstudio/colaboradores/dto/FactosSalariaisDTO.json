@@ -1,0 +1,34 @@
+{
+  "type": "dto",
+  "name": "FactosSalariais",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "integer",
+      "name": "versao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "mes",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "total",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "FactoRhDTO",
+      "name": "factos",
+      "objectType": "dto",
+      "module": "colaboradores",
+      "collectionType": "list",
+      "required": false
+    }
+  ]
+}

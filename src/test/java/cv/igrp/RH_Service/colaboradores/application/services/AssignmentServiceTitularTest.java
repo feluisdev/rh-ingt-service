@@ -50,6 +50,7 @@ class AssignmentServiceTitularTest {
     @Mock private CategoryRepository categoryRepository;
     @Mock private FunctionRepository functionRepository;
 
+    @org.mockito.Mock private cv.igrp.RH_Service.colaboradores.application.services.DiarioFactos diarioFactos;
     @InjectMocks private AssignmentService service;
 
     private final FuncionarioId funcionarioId = FuncionarioId.gerarNovo();

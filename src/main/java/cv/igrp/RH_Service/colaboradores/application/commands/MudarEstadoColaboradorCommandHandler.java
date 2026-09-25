@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
+import cv.igrp.RH_Service.colaboradores.domain.models.TipoFactoRh;
 import cv.igrp.RH_Service.colaboradores.application.dto.EstadoColaboradorResponseDTO;
 import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
 import cv.igrp.RH_Service.colaboradores.application.services.CessacaoService;
@@ -48,6 +49,7 @@ public class MudarEstadoColaboradorCommandHandler
     private final CessacaoService cessacaoService;
     private final AssignmentService assignmentService;
     private final SubstituicaoService substituicaoService;
+    private final cv.igrp.RH_Service.colaboradores.application.services.DiarioFactos diarioFactos;
 
     @IgrpCommandHandler
     @Transactional
@@ -117,6 +119,15 @@ public class MudarEstadoColaboradorCommandHandler
         historicoRepository.save(HistoricoEstadoColaborador.criar(
                 funcionarioId, estadoAnteriorId, novoEstado.getId().getValor(),
                 req.getMotivoCkey(), dataEfectividade, req.getObservacao()));
+
+        var dados = new java.util.LinkedHashMap<String, Object>();
+        dados.put("estado", novoEstado.getCode());
+        situacao.ifPresent(s -> dados.put("situacaoFuncional", s.name()));
+        dados.put("estadoAnteriorId", estadoAnteriorId);
+        dados.put("motivo", req.getMotivoCkey());
+        dados.put("afectacaoEncerradaId", afectacaoEncerradaId);
+        diarioFactos.registar(funcionarioId, TipoFactoRh.MUDANCA_SITUACAO, dataEfectividade, "WORKER_STATE",
+                novoEstado.getId().getStringValor(), "Passa a: " + novoEstado.getDescription(), dados);
 
         return ResponseEntity.ok(new EstadoColaboradorResponseDTO(
                 funcionarioId.getStringValor(),

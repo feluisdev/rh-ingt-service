@@ -1,0 +1,92 @@
+{
+  "type": "dto",
+  "name": "FactoRh",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "numeroFuncionario",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "nif",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "nome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "tipo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataEfeito",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "mesCompetencia",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "ajusteDeMesAnterior",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "referenciaTipo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "referenciaId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "descricao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "dados",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "datetime",
+      "name": "registadoEm",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

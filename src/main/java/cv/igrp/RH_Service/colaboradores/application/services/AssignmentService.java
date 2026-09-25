@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.application.services;
 
 import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
+import cv.igrp.RH_Service.colaboradores.domain.models.TipoFactoRh;
 import cv.igrp.RH_Service.colaboradores.domain.models.TipoAfectacao;
 import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.AssignmentId;
@@ -41,6 +42,7 @@ import java.util.UUID;
 public class AssignmentService {
 
     private final AssignmentRepository assignmentRepository;
+    private final DiarioFactos diarioFactos;
     private final PositionRepository positionRepository;
     private final GradeRepository gradeRepository;
     private final CategoryRepository categoryRepository;
@@ -265,6 +267,7 @@ public class AssignmentService {
                 funcionarioId, positionIdFinal, escalao.getId().getValor(), atual.getFunctionId(),
                 TipoAfectacao.PRINCIPAL, Assignment.PROMOCAO, dataEfeito, notes));
 
+        diarioFactos.movimento(TipoFactoRh.PROMOCAO, nova, "Promoção à categoria " + categoriaDestino.getName());
         return new Promocao(nova, categoriaAtual, categoriaDestino, escalao, reclassificado);
     }
 
@@ -329,6 +332,7 @@ public class AssignmentService {
                 funcionarioId, positionIdDestino, atual.getGradeId(), functionId,
                 TipoAfectacao.PRINCIPAL, Assignment.TRANSFERENCIA, dataEfeito, notes));
 
+        diarioFactos.movimento(TipoFactoRh.TRANSFERENCIA, nova, "Transferência para o Lugar " + destino.getNumeroLugar());
         return new Transferencia(nova, origem, destino);
     }
 
@@ -467,6 +471,7 @@ public class AssignmentService {
                 funcionarioId, positionIdDestino, escalao.getId().getValor(), functionId,
                 TipoAfectacao.PRINCIPAL, Assignment.MUDANCA_CARREIRA, dataEfeito, notes));
 
+        diarioFactos.movimento(TipoFactoRh.MUDANCA_CARREIRA, nova, "Mudança para a carreira " + carreiraNova.getName());
         return new MudancaCarreira(nova, carreiraAnterior, carreiraNova, categoriaAnterior,
                 categoriaNova, escalao, origem, destino);
     }
@@ -561,6 +566,7 @@ public class AssignmentService {
                 funcionarioId, positionIdDestino, atual.getGradeId(), atual.getFunctionId(),
                 TipoAfectacao.PRINCIPAL, Assignment.CONSOLIDACAO, dataEfeito, notes));
 
+        diarioFactos.movimento(TipoFactoRh.CONSOLIDACAO_MOBILIDADE, nova, "Mobilidade consolidada no Lugar " + destino.getNumeroLugar());
         return new Consolidacao(nova, origem, destino);
     }
 
@@ -641,6 +647,7 @@ public class AssignmentService {
                 atual.getFunctionId(), TipoAfectacao.PRINCIPAL, Assignment.PROGRESSAO,
                 dataEfeito, notes));
 
+        diarioFactos.movimento(TipoFactoRh.PROGRESSAO, nova, "Progressão para " + nomeEscalao(escalaoSeguinte));
         return new Progressao(nova, escalaoAtual, escalaoSeguinte);
     }
 
@@ -663,5 +670,10 @@ public class AssignmentService {
         return categoryRepository.findById(CategoryId.from(categoryId))
                 .map(c -> c.getName())
                 .orElse(categoryId.toString());
+    }
+
+    private static String nomeEscalao(Grade g) {
+        if (g == null) return "o escalão seguinte";
+        return g.getName() != null && !g.getName().isBlank() ? g.getName() : "o escalão " + g.getGradeNumber();
     }
 }
