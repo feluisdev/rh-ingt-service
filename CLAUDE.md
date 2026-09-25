@@ -119,6 +119,10 @@ Active profile is set via `SERVICE_PROFILE` env var. Never rely on security in d
 
 Hibernate Envers is enabled. All audited entities track create/update timestamps and the acting user via `ApplicationAuditorAware` (reads from `SecurityContextHelper`).
 
+### Scheduled Jobs
+
+Background jobs use the framework in `shared/application/services/scheduler/` (ported from `inss_core_service`), not `@Scheduled`: implement `ScheduledJob` as a `@Component` and the `SchedulerService` seeds its config in `t_scheduler_job`, schedules it, and every run is logged in `t_scheduler_execucao` (manual trigger, re-run, missed-run detection, timeout, retry). REST under `/api/v1/rh/schedulers`. It is replica-safe (row lock on the job before opening a run) and every timestamp it stores is Cabo Verde local time (`RelogioScheduler`). Jobs run under the `SystemAuditor` author `scheduler:<chave>`. Derive the business date from `JobContext.dataReferencia()`, never `now()`. The five `sigdi` jobs are still plain `@Scheduled`.
+
 ### Key Environment Variables
 
 From `.env` (dev defaults):

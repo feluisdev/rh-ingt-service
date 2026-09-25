@@ -18,7 +18,8 @@ import cv.igrp.RH_Service.colaboradores.domain.repository.LicencaMobilidadeRepos
 import cv.igrp.RH_Service.colaboradores.domain.repository.SubtipoLicencaMobilidadeRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.SubtipoLicencaMobilidadeId;
-import cv.igrp.RH_Service.colaboradores.infrastructure.scheduler.LicencaEfeitoScheduler;
+import cv.igrp.RH_Service.colaboradores.infrastructure.scheduler.LicencaEfeitoJob;
+import cv.igrp.RH_Service.shared.application.services.scheduler.JobContext;
 import cv.igrp.RH_Service.estrutura.domain.repository.OrganizationalUnitRepository;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 
@@ -309,7 +310,7 @@ class LicencaPeriodoEfeitosTest {
             when(licencaService.aplicarEntradaEmVigor(any(), any()))
                     .thenReturn(LicencaService.EfeitoAplicado.nenhum());
 
-            new LicencaEfeitoScheduler(licencaRepository, efeitoService()).aplicarEfeitosDevidos();
+            new LicencaEfeitoJob(licencaRepository, efeitoService(), "0 15 0 * * *").executar(JobContext.para(HOJE));
 
             verify(licencaService).aplicarEntradaEmVigor(any(), any());
             verify(substituicaoService).encerrarPorRegressoDoTitular(FUNCIONARIO, HOJE.minusDays(2));
@@ -327,7 +328,7 @@ class LicencaPeriodoEfeitosTest {
                     .thenThrow(new IllegalStateException("BD em baixo"))
                     .thenReturn(LicencaService.EfeitoAplicado.nenhum());
 
-            new LicencaEfeitoScheduler(licencaRepository, efeitoService()).aplicarEfeitosDevidos();
+            new LicencaEfeitoJob(licencaRepository, efeitoService(), "0 15 0 * * *").executar(JobContext.para(HOJE));
 
             verify(licencaRepository).save(bom);
             verify(licencaRepository, never()).save(mau);

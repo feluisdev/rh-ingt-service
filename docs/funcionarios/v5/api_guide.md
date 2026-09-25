@@ -2,7 +2,7 @@
 
 > Fonte de verdade do contrato REST do núcleo RH (exclui o módulo `sigdi`).
 > Documentação **v5** — supersede a `v4`. pt-PT.
-> Última alteração: 2026-09-24
+> Última alteração: 2026-09-25
 >
 > O manual ecrã a ecrã (com os campos, a API e as regras de cada ecrã) é o `apresentacao_aplicacao.html`;
 > este guia é o contrato para quem integra. Ambos são conferidos contra o código por `scripts/verificar_docs.py`.
@@ -844,7 +844,7 @@ Regras: BR-AUS-29, BR-AUS-30, BR-ME-05.
 | Momento | O que acontece |
 |---|---|
 | **Admissão** (`POST /funcionarios`) | o saldo de férias do ano de ingresso é criado logo, com o direito proporcional — muitas vezes **zero**, o que é a resposta certa |
-| **Todos os dias**, pelo job (`rh.ferias.vencimento.cron`, 00:05) | o saldo do ano corrente é criado a quem não o tenha e **actualizado** a quem o direito tenha crescido |
+| **Todos os dias**, pelo job `RH_VENCIMENTO_FERIAS` (00:05; ver 11b) | o saldo do ano corrente é criado a quem não o tenha e **actualizado** a quem o direito tenha crescido |
 | **1 de Janeiro** | a mesma passagem cria o saldo do ano novo, com o direito inteiro |
 
 **Quantos dias.** Vem do `maxDaysPerYear` do tipo de ausência classificado como férias; na falta dele valem os **22 dias úteis** do art. 2.º n.º 3. A instituição pode ter outro número por diploma próprio.
@@ -1867,6 +1867,38 @@ Cada módulo expõe um controller de auditoria (Envers):
 | Catálogos | `/api/v1/rh/catalogs/audit` | `reference-options`, `worker-states`, `vinculos-laborais`, `contract-types`, `document-types`, `leave-types`, `leave-mobility-subtypes`, `public-holidays` |
 
 > Nota: o catálogo antigo `enquadramentos` foi substituído por **`assignments`** (devolve `400` se usado).
+
+---
+
+## 11b. Tarefas agendadas (jobs) — `/api/v1/rh/schedulers`
+
+Os trabalhos que correm sozinhos — hoje o **vencimento do direito a férias** (6.3) e os **efeitos das licenças e mobilidades** (7.0) — passaram a ter memória: cada execução fica registada (quando correu, quanto tempo levou, o que fez, porque falhou), o agendamento muda-se sem reiniciar a aplicação, e qualquer um pode ser disparado à mão. É o mesmo desenho do `inss_core_service`.
+
+| Chave | Tarefa | Por omissão | Parâmetros do disparo manual |
+|---|---|---|---|
+| `RH_VENCIMENTO_FERIAS` | Vencimento do direito a férias | todos os dias às 00:05 · 3 tentativas automáticas | `ano` — se vazio, o ano do agendamento |
+| `RH_EFEITOS_LICENCAS` | Efeitos das licenças e mobilidades | todos os dias às 00:15 | `data` (`aaaa-MM-dd` ou `dd/MM/aaaa`) — se vazio, o dia do agendamento |
+
+| Método | Caminho | O que faz |
+|---|---|---|
+| `GET` | `/api/v1/rh/schedulers` | lista a configuração de todos (`nome`, `frequencia`, paginação) |
+| `GET` | `/api/v1/rh/schedulers/{chave}` | configuração de um: frequência, hora, `activo`, `ultimaExecucao`, `proximaExecucao` e os `parametros` que aceita — a interface gera o formulário a partir desta lista |
+| `PUT` | `/api/v1/rh/schedulers/{chave}` | muda o agendamento: `frequencia` (`DIARIO`, `SEMANAL`, `QUINZENAL`, `MENSAL`, `TRIMESTRAL`, `SEMESTRAL`, `ANUAL`) + os campos que ela pede (`hora`, `minuto`, `diaDaSemana`, `diaDoMes` 1–28, `mes`) e `timezone` opcional |
+| `PATCH` | `/api/v1/rh/schedulers/{chave}/activo` | `{ "activo": false }` suspende sem perder a configuração |
+| `POST` | `/api/v1/rh/schedulers/{chave}/executar` | dispara já, em segundo plano → **202** com o `id` da execução. Corpo opcional: `{ "parametros": { "data": "2026-09-20" } }` |
+| `POST` | `/api/v1/rh/schedulers/execucoes/{id}/reexecutar` | repete uma execução **com o mesmo instante e os mesmos parâmetros** → 202 |
+| `GET` | `/api/v1/rh/schedulers/{chave}/execucoes` | histórico, mais recentes primeiro (`estado`, `disparo`, `referencia`, paginação) |
+| `GET` | `/api/v1/rh/schedulers/execucoes/{id}` | detalhe de uma execução, com os itens que falharam em `detalhes.itensFalhados` |
+
+**Estados de uma execução.** `A_CORRER` · `SUCESSO` · `FALHA_PARCIAL` (terminou, mas houve itens com erro — os que falharam vêm nos `detalhes`) · `FALHA` (rebentou) · `TIMEOUT` (excedeu o tempo limite, 30 min por omissão) · `OMITIDA` (devia ter corrido e não correu — a aplicação estava parada à hora prevista; é uma linha criada pelo sistema, para que a falta se veja na mesma lista). Só `FALHA` e `TIMEOUT` têm repetição automática (5, 15 e 45 min depois, até ao número de tentativas do job); `FALHA_PARCIAL` não — os mesmos itens voltariam a falhar, e corrige-se o dado e repete-se à mão.
+
+**Executar ou repetir?** O `executar` trata **hoje** (ou o que se indicar nos parâmetros). O `reexecutar` trata o que a execução original tratava: repetir a 2 de Janeiro a execução de 31 de Dezembro que falhou vence as férias do ano que acabou, não as do novo. Serve também uma `OMITIDA`.
+
+**Várias réplicas.** O serviço corre com duas; o cron dispara em ambas, mas cada disparo **corre uma só vez** — o registo da execução bloqueia a linha do job antes de verificar. Uma alteração de agendamento feita numa réplica chega às outras em até 5 minutos.
+
+**Erros.** `400` parâmetro desconhecido, em falta ou inválido (antes de a execução abrir) ou agendamento fora do intervalo · `404` tarefa ou execução inexistente · `409` a tarefa já está a correr.
+
+> As variáveis `RH_FERIAS_VENCIMENTO_CRON` e `RH_LICENCAS_EFEITOS_CRON` passaram a valer **só no primeiro arranque**, para semear o agendamento. Depois disso manda o que está na base (`t_scheduler_job`) e muda-se pelo `PUT`. Os cinco jobs do `sigdi` continuam como estavam (`@Scheduled`, propriedades `sigdi.*`).
 
 ---
 
