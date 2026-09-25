@@ -31,6 +31,8 @@
     { "name": "updatedAt",        "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
     { "name": "keyResults",       "objectType": "dto",  "type": "KeyResultResponse",    "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false, "collectionType": "list" },
     { "name": "workflowHistory",  "objectType": "dto",  "type": "WorkflowHistoryItem",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false, "collectionType": "list" },
-    { "name": "changeRequests",   "objectType": "dto",  "type": "ChangeRequestResponse","required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false, "collectionType": "list" }
+    { "name": "changeRequests",   "objectType": "dto",  "type": "ChangeRequestResponse","required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false, "collectionType": "list" },
+    { "name": "paaLevel",         "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false },
+    { "name": "paaLevelDesc",     "objectType": "java", "type": "string",  "required": false, "before": false, "after": false, "positive": false, "isEmail": false, "isUrl": false, "primaryKey": false }
   ]
 }

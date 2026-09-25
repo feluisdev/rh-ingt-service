@@ -30,8 +30,18 @@ public class CreateStategicGoalDTO  {
 	@Size(max = 500, message = "O campo <description> não pode ter mais de 500 caracteres")
   
   private String description ;
-  
-  
+  // Editado manualmente apesar do cabeçalho "DO NOT MODIFY" -- mesmo precedente do commit
+  // 613207ed (A-135-2AA): o cliente já exige o intervalo [0.1, 10] (GoalSchema.weight,
+  // src/app/(myapp)/types/strategy.ts:191-194) e o servidor nunca o validou. 136-09, D-52.
+  //
+  // LIMITAÇÃO DO MANIFESTO: o tipo "decimal" de .igrpstudio/sigdi/dto/CreateStategicGoalDTO.json
+  // só tem a chave "positive" -- não tem "min"/"max". @DecimalMin/@DecimalMax NÃO PODEM ser
+  // declarados no manifesto, e uma regeneração do IGRP Studio deita estas anotações fora sem que
+  // nada falhe (136-MANIFESTOS.md, secção c). O guarda é
+  // StrategicGoalWeightValidationTest#createWeight* -- se a regeneração apagar estas
+  // anotações, é esse teste que fica vermelho, não o manifesto.
+  @DecimalMin(value = "0.1", message = "O campo <weight> não pode ser inferior a 0.1")
+  @DecimalMax(value = "10", message = "O campo <weight> não pode ser superior a 10")
   private BigDecimal weight ;
 
   @Min(value = 2000, message = "O campo <year> não pode ser inferior a 2000")

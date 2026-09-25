@@ -6,6 +6,7 @@ import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.ChangeRequestE
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.TacticalActivitiesEntity;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.entity.TaticalActivityHistoryEntity;
 import cv.igrp.RH_Service.sigdi.infrastructure.persistence.repository.TacticalActivitiesEntityRepository;
+import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.TacticalActivityStatus;
 import cv.igrp.RH_Service.sigdi.application.dto.ChangeRequestResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.KeyResultResponseDTO;
@@ -90,6 +91,16 @@ public class GetTacticalActivityByIdQueryHandler
     if (entity.getStatus() != null) {
       TacticalActivityStatus.fromCode(entity.getStatus())
           .ifPresent(s -> dto.setStatusDesc(s.getDescription()));
+    }
+
+    // A-136-51 (Phase 136, plano 136-15): o DTO de detalhe nunca populava paaLevel/
+    // paaLevelDesc -- defeito irmão do A-135-2Z (136-11), que corrigiu só a resposta do PUT.
+    // Lido da entidade persistida, nunca inventado -- é a mesma coluna que o portão de prazo
+    // já consulta em UpdateTacticalActivityCommandHandler.
+    dto.setPaaLevel(entity.getPaaLevel());
+    if (entity.getPaaLevel() != null) {
+      PaaLevel.fromCode(entity.getPaaLevel())
+          .ifPresent(l -> dto.setPaaLevelDesc(l.getDescription()));
     }
 
     List<KeyResultResponseDTO> krs = entity.getKeyResults().stream()

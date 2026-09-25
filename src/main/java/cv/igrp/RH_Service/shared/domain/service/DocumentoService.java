@@ -8,6 +8,8 @@ import cv.igrp.framework.filemanager.minio.MinioService;
 import cv.igrp.framework.filemanager.minio.MinioStorage;
 import org.springframework.http.HttpStatus;
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class DocumentoService {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(DocumentoService.class);
   private static final String PATH_SEPARATOR = "/";
   private final MinioStorage minioService;
 
@@ -43,6 +46,7 @@ public class DocumentoService {
 
       return ResponseEntity.ok().body(fileResponse);
     } catch (Exception e) {
+      LOGGER.error("Falha ao guardar o ficheiro '{}' na pasta {}", file.getOriginalFilename(), folder, e);
       throw IgrpResponseStatusException.of(HttpStatus.INTERNAL_SERVER_ERROR, "Falha ao guardar o ficheiro");
     }
   }
@@ -75,6 +79,7 @@ public class DocumentoService {
 
       return ResponseEntity.ok().body(fileResponse);
     } catch (Exception e) {
+      LOGGER.error("Falha ao guardar o ficheiro público '{}' em {}", file.getOriginalFilename(), path, e);
       throw IgrpResponseStatusException.of(HttpStatus.INTERNAL_SERVER_ERROR, "Falha ao guardar o ficheiro público");
     }
   }
@@ -100,6 +105,7 @@ public class DocumentoService {
 
       return ResponseEntity.ok().body(fileUrl);
     } catch (Exception e) {
+      LOGGER.error("Falha ao obter URL assinado para {}", fileId, e);
       throw IgrpResponseStatusException.of(HttpStatus.INTERNAL_SERVER_ERROR, "Falha ao obter URL assinado");
     }
   }

@@ -5,6 +5,7 @@ import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
 import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.dto.PaaSubmissionPeriodResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.service.PaaSubmissionPeriodSequenceRules;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.PaaSubmissionPeriod;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.framework.core.domain.CommandHandler;
@@ -15,19 +16,21 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 public class CreatePaaSubmissionPeriodCommandHandler implements CommandHandler<CreatePaaSubmissionPeriodCommand, ResponseEntity<PaaSubmissionPeriodResponseDTO>> {
 
     private final PaaSubmissionPeriodRepository repository;
+    // Instantiated directly rather than constructor-injected: PaaSubmissionPeriodSequenceRules
+    // is stateless (no dependencies of its own), and CreatePaaSubmissionPeriodCommandHandlerTest
+    // uses Mockito's @InjectMocks against the single-argument constructor with no mock for this
+    // type -- adding it as a constructor parameter makes Mockito pass null for it, which is a
+    // test file this plan is not allowed to touch (133-03 Task 1 acceptance criteria).
+    private final PaaSubmissionPeriodSequenceRules sequenceRules = new PaaSubmissionPeriodSequenceRules();
 
     public CreatePaaSubmissionPeriodCommandHandler(PaaSubmissionPeriodRepository repository) {
         this.repository = repository;
@@ -61,56 +64,88 @@ public class CreatePaaSubmissionPeriodCommandHandler implements CommandHandler<C
             }
         }
 
-        // Rule 3: Cross-type overlap — sequence-based nearest-neighbor comparison (SOBREP-01/02/03)
+        // Rule 3: Cross-type overlap — sequence-based nearest-neighbor comparison (SOBREP-01/02/03).
+        // Extracted into PaaSubmissionPeriodSequenceRules (133-03) so creation and alteration
+        // share a single implementation of the two-stage D-14 logic instead of two copies.
         List<PaaSubmissionPeriod> yearPeriods = repository.findAllByYear(dto.getYear());
-
-        // Reduce to the most-recent period per (sequence position, level) pair, handling
-        // reopening. A single purpose position can have two periods live in the same year,
-        // distinguished only by type (UNIT_LEVEL vs INDIVIDUAL_LEVEL — see Rule 2); deduping
-        // by position alone would silently drop whichever sibling wasn't created last, hiding
-        // a real overlap (WR-02) since Rule 2 only requires the Unit period's status to be
-        // CLOSED, not that its date range has actually elapsed.
-        // yearPeriods already arrives ordered createdDate DESC (see the JPQL below), so
-        // putIfAbsent keeps the newest per pair — the same "most recent wins" convention used
-        // by findActiveByTypeAndPurpose/findActiveByTypeAndYearAndPurpose/findByTypeAndYearAndStatusAndPurpose
-        // in PaaSubmissionPeriodRepositoryImpl.
-        Map<String, PaaSubmissionPeriod> latestByPositionAndType = new LinkedHashMap<>();
-        for (PaaSubmissionPeriod p : yearPeriods) {
-            String key = p.getPurpose().getPosition() + ":" + p.getType().getCode();
-            latestByPositionAndType.putIfAbsent(key, p);
-        }
-        Map<Integer, List<PaaSubmissionPeriod>> candidatesByPosition = latestByPositionAndType.values().stream()
-                .collect(Collectors.groupingBy(p -> p.getPurpose().getPosition()));
-
         int newPosition = purpose.getPosition();
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        sequenceRules.enforceNoOverlap(yearPeriods, newPosition, dto.getStartDate(), dto.getEndDate(), null);
 
-        // A position can now carry two candidates (Unit + Individual); compare against the
-        // most restrictive one — the latest end date approaching from the left, the earliest
-        // start date approaching from the right — rather than an arbitrary single survivor.
-        PaaSubmissionPeriod nearestBefore = candidatesByPosition.keySet().stream()
-                .filter(pos -> pos < newPosition)
-                .max(Integer::compareTo)
-                .flatMap(pos -> candidatesByPosition.get(pos).stream()
-                        .max(Comparator.comparing(PaaSubmissionPeriod::getEndDate)))
-                .orElse(null);
-
-        PaaSubmissionPeriod nearestAfter = candidatesByPosition.keySet().stream()
-                .filter(pos -> pos > newPosition)
-                .min(Integer::compareTo)
-                .flatMap(pos -> candidatesByPosition.get(pos).stream()
-                        .min(Comparator.comparing(PaaSubmissionPeriod::getStartDate)))
-                .orElse(null);
-
-        if (nearestBefore != null && !dto.getStartDate().isAfter(nearestBefore.getEndDate())) {
-            throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Sobrepõe-se a " + nearestBefore.getPurpose().getDescription() + ", "
-                            + nearestBefore.getStartDate().format(fmt) + "–" + nearestBefore.getEndDate().format(fmt));
-        }
-        if (nearestAfter != null && !nearestAfter.getStartDate().isAfter(dto.getEndDate())) {
-            throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Sobrepõe-se a " + nearestAfter.getPurpose().getDescription() + ", "
-                            + nearestAfter.getStartDate().format(fmt) + "–" + nearestAfter.getEndDate().format(fmt));
+        // Rule 4: annual-cycle precedence (FIX-08, milestone v28.0).
+        //
+        // (a) WHICH FINDING THIS CLOSES. "A ordem do ciclo anual é declarada e não é imposta"
+        //     (Alta, Phase 121) -- docs/qa/121-ACHADO-ordem-do-ciclo.md. Purpose.java declares a
+        //     fixed position per finalidade (BSC -> PAA -> SIADAP), deliberately NOT derived from
+        //     ordinal(); until this rule existed nothing enforced it, and a POST could open
+        //     SIADAP_FINAL (position 6) with none of the five preceding phases in place.
+        //     Opening a window at position N now requires a window at position N-1, for the SAME
+        //     year, with status CLOSED (operator decision 1, 2026-09-04, 130-CONTEXT.md).
+        //
+        // (b) IT GENERALIZES RULE 2, IT DOES NOT REPLACE IT. Rule 2 above is the only precedence
+        //     guard that existed, and it covers the cascade WITHIN a single position: PAA
+        //     INDIVIDUAL_LEVEL requires a closed PAA UNIT_LEVEL window. Rule 4 is precedence
+        //     BETWEEN positions. The two do not collide and Rule 2 stays untouched -- it still
+        //     runs first, so a PAA individual window with no closed unit sibling is still refused
+        //     by Rule 2's own message, not by this one.
+        //
+        // (c) IT IS LEVEL-AGNOSTIC, AND THE REASON IS WRITTEN RATHER THAN CHOSEN IN SILENCE. The
+        //     decision reads "a window at position N-1 in the same year with status CLOSED" and
+        //     names no level. Level is Rule 2's business, inside a position. So any closed window
+        //     at position N-1 satisfies this rule, whatever its PaaLevel.
+        //
+        // (d) POSITION 1 IS NOT GATED. It has no predecessor, so there is nothing to require.
+        //     The guard is skipped entirely for it.
+        //
+        // (e) THE POSITION IN THE FILE IS AFTER RULE 2 AND AFTER RULE 3, AND THAT IS DELIBERATE.
+        //     docs/qa/130-PRECONDICOES.md Section 4.4 measured, before this wave started, what
+        //     each placement costs: ahead of Rule 3 it breaks three existing title assertions
+        //     that are about overlap and not about precedence, and ahead of Rule 2 it starves the
+        //     stub of createPaaIndividualPeriodStillRequiresClosedPaaUnitLevelPeriod, producing an
+        //     UnnecessaryStubbingException with nothing actually wrong. Placed here it reads
+        //     yearPeriods, which Rule 3 has already fetched, so no new repository port is opened.
+        //
+        // (f) THE ACCEPTED COST. This prevents two phases of the cycle being open in parallel,
+        //     even when the business would sometimes want it. That cost was stated and accepted by
+        //     the operator in decision 1; it is not a side effect discovered afterwards.
+        //
+        // The predecessor is looked up over the FULL yearPeriods list and not over the
+        // dedup map that PaaSubmissionPeriodSequenceRules builds internally for Rule 3: that map
+        // keeps only the newest record per (position, level) pair, so a closed predecessor hidden
+        // behind a newer reopened sibling would be lost, and this rule only asks whether *some*
+        // closed window exists at that position.
+        int previousPosition = newPosition - 1;
+        if (previousPosition >= 1) {
+            Optional<Purpose> requiredPredecessor = Arrays.stream(Purpose.values())
+                    .filter(p -> p.getPosition() == previousPosition)
+                    .findFirst();
+            // If no finalidade declares position N-1 the declared sequence has a hole and there is
+            // nothing to require; the guard is skipped rather than inventing a predecessor.
+            if (requiredPredecessor.isPresent()) {
+                // PRZ-01: SIADAP_INTERIM (position 4) allows the contractualization period SIADAP (position 3)
+                // to be either CLOSED or OPEN for the same year, so interim evaluations can start even if
+                // some late-onboarded staff are still completing contractualization.
+                if (purpose == Purpose.SIADAP_INTERIM && requiredPredecessor.get() == Purpose.SIADAP) {
+                    boolean predecessorExists = yearPeriods.stream()
+                            .filter(p -> p.getPurpose() == Purpose.SIADAP)
+                            .anyMatch(p -> p.isClosed() || p.isOpen());
+                    if (!predecessorExists) {
+                        throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                                "Não é possível abrir o período de " + purpose.getDescription()
+                                        + " sem que exista um período de " + requiredPredecessor.get().getDescription()
+                                        + " configurado para o ano " + dto.getYear());
+                    }
+                } else {
+                    boolean predecessorClosed = yearPeriods.stream()
+                            .filter(p -> p.getPurpose().getPosition() == previousPosition)
+                            .anyMatch(p -> p.isClosed());
+                    if (!predecessorClosed) {
+                        throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                                "Não é possível abrir o período de " + purpose.getDescription()
+                                        + " sem que o período de " + requiredPredecessor.get().getDescription()
+                                        + " esteja fechado para o ano " + dto.getYear());
+                    }
+                }
+            }
         }
 
         PaaSubmissionPeriod period = PaaSubmissionPeriod.create(

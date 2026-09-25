@@ -41,6 +41,10 @@ public class ClosePaaSubmissionPeriodCommandHandler implements CommandHandler<Cl
         response.setStatusDesc("Fechado");
         response.setYear(saved.getYear());
         response.setDaysRemaining(0L);
+        response.setPurpose(saved.getPurpose().getCode());
+        response.setPurposeDesc(saved.getPurpose().getDescription());
+        response.setCreatedDate(saved.getCreatedDate());
+        response.setCreatedBy(saved.getCreatedBy());
 
         return ResponseEntity.ok(response);
     }

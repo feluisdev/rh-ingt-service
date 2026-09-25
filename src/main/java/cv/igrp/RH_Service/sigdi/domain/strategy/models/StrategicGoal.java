@@ -66,13 +66,30 @@ public class StrategicGoal {
         description, positionX, positionY, year, indicators);
   }
 
+  /**
+   * FIX-09 / A-124-02: {@code newPerspective} is a REAL parameter, and its position -- between the
+   * year and the indicators, not appended at the end -- is deliberate.
+   *
+   * <p>Until Phase 130 this method copied {@code this.perspective} and never received one, so the
+   * client sent the field, the server dropped it, and the product answered "gravado com sucesso".
+   * Adding the parameter in the MIDDLE changes the arity and the signature at once, which turns
+   * every old five-argument call into a COMPILATION ERROR. That is the point: a sixth parameter
+   * appended at the end with a default value would have left the one call site that mattered
+   * ({@code UpdateStrategicGoalsCommandHandler}) silently compiling and silently dropping the
+   * field, which is the very defect being removed.
+   *
+   * <p>Semantics match every other argument here: NULL PRESERVES the current value. An edit that
+   * omits the perspective keeps the one the goal already has.
+   */
   public StrategicGoal update(String newTitle, String newDescription, BigDecimal newWeight,
-                               Integer newYear, java.util.List<StrategicIndicator> newIndicators) {
+                               Integer newYear, StrategicGoalsPerspective newPerspective,
+                               java.util.List<StrategicIndicator> newIndicators) {
     String title = (newTitle != null && !newTitle.isBlank()) ? newTitle : this.title;
     String description = newDescription != null ? newDescription : this.description;
     BigDecimal weight = newWeight != null ? newWeight : this.weight;
     Integer year = newYear != null ? newYear : this.year;
-    return new StrategicGoal(this.id, this.institutionId, this.identityId, title, this.perspective,
+    StrategicGoalsPerspective perspective = newPerspective != null ? newPerspective : this.perspective;
+    return new StrategicGoal(this.id, this.institutionId, this.identityId, title, perspective,
         weight, this.status, description, this.positionX, this.positionY, year, newIndicators != null ? newIndicators : this.indicators);
   }
 

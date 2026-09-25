@@ -6,7 +6,7 @@
   "enableCustonValidation": false,
   "attributes": [
     {
-      "name": "valuedAdded",
+      "name": "valueAdded",
       "objectType": "java",
       "type": "decimal",
       "required": true,
@@ -33,7 +33,7 @@
       "name": "evidenceUrl",
       "objectType": "java",
       "type": "string",
-      "required": true,
+      "required": false,
       "before": false,
       "after": false,
       "positive": false,
@@ -42,5 +42,6 @@
       "primaryKey": false
     }
   ],
-  "id": "bbyynlb6ii"
+  "id": "bbyynlb6ii",
+  "readOnly": true
 }

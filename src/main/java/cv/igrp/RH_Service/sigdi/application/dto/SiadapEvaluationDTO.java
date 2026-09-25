@@ -47,4 +47,7 @@ public class SiadapEvaluationDTO  {
   private List<IndividualObjectiveDTO> objectives;
   private List<CompetencyItemDTO> competencies;
 
+  private String acknowledgementStatus;
+  private String acknowledgementComment;
+  private String acknowledgedAt;
 }

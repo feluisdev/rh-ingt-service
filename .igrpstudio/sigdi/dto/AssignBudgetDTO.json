@@ -8,7 +8,7 @@
       "name": "activityId",
       "type": "uuid",
       "objectType": "java",
-      "required": true
+      "required": false
     },
     {
       "name": "budgetEstimated",
@@ -22,5 +22,6 @@
       "objectType": "java",
       "required": true
     }
-  ]
+  ],
+  "readOnly": true
 }

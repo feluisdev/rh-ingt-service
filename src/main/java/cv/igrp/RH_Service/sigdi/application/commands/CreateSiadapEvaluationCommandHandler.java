@@ -75,13 +75,12 @@ public class CreateSiadapEvaluationCommandHandler
     String organicUnitId = req.getOrganicUnitId();
 
     String derivedEvaluatorId = deriveEvaluatorId(employeeId);
-
-    // T-109-13 (Repudiation): a divergent evaluatorId sent by the client is ignored, never
-    // trusted, but it is not swallowed in silence either -- a client still sending this field
-    // is an operational fact someone will want to see (D-12). Read once, into a local, so the
-    // request value is never re-read on a second path toward the aggregate.
     String requestEvaluatorId = req.getEvaluatorId();
-    if (requestEvaluatorId != null && !requestEvaluatorId.isBlank()
+    String effectiveEvaluatorId = derivedEvaluatorId;
+    if (effectiveEvaluatorId == null && requestEvaluatorId != null && !requestEvaluatorId.isBlank()) {
+      LOGGER.info("CreateSiadapEvaluationCommand: derived evaluator is null, using provided request evaluatorId '{}'", requestEvaluatorId);
+      effectiveEvaluatorId = requestEvaluatorId;
+    } else if (requestEvaluatorId != null && !requestEvaluatorId.isBlank()
         && !requestEvaluatorId.equals(derivedEvaluatorId)) {
       LOGGER.warn("CreateSiadapEvaluationCommand: request evaluatorId '{}' diverges from derived evaluatorId '{}' -- request value ignored",
           requestEvaluatorId, derivedEvaluatorId);
@@ -91,7 +90,7 @@ public class CreateSiadapEvaluationCommandHandler
         employeeId,
         year,
         organicUnitId,
-        derivedEvaluatorId,
+        effectiveEvaluatorId,
         resultsWeight,
         competenciesWeight
     );

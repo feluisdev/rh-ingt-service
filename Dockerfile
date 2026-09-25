@@ -1,26 +1,25 @@
 # ============================
-# 1. BUILD STAGE (MAVEN)
+# 1. BUILD STAGE (MAVEN JAVA 26)
 # ============================
-FROM cgr.dev/chainguard/maven:latest-dev AS build
+FROM maven:3-eclipse-temurin-26 AS build
 WORKDIR /app
 
-# Copiar apenas o pom.xml primeiro para aproveitar cache de dependências
+# Copiar pom.xml primeiro para resolver contexto
 COPY pom.xml .
-RUN mvn -B -q dependency:go-offline
 
 # Copiar o código fonte
 COPY src ./src
 
 # Construir o jar executável (com spring-boot:repackage)
-RUN mvn -B -DskipTests clean package
+RUN mvn -B clean package -DskipTests
 
 # ============================
-# 2. RUNTIME STAGE (JRE)
+# 2. RUNTIME STAGE (JRE JAVA 26)
 # ============================
-FROM cgr.dev/chainguard/jre:latest
+FROM eclipse-temurin:26-jre
 WORKDIR /app
 
-# Copiar ONLY o jar executável, ignorando os -plain.jar e -original.jar
+# Copiar o jar executável da etapa de build
 COPY --from=build /app/target/RH-Service-*.jar /app/app.jar
 
 # Expor a porta padrão do Spring Boot
@@ -28,4 +27,3 @@ EXPOSE 8080
 
 # ENTRYPOINT padrão para apps Spring Boot
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
-

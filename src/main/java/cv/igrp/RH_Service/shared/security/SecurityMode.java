@@ -18,12 +18,12 @@ import org.springframework.core.env.Environment;
  * enforced against an anonymous principal even with the security switch off. Anyone editing this
  * function is editing both layers at once.</p>
  */
-final class SecurityMode {
+public final class SecurityMode {
 
   private static final Logger log = LoggerFactory.getLogger(SecurityMode.class);
 
-  static final String SECURITY_ENABLED_PROPERTY = "app.security.enabled";
-  static final String DEVELOPMENT_PROFILE = "development";
+  public static final String SECURITY_ENABLED_PROPERTY = "app.security.enabled";
+  public static final String DEVELOPMENT_PROFILE = "development";
 
   private SecurityMode() {
   }
@@ -36,7 +36,7 @@ final class SecurityMode {
    * @return {@code true} only when {@code app.security.enabled} is {@code false} AND the active
    *     profile is {@code development}
    */
-  static boolean isSecurityDisabled(Environment environment) {
+  public static boolean isSecurityDisabled(Environment environment) {
     boolean securityEnabled;
     try {
       securityEnabled = environment.getProperty(SECURITY_ENABLED_PROPERTY, Boolean.class, true);

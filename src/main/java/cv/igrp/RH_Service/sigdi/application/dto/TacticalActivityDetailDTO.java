@@ -47,4 +47,13 @@ public class TacticalActivityDetailDTO  {
   private List<WorkflowHistoryItemDTO> workflowHistory = new ArrayList<>();
   private List<ChangeRequestResponseDTO> changeRequests = new ArrayList<>();
 
+  // A-136-51 (Phase 136, plano 136-15): editado à mão apesar do cabeçalho "DO NOT MODIFY" --
+  // mesmo precedente do CreateTacticalActivityDTO.java (campo paaLevel, 136-09/antes). O
+  // manifesto original (.igrpstudio/sigdi/dto/TacticalActivityDetailDTO.json) nunca declarou
+  // estes dois campos, e por isso o GET de detalhe nunca os devolvia -- o ecrã de edição
+  // (tactical/paa/edit/[id]/page.tsx:77) caía sempre no fallback "UNIT_LEVEL", independente do
+  // nível real da atividade. O manifesto foi corrigido no mesmo commit (D-51).
+  private String paaLevel;
+  private String paaLevelDesc;
+
 }

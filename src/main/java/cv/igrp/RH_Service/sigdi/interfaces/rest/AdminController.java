@@ -22,6 +22,7 @@ import cv.igrp.RH_Service.sigdi.application.dto.AdminCostDriverResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.AdminCreateCostDriverRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.BscPerspectiveItemDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.BscPerspectivesUpdateRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.BscPerspectivesUpdateResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.queries.GetAdminCostDriversQuery;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateDelegationRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateInstitutionRequestDTO;
@@ -352,21 +353,28 @@ public class AdminController {
     return queryBus.handle(query);
   }
 
+  // The PUT returns an envelope and the GET above returns a bare array, deliberately -- FIX-10 /
+  // A-126-05. Reading the configuration cannot make a stored link incoherent, so the GET has
+  // nothing to warn about; only the write does. The reason not to align the two is written in
+  // BscPerspectivesUpdateResponseDTO. The OpenAPI schema below moves with the Java type so the
+  // published contract does not start describing a shape the endpoint stopped returning.
   @PutMapping(value = "bsc-perspectives")
   @Operation(
     summary = "Update BSC perspectives configuration",
-    description = "Actualiza o rótulo e a ordem das 4 perspetivas do BSC numa única operação.",
+    description = "Actualiza o rótulo e a ordem das 4 perspetivas do BSC numa única operação. "
+        + "Devolve as perspetivas gravadas e, quando existem, as ligações do mapa estratégico que a "
+        + "regra em vigor já não permitiria criar -- avisa e grava, nunca recusa.",
     responses = {
       @ApiResponse(
           responseCode = "200",
           content = @Content(
               mediaType = "application/json",
-              schema = @Schema(implementation = BscPerspectiveItemDTO.class, type = "array")
+              schema = @Schema(implementation = BscPerspectivesUpdateResponseDTO.class)
           )
       )
     }
   )
-  public ResponseEntity<List<BscPerspectiveItemDTO>> updateBscPerspectives(
+  public ResponseEntity<BscPerspectivesUpdateResponseDTO> updateBscPerspectives(
     @Valid @RequestBody BscPerspectivesUpdateRequestDTO body)
   {
     final var command = new UpdateBscPerspectivesCommand(body.getPerspectives());

@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.ChangeRequestField;
 import cv.igrp.RH_Service.sigdi.application.dto.ChangeRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.ChangeRequestResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.ChangeRequest;
 import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
 import cv.igrp.RH_Service.sigdi.domain.tatical.repository.ChangeRequestRepository;
@@ -26,11 +27,14 @@ public class CreateChangeRequestCommandHandler
 
   private final TacticalActivityRepository activityRepository;
   private final ChangeRequestRepository changeRequestRepository;
+  private final PaaActivityWindowPolicy windowPolicy;
 
   public CreateChangeRequestCommandHandler(TacticalActivityRepository activityRepository,
-                                           ChangeRequestRepository changeRequestRepository) {
+                                           ChangeRequestRepository changeRequestRepository,
+                                           PaaActivityWindowPolicy windowPolicy) {
     this.activityRepository = activityRepository;
     this.changeRequestRepository = changeRequestRepository;
+    this.windowPolicy = windowPolicy;
   }
 
   @IgrpCommandHandler
@@ -47,6 +51,11 @@ public class CreateChangeRequestCommandHandler
       throw IgrpResponseStatusException.badRequest(
           "Change Request só é permitido em atividades APPROVED");
     }
+
+    // A-132-108 / COR-01 (Phase 136, D-47 reverts T-139's 2026-09-05 exclusion of this handler):
+    // submission window checked before the save at the bottom of this method, sourced from the
+    // loaded activity's paaLevel -- never from the request (D-27, Phase 134).
+    windowPolicy.requireOpenFor(activity.getPaaLevel());
 
     ChangeRequestDTO dto = command.getChangerequest();
 

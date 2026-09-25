@@ -63,6 +63,8 @@ import cv.igrp.RH_Service.sigdi.application.dto.RecordObjectiveAchievementReques
 import cv.igrp.RH_Service.sigdi.application.dto.SubmitSelfEvaluationRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.FinalizeEvaluationRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.AssignMeritRatingRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.AssignSiadapEvaluatorRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.AcknowledgeEvaluationRequestDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.IndividualObjectiveDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.CompetencyItemDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapInterimFeedbackDTO;
@@ -148,11 +150,12 @@ public class ComplianceController {
   public ResponseEntity<WrapperSiadapEvaluationListDTO> listEvaluations(
     @RequestParam(value = "year") Integer year,
     @RequestParam(value = "organicUnitId", required = false) String organicUnitId,
+    @RequestParam(value = "evaluatorId", required = false) String evaluatorId,
     @RequestParam(value = "status", required = false) String status,
     @RequestParam(value = "pageNumber", required = false, defaultValue = "0") String pageNumber,
     @RequestParam(value = "pageSize",   required = false, defaultValue = "20") String pageSize)
   {
-    final var query = new ListSiadapEvaluationsQuery(year, organicUnitId, status, pageNumber, pageSize);
+    final var query = new ListSiadapEvaluationsQuery(year, organicUnitId, status, pageNumber, pageSize, evaluatorId);
     return queryBus.handle(query);
   }
 
@@ -284,6 +287,50 @@ public class ComplianceController {
   {
     final var query = new GetEvaluationDetailQuery(id);
     return queryBus.handle(query);
+  }
+
+  @PutMapping(value = "siadap/evaluations/{id}/evaluator")
+  @Operation(
+    summary = "Assign or update evaluator",
+    description = "Atribui ou altera o notador (avaliador) responsável por uma avaliação SIADAP.",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SiadapEvaluationDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<SiadapEvaluationDTO> assignEvaluator(
+    @PathVariable("id") String id,
+    @Valid @RequestBody AssignSiadapEvaluatorRequestDTO body)
+  {
+    final var command = new AssignSiadapEvaluatorCommand(id, body);
+    return commandBus.send(command);
+  }
+
+  @PostMapping(value = "siadap/evaluations/{id}/acknowledge")
+  @Operation(
+    summary = "Acknowledge evaluation or submit contradictory",
+    description = "Avaliado toma conhecimento da avaliação ou apresenta contraditório (CIK-01).",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SiadapEvaluationDTO.class, type = "object")
+          )
+      )
+    }
+  )
+  public ResponseEntity<SiadapEvaluationDTO> acknowledgeEvaluation(
+    @PathVariable("id") String id,
+    @Valid @RequestBody AcknowledgeEvaluationRequestDTO body)
+  {
+    final var command = new AcknowledgeEvaluationCommand(id, body);
+    return commandBus.send(command);
   }
 
   @PostMapping(value = "siadap/evaluations/{id}/objectives")

@@ -12,6 +12,7 @@ import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -100,6 +101,18 @@ public class SiadapEvaluation {
      */
     private final boolean selfEvaluationTacitlyAccepted;
 
+    /**
+     * CIK-01: Estado de tomada de conhecimento / contraditório pelo avaliado:
+     * "PENDING" (após finalização), "AGREED" (concordância), "CONTESTED" (contraditório apresentado).
+     */
+    private final String acknowledgementStatus;
+
+    /** CIK-01: Comentário ou fundamentação do contraditório / tomada de conhecimento. */
+    private final String acknowledgementComment;
+
+    /** CIK-01: Data/hora do registo de conhecimento ou contraditório. */
+    private final LocalDateTime acknowledgedAt;
+
     private SiadapEvaluation(SiadapEvaluationId id, String employeeId, Integer year,
                               String organicUnitId, String evaluatorId,
                               List<IndividualObjective> objectives,
@@ -108,7 +121,9 @@ public class SiadapEvaluation {
                               BigDecimal selfEvaluationScore, BigDecimal finalScore,
                               SiadapMeritRating meritRating, boolean validatedQuota,
                               EvaluationPhase phase, AcceptanceStatus acceptanceStatus,
-                              String lastNegotiationComment, boolean selfEvaluationTacitlyAccepted) {
+                              String lastNegotiationComment, boolean selfEvaluationTacitlyAccepted,
+                              String acknowledgementStatus, String acknowledgementComment,
+                              LocalDateTime acknowledgedAt) {
         if (id == null) throw new IllegalArgumentException("id é obrigatório");
         if (employeeId == null || employeeId.isBlank()) throw new IllegalArgumentException("employeeId é obrigatório");
         if (year == null) throw new IllegalArgumentException("year é obrigatório");
@@ -132,6 +147,24 @@ public class SiadapEvaluation {
         this.acceptanceStatus = acceptanceStatus;
         this.lastNegotiationComment = lastNegotiationComment;
         this.selfEvaluationTacitlyAccepted = selfEvaluationTacitlyAccepted;
+        this.acknowledgementStatus = acknowledgementStatus;
+        this.acknowledgementComment = acknowledgementComment;
+        this.acknowledgedAt = acknowledgedAt;
+    }
+
+    private SiadapEvaluation(SiadapEvaluationId id, String employeeId, Integer year,
+                              String organicUnitId, String evaluatorId,
+                              List<IndividualObjective> objectives,
+                              List<CompetencyItem> competencies,
+                              BigDecimal resultsWeight, BigDecimal competenciesWeight,
+                              BigDecimal selfEvaluationScore, BigDecimal finalScore,
+                              SiadapMeritRating meritRating, boolean validatedQuota,
+                              EvaluationPhase phase, AcceptanceStatus acceptanceStatus,
+                              String lastNegotiationComment, boolean selfEvaluationTacitlyAccepted) {
+        this(id, employeeId, year, organicUnitId, evaluatorId, objectives, competencies,
+                resultsWeight, competenciesWeight, selfEvaluationScore, finalScore,
+                meritRating, validatedQuota, phase, acceptanceStatus, lastNegotiationComment,
+                selfEvaluationTacitlyAccepted, null, null, null);
     }
 
     // ============================================================
@@ -151,11 +184,31 @@ public class SiadapEvaluation {
                 new ArrayList<>(), new ArrayList<>(),
                 resultsWeight, competenciesWeight,
                 null, null, null, false,
-                EvaluationPhase.OPEN, null, null, false
+                EvaluationPhase.OPEN, null, null, false,
+                null, null, null
         );
     }
 
-    /** Reconstrói a partir da persistência. */
+    /** Reconstrói a partir da persistência (com dados de tomada de conhecimento / contraditório). */
+    public static SiadapEvaluation reconstruct(SiadapEvaluationId id, String employeeId, Integer year,
+                                               String organicUnitId, String evaluatorId,
+                                               List<IndividualObjective> objectives,
+                                               List<CompetencyItem> competencies,
+                                               BigDecimal resultsWeight, BigDecimal competenciesWeight,
+                                               BigDecimal selfEvaluationScore, BigDecimal finalScore,
+                                               SiadapMeritRating meritRating, boolean validatedQuota,
+                                               EvaluationPhase phase, AcceptanceStatus acceptanceStatus,
+                                               String lastNegotiationComment, boolean selfEvaluationTacitlyAccepted,
+                                               String acknowledgementStatus, String acknowledgementComment,
+                                               LocalDateTime acknowledgedAt) {
+        return new SiadapEvaluation(id, employeeId, year, organicUnitId, evaluatorId,
+                objectives, competencies, resultsWeight, competenciesWeight,
+                selfEvaluationScore, finalScore, meritRating, validatedQuota, phase, acceptanceStatus,
+                lastNegotiationComment, selfEvaluationTacitlyAccepted,
+                acknowledgementStatus, acknowledgementComment, acknowledgedAt);
+    }
+
+    /** Reconstrói a partir da persistência (versão retrocompatível). */
     public static SiadapEvaluation reconstruct(SiadapEvaluationId id, String employeeId, Integer year,
                                                String organicUnitId, String evaluatorId,
                                                List<IndividualObjective> objectives,
@@ -165,10 +218,10 @@ public class SiadapEvaluation {
                                                SiadapMeritRating meritRating, boolean validatedQuota,
                                                EvaluationPhase phase, AcceptanceStatus acceptanceStatus,
                                                String lastNegotiationComment, boolean selfEvaluationTacitlyAccepted) {
-        return new SiadapEvaluation(id, employeeId, year, organicUnitId, evaluatorId,
+        return reconstruct(id, employeeId, year, organicUnitId, evaluatorId,
                 objectives, competencies, resultsWeight, competenciesWeight,
                 selfEvaluationScore, finalScore, meritRating, validatedQuota, phase, acceptanceStatus,
-                lastNegotiationComment, selfEvaluationTacitlyAccepted);
+                lastNegotiationComment, selfEvaluationTacitlyAccepted, null, null, null);
     }
 
     // ============================================================
@@ -250,6 +303,29 @@ public class SiadapEvaluation {
                 this.resultsWeight, this.competenciesWeight,
                 this.selfEvaluationScore, this.finalScore, this.meritRating, this.validatedQuota,
                 this.phase, AcceptanceStatus.NEGOTIATING, comment, this.selfEvaluationTacitlyAccepted);
+    }
+
+    /**
+     * Atribui ou substitui o avaliador notador responsável por esta avaliação.
+     * Permitido enquanto a avaliação não estiver concluída ou homologada (não VALIDATED nem CLOSED).
+     */
+    public SiadapEvaluation assignEvaluator(String newEvaluatorId) {
+        if (newEvaluatorId == null || newEvaluatorId.isBlank()) {
+            throw IgrpResponseStatusException.badRequest("O ID do avaliador é obrigatório");
+        }
+        if (EvaluationPhase.CLOSED.equals(this.phase)) {
+            throw IgrpResponseStatusException.badRequest("Não é possível alterar o avaliador de uma avaliação encerrada");
+        }
+        if (newEvaluatorId.equals(this.employeeId)) {
+            throw IgrpResponseStatusException.badRequest("O colaborador não pode ser o seu próprio avaliador");
+        }
+        return new SiadapEvaluation(this.id, this.employeeId, this.year,
+                this.organicUnitId, newEvaluatorId,
+                this.objectives, this.competencies,
+                this.resultsWeight, this.competenciesWeight,
+                this.selfEvaluationScore, this.finalScore, this.meritRating, this.validatedQuota,
+                this.phase, this.acceptanceStatus, this.lastNegotiationComment,
+                this.selfEvaluationTacitlyAccepted);
     }
 
     /**
@@ -435,7 +511,36 @@ public class SiadapEvaluation {
                 this.resultsWeight, this.competenciesWeight,
                 this.selfEvaluationScore, final_, merit, false,
                 EvaluationPhase.HARMONIZATION, this.acceptanceStatus, this.lastNegotiationComment,
-                this.selfEvaluationTacitlyAccepted);
+                this.selfEvaluationTacitlyAccepted,
+                "PENDING", null, null);
+    }
+
+    /**
+     * CIK-01: Regista a tomada de conhecimento ou contraditório pelo avaliado.
+     * Permitido quando a avaliação está na fase HARMONIZATION ou com tomada de conhecimento pendente.
+     *
+     * @param agreed true se concordou com a avaliação, false se apresentou contraditório
+     * @param comment fundamentação/justificação (obrigatória em caso de discordância/contraditório)
+     */
+    public SiadapEvaluation acknowledge(boolean agreed, String comment) {
+        if (!EvaluationPhase.HARMONIZATION.equals(this.phase) && !"PENDING".equalsIgnoreCase(this.acknowledgementStatus)) {
+            throw IgrpResponseStatusException.badRequest(
+                    "A tomada de conhecimento / contraditório só está disponível na fase de Harmonização ou quando pendente.");
+        }
+        if (!agreed && (comment == null || comment.trim().isEmpty())) {
+            throw IgrpResponseStatusException.badRequest(
+                    "Em caso de contraditório (discordância), a fundamentação é obrigatória.");
+        }
+        String status = agreed ? "AGREED" : "CONTESTED";
+        LocalDateTime now = LocalDateTime.now();
+        return new SiadapEvaluation(this.id, this.employeeId, this.year,
+                this.organicUnitId, this.evaluatorId,
+                this.objectives, this.competencies,
+                this.resultsWeight, this.competenciesWeight,
+                this.selfEvaluationScore, this.finalScore, this.meritRating, this.validatedQuota,
+                this.phase, this.acceptanceStatus, this.lastNegotiationComment,
+                this.selfEvaluationTacitlyAccepted,
+                status, comment, now);
     }
 
     /**

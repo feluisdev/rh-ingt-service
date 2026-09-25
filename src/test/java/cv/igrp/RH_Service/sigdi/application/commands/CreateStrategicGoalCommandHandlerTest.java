@@ -3,21 +3,18 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
-import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
 import cv.igrp.RH_Service.sigdi.application.dto.CreateStategicGoalDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.StategicGoalResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.service.StrategicGoalWindowPolicy;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.InstitutionalIdentity;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.InstitutionalIdentityRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.InstitutionalValues;
-import cv.igrp.RH_Service.sigdi.domain.tatical.models.PaaSubmissionPeriod;
-import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.StrategicGoalMapper;
 import java.math.BigDecimal;
 import java.util.List;
@@ -40,7 +37,7 @@ public class CreateStrategicGoalCommandHandlerTest {
     private StrategicGoalRepository goalRepository;
 
     @Mock
-    private PaaSubmissionPeriodRepository periodRepository;
+    private StrategicGoalWindowPolicy windowPolicy;
 
     @Mock
     private StrategicGoalMapper goalMapper;
@@ -58,8 +55,8 @@ public class CreateStrategicGoalCommandHandlerTest {
         when(identityRepository.findActive()).thenReturn(Optional.of(activeIdentity()));
         when(goalRepository.save(any(StrategicGoal.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.UNIT_LEVEL, 2026, Purpose.PAA_BSC_OBJECTIVES))
-                .thenReturn(Optional.of(mock(PaaSubmissionPeriod.class)));
+        // windowPolicy.requireOpenFor is void -- Mockito's default answer does nothing, which is
+        // exactly "window open" for this test.
         when(goalMapper.toResponse(any(StrategicGoal.class))).thenAnswer(invocation -> {
             StrategicGoal g = invocation.getArgument(0);
             StategicGoalResponseDTO dto = new StategicGoalResponseDTO();
@@ -98,11 +95,12 @@ public class CreateStrategicGoalCommandHandlerTest {
 
     @Test
     void handleWithSuppliedYearButNoActivePeriodThrowsBadRequest() {
-        // periodRepository is checked before identityRepository.findActive() in the handler,
-        // so only the period stub is needed here -- stubbing findActive() would never be
-        // exercised and would trip MockitoExtension's strict UnnecessaryStubbingException.
-        when(periodRepository.findActiveByTypeAndYearAndPurpose(PaaLevel.UNIT_LEVEL, 2026, Purpose.PAA_BSC_OBJECTIVES))
-                .thenReturn(Optional.empty());
+        // windowPolicy is checked before identityRepository.findActive() in the handler, so
+        // only the policy stub is needed here -- stubbing findActive() would never be exercised
+        // and would trip MockitoExtension's strict UnnecessaryStubbingException.
+        doThrow(IgrpResponseStatusException.badRequest(
+                "Prazo não configurado para a submissão de objetivos estratégicos PAA/BSC"))
+                .when(windowPolicy).requireOpenFor(2026);
 
         CreateStategicGoalDTO dto = new CreateStategicGoalDTO();
         dto.setTitle("Objetivo Estratégico Teste");

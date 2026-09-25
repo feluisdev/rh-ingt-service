@@ -1,0 +1,192 @@
+package cv.igrp.RH_Service.sigdi.application.commands;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.sigdi.application.constants.AcceptanceStatus;
+import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
+import cv.igrp.RH_Service.sigdi.application.dto.TacticalActivityResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.service.ActivityApprovalHistoryRecorder;
+import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
+import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
+import cv.igrp.RH_Service.sigdi.domain.tatical.models.TacticalActivity;
+import cv.igrp.RH_Service.sigdi.domain.tatical.repository.TacticalActivityRepository;
+import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.Budget;
+import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.DateRange;
+import cv.igrp.RH_Service.sigdi.domain.tatical.valueobject.TacticalActivityId;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
+
+// Phase 134 / POR-02: proves the PAA activity window gate lives at the save() boundary, not only
+// in the response status code -- see the ArgumentCaptor case for the paaLevel source, and the
+// never().save(any()) case for the fact that negotiation never reaches the aggregate.
+@ExtendWith(MockitoExtension.class)
+class NegotiateTacticalActivityCommandHandlerTest {
+
+  @Mock
+  private TacticalActivityRepository repository;
+
+  @Mock
+  private PaaActivityWindowPolicy windowPolicy;
+
+  @Mock
+  private ActivityApprovalHistoryRecorder historyRecorder;
+
+  @InjectMocks
+  private NegotiateTacticalActivityCommandHandler handler;
+
+  // negotiate() only succeeds from PENDING_ACCEPTANCE; create() only assigns an initial
+  // acceptanceStatus (PENDING_ACCEPTANCE) when paaLevel is INDIVIDUAL_LEVEL, so that is the only
+  // level for which a valid starting state exists here.
+  private TacticalActivity pendingAcceptanceActivity(UUID responsibleWho) {
+    return TacticalActivity.create(
+        UUID.randomUUID(),
+        StrategicGoalId.from(UUID.randomUUID()),
+        UUID.randomUUID(),
+        "Atividade individual pendente de aceitação",
+        null,
+        null,
+        null,
+        responsibleWho,
+        null,
+        DateRange.of(LocalDate.now(), LocalDate.now().plusDays(10)),
+        Budget.of(new BigDecimal("1000"), "02.02.01"),
+        PaaLevel.INDIVIDUAL_LEVEL);
+  }
+
+  // Reconstructs a copy of `source` with acceptanceStatus forced to null, standing in for
+  // whatever repository.save() returns -- used only to exercise the handler's
+  // `if (saved.getAcceptanceStatus() != null)` guard on its FALSE branch, which a real
+  // negotiate() transition (always non-null on success) cannot reach by itself.
+  private TacticalActivity withNullAcceptanceStatus(TacticalActivity source) {
+    return TacticalActivity.reconstruct(
+        source.getId(),
+        source.getInstitutionId(),
+        source.getStrategicGoalId(),
+        source.getOrganicUnitId(),
+        source.getTitle(),
+        source.getDescriptionWhat(),
+        source.getJustificationWhy(),
+        source.getLocationWhere(),
+        source.getResponsibleWho(),
+        source.getMethodologyHow(),
+        source.getDateRange(),
+        source.getBudget(),
+        source.getStatus(),
+        source.getVersion(),
+        source.getKeyResults(),
+        source.getPaaLevel(),
+        null);
+  }
+
+  // T-134-13: the window is closed -- handle() must throw, and, more importantly, the aggregate
+  // must never reach save(). The status code alone does not prove this; only a save() that never
+  // happens does.
+  @Test
+  void handleRejectsAndNeverSavesWhenWindowIsClosed() {
+    TacticalActivity activity = pendingAcceptanceActivity(UUID.randomUUID());
+
+    when(repository.findById(any(TacticalActivityId.class)))
+        .thenReturn(Optional.of(activity));
+    doThrow(IgrpResponseStatusException.badRequest(
+            "Prazo não configurado para a submissão de atividades do PAA"))
+        .when(windowPolicy)
+        .requireOpenFor(any(PaaLevel.class));
+
+    NegotiateTacticalActivityCommand command =
+        new NegotiateTacticalActivityCommand(activity.getId().getStringValor(), null);
+
+    assertThrows(IgrpResponseStatusException.class, () -> handler.handle(command));
+    verify(repository, never()).save(any());
+    // A-135-2AB (Phase 136, plano 136-10): uma transição recusada não deixa rasto nenhum.
+    verify(historyRecorder, never()).record(any(), any(), any(), any(), any());
+  }
+
+  // T-134-14: the level queried is the loaded entity's paaLevel, never a value the client could
+  // supply. INDIVIDUAL_LEVEL is not create()'s default (UNIT_LEVEL) -- it is also the only level
+  // for which negotiate() has a valid starting state, so the captured value still distinguishes
+  // the correct source from an accidental default.
+  @Test
+  void handleQueriesWindowForTheLoadedActivitysPaaLevel() {
+    UUID responsibleWho = UUID.randomUUID();
+    TacticalActivity activity = pendingAcceptanceActivity(responsibleWho);
+
+    when(repository.findById(any(TacticalActivityId.class)))
+        .thenReturn(Optional.of(activity));
+    when(repository.save(any(TacticalActivity.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
+
+    NegotiateTacticalActivityCommand command =
+        new NegotiateTacticalActivityCommand(activity.getId().getStringValor(), null);
+
+    handler.handle(command);
+
+    ArgumentCaptor<PaaLevel> captor = ArgumentCaptor.forClass(PaaLevel.class);
+    verify(windowPolicy).requireOpenFor(captor.capture());
+    assertEquals(PaaLevel.INDIVIDUAL_LEVEL, captor.getValue());
+    assertNotEquals(PaaLevel.UNIT_LEVEL, captor.getValue());
+  }
+
+  // With the window open, negotiate() still proceeds normally -- the gate must not break the
+  // happy path it now guards. repository.save() is stubbed to return a copy with acceptanceStatus
+  // forced to null, exercising the FALSE branch of the handler's
+  // `if (saved.getAcceptanceStatus() != null)` guard (the TRUE branch is already exercised in
+  // AcceptTacticalActivityCommandHandlerTest): the DTO must not throw and must simply omit the
+  // acceptance fields while still carrying status and paaLevel.
+  @Test
+  void handleNegotiatesAndSavesWhenWindowIsOpen() {
+    TacticalActivity activity = pendingAcceptanceActivity(UUID.randomUUID());
+    TacticalActivity savedWithoutAcceptance = withNullAcceptanceStatus(activity);
+
+    when(repository.findById(any(TacticalActivityId.class)))
+        .thenReturn(Optional.of(activity));
+    when(repository.save(any(TacticalActivity.class)))
+        .thenReturn(savedWithoutAcceptance);
+
+    NegotiateTacticalActivityCommand command =
+        new NegotiateTacticalActivityCommand(activity.getId().getStringValor(), null);
+
+    ResponseEntity<TacticalActivityResponseDTO> response = handler.handle(command);
+
+    assertNotNull(response);
+    assertEquals(200, response.getStatusCode().value());
+    verify(repository, times(1)).save(any(TacticalActivity.class));
+
+    TacticalActivityResponseDTO body = response.getBody();
+    assertNotNull(body);
+    assertEquals(activity.getStatus().getCode(), body.getStatus());
+    assertEquals(PaaLevel.INDIVIDUAL_LEVEL.getCode(), body.getPaaLevel());
+    assertNull(body.getAcceptanceStatus());
+    assertNull(body.getAcceptanceStatusDesc());
+
+    // A-135-2AB (Phase 136, plano 136-10): negociar transiciona acceptanceStatus (não status) --
+    // fromStatus vem de PENDING_ACCEPTANCE, toStatus/action de NEGOTIATING. O rasto usa a
+    // instância devolvida pela transição (negotiated), não o "saved" estubado sem
+    // acceptanceStatus, por isso a chamada acontece mesmo quando o repositório devolve um
+    // resultado inesperado.
+    verify(historyRecorder, times(1)).record(any(), eq(AcceptanceStatus.PENDING_ACCEPTANCE.getCode()),
+        eq(AcceptanceStatus.NEGOTIATING.getCode()), eq(AcceptanceStatus.NEGOTIATING.getCode()), any());
+  }
+}

@@ -64,7 +64,10 @@ public class SiadapEvaluationMapper {
         phase,
         acceptanceStatus,
         entity.getLastNegotiationComment(),
-        entity.isSelfEvaluationTacitlyAccepted()
+        entity.isSelfEvaluationTacitlyAccepted(),
+        entity.getAcknowledgementStatus(),
+        entity.getAcknowledgementComment(),
+        entity.getAcknowledgedAt()
     );
   }
 
@@ -92,6 +95,9 @@ public class SiadapEvaluationMapper {
     entity.setCompetenciesWeight(domain.getCompetenciesWeight());
     entity.setMeritRating(domain.getMeritRating() != null ? domain.getMeritRating().getCode() : null);
     entity.setValidatedQuota(domain.isValidatedQuota());
+    entity.setAcknowledgementStatus(domain.getAcknowledgementStatus());
+    entity.setAcknowledgementComment(domain.getAcknowledgementComment());
+    entity.setAcknowledgedAt(domain.getAcknowledgedAt());
 
     // Legacy scores computed on demand/for backwards compatibility if requested
     entity.setObjectivesScore(domain.calculateResultsScore());
@@ -125,6 +131,9 @@ public class SiadapEvaluationMapper {
     dto.setSelfEvaluationScore(e.getSelfEvaluationScore());
     dto.setResultsWeight(e.getResultsWeight());
     dto.setCompetenciesWeight(e.getCompetenciesWeight());
+    dto.setAcknowledgementStatus(e.getAcknowledgementStatus());
+    dto.setAcknowledgementComment(e.getAcknowledgementComment());
+    dto.setAcknowledgedAt(e.getAcknowledgedAt() != null ? e.getAcknowledgedAt().toString() : null);
     return dto;
   }
 

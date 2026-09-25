@@ -56,7 +56,7 @@ public class ListSiadapEvaluationsQueryHandler
         : EvaluationPhase.fromCodeOrThrow(statusParam);
 
     Specification<SiadapEvaluationEntity> spec =
-        SiadapEvaluationSpecifications.byFilters(query.getYear(), query.getOrganicUnitId(), phase);
+        SiadapEvaluationSpecifications.byFilters(query.getYear(), query.getOrganicUnitId(), phase, query.getEvaluatorId());
     Page<SiadapEvaluationEntity> pageResult = repository.findAll(spec, PageRequest.of(page, size));
 
     List<SiadapEvaluationDTO> data = pageResult.getContent().stream()

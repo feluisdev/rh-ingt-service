@@ -35,6 +35,11 @@ public final class SiadapEvaluationSpecifications {
    */
   public static Specification<SiadapEvaluationEntity> byFilters(Integer year, String organicUnitId,
       EvaluationPhase phase) {
+    return byFilters(year, organicUnitId, phase, null);
+  }
+
+  public static Specification<SiadapEvaluationEntity> byFilters(Integer year, String organicUnitId,
+      EvaluationPhase phase, String evaluatorId) {
     return (root, query, cb) -> {
       List<Predicate> predicates = new ArrayList<>();
       if (year != null)
@@ -43,6 +48,8 @@ public final class SiadapEvaluationSpecifications {
         predicates.add(cb.equal(root.get("organicUnitId"), organicUnitId));
       if (phase != null)
         predicates.add(cb.equal(root.get("evaluationPhase"), phase.getCode()));
+      if (evaluatorId != null && !evaluatorId.isBlank())
+        predicates.add(cb.equal(root.get("evaluatorId"), evaluatorId));
       return cb.and(predicates.toArray(new Predicate[0]));
     };
   }

@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.constants.KeyResultMetricUnit;
 import cv.igrp.RH_Service.sigdi.application.dto.KeyResultRequestDTO;
+import cv.igrp.RH_Service.sigdi.application.service.PaaActivityWindowPolicy;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import org.springframework.http.HttpStatus;
@@ -27,11 +28,14 @@ public class CreateKeyResultCommandHandler
 
   private final KeyResultRepository keyResultRepository;
   private final TacticalActivityRepository activityRepository;
+  private final PaaActivityWindowPolicy windowPolicy;
 
   public CreateKeyResultCommandHandler(KeyResultRepository keyResultRepository,
-                                       TacticalActivityRepository activityRepository) {
+                                       TacticalActivityRepository activityRepository,
+                                       PaaActivityWindowPolicy windowPolicy) {
     this.keyResultRepository = keyResultRepository;
     this.activityRepository = activityRepository;
+    this.windowPolicy = windowPolicy;
   }
 
   @IgrpCommandHandler
@@ -48,6 +52,10 @@ public class CreateKeyResultCommandHandler
     TacticalActivityId activityId = TacticalActivityId.from(request.getActivityId());
     TacticalActivity activity = activityRepository.findById(activityId)
         .orElseThrow(() -> IgrpResponseStatusException.badRequest("activityId inválido"));
+
+    // A-132-112 (Fase 136-06): paaLevel vem sempre da atividade carregada acima, nunca do
+    // pedido -- o ato entra por reversão da T-139 pela D-47.
+    windowPolicy.requireOpenFor(activity.getPaaLevel());
 
     KeyResultMetricUnit metricUnit = KeyResultMetricUnit.fromCodeOrThrow(request.getMetricUnit());
 

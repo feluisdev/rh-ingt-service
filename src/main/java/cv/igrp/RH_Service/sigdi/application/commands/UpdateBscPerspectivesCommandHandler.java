@@ -2,12 +2,16 @@ package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.RH_Service.sigdi.application.dto.BscPerspectiveItemDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.BscPerspectivesUpdateResponseDTO;
+import cv.igrp.RH_Service.sigdi.application.dto.IncoherentLinkDTO;
+import cv.igrp.RH_Service.sigdi.application.service.StrategyLinkCoherencePolicy;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.BscPerspectiveConfig;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.BscPerspectiveConfigRepository;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -20,12 +24,39 @@ import org.springframework.transaction.annotation.Transactional;
  * Validates and persists the admin's edits to the 4 fixed BSC perspectives' label and display
  * order in a single call. Rows are always pre-existing (Flyway-seeded by V26) -- there is
  * deliberately no fallback-to-create branch for a missing row, since no operation exposed here
- * ever creates or deletes a row (CONTEXT.md: "sem operação exposta de criar/apagar linha"). This
- * handler never references any strategic-goal repository or aggregate (PERSP-03 isolation).
+ * ever creates or deletes a row (CONTEXT.md: "sem operação exposta de criar/apagar linha").
+ *
+ * <h2>The PERSP-03 isolation, and how far wave 5 of Phase 130 crosses it</h2>
+ *
+ * <p><b>The isolation exists and it was CHOSEN, not forgotten.</b> Until wave 5 this javadoc said
+ * "this handler never references any strategic-goal repository or aggregate (PERSP-03
+ * isolation)", and the constructor took a single repository to match. The reason it was chosen is
+ * that BSC perspectives are CONFIGURATION: a handler that edits configuration and also reaches
+ * into the strategic-goal aggregate would be one change away from correcting goals on the user's
+ * behalf, which is a decision configuration is not entitled to make.
+ *
+ * <p><b>What changed, and by which requirement.</b> FIX-10, finding A-126-05 (Média): the
+ * perspective display order is editable, and the link handler refuses a source whose order is
+ * LOWER than the target's -- so reordering perspectives can leave links that are already stored in
+ * a state the rule in force would no longer allow to be created, with no warning and no check at
+ * all. Silence there is precisely the defect.
+ *
+ * <p><b>How far the crossing goes -- and it goes no further.</b> READING, through
+ * {@link StrategyLinkCoherencePolicy}, and reporting the result in the response. The constructor
+ * still takes NO strategic-goal repository and NO link repository: what it takes is the policy,
+ * and that indirection is what keeps the isolation legible -- this handler still knows of no goal
+ * repository, and what crosses the boundary is one encapsulated read. Nothing is written, nothing
+ * is refused, and the read happens after the save, never before it.
+ *
+ * <p><b>What remains forbidden here, and it is the larger half.</b> This handler does not create,
+ * modify or delete any strategic goal or any link, and it never refuses a perspective update
+ * because of one. Decision 2 of {@code 130-CONTEXT.md}: refusing would put the user in a deadlock
+ * the product explains nowhere, and correcting would put a configuration handler in charge of
+ * deciding about goals. It warns, and it saves.
  */
 @Component
 public class UpdateBscPerspectivesCommandHandler
-    implements CommandHandler<UpdateBscPerspectivesCommand, ResponseEntity<List<BscPerspectiveItemDTO>>> {
+    implements CommandHandler<UpdateBscPerspectivesCommand, ResponseEntity<BscPerspectivesUpdateResponseDTO>> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(UpdateBscPerspectivesCommandHandler.class);
 
@@ -35,13 +66,19 @@ public class UpdateBscPerspectivesCommandHandler
 
   private final BscPerspectiveConfigRepository repository;
 
-  public UpdateBscPerspectivesCommandHandler(BscPerspectiveConfigRepository repository) {
+  // The ONLY collaborator through which this handler sees anything about strategic goals, and it
+  // is a read-only policy rather than a repository. See the PERSP-03 section of the class javadoc.
+  private final StrategyLinkCoherencePolicy coherencePolicy;
+
+  public UpdateBscPerspectivesCommandHandler(BscPerspectiveConfigRepository repository,
+      StrategyLinkCoherencePolicy coherencePolicy) {
     this.repository = repository;
+    this.coherencePolicy = coherencePolicy;
   }
 
   @IgrpCommandHandler
   @Transactional
-  public ResponseEntity<List<BscPerspectiveItemDTO>> handle(UpdateBscPerspectivesCommand command) {
+  public ResponseEntity<BscPerspectivesUpdateResponseDTO> handle(UpdateBscPerspectivesCommand command) {
     LOGGER.debug("UpdateBscPerspectivesCommand: {}", command);
 
     List<BscPerspectiveItemDTO> items = command.getPerspectives();
@@ -102,10 +139,41 @@ public class UpdateBscPerspectivesCommandHandler
     // Sorted by position (73-REVIEW.md WR-04) to honor the same "ordenadas por posição" contract
     // GetBscPerspectivesQueryHandler already promises -- saveAll()'s output order otherwise
     // mirrors the request payload's item order, not displayOrder.
-    List<BscPerspectiveItemDTO> response = repository.saveAll(updated).stream()
+    List<BscPerspectiveItemDTO> saved = repository.saveAll(updated).stream()
         .map(c -> new BscPerspectiveItemDTO(c.getCode(), c.getLabel(), c.getDisplayOrder()))
         .sorted(Comparator.comparing(BscPerspectiveItemDTO::getOrder))
         .toList();
+
+    // THE PERSP-03 CROSSING, AND IT IS A READ. FIX-10 / A-126-05.
+    //
+    // THE ORDER MATTERS AND IT IS NOT INCIDENTAL: this runs AFTER saveAll and never before it.
+    // The question being asked is "what would the rule in force no longer allow to be created,
+    // UNDER THE ORDERS JUST SAVED" -- asking it before the save would answer about the orders the
+    // user is replacing, which is a different question with the same shape, and the reader of the
+    // answer would have no way to tell which one was answered.
+    //
+    // The result is REPORTED. It never becomes a refusal and never becomes a correction: no goal
+    // and no link is written here, by this handler or through this policy, which is itself
+    // read-only by contract (StrategyLinkCoherencePolicyTest#policyNeverWritesToAnyRepositoryPort).
+    //
+    // Optional.empty() means there is no active institutional identity, so nothing could be read.
+    // That is NOT "there is nothing to warn about", and the envelope keeps the two apart --
+    // CoherenceCheck.NOT_EVALUATED_NO_ACTIVE_IDENTITY with a null list, versus EVALUATED with a
+    // list that may legitimately be empty. Rule 5 of CLAUDE.md forbids the indistinguishable
+    // absence, and its corollary forbids presenting an absence as legitimate unless its cause was
+    // discriminated instead of presumed.
+    Optional<List<IncoherentLinkDTO>> report = coherencePolicy.findIncoherentLinksIfIdentityActive();
+
+    BscPerspectivesUpdateResponseDTO response = new BscPerspectivesUpdateResponseDTO();
+    response.setPerspectives(saved);
+    if (report.isPresent()) {
+      response.setCoherenceCheck(BscPerspectivesUpdateResponseDTO.CoherenceCheck.EVALUATED);
+      response.setIncoherentLinks(report.get());
+    } else {
+      response.setCoherenceCheck(
+          BscPerspectivesUpdateResponseDTO.CoherenceCheck.NOT_EVALUATED_NO_ACTIVE_IDENTITY);
+      response.setIncoherentLinks(null);
+    }
 
     return ResponseEntity.ok(response);
   }

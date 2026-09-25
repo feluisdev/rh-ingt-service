@@ -1,14 +1,15 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.RH_Service.sigdi.application.constants.PaaLevel;
-import cv.igrp.RH_Service.sigdi.application.constants.Purpose;
+import cv.igrp.RH_Service.sigdi.application.constants.StrategicGoalsPerspective;
+import cv.igrp.RH_Service.sigdi.application.dto.IncoherentLinkDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.StategicGoalResponseDTO;
 import cv.igrp.RH_Service.sigdi.application.dto.StrategicIndicatorDTO;
+import cv.igrp.RH_Service.sigdi.application.service.StrategicGoalWindowPolicy;
+import cv.igrp.RH_Service.sigdi.application.service.StrategyLinkCoherencePolicy;
 import cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicGoal;
 import cv.igrp.RH_Service.sigdi.domain.strategy.repository.StrategicGoalRepository;
 import cv.igrp.RH_Service.sigdi.domain.strategy.valueobject.StrategicGoalId;
-import cv.igrp.RH_Service.sigdi.domain.tatical.repository.PaaSubmissionPeriodRepository;
 import cv.igrp.RH_Service.sigdi.infrastructure.mappers.strategy.StrategicGoalMapper;
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
@@ -19,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -28,14 +30,17 @@ public class UpdateStrategicGoalsCommandHandler implements CommandHandler<Update
 
   private final StrategicGoalRepository goalRepository;
   private final StrategicGoalMapper goalMapper;
-  private final PaaSubmissionPeriodRepository periodRepository;
+  private final StrategicGoalWindowPolicy windowPolicy;
+  private final StrategyLinkCoherencePolicy coherencePolicy;
 
   public UpdateStrategicGoalsCommandHandler(StrategicGoalRepository goalRepository,
                                             StrategicGoalMapper goalMapper,
-                                            PaaSubmissionPeriodRepository periodRepository) {
+                                            StrategicGoalWindowPolicy windowPolicy,
+                                            StrategyLinkCoherencePolicy coherencePolicy) {
     this.goalRepository = goalRepository;
     this.goalMapper = goalMapper;
-    this.periodRepository = periodRepository;
+    this.windowPolicy = windowPolicy;
+    this.coherencePolicy = coherencePolicy;
   }
 
   @IgrpCommandHandler
@@ -61,11 +66,27 @@ public class UpdateStrategicGoalsCommandHandler implements CommandHandler<Update
       throw IgrpResponseStatusException.badRequest(
           "O ano é obrigatório para a submissão de objetivos estratégicos PAA/BSC.");
     }
-    periodRepository.findActiveByTypeAndYearAndPurpose(
-            PaaLevel.UNIT_LEVEL, effectiveYear, Purpose.PAA_BSC_OBJECTIVES)
-        .orElseThrow(() -> IgrpResponseStatusException.badRequest(
-            "Prazo não configurado para a submissão de objetivos estratégicos PAA/BSC"));
+    // Fase 136-06: critério movido para StrategicGoalWindowPolicy -- deixa de ser consulta em
+    // linha, para não repetir a segunda cópia do mesmo critério.
+    windowPolicy.requireOpenFor(effectiveYear);
 
+    // FIX-01 / A-124-01: the indicator list is decided explicitly here, and the two cases are
+    // NOT the same thing.
+    //   - indicators == null (the "indicators" key is ABSENT from the request body) means
+    //     "do not touch": the goal keeps the indicators it already has, and goal.update()
+    //     receives exactly that list.
+    //   - indicators != null, INCLUDING the empty list, means "replace": [] removes them all.
+    //     That is deliberate and it is not a defect. There is no dedicated indicator endpoint
+    //     in this service, so updating the goal is the only way the product offers to remove
+    //     the last KPI; a guard that ignored [] would make that impossible by any route.
+    //
+    // This guard depends on UpdateStategicGoalDTO leaving the "indicators" field WITHOUT an
+    // initializer. If a regeneration by iGRP Studio restores "= new ArrayList<>()", the
+    // information is destroyed before it reaches this method and no code here can recover it:
+    // every absent key would arrive as an empty list and edit-then-save would wipe the KPIs
+    // again. The half of the fix that survives such a regeneration is therefore not this
+    // "if" but UpdateStategicGoalDtoIndicatorsContractTest, which turns the regression from
+    // silent data loss into a red build.
     java.util.List<cv.igrp.RH_Service.sigdi.domain.strategy.models.StrategicIndicator> domainIndicators = goal.getIndicators();
     if (dto.getIndicators() != null) {
         domainIndicators = dto.getIndicators().stream().map(indDto -> {
@@ -100,9 +121,41 @@ public class UpdateStrategicGoalsCommandHandler implements CommandHandler<Update
         }).collect(java.util.stream.Collectors.toList());
     }
 
-    StrategicGoal updated = goal.update(dto.getTitle(), dto.getDescription(), dto.getWeight(), dto.getYear(), domainIndicators);
+    // FIX-09 / A-124-02: the perspective code is converted ONLY when the caller actually sent one.
+    // A null field means the key was absent from the body, and absent means "keep the perspective
+    // the goal already has" -- exactly the semantics StrategicGoal.update() implements.
+    //
+    // An UNKNOWN code is REFUSED with 400, and that is not a contradiction of decision 2 of
+    // 130-CONTEXT.md. A code that names no perspective is an invalid REQUEST -- there is nothing
+    // to save and nothing to warn about. An incoherence that a legitimate configuration produced
+    // after the fact is a different thing entirely, and that one is warned about below. Confusing
+    // the two would be mixing decision 2 with decision 3.
+    StrategicGoalsPerspective newPerspective = null;
+    if (dto.getPerspective() != null) {
+      newPerspective = StrategicGoalsPerspective.fromCode(dto.getPerspective())
+          .orElseThrow(() -> IgrpResponseStatusException.badRequest(
+              "Perspetiva inválida: " + dto.getPerspective()));
+    }
+
+    StrategicGoal updated = goal.update(dto.getTitle(), dto.getDescription(), dto.getWeight(), dto.getYear(), newPerspective, domainIndicators);
     StrategicGoal saved = goalRepository.save(updated);
 
-    return ResponseEntity.ok(goalMapper.toResponse(saved));
+    StategicGoalResponseDTO response = goalMapper.toResponse(saved);
+
+    // The order matters and it is not incidental: the list is computed AFTER the save, over the
+    // NEW state, because the question being answered is "what would the rule in force no longer
+    // allow to be created NOW". Computing it before would answer about a state that no longer
+    // exists.
+    //
+    // NOTHING here throws. Decision 2 of 130-CONTEXT.md is WARN AND SAVE: refusing would put the
+    // user in a deadlock the product explains nowhere, and saving in silence would deliberately
+    // reintroduce the defect A-126-05 already classified. The field is left null when there is
+    // nothing to warn about, so "no warning" is a state of its own.
+    List<IncoherentLinkDTO> incoherentLinks = coherencePolicy.findIncoherentLinksForGoal(saved.getId());
+    if (incoherentLinks != null && !incoherentLinks.isEmpty()) {
+      response.setIncoherentLinks(incoherentLinks);
+    }
+
+    return ResponseEntity.ok(response);
   }
 }
