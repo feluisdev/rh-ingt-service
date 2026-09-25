@@ -105,6 +105,7 @@
       <a href="#declaracoes">16. Declarações e documentos emitidos</a><br>
       <a href="#ciclo-lista-antiguidade">17. Lista de antiguidade — o ciclo (arts. 71.º–74.º)</a><br>
       <a href="#publicacoes">18. Publicações no Boletim Oficial</a><br>
+      <a href="#cartao-profissional">19. Cartão de identificação profissional</a><br>
       <a href="#invariantes">12. Invariantes transversais</a>
     </div>
   </div>
@@ -790,6 +791,20 @@
     <tr><td class="id">BR-PUB-06</td><td><b>Cancelar</b> um acto a publicar, com motivo (o acto foi anulado, ou publica-se por outra via).</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">PublicacaoOficial.cancelar</td></tr>
   </table>
   <!-- /secao:publicacoes -->
+
+  <!-- secao:cartao-profissional -->
+  <h2 id="cartao-profissional"><span class="n">19.</span>Cartão de identificação profissional</h2>
+  <p>Lei n.º 20/X/2023, art. 25.º: identifica o funcionário no exercício da função, com a categoria e o cargo; disponibilizado pelo serviço, que atesta a entrega; válido enquanto na mesma função e categoria. PDF em formato de cartão (modelo de teste, sem fotografia) no MinIO, série <code>CIP</code>.</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-CID-01</td><td><b>Emitir</b> exige colaborador ao serviço e com Lugar (a categoria e o cargo vão no cartão). Guarda a categoria e a função com que foi emitido.</td><td><span class="http h422">422</span></td><td class="src">CartaoProfissionalService.emitir</td></tr>
+    <tr><td class="id">BR-CID-02</td><td><b>Um cartão em uso de cada vez</b>: emitir um novo anula o anterior («Substituído pelo cartão n.º …») e o documento dele.</td><td>—</td><td class="src">CartaoProfissionalService.emitir</td></tr>
+    <tr><td class="id">BR-CID-03</td><td><b>Entrega atestada</b> (n.º 3): EMITIDO → ENTREGUE, com a data (não antes da emissão); avisa o colaborador na emissão.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">CartaoProfissional.entregar</td></tr>
+    <tr><td class="id">BR-CID-04</td><td><b>Validade</b> (n.º 5), derivada: vale enquanto em uso, com o colaborador ao serviço, na mesma categoria e na mesma função. A ficha diz porquê deixou de valer (<code>motivoInvalidade</code>) — mudar de categoria ou de função pede um cartão novo.</td><td>—</td><td class="src">CartaoProfissional.motivoInvalidade · CartaoProfissionalService.doFuncionario</td></tr>
+    <tr><td class="id">BR-CID-05</td><td><b>Devolver</b> (saída, mudança) ou <b>anular</b> (perda, extravio, com motivo): o documento do cartão fica anulado, e a verificação pública pelo código passa a dizê-lo.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">CartaoProfissional.devolver · anular · CartaoProfissionalService.anular</td></tr>
+    <tr><td class="id">BR-CID-06</td><td><b>Não substitui</b> o documento de identificação civil (n.º 4) — dito no verso. O próprio vê os seus em <code>/me/cartao-profissional</code>.</td><td>—</td><td class="src">GetCartoesProfissionaisQueryHandler</td></tr>
+  </table>
+  <!-- /secao:cartao-profissional -->
 
   <!-- ============ INVARIANTES ============ -->
   <h2 id="invariantes"><span class="n">12.</span>Invariantes transversais</h2>

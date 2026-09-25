@@ -1,0 +1,222 @@
+{
+  "type": "controller",
+  "name": "CartaoProfissional",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh",
+  "description": "Cartão de identificação profissional (Lei n.º 20/X/2023, art. 25.º): emissão em PDF (modelo de teste), entrega atestada, devolução, anulação e validade pela função e categoria",
+  "actions": [
+    {
+      "actionName": "emitirCartaoProfissional",
+      "method": "POST",
+      "path": "funcionarios/{funcionarioId}/cartao-profissional",
+      "summary": "Emitir um cartão novo (o que estiver em uso fica anulado, substituído)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "CartaoProfissionalDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getCartoesProfissionais",
+      "method": "GET",
+      "path": "funcionarios/{funcionarioId}/cartao-profissional",
+      "summary": "Os cartões do colaborador, do mais recente para o mais antigo, cada um com a validade de hoje",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "CartaoProfissionalDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "entregarCartaoProfissional",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/cartao-profissional/{cartaoId}/entregar",
+      "summary": "Registar a entrega do cartão (o colaborador atesta a recepção)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "cartaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CartaoProfissionalRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "CartaoProfissionalDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "devolverCartaoProfissional",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/cartao-profissional/{cartaoId}/devolver",
+      "summary": "Registar a devolução do cartão (saída, mudança de categoria ou de função)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "cartaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CartaoProfissionalRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "CartaoProfissionalDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "anularCartaoProfissional",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/cartao-profissional/{cartaoId}/anular",
+      "summary": "Anular o cartão (perda, extravio), com motivo",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "cartaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CartaoProfissionalRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "CartaoProfissionalDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getMeusCartoesProfissionais",
+      "method": "GET",
+      "path": "me/cartao-profissional",
+      "summary": "Os meus cartões profissionais",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "CartaoProfissionalDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

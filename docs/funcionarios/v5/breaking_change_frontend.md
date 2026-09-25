@@ -903,6 +903,13 @@ deixaram de vir de `application.properties` e passam a vir de um catálogo por v
 - Ficha do colaborador: separador «Publicações» (`GET /funcionarios/{id}/publicacoes`).
 - Notificação nova: `PUBLICACAO_PENDENTE` (recurso `PUBLICACAO_OFICIAL`).
 
+### 11.47 Cartão de identificação profissional (2026-09-25)
+
+**Nada deixa de funcionar**: endpoints novos (guia §20).
+
+- Ficha do colaborador: «Cartão profissional» — emitir, entregar, devolver, anular; mostrar `valido`/`motivoInvalidade`.
+- `/me/cartao-profissional`. Notificação nova: `CARTAO_PROFISSIONAL`.
+
 ## 12. Checklist do alinhamento com a legislação (secção 11)
 
 Por ordem das secções. Cada item remete para o ecrã correspondente em `apresentacao_aplicacao.html`.

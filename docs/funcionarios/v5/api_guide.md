@@ -2100,3 +2100,19 @@ dos actos do RH (admissão, promoção, mudança de carreira, transferência, co
 | PATCH | `/api/v1/rh/publicacoes/{publicacaoId}/cancelar` | Cancelar (`motivo`) |
 | GET | `/api/v1/rh/funcionarios/{funcionarioId}/publicacoes` | Os actos de um colaborador |
 <!-- /secao:publicacoes -->
+
+<!-- secao:cartao-profissional -->
+## 20. Cartão de identificação profissional — `/api/v1/rh/funcionarios/{id}/cartao-profissional`
+
+Lei n.º 20/X/2023, art. 25.º (BR-CID-01..06). PDF em formato de cartão (modelo de teste) no MinIO; descarrega-se pelo `documentoId`
+em `/documentos-emitidos/{id}/link`.
+
+| Método | Caminho | O quê |
+|---|---|---|
+| POST | `/api/v1/rh/funcionarios/{funcionarioId}/cartao-profissional` | Emitir (substitui e anula o que estiver em uso) |
+| GET | `/api/v1/rh/funcionarios/{funcionarioId}/cartao-profissional` | Os cartões, cada um com `valido` e `motivoInvalidade` |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/cartao-profissional/{cartaoId}/entregar` | `data` da entrega (recepção atestada) |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/cartao-profissional/{cartaoId}/devolver` | `data` da devolução |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/cartao-profissional/{cartaoId}/anular` | `motivo` |
+| GET | `/api/v1/rh/me/cartao-profissional` | Os meus cartões |
+<!-- /secao:cartao-profissional -->
