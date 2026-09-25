@@ -1184,7 +1184,7 @@ registo diário (§6.8) com o horário vigente de cada dia (§6.7) e os pedidos 
 | `COM_FALTA` · `SEM_FALTA` | dia de trabalho apurado |
 | `POR_CORRIGIR` | as marcações têm anomalias (§6.8): não se apura sem as corrigir |
 | `FUTURO` | hoje ou depois — o dia não acabou |
-| `FORA_DO_VINCULO` · `ISENTO` · `FERIADO` · `AUSENCIA_JUSTIFICADA` · `LICENCA` · `MOBILIDADE_EXTERNA` · `SEM_HORARIO` · `DESCANSO` | não se apura |
+| `FORA_DO_VINCULO` · `ISENTO` · `FERIADO` · `AUSENCIA_JUSTIFICADA` · `LICENCA` · `MOBILIDADE_EXTERNA` · `MISSAO_SERVICO` · `FORMACAO` · `SUSPENSAO_DISCIPLINAR` · `ACIDENTE_SERVICO` · `SEM_HORARIO` · `DESCANSO` | não se apura |
 
 - `motivo`: `SEM_REGISTO` (nenhuma marcação — dia inteiro), `INCOMPLETO` (horário fixo: blocos não
   cobertos — atrasos, saídas antecipadas), `PLATAFORMA` (horário flexível: plataformas fixas não cobertas).
@@ -1931,7 +1931,7 @@ Os que estão marcados **validado** são enums fechados no domínio: um valor fo
 | `origem` (horário vigente) | `COLABORADOR`, `UNIDADE`, `BASE`, `NENHUM` | |
 | `sentido` · `origem` · `estado` (marcação) | `ENTRADA`, `SAIDA` · `MANUAL`, `IMPORTADO`, `PROPRIO` · `VALIDA`, `PENDENTE`, `REJEITADA` | **validado** |
 | `anomalias` (dia) | `ENTRADA_SEM_SAIDA`, `SAIDA_SEM_ENTRADA`, `ENTRADAS_SEGUIDAS` | |
-| `estado` · `motivo` (dia apurado) | `COM_FALTA`, `SEM_FALTA`, `POR_CORRIGIR`, `POR_VALIDAR`, `FUTURO`, `FORA_DO_VINCULO`, `ISENTO`, `FERIADO`, `AUSENCIA_JUSTIFICADA`, `LICENCA`, `MOBILIDADE_EXTERNA`, `SEM_HORARIO`, `DESCANSO` · `SEM_REGISTO`, `INCOMPLETO`, `PLATAFORMA` | |
+| `estado` · `motivo` (dia apurado) | `COM_FALTA`, `SEM_FALTA`, `POR_CORRIGIR`, `POR_VALIDAR`, `FUTURO`, `FORA_DO_VINCULO`, `ISENTO`, `FERIADO`, `AUSENCIA_JUSTIFICADA`, `LICENCA`, `MOBILIDADE_EXTERNA`, `MISSAO_SERVICO`, `FORMACAO`, `SUSPENSAO_DISCIPLINAR`, `ACIDENTE_SERVICO`, `SEM_HORARIO`, `DESCANSO` · `SEM_REGISTO`, `INCOMPLETO`, `PLATAFORMA` | |
 | `estado` · `tipoDia` (trabalho suplementar) | `PEDIDO`, `AUTORIZADO`, `RECUSADO`, `CANCELADO` · `DIA_UTIL`, `DESCANSO`, `FERIADO` | |
 | `estado` (linha da relação mensal) | `COMPLETA`, `COM_PENDENCIAS` | |
 | `estado` (chefe / responsável) | `PROVIDO`, `CHEFIA_VAGA`, `SEM_CHEFIA_DEFINIDA` | |

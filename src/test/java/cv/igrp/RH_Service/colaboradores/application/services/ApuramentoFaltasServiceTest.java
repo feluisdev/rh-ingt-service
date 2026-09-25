@@ -58,6 +58,7 @@ class ApuramentoFaltasServiceTest {
     @Mock private CalendarioFeriadosService calendarioFeriadosService;
     @Mock private HorarioColaboradorService horarioColaboradorService;
     @Mock private TrabalhoSuplementarService trabalhoSuplementarService;
+    @Mock private org.springframework.beans.factory.ObjectProvider<DiasEspeciaisProvider> especiais;
 
     private ApuramentoFaltasService service;
     private final FuncionarioId funcionario = FuncionarioId.gerarNovo();
@@ -66,7 +67,7 @@ class ApuramentoFaltasServiceTest {
     void base() {
         service = new ApuramentoFaltasService(funcionarioRepository, contratoRepository, marcacaoRepository,
                 pedidoAusenciaRepository, licencaRepository, mobilidadeService, calendarioFeriadosService,
-                horarioColaboradorService, trabalhoSuplementarService) {
+                horarioColaboradorService, trabalhoSuplementarService, especiais) {
             @Override LocalDate hoje() { return LocalDate.of(2026, 9, 21); }
         };
         var pessoa = mock(Funcionario.class);
@@ -81,6 +82,19 @@ class ApuramentoFaltasServiceTest {
                 .map(d -> new BlocoHorario(d, LocalTime.of(8, 0), LocalTime.of(16, 0), true)).toList());
         when(horarioColaboradorService.vigente(eq(funcionario), any()))
                 .thenReturn(new Vigente(Origem.BASE, horario, RegimePrestacao.PRESENCIAL, null));
+    }
+
+    @Test
+    void diaCobertoPorOutroProcessoNaoEFalta() {
+        // BR-FAL-09: missao, formacao, suspensao ou acidente tiram o dia do apuramento
+        DiasEspeciaisProvider missao = (f, de, ate) -> java.util.Map.of(LocalDate.of(2026, 9, 8), EstadoDiaApurado.MISSAO_SERVICO);
+        DiasEspeciaisProvider acidente = (f, de, ate) -> java.util.Map.of(LocalDate.of(2026, 9, 8), EstadoDiaApurado.ACIDENTE_SERVICO,
+                LocalDate.of(2026, 9, 9), EstadoDiaApurado.ACIDENTE_SERVICO);
+        when(especiais.orderedStream()).thenAnswer(i -> java.util.stream.Stream.of(missao, acidente));
+        var a = service.apurar(funcionario, SETEMBRO);
+        assertEquals(EstadoDiaApurado.MISSAO_SERVICO, estado(a, 8));      // a primeira razao fica
+        assertEquals(EstadoDiaApurado.ACIDENTE_SERVICO, estado(a, 9));
+        assertEquals(EstadoDiaApurado.COM_FALTA, estado(a, 10));
     }
 
     private EstadoDiaApurado estado(ApuramentoFaltasService.Apuramento a, int dia) {

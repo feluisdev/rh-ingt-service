@@ -54,6 +54,8 @@ public class ApuramentoFaltasService {
     private final CalendarioFeriadosService calendarioFeriadosService;
     private final HorarioColaboradorService horarioColaboradorService;
     private final TrabalhoSuplementarService trabalhoSuplementarService;
+    /** As outras razões para um dia não se apurar (missão, formação, suspensão, acidente). BR-FAL-09. */
+    private final org.springframework.beans.factory.ObjectProvider<DiasEspeciaisProvider> diasEspeciaisProviders;
 
     @Transactional(readOnly = true)
     public Apuramento apurar(FuncionarioId funcionarioId, YearMonth mes) {
@@ -77,6 +79,7 @@ public class ApuramentoFaltasService {
         Map<LocalDate, List<DiaAssiduidade.Periodo>> horasJustificadas = horasJustificadas(
                 aprovados.stream().filter(PedidoAusencia::isEmHoras).toList(), de, ate);
         Map<LocalDate, List<DiaAssiduidade.Periodo>> suplementares = trabalhoSuplementarService.autorizadosPorDia(funcionarioId, de, ate);
+        Map<LocalDate, EstadoDiaApurado> especiais = diasEspeciais(funcionarioId, de, ate);
 
         List<ApuramentoFaltas.Dia> dias = new ArrayList<>();
         for (LocalDate d = de; !d.isAfter(ate); d = d.plusDays(1)) {
@@ -86,7 +89,7 @@ public class ApuramentoFaltasService {
             boolean temValidas = doDia.stream().anyMatch(MarcacaoAssiduidade::conta);
 
             EstadoDiaApurado previo = fimDoVinculo != null && data.isAfter(fimDoVinculo) ? EstadoDiaApurado.FORA_DO_VINCULO
-                    : estadoPrevio(funcionarioId, funcionario, data, hoje, isento, feriados, justificados);
+                    : estadoPrevio(funcionarioId, funcionario, data, hoje, isento, feriados, justificados, especiais);
             // Um dia com correcções por decidir não se apura: o que conta ainda não está assente.
             if (previo == null && doDia.stream().anyMatch(MarcacaoAssiduidade::isPendente))
                 previo = EstadoDiaApurado.POR_VALIDAR;
@@ -111,7 +114,7 @@ public class ApuramentoFaltasService {
 
     private EstadoDiaApurado estadoPrevio(FuncionarioId funcionarioId, Funcionario funcionario, LocalDate data,
                                           LocalDate hoje, boolean isento, Set<LocalDate> feriados,
-                                          Set<LocalDate> justificados) {
+                                          Set<LocalDate> justificados, Map<LocalDate, EstadoDiaApurado> especiais) {
         // O dia de hoje ainda não acabou.
         if (!data.isBefore(hoje)) return EstadoDiaApurado.FUTURO;
         if (funcionario.getDataAdmissao() != null && data.isBefore(funcionario.getDataAdmissao()))
@@ -119,6 +122,8 @@ public class ApuramentoFaltasService {
         if (isento) return EstadoDiaApurado.ISENTO;
         if (feriados.contains(data)) return EstadoDiaApurado.FERIADO;
         if (justificados.contains(data)) return EstadoDiaApurado.AUSENCIA_JUSTIFICADA;
+        EstadoDiaApurado especial = especiais.get(data);
+        if (especial != null) return especial;
         for (LicencaMobilidade l : licencaRepository.findActiveByFuncionarioIdAt(funcionarioId, data)) {
             boolean mobilidade = mobilidadeService.subtipoSeExistir(l).map(SubtipoLicencaMobilidade::isMobilidade).orElse(false);
             if (!mobilidade) return EstadoDiaApurado.LICENCA;
@@ -126,6 +131,18 @@ public class ApuramentoFaltasService {
             if (!l.isDestinoInterno()) return EstadoDiaApurado.MOBILIDADE_EXTERNA;
         }
         return null;
+    }
+
+    /**
+     * Os dias que outros processos tiram do apuramento (BR-FAL-09). Se duas razões cobrirem o mesmo dia,
+     * fica a primeira (a ordem dos beans); todas dizem o mesmo — o dia não é falta.
+     */
+    private Map<LocalDate, EstadoDiaApurado> diasEspeciais(FuncionarioId funcionarioId, LocalDate de, LocalDate ate) {
+        Map<LocalDate, EstadoDiaApurado> dias = new HashMap<>();
+        if (diasEspeciaisProviders == null) return dias;
+        diasEspeciaisProviders.orderedStream()
+                .forEach(p -> p.dias(funcionarioId, de, ate).forEach(dias::putIfAbsent));
+        return dias;
     }
 
     /** Os dias do mês cobertos por pedidos de dias inteiros aprovados; um pedido suspenso deixa de cobrir desde a suspensão. */
