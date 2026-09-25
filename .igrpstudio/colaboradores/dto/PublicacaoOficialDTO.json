@@ -1,0 +1,98 @@
+{
+  "type": "dto",
+  "name": "PublicacaoOficial",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "tipoActo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "meio",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "nome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "referenciaTipo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "referenciaId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "sumario",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataActo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "extractoId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "serie",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "numero",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataPublicacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivoCancelamento",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

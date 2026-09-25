@@ -2084,3 +2084,19 @@ congela-a e segue o ciclo: `APROVADA` → `AFIXADA` → `DEFINITIVA` → `PUBLIC
 notificada em 30 dias (aviso se passar); recurso 20 dias depois da decisão. **Fundamentos:** `OMISSAO` (o único de quem não consta),
 `GRADUACAO`, `SITUACAO`, `CONTAGEM`. As respostas das decisões e da publicação trazem `alertas` quando um prazo da lei foi ultrapassado.
 <!-- /secao:lista-antiguidade-ciclo -->
+
+<!-- secao:publicacoes -->
+## 19. Publicações no Boletim Oficial — `/api/v1/rh/publicacoes`
+
+Lei n.º 20/X/2023, arts. 89.º–90.º (BR-PUB-01..06). A caixa do RH com os actos a publicar: os previstos na lei **nascem sozinhos**
+dos actos do RH (admissão, promoção, mudança de carreira, transferência, consolidação, comissão, cessação); os outros criam-se à mão.
+
+| Método | Caminho | O quê |
+|---|---|---|
+| GET | `/api/v1/rh/publicacoes?estado=A_PUBLICAR` | Os actos (por estado; por omissão, todos) |
+| POST | `/api/v1/rh/publicacoes` | Criar à mão (`tipoActo`, `meio`, `funcionarioId`, `sumario`, `dataActo`) |
+| POST | `/api/v1/rh/publicacoes/{publicacaoId}/extracto` | Gerar o extracto em PDF (fica em `extractoId`; descarrega-se por `/documentos-emitidos/{id}/link`) |
+| PATCH | `/api/v1/rh/publicacoes/{publicacaoId}/publicada` | Registar a publicação (`serie`, `numero`, `dataPublicacao`) |
+| PATCH | `/api/v1/rh/publicacoes/{publicacaoId}/cancelar` | Cancelar (`motivo`) |
+| GET | `/api/v1/rh/funcionarios/{funcionarioId}/publicacoes` | Os actos de um colaborador |
+<!-- /secao:publicacoes -->

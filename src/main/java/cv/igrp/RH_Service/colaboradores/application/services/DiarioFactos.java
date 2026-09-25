@@ -31,13 +31,20 @@ public class DiarioFactos {
 
     private final FactoRhRepository repository;
     private final CompetenciaSalarial competenciaSalarial;
+    /** Quem reage a um facto na mesma transacção (ex.: os actos sujeitos a publicação, BR-PUB-02). */
+    private final org.springframework.context.ApplicationEventPublisher eventos;
+
+    /** Um facto acabou de ser registado. */
+    public record FactoRegistado(FactoRh facto) {}
 
     @Transactional
     public FactoRh registar(FuncionarioId funcionarioId, TipoFactoRh tipo, LocalDate dataEfeito,
                             String referenciaTipo, Object referenciaId, String descricao, Map<String, ?> dados) {
-        return repository.save(FactoRh.registar(funcionarioId, tipo, dataEfeito,
+        FactoRh facto = repository.save(FactoRh.registar(funcionarioId, tipo, dataEfeito,
                 competenciaSalarial.competencia(dataEfeito), referenciaTipo,
                 referenciaId != null ? referenciaId.toString() : null, descricao, dados, agora()));
+        if (facto != null) eventos.publishEvent(new FactoRegistado(facto));
+        return facto;
     }
 
     /** Um movimento que abre uma afectação: o Lugar, o escalão, a função e a origem vão nos dados. */

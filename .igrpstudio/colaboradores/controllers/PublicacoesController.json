@@ -1,0 +1,211 @@
+{
+  "type": "controller",
+  "name": "Publicacoes",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh",
+  "description": "Actos a publicar no Boletim Oficial ou na página electrónica (Lei n.º 20/X/2023, arts. 89.º–90.º): nascem dos actos do RH, extracto em PDF e registo da publicação",
+  "actions": [
+    {
+      "actionName": "getPublicacoes",
+      "method": "GET",
+      "path": "publicacoes",
+      "summary": "Os actos a publicar, por estado (por omissão, todos), dos mais antigos para os mais recentes",
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "estado",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PublicacaoOficialDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "criarPublicacao",
+      "method": "POST",
+      "path": "publicacoes",
+      "summary": "Criar à mão um acto a publicar (os previstos na lei nascem sozinhos dos actos do RH)",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "PublicacaoOficialRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PublicacaoOficialDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "gerarExtractoPublicacao",
+      "method": "POST",
+      "path": "publicacoes/{publicacaoId}/extracto",
+      "summary": "Gerar o extracto do acto (PDF numerado no MinIO, modelo de teste)",
+      "pathVariables": [
+        {
+          "name": "publicacaoId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PublicacaoOficialDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "registarPublicacao",
+      "method": "PATCH",
+      "path": "publicacoes/{publicacaoId}/publicada",
+      "summary": "Registar a publicação: série, número e data do Boletim Oficial",
+      "pathVariables": [
+        {
+          "name": "publicacaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "PublicacaoOficialRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PublicacaoOficialDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "cancelarPublicacao",
+      "method": "PATCH",
+      "path": "publicacoes/{publicacaoId}/cancelar",
+      "summary": "Cancelar um acto a publicar, com motivo",
+      "pathVariables": [
+        {
+          "name": "publicacaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "PublicacaoOficialRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PublicacaoOficialDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getPublicacoesDoFuncionario",
+      "method": "GET",
+      "path": "funcionarios/{funcionarioId}/publicacoes",
+      "summary": "Os actos publicados (ou a publicar) de um colaborador",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PublicacaoOficialDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<!--
+  Extracto para publicacao no Boletim Oficial (Lei n.o 20/X/2023, art. 89.o): MODELO DE TESTE.
+  Regras (openhtmltopdf): XHTML bem formado e CSS 2.1 simples, sem flexbox, grid, variaveis CSS nem fontes da web.
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <title th:text="${titulo}">Extracto</title>
+  <style>
+    @page { size: A4; margin: 25mm 22mm 25mm 22mm; }
+    body { font-family: serif; font-size: 11.5pt; color: #000000; line-height: 1.45; }
+    .cabecalho { text-align: center; border-bottom: 1px solid #000000; padding-bottom: 6pt; margin-bottom: 16pt; }
+    .instituicao { font-size: 13pt; font-weight: bold; text-transform: uppercase; }
+    .teste { font-size: 8pt; color: #7a0000; }
+    h1 { font-size: 14pt; text-align: center; margin: 10pt 0 14pt 0; }
+    p.sumario { text-align: justify; margin: 0 0 12pt 0; }
+    table.dados { width: 100%; border-collapse: collapse; margin: 6pt 0 14pt 0; }
+    table.dados td { border: 1px solid #999999; padding: 4pt 6pt; }
+    table.rodape { width: 100%; margin-top: 30pt; border-top: 1px solid #999999; font-size: 8pt; color: #333333; }
+    table.rodape td { padding-top: 4pt; vertical-align: top; }
+  </style>
+</head>
+<body>
+  <div class="cabecalho">
+    <div class="instituicao" th:text="${instituicao}">Instituição</div>
+    <div>Serviço de Recursos Humanos</div>
+    <div class="teste">Modelo de teste — sem valor oficial até ser aprovado o modelo da instituição</div>
+  </div>
+
+  <h1 th:text="'EXTRACTO — ' + ${#strings.toUpperCase(tipoActo)}">EXTRACTO</h1>
+
+  <p class="sumario" th:text="${sumario} + ', com efeitos a ' + ${dataActo} + '.'">Sumário.</p>
+
+  <table class="dados" th:if="${!#lists.isEmpty(linhas)}">
+    <tr th:each="linha : ${linhas}"><td th:text="${linha}">Dado</td></tr>
+  </table>
+
+  <p class="sumario" th:text="'Serviço de Recursos Humanos, ' + ${dataEmissao} + '.'">Data.</p>
+
+  <table class="rodape">
+    <tr>
+      <td th:text="'N.º ' + ${numero}">N.º</td>
+      <td style="text-align: right;" th:text="'Código de verificação: ' + ${codigo}">Código</td>
+    </tr>
+  </table>
+</body>
+</html>

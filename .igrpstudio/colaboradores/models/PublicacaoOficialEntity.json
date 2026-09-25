@@ -1,0 +1,126 @@
+{
+  "type": "model",
+  "module": "colaboradores",
+  "name": "PublicacaoOficialEntity",
+  "tableName": "t_publicacao_oficial",
+  "audit": true,
+  "crud": false,
+  "revision": true,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": true,
+      "nullable": false
+    },
+    {
+      "name": "tipoActo",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 30
+    },
+    {
+      "name": "meio",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 20
+    },
+    {
+      "name": "funcionario",
+      "type": "relation",
+      "relation": {
+        "type": "ManyToOne",
+        "entity": "FuncionarioEntity",
+        "fetchType": "lazy",
+        "joinColumn": "funcionario_id",
+        "module": "colaboradores"
+      }
+    },
+    {
+      "name": "referenciaTipo",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true,
+      "length": 40
+    },
+    {
+      "name": "referenciaId",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true,
+      "length": 60
+    },
+    {
+      "name": "sumario",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 2000
+    },
+    {
+      "name": "dataActo",
+      "type": "date",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "estado",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 20
+    },
+    {
+      "name": "extracto",
+      "type": "relation",
+      "relation": {
+        "type": "ManyToOne",
+        "entity": "DocumentoEmitidoEntity",
+        "fetchType": "lazy",
+        "joinColumn": "extracto_id",
+        "module": "colaboradores"
+      }
+    },
+    {
+      "name": "serie",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true,
+      "length": 20
+    },
+    {
+      "name": "numero",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true,
+      "length": 50
+    },
+    {
+      "name": "dataPublicacao",
+      "type": "date",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    },
+    {
+      "name": "motivoCancelamento",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true,
+      "length": 500
+    }
+  ]
+}

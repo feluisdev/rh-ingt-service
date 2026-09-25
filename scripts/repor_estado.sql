@@ -34,6 +34,9 @@ BEGIN
   IF to_regclass('public.t_prorrogacao_permanencia') IS NOT NULL THEN
     DELETE FROM t_prorrogacao_permanencia WHERE funcionario_id = ANY(extras);
   END IF;
+  IF to_regclass('public.t_publicacao_oficial') IS NOT NULL THEN
+    DELETE FROM t_publicacao_oficial WHERE funcionario_id = ANY(extras);
+  END IF;
   IF to_regclass('public.t_pedido_declaracao') IS NOT NULL THEN
     DELETE FROM t_pedido_declaracao WHERE funcionario_id = ANY(extras);
   END IF;
@@ -224,6 +227,9 @@ DO $$ BEGIN
   END IF;
   IF to_regclass('public.t_prorrogacao_permanencia') IS NOT NULL THEN
     DELETE FROM t_prorrogacao_permanencia;
+  END IF;
+  IF to_regclass('public.t_publicacao_oficial') IS NOT NULL THEN
+    DELETE FROM t_publicacao_oficial;
   END IF;
   IF to_regclass('public.t_pedido_declaracao') IS NOT NULL THEN
     DELETE FROM t_pedido_declaracao;

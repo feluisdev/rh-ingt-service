@@ -895,6 +895,14 @@ deixaram de vir de `application.properties` e passam a vir de um catálogo por v
 - `/me`: «A minha antiguidade» (`GET /me/listas-antiguidade`) e reclamar (`POST /me/listas-antiguidade/{id}/reclamacoes`).
 - Notificações novas: `LISTA_ANTIGUIDADE_AFIXADA`, `RECLAMACAO_ANTIGUIDADE` (recurso `LISTA_ANTIGUIDADE`).
 
+### 11.46 Publicações no Boletim Oficial (2026-09-25)
+
+**Nada deixa de funcionar**: endpoints novos (guia §19).
+
+- Ecrã «Publicações» (caixa do RH): `GET /publicacoes?estado=A_PUBLICAR`, gerar extracto, registar a publicação, cancelar.
+- Ficha do colaborador: separador «Publicações» (`GET /funcionarios/{id}/publicacoes`).
+- Notificação nova: `PUBLICACAO_PENDENTE` (recurso `PUBLICACAO_OFICIAL`).
+
 ## 12. Checklist do alinhamento com a legislação (secção 11)
 
 Por ordem das secções. Cada item remete para o ecrã correspondente em `apresentacao_aplicacao.html`.

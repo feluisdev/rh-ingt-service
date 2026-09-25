@@ -35,7 +35,7 @@ class DiarioFactosTest {
 
     @BeforeEach
     void setUp() {
-        diario = new DiarioFactos(repository, new CompetenciaSalarial());
+        diario = new DiarioFactos(repository, new CompetenciaSalarial(), org.mockito.Mockito.mock(org.springframework.context.ApplicationEventPublisher.class));
     }
 
     @Test
