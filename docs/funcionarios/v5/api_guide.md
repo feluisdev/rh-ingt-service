@@ -2288,3 +2288,27 @@ recebem inscrições, avaliam os formandos e, concluídas, põem os aproveitamen
 | PATCH | `/api/v1/rh/me/formacao/accoes/{accaoId}/inscricoes/{inscricaoId}/recusar` | A chefia recusa (`motivo`) |
 | POST | `/api/v1/rh/me/formacao/planos/{planoId}/necessidades` | Necessidade minha ou da equipa |
 <!-- /secao:formacao -->
+
+<!-- secao:missao-servico -->
+## 27. Missões de serviço — `/api/v1/rh/missoes-servico`
+
+Lei n.º 20/X/2023, art. 159.º (BR-MSS-01..10). Os dias de ajudas de custo (`diasAjudasCusto`) seguem para o salarial no diário
+de factos; os valores são das tabelas do diploma de desenvolvimento, fora desta API.
+
+| Método | Caminho | O quê |
+|---|---|---|
+| GET | `/api/v1/rh/missoes-servico` | Missões (`estado`, `funcionarioId`) |
+| POST | `/api/v1/rh/missoes-servico` | Registar (`participantes`, `destinoTipo`, `destino`, `objectivo`, `partida`, `regresso`, `transporte`, `alojamentoACargo`, `adiantamento`) |
+| GET | `/api/v1/rh/missoes-servico/{missaoId}` | A missão, com alertas |
+| PATCH | `/api/v1/rh/missoes-servico/{missaoId}/autorizar` | Autorizar (`despacho`) |
+| PATCH | `/api/v1/rh/missoes-servico/{missaoId}/recusar` | Recusar (`motivo`) |
+| PATCH | `/api/v1/rh/missoes-servico/{missaoId}/regresso` | Regresso (`relatorio`, `partida`/`regresso` reais) |
+| PATCH | `/api/v1/rh/missoes-servico/{missaoId}/cancelar` | Cancelar (`motivo`) |
+| GET | `/api/v1/rh/me/missoes-servico` | As minhas e as pedidas da minha equipa |
+| POST | `/api/v1/rh/me/missoes-servico` | Pedir (para mim ou para a equipa) |
+| PATCH | `/api/v1/rh/me/missoes-servico/{missaoId}/autorizar` | A chefia autoriza |
+| PATCH | `/api/v1/rh/me/missoes-servico/{missaoId}/recusar` | A chefia recusa |
+| PATCH | `/api/v1/rh/me/missoes-servico/{missaoId}/regresso` | Um participante regista o regresso |
+
+`partida` e `regresso` são data e hora (`2026-10-05T08:00:00`).
+<!-- /secao:missao-servico -->

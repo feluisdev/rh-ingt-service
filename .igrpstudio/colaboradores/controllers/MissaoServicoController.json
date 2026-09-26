@@ -1,0 +1,450 @@
+{
+  "type": "controller",
+  "name": "MissaoServico",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh",
+  "description": "Missões de serviço (Lei n.º 20/X/2023, art. 159.º): pedido, autorização, regresso com relatório e dias de ajudas de custo para o salarial",
+  "actions": [
+    {
+      "actionName": "getMissoesServico",
+      "method": "GET",
+      "path": "missoes-servico",
+      "summary": "As missões de serviço (filtros: estado, participante)",
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "estado",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "funcionarioId",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "MissaoServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getMissaoServico",
+      "method": "GET",
+      "path": "missoes-servico/{missaoId}",
+      "summary": "Uma missão de serviço, com os alertas (sobreposição com férias ou ausências)",
+      "pathVariables": [
+        {
+          "name": "missaoId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "MissaoServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getMinhasMissoesServico",
+      "method": "GET",
+      "path": "me/missoes-servico",
+      "summary": "As minhas missões e as pedidas da minha equipa directa",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "MissaoServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "registarMissaoServico",
+      "method": "POST",
+      "path": "missoes-servico",
+      "summary": "Registar uma missão de serviço (pelo RH), de um ou mais participantes",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "MissaoServicoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "MissaoServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "autorizarMissaoServico",
+      "method": "PATCH",
+      "path": "missoes-servico/{missaoId}/autorizar",
+      "summary": "Autorizar (despacho): os dias de ajudas de custo vão ao diário de factos",
+      "pathVariables": [
+        {
+          "name": "missaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "MissaoServicoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "MissaoServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "recusarMissaoServico",
+      "method": "PATCH",
+      "path": "missoes-servico/{missaoId}/recusar",
+      "summary": "Recusar, com motivo",
+      "pathVariables": [
+        {
+          "name": "missaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "MissaoServicoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "MissaoServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "regressoMissaoServico",
+      "method": "PATCH",
+      "path": "missoes-servico/{missaoId}/regresso",
+      "summary": "Registar o regresso: relatório e horas reais (os dias acertam-se)",
+      "pathVariables": [
+        {
+          "name": "missaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "MissaoServicoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "MissaoServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "cancelarMissaoServico",
+      "method": "PATCH",
+      "path": "missoes-servico/{missaoId}/cancelar",
+      "summary": "Cancelar, com motivo",
+      "pathVariables": [
+        {
+          "name": "missaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "MissaoServicoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "MissaoServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "pedirMinhaMissaoServico",
+      "method": "POST",
+      "path": "me/missoes-servico",
+      "summary": "Pedir uma missão para mim ou para a minha equipa directa",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "MissaoServicoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "MissaoServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "autorizarMinhaEquipaMissaoServico",
+      "method": "PATCH",
+      "path": "me/missoes-servico/{missaoId}/autorizar",
+      "summary": "A chefia directa de todos os participantes autoriza",
+      "pathVariables": [
+        {
+          "name": "missaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "MissaoServicoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "MissaoServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "recusarMinhaEquipaMissaoServico",
+      "method": "PATCH",
+      "path": "me/missoes-servico/{missaoId}/recusar",
+      "summary": "A chefia directa de todos os participantes recusa",
+      "pathVariables": [
+        {
+          "name": "missaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "MissaoServicoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "MissaoServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "regressoMinhaMissaoServico",
+      "method": "PATCH",
+      "path": "me/missoes-servico/{missaoId}/regresso",
+      "summary": "Um participante regista o relatório de regresso",
+      "pathVariables": [
+        {
+          "name": "missaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "MissaoServicoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "MissaoServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

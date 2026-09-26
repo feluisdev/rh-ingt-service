@@ -1,0 +1,81 @@
+{
+  "type": "dto",
+  "name": "MissaoServicoRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "participantes",
+      "objectType": "java",
+      "collectionType": "list",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "destinoTipo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "destino",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "objectivo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "datetime",
+      "name": "partida",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "datetime",
+      "name": "regresso",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "transporte",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "alojamentoACargo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "adiantamento",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "despacho",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "relatorio",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

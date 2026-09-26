@@ -1,0 +1,123 @@
+{
+  "type": "model",
+  "module": "colaboradores",
+  "name": "MissaoServicoEntity",
+  "tableName": "t_missao_servico",
+  "audit": true,
+  "crud": false,
+  "revision": true,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": true,
+      "nullable": false
+    },
+    {
+      "name": "destinoTipo",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 15
+    },
+    {
+      "name": "destino",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 200
+    },
+    {
+      "name": "objectivo",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 1000
+    },
+    {
+      "name": "partida",
+      "type": "datetime",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "regresso",
+      "type": "datetime",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "transporte",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 20
+    },
+    {
+      "name": "alojamentoACargo",
+      "type": "boolean",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "adiantamento",
+      "type": "boolean",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "estado",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 15
+    },
+    {
+      "name": "pedidoPor",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    },
+    {
+      "name": "despacho",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true,
+      "length": 200
+    },
+    {
+      "name": "motivo",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true,
+      "length": 500
+    },
+    {
+      "name": "relatorio",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    },
+    {
+      "name": "dataRelatorio",
+      "type": "date",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    }
+  ]
+}

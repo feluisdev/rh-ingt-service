@@ -304,6 +304,13 @@ DO $$ BEGIN
     DELETE FROM t_plano_formacao;
   END IF;
   DELETE FROM t_training WHERE training_type = 'ACCAO_FORMACAO';
+  -- Missoes de servico.
+  IF to_regclass('public.t_missao_servico_participante') IS NOT NULL THEN
+    DELETE FROM t_missao_servico_participante;
+  END IF;
+  IF to_regclass('public.t_missao_servico') IS NOT NULL THEN
+    DELETE FROM t_missao_servico;
+  END IF;
   -- Checklists de entrada e saida (o modelo, catalogo, fica).
   IF to_regclass('public.t_checklist_item') IS NOT NULL THEN
     DELETE FROM t_checklist_item;

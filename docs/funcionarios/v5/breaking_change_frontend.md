@@ -969,6 +969,14 @@ pelo `PUT` a pena ou as datas dá 409 (o número, o BO e as notas continuam livr
 - `/me/formacao`: acções abertas para pedir inscrição; a chefia inscreve e decide a sua equipa; necessidades próprias ou da equipa.
 - Notificação: `FORMACAO`.
 
+### 11.55 Missões de serviço (2026-09-26)
+
+**Nada deixa de funcionar**: endpoints novos (guia §27).
+
+- Menu RH «Missões de serviço»: registar, autorizar/recusar, regresso com relatório, cancelar; os dias de ajudas de custo à vista.
+- `/me/missoes-servico`: pedir (próprio ou equipa), a chefia decide, o participante regista o regresso.
+- Notificação: `MISSAO_SERVICO`.
+
 ## 12. Checklist do alinhamento com a legislação (secção 11)
 
 Por ordem das secções. Cada item remete para o ecrã correspondente em `apresentacao_aplicacao.html`.
