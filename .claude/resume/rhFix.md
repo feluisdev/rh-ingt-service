@@ -1,4 +1,4 @@
-> Updated: 2026-09-24 16:00 (-01:00) — plano de fecho concluído (ponto 4, dados de demonstração)
+> Updated: 2026-09-26 16:00 (-01:00) — frentes RH (plano_frentes_rh.md) concluídas: F0.1 a F5.1
 
 ## Goal
 
@@ -8,6 +8,50 @@ O que a lei fixa vive em código (enum); o que varia com a instituição, ou com
 em tabela editável pela API. Um ponto por commit. A aplicação vai ser apresentada ao cliente; ficam
 fora o processamento salarial (outra aplicação, integração futura) e o SIGDI/avaliação de desempenho
 (outro programador).
+
+## Sessão 2026-09-25/26 — as frentes RH (lei e indústria)
+
+Plano em `.claude/resume/plano_frentes_rh.md`, **todo implementado**, um commit por frente (22 commits, `17edc0eb`..`dc234bee`,
+**por enviar** — o utilizador faz o push; merge para `master` = deploy):
+
+| Frente | Commit | O quê |
+|---|---|---|
+| F0.1 notificações | b33fdc2d | `Notificador` (API fluente para qualquer módulo), caixa pessoal e do RH; SMTP = TODO |
+| F0.2 diário de factos | 494f585e | `DiarioFactos` + evento `FactoRegistado`; contrato `/salarial/factos` (JSON/CSV, versão 1) |
+| F0.3 dias especiais | 2e838088 | porta `DiasEspeciaisProvider` para o apuramento de faltas |
+| F1.1 aposentação | 2b05cd74 | limite de idade, antecipada, pré-aposentação, processo, prorrogação, avisos |
+| F1.2 declarações | 1856004f | PDF (Thymeleaf + openhtmltopdf, CSS 2.1) no MinIO, numeração, verificação pública |
+| F1.3 lista de antiguidade | 092db4bc | aprovar, afixar, reclamações, recurso, definitiva, publicação |
+| F1.4 publicações BO | 446d1154 | actos a publicar a partir dos factos, extracto em PDF |
+| F1.5 cartão profissional | 6433b81e | emissão em PDF, entrega, validade |
+| F2.2 entrada ao serviço | 6c7cb654 | provimento e posse, estágio probatório com tutor, período experimental |
+| F2.1 concurso | fa692575 | **módulo novo `recrutamento`** |
+| F2.3 checklists | 9f97b92b | entrada e saída, modelo semeado ao arrancar, marcação automática |
+| F2.4 comissão de serviço | 23202463 | sobre o registo de mobilidade `MOB_COMISSAO` (sem tabela nova) |
+| F3.1 disciplinar | 65848982, 6eeffc75 | tramitação com prazos (**V61**), execução da pena, recurso; autos sugeridos, suspensão da pena, reabilitação, revisão, impedimentos |
+| F3.2 formação | e630e3ae | **módulo novo `formacao`**: plano, acções, inscrições, garantia |
+| F3.3 missão de serviço | 847adda2 | dias de ajudas de custo (sem valores) para o salarial |
+| F3.4 exoneração | cb44da1d | pré-aviso 60 dias, condicionantes, efeitos até 90 dias |
+| F3.5 acumulação | 2d300541 | casos da lei, terço da docência, autorização |
+| F4.1 acidentes | d35e2a7a | qualificação, incapacidades, invalidez, seguradora |
+| F4.2 medicina do trabalho | 2030c6ca | exames de aptidão (sem dados clínicos), junta médica |
+| F5.1 fronteira salarial | dc234bee | `remuneracaoBase` nos factos, fecho mensal, exportação versionada |
+
+**Divisão salarial (decidida com o utilizador):** o RH parametriza o bruto base no escalão e é a fonte dos factos; a
+integração calcula remunerações, suplementos, ajudas de custo em valor, descontos e líquido. O canal da exportação
+(API pronta; ficheiro/fila) combina-se com a equipa do salarial.
+
+**Estado final:** suite **1528 testes, só as 6 falhas conhecidas do sigdi** (não corrigir); `verificar_docs` FALHAS: 0;
+`openapi.json` com 471 caminhos; migrações até **V61** (próxima **V62**, só para alterar tabelas existentes).
+Tabelas novas pelo ddl-auto. Manifestos `.igrpstudio` de todas as frentes (`scripts/gerar_manifestos.py`).
+
+**Por fazer (conscientes):** processo individual completo; envio SMTP das notificações; bloqueio das férias por pena
+(art. 17.º n.º 2 b) do Estatuto); detecção automática de doença > 30 dias para a junta; canal da exportação salarial;
+permissões por perfil (adiadas).
+
+**Armadilhas desta sessão:** `sync.sh` corta o `mvn test` pelo `head -80` — a suite completa corre com `mvn` directo
+para log; o curl de testes precisa de `Accept: application/json` (os erros vêm em problem+xml); heredocs longos no
+bash partem-se — usar ficheiros; os jobs só aceitam a data de referência se a declararem (`getParametros`).
 
 ## Current state
 

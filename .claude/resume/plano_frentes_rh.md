@@ -1,5 +1,7 @@
 # Plano de implementação — frentes RH (fora do sigdi)
 
+> **Estado (2026-09-26): todas as frentes implementadas**, um commit cada (17edc0eb..dc234bee) — ver `rhFix.md`, secção «Sessão 2026-09-25/26».
+
 > Criado: 2026-09-25 · autorização do utilizador para planear **e** implementar sem aprovação ponto a ponto.
 > Dúvidas: (1) lei; (2) interpretação da lei; (3) prática da indústria. Cada decisão tomada em (2) ou (3)
 > fica marcada **[interp.]** ou **[ind.]** aqui e na regra BR-* correspondente.
