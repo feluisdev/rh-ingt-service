@@ -116,6 +116,7 @@
       <a href="#exoneracao">27. Exoneração voluntária</a><br>
       <a href="#acumulacao-funcoes">28. Acumulação de funções</a><br>
       <a href="#acidentes-servico">29. Acidentes em serviço e doenças profissionais</a><br>
+      <a href="#saude-trabalho">30. Medicina do trabalho e junta médica</a><br>
       <a href="#invariantes">12. Invariantes transversais</a>
     </div>
   </div>
@@ -1025,6 +1026,22 @@
     <tr><td class="id">BR-SST-10</td><td><b>Encerrar</b>: qualificado (ou não) e sem incapacidade em aberto.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">AcidenteServico.encerrar</td></tr>
   </table>
   <!-- /secao:acidentes-servico -->
+
+  <!-- secao:saude-trabalho -->
+  <h2 id="saude-trabalho"><span class="n">30.</span>Medicina do trabalho e junta médica</h2>
+  <p>Lei n.º 20/X/2023, art. 45.º n.º 1 d) (a aptidão física e psíquica é requisito), art. 121.º (a doença por mais de 30 dias leva à inactividade fora do quadro) e art. 189.º (invalidez). Só se guarda o <b>resultado de aptidão</b> — nunca dados clínicos. Tabelas <code>t_exame_saude</code> e <code>t_junta_medica</code>.</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-SST-11</td><td><b>Exame</b>: de admissão, periódico, ocasional ou de regresso; data (não futura), entidade, resultado (apto, apto condicionado, inapto temporário, inapto definitivo).</td><td><span class="http h404">404</span> <span class="http h422">422</span></td><td class="src">ExameSaude.registar</td></tr>
+    <tr><td class="id">BR-SST-12</td><td><b>Apto condicionado</b> exige as restrições (sem dados clínicos) e avisa a chefia de adequar as tarefas; <b>inapto temporário</b> exige a data de reavaliação; <b>inapto definitivo</b> sugere a junta.</td><td><span class="http h422">422</span></td><td class="src">ExameSaude.registar · SaudeTrabalhoService.registarExame</td></tr>
+    <tr><td class="id">BR-SST-13</td><td><b>Validade</b> por omissão [ind.]: 2 anos, 1 ano a partir dos 50 anos de idade (na data do exame); o inapto definitivo não tem validade.</td><td>—</td><td class="src">ExameSaude.registar</td></tr>
+    <tr><td class="id">BR-SST-14</td><td><b>Aviso de validade</b> do último exame (job <code>RH_EXAMES_SAUDE</code>, 07:15): 30 dias antes e no dia a seguir a caducar — o RH e o próprio.</td><td>—</td><td class="src">ExamesSaudeJob · SaudeTrabalhoService.avisarValidades</td></tr>
+    <tr><td class="id">BR-SST-15</td><td><b>Não apto</b>: o RH é avisado.</td><td>—</td><td class="src">SaudeTrabalhoService.registarExame</td></tr>
+    <tr><td class="id">BR-SST-16</td><td><b>Junta médica</b> (comissão de verificação de incapacidade): pedida por doença prolongada, incapacidade, aposentação por invalidez, inaptidão definitiva; um pedido em curso de cada vez (409).</td><td><span class="http h404">404</span> <span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">JuntaMedica.pedir · SaudeTrabalhoService.pedirJunta</td></tr>
+    <tr><td class="id">BR-SST-17</td><td><b>Parecer</b>: apto; apto para outras funções (avisa a reafectação); incapaz temporário, com os dias — mais de 30 passa à inactividade fora do quadro (art. 121.º), avisa para registar o estado; incapaz permanente abre a aposentação por invalidez.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">JuntaMedica.registarParecer · SaudeTrabalhoService.registarParecer</td></tr>
+    <tr><td class="id">BR-SST-18</td><td><b>Cancelar</b> um pedido de junta ainda sem parecer.</td><td><span class="http h409">409</span></td><td class="src">JuntaMedica.cancelar</td></tr>
+  </table>
+  <!-- /secao:saude-trabalho -->
 
   <!-- ============ INVARIANTES ============ -->
   <h2 id="invariantes"><span class="n">12.</span>Invariantes transversais</h2>

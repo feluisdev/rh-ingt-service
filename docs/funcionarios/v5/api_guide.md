@@ -2369,3 +2369,19 @@ seguradora).
 | GET | `/api/v1/rh/me/acidentes-servico` | Os meus |
 | POST | `/api/v1/rh/me/acidentes-servico` | Participar o meu |
 <!-- /secao:acidentes-servico -->
+
+<!-- secao:saude-trabalho -->
+## 31. Medicina do trabalho e junta médica — `/api/v1/rh/funcionarios/{id}/exames-saude`
+
+BR-SST-11..18. Só o resultado de aptidão; nunca dados clínicos.
+
+| Método | Caminho | O quê |
+|---|---|---|
+| GET | `/api/v1/rh/funcionarios/{funcionarioId}/exames-saude` | Os exames, do mais recente |
+| POST | `/api/v1/rh/funcionarios/{funcionarioId}/exames-saude` | Registar (`tipo`, `data`, `entidade`, `resultado`, `restricoes`, `validadeAte`) |
+| GET | `/api/v1/rh/juntas-medicas` | Pedidos de junta (`estado`) |
+| GET | `/api/v1/rh/funcionarios/{funcionarioId}/juntas-medicas` | Os do colaborador |
+| POST | `/api/v1/rh/funcionarios/{funcionarioId}/juntas-medicas` | Pedir (`motivo`, `fundamentacao`, `data`) |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/juntas-medicas/{juntaId}/parecer` | `parecer`, `diasIncapacidade`, `data`, `observacoes` |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/juntas-medicas/{juntaId}/cancelar` | Cancelar |
+<!-- /secao:saude-trabalho -->

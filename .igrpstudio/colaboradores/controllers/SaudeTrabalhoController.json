@@ -1,0 +1,253 @@
+{
+  "type": "controller",
+  "name": "SaudeTrabalho",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh",
+  "description": "Medicina do trabalho (exames de aptidão, sem dados clínicos, com validade) e comissão de verificação de incapacidade (junta médica)",
+  "actions": [
+    {
+      "actionName": "getExamesSaude",
+      "method": "GET",
+      "path": "funcionarios/{funcionarioId}/exames-saude",
+      "summary": "Os exames de medicina do trabalho do colaborador, do mais recente",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ExameSaudeDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "registarExameSaude",
+      "method": "POST",
+      "path": "funcionarios/{funcionarioId}/exames-saude",
+      "summary": "Registar um exame (resultado de aptidão, restrições, validade)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ExameSaudeRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ExameSaudeDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getJuntasMedicas",
+      "method": "GET",
+      "path": "juntas-medicas",
+      "summary": "Os pedidos de junta médica (filtro: estado)",
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "estado",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "JuntaMedicaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getJuntasMedicasColaborador",
+      "method": "GET",
+      "path": "funcionarios/{funcionarioId}/juntas-medicas",
+      "summary": "Os pedidos de junta médica do colaborador",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "JuntaMedicaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "pedirJuntaMedica",
+      "method": "POST",
+      "path": "funcionarios/{funcionarioId}/juntas-medicas",
+      "summary": "Pedir a comissão de verificação de incapacidade",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "JuntaMedicaRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "JuntaMedicaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "parecerJuntaMedica",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/juntas-medicas/{juntaId}/parecer",
+      "summary": "Registar o parecer da junta (incapaz permanente abre a aposentação por invalidez)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "juntaId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "JuntaMedicaRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "JuntaMedicaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "cancelarJuntaMedica",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/juntas-medicas/{juntaId}/cancelar",
+      "summary": "Cancelar o pedido de junta",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "juntaId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "JuntaMedicaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

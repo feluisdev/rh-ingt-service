@@ -1,0 +1,50 @@
+{
+  "type": "dto",
+  "name": "ExameSaudeRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "tipo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "data",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "entidade",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "resultado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "restricoes",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "validadeAte",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "observacoes",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

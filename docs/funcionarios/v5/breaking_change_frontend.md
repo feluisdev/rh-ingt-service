@@ -999,6 +999,13 @@ pelo `PUT` a pena ou as datas dá 409 (o número, o BO e as notas continuam livr
 - Ficha do colaborador: «Acidentes em serviço» — participar, qualificar, incapacidades e alta, incapacidade permanente, seguradora.
 - `/me/acidentes-servico`: o colaborador participa o seu. Notificação: `ACIDENTE_SERVICO`.
 
+### 11.59 Medicina do trabalho e junta médica (2026-09-26)
+
+**Nada deixa de funcionar**: endpoints novos (guia §31).
+
+- Ficha do colaborador: «Saúde no trabalho» — exames (aptidão, validade) e juntas médicas (pedido, parecer).
+- Nunca mostrar nem pedir dados clínicos: só a aptidão e as restrições. Notificação: `EXAME_SAUDE`.
+
 ## 12. Checklist do alinhamento com a legislação (secção 11)
 
 Por ordem das secções. Cada item remete para o ecrã correspondente em `apresentacao_aplicacao.html`.
