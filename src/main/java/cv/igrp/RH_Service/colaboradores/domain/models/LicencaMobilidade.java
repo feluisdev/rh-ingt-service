@@ -341,6 +341,28 @@ public class LicencaMobilidade {
         this.extensionsCount = extensoes() + 1;
     }
 
+    /**
+     * <b>Cessação da comissão de serviço</b> (Lei n.º 20/X/2023, art. 64.º n.º 1): a todo o tempo, com aviso prévio —
+     * por isso, ao contrário do regresso antecipado, a data de efeito pode ser futura. O último dia em comissão é a
+     * véspera da data de efeito; o regresso aplica-se nesse dia (pelo job, ou já, se a data chegou). Fica a nota nas
+     * observações.
+     */
+    public void fixarFimDaComissao(LocalDate dataEfeito, LocalDate hoje, String nota) {
+        if (!isApproved())
+            throw IgrpResponseStatusException.conflict("Só uma comissão deferida pode cessar. Estado actual: " + this.status);
+        if (this.efeitoRegressoAplicadoEm != null || estadoEm(hoje) == EstadoPeriodoLicenca.TERMINADA)
+            throw IgrpResponseStatusException.conflict("Esta comissão de serviço já terminou.");
+        if (dataEfeito == null || !dataEfeito.isAfter(this.dataInicio))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "A cessação produz efeitos depois do início da comissão.");
+        if (this.dataFim != null && dataEfeito.isAfter(this.dataFim.plusDays(1)))
+            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "A comissão já termina antes dessa data: não há nada a cessar.");
+        this.dataFim = dataEfeito.minusDays(1);
+        if (nota != null && !nota.isBlank())
+            this.observacoes = this.observacoes == null || this.observacoes.isBlank() ? nota : this.observacoes + "\n" + nota;
+    }
+
     /** Soft delete do registo (não é uma transição de estado do processo). */
     public void desativar() {
         this.isActive = false;

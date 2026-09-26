@@ -27,4 +27,10 @@ public interface LicencaMobilidadeRepository {
 
     /** Deferidas cujo período já terminou e cujo regresso continua por aplicar. */
     List<LicencaMobilidade> findRegressoPorAplicar(java.time.LocalDate data);
+
+    /**
+     * As comissões de serviço (subtipos que regressam ou cessam, art. 64.º n.º 2) deferidas e ainda sem regresso
+     * aplicado — todas, ou só as que terminam até {@code terminaAte}; pelo fim.
+     */
+    List<LicencaMobilidade> findComissoesEmCurso(java.time.LocalDate terminaAte);
 }

@@ -1,0 +1,38 @@
+{
+  "type": "dto",
+  "name": "ComissaoServicoRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "despacho",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "iniciativa",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataAviso",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataEfeito",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

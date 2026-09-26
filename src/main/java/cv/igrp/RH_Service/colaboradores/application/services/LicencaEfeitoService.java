@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.application.services;
 
 import cv.igrp.RH_Service.colaboradores.domain.models.LicencaMobilidade;
+import cv.igrp.RH_Service.colaboradores.domain.models.TipoFactoRh;
 import cv.igrp.RH_Service.colaboradores.domain.repository.LicencaMobilidadeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,7 @@ public class LicencaEfeitoService {
     private final MobilidadeService mobilidadeService;
     private final LicencaService licencaService;
     private final SubstituicaoService substituicaoService;
+    private final DiarioFactos diarioFactos;
 
     /** O que a passagem produziu, para quem precise de o dizer na resposta. */
     public record Efeito(boolean aplicado, UUID afectacaoEncerradaId, UUID estadoAtribuidoId) {
@@ -61,6 +63,7 @@ public class LicencaEfeitoService {
 
         licenca.marcarEfeitoEntradaAplicado(LocalDateTime.now());
         licencaRepository.save(licenca);
+        registarFactoDaComissao(licenca, "INICIO", licenca.getDataInicio(), "Início da comissão de serviço");
 
         return new Efeito(true, aplicado.get().afectacaoEncerradaId(), aplicado.get().estadoAtribuidoId());
     }
@@ -99,10 +102,28 @@ public class LicencaEfeitoService {
                 .orElse(null);
 
         substituicaoService.encerrarPorRegressoDoTitular(licenca.getFuncionarioId(), dataRegresso);
+        if (dataRegresso != null)
+            registarFactoDaComissao(licenca, "FIM", dataRegresso.plusDays(1), "Fim da comissão de serviço");
 
         licenca.marcarEfeitoRegressoAplicado(LocalDateTime.now());
         licencaRepository.save(licenca);
 
         return new Efeito(true, null, estadoAtribuidoId);
+    }
+
+    /**
+     * A comissão de serviço (o subtipo que regressa ou cessa, art. 64.º n.º 2) é acto que o salarial e a publicação
+     * precisam de saber: o início e o fim ficam no diário de factos (BR-CMS-02). A renovação regista-a quem renova.
+     */
+    private void registarFactoDaComissao(LicencaMobilidade licenca, String evento, LocalDate data, String descricao) {
+        if (diarioFactos == null || mobilidadeService.subtipoSeExistir(licenca).filter(s -> s.regressaOuCessa()).isEmpty()) return;
+        var dados = new java.util.LinkedHashMap<String, Object>();
+        dados.put("evento", evento);
+        dados.put("lugarDestinoId", licenca.getDestinationPositionId());
+        dados.put("unidadeDestinoId", licenca.getDestinationUnitId());
+        dados.put("entidadeDestino", licenca.getEntidadeDestino());
+        dados.put("ate", licenca.getDataFim());
+        diarioFactos.registar(licenca.getFuncionarioId(), TipoFactoRh.COMISSAO_SERVICO, data, "LICENCA_MOBILIDADE",
+                licenca.getId().getStringValor(), descricao, dados);
     }
 }

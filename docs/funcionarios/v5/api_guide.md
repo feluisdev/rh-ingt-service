@@ -2198,3 +2198,19 @@ seus. O provimento e o cartão profissional marcam-se sozinhos.
 Cada checklist traz `pendentes`, `atrasados` e os itens com `atrasado` e `automatico`. Para outro serviço cumprir um item:
 `ChecklistService.cumprir(funcionarioId, tipo, codigo, observacao, data)`.
 <!-- /secao:checklists -->
+
+<!-- secao:comissao-servico -->
+## 24. Comissão de serviço — `/api/v1/rh/comissoes-servico`
+
+Lei n.º 20/X/2023, arts. 59.º, 60.º e 64.º (BR-CMS-01..08). A comissão regista-se como licença/mobilidade do subtipo de comissão
+(`POST .../licencas-mobilidade`, depois `approve`); estas rotas tratam do que lhe é próprio.
+
+| Método | Caminho | O quê |
+|---|---|---|
+| GET | `/api/v1/rh/comissoes-servico` | Em curso, pelo fim (`terminaAte` opcional), com `diasParaTermo` |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/comissoes-servico/{licencaId}/renovar` | Mais 3 anos (`despacho`) |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/comissoes-servico/{licencaId}/cessar` | `iniciativa` ∈ ENTIDADE · NOMEADO · PENA_DISCIPLINAR, `dataAviso`, `dataEfeito`, `motivo` |
+
+Com a entidade ou o nomeado, a data de efeito é no mínimo o aviso + 60 dias (por omissão, esse dia); com a pena disciplinar, sem
+aviso. O regresso (ou a cessação da relação, art. 64.º n.º 2) aplica-se no dia de efeito.
+<!-- /secao:comissao-servico -->

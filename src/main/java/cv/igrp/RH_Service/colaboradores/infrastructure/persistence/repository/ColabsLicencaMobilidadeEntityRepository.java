@@ -55,4 +55,23 @@ public interface ColabsLicencaMobilidadeEntityRepository extends JpaRepository<L
              ORDER BY l.dataFim
             """)
     List<LicencaMobilidadeEntity> findRegressoPorAplicar(@Param("data") LocalDate data);
+
+    @Query("""
+            SELECT l FROM ColabsLicencaMobilidadeEntity l
+             WHERE l.status = 'APPROVED' AND l.isActive = true
+               AND l.subtipo.returnEffect = 'REGRESSA_OU_CESSA'
+               AND l.efeitoRegressoAplicadoEm IS NULL
+             ORDER BY l.dataFim
+            """)
+    List<LicencaMobilidadeEntity> findComissoesEmCurso();
+
+    @Query("""
+            SELECT l FROM ColabsLicencaMobilidadeEntity l
+             WHERE l.status = 'APPROVED' AND l.isActive = true
+               AND l.subtipo.returnEffect = 'REGRESSA_OU_CESSA'
+               AND l.efeitoRegressoAplicadoEm IS NULL
+               AND l.dataFim <= :terminaAte
+             ORDER BY l.dataFim
+            """)
+    List<LicencaMobilidadeEntity> findComissoesQueTerminamAte(@Param("terminaAte") LocalDate terminaAte);
 }

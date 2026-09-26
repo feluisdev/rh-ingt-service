@@ -934,6 +934,14 @@ deixaram de vir de `application.properties` e passam a vir de um catálogo por v
 - Menu RH: lista de trabalho por área (`responsavel`) e só as atrasadas; configuração do modelo.
 - `/me/checklists`: o colaborador marca os seus itens; a chefia, os da chefia da sua equipa. Notificação: `CHECKLIST`.
 
+### 11.51 Comissão de serviço — renovar, cessar, termos (2026-09-25)
+
+**Nada deixa de funcionar**: endpoints novos (guia §24); o registo da comissão continua a ser o de licenças/mobilidade.
+
+- Menu RH «Comissões de serviço»: lista em curso com os dias até ao termo; renovar (3 anos) e cessar (iniciativa, aviso, data de efeito).
+- A cessação com a entidade ou o nomeado exige 60 dias de aviso: a resposta 422 diz a primeira data possível.
+- Notificação: `COMISSAO_SERVICO` (renovação, cessação, termo a 90 dias).
+
 ## 12. Checklist do alinhamento com a legislação (secção 11)
 
 Por ordem das secções. Cada item remete para o ecrã correspondente em `apresentacao_aplicacao.html`.

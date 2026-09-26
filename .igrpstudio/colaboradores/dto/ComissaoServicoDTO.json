@@ -1,0 +1,92 @@
+{
+  "type": "dto",
+  "name": "ComissaoServico",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "licencaId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioNome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "subtipo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataInicio",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataFim",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "renovacoes",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estadoPeriodo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "lugarDestinoId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "unidadeDestinoId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "entidadeDestino",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "despachoNumero",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "observacoes",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "diasParaTermo",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

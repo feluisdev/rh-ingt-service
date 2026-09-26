@@ -109,6 +109,7 @@
       <a href="#entrada-servico">20. Entrada ao serviço — provimento, estágio probatório e período experimental</a><br>
       <a href="#concurso">21. Recrutamento e selecção — concurso</a><br>
       <a href="#checklists">22. Checklists de entrada e de saída</a><br>
+      <a href="#comissao-servico">23. Comissão de serviço</a><br>
       <a href="#invariantes">12. Invariantes transversais</a>
     </div>
   </div>
@@ -878,6 +879,22 @@
     <tr><td class="id">BR-CHK-12</td><td><b>A saída não trava a cessação</b>: é o registo de que tudo foi entregue e passado. A lista de trabalho mostra, por área, as abertas com itens pendentes ou em atraso.</td><td>—</td><td class="src">ChecklistService.pendentes</td></tr>
   </table>
   <!-- /secao:checklists -->
+
+  <!-- secao:comissao-servico -->
+  <h2 id="comissao-servico"><span class="n">23.</span>Comissão de serviço</h2>
+  <p>Lei n.º 20/X/2023, arts. 59.º (a quem: pessoal dirigente e cargos de livre escolha), 60.º (duração) e 64.º (cessação). A comissão é um registo de licença/mobilidade do subtipo que <i>regressa ou cessa</i> (catálogo, <code>return_effect = REGRESSA_OU_CESSA</code>; o Lugar de origem mantém-se) — sem tabela nova. Aqui fica o que lhe é próprio.</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-CMS-01</td><td><b>O que é comissão</b>: o subtipo com efeito de regresso «regressa ou cessa»; o tempo conta na carreira e categoria de origem (art. 60.º n.º 2, <code>counts_for_seniority</code>). As acções abaixo recusam outros registos (422).</td><td><span class="http h404">404</span> <span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">SubtipoLicencaMobilidade.regressaOuCessa · ComissaoServicoService.renovar</td></tr>
+    <tr><td class="id">BR-CMS-02</td><td><b>Factos</b>: o início (quando os efeitos entram), a renovação e o fim (quando o regresso se aplica) ficam no diário como <code>COMISSAO_SERVICO</code> — e daí a publicação no Boletim Oficial (BR-PUB-02).</td><td>—</td><td class="src">LicencaEfeitoService.aplicarEntradaSeDevida · LicencaEfeitoService.aplicarRegresso</td></tr>
+    <tr><td class="id">BR-CMS-03</td><td><b>Renovação por iguais períodos</b> (art. 60.º n.º 1): mais <b>3 anos</b> a partir do fim actual, quantas vezes for; só antes de terminar (409 depois).</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">ComissaoServicoService.renovar</td></tr>
+    <tr><td class="id">BR-CMS-04</td><td><b>Cessação a todo o tempo</b> (art. 64.º n.º 1), por iniciativa da entidade ou do nomeado, com <b>aviso prévio de 60 dias</b>: a data de efeito nunca antes de 60 dias sobre o aviso (por omissão, é esse dia); o aviso não é futuro.</td><td><span class="http h422">422</span></td><td class="src">ComissaoServicoService.cessar</td></tr>
+    <tr><td class="id">BR-CMS-05</td><td><b>Pena disciplinar</b>: a cessação como efeito de pena (Estatuto Disciplinar) não tem aviso prévio.</td><td><span class="http h422">422</span></td><td class="src">ComissaoServicoService.cessar</td></tr>
+    <tr><td class="id">BR-CMS-06</td><td><b>Efeitos da cessação</b>: o último dia em comissão é a véspera da data de efeito; se essa data já chegou, o regresso aplica-se logo, senão no dia (job das licenças). Regressa à situação anterior se era consolidada por tempo indeterminado; senão cessa a relação (art. 64.º n.º 2). A nota (iniciativa, aviso, efeitos) fica nas observações.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">LicencaMobilidade.fixarFimDaComissao · LicencaService.aplicarRegresso</td></tr>
+    <tr><td class="id">BR-CMS-07</td><td><b>Aviso do termo</b> (job <code>RH_ALERTA_COMISSOES_SERVICO</code>, 06:55): <b>90 dias</b> antes do fim, o RH e o nomeado — renovar ou deixar terminar [ind.].</td><td>—</td><td class="src">AlertaComissoesServicoJob · ComissaoServicoService.avisarTermos</td></tr>
+    <tr><td class="id">BR-CMS-08</td><td><b>Lista das comissões em curso</b>, pelo fim, com os dias até ao termo (filtro «terminam até»).</td><td>—</td><td class="src">ComissaoServicoService.emCurso</td></tr>
+  </table>
+  <!-- /secao:comissao-servico -->
 
   <!-- ============ INVARIANTES ============ -->
   <h2 id="invariantes"><span class="n">12.</span>Invariantes transversais</h2>

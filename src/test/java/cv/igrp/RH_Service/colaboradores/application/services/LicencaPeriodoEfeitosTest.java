@@ -58,7 +58,7 @@ class LicencaPeriodoEfeitosTest {
     private LicencaEfeitoService efeitoService() {
         return new LicencaEfeitoService(licencaRepository,
                 new MobilidadeService(subtipoRepository, unidadeRepository, licencaRepository),
-                licencaService, substituicaoService);
+                licencaService, substituicaoService, org.mockito.Mockito.mock(DiarioFactos.class));
     }
 
     private static LicencaMobilidade licenca(LocalDate inicio, LocalDate fim) {

@@ -66,4 +66,10 @@ public class LicencaMobilidadeRepositoryImpl implements LicencaMobilidadeReposit
     public List<LicencaMobilidade> findRegressoPorAplicar(java.time.LocalDate data) {
         return entityRepository.findRegressoPorAplicar(data).stream().map(mapper::toDomain).toList();
     }
+
+    @Override
+    public List<LicencaMobilidade> findComissoesEmCurso(java.time.LocalDate terminaAte) {
+        var lista = terminaAte == null ? entityRepository.findComissoesEmCurso() : entityRepository.findComissoesQueTerminamAte(terminaAte);
+        return lista.stream().map(mapper::toDomain).toList();
+    }
 }

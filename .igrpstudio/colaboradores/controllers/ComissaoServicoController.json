@@ -1,0 +1,128 @@
+{
+  "type": "controller",
+  "name": "ComissaoServico",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh",
+  "description": "Comissão de serviço dos dirigentes e cargos de livre escolha (Lei n.º 20/X/2023, arts. 59.º, 60.º e 64.º): renovação por iguais períodos de 3 anos, cessação a todo o tempo com aviso prévio de 60 dias, factos e aviso do termo",
+  "actions": [
+    {
+      "actionName": "getComissoesServico",
+      "method": "GET",
+      "path": "comissoes-servico",
+      "summary": "As comissões de serviço em curso, pelo fim (só as que terminam até uma data, se indicada)",
+      "requestParams": [
+        {
+          "type": "date",
+          "name": "terminaAte",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ComissaoServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "renovarComissaoServico",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/comissoes-servico/{licencaId}/renovar",
+      "summary": "Renovar a comissão por mais 3 anos a partir do fim actual (antes de terminar)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "licencaId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ComissaoServicoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ComissaoServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "cessarComissaoServico",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/comissoes-servico/{licencaId}/cessar",
+      "summary": "Cessar a comissão: pela entidade ou pelo nomeado com aviso prévio de 60 dias, ou por pena disciplinar",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "licencaId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ComissaoServicoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ComissaoServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
