@@ -45,9 +45,12 @@ integração calcula remunerações, suplementos, ajudas de custo em valor, desc
 `openapi.json` com 471 caminhos; migrações até **V61** (próxima **V62**, só para alterar tabelas existentes).
 Tabelas novas pelo ddl-auto. Manifestos `.igrpstudio` de todas as frentes (`scripts/gerar_manifestos.py`).
 
-**Por fazer (conscientes):** processo individual completo; envio SMTP das notificações; bloqueio das férias por pena
-(art. 17.º n.º 2 b) do Estatuto); detecção automática de doença > 30 dias para a junta; canal da exportação salarial;
-permissões por perfil (adiadas).
+**Feito depois (2026-09-26):** bloqueio das férias por pena (BR-DIS-30, `7d78fb65`); doença de 30 dias seguidos sugere
+a junta (BR-SST-19, job `RH_DOENCA_PROLONGADA`); manual `apresentacao_aplicacao.html` com as partes K–O (22 diapositivos
+novos, 81 no total) e a tabela completa dos jobs.
+
+**Por fazer (conscientes):** processo individual completo; envio SMTP das notificações; canal da exportação salarial
+(API pronta; ficheiro/fila a combinar com a equipa do salarial); permissões por perfil (adiadas).
 
 **Armadilhas desta sessão:** `sync.sh` corta o `mvn test` pelo `head -80` — a suite completa corre com `mvn` directo
 para log; o curl de testes precisa de `Accept: application/json` (os erros vêm em problem+xml); heredocs longos no

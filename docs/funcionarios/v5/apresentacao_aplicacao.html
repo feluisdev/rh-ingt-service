@@ -223,8 +223,8 @@
     <div class="kicker">RH-Service · SIGDI / SIPPROG · Administração Pública de Cabo Verde</div>
     <h1>Manual da Aplicação de Recursos Humanos</h1>
     <p>Como se configura e como se usa toda a aplicação, ecrã a ecrã: o que cada ecrã mostra, que campos tem, que API chama, que regras de negócio aplica e em que artigo da lei se funda. Do catálogo de estados ao balanço social.</p>
-    <div class="meta">Documentação <b>v5</b> · âmbito: núcleo RH (exclui o módulo <code>sigdi</code> — avaliação de desempenho) · os ecrãs são ilustrativos, desenhados a partir dos DTOs reais da API<br>Última alteração: 2026-09-25</div>
-    <div class="hero-tags"><span>Lei n.º 20/X/2023 — regime do emprego público</span><span>Decreto-Lei n.º 3/2010 — férias, faltas e licenças</span><span>PCFR — carreiras, categorias e escalões</span></div>
+    <div class="meta">Documentação <b>v5</b> · âmbito: núcleo RH (exclui o módulo <code>sigdi</code> — avaliação de desempenho) · os ecrãs são ilustrativos, desenhados a partir dos DTOs reais da API<br>Última alteração: 2026-09-26</div>
+    <div class="hero-tags"><span>Lei n.º 20/X/2023 — regime do emprego público</span><span>Decreto-Lei n.º 3/2010 — férias, faltas e licenças</span><span>PCFR — carreiras, categorias e escalões</span><span>Estatuto Disciplinar — Lei n.º 31/III/87</span></div>
   </div>
 </header>
 <div class="ctrl"><div class="progresso" id="progresso"></div><div class="wrap">
@@ -317,11 +317,43 @@
 <a href="#rel-efectivos"><span class="n">54</span>Mapa de efectivos</a>
 <a href="#rel-indicadores"><span class="n">55</span>Indicadores do pessoal — o balanço social</a>
 </div>
-<div class="grupo"><b>K · Transversais</b>
-<a href="#tr-historico"><span class="n">56</span>Histórico, auditoria e tarefas automáticas</a>
-<a href="#tr-limites"><span class="n">57</span>O que a aplicação ainda não faz — dito para ninguém contar com isso</a>
-<a href="#tr-lei"><span class="n">58</span>A lei, artigo a artigo — onde está na aplicação</a>
-<a href="#tr-glossario"><span class="n">59</span>Glossário</a>
+<div class="grupo"><b>K · Entrada e percurso</b>
+<a href="#ent-concurso"><span class="n">56</span>Concurso — do aviso à lista homologada</a>
+<a href="#ent-provimento"><span class="n">57</span>Entrada ao serviço — provimento, estágio e período experimental</a>
+<a href="#ent-checklists"><span class="n">58</span>Checklists de entrada e de saída</a>
+<a href="#ent-comissao"><span class="n">59</span>Comissão de serviço — renovar e cessar</a>
+<a href="#ent-cartao"><span class="n">60</span>Cartão de identificação profissional</a>
+<a href="#quiz-k"><span class="n">61</span>Teste: entrada e percurso</a>
+</div>
+<div class="grupo"><b>L · Processos</b>
+<a href="#proc-disciplinar"><span class="n">62</span>Processo disciplinar — a tramitação</a>
+<a href="#proc-disciplinar-efeitos"><span class="n">63</span>Os efeitos da pena — e o que ela impede</a>
+<a href="#proc-formacao"><span class="n">64</span>Formação — plano, acções e inscrições</a>
+<a href="#proc-missao"><span class="n">65</span>Missão de serviço — deslocações e dias de ajudas de custo</a>
+<a href="#proc-acumulacao"><span class="n">66</span>Acumulação de funções</a>
+<a href="#quiz-l"><span class="n">67</span>Teste: processos</a>
+</div>
+<div class="grupo"><b>M · Saída e aposentação</b>
+<a href="#sai-aposentacao"><span class="n">68</span>Aposentação — o limite de idade e as outras modalidades</a>
+<a href="#sai-exoneracao"><span class="n">69</span>Exoneração voluntária — o pré-aviso e as condicionantes</a>
+</div>
+<div class="grupo"><b>N · Saúde e segurança</b>
+<a href="#sst-acidentes"><span class="n">70</span>Acidentes em serviço e doenças profissionais</a>
+<a href="#sst-saude"><span class="n">71</span>Medicina do trabalho, junta médica e doença prolongada</a>
+<a href="#quiz-mn"><span class="n">72</span>Teste: saída, saúde e segurança</a>
+</div>
+<div class="grupo"><b>O · Documentos, avisos e salarial</b>
+<a href="#doc-notificacoes"><span class="n">73</span>Notificações — a caixa de cada um e a do RH</a>
+<a href="#doc-declaracoes"><span class="n">74</span>Declarações e documentos emitidos</a>
+<a href="#doc-publicacoes"><span class="n">75</span>Publicações no Boletim Oficial</a>
+<a href="#doc-lista-antiguidade"><span class="n">76</span>Lista de antiguidade oficial — aprovar, afixar, reclamar, publicar</a>
+<a href="#doc-salarial"><span class="n">77</span>Factos salariais e fecho mensal — a fronteira com o salarial</a>
+</div>
+<div class="grupo"><b>P · Transversais</b>
+<a href="#tr-historico"><span class="n">78</span>Histórico, auditoria e tarefas automáticas</a>
+<a href="#tr-limites"><span class="n">79</span>O que a aplicação ainda não faz — dito para ninguém contar com isso</a>
+<a href="#tr-lei"><span class="n">80</span>A lei, artigo a artigo — onde está na aplicação</a>
+<a href="#tr-glossario"><span class="n">81</span>Glossário</a>
 </div>
 </div>
 </div>
@@ -341,13 +373,18 @@
     <div class="caixa b"><h4>Férias e ausências</h4><p>Saldo que nasce sozinho, mapa de férias, pedidos de ausência em dias ou em horas, suspensão e acumulação.</p></div>
     <div class="caixa a"><h4>Licenças e mobilidade</h4><p>As sete licenças do DL n.º 3/2010 e a mobilidade da Lei n.º 20/X/2023, com os seus efeitos no Lugar.</p></div>
     <div class="caixa o"><h4>Relatórios</h4><p>Lista de antiguidade, mapa de efectivos, indicadores do pessoal (balanço social) e relação mensal — JSON e CSV.</p></div>
+    <div class="caixa t"><h4>Entrada e percurso</h4><p>Concurso, provimento e posse, estágio probatório, checklists de entrada e saída, comissão de serviço, cartão profissional.</p></div>
+    <div class="caixa r"><h4>Processos</h4><p>Disciplinar com prazos e efeitos da pena, formação (plano, acções, inscrições), missões de serviço, acumulação de funções.</p></div>
+    <div class="caixa w"><h4>Saída, saúde e segurança</h4><p>Aposentação e limite de idade, exoneração, acidentes em serviço, medicina do trabalho e junta médica.</p></div>
+    <div class="caixa a"><h4>Documentos e salarial</h4><p>Notificações, declarações verificáveis, publicações no Boletim Oficial, lista de antiguidade oficial, factos e fecho mensal.</p></div>
   </div>
   <h3>A lei que a aplicação segue</h3>
   <table>
     <tr><th>Diploma</th><th>O que regula na aplicação</th></tr>
-    <tr><td><b>Lei n.º 20/X/2023</b>, de 24 de Março</td><td>Regime jurídico do emprego público: situações funcionais (arts. 117.º a 122.º), mobilidade (arts. 132.º a 137.º), substituição (art. 73.º e art. 91.º), comissão de serviço (arts. 60.º e 64.º), cessação (arts. 93.º, 96.º, 97.º), trabalho suplementar (art. 155.º), tempo de trabalho e horários (arts. 164.º a 166.º), faltas (art. 170.º), licença parental e amamentação (art. 172.º), mapa de efectivos (art. 4.º al. aa)), balanço social (art. 38.º n.º 3).</td></tr>
+    <tr><td><b>Lei n.º 20/X/2023</b>, de 24 de Março</td><td>Regime jurídico do emprego público: acumulação (arts. 20.º a 24.º), cartão profissional (art. 25.º), limite de idade (art. 48.º), provimento, posse e períodos de prova (arts. 52.º a 81.º), publicações (arts. 89.º e 90.º), exoneração (arts. 94.º e 95.º), concurso (arts. 123.º a 129.º), formação (art. 141.º), missões (art. 159.º), aposentação (arts. 173.º a 179.º), acidentes em serviço (arts. 187.º a 191.º), situações funcionais (arts. 117.º a 122.º), mobilidade (arts. 132.º a 137.º), substituição (art. 73.º e art. 91.º), comissão de serviço (arts. 60.º e 64.º), cessação (arts. 93.º, 96.º, 97.º), trabalho suplementar (art. 155.º), tempo de trabalho e horários (arts. 164.º a 166.º), faltas (art. 170.º), licença parental e amamentação (art. 172.º), mapa de efectivos (art. 4.º al. aa)), balanço social (art. 38.º n.º 3).</td></tr>
     <tr><td><b>Decreto-Lei n.º 3/2010</b>, de 8 de Março</td><td>Férias (arts. 2.º a 12.º), faltas (arts. 13.º a 43.º), licenças (arts. 44.º a 68.º), listas de antiguidade (arts. 69.º a 74.º), relação mensal (art. 75.º), contagem de dias (art. 76.º), trabalhador-estudante (art. 77.º).</td></tr>
     <tr><td><b>PCFR</b> (Decreto-Lei n.º 4/2024)</td><td>A grelha de carreiras, categorias e escalões, e os tipos de contrato.</td></tr>
+    <tr><td><b>Estatuto Disciplinar</b> (Lei n.º 31/III/87)</td><td>Penas e os seus efeitos (arts. 11.º a 17.º, 34.º), prescrição (art. 6.º), tramitação do processo (arts. 47.º a 84.º), revisão e reabilitação (arts. 90.º a 95.º).</td></tr>
   </table>
   <div class="nota chave"><b>Princípio de desenho:</b> o que a lei fixa vive no código, como lista fechada (as seis situações funcionais, os regimes de ausência, a forma de contar os dias…); o que varia de instituição para instituição vive num catálogo editável pela API (que estados usa, que tipos de ausência, que horários, que feriados). A instituição classifica as suas linhas nas categorias da lei — nunca inventa uma categoria nova.</div>
   <div class="nota aviso"><b>Fora do âmbito deste manual:</b> o módulo <code>sigdi</code> (avaliação de desempenho / SIADAP, objectivos estratégicos, PAA) e o processamento de vencimentos, que é outra aplicação: aqui guardam-se dias, horas e classificações para quem processa, nunca valores em dinheiro.</div>
@@ -409,11 +446,13 @@
     </svg>
     <table>
       <tr><th>Módulo</th><th>O que tem</th><th>Caminho da API</th></tr>
-      <tr><td><b>colaboradores</b></td><td>Funcionário, contrato, afectação e movimentos, dossier, ausências, férias, licenças e mobilidade, horário do colaborador, marcações, faltas, trabalho suplementar, relatórios, portal <code>/me</code></td><td><code>/funcionarios</code> · <code>/colaboradores</code> · <code>/assiduidade</code> · <code>/ferias</code> · <code>/relatorios</code> · <code>/me</code></td></tr>
+      <tr><td><b>colaboradores</b></td><td>Funcionário, contrato, afectação e movimentos, dossier, ausências, férias, licenças e mobilidade, horário do colaborador, marcações, faltas, trabalho suplementar, relatórios, portal <code>/me</code>; e os processos: provimento, checklists, disciplinar, missões, exoneração, acumulação, aposentação, acidentes, saúde, declarações, publicações, fecho mensal</td><td><code>/funcionarios</code> · <code>/colaboradores</code> · <code>/assiduidade</code> · <code>/ferias</code> · <code>/relatorios</code> · <code>/me</code> · <code>/processos-disciplinares</code> · <code>/missoes-servico</code> · <code>/salarial</code> · <code>/publicacoes</code> · <code>/listas-antiguidade</code></td></tr>
       <tr><td><b>estrutura</b></td><td>Unidades orgânicas (com área e horário), cargos, funções, Lugares</td><td><code>/estrutura</code></td></tr>
       <tr><td><b>carreiras</b></td><td>A grelha PCFR</td><td><code>/careers</code> · <code>/categories</code> · <code>/grades</code></td></tr>
       <tr><td><b>parametrizacoes</b></td><td>Estados, vínculos, contratos, documentos, ausências, licenças, feriados, horários, parâmetros de férias, opções</td><td><code>/catalogs</code> · <code>/reference/options</code></td></tr>
-      <tr><td><b>shared</b></td><td>Segurança, auditoria, ficheiros (MinIO), perfil IAM</td><td><code>/documento</code></td></tr>
+      <tr><td><b>recrutamento</b></td><td>Concursos: aviso, candidaturas, júri, métodos, classificação, homologação e provimento</td><td><code>/concursos</code></td></tr>
+      <tr><td><b>formacao</b></td><td>Plano anual, necessidades, acções, inscrições e avaliação</td><td><code>/formacao</code></td></tr>
+      <tr><td><b>shared</b></td><td>Segurança, auditoria, ficheiros (MinIO), perfil IAM, notificações, tarefas agendadas</td><td><code>/documento</code></td></tr>
     </table>
   </div>
   <div class="nota chave"><b>Uma excepção à direcção:</b> a estrutura precisa de saber quem é um funcionário (o «responsável» da unidade). Fá-lo por uma única porta (<code>FuncionarioLookupPort</code>), em vez de depender do módulo dos colaboradores. O módulo <code>sigdi</code> (avaliação de desempenho) é à parte e não entra neste manual.</div>
@@ -1630,7 +1669,7 @@
         <li><span class="br">BR-REC-03</span>Líquido ≤ bruto<span class="cod">400</span></li>
         <li><span class="br">BR-DIS-01</span>Não se regista processo de um inactivo<span class="cod">400</span>; <span class="br">BR-DIS-02</span> posse<span class="cod">404</span></li>
       </ul></div></div>
-      <div class="nota aviso">Os recibos são <b>registos de um documento</b> que veio do processamento salarial (outra aplicação); aqui não se calcula nada. Formação e disciplinar são registos, não processos com fluxo — o fluxo ficou para depois.</div>
+      <div class="nota aviso">Os recibos são <b>registos de um documento</b> que veio do processamento salarial (outra aplicação); aqui não se calcula nada. O registo do processo disciplinar continua a funcionar; a <b>tramitação</b> com prazos e efeitos está em <a href="#proc-disciplinar">Processo disciplinar</a>, e a formação como processo (plano, acções, inscrições) em <a href="#proc-formacao">Formação</a>.</div>
     </div>
   </div>
 </section>
@@ -2848,6 +2887,7 @@
     </ul></div></div>
   </div>
   <span class="lei">DL n.º 3/2010, art. 75.º</span>
+  <div class="nota chave">No fim do mês o RH <b>fecha</b> a relação: fica congelada e segue para o processamento salarial — ver <a href="#doc-salarial">Factos salariais e fecho mensal</a>.</div>
 </section>
 
 <section class="slide quiz-slide" id="quiz-h" data-parte="H · Assiduidade">
@@ -2990,7 +3030,7 @@
         <li><span class="br">BR-SUP-01</span>Trabalho suplementar da equipa directa</li>
         <li><span class="br">BR-FER-21</span>Férias da equipa: preferência e marcação</li>
       </ul></div></div>
-      <div class="nota limite"><b>Notificações:</b> a caixa não avisa por email nem push — as notificações esperam a aplicação de notificações (TODO). O ecrã consulta a caixa.</div>
+      <div class="nota limite"><b>Notificações:</b> a chefia recebe o aviso na sua caixa da aplicação (<a href="#doc-notificacoes">Notificações</a>); o envio por correio electrónico espera o servidor SMTP.</div>
       <span class="lei">DL n.º 3/2010, arts. 9.º e 15.º (superior hierárquico / dirigente)</span>
     </div>
   </div>
@@ -3031,6 +3071,7 @@
       <span class="lei">DL n.º 3/2010, arts. 69.º e 70.º</span>
     </div>
   </div>
+  <div class="nota chave">Esta é a lista <b>gerada</b>, uma consulta. A lista <b>oficial</b> — aprovada, afixada, com reclamações e publicada — está em <a href="#doc-lista-antiguidade">Lista de antiguidade oficial</a>.</div>
 </section>
 
 <section class="slide" id="rel-efectivos" data-parte="J · Relatórios">
@@ -3111,9 +3152,890 @@
 
 <!-- ============================ PARTE K ============================ -->
 
-<section class="slide" id="tr-historico" data-parte="K · Transversais">
-  <div class="parte">Parte K · Transversais</div>
-  <h2><span class="n">56</span>Histórico, auditoria e tarefas automáticas</h2>
+<section class="slide" id="ent-concurso" data-parte="K · Entrada e percurso">
+  <div class="parte">Parte K · Entrada e percurso</div>
+  <h2><span class="n">56</span>Concurso — do aviso à lista homologada</h2>
+  <p class="lead">O ingresso e o acesso fazem-se por concurso (Lei n.º 20/X/2023, art. 123.º). O RH prepara-o em <b>rascunho</b>, <b>abre-o</b> (o aviso entra nas publicações do Boletim Oficial), regista as candidaturas, admite ou exclui (com audiência prévia), lança as notas de cada método, publica a lista provisória, homologa a final e <b>provê</b> pela ordem da lista. Módulo <code>recrutamento</code>.</p>
+  <div class="duas">
+    <div>
+      <div class="ecra" data-dto="ConcursoDTO">
+        <div class="barra"><i></i><i></i><i></i><span>RH · Recrutamento › Concurso 3/2026</span></div>
+        <div class="corpo">
+          <div class="form" data-dto="ConcursoRequestDTO">
+              <div class="campo" data-campo="referencia"><label>Referência<span class="req">*</span><span class="api">referencia</span></label><div class="inp">CONC-3/2026</div></div>
+              <div class="campo" data-campo="finalidade"><label>Finalidade<span class="req">*</span><span class="api">finalidade</span></label><div class="inp sel">INGRESSO</div></div>
+              <div class="campo" data-campo="modalidade"><label>Modalidade<span class="req">*</span><span class="api">modalidade</span></label><div class="inp sel">EXTERNO</div><div class="ajuda">Externo, interno ou interno restrito (art. 127.º).</div></div>
+              <div class="campo" data-campo="categoriaId"><label>Categoria<span class="req">*</span><span class="api">categoriaId</span></label><div class="inp sel">Técnico Superior</div></div>
+              <div class="campo" data-campo="lugares"><label>Lugares a prover<span class="req">*</span><span class="api">lugares</span></label><div class="inp sel">LUG-0014 · LUG-0015</div><div class="ajuda">Vagos, activos, da categoria.</div></div>
+              <div class="campo" data-campo="quotaDeficiencia"><label>Quota de deficiência<span class="api">quotaDeficiencia</span></label><div class="inp">5 %</div><div class="ajuda">Obrigatória nos externos (art. 127.º n.º 4).</div></div>
+              <div class="campo l2" data-campo="metodos"><label>Métodos<span class="req">*</span><span class="api">metodos</span></label><div class="inp">Prova de conhecimentos 60 % · Entrevista 40 %</div><div class="ajuda">As ponderações somam 100.</div></div>
+              <div class="campo" data-campo="candidaturasDe"><label>Candidaturas de<span class="req">*</span><span class="api">candidaturasDe</span></label><div class="inp">2026-10-01</div></div>
+              <div class="campo" data-campo="candidaturasAte"><label>até<span class="req">*</span><span class="api">candidaturasAte</span></label><div class="inp">2026-10-15</div></div>
+            </div>
+          <table><tr><th data-campo="estado">Estado</th><th data-campo="totalCandidaturas">Candidaturas</th><th data-campo="reservaAte">Reserva até</th></tr><tr><td><span class="pill w">LISTA_PROVISORIA</span></td><td>14</td><td>—</td></tr></table>
+          <div class="toast ok">Homologar: <b>200</b> — a lista final vale como <b>reserva de recrutamento</b> durante 18 meses; provê-se pela ordem, com a quota de deficiência primeiro. <span class="br">BR-CNC-18</span><span class="br">BR-CNC-19</span></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="painel"><h4>API</h4><div class="in">
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/concursos</span><span class="d">rascunho</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/concursos/{concursoId}/abrir</span><span class="d">publica o aviso</span></div>
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/concursos/{concursoId}/candidaturas</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/concursos/{concursoId}/candidaturas/{candidaturaId}/excluir</span><span class="d">audiência de 10 dias</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/concursos/{concursoId}/candidaturas/{candidaturaId}/nota</span><span class="d">0 a 20</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/concursos/{concursoId}/lista-provisoria</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/concursos/{concursoId}/homologar</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/concursos/{concursoId}/candidaturas/{candidaturaId}/prover</span><span class="d">pela ordem</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/me/candidaturas</span><span class="d">o próprio</span></div>
+      </div></div>
+      <div class="painel"><h4>Regras</h4><div class="in"><ul class="regras">
+        <li><span class="br">BR-CNC-01</span>O ciclo: rascunho → aberto → candidaturas encerradas → avaliação → lista provisória → homologado → concluído<span class="cod">409</span></li>
+        <li><span class="br">BR-CNC-09</span>Abrir exige tudo definido: categoria, lugares, métodos, júri (presidente e dois vogais), prazo<span class="cod">422</span></li>
+        <li><span class="br">BR-CNC-12</span>No interno, só quem está vinculado à Administração<span class="cod">422</span></li>
+        <li><span class="br">BR-CNC-13</span>Exclusão com audiência prévia de 10 dias [ind.]</li>
+        <li><span class="br">BR-CNC-16</span><span class="br">BR-CNC-17</span>Classificação: média ponderada, duas casas; desempate pela lei</li>
+        <li><span class="br">BR-DIS-29</span>Quem cumpre pena de suspensão não é admitido<span class="cod">422</span></li>
+      </ul></div></div>
+      <div class="nota limite"><b>Decisão do cliente:</b> sem portal do candidato — as candidaturas registam-se pelo RH.</div>
+      <span class="lei">Lei n.º 20/X/2023, arts. 123.º–129.º</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="ent-provimento" data-parte="K · Entrada e percurso">
+  <div class="parte">Parte K · Entrada e percurso</div>
+  <h2><span class="n">57</span>Entrada ao serviço — provimento, estágio e período experimental</h2>
+  <p class="lead">O <b>provimento</b> é o acto que põe a pessoa ao serviço: a forma de vínculo, o despacho e a <b>posse</b>, que marca o início de funções. Com a nomeação provisória (ou o contrato de estágio) abre-se o <b>estágio probatório</b>, com tutor; nos contratos a termo, o <b>período experimental</b>. No fim decide-se: com sucesso passa a definitivo; sem sucesso, exoneração ou cessação.</p>
+  <div class="duas">
+    <div>
+      <div class="ecra" data-dto="ProvimentoDTO">
+        <div class="barra"><i></i><i></i><i></i><span>RH · Dulce Tavares › Entrada ao serviço</span></div>
+        <div class="corpo">
+          <div class="form" data-dto="ProvimentoRequestDTO">
+              <div class="campo" data-campo="modalidade"><label>Forma de vínculo<span class="req">*</span><span class="api">modalidade</span></label><div class="inp sel">NOMEACAO_PROVISORIA</div><div class="ajuda">Abre o estágio probatório (art. 57.º).</div></div>
+              <div class="campo" data-campo="despachoNumero"><label>Despacho<span class="req">*</span><span class="api">despachoNumero</span></label><div class="inp">Desp. 41/2026</div></div>
+              <div class="campo" data-campo="dataPosse"><label>Data da posse<span class="req">*</span><span class="api">dataPosse</span></label><div class="inp">2026-11-02</div><div class="ajuda">Início de funções e data de efeitos (art. 63.º).</div></div>
+              <div class="campo" data-campo="tutorId"><label>Tutor<span class="api">tutorId</span></label><div class="inp sel">Gilberto Lopes</div><div class="ajuda">Nunca o próprio.</div></div>
+              <div class="campo" data-campo="mesesPrevistos"><label>Duração (meses)<span class="api">mesesPrevistos</span></label><div class="inp">12</div></div>
+              <div class="campo" data-campo="concursoRef"><label>Concurso<span class="api">concursoRef</span></label><div class="inp">CONC-3/2026</div></div>
+            </div>
+          <div class="toast ok"><b>201</b> — provimento registado; estágio probatório de 2026-11-02 a 2027-11-01, tutor avisado. O item «Provimento» da checklist de entrada fica feito. <span class="br">BR-PRV-04</span><span class="br">BR-CHK-09</span></div>
+          <div class="form" data-dto="PeriodoProvaRequestDTO" style="grid-template-columns:1fr">
+              <div class="campo" data-campo="avaliacao"><label>Avaliação do tutor<span class="req">*</span><span class="api">avaliacao</span></label><div class="inp sel">POSITIVA</div></div>
+              <div class="campo l2" data-campo="fundamentacao"><label>Fundamentação<span class="req">*</span><span class="api">fundamentacao</span></label><div class="inp">Integrou-se bem nas tarefas…</div></div>
+            </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="painel"><h4>API</h4><div class="in">
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/provimentos</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/provimentos</span><span class="d">provimentos e períodos</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/me/tutorias</span><span class="d">o tutor</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/me/tutorias/{periodoId}/relatorio</span><span class="d">relatório final</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/periodos-prova/{periodoId}/concluir</span><span class="d">decisão no fim</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/periodos-prova/{periodoId}/cessar</span><span class="d">antecipada</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/periodos-prova/{periodoId}/denunciar</span><span class="d">pelo agente</span></div>
+      </div></div>
+      <div class="painel"><h4>Regras</h4><div class="in"><ul class="regras">
+        <li><span class="br">BR-PRV-01</span>Formas de vínculo: nomeação provisória/definitiva, comissão, contrato de estágio, a termo, por tempo indeterminado<span class="cod">422</span></li>
+        <li><span class="br">BR-PRV-02</span>A posse é obrigatória e nunca antes do despacho<span class="cod">422</span></li>
+        <li><span class="br">BR-PRV-05</span>Período experimental: 60 dias no termo certo de 6 meses ou mais; 30 nos outros</li>
+        <li><span class="br">BR-PRV-07</span>Só o tutor remete o relatório<span class="cod">403</span></li>
+        <li><span class="br">BR-PRV-09</span><span class="br">BR-PRV-10</span>Com sucesso passa a definitivo; sem sucesso, exoneração (estágio) ou cessação</li>
+        <li><span class="br">BR-PRV-13</span>Avisos a 30 dias do fim (job RH_ALERTA_ENTRADA_SERVICO)</li>
+      </ul></div></div>
+      <span class="lei">Lei n.º 20/X/2023, arts. 52.º–81.º e 94.º n.º 3</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="ent-checklists" data-parte="K · Entrada e percurso">
+  <div class="parte">Parte K · Entrada e percurso</div>
+  <h2><span class="n">58</span>Checklists de entrada e de saída</h2>
+  <p class="lead">Quem entra recebe acolhimento (documentos, cartão, acessos, apresentação à equipa); quem sai devolve o que lhe foi confiado e passa o serviço. A instituição escreve o <b>modelo</b>; a admissão e a cessação abrem a checklist sozinhas, com os prazos calculados, e cada área (RH, chefia, informática, o próprio) marca o que é seu.</p>
+  <div class="duas">
+    <div>
+      <div class="ecra" data-dto="ChecklistDTO">
+        <div class="barra"><i></i><i></i><i></i><span>RH · Dulce Tavares › Checklist de entrada</span></div>
+        <div class="corpo">
+          <table><tr><th data-campo="tipo">Tipo</th><th data-campo="dataReferencia">Referência</th><th data-campo="estado">Estado</th><th data-campo="pendentes">Pendentes</th><th data-campo="atrasados">Atrasados</th></tr><tr><td>ENTRADA</td><td>2026-11-02</td><td><span class="pill w">ABERTA</span></td><td>3</td><td>1</td></tr></table>
+          <div data-dto="ItemChecklistDTO"><table><tr><th data-campo="descricao">Item</th><th data-campo="responsavel">Quem</th><th data-campo="prazo">Prazo</th><th data-campo="estado">Estado</th></tr><tr><td>Entrega dos documentos pessoais</td><td>RH</td><td>2026-11-06</td><td><span class="pill ok">FEITO</span></td></tr><tr><td>Cartão de identificação profissional</td><td>RH</td><td>2026-11-16</td><td><span class="pill ok">FEITO</span> <span class="pill">automático</span></td></tr><tr><td>Credenciais de acesso</td><td>INFORMATICA</td><td>2026-11-03</td><td><span class="pill bad">PENDENTE</span> <span class="pill bad">atrasado</span></td></tr><tr><td>Apresentação à equipa</td><td>CHEFIA</td><td>2026-11-09</td><td><span class="pill w">PENDENTE</span></td></tr></table></div>
+          <div class="form" data-dto="ItemChecklistRequestDTO" style="grid-template-columns:1fr">
+              <div class="campo" data-campo="estado"><label>Marcar como<span class="req">*</span><span class="api">estado</span></label><div class="inp sel">NAO_APLICAVEL</div></div>
+              <div class="campo" data-campo="observacao"><label>Razão<span class="api">observacao</span></label><div class="inp">Trabalha só com o portátil do projecto</div><div class="ajuda">Obrigatória para não aplicar um item obrigatório.</div></div>
+            </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="painel"><h4>API</h4><div class="in">
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/checklists/modelo</span><span class="d">o modelo</span></div>
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/checklists/modelo</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/checklists</span><span class="d">lista de trabalho</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/checklists</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/checklists/{checklistId}/itens/{itemId}</span><span class="d">marcar</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/me/checklists</span><span class="d">o próprio e a chefia</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/me/checklists/{checklistId}/itens/{itemId}</span></div>
+      </div></div>
+      <div class="painel"><h4>Regras</h4><div class="in"><ul class="regras">
+        <li><span class="br">BR-CHK-01</span><span class="br">BR-CHK-02</span>Modelo por tipo, parametrizável; semeado com os itens habituais se estiver vazio</li>
+        <li><span class="br">BR-CHK-04</span>A admissão e o reingresso abrem a de entrada; a cessação, a de saída</li>
+        <li><span class="br">BR-CHK-07</span>Não aplicável num obrigatório exige a razão<span class="cod">422</span></li>
+        <li><span class="br">BR-CHK-08</span>Em /me, cada um marca só o que é seu<span class="cod">403</span></li>
+        <li><span class="br">BR-CHK-09</span>O provimento e o cartão marcam-se sozinhos</li>
+        <li><span class="br">BR-CHK-12</span>A saída não trava a cessação</li>
+      </ul></div></div>
+      <span class="lei">Lei n.º 20/X/2023, arts. 25.º e 141.º n.º 2</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="ent-comissao" data-parte="K · Entrada e percurso">
+  <div class="parte">Parte K · Entrada e percurso</div>
+  <h2><span class="n">59</span>Comissão de serviço — renovar e cessar</h2>
+  <p class="lead">A comissão de serviço (dirigentes e cargos de livre escolha) é um registo de mobilidade do subtipo que «regressa ou cessa»: o Lugar de origem fica guardado. Dura 3 anos, renova-se por iguais períodos e cessa a todo o tempo — pela entidade, pelo nomeado com 60 dias de aviso, ou por pena disciplinar.</p>
+  <div class="duas">
+    <div>
+      <div class="ecra" data-dto="ComissaoServicoDTO">
+        <div class="barra"><i></i><i></i><i></i><span>RH · Comissões de serviço em curso</span></div>
+        <div class="corpo">
+          <table><tr><th data-campo="funcionarioNome">Nomeado</th><th data-campo="subtipo">Subtipo</th><th data-campo="dataInicio">Início</th><th data-campo="dataFim">Fim</th><th data-campo="renovacoes">Renovações</th><th data-campo="diasParaTermo">Dias</th></tr><tr><td>Gilberto Lopes</td><td>MOB_COMISSAO</td><td>2023-12-01</td><td>2026-11-30</td><td>0</td><td><span class="pill w">65</span></td></tr><tr><td>Ana Fortes</td><td>MOB_COMISSAO</td><td>2025-03-01</td><td>2028-02-29</td><td>0</td><td>886</td></tr></table>
+          <div class="form" data-dto="ComissaoServicoRequestDTO">
+              <div class="campo" data-campo="iniciativa"><label>Iniciativa<span class="req">*</span><span class="api">iniciativa</span></label><div class="inp sel">NOMEADO</div><div class="ajuda">ENTIDADE · NOMEADO · PENA_DISCIPLINAR</div></div>
+              <div class="campo" data-campo="dataAviso"><label>Data do aviso<span class="req">*</span><span class="api">dataAviso</span></label><div class="inp">2026-09-26</div></div>
+              <div class="campo" data-campo="dataEfeito"><label>Data de efeito<span class="req">*</span><span class="api">dataEfeito</span></label><div class="inp">2026-11-25</div><div class="ajuda">Pelo nomeado: pelo menos 60 dias depois do aviso.</div></div>
+              <div class="campo l2" data-campo="motivo"><label>Motivo<span class="api">motivo</span></label><div class="inp">Regresso ao lugar de origem</div></div>
+            </div>
+          <div class="toast bad"><b>422</b> — pelo nomeado, a cessação exige 60 dias de aviso prévio: a data de efeito não pode ser antes de 25/11/2026. <span class="br">BR-CMS-04</span></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="painel"><h4>API</h4><div class="in">
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/comissoes-servico</span><span class="d">em curso, pelo fim</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/comissoes-servico/{licencaId}/renovar</span><span class="d">+3 anos</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/comissoes-servico/{licencaId}/cessar</span></div>
+      </div></div>
+      <div class="painel"><h4>Regras</h4><div class="in"><ul class="regras">
+        <li><span class="br">BR-CMS-01</span>É comissão o subtipo que regressa ou cessa</li>
+        <li><span class="br">BR-CMS-03</span>Renova antes de terminar, por mais 3 anos a partir do fim actual<span class="cod">409</span></li>
+        <li><span class="br">BR-CMS-04</span><span class="br">BR-CMS-05</span>Aviso de 60 dias pelo nomeado; sem aviso por pena<span class="cod">422</span></li>
+        <li><span class="br">BR-CMS-06</span>O último dia em comissão é a véspera da data de efeito</li>
+        <li><span class="br">BR-CMS-07</span>Aviso 90 dias antes do fim (job RH_ALERTA_COMISSOES_SERVICO)</li>
+      </ul></div></div>
+      <span class="lei">Lei n.º 20/X/2023, arts. 59.º, 60.º e 64.º</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="ent-cartao" data-parte="K · Entrada e percurso">
+  <div class="parte">Parte K · Entrada e percurso</div>
+  <h2><span class="n">60</span>Cartão de identificação profissional</h2>
+  <p class="lead">O serviço emite o cartão com a categoria e o cargo, o colaborador atesta a entrega, e o cartão vale enquanto ele estiver na mesma função e categoria. É um PDF numerado (série CIP) guardado no MinIO; um cartão novo anula o anterior.</p>
+  <div class="duas">
+    <div>
+      <div class="ecra" data-dto="CartaoProfissionalDTO">
+        <div class="barra"><i></i><i></i><i></i><span>RH · Dulce Tavares › Cartão profissional</span></div>
+        <div class="corpo">
+          <table><tr><th data-campo="numero">Número</th><th data-campo="emitidoEm">Emitido</th><th data-campo="categoria">Categoria</th><th data-campo="cargo">Cargo</th><th data-campo="estado">Estado</th><th data-campo="valido">Válido</th></tr><tr><td>CIP-2026-000031</td><td>2026-11-03</td><td>Técnico Superior</td><td>Técnico de RH</td><td><span class="pill ok">ENTREGUE</span></td><td>sim</td></tr><tr><td>CIP-2025-000012</td><td>2025-02-10</td><td>Técnico</td><td>Técnico de RH</td><td><span class="pill bad">ANULADO</span></td><td>não</td></tr></table>
+          <div class="form" data-dto="CartaoProfissionalRequestDTO" style="grid-template-columns:1fr">
+              <div class="campo" data-campo="data"><label>Data da entrega<span class="req">*</span><span class="api">data</span></label><div class="inp">2026-11-04</div><div class="ajuda">Não antes da emissão.</div></div>
+              <div class="campo" data-campo="motivo"><label>Motivo (anular)<span class="api">motivo</span></label><div class="inp vazio">—</div><div class="ajuda">Perda ou extravio.</div></div>
+            </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="painel"><h4>API</h4><div class="in">
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/cartao-profissional</span><span class="d">emitir</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/cartao-profissional</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/cartao-profissional/{cartaoId}/entregar</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/cartao-profissional/{cartaoId}/devolver</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/cartao-profissional/{cartaoId}/anular</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/me/cartao-profissional</span><span class="d">o próprio</span></div>
+      </div></div>
+      <div class="painel"><h4>Regras</h4><div class="in"><ul class="regras">
+        <li><span class="br">BR-CID-01</span>Só a quem está ao serviço e tem Lugar<span class="cod">422</span></li>
+        <li><span class="br">BR-CID-02</span>Um cartão em uso de cada vez: o novo anula o anterior</li>
+        <li><span class="br">BR-CID-04</span>Validade derivada: ao serviço, mesma categoria e função</li>
+        <li><span class="br">BR-CID-06</span>Não substitui o documento de identificação civil</li>
+      </ul></div></div>
+      <span class="lei">Lei n.º 20/X/2023, art. 25.º</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide quiz-slide" id="quiz-k" data-parte="K · Entrada e percurso">
+  <div class="parte">Parte K · Verificação</div>
+  <h2><span class="n">61</span>Teste: entrada e percurso</h2>
+  <div class="quiz">
+    <div class="q" data-certa="b">
+      <p><b>1.</b> Quem está a cumprir pena de suspensão candidata-se a um concurso. O que acontece?</p>
+      <button type="button" data-o="a">É admitido e decide o júri</button>
+      <button type="button" data-o="b">A candidatura é recusada com 422</button>
+      <button type="button" data-o="c">Fica pendente até ao fim da pena</button>
+      <div class="exp">O Estatuto Disciplinar (art. 17.º n.º 2 c)) impede a admissão a concurso durante a suspensão. <span class="br">BR-DIS-29</span></div>
+    </div>
+    <div class="q" data-certa="b">
+      <p><b>2.</b> O que marca o início de funções de quem é nomeado?</p>
+      <button type="button" data-o="a">A data do despacho</button>
+      <button type="button" data-o="b">A data da posse</button>
+      <button type="button" data-o="c">A publicação no Boletim Oficial</button>
+      <div class="exp">A posse determina o início de funções e a data de efeitos (art. 63.º). <span class="br">BR-PRV-02</span></div>
+    </div>
+    <div class="q" data-certa="b">
+      <p><b>3.</b> O nomeado em comissão quer sair já na próxima semana.</p>
+      <button type="button" data-o="a">Pode, a comissão cessa a todo o tempo</button>
+      <button type="button" data-o="b">Só com 60 dias de aviso prévio</button>
+      <button type="button" data-o="c">Só no fim dos 3 anos</button>
+      <div class="exp">Cessa a todo o tempo, mas pelo nomeado com aviso prévio de 60 dias (art. 64.º). <span class="br">BR-CMS-04</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ PARTE L ============================ -->
+
+<section class="slide" id="proc-disciplinar" data-parte="L · Processos">
+  <div class="parte">Parte L · Processos</div>
+  <h2><span class="n">62</span>Processo disciplinar — a tramitação</h2>
+  <p class="lead">Da participação à execução da pena, cada passo é um <b>acto datado</b> e o processo mostra a fase, os <b>prazos</b> que correm (início e fim da instrução, defesa, prescrição, recurso) e os <b>alertas</b>. O RH vê numa lista todos os processos em curso; as faltas injustificadas que chegam aos limites da lei aparecem como <b>autos sugeridos</b>.</p>
+  <div class="duas">
+    <div>
+      <div class="ecra" data-dto="TramitacaoDisciplinarDTO">
+        <div class="barra"><i></i><i></i><i></i><span>RH · Processos disciplinares › PD 7/2026</span></div>
+        <div class="corpo">
+          <table><tr><th data-campo="numero">Processo</th><th data-campo="funcionarioNome">Arguido</th><th data-campo="especie">Espécie</th><th data-campo="fase">Fase</th><th data-campo="prescreveEm">Prescreve</th></tr><tr><td>PD 7/2026</td><td>Carlos Semedo</td><td>DISCIPLINAR_COMUM</td><td><span class="pill w">ACUSADO</span></td><td>2028-03-02</td></tr></table>
+          <table><tr><th>Prazo</th><th>Até</th><th></th></tr><tr><td>Defesa (20 dias)</td><td>2026-10-16</td><td><span class="pill w">a correr</span></td></tr><tr><td>Instrução (30 dias)</td><td>2026-09-30</td><td><span class="pill ok">cumprido</span></td></tr></table>
+          <div class="form" data-dto="AccaoDisciplinarRequestDTO">
+              <div class="campo" data-campo="pena"><label>Pena aplicada<span class="req">*</span><span class="api">pena</span></label><div class="inp sel">SUSPENSAO</div></div>
+              <div class="campo" data-campo="duracao"><label>Duração (dias)<span class="api">duracao</span></label><div class="inp">30</div><div class="ajuda">Suspensão: 21 a 121 dias.</div></div>
+              <div class="campo" data-campo="data"><label>Data da decisão<span class="req">*</span><span class="api">data</span></label><div class="inp">2026-10-28</div></div>
+              <div class="campo l2" data-campo="texto"><label>Fundamentação<span class="api">texto</span></label><div class="inp">Concorda com o relatório do instrutor.</div><div class="ajuda">Obrigatória se não concordar com a proposta.</div></div>
+            </div>
+          <div class="toast ok">Notificar a decisão: <b>200</b> — a pena produz efeitos no dia seguinte; o job executa-a e regista o facto <code>PENA_DISCIPLINAR</code> para o salarial. <span class="br">BR-DIS-15</span><span class="br">BR-DIS-16</span></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="painel"><h4>API</h4><div class="in">
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/participacoes</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/instaurar</span><span class="d">despacho liminar</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/iniciar-instrucao</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/acusar</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/notificar-acusacao</span><span class="d">prazo de defesa</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/defesa</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/relatorio</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/decidir</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/notificar-decisao</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/recurso</span><span class="d">15 dias</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/processos-disciplinares</span><span class="d">em curso</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/processos-disciplinares/autos-sugeridos</span></div>
+      </div></div>
+      <div class="painel"><h4>Regras</h4><div class="in"><ul class="regras">
+        <li><span class="br">BR-DIS-04</span>O instrutor nunca é o arguido<span class="cod">422</span></li>
+        <li><span class="br">BR-DIS-05</span><span class="br">BR-DIS-06</span>Instrução em 30 dias, prorrogável uma vez<span class="cod">409</span></li>
+        <li><span class="br">BR-DIS-07</span>Prescrição: 6 meses a 3 anos, conforme a pena<span class="cod">422</span></li>
+        <li><span class="br">BR-DIS-11</span>Defesa: 10 a 20 dias, até 45 se complexo<span class="cod">422</span></li>
+        <li><span class="br">BR-DIS-14</span>Decisão fundamentada se não concordar com o relatório<span class="cod">422</span></li>
+        <li><span class="br">BR-DIS-25</span>Autos sugeridos pelas faltas injustificadas (arts. 80.º e 81.º)</li>
+        <li><span class="br">BR-DIS-24</span>Job RH_PRAZOS_DISCIPLINARES executa as penas e avisa dos prazos</li>
+      </ul></div></div>
+      <span class="lei">Estatuto Disciplinar (Lei n.º 31/III/87), arts. 6.º, 47.º–84.º</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="proc-disciplinar-efeitos" data-parte="L · Processos">
+  <div class="parte">Parte L · Processos</div>
+  <h2><span class="n">63</span>Os efeitos da pena — e o que ela impede</h2>
+  <p class="lead">Executada a pena, a aplicação faz o que a lei manda: os dias de suspensão ou inactividade não contam como serviço nem são faltas a apurar, as penas expulsivas cessam o vínculo, e a pena <b>impede</b> o concurso, a promoção, a nova comissão de serviço e as <b>férias</b>. A suspensão da execução, a reabilitação e a revisão também estão aqui.</p>
+  <div class="duas">
+    <div>
+      <div class="ecra" data-dto="PedidoAusenciaCriadoResponseDTO">
+        <div class="barra"><i></i><i></i><i></i><span>RH · Carlos Semedo › Novo pedido de férias</span></div>
+        <div class="corpo">
+          <div class="form" data-dto="PedidoAusenciaRequestDTO"><div class="campo" data-campo="tipoAusenciaId"><label>Tipo<span class="req">*</span><span class="api">tipoAusenciaId</span></label><div class="inp sel">Férias</div></div><div class="campo" data-campo="dataInicio"><label>De<span class="req">*</span><span class="api">dataInicio</span></label><div class="inp">2026-12-14</div></div><div class="campo" data-campo="dataFim"><label>Até<span class="req">*</span><span class="api">dataFim</span></label><div class="inp">2027-01-04</div></div></div>
+          <div class="cenarios" data-alvo="r-ferias-pena">
+          <b>Experimente:</b>
+          <button type="button" data-c="curta" class="on">Suspensão de 30 dias, pede 15 dias</button>
+          <button type="button" data-c="dez">Suspensão de 30 dias, pede 10 dias</button>
+          <button type="button" data-c="longa">Suspensão de 100 dias</button>
+          <button type="button" data-c="durante">Férias durante a pena</button>
+          <button type="button" data-c="multa">Pena de multa</button>
+        </div>
+        <div class="respostas" id="r-ferias-pena">
+          <div class="resp" data-c="curta"><div class="toast bad"><b>422</b> — «Por causa da pena de suspensão, só pode gozar 10 dias de férias entre 28/11/2026 e 27/11/2027. Já tem 0 marcados e este pedido tem 15. Reduza o pedido ou marque o resto a partir de 28/11/2027.» <span class="br">BR-DIS-30</span></div></div>
+          <div class="resp" data-c="dez"><div class="toast ok"><b>201</b> — cabe nos 10 dias ressalvados pelo art. 17.º n.º 2 b). <span class="br">BR-DIS-30</span></div></div>
+          <div class="resp" data-c="longa"><div class="toast bad"><b>422</b> — acima de 90 dias não há dias ressalvados: nenhum dia de férias no ano seguinte ao fim da pena. <span class="br">BR-DIS-30</span></div></div>
+          <div class="resp" data-c="durante"><div class="toast bad"><b>422</b> — «Entre 29/10/2026 e 27/11/2026 está a cumprir pena de suspensão: não pode marcar férias nesse período.» <span class="br">BR-DIS-30</span></div></div>
+          <div class="resp" data-c="multa"><div class="toast ok"><b>201</b> — só a suspensão e a inactividade tocam nas férias. <span class="br">BR-DIS-30</span></div></div>
+        </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="painel"><h4>API</h4><div class="in">
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/suspensao-preventiva</span><span class="d">até 90 dias</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/decidir-recurso</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/reabilitar</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/rever</span></div>
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/pedidos-ausencia</span><span class="d">verifica as férias</span></div>
+      </div></div>
+      <div class="painel"><h4>Regras</h4><div class="in"><ul class="regras">
+        <li><span class="br">BR-DIS-09</span>Dias de afastamento não se apuram como faltas</li>
+        <li><span class="br">BR-DIS-17</span>Aposentação compulsiva e demissão cessam o vínculo</li>
+        <li><span class="br">BR-DIS-26</span>Suspensão da execução da pena (1 a 3 anos)<span class="cod">422</span></li>
+        <li><span class="br">BR-DIS-27</span><span class="br">BR-DIS-28</span>Reabilitação e revisão<span class="cod">409</span></li>
+        <li><span class="br">BR-DIS-29</span>Sem concurso, promoção nem nova comissão<span class="cod">422</span></li>
+        <li><span class="br">BR-DIS-30</span><span class="br">BR-FER-23</span>Sem férias na pena e no ano seguinte; 10 dias se suspenso por 90 dias ou menos — ao pedir e ao aprovar<span class="cod">422</span></li>
+      </ul></div></div>
+      <div class="nota regra"><b>Porque também ao aprovar?</b> O pedido pode ter sido feito antes de a pena ser executada: a verificação repete-se na decisão da chefia ou do RH.</div>
+      <span class="lei">Estatuto Disciplinar, arts. 17.º, 34.º, 90.º–95.º</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="proc-formacao" data-parte="L · Processos">
+  <div class="parte">Parte L · Processos</div>
+  <h2><span class="n">64</span>Formação — plano, acções e inscrições</h2>
+  <p class="lead">O <b>plano anual</b> junta as necessidades identificadas pelo RH, pela chefia e pelo próprio; aprovado, dá origem a <b>acções</b> com vagas, datas e horas. Os pedidos de inscrição decidem-se (a chefia para a sua equipa), a acção começa, cada formando é avaliado e os aproveitamentos entram no histórico. Se a Administração paga, pode fixar um <b>prazo de garantia</b> de permanência.</p>
+  <div class="duas">
+    <div>
+      <div class="ecra" data-dto="AccaoFormacaoDTO">
+        <div class="barra"><i></i><i></i><i></i><span>RH · Formação › Acções 2026</span></div>
+        <div class="corpo">
+          <table><tr><th data-campo="tema">Tema</th><th data-campo="modalidade">Modalidade</th><th data-campo="inicio">Início</th><th data-campo="horas">Horas</th><th data-campo="vagas">Vagas</th><th data-campo="admitidos">Admitidos</th><th data-campo="estado">Estado</th></tr><tr><td>Contratação pública</td><td>PRESENCIAL</td><td>2026-11-09</td><td>35</td><td>20</td><td>18</td><td><span class="pill w">INSCRICOES_ABERTAS</span></td></tr><tr><td>Excel avançado</td><td>DISTANCIA</td><td>2026-10-05</td><td>20</td><td>15</td><td>15</td><td><span class="pill ok">EM_CURSO</span></td></tr></table>
+          <div class="form" data-dto="AccaoFormacaoRequestDTO">
+              <div class="campo" data-campo="tema"><label>Tema<span class="req">*</span><span class="api">tema</span></label><div class="inp">Contratação pública</div></div>
+              <div class="campo" data-campo="entidadeFormadora"><label>Entidade formadora<span class="req">*</span><span class="api">entidadeFormadora</span></label><div class="inp">INA</div></div>
+              <div class="campo" data-campo="inicio"><label>Início<span class="req">*</span><span class="api">inicio</span></label><div class="inp">2026-11-09</div></div>
+              <div class="campo" data-campo="fim"><label>Fim<span class="req">*</span><span class="api">fim</span></label><div class="inp">2026-11-13</div></div>
+              <div class="campo" data-campo="custeadaPelaAdministracao"><label>Paga pela Administração<span class="api">custeadaPelaAdministracao</span></label><div class="inp sel">sim</div></div>
+              <div class="campo" data-campo="mesesGarantia"><label>Garantia (meses)<span class="api">mesesGarantia</span></label><div class="inp">12</div><div class="ajuda">Condiciona a exoneração (art. 95.º b)).</div></div>
+            </div>
+          <div class="toast bad">Admitir: <b>409</b> — as vagas estão esgotadas (20 admitidos). <span class="br">BR-FRM-07</span></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="painel"><h4>API</h4><div class="in">
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/formacao/planos</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/formacao/planos/{planoId}/aprovar</span></div>
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/formacao/accoes</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/formacao/accoes/{accaoId}/abrir-inscricoes</span></div>
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/me/formacao/accoes/{accaoId}/inscricao</span><span class="d">o próprio ou a chefia</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/formacao/accoes/{accaoId}/inscricoes/{inscricaoId}/avaliar</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/formacao/accoes/{accaoId}/concluir</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/formacao/horas</span><span class="d">balanço social</span></div>
+      </div></div>
+      <div class="painel"><h4>Regras</h4><div class="in"><ul class="regras">
+        <li><span class="br">BR-FRM-02</span>A chefia só identifica e inscreve a sua equipa<span class="cod">403</span></li>
+        <li><span class="br">BR-FRM-04</span>Garantia só se a Administração custeia: 1 a 60 meses<span class="cod">422</span></li>
+        <li><span class="br">BR-FRM-09</span>Começa com pelo menos um admitido<span class="cod">409</span></li>
+        <li><span class="br">BR-FRM-11</span>Os dias da acção não se apuram como faltas</li>
+        <li><span class="br">BR-FRM-14</span>Garantias em curso condicionam a exoneração</li>
+      </ul></div></div>
+      <span class="lei">Lei n.º 20/X/2023, arts. 95.º b) e 141.º</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="proc-missao" data-parte="L · Processos">
+  <div class="parte">Parte L · Processos</div>
+  <h2><span class="n">65</span>Missão de serviço — deslocações e dias de ajudas de custo</h2>
+  <p class="lead">Uma deslocação em serviço, de uma ou mais pessoas, no país ou no estrangeiro. Pede-a o RH, a chefia ou o próprio; autoriza-a o RH ou a chefia directa de todos os participantes. Os dias em missão não são faltas, e os <b>dias de ajudas de custo</b> vão ao diário de factos — o <b>valor</b> é do processamento salarial.</p>
+  <div class="duas">
+    <div>
+      <div class="ecra" data-dto="MissaoServicoDTO">
+        <div class="barra"><i></i><i></i><i></i><span>RH · Missões de serviço › Nova</span></div>
+        <div class="corpo">
+          <div class="form" data-dto="MissaoServicoRequestDTO">
+              <div class="campo l2" data-campo="participantes"><label>Participantes<span class="req">*</span><span class="api">participantes</span></label><div class="inp sel">Dulce Tavares · Gilberto Lopes</div></div>
+              <div class="campo" data-campo="destinoTipo"><label>Destino<span class="req">*</span><span class="api">destinoTipo</span></label><div class="inp sel">NACIONAL</div></div>
+              <div class="campo" data-campo="destino"><label>Local<span class="req">*</span><span class="api">destino</span></label><div class="inp">São Vicente — Mindelo</div></div>
+              <div class="campo" data-campo="partida"><label>Partida<span class="req">*</span><span class="api">partida</span></label><div class="inp">2026-10-20 08:00</div></div>
+              <div class="campo" data-campo="regresso"><label>Regresso<span class="req">*</span><span class="api">regresso</span></label><div class="inp">2026-10-22 18:30</div></div>
+              <div class="campo" data-campo="transporte"><label>Transporte<span class="api">transporte</span></label><div class="inp sel">AVIAO</div></div>
+              <div class="campo l2" data-campo="objectivo"><label>Objectivo<span class="req">*</span><span class="api">objectivo</span></label><div class="inp">Auditoria aos serviços desconcentrados</div></div>
+            </div>
+          <table><tr><th data-campo="estado">Estado</th><th data-campo="diasAjudasCusto">Dias de ajudas</th><th data-campo="alertas">Alertas</th></tr><tr><td><span class="pill ok">AUTORIZADA</span></td><td>2,5</td><td>Dulce tem férias aprovadas a 22/10</td></tr></table>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="painel"><h4>API</h4><div class="in">
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/missoes-servico</span><span class="d">RH</span></div>
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/me/missoes-servico</span><span class="d">o próprio ou a chefia</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/missoes-servico/{missaoId}/autorizar</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/me/missoes-servico/{missaoId}/autorizar</span><span class="d">chefia</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/missoes-servico/{missaoId}/regresso</span><span class="d">relatório</span></div>
+      </div></div>
+      <div class="painel"><h4>Regras</h4><div class="in"><ul class="regras">
+        <li><span class="br">BR-MSS-03</span>Sem outra missão nas mesmas horas<span class="cod">409</span></li>
+        <li><span class="br">BR-MSS-04</span>A chefia só decide se o for de todos os participantes<span class="cod">403</span></li>
+        <li><span class="br">BR-MSS-05</span>Sobreposição com férias: avisa, não impede</li>
+        <li><span class="br">BR-MSS-07</span>Partida até às 13:00 conta o dia inteiro; depois, meio [ind.]</li>
+        <li><span class="br">BR-MSS-09</span>Relatório em falta: lembrete no dia seguinte ao regresso</li>
+      </ul></div></div>
+      <span class="lei">Lei n.º 20/X/2023, art. 159.º</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="proc-acumulacao" data-parte="L · Processos">
+  <div class="parte">Parte L · Processos</div>
+  <h2><span class="n">66</span>Acumulação de funções</h2>
+  <p class="lead">A regra é a exclusividade; acumular outras funções, públicas ou privadas, exige autorização. As públicas remuneradas só nos casos da lei; a docência tem o tecto de um terço do horário; nas privadas o próprio declara que não há conflito. Autoriza o dirigente máximo, ou os membros do Governo se for remunerada; no fim do período, caduca.</p>
+  <div class="duas">
+    <div>
+      <div class="ecra" data-dto="AcumulacaoFuncoesDTO">
+        <div class="barra"><i></i><i></i><i></i><span>O meu portal › Pedir acumulação</span></div>
+        <div class="corpo">
+          <div class="form" data-dto="AcumulacaoFuncoesRequestDTO">
+              <div class="campo" data-campo="tipo"><label>Tipo<span class="req">*</span><span class="api">tipo</span></label><div class="inp sel">PUBLICA</div></div>
+              <div class="campo" data-campo="casoPublico"><label>Caso da lei<span class="req">*</span><span class="api">casoPublico</span></label><div class="inp sel">DOCENCIA_INVESTIGACAO</div><div class="ajuda">Art. 21.º n.º 2.</div></div>
+              <div class="campo" data-campo="remunerada"><label>Remunerada<span class="api">remunerada</span></label><div class="inp sel">sim</div></div>
+              <div class="campo" data-campo="entidade"><label>Entidade<span class="req">*</span><span class="api">entidade</span></label><div class="inp">Universidade de Cabo Verde</div></div>
+              <div class="campo" data-campo="horasSemanais"><label>Horas semanais<span class="api">horasSemanais</span></label><div class="inp">6</div><div class="ajuda">Até um terço do horário da função principal.</div></div>
+              <div class="campo" data-campo="inicio"><label>De<span class="req">*</span><span class="api">inicio</span></label><div class="inp">2026-10-01</div></div>
+              <div class="campo" data-campo="fim"><label>Até<span class="api">fim</span></label><div class="inp">2027-07-31</div></div>
+            </div>
+          <div class="toast ok"><b>201</b> — pedido registado; autoriza os membros do Governo (remunerada). <span class="br">BR-ACU-05</span></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="painel"><h4>API</h4><div class="in">
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/me/acumulacoes-funcoes</span><span class="d">o próprio</span></div>
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/acumulacoes-funcoes</span><span class="d">RH</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/acumulacoes-funcoes/{acumulacaoId}/autorizar</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/acumulacoes-funcoes/{acumulacaoId}/cessar</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/acumulacoes-funcoes</span><span class="d">por estado</span></div>
+      </div></div>
+      <div class="painel"><h4>Regras</h4><div class="in"><ul class="regras">
+        <li><span class="br">BR-ACU-02</span>Públicas remuneradas só nos casos do art. 21.º n.º 2<span class="cod">422</span></li>
+        <li><span class="br">BR-ACU-03</span>Docência até um terço do horário (sem horário na base, não se verifica)<span class="cod">422</span></li>
+        <li><span class="br">BR-ACU-04</span>Privadas: declaração de não conflito<span class="cod">422</span></li>
+        <li><span class="br">BR-ACU-07</span>Caduca no fim; aviso 30 dias antes (job RH_ACUMULACOES)</li>
+      </ul></div></div>
+      <span class="lei">Lei n.º 20/X/2023, arts. 20.º–24.º</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide quiz-slide" id="quiz-l" data-parte="L · Processos">
+  <div class="parte">Parte L · Verificação</div>
+  <h2><span class="n">67</span>Teste: processos</h2>
+  <div class="quiz">
+    <div class="q" data-certa="b">
+      <p><b>1.</b> Um funcionário suspenso 60 dias quer 15 dias de férias no ano a seguir à pena.</p>
+      <button type="button" data-o="a">Pode, as férias são um direito</button>
+      <button type="button" data-o="b">Só 10 dias; os outros 5 depois de passado esse ano</button>
+      <button type="button" data-o="c">Nenhum dia</button>
+      <div class="exp">Art. 17.º n.º 2 b): o ano seguinte fica sem férias, salvo 10 dias a quem foi suspenso por 90 dias ou menos. <span class="br">BR-DIS-30</span></div>
+    </div>
+    <div class="q" data-certa="b">
+      <p><b>2.</b> Quem decide o pedido de inscrição de alguém da minha equipa numa acção de formação?</p>
+      <button type="button" data-o="a">Só o RH</button>
+      <button type="button" data-o="b">A chefia directa ou o RH</button>
+      <button type="button" data-o="c">O formador</button>
+      <div class="exp">A chefia directa decide a sua equipa (403 fora dela); o RH decide sempre. <span class="br">BR-FRM-08</span></div>
+    </div>
+    <div class="q" data-certa="b">
+      <p><b>3.</b> Uma missão cai em dias de férias já aprovadas.</p>
+      <button type="button" data-o="a">É recusada com 409</button>
+      <button type="button" data-o="b">É aceite com um alerta</button>
+      <button type="button" data-o="c">As férias cancelam-se sozinhas</button>
+      <div class="exp">Sobreposição com férias ou ausências: avisa, não impede. <span class="br">BR-MSS-05</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ PARTE M ============================ -->
+
+<section class="slide" id="sai-aposentacao" data-parte="M · Saída e aposentação">
+  <div class="parte">Parte M · Saída e aposentação</div>
+  <h2><span class="n">68</span>Aposentação — o limite de idade e as outras modalidades</h2>
+  <p class="lead">A aplicação sabe quando cada pessoa faz 65 anos (o limite), quanto tempo de serviço terá nessa data e que modalidades pode pedir: a antecipada, a pré-aposentação, por invalidez. Avisa antes do limite, acompanha o processo (pedido → despacho → desligação → aposentação) e trata a <b>prorrogação</b> até aos 70 anos, por interesse público. A pensão é da segurança social.</p>
+  <div class="duas">
+    <div>
+      <div class="ecra" data-dto="SituacaoAposentacaoDTO">
+        <div class="barra"><i></i><i></i><i></i><span>RH · Joana Tavares › Aposentação</span></div>
+        <div class="corpo">
+          <table><tr><th data-campo="idade">Idade</th><th data-campo="faz65">Faz 65</th><th data-campo="limiteEfectivo">Limite efectivo</th><th data-campo="anosServico">Anos de serviço</th><th data-campo="podeAntecipada">Antecipada</th><th data-campo="podePreAposentacao">Pré-aposentação</th></tr><tr><td>63</td><td>2028-04-12</td><td>2028-04-12</td><td>35</td><td><span class="pill ok">sim</span></td><td><span class="pill ok">sim</span></td></tr></table>
+          <div class="form" data-dto="ProcessoAposentacaoRequestDTO">
+              <div class="campo" data-campo="modalidade"><label>Modalidade<span class="req">*</span><span class="api">modalidade</span></label><div class="inp sel">ANTECIPADA_PEDIDO</div><div class="ajuda">Exige 34 anos de serviço (art. 175.º).</div></div>
+              <div class="campo" data-campo="dataPrevista"><label>Data prevista<span class="req">*</span><span class="api">dataPrevista</span></label><div class="inp">2027-01-01</div></div>
+              <div class="campo l2" data-campo="fundamentacao"><label>Fundamentação<span class="api">fundamentacao</span></label><div class="inp">Pedido da interessada</div></div>
+            </div>
+          <div class="toast ok">Concluir: <b>200</b> — o vínculo cessa pelo caminho único da cessação; a antecipada <b>extingue o Lugar</b> (art. 178.º). <span class="br">BR-APO-10</span><span class="br">BR-APO-11</span></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="painel"><h4>API</h4><div class="in">
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/aposentacao</span><span class="d">situação</span></div>
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/aposentacao/processos</span><span class="d">RH</span></div>
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/me/aposentacao/processos</span><span class="d">o próprio</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/aposentacao/processos/{processoId}/deferir</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/aposentacao/processos/{processoId}/desligar</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/aposentacao/processos/{processoId}/concluir</span></div>
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/aposentacao/prorrogacoes</span><span class="d">até aos 70</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/relatorios/aposentacao</span><span class="d">quem chega ao limite</span></div>
+      </div></div>
+      <div class="painel"><h4>Regras</h4><div class="in"><ul class="regras">
+        <li><span class="br">BR-APO-01</span>Limite de 65 anos; até 70 por prorrogação</li>
+        <li><span class="br">BR-APO-04</span>Avisos 180, 90 e 30 dias antes (job RH_ALERTA_APOSENTACAO)</li>
+        <li><span class="br">BR-APO-06</span>Antecipada: 34 anos de serviço; pré-aposentação: 58 anos de idade e 30 de serviço<span class="cod">422</span></li>
+        <li><span class="br">BR-APO-07</span>Em /me, só a antecipada e a pré-aposentação<span class="cod">422</span></li>
+        <li><span class="br">BR-APO-12</span>Cancelar só antes da desligação<span class="cod">409</span></li>
+      </ul></div></div>
+      <span class="lei">Lei n.º 20/X/2023, arts. 48.º e 173.º–179.º</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="sai-exoneracao" data-parte="M · Saída e aposentação">
+  <div class="parte">Parte M · Saída e aposentação</div>
+  <h2><span class="n">69</span>Exoneração voluntária — o pré-aviso e as condicionantes</h2>
+  <p class="lead">Quem quer sair pede a exoneração com <b>60 dias</b> de pré-aviso. Há situações que a condicionam — processo disciplinar em que é arguido, formação paga ainda em garantia, entre outras — e a aplicação mostra-as sempre. Deferida, produz efeitos na data pretendida ou, condicionada, quando a condição cessar e no máximo 90 dias depois do pré-aviso.</p>
+  <div class="duas">
+    <div>
+      <div class="ecra" data-dto="ExoneracaoDTO">
+        <div class="barra"><i></i><i></i><i></i><span>RH · Exonerações</span></div>
+        <div class="corpo">
+          <table><tr><th data-campo="funcionarioNome">Colaborador</th><th data-campo="dataPreAviso">Pré-aviso</th><th data-campo="dataPretendida">Pretendida</th><th data-campo="estado">Estado</th><th data-campo="condicionantes">Condicionantes</th></tr><tr><td>Paulo Fonseca</td><td>2026-09-01</td><td>2026-10-31</td><td><span class="pill w">PEDIDA</span></td><td>Formação paga em garantia até 2027-03-31</td></tr><tr><td>Rita Brito</td><td>2026-07-15</td><td>2026-09-15</td><td><span class="pill ok">EFECTIVADA</span></td><td>—</td></tr></table>
+          <div class="form" data-dto="ExoneracaoRequestDTO" style="grid-template-columns:1fr">
+              <div class="campo" data-campo="despacho"><label>Despacho<span class="req">*</span><span class="api">despacho</span></label><div class="inp">Desp. 55/2026</div></div>
+              <div class="campo" data-campo="data"><label>Data do despacho<span class="req">*</span><span class="api">data</span></label><div class="inp">2026-10-10</div></div>
+            </div>
+          <div class="toast w">Deferir: <b>200</b> — condicionada: produz efeitos quando a condição cessar, no limite a 2026-11-30 (90 dias depois do pré-aviso). <span class="br">BR-EXO-04</span></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="painel"><h4>API</h4><div class="in">
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/me/exoneracoes</span><span class="d">o próprio</span></div>
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/exoneracoes</span><span class="d">RH</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/exoneracoes/{exoneracaoId}/deferir</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/me/exoneracoes/{exoneracaoId}/desistir</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/exoneracoes</span><span class="d">com as condicionantes de hoje</span></div>
+      </div></div>
+      <div class="painel"><h4>Regras</h4><div class="in"><ul class="regras">
+        <li><span class="br">BR-EXO-01</span>Pré-aviso de 60 dias; data do pré-aviso não futura<span class="cod">422</span></li>
+        <li><span class="br">BR-EXO-03</span>Condicionantes do art. 95.º, vistas sempre</li>
+        <li><span class="br">BR-EXO-05</span><span class="br">BR-EXO-06</span>Cessa o vínculo e publica-se como exoneração</li>
+        <li><span class="br">BR-EXO-07</span>Sem despacho a tempo, o RH é lembrado (job RH_EXONERACOES)</li>
+        <li><span class="br">BR-EXO-08</span>Desistir antes dos efeitos<span class="cod">409</span></li>
+      </ul></div></div>
+      <span class="lei">Lei n.º 20/X/2023, arts. 94.º e 95.º</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ PARTE N ============================ -->
+
+<section class="slide" id="sst-acidentes" data-parte="N · Saúde e segurança">
+  <div class="parte">Parte N · Saúde e segurança</div>
+  <h2><span class="n">70</span>Acidentes em serviço e doenças profissionais</h2>
+  <p class="lead">O acidente participa-se (o próprio ou o RH), qualifica-se por despacho e acompanha-se: períodos de incapacidade temporária, alta, incapacidade permanente e seguradora. Os dias de incapacidade são faltas justificadas sem perda de direitos; a incapacidade absoluta abre a aposentação por invalidez. Os valores da reparação são do salarial.</p>
+  <div class="duas">
+    <div>
+      <div class="ecra" data-dto="AcidenteServicoDTO">
+        <div class="barra"><i></i><i></i><i></i><span>RH · Acidentes › Carlos Semedo</span></div>
+        <div class="corpo">
+          <div class="form" data-dto="AcidenteServicoRequestDTO">
+              <div class="campo" data-campo="tipo"><label>Tipo<span class="req">*</span><span class="api">tipo</span></label><div class="inp sel">ACIDENTE_TRAJECTO</div><div class="ajuda">Em serviço, de trajecto ou doença profissional.</div></div>
+              <div class="campo" data-campo="dataHora"><label>Data e hora<span class="req">*</span><span class="api">dataHora</span></label><div class="inp">2026-09-14 07:40</div></div>
+              <div class="campo" data-campo="local"><label>Local<span class="req">*</span><span class="api">local</span></label><div class="inp">Achada Santo António</div></div>
+              <div class="campo l2" data-campo="descricao"><label>O que aconteceu<span class="req">*</span><span class="api">descricao</span></label><div class="inp">Queda na escada do autocarro a caminho do serviço</div></div>
+            </div>
+          <table><tr><th data-campo="estado">Estado</th><th data-campo="seguradora">Seguradora</th><th data-campo="alta">Alta</th><th data-campo="alertas">Alertas</th></tr><tr><td><span class="pill ok">QUALIFICADO</span></td><td>Garantia</td><td>—</td><td>Participada 5 dias depois (prazo de 2 dias úteis)</td></tr></table>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="painel"><h4>API</h4><div class="in">
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/me/acidentes-servico</span><span class="d">o próprio</span></div>
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/acidentes-servico</span><span class="d">RH</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/acidentes-servico/{acidenteId}/qualificar</span></div>
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/acidentes-servico/{acidenteId}/incapacidades</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/acidentes-servico/{acidenteId}/alta</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/acidentes-servico/{acidenteId}/incapacidade-permanente</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/acidentes-servico/{acidenteId}/seguradora</span></div>
+      </div></div>
+      <div class="painel"><h4>Regras</h4><div class="in"><ul class="regras">
+        <li><span class="br">BR-SST-02</span>Participação em 2 dias úteis [ind.]: fora do prazo, alerta</li>
+        <li><span class="br">BR-SST-04</span>Incapacidades sem sobreposição, em aberto até à alta<span class="cod">409</span></li>
+        <li><span class="br">BR-SST-05</span>Faltas justificadas sem perda de direitos</li>
+        <li><span class="br">BR-SST-07</span>Incapacidade permanente absoluta abre a aposentação por invalidez</li>
+        <li><span class="br">BR-SST-10</span>Encerra sem incapacidade em aberto<span class="cod">409</span></li>
+      </ul></div></div>
+      <span class="lei">Lei n.º 20/X/2023, arts. 187.º–191.º</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="sst-saude" data-parte="N · Saúde e segurança">
+  <div class="parte">Parte N · Saúde e segurança</div>
+  <h2><span class="n">71</span>Medicina do trabalho, junta médica e doença prolongada</h2>
+  <p class="lead">Guarda-se o <b>resultado de aptidão</b> dos exames (nunca dados clínicos) e a validade, com aviso antes de caducar. A <b>junta médica</b> (comissão de verificação de incapacidades) pede-se e regista-se o parecer, com os seus efeitos. E a doença que chega aos <b>30 dias seguidos</b> aparece sozinha como sugestão de junta, porque a lei manda lá o funcionário que não pode regressar.</p>
+  <div class="duas">
+    <div>
+      <div class="ecra" data-dto="SugestaoJuntaMedicaDTO">
+        <div class="barra"><i></i><i></i><i></i><span>RH · Juntas médicas › Sugestões</span></div>
+        <div class="corpo">
+          <table><tr><th data-campo="nome">Colaborador</th><th data-campo="desde">Doente desde</th><th data-campo="ate">Atestado até</th><th data-campo="dias">Dias seguidos</th><th></th></tr><tr><td>Francisco Bastos</td><td>2026-08-20</td><td>2026-10-10</td><td><span class="pill bad">38</span></td><td><span class="btn o">Pedir junta</span></td></tr></table>
+          <div data-dto="JuntaMedicaRequestDTO"><div class="form"><div class="campo" data-campo="motivo"><label>Motivo<span class="req">*</span><span class="api">motivo</span></label><div class="inp sel">DOENCA_PROLONGADA</div></div><div class="campo l2" data-campo="fundamentacao"><label>Fundamentação<span class="api">fundamentacao</span></label><div class="inp">38 dias seguidos de baixa por doença</div></div></div></div>
+          <div class="cenarios" data-alvo="r-doenca">
+          <b>Experimente:</b>
+          <button type="button" data-c="seguido" class="on">Dois atestados com fim-de-semana pelo meio</button>
+          <button type="button" data-c="regressou">Já regressou ao serviço</button>
+          <button type="button" data-c="pedida">Junta já pedida</button>
+          <button type="button" data-c="dia">Um dia útil de trabalho pelo meio</button>
+        </div>
+        <div class="respostas" id="r-doenca">
+          <div class="resp" data-c="seguido"><div class="toast w"><b>Sugerido</b> — o sábado e o domingo entre os atestados não interrompem a doença: 38 dias seguidos. <span class="br">BR-SST-19</span></div></div>
+          <div class="resp" data-c="regressou"><div class="toast ok"><b>Não sugerido</b> — a lei manda à junta quem não está em condições de regressar; quem já voltou, não. <span class="br">BR-SST-19</span></div></div>
+          <div class="resp" data-c="pedida"><div class="toast ok"><b>Não sugerido</b> — já tem um pedido de junta desde o início desta doença. <span class="br">BR-SST-19</span></div></div>
+          <div class="resp" data-c="dia"><div class="toast ok"><b>Não sugerido</b> — o regresso interrompe a contagem; recomeça do zero. <span class="br">BR-SST-19</span></div></div>
+        </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="painel"><h4>API</h4><div class="in">
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/juntas-medicas/sugestoes</span><span class="d">doença prolongada</span></div>
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/juntas-medicas</span><span class="d">pedir</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/juntas-medicas/{juntaId}/parecer</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/juntas-medicas</span></div>
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/exames-saude</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/exames-saude</span></div>
+      </div></div>
+      <div class="painel"><h4>Regras</h4><div class="in"><ul class="regras">
+        <li><span class="br">BR-SST-12</span>Apto condicionado exige as restrições; inapto definitivo sugere a junta<span class="cod">422</span></li>
+        <li><span class="br">BR-SST-13</span><span class="br">BR-SST-14</span>Validade de 2 anos (1 a partir dos 50) e aviso 30 dias antes</li>
+        <li><span class="br">BR-SST-16</span>Um pedido de junta em curso de cada vez<span class="cod">409</span></li>
+        <li><span class="br">BR-SST-17</span>Incapaz permanente abre a aposentação por invalidez</li>
+        <li><span class="br">BR-SST-19</span>30 dias seguidos de doença (categoria SAUDE) sugerem a junta; aviso ao RH uma vez (job RH_DOENCA_PROLONGADA)</li>
+      </ul></div></div>
+      <div class="nota limite"><b>O que só o RH sabe:</b> o internamento e a doença no estrangeiro, que a lei exclui — por isso a aplicação sugere e não pede a junta sozinha.</div>
+      <span class="lei">DL n.º 3/2010, art. 26.º · Lei n.º 20/X/2023, arts. 45.º e 121.º</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide quiz-slide" id="quiz-mn" data-parte="N · Saúde e segurança">
+  <div class="parte">Parte N · Verificação</div>
+  <h2><span class="n">72</span>Teste: saída, saúde e segurança</h2>
+  <div class="quiz">
+    <div class="q" data-certa="b">
+      <p><b>1.</b> Quem tem 34 anos de serviço e 60 de idade pode pedir sozinho, no portal…</p>
+      <button type="button" data-o="a">a aposentação por limite de idade</button>
+      <button type="button" data-o="b">a antecipada ou a pré-aposentação</button>
+      <button type="button" data-o="c">a aposentação por invalidez</button>
+      <div class="exp">Em /me só as modalidades que são iniciativa do próprio. <span class="br">BR-APO-07</span></div>
+    </div>
+    <div class="q" data-certa="b">
+      <p><b>2.</b> Um pedido de exoneração com formação paga ainda em garantia…</p>
+      <button type="button" data-o="a">é recusado</button>
+      <button type="button" data-o="b">é aceite, mas condicionado: efeitos no máximo 90 dias depois do pré-aviso</button>
+      <button type="button" data-o="c">apaga a garantia</button>
+      <div class="exp">Art. 95.º: a garantia condiciona a exoneração. <span class="br">BR-EXO-03</span><span class="br">BR-EXO-04</span></div>
+    </div>
+    <div class="q" data-certa="b">
+      <p><b>3.</b> Dois atestados, de 1 a 15 de Agosto e de 16 de Agosto a 15 de Setembro. Quando é sugerida a junta?</p>
+      <button type="button" data-o="a">Nunca, são dois pedidos</button>
+      <button type="button" data-o="b">A 30 de Agosto, ao 30.º dia seguido</button>
+      <button type="button" data-o="c">Só a 15 de Setembro</button>
+      <div class="exp">Os atestados seguidos somam-se num só período. <span class="br">BR-SST-19</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ PARTE O ============================ -->
+
+<section class="slide" id="doc-notificacoes" data-parte="O · Documentos, avisos e salarial">
+  <div class="parte">Parte O · Documentos, avisos e salarial</div>
+  <h2><span class="n">73</span>Notificações — a caixa de cada um e a do RH</h2>
+  <p class="lead">Quando acontece algo que alguém tem de saber — um pedido por decidir, um prazo a acabar, uma decisão —, a aplicação escreve um aviso na caixa da pessoa ou na caixa partilhada do RH, na mesma transacção do facto. Não se apagam: marcam-se lidas.</p>
+  <div class="duas">
+    <div>
+      <div class="ecra" data-dto="NotificacaoDTO">
+        <div class="barra"><i></i><i></i><i></i><span>O meu portal › Notificações (3 por ler)</span></div>
+        <div class="corpo">
+          <table><tr><th data-campo="tipo">Tipo</th><th data-campo="titulo">Aviso</th><th data-campo="criadaEm">Quando</th><th data-campo="lida">Lida</th></tr><tr><td>PEDIDO_AUSENCIA_PENDENTE</td><td>Joana Tavares pediu férias de 02/11/2026 a 13/11/2026</td><td>2026-09-26 10:12</td><td>não</td></tr><tr><td>EXAME_SAUDE</td><td>Francisco Bastos está de baixa por doença há 38 dias: peça a junta médica</td><td>2026-09-26 07:20</td><td>não</td></tr><tr><td>COMISSAO_SERVICO</td><td>A comissão de Gilberto Lopes termina a 30/11/2026</td><td>2026-09-01 06:55</td><td>sim</td></tr></table>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="painel"><h4>API</h4><div class="in">
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/me/notificacoes</span><span class="d">as minhas</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/me/notificacoes/contagem</span><span class="d">por ler</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/me/notificacoes/{notificacaoId}/lida</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/me/notificacoes/lidas</span><span class="d">todas</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/notificacoes</span><span class="d">caixa do RH</span></div>
+      </div></div>
+      <div class="painel"><h4>Regras</h4><div class="in"><ul class="regras">
+        <li><span class="br">BR-NOT-01</span>Uma pessoa ou a caixa de um perfil — nunca as duas</li>
+        <li><span class="br">BR-NOT-03</span>Não se apagam; marcar lida é idempotente</li>
+        <li><span class="br">BR-NOT-05</span>Mesma transacção do facto</li>
+        <li><span class="br">BR-NOT-06</span>Cada um lê as suas<span class="cod">404</span></li>
+      </ul></div></div>
+      <div class="nota limite"><b>Por fazer:</b> o envio por correio electrónico — os avisos ficam numa fila à espera do servidor SMTP.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="doc-declaracoes" data-parte="O · Documentos, avisos e salarial">
+  <div class="parte">Parte O · Documentos, avisos e salarial</div>
+  <h2><span class="n">74</span>Declarações e documentos emitidos</h2>
+  <p class="lead">O colaborador pede no portal; o RH emite (ou recusa). Cada documento é um PDF numerado por série e ano, com um <b>código de verificação</b> que qualquer pessoa confirma sem autenticação. O PDF vai para o MinIO; não se corrige, anula-se e emite-se outro.</p>
+  <div class="duas">
+    <div>
+      <div class="ecra" data-dto="PedidoDeclaracaoDTO">
+        <div class="barra"><i></i><i></i><i></i><span>O meu portal › Declarações</span></div>
+        <div class="corpo">
+          <div class="form" data-dto="PedidoDeclaracaoRequestDTO">
+              <div class="campo" data-campo="tipo"><label>Tipo<span class="req">*</span><span class="api">tipo</span></label><div class="inp sel">TEMPO_SERVICO</div><div class="ajuda">Vínculo, tempo de serviço, antiguidade na categoria, situação funcional.</div></div>
+              <div class="campo l2" data-campo="finalidade"><label>Para quê<span class="api">finalidade</span></label><div class="inp">Banco — crédito à habitação</div></div>
+            </div>
+          <table><tr><th data-campo="tipo">Tipo</th><th data-campo="dataPedido">Pedido</th><th data-campo="estado">Estado</th></tr><tr><td>VINCULO</td><td>2026-09-20</td><td><span class="pill ok">EMITIDA</span> DEC-2026-000118</td></tr><tr><td>TEMPO_SERVICO</td><td>2026-09-26</td><td><span class="pill w">PEDIDA</span></td></tr></table>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="painel"><h4>API</h4><div class="in">
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/me/declaracoes</span><span class="d">o próprio</span></div>
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/declaracoes</span><span class="d">RH emite logo</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/declaracoes/por-emitir</span><span class="d">caixa do RH</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/funcionarios/{funcionarioId}/declaracoes/{pedidoId}/emitir</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/documentos-emitidos/{documentoId}/link</span><span class="d">PDF</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/verificacao/documentos/{codigo}</span><span class="d">pública</span></div>
+      </div></div>
+      <div class="painel"><h4>Regras</h4><div class="in"><ul class="regras">
+        <li><span class="br">BR-DEC-04</span>Dados de hoje, congelados no PDF<span class="cod">422</span></li>
+        <li><span class="br">BR-DEC-05</span>Numeração por série e ano (DEC, CIP, EXT)</li>
+        <li><span class="br">BR-DEC-07</span>Não se corrige: anula-se<span class="cod">409</span></li>
+        <li><span class="br">BR-DEC-08</span>Verificação pública pelo código</li>
+      </ul></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="doc-publicacoes" data-parte="O · Documentos, avisos e salarial">
+  <div class="parte">Parte O · Documentos, avisos e salarial</div>
+  <h2><span class="n">75</span>Publicações no Boletim Oficial</h2>
+  <p class="lead">Os actos que a lei manda publicar — provimentos, nomeações, mobilidades, cessações, exonerações, penas, listas de antiguidade, concursos — entram sozinhos numa caixa do RH quando o acto é registado. O RH gera o <b>extracto</b> e regista a publicação (série, número, data).</p>
+  <div class="duas">
+    <div>
+      <div class="ecra" data-dto="PublicacaoOficialDTO">
+        <div class="barra"><i></i><i></i><i></i><span>RH · Publicações › A publicar</span></div>
+        <div class="corpo">
+          <table><tr><th data-campo="tipoActo">Acto</th><th data-campo="nome">Colaborador</th><th data-campo="sumario">Sumário</th><th data-campo="dataActo">Data</th><th data-campo="estado">Estado</th></tr><tr><td>PROVIMENTO</td><td>Dulce Tavares</td><td>Nomeada provisoriamente Técnica Superior</td><td>2026-11-02</td><td><span class="pill w">A_PUBLICAR</span></td></tr><tr><td>EXONERACAO</td><td>Rita Brito</td><td>Exonerada a seu pedido</td><td>2026-09-15</td><td><span class="pill ok">PUBLICADA</span></td></tr></table>
+          <div class="form" data-dto="PublicacaoOficialRequestDTO">
+              <div class="campo" data-campo="serie"><label>Série<span class="api">serie</span></label><div class="inp">II</div></div>
+              <div class="campo" data-campo="numero"><label>Número<span class="req">*</span><span class="api">numero</span></label><div class="inp">64</div></div>
+              <div class="campo" data-campo="dataPublicacao"><label>Data<span class="req">*</span><span class="api">dataPublicacao</span></label><div class="inp">2026-11-20</div></div>
+            </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="painel"><h4>API</h4><div class="in">
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/publicacoes</span><span class="d">por estado</span></div>
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/publicacoes</span><span class="d">à mão</span></div>
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/publicacoes/{publicacaoId}/extracto</span><span class="d">PDF</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/publicacoes/{publicacaoId}/publicada</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/publicacoes/{publicacaoId}/cancelar</span></div>
+      </div></div>
+      <div class="painel"><h4>Regras</h4><div class="in"><ul class="regras">
+        <li><span class="br">BR-PUB-02</span>Nascem dos factos do RH</li>
+        <li><span class="br">BR-PUB-03</span>O mesmo acto não se duplica</li>
+        <li><span class="br">BR-PUB-05</span>Data não anterior ao acto; número no Boletim Oficial<span class="cod">422</span></li>
+      </ul></div></div>
+      <span class="lei">Lei n.º 20/X/2023, arts. 89.º e 90.º</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="doc-lista-antiguidade" data-parte="O · Documentos, avisos e salarial">
+  <div class="parte">Parte O · Documentos, avisos e salarial</div>
+  <h2><span class="n">76</span>Lista de antiguidade oficial — aprovar, afixar, reclamar, publicar</h2>
+  <p class="lead">A lista gerada (§ relatórios) é uma consulta; a <b>oficial</b> congela-se ao aprovar e segue o ciclo da lei: afixação com 30 dias para reclamar (60 no estrangeiro), decisão do dirigente, recurso ao membro do Governo, lista definitiva e publicação até 30 de Abril.</p>
+  <div class="duas">
+    <div>
+      <div class="ecra" data-dto="ListaAntiguidadeOficialDTO">
+        <div class="barra"><i></i><i></i><i></i><span>RH · Listas de antiguidade › 2026</span></div>
+        <div class="corpo">
+          <table><tr><th data-campo="referencia">Lista</th><th data-campo="estado">Estado</th><th data-campo="dataAfixacao">Afixada</th><th data-campo="fimPrazoReclamacao">Reclamar até</th><th data-campo="totalLinhas">Pessoas</th></tr><tr><td>LA-2026-DGAP</td><td><span class="pill w">AFIXADA</span></td><td>2026-02-02</td><td>2026-03-04</td><td>48</td></tr></table>
+          <div data-dto="ReclamacaoAntiguidadeRequestDTO"><div class="form"><div class="campo" data-campo="fundamento"><label>Fundamento<span class="req">*</span><span class="api">fundamento</span></label><div class="inp sel">CONTAGEM</div><div class="ajuda">Omissão, graduação, situação ou contagem do tempo.</div></div><div class="campo l2" data-campo="texto"><label>Reclamação<span class="req">*</span><span class="api">texto</span></label><div class="inp">Falta o tempo de 2019 em mobilidade</div></div></div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="painel"><h4>API</h4><div class="in">
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/listas-antiguidade</span><span class="d">aprovar</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/listas-antiguidade/{listaId}/afixar</span></div>
+        <div class="api-l"><b class="m post">POST</b><span class="rota">/api/v1/rh/me/listas-antiguidade/{listaId}/reclamacoes</span><span class="d">o próprio</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/listas-antiguidade/{listaId}/reclamacoes/{reclamacaoId}/decidir</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/listas-antiguidade/{listaId}/definitiva</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/listas-antiguidade/{listaId}/publicar</span></div>
+      </div></div>
+      <div class="painel"><h4>Regras</h4><div class="in"><ul class="regras">
+        <li><span class="br">BR-LAN-06</span>Aprovar é congelar<span class="cod">409</span></li>
+        <li><span class="br">BR-LAN-08</span>30 dias para reclamar (60 no estrangeiro)<span class="cod">422</span></li>
+        <li><span class="br">BR-LAN-12</span>Recurso em 20 dias<span class="cod">422</span></li>
+        <li><span class="br">BR-LAN-13</span>Definitiva sem reclamações por decidir<span class="cod">409</span></li>
+        <li><span class="br">BR-LAN-14</span>Publicação até 30 de Abril</li>
+      </ul></div></div>
+      <span class="lei">DL n.º 3/2010, arts. 71.º–74.º</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="doc-salarial" data-parte="O · Documentos, avisos e salarial">
+  <div class="parte">Parte O · Documentos, avisos e salarial</div>
+  <h2><span class="n">77</span>Factos salariais e fecho mensal — a fronteira com o salarial</h2>
+  <p class="lead">O RH não calcula dinheiro. É a <b>fonte dos factos</b> — admissões, movimentos (com o bruto base do escalão), penas, missões, acidentes, cessações — e da relação mensal. Fechar o mês <b>congela</b> essa relação; o que chegar depois entra no mês seguinte como ajuste. O processamento salarial lê tudo numa exportação versionada.</p>
+  <div class="duas">
+    <div>
+      <div class="ecra" data-dto="FechoMensalDTO">
+        <div class="barra"><i></i><i></i><i></i><span>RH · Fecho mensal</span></div>
+        <div class="corpo">
+          <table><tr><th data-campo="mes">Mês</th><th data-campo="estado">Estado</th><th data-campo="fechadoEm">Fechado em</th><th data-campo="totalFactos">Factos</th><th data-campo="fechos">Fechos</th></tr><tr><td>2026-08</td><td><span class="pill ok">FECHADO</span></td><td>2026-09-02 10:00</td><td>12</td><td>1</td></tr><tr><td>2026-07</td><td><span class="pill ok">FECHADO</span></td><td>2026-08-03 09:40</td><td>9</td><td>2</td></tr></table>
+          <div class="toast w">Fechar 2026-09: <b>200</b> com alertas — 2 faltas por justificar; o que se resolver depois entra em Outubro. <span class="br">BR-FEC-02</span></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="painel"><h4>API</h4><div class="in">
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/salarial/factos</span><span class="d">por mês</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/salarial/fechos</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/salarial/fechos/{mes}/fechar</span></div>
+        <div class="api-l"><b class="m patch">PATCH</b><span class="rota">/api/v1/rh/salarial/fechos/{mes}/reabrir</span><span class="d">com motivo</span></div>
+        <div class="api-l"><b class="m get">GET</b><span class="rota">/api/v1/rh/salarial/exportacao</span><span class="d">para o salarial</span></div>
+      </div></div>
+      <div class="painel"><h4>Regras</h4><div class="in"><ul class="regras">
+        <li><span class="br">BR-FAC-04</span>O diário só cresce: corrige-se com um facto novo</li>
+        <li><span class="br">BR-FAC-06</span>Bruto base do escalão nos factos de movimento</li>
+        <li><span class="br">BR-FEC-03</span>Facto num mês fechado entra no seguinte, como ajuste</li>
+        <li><span class="br">BR-FEC-04</span>Reabrir exige motivo<span class="cod">422</span></li>
+        <li><span class="br">BR-FEC-07</span>O canal (API pronta; ficheiro ou fila) combina-se com a equipa do salarial</li>
+      </ul></div></div>
+      <div class="nota chave"><b>Quem faz o quê:</b> o RH diz quem está em que escalão e o que aconteceu, com dias e horas; o salarial calcula remunerações, suplementos, ajudas de custo em valor, descontos e o líquido.</div>
+      <span class="lei">DL n.º 3/2010, art. 75.º</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ PARTE P ============================ -->
+
+<section class="slide" id="tr-historico" data-parte="P · Transversais">
+  <div class="parte">Parte P · Transversais</div>
+  <h2><span class="n">78</span>Histórico, auditoria e tarefas automáticas</h2>
   <p class="lead">A aplicação não guarda só o estado de hoje: guarda a história. As afectações e os contratos fecham-se e abrem-se (nunca se reescrevem); as marcações anulam-se (nunca se apagam); os horários que vigoraram ficam imutáveis. E cada alteração a um registo auditado fica com quem, quando e o quê.</p>
   <div class="duas">
     <div>
@@ -3128,10 +4050,21 @@
       </div>
       <table style="margin-top:12px">
         <tr><th>Tarefa automática</th><th>Hora (por omissão)</th><th>O que faz</th></tr>
-        <tr><td><code>rh.ferias.vencimento.cron</code></td><td>00:05</td><td>Cria o saldo de férias do ano a quem não o tem e actualiza o direito que cresceu (<span class="br">BR-FER-01</span>)</td></tr>
-        <tr><td><code>rh.licencas.efeitos.cron</code></td><td>00:15</td><td>Aplica os efeitos das licenças que começam hoje e o regresso das que terminaram; caducam as substituições (<span class="br">BR-MOB-11</span><span class="br">BR-MOB-12</span>)</td></tr>
+        <tr><td><code>RH_VENCIMENTO_FERIAS</code></td><td>00:05</td><td>Cria e actualiza o saldo de férias do ano (<span class="br">BR-FER-01</span>)</td></tr>
+        <tr><td><code>RH_EFEITOS_LICENCAS</code></td><td>00:15</td><td>Efeitos das licenças e mobilidades que começam e acabam; caducam as substituições (<span class="br">BR-MOB-11</span>)</td></tr>
+        <tr><td><code>RH_EXONERACOES</code></td><td>06:10</td><td>Efectiva as exonerações no dia devido (<span class="br">BR-EXO-05</span>)</td></tr>
+        <tr><td><code>RH_PRAZOS_DISCIPLINARES</code></td><td>06:20</td><td>Executa as penas, conclui os processos, avisa dos prazos e dos autos a levantar (<span class="br">BR-DIS-24</span>)</td></tr>
+        <tr><td><code>RH_ALERTA_APOSENTACAO</code></td><td>06:30</td><td>Avisos do limite de idade (<span class="br">BR-APO-04</span>)</td></tr>
+        <tr><td><code>RH_ALERTA_ENTRADA_SERVICO</code></td><td>06:40</td><td>Fim dos períodos de prova e dos contratos a termo (<span class="br">BR-PRV-13</span>)</td></tr>
+        <tr><td><code>RH_ALERTA_CHECKLISTS</code></td><td>06:50</td><td>Itens das checklists fora do prazo (<span class="br">BR-CHK-10</span>)</td></tr>
+        <tr><td><code>RH_ALERTA_COMISSOES_SERVICO</code></td><td>06:55</td><td>Termo das comissões de serviço (<span class="br">BR-CMS-07</span>)</td></tr>
+        <tr><td><code>RH_ALERTA_MISSOES_SERVICO</code></td><td>07:00</td><td>Relatórios de missão em falta (<span class="br">BR-MSS-09</span>)</td></tr>
+        <tr><td><code>RH_ACUMULACOES</code></td><td>07:05</td><td>Caducidade das acumulações de funções (<span class="br">BR-ACU-07</span>)</td></tr>
+        <tr><td><code>RH_EXAMES_SAUDE</code></td><td>07:15</td><td>Validade dos exames de medicina do trabalho (<span class="br">BR-SST-14</span>)</td></tr>
+        <tr><td><code>RH_DOENCA_PROLONGADA</code></td><td>07:20</td><td>Doença de 30 dias seguidos: sugere a junta médica (<span class="br">BR-SST-19</span>)</td></tr>
+        <tr><td><code>RH_ENVIO_NOTIFICACOES</code></td><td>de 10 em 10 min</td><td>Envio das notificações por correio electrónico (espera o SMTP) (<span class="br">BR-NOT-05</span>)</td></tr>
       </table>
-      <p style="font-size:13px">As duas são seguras de repetir e não perdem nada se um dia falharem (perguntam pelo estado actual). Não têm ainda lock distribuído: com várias instâncias, correm em todas (fica para o framework de jobs).</p>
+      <p style="font-size:13px">Todas são seguras de repetir, ficam registadas com o resultado de cada execução e disparam-se à mão com uma data de referência (<code>POST /api/v1/rh/schedulers/{chave}/executar</code>). Com várias réplicas, cada disparo corre uma só vez.</p>
     </div>
     <div>
       <div class="painel"><h4>API</h4><div class="in">
@@ -3149,27 +4082,27 @@
   </div>
 </section>
 
-<section class="slide" id="tr-limites" data-parte="K · Transversais">
-  <div class="parte">Parte K · Transversais</div>
-  <h2><span class="n">57</span>O que a aplicação ainda não faz — dito para ninguém contar com isso</h2>
+<section class="slide" id="tr-limites" data-parte="P · Transversais">
+  <div class="parte">Parte P · Transversais</div>
+  <h2><span class="n">79</span>O que a aplicação ainda não faz — dito para ninguém contar com isso</h2>
   <p class="lead">Cada limite está assinalado em vez de adivinhado: quando a lei remete para um diploma que não existe, ou quando falta um dado que a aplicação não tem, não se inventa uma regra.</p>
   <div class="grid g3">
-    <div class="caixa r"><h4>Remuneração</h4><p>Não calcula vencimentos, suplementos nem compensações (férias não gozadas na cessação, art. 12.º; suspensão por serviço, art. 8.º n.º 7). Guarda dias, horas e o efeito na remuneração para quem processa.</p></div>
-    <div class="caixa r"><h4>Fecho mensal</h4><p>A relação mensal e o apuramento de faltas recalculam-se a cada leitura; congelar e bloquear o mês espera a integração com o processamento salarial.</p></div>
-    <div class="caixa r"><h4>Permissões e notificações</h4><p>Sem perfis de permissão por papel; sem avisos por email/push às chefias (esperam a aplicação de notificações).</p></div>
+    <div class="caixa r"><h4>Remuneração</h4><p>Não calcula vencimentos, suplementos, ajudas de custo em valor nem descontos: é o processamento salarial. O RH dá os factos (com o bruto base do escalão), os dias e as horas, e fecha o mês.</p></div>
+    <div class="caixa r"><h4>Canal com o salarial</h4><p>A exportação por API está pronta; um ficheiro ou uma fila de eventos combinam-se com a equipa do salarial.</p></div>
+    <div class="caixa r"><h4>Permissões e correio</h4><p>Sem perfis de permissão por papel (os papéis distinguem-se pelo caminho da API). As notificações ficam na aplicação; o envio por correio electrónico espera o servidor SMTP.</p></div>
     <div class="caixa w"><h4>Meios-dias de férias</h4><p>Direito do art. 2.º n.º 6 (até 5 por ano) — adiado. Tectos em horas só se o cliente os tiver.</p></div>
     <div class="caixa w"><h4>Mapa de férias</h4><p>A preferência dos cônjuges no mesmo serviço (art. 5.º n.º 6).</p></div>
-    <div class="caixa w"><h4>Lista de antiguidade</h4><p>Aprovar, afixar, reclamar e publicar (arts. 71.º a 74.º).</p></div>
-    <div class="caixa w"><h4>Horários e suplementar</h4><p>Limites legais, turnos, nocturno e compensação em descanso — esperam o diploma de desenvolvimento (arts. 164.º n.º 4, 165.º).</p></div>
-    <div class="caixa w"><h4>Carreiras</h4><p>Habilitações e concurso não se verificam; o Lugar não confirma que a categoria é da carreira; requisitos de tempo de serviço das licenças (arts. 46.º, 48.º) não se verificam.</p></div>
-    <div class="caixa w"><h4>Outros</h4><p>Formação e disciplinar como processos com fluxo; acumulação de funções públicas (art. 21.º); área geográfica numa tabela própria; lock dos jobs.</p></div>
+    <div class="caixa w"><h4>Horários e suplementar</h4><p>Limites legais, turnos, nocturno e compensação em descanso — esperam o diploma de desenvolvimento (arts. 164.º n.º 4, 165.º). Sem horário na base, o terço da docência na acumulação não se verifica.</p></div>
+    <div class="caixa w"><h4>Carreiras</h4><p>O Lugar não confirma que a categoria é da carreira; os requisitos de tempo de serviço das licenças (arts. 46.º, 48.º) não se verificam.</p></div>
+    <div class="caixa w"><h4>Processo individual</h4><p>Uma vista única de todo o percurso do colaborador (o dossier está repartido pelas áreas).</p></div>
+    <div class="caixa w"><h4>Outros</h4><p>Portal do candidato (os concursos registam-se pelo RH); área geográfica numa tabela própria; o internamento e a doença no estrangeiro não se sabem (a junta sugere-se, não se pede sozinha).</p></div>
   </div>
-  <div class="nota chave"><b>Fora do âmbito por decisão:</b> permuta, estágio probatório e reintegração judicial. Por confirmar com o jurídico: a soma mensal do art. 13.º n.º 4, a isenção de horário no trabalho suplementar (art. 155.º n.º 2 b)), a duração da dispensa de amamentação e o período dos 6 dias do art. 77.º n.º 3.</div>
+  <div class="nota chave"><b>Fora do âmbito por decisão:</b> permuta e reintegração judicial. Por confirmar com o jurídico: a soma mensal do art. 13.º n.º 4, a isenção de horário no trabalho suplementar (art. 155.º n.º 2 b)), a duração da dispensa de amamentação e o período dos 6 dias do art. 77.º n.º 3.</div>
 </section>
 
-<section class="slide" id="tr-lei" data-parte="K · Transversais">
-  <div class="parte">Parte K · Transversais</div>
-  <h2><span class="n">58</span>A lei, artigo a artigo — onde está na aplicação</h2>
+<section class="slide" id="tr-lei" data-parte="P · Transversais">
+  <div class="parte">Parte P · Transversais</div>
+  <h2><span class="n">80</span>A lei, artigo a artigo — onde está na aplicação</h2>
   <div class="duas meio">
     <div class="tabela-scroll"><table>
       <tr><th colspan="2">Lei n.º 20/X/2023 (emprego público)</th></tr>
@@ -3185,6 +4118,17 @@
       <tr><td>arts. 164.º a 166.º</td><td><a href="#cat-horarios">Horários</a> · <a href="#ass-horario">Horário do colaborador</a></td></tr>
       <tr><td>art. 170.º</td><td><a href="#ass-registo">Faltas e registo remoto</a></td></tr>
       <tr><td>art. 172.º</td><td><a href="#lic-porque">Parentalidade</a> · <a href="#aus-pedido">Amamentação</a></td></tr>
+      <tr><td>arts. 20.º a 24.º</td><td><a href="#proc-acumulacao">Acumulação de funções</a></td></tr>
+      <tr><td>art. 25.º</td><td><a href="#ent-cartao">Cartão profissional</a></td></tr>
+      <tr><td>art. 48.º · arts. 173.º a 179.º</td><td><a href="#sai-aposentacao">Aposentação</a></td></tr>
+      <tr><td>arts. 52.º a 81.º</td><td><a href="#ent-provimento">Provimento e períodos de prova</a></td></tr>
+      <tr><td>arts. 59.º, 60.º, 64.º</td><td><a href="#ent-comissao">Comissão de serviço</a></td></tr>
+      <tr><td>arts. 89.º e 90.º</td><td><a href="#doc-publicacoes">Publicações</a></td></tr>
+      <tr><td>arts. 94.º e 95.º</td><td><a href="#sai-exoneracao">Exoneração</a></td></tr>
+      <tr><td>arts. 123.º a 129.º</td><td><a href="#ent-concurso">Concurso</a></td></tr>
+      <tr><td>art. 141.º</td><td><a href="#proc-formacao">Formação</a> · <a href="#ent-checklists">Acolhimento</a></td></tr>
+      <tr><td>art. 159.º</td><td><a href="#proc-missao">Missão de serviço</a></td></tr>
+      <tr><td>arts. 187.º a 191.º</td><td><a href="#sst-acidentes">Acidentes em serviço</a></td></tr>
     </table></div>
     <div class="tabela-scroll"><table>
       <tr><th colspan="2">Decreto-Lei n.º 3/2010 (férias, faltas e licenças)</th></tr>
@@ -3194,19 +4138,29 @@
       <tr><td>arts. 8.º e 9.º</td><td><a href="#aus-decisao">Suspensão de férias</a></td></tr>
       <tr><td>art. 13.º</td><td><a href="#ass-faltas">Faltas por débito</a></td></tr>
       <tr><td>arts. 15.º e 16.º</td><td><a href="#cat-ausencias">Tipos de falta</a> · <a href="#aus-pedido">Pedido</a></td></tr>
+      <tr><td>art. 26.º</td><td><a href="#sst-saude">Doença prolongada e junta médica</a></td></tr>
       <tr><td>art. 43.º</td><td><a href="#aus-pedido">Faltas injustificadas</a></td></tr>
       <tr><td>arts. 44.º a 67.º</td><td><a href="#lic-licencas">Licenças</a> · <a href="#cat-licencas">Subtipos</a></td></tr>
       <tr><td>arts. 69.º e 70.º</td><td><a href="#rel-antiguidade">Lista de antiguidade</a></td></tr>
+      <tr><td>arts. 71.º a 74.º</td><td><a href="#doc-lista-antiguidade">Lista oficial: afixação, reclamação, publicação</a></td></tr>
       <tr><td>art. 75.º</td><td><a href="#ass-relacao">Relação mensal</a></td></tr>
       <tr><td>art. 76.º</td><td><a href="#aus-pedido">Dias úteis ou seguidos</a></td></tr>
       <tr><td>art. 77.º</td><td><a href="#cat-ausencias">Trabalhador-estudante</a></td></tr>
     </table></div>
   </div>
+  <div class="tabela-scroll"><table>
+    <tr><th colspan="2">Estatuto Disciplinar (Lei n.º 31/III/87)</th></tr>
+    <tr><td>art. 6.º</td><td><a href="#proc-disciplinar">Prescrição</a></td></tr>
+    <tr><td>art. 17.º</td><td><a href="#proc-disciplinar-efeitos">Efeitos das penas: concurso, promoção, comissão, férias</a></td></tr>
+    <tr><td>art. 34.º</td><td><a href="#proc-disciplinar-efeitos">Suspensão da pena</a></td></tr>
+    <tr><td>arts. 47.º a 84.º</td><td><a href="#proc-disciplinar">Tramitação, recurso</a></td></tr>
+    <tr><td>arts. 90.º a 95.º</td><td><a href="#proc-disciplinar-efeitos">Revisão e reabilitação</a></td></tr>
+  </table></div>
 </section>
 
-<section class="slide" id="tr-glossario" data-parte="K · Transversais">
-  <div class="parte">Parte K · Transversais</div>
-  <h2><span class="n">59</span>Glossário</h2>
+<section class="slide" id="tr-glossario" data-parte="P · Transversais">
+  <div class="parte">Parte P · Transversais</div>
+  <h2><span class="n">81</span>Glossário</h2>
   <div class="tabela-scroll"><table>
     <tr><th>Termo</th><th>Em linguagem simples</th><th>Na API</th></tr>
     <tr><td><b>Lugar</b></td><td>Uma cadeira do quadro de pessoal, numa unidade, com um cargo.</td><td><code>position</code></td></tr>
@@ -3224,6 +4178,13 @@
     <tr><td><b>Falta por débito</b></td><td>Tempo do horário não cumprido, apurado das marcações.</td><td><code>faltas-apuradas</code></td></tr>
     <tr><td><b>Horário base</b></td><td>O horário da instituição para quem não tem outro.</td><td><code>isBase</code></td></tr>
     <tr><td><b>Mapa de férias</b></td><td>O plano das férias do ano; dá-se a conhecer, não se aprova.</td><td><code>ferias/mapa</code></td></tr>
+    <tr><td><b>Provimento e posse</b></td><td>O acto que põe a pessoa ao serviço / o momento em que começa funções.</td><td><code>provimentos</code> · <code>dataPosse</code></td></tr>
+    <tr><td><b>Estágio probatório</b></td><td>O período de prova de quem é nomeado provisoriamente, com tutor e relatório.</td><td><code>ESTAGIO_PROBATORIO</code></td></tr>
+    <tr><td><b>Reserva de recrutamento</b></td><td>A lista homologada de um concurso, que serve para prover durante 18 meses.</td><td><code>reservaAte</code></td></tr>
+    <tr><td><b>Comissão de serviço</b></td><td>Exercer um cargo dirigente por 3 anos renováveis, guardando o Lugar de origem.</td><td><code>comissoes-servico</code></td></tr>
+    <tr><td><b>Junta médica</b></td><td>A comissão de verificação de incapacidades; vai-se lá, por exemplo, ao fim de 30 dias seguidos de doença.</td><td><code>juntas-medicas</code></td></tr>
+    <tr><td><b>Facto salarial</b></td><td>Um acontecimento com efeito na remuneração, que o RH regista e o salarial lê.</td><td><code>salarial/factos</code></td></tr>
+    <tr><td><b>Fecho mensal</b></td><td>Congelar a relação do mês para o processamento salarial.</td><td><code>salarial/fechos</code></td></tr>
     <tr><td><b>Histórico (SCD2)</b></td><td>Fecha-se a versão corrente antes de abrir a nova; nada se perde.</td><td><code>isCurrent</code> · <code>dataFim</code></td></tr>
   </table></div>
 </section>

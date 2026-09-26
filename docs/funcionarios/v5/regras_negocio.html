@@ -462,7 +462,7 @@
     <tr><td class="id">BR-FAL-09</td><td><b>Dias tirados do apuramento por outros processos</b>: a missão de serviço (<code>MISSAO_SERVICO</code>), a formação com inscrição aprovada (<code>FORMACAO</code>), a suspensão preventiva ou a pena de suspensão/inactividade (<code>SUSPENSAO_DISCIPLINAR</code>) e a incapacidade temporária por acidente em serviço (<code>ACIDENTE_SERVICO</code>, art. 188.º: justificada sem perda de direitos) não se apuram contra o horário. Vêm depois dos feriados e das ausências justificadas; se duas razões cobrem o mesmo dia, fica a primeira — todas dizem o mesmo: não é falta.</td><td>—</td><td class="src">DiasEspeciaisProvider · ApuramentoFaltasService.estadoPrevio</td></tr>
   </table>
 
-  <div class="callout warn"><b>Versões dos horários:</b> não há. Até ao fecho do mês (art. 75.º), o esperado recalcula-se com a configuração actual; o fecho guarda-o e bloqueia o mês — é o que a lei já define como unidade (a relação mensal serve de base aos vencimentos) e o que os sistemas de ponto fazem (fecho de período). <b>O fecho fica para quando houver integração com o processamento salarial</b> (decisão de 2026-09-23): sem quem receba o número, congelá-lo não serve ninguém.</div>
+  <div class="callout warn"><b>Versões dos horários:</b> não há. Até ao fecho do mês (art. 75.º), o esperado recalcula-se com a configuração actual; o fecho guarda-o e bloqueia o mês — é o que a lei já define como unidade (a relação mensal serve de base aos vencimentos) e o que os sistemas de ponto fazem (fecho de período). O <b>fecho mensal</b> existe desde 2026-09-26 (§31, BR-FEC): congela a relação de cada mês para o processamento salarial.</div>
 
   <h2 id="trabalho-suplementar"><span class="n">5.5</span>Assiduidade — trabalho suplementar (horas extras)</h2>
   <p>Lei n.º 20/X/2023, art. 155.º n.º 2 a): trabalho para além do horário, em dia de descanso ou em feriado, que a Administração manda ou autoriza. <b>Só se regista e se conta em horas</b>: o suplemento, o tecto de um terço da remuneração base (n.º 7) e os limites em horas (diploma de desenvolvimento, art. 165.º n.º 4) ficam para o processamento salarial e para o jurídico. Uma tabela própria (<code>t_trabalho_suplementar</code>): é uma autorização com ciclo de vida — PEDIDO → AUTORIZADO · RECUSADO → CANCELADO —, não uma ausência, nem uma marcação.</p>
@@ -480,7 +480,7 @@
   </table>
 
   <h2 id="relacao-mensal"><span class="n">5.6</span>Assiduidade — relação mensal (art. 75.º)</h2>
-  <p>DL n.º 3/2010, art. 75.º n.º 1: cada serviço elabora, no fim de cada mês, a relação das faltas e licenças de cada funcionário e da sua natureza, base do vencimento do mês seguinte (n.º 3: e do cômputo das férias do ano seguinte). <b>Só leitura</b>: calcula-se a cada pedido, sem tabelas novas; o fecho (congelar, bloquear, reabrir) fica para quando houver integração com o processamento salarial.</p>
+  <p>DL n.º 3/2010, art. 75.º n.º 1: cada serviço elabora, no fim de cada mês, a relação das faltas e licenças de cada funcionário e da sua natureza, base do vencimento do mês seguinte (n.º 3: e do cômputo das férias do ano seguinte). <b>Só leitura</b>: calcula-se a cada pedido, sem tabelas novas, até o mês ser fechado (§31, BR-FEC — congelar, reabrir, exportar).</p>
   <table>
     <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
     <tr><td class="id">BR-REL-01</td><td><b>De cada serviço</b>: a unidade orgânica é obrigatória, e por omissão entram as subunidades activas (<code>incluirSubunidades=false</code> para só a unidade). Mês em <code>yyyy-MM</code>; um mês que ainda não começou: 422. O mês corrente dá uma relação <b>provisória</b>.</td><td><span class="http h404">404</span> <span class="http h422">422</span></td><td class="src">RelacaoMensalService.relacao</td></tr>
@@ -494,7 +494,7 @@
   </table>
 
   <h2 id="lista-antiguidade"><span class="n">5.7</span>Relatórios — lista de antiguidade (arts. 69.º e 70.º)</h2>
-  <p>DL n.º 3/2010, art. 69.º: cada serviço organiza em cada ano a lista de antiguidade dos seus funcionários com referência a 31 de Dezembro do ano anterior. <b>Só se gera</b> (JSON e CSV); a aprovação, a afixação, as reclamações e a publicação (arts. 71.º a 74.º) ficam para depois.</p>
+  <p>DL n.º 3/2010, art. 69.º: cada serviço organiza em cada ano a lista de antiguidade dos seus funcionários com referência a 31 de Dezembro do ano anterior. <b>Só se gera</b> (JSON e CSV): é uma consulta. A aprovação, a afixação, as reclamações e a publicação (arts. 71.º a 74.º) são a lista oficial — §17, BR-LAN-06..15.</p>
   <table>
     <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
     <tr><td class="id">BR-LAN-01</td><td><b>De cada serviço, com referência a 31 de Dezembro do ano anterior</b>: <code>ano</code> (por omissão, o corrente); um ano cuja referência ainda não chegou: 422. Unidade obrigatória, com as subunidades por omissão; quem entra são as afectações principais que cobrem a referência (como na relação mensal).</td><td><span class="http h404">404</span> <span class="http h422">422</span></td><td class="src">ListaAntiguidadeService · QuemEstaNoServico</td></tr>

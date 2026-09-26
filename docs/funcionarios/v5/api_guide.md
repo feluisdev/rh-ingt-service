@@ -1259,7 +1259,7 @@ Regras: BR-SUP-01 a BR-SUP-09, BR-ME-04.
 
 `GET /api/v1/rh/assiduidade/relacao-mensal?mes=2026-09&unidadeId={uuid}&incluirSubunidades=true` —
 DL n.º 3/2010, art. 75.º: as faltas e licenças de cada funcionário e a sua natureza, **por serviço**.
-**Só leitura**, calculada a cada pedido (o fecho do mês fica para quando houver integração salarial).
+**Só leitura**, calculada a cada pedido até o mês ser **fechado** (§32): a partir daí, a exportação para o salarial usa a relação congelada.
 `GET …/assiduidade/relacao-mensal.csv` com os mesmos parâmetros devolve o CSV (`text/csv`, anexo) — pedido com `Accept: text/csv`.
 
 ```json
@@ -1296,7 +1296,7 @@ Regras: BR-REL-01 a BR-REL-08, BR-FAL-08.
 `GET /api/v1/rh/relatorios/lista-antiguidade?ano=2026&unidadeId={uuid}&incluirSubunidades=true` —
 DL n.º 3/2010, art. 69.º: a lista de cada serviço com referência a **31 de Dezembro do ano anterior**,
 **por cargo** e, em cada cargo, **pela antiguidade no cargo**. `…/lista-antiguidade.csv` devolve o CSV
-(para afixar e publicar). Só se gera; o ciclo de aprovação, reclamação e publicação fica para depois.
+(para afixar e publicar). É uma consulta; a lista **oficial** — aprovada, afixada, com reclamações e publicada — está no §18.
 
 ```json
 { "ano": 2026, "referencia": "2025-12-31", "unidadeId": "…", "unidadeNome": "…", "incluirSubunidades": true,
