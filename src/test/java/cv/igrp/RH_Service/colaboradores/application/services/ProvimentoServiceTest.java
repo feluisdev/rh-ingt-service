@@ -51,6 +51,7 @@ class ProvimentoServiceTest {
     @Mock private WorkerStateRepository workerStateRepository;
     @Mock private DiarioFactos diarioFactos;
     @Mock private NotificacaoRepository notificacaoRepository;
+    @Mock private ChecklistService checklists;
     private ProvimentoService service;
     private final FuncionarioId pessoa = FuncionarioId.gerarNovo();
     private final FuncionarioId tutor = FuncionarioId.gerarNovo();
@@ -58,7 +59,7 @@ class ProvimentoServiceTest {
     @BeforeEach
     void setUp() {
         service = new ProvimentoService(repository, funcionarioRepository, contratoRepository, cessacaoService, workerStateRepository,
-                diarioFactos, new Notificador(notificacaoRepository)) {
+                diarioFactos, new Notificador(notificacaoRepository), checklists) {
             @Override LocalDate hoje() { return LocalDate.of(2026, 9, 5); }
         };
         var f = mock(Funcionario.class);

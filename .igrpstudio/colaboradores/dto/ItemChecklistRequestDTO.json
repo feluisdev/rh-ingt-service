@@ -1,0 +1,26 @@
+{
+  "type": "dto",
+  "name": "ItemChecklistRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "estado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "observacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "data",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

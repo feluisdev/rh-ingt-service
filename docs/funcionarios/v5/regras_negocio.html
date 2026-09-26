@@ -108,6 +108,7 @@
       <a href="#cartao-profissional">19. Cartão de identificação profissional</a><br>
       <a href="#entrada-servico">20. Entrada ao serviço — provimento, estágio probatório e período experimental</a><br>
       <a href="#concurso">21. Recrutamento e selecção — concurso</a><br>
+      <a href="#checklists">22. Checklists de entrada e de saída</a><br>
       <a href="#invariantes">12. Invariantes transversais</a>
     </div>
   </div>
@@ -857,6 +858,26 @@
     <tr><td class="id">BR-CNC-20</td><td><b>Desistência</b>: em qualquer altura antes de terminada; liberta o Lugar e o seguinte da lista passa à frente. <i>A entrada ao serviço do provido faz-se pelo registo, contrato, colocação e provimento (BR-PRV), com a referência do concurso.</i></td><td><span class="http h409">409</span></td><td class="src">Candidatura.desistir</td></tr>
   </table>
   <!-- /secao:concurso -->
+
+  <!-- secao:checklists -->
+  <h2 id="checklists"><span class="n">22.</span>Checklists de entrada e de saída</h2>
+  <p>O acolhimento e a integração dos novos funcionários (Lei n.º 20/X/2023, art. 141.º n.º 2), e à saída a devolução do que lhe foi confiado — os bens do Estado (deveres gerais) e o cartão (art. 25.º) — e a passagem de serviço. O que se faz em cada uma é da instituição: um modelo parametrizável; o resto é prática corrente [ind.]. Tabelas <code>t_checklist_modelo_item</code>, <code>t_checklist</code>, <code>t_checklist_item</code>.</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-CHK-01</td><td><b>Modelo parametrizável</b>: itens por tipo (ENTRADA, SAIDA), com descrição, área responsável (RH, CHEFIA, PROPRIO, INFORMATICA, PATRIMONIO), obrigatório ou não, prazo em dias a contar da data de referência (negativo = antes) e ordem. O código, quando existe, é único no tipo (409); o tipo e o código não mudam.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">ItemChecklistModelo · ChecklistService.criarModelo</td></tr>
+    <tr><td class="id">BR-CHK-02</td><td><b>Modelo por omissão</b>: com o modelo vazio, ao arrancar, semeiam-se os itens habituais (documentos pessoais, provimento, dados bancários, posto e contas, horário, acolhimento, deveres, cartão; na saída: passagem de serviço, bens, cartão, contas, acertos, declaração). Idempotente.</td><td>—</td><td class="src">ModeloChecklistSeeder</td></tr>
+    <tr><td class="id">BR-CHK-03</td><td><b>Desactivar em vez de apagar</b>: um item desactivado deixa de entrar nas checklists novas; as abertas não mudam.</td><td>—</td><td class="src">ItemChecklistModelo.activar</td></tr>
+    <tr><td class="id">BR-CHK-04</td><td><b>Abertura automática</b>: a admissão e o reingresso abrem a de entrada; a cessação, a de saída — pelo diário de factos, na data de efeito. Não duplica uma aberta do mesmo tipo.</td><td>—</td><td class="src">ChecklistService.aoRegistarFacto</td></tr>
+    <tr><td class="id">BR-CHK-05</td><td><b>Abertura à mão</b> (quem entrou antes das checklists): 409 se já há uma aberta do mesmo tipo.</td><td><span class="http h404">404</span> <span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">ChecklistService.abrir</td></tr>
+    <tr><td class="id">BR-CHK-06</td><td><b>Cópia do modelo</b>: ao abrir, os itens activos do tipo copiam-se pela ordem, com o prazo calculado; mudar o modelo depois não mexe na checklist.</td><td>—</td><td class="src">Checklist.abrir</td></tr>
+    <tr><td class="id">BR-CHK-07</td><td><b>Marcar</b>: feito, não aplicável (num obrigatório, com a razão) ou de volta a pendente; a data não é futura. Concluída quando nada fica pendente (o RH é avisado); reabre se um item voltar a pendente.</td><td><span class="http h404">404</span> <span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">Checklist.marcar · ChecklistService.marcar</td></tr>
+    <tr><td class="id">BR-CHK-08</td><td><b>O próprio e a chefia</b> marcam em <code>/me/checklists</code> os itens do próprio e, a chefia directa, os da chefia; os outros não (403).</td><td><span class="http h403">403</span></td><td class="src">ChecklistService.marcarComo</td></tr>
+    <tr><td class="id">BR-CHK-09</td><td><b>Marcação pelo sistema</b>: o registo do provimento, a entrega do cartão (entrada) e a devolução do cartão (saída) cumprem os itens com esse código, se estiverem pendentes; sem checklist, nada acontece.</td><td>—</td><td class="src">Checklist.cumprirPorCodigo · ChecklistService.cumprir</td></tr>
+    <tr><td class="id">BR-CHK-10</td><td><b>Avisos</b> (job <code>RH_ALERTA_CHECKLISTS</code>, 06:50): no dia a seguir ao prazo de itens pendentes — o RH, e o próprio ou a chefia se os itens forem deles. Ao abrir, o RH, a chefia e o próprio são avisados do que têm a tratar.</td><td>—</td><td class="src">AlertaChecklistsJob · ChecklistService.avisarPrazos</td></tr>
+    <tr><td class="id">BR-CHK-11</td><td><b>Itens a mais</b> só numa checklist, e <b>cancelar</b> com motivo (cancelada, não se mexe mais: 409).</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">Checklist.acrescentar · Checklist.cancelar</td></tr>
+    <tr><td class="id">BR-CHK-12</td><td><b>A saída não trava a cessação</b>: é o registo de que tudo foi entregue e passado. A lista de trabalho mostra, por área, as abertas com itens pendentes ou em atraso.</td><td>—</td><td class="src">ChecklistService.pendentes</td></tr>
+  </table>
+  <!-- /secao:checklists -->
 
   <!-- ============ INVARIANTES ============ -->
   <h2 id="invariantes"><span class="n">12.</span>Invariantes transversais</h2>

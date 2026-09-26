@@ -1,0 +1,428 @@
+{
+  "type": "controller",
+  "name": "Checklist",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh",
+  "description": "Checklists de entrada (acolhimento e integração, Lei n.º 20/X/2023, art. 141.º n.º 2) e de saída (entregas e passagem de serviço): modelo parametrizável, abertura pela admissão e pela cessação, itens por área e marcação automática",
+  "actions": [
+    {
+      "actionName": "getModeloChecklist",
+      "method": "GET",
+      "path": "checklists/modelo",
+      "summary": "O modelo das checklists (filtro opcional por tipo)",
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "tipo",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ItemChecklistModeloDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "criarItemChecklistModelo",
+      "method": "POST",
+      "path": "checklists/modelo",
+      "summary": "Acrescentar um item ao modelo (entra nas checklists abertas daqui em diante)",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ItemChecklistModeloRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ItemChecklistModeloDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "actualizarItemChecklistModelo",
+      "method": "PUT",
+      "path": "checklists/modelo/{itemId}",
+      "summary": "Alterar um item do modelo, ou desactivá-lo (campos omitidos ficam como estão)",
+      "pathVariables": [
+        {
+          "name": "itemId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ItemChecklistModeloRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ItemChecklistModeloDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getChecklistsPendentes",
+      "method": "GET",
+      "path": "checklists",
+      "summary": "A lista de trabalho: checklists abertas com itens pendentes (por tipo, por área responsável, só as atrasadas)",
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "tipo",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "responsavel",
+          "isRequired": false
+        },
+        {
+          "type": "boolean",
+          "name": "atrasadas",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ChecklistDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getChecklists",
+      "method": "GET",
+      "path": "funcionarios/{funcionarioId}/checklists",
+      "summary": "As checklists de entrada e saída do colaborador, da mais recente para a mais antiga",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ChecklistDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "abrirChecklist",
+      "method": "POST",
+      "path": "funcionarios/{funcionarioId}/checklists",
+      "summary": "Abrir uma checklist à mão (a admissão e a cessação já a abrem sozinhas)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ChecklistRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ChecklistDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "acrescentarItemChecklist",
+      "method": "POST",
+      "path": "funcionarios/{funcionarioId}/checklists/{checklistId}/itens",
+      "summary": "Acrescentar um item só a esta checklist",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "checklistId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ChecklistRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ChecklistDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "marcarItemChecklist",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/checklists/{checklistId}/itens/{itemId}",
+      "summary": "Marcar um item: feito, não aplicável (num obrigatório, com a razão) ou de volta a pendente",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "checklistId",
+          "type": "string"
+        },
+        {
+          "name": "itemId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ItemChecklistRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ChecklistDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "cancelarChecklist",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/checklists/{checklistId}/cancelar",
+      "summary": "Cancelar a checklist, com motivo",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "checklistId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ChecklistRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ChecklistDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getMinhasChecklists",
+      "method": "GET",
+      "path": "me/checklists",
+      "summary": "As minhas checklists e as da minha equipa directa com itens da chefia por tratar",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ChecklistDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "marcarMeuItemChecklist",
+      "method": "PATCH",
+      "path": "me/checklists/{checklistId}/itens/{itemId}",
+      "summary": "Marcar um item meu (do próprio) ou da chefia (da minha equipa directa)",
+      "pathVariables": [
+        {
+          "name": "checklistId",
+          "type": "string"
+        },
+        {
+          "name": "itemId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ItemChecklistRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ChecklistDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

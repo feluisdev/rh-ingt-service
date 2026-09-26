@@ -1,0 +1,50 @@
+{
+  "type": "dto",
+  "name": "ChecklistRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "tipo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataReferencia",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "descricao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "responsavel",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "obrigatorio",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "prazo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

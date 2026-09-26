@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.application.services;
 
 import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
+import cv.igrp.RH_Service.colaboradores.domain.models.TipoChecklist;
 import cv.igrp.RH_Service.colaboradores.domain.models.ModalidadeProvimento;
 import cv.igrp.RH_Service.colaboradores.domain.models.PeriodoProva;
 import cv.igrp.RH_Service.colaboradores.domain.models.Provimento;
@@ -51,6 +52,7 @@ public class ProvimentoService {
     private final WorkerStateRepository workerStateRepository;
     private final DiarioFactos diarioFactos;
     private final Notificador notificador;
+    private final ChecklistService checklists;
 
     @Transactional
     public Resultado<Provimento> registar(FuncionarioId funcionarioId, ModalidadeProvimento modalidade, String despachoNumero,
@@ -91,6 +93,8 @@ public class ProvimentoService {
         } else {
             p = repository.save(p);
         }
+        checklists.cumprir(funcionarioId, TipoChecklist.ENTRADA, ChecklistService.PROVIMENTO,
+                "Provimento registado; posse a " + Datas.pt(dataPosse) + ".", null);
         return new Resultado<>(p, alertas);
     }
 

@@ -57,7 +57,7 @@
     <div class="kicker">RH-Service · SIGDI / SIPPROG</div>
     <h1>Modelo Relacional</h1>
     <p>As tabelas do núcleo RH e como se relacionam. Na persistência, as ligações são associações <code>@ManyToOne</code> sobre colunas <code>*_id</code> (com duas excepções deliberadas, ver §1); o domínio refere-se às outras entidades por identidade tipada. As tabelas que nasceram depois da V54 são criadas pelo Hibernate (<code>ddl-auto</code>) e várias referem o catálogo de horários por UUID sem FK — cada caso está assinalado.</p>
-    <div class="meta">Documentação <b>v5</b> · 65 tabelas (exclui <code>sigdi</code>) · PostgreSQL 17 · auditoria Envers (<code>_aud</code> em <code>audit_schema</code>)<br>Última alteração: 2026-09-25</div>
+    <div class="meta">Documentação <b>v5</b> · 68 tabelas (exclui <code>sigdi</code>) · PostgreSQL 17 · auditoria Envers (<code>_aud</code> em <code>audit_schema</code>)<br>Última alteração: 2026-09-25</div>
   </div>
 </header>
 <div class="wrap">
@@ -375,6 +375,16 @@ erDiagram
   </table>
   <!-- /secao:tab-recrutamento -->
 
+  <!-- secao:tab-checklists -->
+  <h3 id="tab-checklists">Checklists de entrada e de saída (colaboradores)</h3>
+  <table>
+    <tr><th>Tabela</th><th>Módulo</th><th>Descrição</th></tr>
+    <tr><td><code>t_checklist_modelo_item</code></td><td><span class="mod m-col">colaboradores</span></td><td><b>Modelo.</b> <code>tipo</code>, <code>codigo</code> (único no tipo), <code>descricao</code>, <code>responsavel</code>, <code>obrigatorio</code>, <code>prazo_dias</code>, <code>ordem</code>, <code>activo</code>. <b>Criada pelo ddl-auto, sem migração;</b> semeada ao arrancar se vazia.</td></tr>
+    <tr><td><code>t_checklist</code></td><td><span class="mod m-col">colaboradores</span></td><td><b>Checklist.</b> <code>funcionario_id</code>→<code>t_funcionario</code>, <code>tipo</code>, <code>data_referencia</code>, <code>estado</code> ∈ ABERTA · CONCLUIDA · CANCELADA, <code>aberta_em</code>, <code>concluida_em</code>, <code>motivo_cancelamento</code>. <b>Criada pelo ddl-auto, sem migração.</b></td></tr>
+    <tr><td><code>t_checklist_item</code></td><td><span class="mod m-col">colaboradores</span></td><td>Itens: <code>checklist_id</code>→<code>t_checklist</code>, <code>modelo_item_id</code> (sem FK física), <code>codigo</code>, <code>descricao</code>, <code>responsavel</code>, <code>obrigatorio</code>, <code>prazo</code>, <code>ordem</code>, <code>estado</code> ∈ PENDENTE · FEITO · NAO_APLICAVEL, <code>data</code>, <code>observacao</code>, <code>automatico</code>.</td></tr>
+  </table>
+  <!-- /secao:tab-checklists -->
+
   <h2 id="ref"><span class="n">8.</span>Referência completa de tabelas (não-sigdi)</h2>
   <table>
     <tr><th>#</th><th>Tabela</th><th>Módulo</th><th>Entidade JPA</th><th>FKs (colunas <code>*_id</code>)</th></tr>
@@ -443,6 +453,9 @@ erDiagram
     <tr><td>63</td><td><code>t_concurso_juri</code></td><td><span class="mod m-rec">rec</span></td><td>ConcursoJuriEntity</td><td>concurso_id</td></tr>
     <tr><td>64</td><td><code>t_candidatura</code></td><td><span class="mod m-rec">rec</span></td><td>CandidaturaEntity</td><td>concurso_id (<code>funcionario_id</code> sem FK física)</td></tr>
     <tr><td>65</td><td><code>t_candidatura_nota</code></td><td><span class="mod m-rec">rec</span></td><td>CandidaturaNotaEntity</td><td>candidatura_id</td></tr>
+    <tr><td>66</td><td><code>t_checklist_modelo_item</code></td><td><span class="mod m-col">col</span></td><td>ItemChecklistModeloEntity</td><td>—</td></tr>
+    <tr><td>67</td><td><code>t_checklist</code></td><td><span class="mod m-col">col</span></td><td>ChecklistEntity</td><td>funcionario_id</td></tr>
+    <tr><td>68</td><td><code>t_checklist_item</code></td><td><span class="mod m-col">col</span></td><td>ChecklistItemEntity</td><td>checklist_id (<code>modelo_item_id</code> sem FK física)</td></tr>
   </table>
   <p class="lead" style="font-size:13.5px">Todas as FKs acima são associações <code>@ManyToOne</code> com <code>@JoinColumn</code>, <b>excepto</b> as duas assinaladas a negrito (<code>t_document.reference_id</code> e <code>t_iam_user_profile.funcionario_id</code>), que permanecem colunas UUID sem FK declarada, e as referências a <code>t_horario</code> marcadas «sem FK física» (o horário nasce pelo <code>ddl-auto</code>, depois do Flyway, e a V57 não podia apontar-lhe). As tabelas 31 a 44 nasceram pelo <code>ddl-auto</code>, sem migração; as invariantes que seriam <code>CHECK</code> vivem no domínio. Todas são auditadas (Envers), <b>excepto</b> <code>t_scheduler_execucao</code>, que já é ela própria um registo histórico.</p>
   <p class="lead" style="font-size:13.5px"><b>Tarefas agendadas (43–44).</b> <code>t_scheduler_job</code> é a configuração de cada job (<code>cron</code>, <code>frequencia</code>, <code>timezone</code>, <code>activo</code>, <code>max_tentativas</code>, <code>timeout_segundos</code>) e a fonte de verdade do agendamento — é semeada no arranque a partir do código e muda-se pela API (guia, 11b). <code>proxima_execucao</code> é o que deixa detectar um disparo que não aconteceu; e a própria linha serve de lock entre réplicas (<code>SELECT … FOR UPDATE</code> antes de abrir uma execução). <code>t_scheduler_execucao</code> tem uma linha por execução: <code>disparo</code> (AGENDADO/MANUAL), <code>agendado_para</code> (o instante previsto, de onde o job tira o dia a tratar), <code>inicio</code>/<code>fim</code>/<code>duracao_ms</code>, <code>estado</code>, os contadores, <code>parametros</code> e <code>detalhes</code> (jsonb), <code>tentativa</code> e <code>execucao_pai_id</code> (a execução repetida). Todos os instantes estão na hora de Cabo Verde. Só as colunas de configuração de <code>t_scheduler_job</code> são auditadas; <code>ultima_execucao</code>, <code>ultimo_estado</code> e <code>proxima_execucao</code> não, para o histórico não se encher de ruído.</p>

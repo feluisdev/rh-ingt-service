@@ -1,0 +1,74 @@
+{
+  "type": "dto",
+  "name": "ItemChecklist",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "codigo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "descricao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "responsavel",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "obrigatorio",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "prazo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "data",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "observacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "automatico",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "atrasado",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

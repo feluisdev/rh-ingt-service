@@ -926,6 +926,14 @@ deixaram de vir de `application.properties` e passam a vir de um catálogo por v
 - No concurso: as candidaturas (registo pelo RH), admitir/excluir com audiência, notas por método, lista com posição, prover.
 - `/me/candidaturas`: o colaborador vê as suas candidaturas. Notificação nova: `CONCURSO`.
 
+### 11.50 Checklists de entrada e de saída (2026-09-25)
+
+**Nada deixa de funcionar**: endpoints novos (guia §23).
+
+- Ficha do colaborador: «Entrada» e «Saída» — os itens por área, marcar, acrescentar, cancelar.
+- Menu RH: lista de trabalho por área (`responsavel`) e só as atrasadas; configuração do modelo.
+- `/me/checklists`: o colaborador marca os seus itens; a chefia, os da chefia da sua equipa. Notificação: `CHECKLIST`.
+
 ## 12. Checklist do alinhamento com a legislação (secção 11)
 
 Por ordem das secções. Cada item remete para o ecrã correspondente em `apresentacao_aplicacao.html`.

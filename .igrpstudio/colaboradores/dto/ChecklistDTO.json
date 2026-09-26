@@ -1,0 +1,82 @@
+{
+  "type": "dto",
+  "name": "Checklist",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioNome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "tipo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataReferencia",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "abertaEm",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "concluidaEm",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivoCancelamento",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "pendentes",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "atrasados",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "ItemChecklistDTO",
+      "name": "itens",
+      "objectType": "dto",
+      "module": "colaboradores",
+      "collectionType": "list",
+      "required": false
+    }
+  ]
+}

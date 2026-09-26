@@ -5,6 +5,7 @@ import cv.igrp.RH_Service.colaboradores.application.queries.GetColaboradorDetail
 import cv.igrp.RH_Service.colaboradores.application.queries.GetColaboradorDetailsQueryHandler;
 import cv.igrp.RH_Service.colaboradores.domain.models.CartaoProfissional;
 import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
+import cv.igrp.RH_Service.colaboradores.domain.models.TipoChecklist;
 import cv.igrp.RH_Service.colaboradores.domain.models.TipoDocumentoEmitido;
 import cv.igrp.RH_Service.colaboradores.domain.repository.CartaoProfissionalRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
@@ -43,6 +44,7 @@ public class CartaoProfissionalService {
     private final GetColaboradorDetailsQueryHandler detalhes;
     private final EmissaoDocumentosService emissao;
     private final Notificador notificador;
+    private final ChecklistService checklists;
 
     /** Emite um cartão novo; o que estava em uso fica anulado (substituído) e o seu documento também. */
     @Transactional
@@ -81,7 +83,10 @@ public class CartaoProfissionalService {
     public CartaoProfissional entregar(FuncionarioId funcionarioId, CartaoProfissionalId id, LocalDate data) {
         var c = cartao(funcionarioId, id);
         c.entregar(data != null ? data : hoje());
-        return repository.save(c);
+        var gravado = repository.save(c);
+        checklists.cumprir(funcionarioId, TipoChecklist.ENTRADA, ChecklistService.CARTAO_PROFISSIONAL,
+                "Cartão n.º " + c.getNumero() + " entregue.", c.getDataEntrega());
+        return gravado;
     }
 
     @Transactional
@@ -89,7 +94,10 @@ public class CartaoProfissionalService {
         var c = cartao(funcionarioId, id);
         c.devolver(data != null ? data : hoje());
         anularDocumento(c, "Cartão devolvido em " + Datas.pt(c.getDataDevolucao()) + ".");
-        return repository.save(c);
+        var gravado = repository.save(c);
+        checklists.cumprir(funcionarioId, TipoChecklist.SAIDA, ChecklistService.DEVOLUCAO_CARTAO,
+                "Cartão n.º " + c.getNumero() + " devolvido.", c.getDataDevolucao());
+        return gravado;
     }
 
     @Transactional

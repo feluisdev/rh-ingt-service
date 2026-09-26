@@ -55,6 +55,12 @@ BEGIN
   IF to_regclass('public.t_provimento') IS NOT NULL THEN
     DELETE FROM t_provimento WHERE funcionario_id = ANY(extras);
   END IF;
+  IF to_regclass('public.t_checklist_item') IS NOT NULL THEN
+    DELETE FROM t_checklist_item WHERE checklist_id IN (SELECT id FROM t_checklist WHERE funcionario_id = ANY(extras));
+  END IF;
+  IF to_regclass('public.t_checklist') IS NOT NULL THEN
+    DELETE FROM t_checklist WHERE funcionario_id = ANY(extras);
+  END IF;
   -- Diario de factos para o salarial (FK para t_funcionario): sai antes dos colaboradores.
   IF to_regclass('public.t_facto_rh') IS NOT NULL THEN
     DELETE FROM t_facto_rh WHERE funcionario_id = ANY(extras);
@@ -266,6 +272,13 @@ DO $$ BEGIN
   END IF;
   IF to_regclass('public.t_provimento') IS NOT NULL THEN
     DELETE FROM t_provimento;
+  END IF;
+  -- Checklists de entrada e saida (o modelo, catalogo, fica).
+  IF to_regclass('public.t_checklist_item') IS NOT NULL THEN
+    DELETE FROM t_checklist_item;
+  END IF;
+  IF to_regclass('public.t_checklist') IS NOT NULL THEN
+    DELETE FROM t_checklist;
   END IF;
   -- Recrutamento (concursos e candidaturas; sem FK para t_funcionario).
   IF to_regclass('public.t_candidatura_nota') IS NOT NULL THEN

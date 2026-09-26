@@ -2173,3 +2173,28 @@ Valores: `finalidade` ∈ INGRESSO · ACESSO; `tipo` ∈ COMUM · ESPECIAL; `mod
 papel no júri ∈ PRESIDENTE · VOGAL · SUPLENTE. O provido entra ao serviço pelo registo, contrato, colocação e provimento (§21),
 com `concursoRef` = a referência do concurso.
 <!-- /secao:concurso -->
+
+<!-- secao:checklists -->
+## 23. Checklists de entrada e de saída — `/api/v1/rh/checklists`
+
+BR-CHK-01..12. A admissão (ou o reingresso) abre a checklist de **entrada**; a cessação, a de **saída** — com os itens do
+modelo, cada um com a área responsável e o prazo. O RH, a informática, o património e a chefia vão marcando; o próprio marca os
+seus. O provimento e o cartão profissional marcam-se sozinhos.
+
+| Método | Caminho | O quê |
+|---|---|---|
+| GET | `/api/v1/rh/checklists/modelo` | O modelo (`tipo` opcional) |
+| POST | `/api/v1/rh/checklists/modelo` | Acrescentar um item (`tipo`, `codigo`, `descricao`, `responsavel`, `obrigatorio`, `prazoDias`, `ordem`) |
+| PUT | `/api/v1/rh/checklists/modelo/{itemId}` | Alterar ou desactivar (`activo`) |
+| GET | `/api/v1/rh/checklists` | Lista de trabalho: abertas com pendentes (`tipo`, `responsavel`, `atrasadas`) |
+| GET | `/api/v1/rh/funcionarios/{funcionarioId}/checklists` | As do colaborador |
+| POST | `/api/v1/rh/funcionarios/{funcionarioId}/checklists` | Abrir à mão (`tipo`, `dataReferencia`) |
+| POST | `/api/v1/rh/funcionarios/{funcionarioId}/checklists/{checklistId}/itens` | Acrescentar um item (`descricao`, `responsavel`, `obrigatorio`, `prazo`) |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/checklists/{checklistId}/itens/{itemId}` | Marcar (`estado` ∈ FEITO · NAO_APLICAVEL · PENDENTE, `observacao`, `data`) |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/checklists/{checklistId}/cancelar` | Cancelar (`motivo`) |
+| GET | `/api/v1/rh/me/checklists` | As minhas e as da minha equipa com itens da chefia |
+| PATCH | `/api/v1/rh/me/checklists/{checklistId}/itens/{itemId}` | Marcar um item meu ou da chefia (403 aos outros) |
+
+Cada checklist traz `pendentes`, `atrasados` e os itens com `atrasado` e `automatico`. Para outro serviço cumprir um item:
+`ChecklistService.cumprir(funcionarioId, tipo, codigo, observacao, data)`.
+<!-- /secao:checklists -->
