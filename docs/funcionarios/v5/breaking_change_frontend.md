@@ -985,6 +985,13 @@ pelo `PUT` a pena ou as datas dá 409 (o número, o BO e as notas continuam livr
 - `/me/exoneracoes`: o colaborador pede (com o pré-aviso de 60 dias) e pode desistir.
 - A caixa de publicações passa a mostrar a exoneração como `EXONERACAO` (não como cessação). Notificação: `EXONERACAO`.
 
+### 11.57 Acumulação de funções (2026-09-26)
+
+**Nada deixa de funcionar**: endpoints novos (guia §29).
+
+- Ficha do colaborador: «Acumulação de funções» — pedidos, autorizar/indeferir, cessar; quem autoriza à vista.
+- `/me/acumulacoes-funcoes`: o colaborador pede (nas privadas, com a declaração) e cessa. Notificação: `ACUMULACAO_FUNCOES`.
+
 ## 12. Checklist do alinhamento com a legislação (secção 11)
 
 Por ordem das secções. Cada item remete para o ecrã correspondente em `apresentacao_aplicacao.html`.

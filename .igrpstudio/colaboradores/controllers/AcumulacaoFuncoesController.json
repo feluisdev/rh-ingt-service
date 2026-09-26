@@ -1,0 +1,340 @@
+{
+  "type": "controller",
+  "name": "AcumulacaoFuncoes",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh",
+  "description": "Acumulação de funções (Lei n.º 20/X/2023, arts. 20.º–24.º): pedido, autorização por despacho, cessação e caducidade",
+  "actions": [
+    {
+      "actionName": "getAcumulacoesFuncoes",
+      "method": "GET",
+      "path": "acumulacoes-funcoes",
+      "summary": "As acumulações de funções (filtro: estado)",
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "estado",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AcumulacaoFuncoesDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getAcumulacoesFuncoesColaborador",
+      "method": "GET",
+      "path": "funcionarios/{funcionarioId}/acumulacoes-funcoes",
+      "summary": "As acumulações de funções do colaborador",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AcumulacaoFuncoesDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "pedirAcumulacaoFuncoes",
+      "method": "POST",
+      "path": "funcionarios/{funcionarioId}/acumulacoes-funcoes",
+      "summary": "Registar um pedido de acumulação de funções (pelo RH)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AcumulacaoFuncoesRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AcumulacaoFuncoesDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "autorizarAcumulacaoFuncoes",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/acumulacoes-funcoes/{acumulacaoId}/autorizar",
+      "summary": "Autorizar (despacho do dirigente máximo, ou dos membros do Governo se remunerada — art. 23.º)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "acumulacaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AcumulacaoFuncoesRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AcumulacaoFuncoesDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "indeferirAcumulacaoFuncoes",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/acumulacoes-funcoes/{acumulacaoId}/indeferir",
+      "summary": "Indeferir, com motivo",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "acumulacaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AcumulacaoFuncoesRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AcumulacaoFuncoesDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "cessarAcumulacaoFuncoes",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/acumulacoes-funcoes/{acumulacaoId}/cessar",
+      "summary": "Cessar a acumulação antes do fim",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "acumulacaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AcumulacaoFuncoesRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AcumulacaoFuncoesDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getMinhasAcumulacoesFuncoes",
+      "method": "GET",
+      "path": "me/acumulacoes-funcoes",
+      "summary": "As minhas acumulações de funções",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AcumulacaoFuncoesDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "pedirMinhaAcumulacaoFuncoes",
+      "method": "POST",
+      "path": "me/acumulacoes-funcoes",
+      "summary": "Pedir autorização para acumular funções",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AcumulacaoFuncoesRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AcumulacaoFuncoesDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "cessarMinhaAcumulacaoFuncoes",
+      "method": "PATCH",
+      "path": "me/acumulacoes-funcoes/{acumulacaoId}/cessar",
+      "summary": "Cessar a minha acumulação",
+      "pathVariables": [
+        {
+          "name": "acumulacaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AcumulacaoFuncoesRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AcumulacaoFuncoesDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

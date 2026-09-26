@@ -2330,3 +2330,21 @@ dias) e a `dataEfeitoPrevista`.
 | POST | `/api/v1/rh/me/exoneracoes` | Pedir a minha |
 | PATCH | `/api/v1/rh/me/exoneracoes/{exoneracaoId}/desistir` | Desistir do meu |
 <!-- /secao:exoneracao -->
+
+<!-- secao:acumulacao-funcoes -->
+## 29. Acumulação de funções — `/api/v1/rh/acumulacoes-funcoes`
+
+Lei n.º 20/X/2023, arts. 20.º–24.º (BR-ACU-01..07). A resposta traz `autorizacao` (quem autoriza, pelo art. 23.º).
+
+| Método | Caminho | O quê |
+|---|---|---|
+| GET | `/api/v1/rh/acumulacoes-funcoes` | Acumulações (`estado`) |
+| GET | `/api/v1/rh/funcionarios/{funcionarioId}/acumulacoes-funcoes` | As do colaborador |
+| POST | `/api/v1/rh/funcionarios/{funcionarioId}/acumulacoes-funcoes` | Registar o pedido (`tipo`, `casoPublico`, `remunerada`, `entidade`, `funcoes`, `horario`, `horasSemanais`, `inicio`, `fim`, `declaracaoSemConflito`) |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/acumulacoes-funcoes/{acumulacaoId}/autorizar` | Despacho (`despacho`, `data`) |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/acumulacoes-funcoes/{acumulacaoId}/indeferir` | `motivo` |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/acumulacoes-funcoes/{acumulacaoId}/cessar` | `data`, `motivo` |
+| GET | `/api/v1/rh/me/acumulacoes-funcoes` | As minhas |
+| POST | `/api/v1/rh/me/acumulacoes-funcoes` | Pedir |
+| PATCH | `/api/v1/rh/me/acumulacoes-funcoes/{acumulacaoId}/cessar` | Cessar a minha |
+<!-- /secao:acumulacao-funcoes -->

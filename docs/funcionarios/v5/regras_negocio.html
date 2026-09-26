@@ -114,6 +114,7 @@
       <a href="#formacao">25. Formação — plano, acções e inscrições</a><br>
       <a href="#missao-servico">26. Missão de serviço</a><br>
       <a href="#exoneracao">27. Exoneração voluntária</a><br>
+      <a href="#acumulacao-funcoes">28. Acumulação de funções</a><br>
       <a href="#invariantes">12. Invariantes transversais</a>
     </div>
   </div>
@@ -990,6 +991,21 @@
     <tr><td class="id">BR-EXO-08</td><td><b>Desistência</b> antes de produzir efeitos (o próprio, do seu; ou o RH).</td><td><span class="http h409">409</span></td><td class="src">Exoneracao.desistir</td></tr>
   </table>
   <!-- /secao:exoneracao -->
+
+  <!-- secao:acumulacao-funcoes -->
+  <h2 id="acumulacao-funcoes"><span class="n">28.</span>Acumulação de funções</h2>
+  <p>Lei n.º 20/X/2023, arts. 20.º–24.º: a regra é a exclusividade (art. 20.º); a acumulação autoriza-se por despacho. Tabela <code>t_acumulacao_funcoes</code>.</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-ACU-01</td><td><b>O pedido</b> (pelo próprio em <code>/me</code>, ou registado pelo RH): pública ou privada, remunerada ou não, entidade, funções, horário, início e fim (opcional). Só quem está ao serviço; o próprio pedindo, o RH e a chefia directa são avisados.</td><td><span class="http h404">404</span> <span class="http h422">422</span></td><td class="src">AcumulacaoFuncoes.pedir · AcumulacaoFuncoesService.pedir</td></tr>
+    <tr><td class="id">BR-ACU-02</td><td><b>Públicas remuneradas</b> só nos casos do art. 21.º n.º 2: inerência, representação, comissões ou grupos de trabalho, órgãos colegiais, docência ou investigação, conferências e formação de curta duração.</td><td><span class="http h422">422</span></td><td class="src">AcumulacaoFuncoes.pedir</td></tr>
+    <tr><td class="id">BR-ACU-03</td><td><b>Docência ou investigação</b>: com as horas semanais, até um terço do horário semanal da função principal (o horário vigente do colaborador) — art. 21.º n.º 2 d). Sem horário definido, não há contra que medir e o limite não se verifica.</td><td><span class="http h422">422</span></td><td class="src">AcumulacaoFuncoes.pedir</td></tr>
+    <tr><td class="id">BR-ACU-04</td><td><b>Privadas</b>: o próprio declara que não são concorrentes nem conflituantes, não se sobrepõem ao horário e não comprometem a isenção (arts. 22.º e 24.º); sem a declaração, 422.</td><td><span class="http h422">422</span></td><td class="src">AcumulacaoFuncoes.pedir</td></tr>
+    <tr><td class="id">BR-ACU-05</td><td><b>Quem autoriza</b> (art. 23.º): não remunerada, o dirigente máximo; remunerada, os membros do Governo — regista-se o despacho. Indeferir exige motivo.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">AcumulacaoFuncoes.autorizacao · AcumulacaoFuncoes.autorizar</td></tr>
+    <tr><td class="id">BR-ACU-06</td><td><b>Cessar</b> antes do fim (o próprio ou o RH), não antes do início.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">AcumulacaoFuncoes.cessar</td></tr>
+    <tr><td class="id">BR-ACU-07</td><td><b>Caducidade</b> no fim do período e aviso 30 dias antes (job <code>RH_ACUMULACOES</code>, 07:05).</td><td>—</td><td class="src">AcumulacaoFuncoes.caducarSeTerminou · AcumulacaoFuncoesService.processar</td></tr>
+  </table>
+  <!-- /secao:acumulacao-funcoes -->
 
   <!-- ============ INVARIANTES ============ -->
   <h2 id="invariantes"><span class="n">12.</span>Invariantes transversais</h2>
