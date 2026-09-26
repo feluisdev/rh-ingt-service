@@ -14,4 +14,11 @@ public interface ColabsFormacaoEntityRepository extends JpaRepository<FormacaoEn
 
     @Query("SELECT f FROM ColabsFormacaoEntity f WHERE f.funcionario.id = :funcionarioId AND YEAR(f.startDate) = :year")
     List<FormacaoEntity> findAllByFuncionarioIdAndYear(@Param("funcionarioId") UUID funcionarioId, @Param("year") int year);
+
+    @org.springframework.data.jpa.repository.Query("""
+            SELECT f.funcionario.id, SUM(COALESCE(f.durationHours, 0)) FROM ColabsFormacaoEntity f
+            WHERE year(f.startDate) = :ano
+            GROUP BY f.funcionario.id
+            ORDER BY SUM(COALESCE(f.durationHours, 0)) DESC""")
+    java.util.List<Object[]> horasPorFuncionario(@org.springframework.data.repository.query.Param("ano") int ano);
 }

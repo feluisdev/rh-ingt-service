@@ -34,7 +34,7 @@ RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 V5 = os.path.join(RAIZ, 'docs', 'funcionarios', 'v5')
 JAVA = os.path.join(RAIZ, 'src', 'main', 'java', 'cv', 'igrp', 'RH_Service')
 MIGR = os.path.join(RAIZ, 'src', 'main', 'resources', 'db')
-MODULOS_RH = ('colaboradores', 'estrutura', 'carreiras', 'parametrizacoes', 'shared', 'recrutamento')
+MODULOS_RH = ('colaboradores', 'estrutura', 'carreiras', 'parametrizacoes', 'shared', 'recrutamento', 'formacao')
 DETALHE = '--detalhe' in sys.argv
 
 falhas = []

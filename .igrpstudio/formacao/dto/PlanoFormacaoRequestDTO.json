@@ -1,0 +1,62 @@
+{
+  "type": "dto",
+  "name": "PlanoFormacaoRequest",
+  "template": "classic",
+  "module": "formacao",
+  "attributes": [
+    {
+      "type": "integer",
+      "name": "ano",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "unidadeId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "designacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "tema",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "prioridade",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "justificacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "despacho",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "data",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

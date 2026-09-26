@@ -13,4 +13,7 @@ public interface FormacaoRepository {
     Optional<Formacao> findById(FormacaoId id);
     List<Formacao> findAllByFuncionarioId(FuncionarioId funcionarioId, FormacaoFilter filter);
     void deleteById(FormacaoId id);
+
+    /** As horas de formação de cada colaborador no ano (pelo início), dos que têm alguma; por horas, decrescente. */
+    java.util.Map<FuncionarioId, Integer> horasPorFuncionario(int ano);
 }

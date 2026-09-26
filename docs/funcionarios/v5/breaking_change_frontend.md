@@ -960,6 +960,15 @@ pelo `PUT` a pena ou as datas dá 409 (o número, o BO e as notas continuam livr
 - Acções novas no processo: reabilitar, rever. Notificação: `AUTO_ASSIDUIDADE`.
 - A candidatura a concurso, a promoção e o registo de comissão de serviço podem agora dar 422 por pena disciplinar (BR-DIS-29).
 
+### 11.54 Formação — plano, acções e inscrições (2026-09-26)
+
+**Nada deixa de funcionar**: módulo e endpoints novos (guia §26); o histórico de formações
+(`/funcionarios/{id}/formacoes`) continua igual e passa a receber as acções concluídas com aproveitamento.
+
+- Menu RH «Formação»: planos e necessidades; acções (planear, inscrições, avaliação, conclusão); horas por colaborador.
+- `/me/formacao`: acções abertas para pedir inscrição; a chefia inscreve e decide a sua equipa; necessidades próprias ou da equipa.
+- Notificação: `FORMACAO`.
+
 ## 12. Checklist do alinhamento com a legislação (secção 11)
 
 Por ordem das secções. Cada item remete para o ecrã correspondente em `apresentacao_aplicacao.html`.

@@ -2253,3 +2253,38 @@ punição durante a suspensão fá-la caducar e a pena executa-se. A pena impede
 `pena` ∈ CENSURA_ESCRITA · MULTA (dias) · SUSPENSAO (dias) · INACTIVIDADE (meses) · APOSENTACAO_COMPULSIVA · DEMISSAO ·
 CESSACAO_COMISSAO. A execução (facto, cessação do vínculo, publicação, cessação da comissão) é automática no dia devido.
 <!-- /secao:processo-disciplinar -->
+
+<!-- secao:formacao -->
+## 26. Formação — `/api/v1/rh/formacao`
+
+Lei n.º 20/X/2023, art. 141.º e art. 95.º b) (BR-FRM-01..14). O plano anual recolhe as necessidades; as acções respondem-lhes,
+recebem inscrições, avaliam os formandos e, concluídas, põem os aproveitamentos no histórico (`/funcionarios/{id}/formacoes`).
+
+| Método | Caminho | O quê |
+|---|---|---|
+| GET | `/api/v1/rh/formacao/planos` | Planos (`ano`) |
+| POST | `/api/v1/rh/formacao/planos` | Criar (`ano`, `unidadeId`, `designacao`) |
+| GET | `/api/v1/rh/formacao/planos/{planoId}` | O plano com as necessidades |
+| POST | `/api/v1/rh/formacao/planos/{planoId}/necessidades` | Identificar (`tema`, `funcionarioId`, `prioridade`, `justificacao`) |
+| PATCH | `/api/v1/rh/formacao/planos/{planoId}/aprovar` | Aprovar (`despacho`, `data`) |
+| GET | `/api/v1/rh/formacao/accoes` | Acções (`estado`, `ano`) |
+| POST | `/api/v1/rh/formacao/accoes` | Planear (`tema`, `modalidade`, `inicio`, `fim`, `horas`, `vagas`, `custeadaPelaAdministracao`, `mesesGarantia`, `planoId`, `necessidades`…) |
+| GET | `/api/v1/rh/formacao/accoes/{accaoId}` | A acção com as inscrições |
+| PUT | `/api/v1/rh/formacao/accoes/{accaoId}` | Alterar os termos (campos omitidos ficam) |
+| PATCH | `/api/v1/rh/formacao/accoes/{accaoId}/abrir-inscricoes` | Abrir as inscrições |
+| PATCH | `/api/v1/rh/formacao/accoes/{accaoId}/iniciar` | Começar |
+| PATCH | `/api/v1/rh/formacao/accoes/{accaoId}/concluir` | Concluir (todos avaliados) |
+| PATCH | `/api/v1/rh/formacao/accoes/{accaoId}/cancelar` | Cancelar (`motivo`) |
+| POST | `/api/v1/rh/formacao/accoes/{accaoId}/inscricoes` | Inscrever (`funcionarioId`) |
+| PATCH | `/api/v1/rh/formacao/accoes/{accaoId}/inscricoes/{inscricaoId}/admitir` | Admitir o pedido |
+| PATCH | `/api/v1/rh/formacao/accoes/{accaoId}/inscricoes/{inscricaoId}/recusar` | Recusar (`motivo`) |
+| PATCH | `/api/v1/rh/formacao/accoes/{accaoId}/inscricoes/{inscricaoId}/desistir` | Desistência |
+| PATCH | `/api/v1/rh/formacao/accoes/{accaoId}/inscricoes/{inscricaoId}/avaliar` | `resultado` ∈ APROVEITAMENTO · SEM_APROVEITAMENTO · FALTOU, `diasPresenca` |
+| GET | `/api/v1/rh/formacao/horas` | Horas por colaborador (`ano`) |
+| GET | `/api/v1/rh/me/formacao/accoes` | As abertas e as minhas (só a minha inscrição) |
+| POST | `/api/v1/rh/me/formacao/accoes/{accaoId}/inscricao` | Pedir (o próprio) ou inscrever alguém da equipa (`funcionarioId`, a chefia) |
+| PATCH | `/api/v1/rh/me/formacao/accoes/{accaoId}/desistir` | Desistir da minha inscrição |
+| PATCH | `/api/v1/rh/me/formacao/accoes/{accaoId}/inscricoes/{inscricaoId}/admitir` | A chefia admite o pedido da equipa |
+| PATCH | `/api/v1/rh/me/formacao/accoes/{accaoId}/inscricoes/{inscricaoId}/recusar` | A chefia recusa (`motivo`) |
+| POST | `/api/v1/rh/me/formacao/planos/{planoId}/necessidades` | Necessidade minha ou da equipa |
+<!-- /secao:formacao -->

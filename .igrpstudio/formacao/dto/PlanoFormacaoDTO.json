@@ -1,0 +1,58 @@
+{
+  "type": "dto",
+  "name": "PlanoFormacao",
+  "template": "classic",
+  "module": "formacao",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "ano",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "unidadeId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "designacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "despacho",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataAprovacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "NecessidadeFormacaoDTO",
+      "name": "necessidades",
+      "objectType": "dto",
+      "module": "formacao",
+      "collectionType": "list",
+      "required": false
+    }
+  ]
+}

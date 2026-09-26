@@ -111,6 +111,7 @@
       <a href="#checklists">22. Checklists de entrada e de saída</a><br>
       <a href="#comissao-servico">23. Comissão de serviço</a><br>
       <a href="#processo-disciplinar">24. Processo disciplinar — tramitação</a><br>
+      <a href="#formacao">25. Formação — plano, acções e inscrições</a><br>
       <a href="#invariantes">12. Invariantes transversais</a>
     </div>
   </div>
@@ -931,6 +932,28 @@
     <tr><td class="id">BR-DIS-29</td><td><b>Impedimentos</b> (art. 17.º): não é admitido a concurso enquanto cumpre suspensão (n.º 2 c)); não é promovido durante a suspensão, nem durante a inactividade e o ano seguinte (n.º 3); cessada a comissão por pena, 2 anos sem nova comissão de serviço, da notificação (n.º 8) — 422 no concurso, na promoção e ao registar a comissão. <i>O bloqueio das férias (n.º 2 b)) fica por fazer.</i></td><td><span class="http h422">422</span></td><td class="src">ImpedimentosDisciplinares · ConcursoService.candidatar</td></tr>
   </table>
   <!-- /secao:processo-disciplinar -->
+
+  <!-- secao:formacao -->
+  <h2 id="formacao"><span class="n">25.</span>Formação — plano, acções e inscrições</h2>
+  <p>Lei n.º 20/X/2023, art. 141.º (formação e programas de acolhimento) e art. 95.º b) (os prazos de garantia da formação custeada condicionam a exoneração). O resto é prática corrente [ind.]. Módulo <code>formacao</code>; tabelas <code>t_plano_formacao</code>, <code>t_necessidade_formacao</code>, <code>t_accao_formacao</code>, <code>t_accao_formacao_necessidade</code>, <code>t_inscricao_formacao</code>. O histórico de cada colaborador continua em <code>t_training</code>.</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-FRM-01</td><td><b>Plano anual</b> (deste ano ou dos próximos dois), por unidade se se quiser; recebe <b>necessidades</b> (tema, de quem, prioridade, justificação) enquanto em rascunho; aprova-se por despacho, com pelo menos uma.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">PlanoFormacao.criar · PlanoFormacao.identificar · PlanoFormacao.aprovar</td></tr>
+    <tr><td class="id">BR-FRM-02</td><td><b>Quem identifica</b>: o RH (de qualquer pessoa), o próprio (sua) e a chefia directa (da sua equipa) em <code>/me</code>; os outros não (403).</td><td><span class="http h403">403</span></td><td class="src">FormacaoService.identificarComo</td></tr>
+    <tr><td class="id">BR-FRM-03</td><td><b>Acção</b>: tema, entidade formadora, modalidade (presencial, à distância, mista), interna ou externa, datas (o fim não antes do início), horas, horário, local, vagas (opcionais), custo previsto (informativo).</td><td><span class="http h422">422</span></td><td class="src">AccaoFormacao.definir</td></tr>
+    <tr><td class="id">BR-FRM-04</td><td><b>Prazo de garantia</b> (art. 95.º b)): só quando a Administração custeia a formação; 1 a 60 meses de permanência depois do fim, para quem tiver aproveitamento.</td><td><span class="http h422">422</span></td><td class="src">AccaoFormacao.definir · AccaoFormacao.avaliar</td></tr>
+    <tr><td class="id">BR-FRM-05</td><td><b>Resposta ao plano</b>: uma acção pode responder a necessidades de um plano <b>aprovado</b> (ficam planeadas; concluída a acção, satisfeitas).</td><td><span class="http h422">422</span></td><td class="src">FormacaoService.planear · PlanoFormacao.satisfazer</td></tr>
+    <tr><td class="id">BR-FRM-06</td><td><b>Inscrições</b>: o RH e a chefia (da sua equipa directa) inscrevem, já admitido; o próprio pede, com as inscrições abertas, e fica a aguardar a decisão da chefia directa ou do RH (avisados). Uma inscrição por pessoa; só colaboradores ao serviço.</td><td><span class="http h403">403</span> <span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">AccaoFormacao.inscrever · FormacaoService.inscreverComo</td></tr>
+    <tr><td class="id">BR-FRM-07</td><td><b>Vagas</b>: os admitidos nunca passam das vagas (409); as vagas não descem abaixo dos admitidos.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">AccaoFormacao.inscrever · AccaoFormacao.decidir</td></tr>
+    <tr><td class="id">BR-FRM-08</td><td><b>Decisão do pedido</b>: admitir, ou recusar com motivo; a chefia só decide a sua equipa (403). Desistir antes de a acção terminar.</td><td><span class="http h403">403</span> <span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">AccaoFormacao.decidir · AccaoFormacao.desistir · FormacaoService.decidirComo</td></tr>
+    <tr><td class="id">BR-FRM-09</td><td><b>Início</b>: com pelo menos um admitido; os pedidos por decidir caem (recusados). Depois de começar, os termos não mudam.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">AccaoFormacao.iniciar</td></tr>
+    <tr><td class="id">BR-FRM-10</td><td><b>Avaliação</b> de cada admitido: aproveitamento, sem aproveitamento ou faltou, com os dias de presença (até aos dias da acção). <b>Conclusão</b> só com todos avaliados: cada aproveitamento entra no histórico do colaborador (tipo ACCAO_FORMACAO) e cada formando é avisado, com o prazo de garantia se o há.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">AccaoFormacao.avaliar · AccaoFormacao.concluir · FormacaoService.concluir</td></tr>
+    <tr><td class="id">BR-FRM-11</td><td><b>Dias de formação</b>: os dias da acção de quem foi admitido (e não faltou) não se apuram como faltas.</td><td>—</td><td class="src">DiasFormacao</td></tr>
+    <tr><td class="id">BR-FRM-12</td><td><b>Cancelar</b> antes de concluir, com motivo; os inscritos são avisados.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">AccaoFormacao.cancelar</td></tr>
+    <tr><td class="id">BR-FRM-13</td><td><b>Horas de formação</b> por colaborador no ano, pelo histórico (indicador do balanço social).</td><td>—</td><td class="src">FormacaoService.horasNoAno</td></tr>
+    <tr><td class="id">BR-FRM-14</td><td><b>Garantias em curso</b>: as permanências que o colaborador ainda deve — para condicionar a exoneração voluntária (art. 95.º b)).</td><td>—</td><td class="src">FormacaoService.garantiasEmCurso</td></tr>
+  </table>
+  <!-- /secao:formacao -->
 
   <!-- ============ INVARIANTES ============ -->
   <h2 id="invariantes"><span class="n">12.</span>Invariantes transversais</h2>

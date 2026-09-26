@@ -1,0 +1,123 @@
+{
+  "type": "dto",
+  "name": "AccaoFormacaoRequest",
+  "template": "classic",
+  "module": "formacao",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "tema",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "entidadeFormadora",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "modalidade",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "interna",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "inicio",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "fim",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "horas",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "horario",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "local",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "vagas",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "decimal",
+      "name": "custoPrevisto",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "custeadaPelaAdministracao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "mesesGarantia",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "planoId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "necessidades",
+      "objectType": "java",
+      "collectionType": "list",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "resultado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "diasPresenca",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "type": "dto",
+  "name": "HorasFormacao",
+  "template": "classic",
+  "module": "formacao",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioNome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "horas",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

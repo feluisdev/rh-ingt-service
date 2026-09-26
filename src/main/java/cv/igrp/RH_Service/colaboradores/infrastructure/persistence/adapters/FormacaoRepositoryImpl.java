@@ -49,4 +49,13 @@ public class FormacaoRepositoryImpl implements FormacaoRepository {
     public void deleteById(FormacaoId id) {
         entityRepository.deleteById(id.getValor());
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public java.util.Map<FuncionarioId, Integer> horasPorFuncionario(int ano) {
+        var m = new java.util.LinkedHashMap<FuncionarioId, Integer>();
+        for (Object[] r : entityRepository.horasPorFuncionario(ano))
+            m.put(FuncionarioId.from((java.util.UUID) r[0]), ((Number) r[1]).intValue());
+        return m;
+    }
 }

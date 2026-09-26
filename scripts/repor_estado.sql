@@ -58,6 +58,9 @@ BEGIN
   IF to_regclass('public.t_provimento') IS NOT NULL THEN
     DELETE FROM t_provimento WHERE funcionario_id = ANY(extras);
   END IF;
+  IF to_regclass('public.t_inscricao_formacao') IS NOT NULL THEN
+    DELETE FROM t_inscricao_formacao WHERE funcionario_id = ANY(extras);
+  END IF;
   IF to_regclass('public.t_checklist_item') IS NOT NULL THEN
     DELETE FROM t_checklist_item WHERE checklist_id IN (SELECT id FROM t_checklist WHERE funcionario_id = ANY(extras));
   END IF;
@@ -284,6 +287,23 @@ DO $$ BEGIN
      AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 't_disciplinary_process' AND column_name = 'fase') THEN
     DELETE FROM t_disciplinary_process WHERE fase IS NOT NULL;
   END IF;
+  -- Formacao (planos, accoes, inscricoes; e o historico que as accoes concluidas criaram).
+  IF to_regclass('public.t_inscricao_formacao') IS NOT NULL THEN
+    DELETE FROM t_inscricao_formacao;
+  END IF;
+  IF to_regclass('public.t_accao_formacao_necessidade') IS NOT NULL THEN
+    DELETE FROM t_accao_formacao_necessidade;
+  END IF;
+  IF to_regclass('public.t_accao_formacao') IS NOT NULL THEN
+    DELETE FROM t_accao_formacao;
+  END IF;
+  IF to_regclass('public.t_necessidade_formacao') IS NOT NULL THEN
+    DELETE FROM t_necessidade_formacao;
+  END IF;
+  IF to_regclass('public.t_plano_formacao') IS NOT NULL THEN
+    DELETE FROM t_plano_formacao;
+  END IF;
+  DELETE FROM t_training WHERE training_type = 'ACCAO_FORMACAO';
   -- Checklists de entrada e saida (o modelo, catalogo, fica).
   IF to_regclass('public.t_checklist_item') IS NOT NULL THEN
     DELETE FROM t_checklist_item;

@@ -1,0 +1,62 @@
+{
+  "type": "dto",
+  "name": "InscricaoFormacao",
+  "template": "classic",
+  "module": "formacao",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioNome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "origem",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "data",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "diasPresenca",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "garantiaAte",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

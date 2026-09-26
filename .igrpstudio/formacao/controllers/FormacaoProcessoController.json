@@ -1,0 +1,970 @@
+{
+  "type": "controller",
+  "name": "FormacaoProcesso",
+  "module": "formacao",
+  "basePath": "api/v1/rh",
+  "description": "Formação como processo (Lei n.º 20/X/2023, art. 141.º): plano anual e necessidades, acções, inscrições, avaliação, prazo de garantia (art. 95.º b)) e horas de formação",
+  "actions": [
+    {
+      "actionName": "getAccoesFormacao",
+      "method": "GET",
+      "path": "formacao/accoes",
+      "summary": "As acções de formação (filtros: estado, ano)",
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "estado",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "ano",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AccaoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getAccaoFormacao",
+      "method": "GET",
+      "path": "formacao/accoes/{accaoId}",
+      "summary": "Uma acção de formação com as inscrições",
+      "pathVariables": [
+        {
+          "name": "accaoId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AccaoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getMinhasAccoesFormacao",
+      "method": "GET",
+      "path": "me/formacao/accoes",
+      "summary": "As acções com inscrições abertas e as minhas (só a minha inscrição)",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AccaoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getPlanosFormacao",
+      "method": "GET",
+      "path": "formacao/planos",
+      "summary": "Os planos de formação (filtro: ano)",
+      "requestParams": [
+        {
+          "type": "integer",
+          "name": "ano",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PlanoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getPlanoFormacao",
+      "method": "GET",
+      "path": "formacao/planos/{planoId}",
+      "summary": "Um plano de formação com as necessidades",
+      "pathVariables": [
+        {
+          "name": "planoId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PlanoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getHorasFormacao",
+      "method": "GET",
+      "path": "formacao/horas",
+      "summary": "As horas de formação por colaborador no ano (pelo histórico; indicador do balanço social)",
+      "requestParams": [
+        {
+          "type": "integer",
+          "name": "ano",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "HorasFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "planearAccaoFormacao",
+      "method": "POST",
+      "path": "formacao/accoes",
+      "summary": "Planear uma acção de formação (pode responder a necessidades de um plano aprovado)",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoFormacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "formacao"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AccaoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "actualizarAccaoFormacao",
+      "method": "PUT",
+      "path": "formacao/accoes/{accaoId}",
+      "summary": "Alterar os termos da acção (planeada ou com inscrições abertas; campos omitidos ficam)",
+      "pathVariables": [
+        {
+          "name": "accaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoFormacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "formacao"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AccaoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "abrirInscricoesAccaoFormacao",
+      "method": "PATCH",
+      "path": "formacao/accoes/{accaoId}/abrir-inscricoes",
+      "summary": "Abrir as inscrições",
+      "pathVariables": [
+        {
+          "name": "accaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoFormacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "formacao"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AccaoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "iniciarAccaoFormacao",
+      "method": "PATCH",
+      "path": "formacao/accoes/{accaoId}/iniciar",
+      "summary": "Começar a acção (com formandos admitidos; os pedidos por decidir caem)",
+      "pathVariables": [
+        {
+          "name": "accaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoFormacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "formacao"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AccaoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "concluirAccaoFormacao",
+      "method": "PATCH",
+      "path": "formacao/accoes/{accaoId}/concluir",
+      "summary": "Concluir: todos avaliados; os aproveitamentos entram no histórico do colaborador",
+      "pathVariables": [
+        {
+          "name": "accaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoFormacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "formacao"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AccaoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "cancelarAccaoFormacao",
+      "method": "PATCH",
+      "path": "formacao/accoes/{accaoId}/cancelar",
+      "summary": "Cancelar a acção, com motivo",
+      "pathVariables": [
+        {
+          "name": "accaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoFormacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "formacao"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AccaoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "inscreverAccaoFormacao",
+      "method": "POST",
+      "path": "formacao/accoes/{accaoId}/inscricoes",
+      "summary": "Inscrever um colaborador (pelo RH: fica admitido, dentro das vagas)",
+      "pathVariables": [
+        {
+          "name": "accaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoFormacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "formacao"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AccaoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "admitirInscricaoFormacao",
+      "method": "PATCH",
+      "path": "formacao/accoes/{accaoId}/inscricoes/{inscricaoId}/admitir",
+      "summary": "Admitir o pedido de inscrição",
+      "pathVariables": [
+        {
+          "name": "accaoId",
+          "type": "string"
+        },
+        {
+          "name": "inscricaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoFormacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "formacao"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AccaoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "recusarInscricaoFormacao",
+      "method": "PATCH",
+      "path": "formacao/accoes/{accaoId}/inscricoes/{inscricaoId}/recusar",
+      "summary": "Recusar o pedido de inscrição, com motivo",
+      "pathVariables": [
+        {
+          "name": "accaoId",
+          "type": "string"
+        },
+        {
+          "name": "inscricaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoFormacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "formacao"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AccaoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "desistirInscricaoFormacao",
+      "method": "PATCH",
+      "path": "formacao/accoes/{accaoId}/inscricoes/{inscricaoId}/desistir",
+      "summary": "Registar a desistência",
+      "pathVariables": [
+        {
+          "name": "accaoId",
+          "type": "string"
+        },
+        {
+          "name": "inscricaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoFormacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "formacao"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AccaoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "avaliarInscricaoFormacao",
+      "method": "PATCH",
+      "path": "formacao/accoes/{accaoId}/inscricoes/{inscricaoId}/avaliar",
+      "summary": "Avaliar o formando: aproveitamento, sem aproveitamento ou faltou, e os dias de presença",
+      "pathVariables": [
+        {
+          "name": "accaoId",
+          "type": "string"
+        },
+        {
+          "name": "inscricaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoFormacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "formacao"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AccaoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "inscreverMeAccaoFormacao",
+      "method": "POST",
+      "path": "me/formacao/accoes/{accaoId}/inscricao",
+      "summary": "Pedir inscrição (o próprio) ou inscrever alguém da equipa directa (a chefia)",
+      "pathVariables": [
+        {
+          "name": "accaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoFormacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "formacao"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AccaoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "desistirMeAccaoFormacao",
+      "method": "PATCH",
+      "path": "me/formacao/accoes/{accaoId}/desistir",
+      "summary": "Desistir da minha inscrição",
+      "pathVariables": [
+        {
+          "name": "accaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoFormacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "formacao"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AccaoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "admitirMeInscricaoFormacao",
+      "method": "PATCH",
+      "path": "me/formacao/accoes/{accaoId}/inscricoes/{inscricaoId}/admitir",
+      "summary": "A chefia directa admite o pedido de alguém da equipa",
+      "pathVariables": [
+        {
+          "name": "accaoId",
+          "type": "string"
+        },
+        {
+          "name": "inscricaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoFormacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "formacao"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AccaoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "recusarMeInscricaoFormacao",
+      "method": "PATCH",
+      "path": "me/formacao/accoes/{accaoId}/inscricoes/{inscricaoId}/recusar",
+      "summary": "A chefia directa recusa o pedido de alguém da equipa, com motivo",
+      "pathVariables": [
+        {
+          "name": "accaoId",
+          "type": "string"
+        },
+        {
+          "name": "inscricaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoFormacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "formacao"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AccaoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "criarPlanoFormacao",
+      "method": "POST",
+      "path": "formacao/planos",
+      "summary": "Criar o plano anual de formação (em rascunho)",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "PlanoFormacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "formacao"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PlanoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "identificarNecessidadeFormacao",
+      "method": "POST",
+      "path": "formacao/planos/{planoId}/necessidades",
+      "summary": "Identificar uma necessidade de formação (pelo RH)",
+      "pathVariables": [
+        {
+          "name": "planoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "PlanoFormacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "formacao"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PlanoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "aprovarPlanoFormacao",
+      "method": "PATCH",
+      "path": "formacao/planos/{planoId}/aprovar",
+      "summary": "Aprovar o plano (despacho)",
+      "pathVariables": [
+        {
+          "name": "planoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "PlanoFormacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "formacao"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PlanoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "identificarMeNecessidadeFormacao",
+      "method": "POST",
+      "path": "me/formacao/planos/{planoId}/necessidades",
+      "summary": "Identificar uma necessidade minha (o próprio) ou da minha equipa directa (a chefia)",
+      "pathVariables": [
+        {
+          "name": "planoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "PlanoFormacaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "formacao"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "PlanoFormacaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "formacao"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

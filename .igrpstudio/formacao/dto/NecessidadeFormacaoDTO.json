@@ -1,0 +1,62 @@
+{
+  "type": "dto",
+  "name": "NecessidadeFormacao",
+  "template": "classic",
+  "module": "formacao",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "tema",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioNome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "origem",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "prioridade",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "justificacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "accaoId",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

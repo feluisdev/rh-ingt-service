@@ -1,0 +1,131 @@
+{
+  "type": "dto",
+  "name": "AccaoFormacao",
+  "template": "classic",
+  "module": "formacao",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "planoId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "necessidades",
+      "objectType": "java",
+      "collectionType": "list",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "tema",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "entidadeFormadora",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "modalidade",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "interna",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "inicio",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "fim",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "horas",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "horario",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "local",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "vagas",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "decimal",
+      "name": "custoPrevisto",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "custeadaPelaAdministracao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "mesesGarantia",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivoCancelamento",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "admitidos",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "InscricaoFormacaoDTO",
+      "name": "inscricoes",
+      "objectType": "dto",
+      "module": "formacao",
+      "collectionType": "list",
+      "required": false
+    }
+  ]
+}
