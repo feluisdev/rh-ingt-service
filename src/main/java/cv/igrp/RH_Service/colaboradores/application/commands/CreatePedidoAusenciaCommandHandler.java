@@ -38,6 +38,7 @@ public class CreatePedidoAusenciaCommandHandler
     private final SaldoAusenciaService saldoAusenciaService;
     private final cv.igrp.RH_Service.colaboradores.application.services.MapaFeriasService mapaFeriasService;
     private final cv.igrp.RH_Service.colaboradores.application.services.AvisosAusencia avisosAusencia;
+    private final cv.igrp.RH_Service.colaboradores.application.services.BloqueioFeriasDisciplinar bloqueioFerias;
 
     @IgrpCommandHandler
     @Transactional
@@ -122,6 +123,11 @@ public class CreatePedidoAusenciaCommandHandler
         var pedido = PedidoAusencia.criar(
                 funcionarioId, tipoId, dto.getDataInicio(), dto.getDataFim(), numeroDias,
                 dto.getMotivo(), opcao);
+
+        // Art. 17.º n.º 2 b) do Estatuto Disciplinar: sem férias na pena de suspensão ou inactividade
+        // nem no ano a seguir (salvo 10 dias, se a suspensão foi de 90 dias ou menos).
+        if (tipo.isFerias() && bloqueioFerias != null)
+            bloqueioFerias.verificar(pedido);
 
         // Os dias ficam reservados desde a submissão: dois pedidos em simultâneo já não
         // podem esgotar duas vezes o mesmo saldo. Sem saldo suficiente, é 422 já aqui.

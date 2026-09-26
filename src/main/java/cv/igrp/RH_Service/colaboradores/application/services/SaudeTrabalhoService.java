@@ -6,11 +6,14 @@ import cv.igrp.RH_Service.colaboradores.domain.models.JuntaMedica;
 import cv.igrp.RH_Service.colaboradores.domain.models.ModalidadeAposentacao;
 import cv.igrp.RH_Service.colaboradores.domain.models.ProcessoAposentacao;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
+import cv.igrp.RH_Service.colaboradores.domain.repository.PedidoAusenciaRepository;
+import cv.igrp.RH_Service.colaboradores.domain.service.DoencaProlongada;
 import cv.igrp.RH_Service.colaboradores.domain.repository.SaudeTrabalhoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.JuntaMedicaId;
 import cv.igrp.RH_Service.shared.application.services.notificacoes.Notificador;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.domain.notificacoes.NotificacaoRepository;
 import cv.igrp.RH_Service.shared.domain.notificacoes.TipoNotificacao;
 import cv.igrp.RH_Service.shared.domain.service.Datas;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * <b>Medicina do trabalho e junta médica</b> (BR-SST-11..18): os exames de aptidão (sem dados clínicos) com validade e
+ * <b>Medicina do trabalho e junta médica</b> (BR-SST-11..19): os exames de aptidão (sem dados clínicos) com validade e
  * aviso, e a comissão de verificação de incapacidade com os efeitos do parecer.
  */
 @Service
@@ -35,6 +38,12 @@ public class SaudeTrabalhoService {
     static final String RECURSO_JUNTA = "JUNTA_MEDICA";
     /** Com que antecedência se avisa do fim da validade [ind.]. */
     static final int DIAS_AVISO = 30;
+    /** A categoria (LEAVE_CATEGORY) dos tipos de ausência que contam como doença: é o catálogo que diz quais são. */
+    static final String CATEGORIA_DOENCA = "SAUDE";
+    static final String RECURSO_DOENCA = "DOENCA_PROLONGADA";
+
+    /** Um colaborador com doença seguida há {@code dias} dias (desde {@code desde}, com atestado até {@code ate}), sem junta pedida. */
+    public record SugestaoJunta(FuncionarioId funcionarioId, String nome, LocalDate desde, LocalDate ate, int dias) {}
 
     public record Resultado<T>(T valor, List<String> alertas) {}
 
@@ -42,6 +51,8 @@ public class SaudeTrabalhoService {
     private final FuncionarioRepository funcionarioRepository;
     private final AposentacaoService aposentacaoService;
     private final Notificador notificador;
+    private final PedidoAusenciaRepository pedidoAusenciaRepository;
+    private final NotificacaoRepository notificacaoRepository;
 
     // ---------------------------------------------------------------- exames
 
@@ -138,6 +149,43 @@ public class SaudeTrabalhoService {
                 .titulo("Parecer da junta médica de " + nome(funcionarioId) + ": " + parecer(parecer))
                 .recurso(RECURSO_JUNTA, gravada.getId().getStringValor()).enviar();
         return new Resultado<>(gravada, alertas);
+    }
+
+    /**
+     * <b>Doença prolongada</b> (DL n.º 3/2010, art. 26.º n.º 1; BR-SST-19): quem está ausente por doença há 30 dias seguidos ou
+     * mais, no {@code dia}, e ainda não tem junta pedida desde o início dessa doença. Os tipos de doença são os da categoria
+     * SAUDE, em dias inteiros. O internamento e a doença no estrangeiro são excepções que o RH avalia.
+     */
+    @Transactional(readOnly = true)
+    public List<SugestaoJunta> sugestoesJunta(LocalDate dia) {
+        var pedidos = pedidoAusenciaRepository.findAprovadosDaCategoriaEntre(CATEGORIA_DOENCA, dia.minusDays(400), dia.plusDays(400));
+        var sugestoes = new ArrayList<SugestaoJunta>();
+        for (var per : DoencaProlongada.atingidos(pedidos, dia)) {
+            boolean jaPedida = repository.findJuntas(per.funcionarioId()).stream()
+                    .anyMatch(j -> j.getEstado() == JuntaMedica.Estado.PEDIDA
+                            || (j.getEstado() != JuntaMedica.Estado.CANCELADA && !j.getDataPedido().isBefore(per.de())));
+            if (!jaPedida)
+                sugestoes.add(new SugestaoJunta(per.funcionarioId(), nome(per.funcionarioId()), per.de(), per.ate(), per.dias()));
+        }
+        return sugestoes;
+    }
+
+    /** Para o job: avisa o RH, uma vez por período de doença, de que é caso de junta (BR-SST-19). */
+    @Transactional
+    public int avisarDoencaProlongada(LocalDate dia) {
+        int n = 0;
+        for (var s : sugestoesJunta(dia)) {
+            String chave = s.funcionarioId().getStringValor() + ":" + s.desde();
+            if (notificacaoRepository.existeSobre(TipoNotificacao.EXAME_SAUDE, RECURSO_DOENCA, chave)) continue;
+            notificador.paraRh().tipo(TipoNotificacao.EXAME_SAUDE)
+                    .titulo(s.nome() + " está de baixa por doença há " + s.dias() + " dias: peça a junta médica")
+                    .texto("Ausente por doença desde " + Datas.pt(s.desde()) + ". Aos 30 dias seguidos, quem não está em condições de "
+                            + "regressar vai à comissão de verificação de incapacidades (DL n.º 3/2010, art. 26.º), salvo internamento "
+                            + "ou doença no estrangeiro.")
+                    .recurso(RECURSO_DOENCA, chave).enviar();
+            n++;
+        }
+        return n;
     }
 
     @Transactional

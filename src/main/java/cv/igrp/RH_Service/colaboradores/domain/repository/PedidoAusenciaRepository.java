@@ -41,4 +41,7 @@ public interface PedidoAusenciaRepository {
 
     /** As faltas injustificadas aprovadas (tipo de regime FALTA_INJUSTIFICADA), de todos, que chegam a {@code desde} ou depois. */
     List<PedidoAusencia> findFaltasInjustificadasDesde(LocalDate desde);
+
+    /** Os pedidos aprovados, em dias inteiros, dos tipos de uma categoria (LEAVE_CATEGORY), de todos, que tocam {@code de..ate}. */
+    List<PedidoAusencia> findAprovadosDaCategoriaEntre(String categoria, LocalDate de, LocalDate ate);
 }

@@ -30,6 +30,7 @@ public class DecisaoPedidoAusenciaService {
     private final SaldoAusenciaService saldoAusenciaService;
     private final ChefiaService chefiaService;
     private final AvisosAusencia avisosAusencia;
+    private final BloqueioFeriasDisciplinar bloqueioFerias;
 
     /**
      * {@code chefe} presente: decide a chefia directa, e fica ela como decisora. {@code chefe} nulo:
@@ -41,6 +42,8 @@ public class DecisaoPedidoAusenciaService {
                                   FuncionarioId decisorRh, String observacoes) {
         var pedido = encontrar(funcionarioId, id);
         if (chefe != null) exigirChefiaDe(chefe, pedido.getFuncionarioId());
+        // A pena pode ter sido executada depois do pedido: as férias voltam a ver-se ao aprovar (BR-DIS-30).
+        if (bloqueioFerias != null) bloqueioFerias.verificar(pedido);
         pedido.aprovar(chefe != null ? chefe : decisorRh, LocalDate.now(), texto(observacoes));
         saldoAusenciaService.confirmarGozo(pedido);
         var gravado = pedidoRepository.save(pedido);

@@ -1014,6 +1014,17 @@ ganham `dados.remuneracaoBase` (campo novo, não obrigatório para quem já lê 
 - Menu RH «Fecho mensal»: fechar o mês (com as pendências em aviso), reabrir com motivo, ver os fechos.
 - A exportação é para a integração do salarial (não é ecrã).
 
+### 11.61 Férias bloqueadas por pena e doença prolongada (2026-09-26)
+
+**Um 422 novo, só em casos raros**: um pedido de férias (RH ou
+`/me`), e a sua aprovação, recusam-se quando caem na pena de suspensão ou de inactividade executada, ou no ano seguinte (salvo 10
+dias a quem foi suspenso por 90 dias ou menos) — BR-DIS-30. Nada muda para quem não tem pena; mostrar o `title` da resposta, que
+já diz até quando e quantos dias há.
+
+- Endpoint novo `GET /api/v1/rh/juntas-medicas/sugestoes?data=` (BR-SST-19): quem está de baixa por doença há 30 dias seguidos ou
+  mais, sem junta pedida — um quadro no ecrã das juntas médicas, com o botão «Pedir junta» (`motivo: DOENCA_PROLONGADA`).
+- O RH recebe um aviso na caixa (tipo `EXAME_SAUDE`, recurso `DOENCA_PROLONGADA`).
+
 ## 12. Checklist do alinhamento com a legislação (secção 11)
 
 Por ordem das secções. Cada item remete para o ecrã correspondente em `apresentacao_aplicacao.html`.

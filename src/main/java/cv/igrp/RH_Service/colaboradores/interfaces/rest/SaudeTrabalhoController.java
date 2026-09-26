@@ -8,9 +8,11 @@ import cv.igrp.RH_Service.colaboradores.application.commands.RegistarExameSaudeC
 import cv.igrp.RH_Service.colaboradores.application.dto.ExameSaudeDTO;
 import cv.igrp.RH_Service.colaboradores.application.dto.ExameSaudeRequestDTO;
 import cv.igrp.RH_Service.colaboradores.application.dto.JuntaMedicaDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.SugestaoJuntaMedicaDTO;
 import cv.igrp.RH_Service.colaboradores.application.dto.JuntaMedicaRequestDTO;
 import cv.igrp.RH_Service.colaboradores.application.queries.GetExamesSaudeQuery;
 import cv.igrp.RH_Service.colaboradores.application.queries.GetJuntasMedicasQuery;
+import cv.igrp.RH_Service.colaboradores.application.queries.GetSugestoesJuntaMedicaQuery;
 import cv.igrp.framework.core.domain.Command;
 import cv.igrp.framework.core.domain.CommandBus;
 import cv.igrp.framework.core.domain.Query;
@@ -65,6 +67,14 @@ public class SaudeTrabalhoController {
             content = @Content(schema = @Schema(implementation = JuntaMedicaDTO.class)))
     public ResponseEntity<List<JuntaMedicaDTO>> getJuntasMedicas(@RequestParam(value = "estado", required = false) String estado) {
         return perguntar(new GetJuntasMedicasQuery(estado, null));
+    }
+
+    @GetMapping("juntas-medicas/sugestoes")
+    @Operation(summary = "Doença prolongada: quem está de baixa por doença há 30 dias seguidos ou mais sem junta pedida (DL n.º 3/2010, art. 26.º)")
+    @ApiResponse(responseCode = "200", description = "Sugestões",
+            content = @Content(schema = @Schema(implementation = SugestaoJuntaMedicaDTO.class)))
+    public ResponseEntity<List<SugestaoJuntaMedicaDTO>> getSugestoesJuntaMedica(@RequestParam(value = "data", required = false) String data) {
+        return perguntar(new GetSugestoesJuntaMedicaQuery(data));
     }
 
     @GetMapping("funcionarios/{funcionarioId}/juntas-medicas")

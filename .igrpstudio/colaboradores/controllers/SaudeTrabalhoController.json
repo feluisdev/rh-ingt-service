@@ -104,6 +104,35 @@
       }
     },
     {
+      "actionName": "getSugestoesJuntaMedica",
+      "method": "GET",
+      "path": "juntas-medicas/sugestoes",
+      "summary": "Doença prolongada: quem está de baixa por doença há 30 dias seguidos ou mais sem junta pedida (DL n.º 3/2010, art. 26.º)",
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "data",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SugestaoJuntaMedicaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "actionName": "getJuntasMedicasColaborador",
       "method": "GET",
       "path": "funcionarios/{funcionarioId}/juntas-medicas",

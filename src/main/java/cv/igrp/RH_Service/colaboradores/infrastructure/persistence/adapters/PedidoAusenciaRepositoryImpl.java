@@ -100,4 +100,10 @@ public class PedidoAusenciaRepositoryImpl implements PedidoAusenciaRepository {
     public List<PedidoAusencia> findFaltasInjustificadasDesde(LocalDate desde) {
         return entityRepository.findFaltasInjustificadasDesde(desde).stream().map(mapper::toDomain).toList();
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<PedidoAusencia> findAprovadosDaCategoriaEntre(String categoria, LocalDate de, LocalDate ate) {
+        return entityRepository.findAprovadosDaCategoriaEntre(categoria, de, ate).stream().map(mapper::toDomain).toList();
+    }
 }

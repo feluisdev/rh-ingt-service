@@ -969,6 +969,19 @@ Só os tipos com `deductsBalance` mexem no saldo; para os outros, nada disto se 
 >
 > Para **renovar ou substituir** um contrato não se usa o `close`: basta criar o contrato novo, que encerra o anterior (motivo `SUBSTITUICAO`) sem tocar na afectação nem no estado.
 
+### 6.5b Férias e pena disciplinar — art. 17.º do Estatuto Disciplinar
+
+Quem cumpriu pena de **suspensão** ou de **inactividade** não goza férias durante a pena nem no ano seguinte ao seu termo;
+se a suspensão foi de **90 dias ou menos**, conserva **10 dias** nesse ano (BR-DIS-30, BR-FER-23). Ao criar um pedido de férias
+(RH ou `/me`) e ao aprová-lo, o que não cabe dá **422**, com a mensagem a dizer até quando e quantos dias ainda há:
+
+```
+Por causa da pena de suspensão, só pode gozar 10 dias de férias entre 31/05/2026 e 30/05/2027. Já tem 0 marcados e
+este pedido tem 15. Reduza o pedido ou marque o resto a partir de 31/05/2027 (art. 17.º do Estatuto Disciplinar).
+```
+
+Só as férias (o tipo com regime `FERIAS`); as faltas e as licenças não mudam.
+
 ### 6.6 Mapa de férias — arts. 5.º e 6.º
 
 **Marcar não é gozar.** O mapa é o plano do ano; o gozo continua a ser o pedido de férias (§6.3),
@@ -1872,12 +1885,26 @@ Cada módulo expõe um controller de auditoria (Envers):
 
 ## 11b. Tarefas agendadas (jobs) — `/api/v1/rh/schedulers`
 
-Os trabalhos que correm sozinhos — hoje o **vencimento do direito a férias** (6.3) e os **efeitos das licenças e mobilidades** (7.0) — passaram a ter memória: cada execução fica registada (quando correu, quanto tempo levou, o que fez, porque falhou), o agendamento muda-se sem reiniciar a aplicação, e qualquer um pode ser disparado à mão. É o mesmo desenho do `inss_core_service`.
+Os trabalhos que correm sozinhos têm memória: cada execução fica registada (quando correu, quanto tempo levou, o que fez,
+porque falhou), o agendamento muda-se sem reiniciar a aplicação, e qualquer um pode ser disparado à mão. É o mesmo desenho do
+`inss_core_service`. Todos aceitam no disparo manual a data de referência (`data`, `aaaa-MM-dd` ou `dd/MM/aaaa`; se vazia, o dia
+do agendamento), menos o vencimento das férias, que aceita o `ano`.
 
-| Chave | Tarefa | Por omissão | Parâmetros do disparo manual |
+| Chave | Tarefa | Por omissão | Regras |
 |---|---|---|---|
-| `RH_VENCIMENTO_FERIAS` | Vencimento do direito a férias | todos os dias às 00:05 · 3 tentativas automáticas | `ano` — se vazio, o ano do agendamento |
-| `RH_EFEITOS_LICENCAS` | Efeitos das licenças e mobilidades | todos os dias às 00:15 | `data` (`aaaa-MM-dd` ou `dd/MM/aaaa`) — se vazio, o dia do agendamento |
+| `RH_VENCIMENTO_FERIAS` | Vencimento do direito a férias (parâmetro `ano`) | todos os dias às 00:05 · 3 tentativas automáticas | §6.3 |
+| `RH_EFEITOS_LICENCAS` | Efeitos das licenças e mobilidades | todos os dias às 00:15 | §7.0 |
+| `RH_EXONERACOES` | Efeitos das exonerações voluntárias | 06:10 | BR-EXO |
+| `RH_PRAZOS_DISCIPLINARES` | Prazos e execução das penas dos processos disciplinares | 06:20 | BR-DIS |
+| `RH_ALERTA_APOSENTACAO` | Aviso do limite de idade (aposentação) | 06:30 | BR-APO |
+| `RH_ALERTA_ENTRADA_SERVICO` | Avisos de períodos de prova e de fim de contrato | 06:40 | BR-PRV |
+| `RH_ALERTA_CHECKLISTS` | Itens das checklists de entrada e saída fora do prazo | 06:50 | BR-CHK |
+| `RH_ALERTA_COMISSOES_SERVICO` | Aviso do termo das comissões de serviço | 06:55 | BR-CMS |
+| `RH_ALERTA_MISSOES_SERVICO` | Lembrete do relatório das missões de serviço | 07:00 | BR-MSS |
+| `RH_ACUMULACOES` | Fim das acumulações de funções | 07:05 | BR-ACU |
+| `RH_EXAMES_SAUDE` | Validade dos exames de medicina do trabalho | 07:15 | BR-SST-14 |
+| `RH_DOENCA_PROLONGADA` | Doença prolongada: sugerir a junta médica | 07:20 | BR-SST-19 |
+| `RH_ENVIO_NOTIFICACOES` | Envio das notificações por correio electrónico | de 10 em 10 minutos | BR-NOT (SMTP por configurar) |
 
 | Método | Caminho | O que faz |
 |---|---|---|
@@ -2248,7 +2275,7 @@ a **participação** e segue por actos, cada um com a sua `data` (por omissão, 
 | PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/rever` | `resultado` ∈ REVOGADA · ALTERADA, `pena`, `duracao`, `despacho` |
 
 Na decisão, `suspensaoAnos` (1 a 3) suspende a multa ou a suspensão (art. 34.º); a resposta traz `penaSuspensaAte`. Uma nova
-punição durante a suspensão fá-la caducar e a pena executa-se. A pena impede o concurso, a promoção e a nova comissão (BR-DIS-29).
+punição durante a suspensão fá-la caducar e a pena executa-se. A pena impede o concurso, a promoção e a nova comissão (BR-DIS-29), e a suspensão e a inactividade bloqueiam as férias (BR-DIS-30, §6.5b).
 
 `pena` ∈ CENSURA_ESCRITA · MULTA (dias) · SUSPENSAO (dias) · INACTIVIDADE (meses) · APOSENTACAO_COMPULSIVA · DEMISSAO ·
 CESSACAO_COMISSAO. A execução (facto, cessação do vínculo, publicação, cessação da comissão) é automática no dia devido.
@@ -2373,7 +2400,7 @@ seguradora).
 <!-- secao:saude-trabalho -->
 ## 31. Medicina do trabalho e junta médica — `/api/v1/rh/funcionarios/{id}/exames-saude`
 
-BR-SST-11..18. Só o resultado de aptidão; nunca dados clínicos.
+BR-SST-11..19. Só o resultado de aptidão; nunca dados clínicos.
 
 | Método | Caminho | O quê |
 |---|---|---|
@@ -2384,6 +2411,13 @@ BR-SST-11..18. Só o resultado de aptidão; nunca dados clínicos.
 | POST | `/api/v1/rh/funcionarios/{funcionarioId}/juntas-medicas` | Pedir (`motivo`, `fundamentacao`, `data`) |
 | PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/juntas-medicas/{juntaId}/parecer` | `parecer`, `diasIncapacidade`, `data`, `observacoes` |
 | PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/juntas-medicas/{juntaId}/cancelar` | Cancelar |
+| GET | `/api/v1/rh/juntas-medicas/sugestoes` | Doença prolongada (`data`, por omissão hoje): `funcionarioId`, `nome`, `desde`, `ate`, `dias` |
+
+**Doença prolongada** (DL n.º 3/2010, art. 26.º; BR-SST-19). Aos 30 dias seguidos de doença, quem ainda não regressou vai à
+comissão de verificação de incapacidades. A lista das sugestões junta os pedidos de ausência aprovados dos tipos da categoria
+`SAUDE` (os fins-de-semana entre atestados não interrompem) e deixa de fora quem já tem junta pedida. O job
+`RH_DOENCA_PROLONGADA` (07:20) avisa o RH uma vez por período de doença; o pedido da junta continua a ser do RH
+(`motivo: DOENCA_PROLONGADA`), porque o internamento e a doença no estrangeiro são excepções que só ele sabe.
 <!-- /secao:saude-trabalho -->
 
 <!-- secao:fecho-mensal -->

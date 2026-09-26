@@ -1,0 +1,38 @@
+{
+  "type": "dto",
+  "name": "SugestaoJuntaMedica",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "nome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "desde",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "ate",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "dias",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}
