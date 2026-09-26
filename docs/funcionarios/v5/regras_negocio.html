@@ -62,7 +62,7 @@
     <div class="kicker">RH-Service · SIGDI / SIPPROG</div>
     <h1>Catálogo de Regras de Negócio</h1>
     <p>As regras que o microserviço de Recursos Humanos aplica — validações, invariantes e transições de estado — extraídas do código e organizadas por domínio. Cada regra tem um identificador, o resultado quando violada e a sua origem no código.</p>
-    <div class="meta">Documentação <b>v5</b> · fonte de verdade · âmbito: núcleo RH — <b>exclui</b> o módulo <code>sigdi</code> · os conceitos e os ecrãs estão no <a href="apresentacao_aplicacao.html">manual da aplicação</a><br>Última alteração: 2026-09-25</div>
+    <div class="meta">Documentação <b>v5</b> · fonte de verdade · âmbito: núcleo RH — <b>exclui</b> o módulo <code>sigdi</code> · os conceitos e os ecrãs estão no <a href="apresentacao_aplicacao.html">manual da aplicação</a><br>Última alteração: 2026-09-26</div>
   </div>
 </header>
 <div class="wrap">
@@ -110,6 +110,7 @@
       <a href="#concurso">21. Recrutamento e selecção — concurso</a><br>
       <a href="#checklists">22. Checklists de entrada e de saída</a><br>
       <a href="#comissao-servico">23. Comissão de serviço</a><br>
+      <a href="#processo-disciplinar">24. Processo disciplinar — tramitação</a><br>
       <a href="#invariantes">12. Invariantes transversais</a>
     </div>
   </div>
@@ -895,6 +896,36 @@
     <tr><td class="id">BR-CMS-08</td><td><b>Lista das comissões em curso</b>, pelo fim, com os dias até ao termo (filtro «terminam até»).</td><td>—</td><td class="src">ComissaoServicoService.emCurso</td></tr>
   </table>
   <!-- /secao:comissao-servico -->
+
+  <!-- secao:processo-disciplinar -->
+  <h2 id="processo-disciplinar"><span class="n">24.</span>Processo disciplinar — tramitação</h2>
+  <p>Estatuto Disciplinar (Lei n.º 31/III/87 e DL n.º 8/97). Os processos antigos continuam a ser um registo (BR-DIS-01, BR-DIS-02); os novos têm <b>tramitação</b>: fase, actos datados (tabela <code>t_processo_disciplinar_acto</code>) e os prazos que deles resultam. As colunas novas de <code>t_disciplinary_process</code> vêm da V61. Os campos do registo continuam preenchidos pela tramitação.</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-DIS-03</td><td><b>Participação</b> (art. 47.º): abre o processo em PARTICIPADO, com os factos, a data da infracção e a pena prevista; número por omissão PD/AAAA/NNN. Espécies: comum, infracção constatada (art. 78.º), falta de assiduidade (art. 80.º), abandono de lugar (art. 81.º), inquérito, sindicância e averiguações (art. 96.º).</td><td><span class="http h404">404</span> <span class="http h422">422</span></td><td class="src">ProcessoDisciplinar.participar · ProcessoDisciplinarService.participar</td></tr>
+    <tr><td class="id">BR-DIS-04</td><td><b>Instauração</b> pelo despacho liminar (art. 50.º); o <b>instrutor</b> (da casa ou de fora) nunca é o arguido (art. 51.º), pode ser substituído por impedimento ou suspeição (arts. 54.º, 55.º) e é avisado.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">ProcessoDisciplinar.instaurar · ProcessoDisciplinar.nomearInstrutor</td></tr>
+    <tr><td class="id">BR-DIS-05</td><td><b>Prazos visíveis</b> em cada fase: início da instrução em 3 dias úteis e instrução em 30 dias (art. 48.º); acusação ou relatório em 5 dias úteis (art. 60.º); notificação da acusação em 48 horas (art. 62.º); defesa; relatório final em 10 dias (art. 71.º); decisão em 15 dias úteis (art. 72.º); recurso em 15 dias (art. 84.º). Os dias úteis descontam os feriados do arguido. Vencidos aparecem nos alertas; o job avisa 2 dias antes e no dia a seguir.</td><td>—</td><td class="src">ProcessoDisciplinar.prazos · ProcessoDisciplinarService.avisarPrazos</td></tr>
+    <tr><td class="id">BR-DIS-06</td><td><b>Prorrogação da instrução</b>: uma única vez, até 30 dias; sem dias fixados, 15 (art. 48.º n.os 1 e 2).</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">ProcessoDisciplinar.prorrogarInstrucao</td></tr>
+    <tr><td class="id">BR-DIS-07</td><td><b>Prescrição</b> (art. 6.º n.º 1): 6 meses (censura), 2 anos (multa, suspensão, inactividade), 3 anos (aposentação compulsiva, demissão), da infracção; a instauração suspende-a. Alerta enquanto não se instaura; um procedimento prescrito antes da instauração não pune (422).</td><td><span class="http h422">422</span></td><td class="src">PenaDisciplinar.prescricao · ProcessoDisciplinar.decidir</td></tr>
+    <tr><td class="id">BR-DIS-08</td><td><b>Suspensão preventiva</b> (art. 56.º): da instauração à decisão, só se a infracção for punível com suspensão ou mais, até 90 dias no total, com ou sem perda do vencimento de exercício — facto <code>SUSPENSAO_PREVENTIVA</code> para o salarial; pode levantar-se antes.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">ProcessoDisciplinar.suspenderPreventivamente · ProcessoDisciplinarService.suspenderPreventivamente</td></tr>
+    <tr><td class="id">BR-DIS-09</td><td><b>Dias de afastamento</b>: a suspensão preventiva e a pena de suspensão ou de inactividade em execução não se apuram como faltas.</td><td>—</td><td class="src">DiasSuspensaoDisciplinar</td></tr>
+    <tr><td class="id">BR-DIS-10</td><td><b>Acusação</b> com a pena aplicável e os factos (arts. 60.º n.º 2, 61.º), no fim da instrução — nos processos sumários (arts. 78.º, 82.º) logo após a instauração. Inquéritos e sindicâncias não acusam.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">ProcessoDisciplinar.acusar</td></tr>
+    <tr><td class="id">BR-DIS-11</td><td><b>Prazo de defesa</b> marcado na notificação: 10 a 20 dias (20 por omissão), até 45 se complexo (art. 62.º); até 5 nos sumários (art. 78.º n.º 3). O arguido é avisado.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">ProcessoDisciplinar.notificarAcusacao</td></tr>
+    <tr><td class="id">BR-DIS-12</td><td><b>Defesa</b> dentro do prazo; a falta de resposta vale como audiência (art. 69.º) — o relatório só vem depois da defesa ou do fim do prazo.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">ProcessoDisciplinar.registarDefesa · ProcessoDisciplinar.relatorio</td></tr>
+    <tr><td class="id">BR-DIS-13</td><td><b>Relatório final</b> (arts. 60.º n.º 1, 71.º): propõe a pena ou o arquivamento; sem acusação só o arquivamento. <b>Penas</b> (arts. 14.º, 16.º): censura escrita; multa 1–20 dias; suspensão 21–121 dias; inactividade 6–18 meses; aposentação compulsiva; demissão; cessação da comissão (dirigentes).</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">ProcessoDisciplinar.relatorio · PenaDisciplinar.validarDuracao</td></tr>
+    <tr><td class="id">BR-DIS-14</td><td><b>Decisão</b> (art. 72.º): pena (até mais grave que a proposta) ou arquivamento; fundamentada quando não concorda com o relatório (art. 74.º); a cessação da comissão só a quem está em comissão.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">ProcessoDisciplinar.decidir</td></tr>
+    <tr><td class="id">BR-DIS-15</td><td><b>Execução</b>: a pena produz efeitos no dia seguinte à notificação (art. 77.º); as que acabam com o exercício (aposentação compulsiva, demissão, cessação da comissão) só depois de passar o prazo de recurso, porque este suspende a execução e elas não se desfazem [interp.]. Aplica-se ao notificar, se o dia chegou, ou pelo job.</td><td>—</td><td class="src">ProcessoDisciplinar.dataExecucao · ProcessoDisciplinarService.executarDevidas</td></tr>
+    <tr><td class="id">BR-DIS-16</td><td><b>Efeitos</b> (art. 17.º): facto <code>PENA_DISCIPLINAR</code> (o salarial desconta a multa e os dias); suspensão e inactividade com período (início no dia de efeito).</td><td>—</td><td class="src">ProcessoDisciplinarService.executar</td></tr>
+    <tr><td class="id">BR-DIS-17</td><td><b>Aposentação compulsiva e demissão</b> cessam o vínculo pelo caminho único da cessação (estado RETIRED ou o de cessação por omissão) e publicam-se no Boletim Oficial (art. 15.º n.º 2).</td><td>—</td><td class="src">ProcessoDisciplinarService.executar</td></tr>
+    <tr><td class="id">BR-DIS-18</td><td><b>Cessação da comissão</b> (art. 16.º n.º 8) e <b>acessória</b> a quem está em comissão e é punido com multa ou mais (art. 29.º n.º 2): a comissão cessa sem aviso prévio (BR-CMS-05).</td><td>—</td><td class="src">ProcessoDisciplinarService.executar · ComissaoServicoService.cessar</td></tr>
+    <tr><td class="id">BR-DIS-19</td><td><b>Recurso hierárquico</b> em 15 dias da notificação (art. 84.º); decidido: mantida, diminuída (pena menos grave ou mais curta) ou anulada. Se a pena já tinha sido executada, a anulação ou diminuição vão ao diário de factos.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">ProcessoDisciplinar.decidirRecurso · ProcessoDisciplinarService.decidirRecurso</td></tr>
+    <tr><td class="id">BR-DIS-20</td><td><b>Conclusão</b>: executada a pena e passado o prazo de recurso (ou decidido este), o processo fica CONCLUIDO.</td><td>—</td><td class="src">ProcessoDisciplinar.concluirSeTransitado</td></tr>
+    <tr><td class="id">BR-DIS-21</td><td><b>Arquivamento</b> antes da decisão, com motivo (art. 50.º n.º 2 e outros motivos).</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">ProcessoDisciplinar.arquivar</td></tr>
+    <tr><td class="id">BR-DIS-22</td><td><b>Arguido em curso</b>: instaurado e por decidir, num processo que acusa — é o que condiciona a exoneração (Lei n.º 20/X/2023, art. 95.º a)).</td><td>—</td><td class="src">ProcessoDisciplinar.arguidoEmCurso</td></tr>
+    <tr><td class="id">BR-DIS-23</td><td><b>O registo antigo</b> continua a editar-se como antes; num processo com tramitação, a pena e as datas só mudam pelos actos (409); o número, o BO e as notas continuam livres.</td><td><span class="http h409">409</span></td><td class="src">ProcessoDisciplinar.atualizar</td></tr>
+    <tr><td class="id">BR-DIS-24</td><td><b>Job</b> <code>RH_PRAZOS_DISCIPLINARES</code> (06:20): executa as penas do dia, conclui os transitados e avisa o RH e o instrutor dos prazos.</td><td>—</td><td class="src">PrazosDisciplinaresJob</td></tr>
+  </table>
+  <!-- /secao:processo-disciplinar -->
 
   <!-- ============ INVARIANTES ============ -->
   <h2 id="invariantes"><span class="n">12.</span>Invariantes transversais</h2>

@@ -1,0 +1,50 @@
+{
+  "type": "dto",
+  "name": "ActoDisciplinar",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "tipo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "data",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataFim",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "dias",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "pena",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "duracao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "texto",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "type": "dto",
+  "name": "AccaoDisciplinarRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "numero",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "especie",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataInfraccao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "factos",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "penaPrevista",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "data",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "despacho",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "entidade",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "instrutorId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "instrutorNome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "dias",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "perdaVencimento",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "complexo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "pena",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "duracao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "texto",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "resultado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

@@ -23,6 +23,9 @@ BEGIN
   DELETE FROM t_contrato       WHERE funcionario_id = ANY(extras);
   DELETE FROM t_dados_bancarios WHERE funcionario_id = ANY(extras);
   DELETE FROM t_dependente     WHERE funcionario_id = ANY(extras);
+  IF to_regclass('public.t_processo_disciplinar_acto') IS NOT NULL THEN
+    DELETE FROM t_processo_disciplinar_acto WHERE processo_id IN (SELECT id FROM t_disciplinary_process WHERE funcionario_id = ANY(extras));
+  END IF;
   DELETE FROM t_disciplinary_process WHERE funcionario_id = ANY(extras);
   DELETE FROM t_historico_estado_colaborador WHERE funcionario_id = ANY(extras);
   DELETE FROM t_payroll_slip   WHERE funcionario_id = ANY(extras);
@@ -272,6 +275,14 @@ DO $$ BEGIN
   END IF;
   IF to_regclass('public.t_provimento') IS NOT NULL THEN
     DELETE FROM t_provimento;
+  END IF;
+  -- Processos disciplinares com tramitacao (os registos antigos, sem fase, ficam).
+  IF to_regclass('public.t_processo_disciplinar_acto') IS NOT NULL THEN
+    DELETE FROM t_processo_disciplinar_acto;
+  END IF;
+  IF to_regclass('public.t_disciplinary_process') IS NOT NULL
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 't_disciplinary_process' AND column_name = 'fase') THEN
+    DELETE FROM t_disciplinary_process WHERE fase IS NOT NULL;
   END IF;
   -- Checklists de entrada e saida (o modelo, catalogo, fica).
   IF to_regclass('public.t_checklist_item') IS NOT NULL THEN

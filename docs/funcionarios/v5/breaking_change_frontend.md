@@ -2,7 +2,7 @@
 
 > Guia de migração do frontend para o novo modelo de **Mapa de Pessoal** (Lugares + Afectações).
 > Refactor assumido como *breaking change*. pt-PT.
-> Última alteração: 2026-09-25
+> Última alteração: 2026-09-26
 >
 > As secções 1 a 10 descrevem a passagem ao Mapa de Pessoal; a secção 11 junta, por ordem de data, o que mudou
 > com o alinhamento à legislação (Lei n.º 20/X/2023 e DL n.º 3/2010), e a 12 é o checklist dessa parte.
@@ -941,6 +941,15 @@ deixaram de vir de `application.properties` e passam a vir de um catálogo por v
 - Menu RH «Comissões de serviço»: lista em curso com os dias até ao termo; renovar (3 anos) e cessar (iniciativa, aviso, data de efeito).
 - A cessação com a entidade ou o nomeado exige 60 dias de aviso: a resposta 422 diz a primeira data possível.
 - Notificação: `COMISSAO_SERVICO` (renovação, cessação, termo a 90 dias).
+
+### 11.52 Processo disciplinar — tramitação (2026-09-26)
+
+**Nada deixa de funcionar**: o registo de processos (`POST`/`PUT`) continua igual; num processo com tramitação, mudar
+pelo `PUT` a pena ou as datas dá 409 (o número, o BO e as notas continuam livres). Endpoints novos no guia §25.
+
+- Ficha do processo: fase, linha do tempo dos actos, prazos (a vencer / vencidos) e alertas; um botão por acto da fase.
+- Menu RH «Processos disciplinares»: os em curso com os prazos.
+- Notificação: `PROCESSO_DISCIPLINAR` (instrutor nomeado, acusação e decisão notificadas, prazos, pena executada).
 
 ## 12. Checklist do alinhamento com a legislação (secção 11)
 

@@ -23,7 +23,8 @@ public class ProcessoDisciplinarRepositoryImpl implements ProcessoDisciplinarRep
     @Transactional
     @Override
     public ProcessoDisciplinar save(ProcessoDisciplinar processo) {
-        return mapper.toDomain(entityRepository.save(mapper.toEntity(processo)));
+        var existente = entityRepository.findById(processo.getId().getValor()).orElse(null);
+        return mapper.toDomain(entityRepository.save(mapper.toEntity(processo, existente)));
     }
 
     @Transactional(readOnly = true)
@@ -37,5 +38,35 @@ public class ProcessoDisciplinarRepositoryImpl implements ProcessoDisciplinarRep
     public List<ProcessoDisciplinar> findAllByFuncionarioId(FuncionarioId funcionarioId) {
         return entityRepository.findAllByFuncionario_Id(funcionarioId.getValor())
                 .stream().map(mapper::toDomain).toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<ProcessoDisciplinar> findEmCurso() {
+        return entityRepository.findEmCurso().stream().map(mapper::toDomain).toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<ProcessoDisciplinar> findComPenaPorExecutar() {
+        return entityRepository.findComPenaPorExecutar().stream().map(mapper::toDomain).toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public boolean existeArguidoEmCurso(FuncionarioId funcionarioId) {
+        return entityRepository.existeArguidoEmCurso(funcionarioId.getValor());
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<ProcessoDisciplinar> findComAfastamento(FuncionarioId funcionarioId) {
+        return entityRepository.findComAfastamento(funcionarioId.getValor()).stream().map(mapper::toDomain).toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public long contarDoAno(int ano) {
+        return entityRepository.contarDoAno(ano);
     }
 }

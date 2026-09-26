@@ -2,7 +2,7 @@
 
 > Fonte de verdade do contrato REST do núcleo RH (exclui o módulo `sigdi`).
 > Documentação **v5** — supersede a `v4`. pt-PT.
-> Última alteração: 2026-09-25
+> Última alteração: 2026-09-26
 >
 > O manual ecrã a ecrã (com os campos, a API e as regras de cada ecrã) é o `apresentacao_aplicacao.html`;
 > este guia é o contrato para quem integra. Ambos são conferidos contra o código por `scripts/verificar_docs.py`.
@@ -2214,3 +2214,35 @@ Lei n.º 20/X/2023, arts. 59.º, 60.º e 64.º (BR-CMS-01..08). A comissão regi
 Com a entidade ou o nomeado, a data de efeito é no mínimo o aviso + 60 dias (por omissão, esse dia); com a pena disciplinar, sem
 aviso. O regresso (ou a cessação da relação, art. 64.º n.º 2) aplica-se no dia de efeito.
 <!-- /secao:comissao-servico -->
+
+<!-- secao:processo-disciplinar -->
+## 25. Processo disciplinar — tramitação — `/api/v1/rh/funcionarios/{id}/processos-disciplinares`
+
+Estatuto Disciplinar (BR-DIS-03..24). O registo antigo (`POST`/`PUT` do processo) continua como estava. A tramitação começa com
+a **participação** e segue por actos, cada um com a sua `data` (por omissão, hoje); a resposta traz a fase, os actos, os
+**prazos** que correm e os **alertas**.
+
+| Método | Caminho | O quê |
+|---|---|---|
+| GET | `/api/v1/rh/processos-disciplinares` | Os processos em curso, com prazos e alertas |
+| POST | `/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/participacoes` | Participação (`especie`, `dataInfraccao`, `factos`, `penaPrevista`, `numero`) |
+| GET | `/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/tramitacao` | O processo com a tramitação |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/instaurar` | `despacho`, `entidade`, `instrutorId`/`instrutorNome` |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/instrutor` | Nomear ou substituir o instrutor |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/iniciar-instrucao` | Início da instrução |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/prorrogar-instrucao` | `dias` (até 30; 15 por omissão) |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/suspensao-preventiva` | `data`, `dias`, `perdaVencimento` |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/levantar-suspensao` | Levantar a suspensão preventiva |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/acusar` | `pena` (aplicável), `texto` |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/notificar-acusacao` | `dias` (prazo de defesa), `complexo` |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/defesa` | `texto` |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/relatorio` | `pena` proposta (vazia = arquivar), `duracao`, `texto` |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/decidir` | `pena` (vazia = arquivar), `duracao`, `entidade`, `texto` (fundamentação) |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/notificar-decisao` | Notificação (efeitos no dia seguinte) |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/recurso` | Recurso hierárquico (15 dias) |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/decidir-recurso` | `resultado` ∈ MANTIDA · DIMINUIDA · ANULADA, `pena`, `duracao` |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/arquivar` | `motivo` |
+
+`pena` ∈ CENSURA_ESCRITA · MULTA (dias) · SUSPENSAO (dias) · INACTIVIDADE (meses) · APOSENTACAO_COMPULSIVA · DEMISSAO ·
+CESSACAO_COMISSAO. A execução (facto, cessação do vínculo, publicação, cessação da comissão) é automática no dia devido.
+<!-- /secao:processo-disciplinar -->

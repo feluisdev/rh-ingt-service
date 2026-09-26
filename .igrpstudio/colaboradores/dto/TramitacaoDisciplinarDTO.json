@@ -1,0 +1,145 @@
+{
+  "type": "dto",
+  "name": "TramitacaoDisciplinar",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioNome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "numero",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "especie",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "fase",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataInfraccao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "penaPrevista",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "prescreveEm",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "instrutorId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "instrutorNome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "pena",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "penaDuracao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "penaDescricao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "penaInicio",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "penaFim",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataExecucao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "executada",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "factos",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "ActoDisciplinarDTO",
+      "name": "actos",
+      "objectType": "dto",
+      "module": "colaboradores",
+      "collectionType": "list",
+      "required": false
+    },
+    {
+      "type": "PrazoDisciplinarDTO",
+      "name": "prazos",
+      "objectType": "dto",
+      "module": "colaboradores",
+      "collectionType": "list",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "alertas",
+      "objectType": "java",
+      "collectionType": "list",
+      "required": false
+    }
+  ]
+}

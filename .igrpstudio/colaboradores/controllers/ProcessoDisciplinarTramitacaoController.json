@@ -1,0 +1,779 @@
+{
+  "type": "controller",
+  "name": "ProcessoDisciplinarTramitacao",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh",
+  "description": "Tramitação do processo disciplinar (Estatuto Disciplinar — Lei n.º 31/III/87 e DL n.º 8/97): participação, instauração, instrução, suspensão preventiva, acusação, defesa, relatório, decisão, notificação, recurso e execução da pena, com os prazos",
+  "actions": [
+    {
+      "actionName": "getProcessosDisciplinaresEmCurso",
+      "method": "GET",
+      "path": "processos-disciplinares",
+      "summary": "Os processos disciplinares em curso, com os prazos e os alertas",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TramitacaoDisciplinarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "participarProcessoDisciplinar",
+      "method": "POST",
+      "path": "funcionarios/{funcionarioId}/processos-disciplinares/participacoes",
+      "summary": "Registar a participação, queixa ou auto (art. 47.º): abre o processo com tramitação",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoDisciplinarRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TramitacaoDisciplinarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getTramitacaoDisciplinar",
+      "method": "GET",
+      "path": "funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/tramitacao",
+      "summary": "O processo com a tramitação: fase, actos, prazos e alertas",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TramitacaoDisciplinarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "instaurarProcessoDisciplinar",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/instaurar",
+      "summary": "Instaurar (despacho liminar, art. 50.º); pode já nomear o instrutor",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoDisciplinarRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TramitacaoDisciplinarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "nomearInstrutorProcessoDisciplinar",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/instrutor",
+      "summary": "Nomear ou substituir o instrutor (arts. 51.º, 54.º, 55.º)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoDisciplinarRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TramitacaoDisciplinarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "iniciarInstrucaoProcessoDisciplinar",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/iniciar-instrucao",
+      "summary": "Iniciar a instrução (em 3 dias úteis da nomeação; dura 30 dias — art. 48.º)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoDisciplinarRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TramitacaoDisciplinarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "prorrogarInstrucaoProcessoDisciplinar",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/prorrogar-instrucao",
+      "summary": "Prorrogar a instrução, uma vez, até 30 dias (15 por omissão)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoDisciplinarRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TramitacaoDisciplinarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "suspenderPreventivamenteProcessoDisciplinar",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/suspensao-preventiva",
+      "summary": "Suspensão preventiva até 90 dias, com ou sem perda do vencimento de exercício (art. 56.º)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoDisciplinarRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TramitacaoDisciplinarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "levantarSuspensaoProcessoDisciplinar",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/levantar-suspensao",
+      "summary": "Levantar a suspensão preventiva antes do fim",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoDisciplinarRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TramitacaoDisciplinarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "acusarProcessoDisciplinar",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/acusar",
+      "summary": "Deduzir a acusação, com a pena aplicável (arts. 60.º, 61.º)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoDisciplinarRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TramitacaoDisciplinarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "notificarAcusacaoProcessoDisciplinar",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/notificar-acusacao",
+      "summary": "Notificar a acusação e marcar o prazo de defesa (10 a 20 dias, até 45 se complexo — art. 62.º)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoDisciplinarRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TramitacaoDisciplinarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "registarDefesaProcessoDisciplinar",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/defesa",
+      "summary": "Registar a defesa do arguido (dentro do prazo)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoDisciplinarRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TramitacaoDisciplinarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "relatorioProcessoDisciplinar",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/relatorio",
+      "summary": "Relatório final do instrutor: a pena proposta ou o arquivamento (arts. 60.º, 71.º)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoDisciplinarRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TramitacaoDisciplinarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "decidirProcessoDisciplinar",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/decidir",
+      "summary": "Decidir: aplicar a pena ou arquivar (art. 72.º); fundamentada se não concorda com o relatório",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoDisciplinarRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TramitacaoDisciplinarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "notificarDecisaoProcessoDisciplinar",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/notificar-decisao",
+      "summary": "Notificar a decisão (a pena produz efeitos no dia seguinte — art. 77.º)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoDisciplinarRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TramitacaoDisciplinarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "recursoProcessoDisciplinar",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/recurso",
+      "summary": "Interpor recurso hierárquico em 15 dias (art. 84.º; suspende a execução)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoDisciplinarRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TramitacaoDisciplinarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "decidirRecursoProcessoDisciplinar",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/decidir-recurso",
+      "summary": "Decidir o recurso: manter, diminuir ou anular a pena",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoDisciplinarRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TramitacaoDisciplinarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "arquivarProcessoDisciplinar",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/arquivar",
+      "summary": "Arquivar antes da decisão, com motivo",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoDisciplinarRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TramitacaoDisciplinarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

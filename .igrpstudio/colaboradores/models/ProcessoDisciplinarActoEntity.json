@@ -1,0 +1,80 @@
+{
+  "type": "model",
+  "module": "colaboradores",
+  "name": "ProcessoDisciplinarActoEntity",
+  "tableName": "t_processo_disciplinar_acto",
+  "audit": true,
+  "crud": false,
+  "revision": true,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": true,
+      "nullable": false
+    },
+    {
+      "name": "processo",
+      "type": "relation",
+      "relation": {
+        "type": "ManyToOne",
+        "entity": "ProcessoDisciplinarEntity",
+        "fetchType": "lazy",
+        "joinColumn": "processo_id",
+        "module": "colaboradores"
+      }
+    },
+    {
+      "name": "tipo",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 30
+    },
+    {
+      "name": "data",
+      "type": "date",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "dataFim",
+      "type": "date",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    },
+    {
+      "name": "dias",
+      "type": "integer",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    },
+    {
+      "name": "pena",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true,
+      "length": 30
+    },
+    {
+      "name": "duracao",
+      "type": "integer",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    },
+    {
+      "name": "texto",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    }
+  ]
+}
