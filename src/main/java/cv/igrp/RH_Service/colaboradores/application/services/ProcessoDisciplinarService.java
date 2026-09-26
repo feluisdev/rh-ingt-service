@@ -196,9 +196,9 @@ public class ProcessoDisciplinarService {
 
     @Transactional
     public Resultado decidir(FuncionarioId funcionarioId, ProcessoDisciplinarId id, LocalDate data, PenaDisciplinar pena, Integer duracao,
-                             String entidade, String fundamentacao) {
+                             String entidade, String fundamentacao, Integer suspensaoAnos) {
         var p = processo(funcionarioId, id);
-        p.decidir(dia(data), pena, duracao, entidade, fundamentacao, comissaoEmCurso(funcionarioId, dia(data)).isPresent());
+        p.decidir(dia(data), pena, duracao, entidade, fundamentacao, comissaoEmCurso(funcionarioId, dia(data)).isPresent(), suspensaoAnos);
         return guardar(p);
     }
 
@@ -213,7 +213,67 @@ public class ProcessoDisciplinarService {
                         + Datas.pt(p.ultimo(ActoDisciplinar.Tipo.NOTIFICACAO_DECISAO).orElseThrow().dataFim()) + "." : null)
                 .recurso(RECURSO, p.getId().getStringValor()).enviar();
         if (p.efeitosDevidos(hoje())) executar(p);
+        if (p.getPena() != null) caducarSuspensoes(p, dia(data));
         return guardar(p);
+    }
+
+    /** Punido de novo: as penas suspensas deste colaborador que ainda correm caducam e executam-se (art. 34.º n.º 4). */
+    private void caducarSuspensoes(ProcessoDisciplinar novo, LocalDate data) {
+        for (var outro : repository.findAllByFuncionarioId(novo.getFuncionarioId())) {
+            if (outro.getId().equals(novo.getId()) || !outro.penaSuspensaEm(data)) continue;
+            outro.caducarSuspensao(data, "Punido de novo no processo " + novo.getProcessNumber());
+            if (outro.efeitosDevidos(hoje())) executar(outro);
+            repository.save(outro);
+            notificador.paraRh().tipo(TipoNotificacao.PROCESSO_DISCIPLINAR)
+                    .titulo("Caducou a suspensão da pena do processo " + outro.getProcessNumber() + " (" + nome(outro.getFuncionarioId()) + ")")
+                    .texto("A pena executa-se a partir de " + Datas.pt(data.plusDays(1)) + " (art. 34.º n.º 4 do Estatuto Disciplinar).")
+                    .recurso(RECURSO, outro.getId().getStringValor()).enviar();
+        }
+    }
+
+    /** A reabilitação (art. 95.º): regista-se e publica-se no Boletim Oficial (n.º 7). */
+    @Transactional
+    public Resultado reabilitar(FuncionarioId funcionarioId, ProcessoDisciplinarId id, LocalDate data, String despacho) {
+        var p = processo(funcionarioId, id);
+        p.reabilitar(dia(data), despacho);
+        publicacoes.aPublicar(PublicacaoOficial.TipoActo.REABILITACAO, PublicacaoOficial.Meio.BOLETIM_OFICIAL, funcionarioId,
+                RECURSO + "_REABILITACAO", p.getId().getStringValor(), nome(funcionarioId) + " — reabilitação (processo "
+                        + p.getProcessNumber() + ", " + despacho.trim() + ")", dia(data));
+        return guardar(p);
+    }
+
+    /**
+     * A revisão procedente (arts. 90.º–94.º): revoga ou altera a pena, sem agravar. Se a pena já tinha sido executada, a
+     * correcção vai ao diário; a de aposentação compulsiva ou demissão publica-se (art. 94.º n.º 7), e o RH é avisado de que
+     * cabe prover o agente em lugar de categoria igual ou equivalente (art. 94.º n.º 4).
+     */
+    @Transactional
+    public Resultado rever(FuncionarioId funcionarioId, ProcessoDisciplinarId id, LocalDate data, ProcessoDisciplinar.ResultadoRevisao resultado,
+                           PenaDisciplinar novaPena, Integer duracao, String despacho) {
+        var p = processo(funcionarioId, id);
+        var anterior = p.getPena();
+        boolean executada = p.getEfeitosAplicadosEm() != null;
+        p.rever(dia(data), resultado, novaPena, duracao, despacho);
+        if (executada) {
+            var dados = new LinkedHashMap<String, Object>();
+            dados.put("processo", p.getProcessNumber());
+            dados.put("evento", "REVISAO_" + resultado.name());
+            dados.put("pena", p.getPena() != null ? p.getPena().name() : null);
+            dados.put("duracao", p.getPenaDuracao());
+            dados.put("fim", p.getPenaltyEndDate());
+            diarioFactos.registar(funcionarioId, TipoFactoRh.PENA_DISCIPLINAR, dia(data), RECURSO, p.getId().getStringValor(),
+                    "Revisão do processo disciplinar: " + p.getPenalty(), dados);
+        }
+        var r = guardar(p);
+        var alertas = new ArrayList<>(r.alertas());
+        if (anterior != null && anterior.publica()) {
+            publicacoes.aPublicar(PublicacaoOficial.TipoActo.PENA_DISCIPLINAR, PublicacaoOficial.Meio.BOLETIM_OFICIAL, funcionarioId,
+                    RECURSO + "_REVISAO", p.getId().getStringValor(), nome(funcionarioId) + " — revisão procedente do processo "
+                            + p.getProcessNumber() + ": " + p.getPenalty(), dia(data));
+            if (executada && (p.getPena() == null || !p.getPena().expulsiva()))
+                alertas.add("Cabe prover o agente em lugar de categoria igual ou equivalente, ou na primeira vaga, em disponibilidade entretanto (art. 94.º n.º 4).");
+        }
+        return new Resultado(r.processo(), alertas);
     }
 
     @Transactional

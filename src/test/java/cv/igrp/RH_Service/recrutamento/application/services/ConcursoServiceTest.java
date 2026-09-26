@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.recrutamento.application.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import cv.igrp.RH_Service.colaboradores.application.services.ImpedimentosDisciplinares;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -45,13 +46,14 @@ class ConcursoServiceTest {
     @Mock private FuncionarioRepository funcionarioRepository;
     @Mock private PublicacoesService publicacoes;
     @Mock private NotificacaoRepository notificacaoRepository;
+    @Mock private ImpedimentosDisciplinares impedimentos;
     private ConcursoService service;
     private LocalDate hoje = ConcursoTest.HOJE;
 
     @BeforeEach
     void setUp() {
         service = new ConcursoService(repository, categoryRepository, positionRepository, ocupacao, funcionarioRepository, publicacoes,
-                new Notificador(notificacaoRepository)) {
+                new Notificador(notificacaoRepository), impedimentos) {
             @Override LocalDate hoje() { return hoje; }
         };
         when(repository.save(any(Candidatura.class))).thenAnswer(i -> i.getArgument(0));

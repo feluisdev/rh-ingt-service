@@ -1,5 +1,6 @@
 package cv.igrp.RH_Service.colaboradores.infrastructure.scheduler;
 
+import cv.igrp.RH_Service.colaboradores.application.services.AutosAssiduidadeService;
 import cv.igrp.RH_Service.colaboradores.application.services.ProcessoDisciplinarService;
 import cv.igrp.RH_Service.shared.application.services.scheduler.JobContext;
 import cv.igrp.RH_Service.shared.application.services.scheduler.JobResult;
@@ -8,7 +9,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * <b>O dia a dia dos processos disciplinares</b> (BR-DIS-05, BR-DIS-15): executa as penas cujo dia chegou, conclui os
- * processos transitados e avisa o RH e o instrutor dos prazos que terminam em 2 dias ou terminaram ontem.
+ * processos transitados, avisa o RH e o instrutor dos prazos que terminam em 2 dias ou terminaram ontem, e avisa dos autos
+ * por falta de assiduidade ou abandono de lugar a levantar (BR-DIS-25).
  */
 @Component
 public class PrazosDisciplinaresJob implements ScheduledJob {
@@ -16,9 +18,11 @@ public class PrazosDisciplinaresJob implements ScheduledJob {
     public static final String CHAVE = "RH_PRAZOS_DISCIPLINARES";
 
     private final ProcessoDisciplinarService service;
+    private final AutosAssiduidadeService autos;
 
-    public PrazosDisciplinaresJob(ProcessoDisciplinarService service) {
+    public PrazosDisciplinaresJob(ProcessoDisciplinarService service, AutosAssiduidadeService autos) {
         this.service = service;
+        this.autos = autos;
     }
 
     @Override public String getChave()       { return CHAVE; }
@@ -29,7 +33,8 @@ public class PrazosDisciplinaresJob implements ScheduledJob {
     public JobResult executar(JobContext ctx) {
         int executadas = service.executarDevidas(ctx.dataReferencia());
         int avisos = service.avisarPrazos(ctx.dataReferencia());
-        return JobResult.builder().referencia(ctx.dataReferencia().toString()).criados(executadas + avisos)
-                .mensagem(executadas + " pena(s) executada(s), " + avisos + " aviso(s) de prazo.").build();
+        int sugeridos = autos.avisar(ctx.dataReferencia());
+        return JobResult.builder().referencia(ctx.dataReferencia().toString()).criados(executadas + avisos + sugeridos)
+                .mensagem(executadas + " pena(s) executada(s), " + avisos + " aviso(s) de prazo, " + sugeridos + " auto(s) a levantar.").build();
     }
 }

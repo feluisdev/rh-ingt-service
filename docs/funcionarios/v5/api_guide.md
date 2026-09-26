@@ -2243,6 +2243,13 @@ a **participação** e segue por actos, cada um com a sua `data` (por omissão, 
 | PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/decidir-recurso` | `resultado` ∈ MANTIDA · DIMINUIDA · ANULADA, `pena`, `duracao` |
 | PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/arquivar` | `motivo` |
 
+| GET | `/api/v1/rh/processos-disciplinares/autos-sugeridos` | Autos por falta de assiduidade / abandono de lugar a levantar (BR-DIS-25) |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/reabilitar` | `despacho` (5 anos depois; BO) |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/rever` | `resultado` ∈ REVOGADA · ALTERADA, `pena`, `duracao`, `despacho` |
+
+Na decisão, `suspensaoAnos` (1 a 3) suspende a multa ou a suspensão (art. 34.º); a resposta traz `penaSuspensaAte`. Uma nova
+punição durante a suspensão fá-la caducar e a pena executa-se. A pena impede o concurso, a promoção e a nova comissão (BR-DIS-29).
+
 `pena` ∈ CENSURA_ESCRITA · MULTA (dias) · SUSPENSAO (dias) · INACTIVIDADE (meses) · APOSENTACAO_COMPULSIVA · DEMISSAO ·
 CESSACAO_COMISSAO. A execução (facto, cessação do vínculo, publicação, cessação da comissão) é automática no dia devido.
 <!-- /secao:processo-disciplinar -->

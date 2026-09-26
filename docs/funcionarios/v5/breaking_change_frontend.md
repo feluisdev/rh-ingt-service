@@ -951,6 +951,15 @@ pelo `PUT` a pena ou as datas dá 409 (o número, o BO e as notas continuam livr
 - Menu RH «Processos disciplinares»: os em curso com os prazos.
 - Notificação: `PROCESSO_DISCIPLINAR` (instrutor nomeado, acusação e decisão notificadas, prazos, pena executada).
 
+### 11.53 Processo disciplinar — autos sugeridos, suspensão da pena, reabilitação, revisão (2026-09-26)
+
+**Nada deixa de funcionar**: campos e endpoints novos (guia §25).
+
+- Decisão: campo opcional `suspensaoAnos`; na ficha, `penaSuspensaAte`.
+- Menu RH: «Autos a levantar» (`/processos-disciplinares/autos-sugeridos`) com o botão de participar na espécie sugerida.
+- Acções novas no processo: reabilitar, rever. Notificação: `AUTO_ASSIDUIDADE`.
+- A candidatura a concurso, a promoção e o registo de comissão de serviço podem agora dar 422 por pena disciplinar (BR-DIS-29).
+
 ## 12. Checklist do alinhamento com a legislação (secção 11)
 
 Por ordem das secções. Cada item remete para o ecrã correspondente em `apresentacao_aplicacao.html`.

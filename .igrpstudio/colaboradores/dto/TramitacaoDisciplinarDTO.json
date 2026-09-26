@@ -140,6 +140,12 @@
       "objectType": "java",
       "collectionType": "list",
       "required": false
+    },
+    {
+      "type": "date",
+      "name": "penaSuspensaAte",
+      "objectType": "java",
+      "required": false
     }
   ]
 }

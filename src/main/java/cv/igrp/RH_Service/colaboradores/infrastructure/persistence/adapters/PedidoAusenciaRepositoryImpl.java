@@ -94,4 +94,10 @@ public class PedidoAusenciaRepositoryImpl implements PedidoAusenciaRepository {
         return entityRepository.findEmHorasDoTipoEntre(funcionarioId.getValor(), tipoAusenciaId.getValor(), dataInicio, dataFim)
                 .stream().map(mapper::toDomain).toList();
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<PedidoAusencia> findFaltasInjustificadasDesde(LocalDate desde) {
+        return entityRepository.findFaltasInjustificadasDesde(desde).stream().map(mapper::toDomain).toList();
+    }
 }

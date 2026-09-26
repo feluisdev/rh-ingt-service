@@ -32,7 +32,7 @@ public class TramitacaoDisciplinarDtos {
                 new ArrayList<>(p.getActos().stream().map(a -> new ActoDisciplinarDTO(a.tipo().name(), a.data(), a.dataFim(), a.dias(),
                         nome(a.pena()), a.duracao(), a.texto())).toList()),
                 new ArrayList<>(service.prazos(p, hoje).stream().map(x -> new PrazoDisciplinarDTO(x.nome(), x.data(), x.vencido())).toList()),
-                new ArrayList<>(alertas != null ? alertas : service.alertas(p)));
+                new ArrayList<>(alertas != null ? alertas : service.alertas(p)), p.suspensaAte());
     }
 
     private static String nome(Enum<?> e) {

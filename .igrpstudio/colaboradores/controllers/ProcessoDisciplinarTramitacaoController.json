@@ -28,6 +28,28 @@
       }
     },
     {
+      "actionName": "getAutosSugeridos",
+      "method": "GET",
+      "path": "processos-disciplinares/autos-sugeridos",
+      "summary": "Os autos por falta de assiduidade e abandono de lugar a levantar hoje (arts. 80.º e 81.º), pelas faltas injustificadas",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AutoSugeridoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "actionName": "participarProcessoDisciplinar",
       "method": "POST",
       "path": "funcionarios/{funcionarioId}/processos-disciplinares/participacoes",
@@ -735,6 +757,96 @@
       "method": "PATCH",
       "path": "funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/arquivar",
       "summary": "Arquivar antes da decisão, com motivo",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoDisciplinarRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TramitacaoDisciplinarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "reabilitarProcessoDisciplinar",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/reabilitar",
+      "summary": "Reabilitação (art. 95.º): aposentação compulsiva ou demissão, passados 5 anos; publica-se no BO",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "processoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AccaoDisciplinarRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TramitacaoDisciplinarDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "reverProcessoDisciplinar",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/rever",
+      "summary": "Revisão procedente (arts. 90.º–94.º): revoga ou altera a pena, sem agravar",
       "pathVariables": [
         {
           "name": "funcionarioId",

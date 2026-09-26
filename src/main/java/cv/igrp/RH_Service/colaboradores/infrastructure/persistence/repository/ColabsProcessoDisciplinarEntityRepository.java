@@ -19,7 +19,7 @@ public interface ColabsProcessoDisciplinarEntityRepository extends JpaRepository
 
     @Query("""
             SELECT p FROM ColabsProcessoDisciplinarEntity p
-            WHERE p.fase = 'NOTIFICADO' AND p.pena IS NOT NULL AND p.efeitosAplicadosEm IS NULL""")
+            WHERE p.fase IN ('NOTIFICADO', 'CONCLUIDO') AND p.pena IS NOT NULL AND p.efeitosAplicadosEm IS NULL""")
     List<ProcessoDisciplinarEntity> findComPenaPorExecutar();
 
     @Query("""

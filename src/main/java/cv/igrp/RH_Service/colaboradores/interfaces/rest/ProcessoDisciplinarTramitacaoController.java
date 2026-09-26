@@ -5,7 +5,9 @@ package cv.igrp.RH_Service.colaboradores.interfaces.rest;
 
 import cv.igrp.RH_Service.colaboradores.application.commands.AccaoDisciplinarCommand;
 import cv.igrp.RH_Service.colaboradores.application.dto.AccaoDisciplinarRequestDTO;
+import cv.igrp.RH_Service.colaboradores.application.dto.AutoSugeridoDTO;
 import cv.igrp.RH_Service.colaboradores.application.dto.TramitacaoDisciplinarDTO;
+import cv.igrp.RH_Service.colaboradores.application.queries.GetAutosSugeridosQuery;
 import cv.igrp.RH_Service.colaboradores.application.queries.GetProcessosDisciplinaresEmCursoQuery;
 import cv.igrp.RH_Service.colaboradores.application.queries.GetTramitacaoDisciplinarQuery;
 import cv.igrp.framework.core.domain.Command;
@@ -46,6 +48,14 @@ public class ProcessoDisciplinarTramitacaoController {
             content = @Content(schema = @Schema(implementation = TramitacaoDisciplinarDTO.class)))
     public ResponseEntity<List<TramitacaoDisciplinarDTO>> getProcessosDisciplinaresEmCurso() {
         return perguntar(new GetProcessosDisciplinaresEmCursoQuery());
+    }
+
+    @GetMapping("processos-disciplinares/autos-sugeridos")
+    @Operation(summary = "Os autos por falta de assiduidade e abandono de lugar a levantar hoje (arts. 80.º e 81.º), pelas faltas injustificadas")
+    @ApiResponse(responseCode = "200", description = "Autos sugeridos",
+            content = @Content(schema = @Schema(implementation = AutoSugeridoDTO.class)))
+    public ResponseEntity<List<AutoSugeridoDTO>> getAutosSugeridos() {
+        return perguntar(new GetAutosSugeridosQuery());
     }
 
     @PostMapping("funcionarios/{funcionarioId}/processos-disciplinares/participacoes")
@@ -198,6 +208,24 @@ public class ProcessoDisciplinarTramitacaoController {
     public ResponseEntity<TramitacaoDisciplinarDTO> arquivarProcessoDisciplinar(@PathVariable String funcionarioId, @PathVariable String processoId,
             @RequestBody(required = false) AccaoDisciplinarRequestDTO request) {
         return enviar(new AccaoDisciplinarCommand(funcionarioId, processoId, "ARQUIVAR", request));
+    }
+
+    @PatchMapping("funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/reabilitar")
+    @Operation(summary = "Reabilitação (art. 95.º): aposentação compulsiva ou demissão, passados 5 anos; publica-se no BO")
+    @ApiResponse(responseCode = "200", description = "Registado",
+            content = @Content(schema = @Schema(implementation = TramitacaoDisciplinarDTO.class)))
+    public ResponseEntity<TramitacaoDisciplinarDTO> reabilitarProcessoDisciplinar(@PathVariable String funcionarioId, @PathVariable String processoId,
+            @RequestBody(required = false) AccaoDisciplinarRequestDTO request) {
+        return enviar(new AccaoDisciplinarCommand(funcionarioId, processoId, "REABILITAR", request));
+    }
+
+    @PatchMapping("funcionarios/{funcionarioId}/processos-disciplinares/{processoId}/rever")
+    @Operation(summary = "Revisão procedente (arts. 90.º–94.º): revoga ou altera a pena, sem agravar")
+    @ApiResponse(responseCode = "200", description = "Registado",
+            content = @Content(schema = @Schema(implementation = TramitacaoDisciplinarDTO.class)))
+    public ResponseEntity<TramitacaoDisciplinarDTO> reverProcessoDisciplinar(@PathVariable String funcionarioId, @PathVariable String processoId,
+            @RequestBody(required = false) AccaoDisciplinarRequestDTO request) {
+        return enviar(new AccaoDisciplinarCommand(funcionarioId, processoId, "REVER", request));
     }
 
     private <T> ResponseEntity<T> enviar(Command command) {

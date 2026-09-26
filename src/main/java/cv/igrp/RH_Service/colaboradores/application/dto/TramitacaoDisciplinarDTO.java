@@ -43,4 +43,6 @@ public class TramitacaoDisciplinarDTO {
     private List<ActoDisciplinarDTO> actos = new ArrayList<>();
     private List<PrazoDisciplinarDTO> prazos = new ArrayList<>();
     private List<String> alertas = new ArrayList<>();
+    /** Até quando a pena fica suspensa (art. 34.º); nulo se não está suspensa. */
+    private LocalDate penaSuspensaAte;
 }

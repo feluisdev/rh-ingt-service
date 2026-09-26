@@ -38,4 +38,7 @@ public interface PedidoAusenciaRepository {
     int somarDiasNoMes(FuncionarioId funcionarioId,
                        cv.igrp.RH_Service.colaboradores.domain.valueobject.TipoAusenciaId tipoAusenciaId,
                        int ano, int mes);
+
+    /** As faltas injustificadas aprovadas (tipo de regime FALTA_INJUSTIFICADA), de todos, que chegam a {@code desde} ou depois. */
+    List<PedidoAusencia> findFaltasInjustificadasDesde(LocalDate desde);
 }

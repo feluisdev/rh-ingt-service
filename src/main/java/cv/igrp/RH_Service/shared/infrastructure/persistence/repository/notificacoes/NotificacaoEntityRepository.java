@@ -36,4 +36,6 @@ public interface NotificacaoEntityRepository extends JpaRepository<NotificacaoEn
             UPDATE SharedNotificacaoEntity n SET n.lidaEm = :agora
             WHERE n.destinatarioId = :destinatario AND n.lidaEm IS NULL""")
     int marcarTodasLidas(@Param("destinatario") UUID destinatario, @Param("agora") LocalDateTime agora);
+
+    boolean existsByTipoAndRecursoTipoAndRecursoId(String tipo, String recursoTipo, String recursoId);
 }

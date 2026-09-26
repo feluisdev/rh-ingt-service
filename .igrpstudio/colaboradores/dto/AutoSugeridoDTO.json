@@ -1,0 +1,50 @@
+{
+  "type": "dto",
+  "name": "AutoSugerido",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioNome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "especie",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "seguidos",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "noAno",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "em24Meses",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

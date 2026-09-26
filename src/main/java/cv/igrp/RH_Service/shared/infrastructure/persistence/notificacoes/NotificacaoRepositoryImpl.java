@@ -119,4 +119,10 @@ public class NotificacaoRepositoryImpl implements NotificacaoRepository {
             return TipoNotificacao.AVISO;
         }
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existeSobre(TipoNotificacao tipo, String recursoTipo, String recursoId) {
+        return entityRepository.existsByTipoAndRecursoTipoAndRecursoId(tipo.name(), recursoTipo, recursoId);
+    }
 }

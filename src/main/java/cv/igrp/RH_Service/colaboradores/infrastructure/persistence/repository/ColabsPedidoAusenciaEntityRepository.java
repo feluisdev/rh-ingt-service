@@ -108,4 +108,9 @@ public interface ColabsPedidoAusenciaEntityRepository extends JpaRepository<Pedi
            "WHERE p.funcionario.id IN :funcionarios AND p.estado = 'PENDENTE' " +
            "ORDER BY p.dataInicio")
     List<PedidoAusenciaEntity> findPendentesDe(@Param("funcionarios") List<UUID> funcionarios);
+
+    @Query("SELECT p FROM ColabsPedidoAusenciaEntity p " +
+           "WHERE p.estado = 'APROVADO' AND p.tipoAusencia.regime = 'FALTA_INJUSTIFICADA' " +
+           "AND p.dataFim >= :desde ORDER BY p.funcionario.id, p.dataInicio")
+    List<PedidoAusenciaEntity> findFaltasInjustificadasDesde(@Param("desde") LocalDate desde);
 }

@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
 import cv.igrp.RH_Service.colaboradores.application.services.MobilidadeService;
+import cv.igrp.RH_Service.colaboradores.application.services.ImpedimentosDisciplinares;
 import cv.igrp.RH_Service.colaboradores.domain.models.FormaPrestacaoMobilidade;
 import cv.igrp.RH_Service.colaboradores.domain.models.LicencaMobilidade;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
@@ -26,6 +27,7 @@ public class CreateLicencaMobilidadeCommandHandler
     private final FuncionarioRepository funcionarioRepository;
     private final SubtipoLicencaMobilidadeRepository subtipoRepository;
     private final MobilidadeService mobilidadeService;
+    private final ImpedimentosDisciplinares impedimentos;
 
     @IgrpCommandHandler
     public ResponseEntity<SuccessResponseDTO> handle(CreateLicencaMobilidadeCommand command) {
@@ -37,6 +39,11 @@ public class CreateLicencaMobilidadeCommandHandler
         var subtipoId = SubtipoLicencaMobilidadeId.from(dto.getSubtipoId());
         var subtipo = subtipoRepository.findById(subtipoId)
                 .orElseThrow(() -> IgrpResponseStatusException.notFound("Subtipo não encontrado: " + dto.getSubtipoId()));
+
+        if (subtipo.regressaOuCessa() && dto.getDataInicio() != null)
+            impedimentos.impedeNomeacaoDirigente(funcionarioId, dto.getDataInicio()).ifPresent(m -> {
+                throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY, m);
+            });
 
         var formaPrestacao = FormaPrestacaoMobilidade.de(dto.getFormaPrestacao());
         mobilidadeService.validarFormaPrestacao(subtipo, formaPrestacao);

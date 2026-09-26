@@ -342,7 +342,21 @@ public class ProcessoDisciplinar {
      */
     public void decidir(LocalDate data, PenaDisciplinar penaAplicada, Integer duracao, String entidade, String fundamentacao,
                         boolean temComissaoEmCurso) {
+        decidir(data, penaAplicada, duracao, entidade, fundamentacao, temComissaoEmCurso, null);
+    }
+
+    /**
+     * Com {@code suspensaoAnos}, a pena fica suspensa por 1 a 3 anos contados da notificação (art. 34.º): só a multa e a
+     * suspensão; na censura escrita, suspende-se o registo.
+     */
+    public void decidir(LocalDate data, PenaDisciplinar penaAplicada, Integer duracao, String entidade, String fundamentacao,
+                        boolean temComissaoEmCurso, Integer suspensaoAnos) {
         exigir(FaseProcessoDisciplinar.RELATORIO, "decidir");
+        if (suspensaoAnos != null) {
+            if (penaAplicada != PenaDisciplinar.MULTA && penaAplicada != PenaDisciplinar.SUSPENSAO && penaAplicada != PenaDisciplinar.CENSURA_ESCRITA)
+                throw invalido("Só a multa e a suspensão se suspendem (e o registo da censura escrita) — art. 34.º.");
+            if (suspensaoAnos < 1 || suspensaoAnos > 3) throw invalido("A suspensão da pena é de 1 a 3 anos (art. 34.º n.º 2).");
+        }
         var rel = ultimo(ActoDisciplinar.Tipo.RELATORIO).orElseThrow();
         data = naoAntes(data, ActoDisciplinar.Tipo.RELATORIO, "o relatório");
         boolean concorda = Objects.equals(rel.pena(), penaAplicada) && Objects.equals(rel.duracao(), duracao);
@@ -360,7 +374,8 @@ public class ProcessoDisciplinar {
         }
         String texto = (entidade != null && !entidade.isBlank() ? entidade.trim() + ": " : "")
                 + (fundamentacao != null && !fundamentacao.isBlank() ? fundamentacao.trim() : "Concorda com o relatório.");
-        actos.add(new ActoDisciplinar(java.util.UUID.randomUUID(), ActoDisciplinar.Tipo.DECISAO, data, null, null, penaAplicada, duracao, texto));
+        actos.add(new ActoDisciplinar(java.util.UUID.randomUUID(), ActoDisciplinar.Tipo.DECISAO, data, null, suspensaoAnos, penaAplicada, duracao,
+                suspensaoAnos != null ? texto + " Pena suspensa por " + suspensaoAnos + " ano(s)." : texto));
         this.endDate = data;
         if (penaAplicada == null) {
             this.fase = FaseProcessoDisciplinar.ARQUIVADO;
@@ -369,7 +384,7 @@ public class ProcessoDisciplinar {
         }
         this.pena = penaAplicada;
         this.penaDuracao = duracao;
-        this.penalty = rotulo(penaAplicada, duracao);
+        this.penalty = rotulo(penaAplicada, duracao) + (suspensaoAnos != null ? " — suspensa por " + suspensaoAnos + " ano(s)" : "");
         this.fase = FaseProcessoDisciplinar.DECIDIDO;
     }
 
@@ -380,6 +395,10 @@ public class ProcessoDisciplinar {
         actos.add(new ActoDisciplinar(java.util.UUID.randomUUID(), ActoDisciplinar.Tipo.NOTIFICACAO_DECISAO, data, data.plusDays(DIAS_RECURSO),
                 null, null, null, null));
         definirPeriodo(data.plusDays(1));
+        if (suspensaAnos() != null) {
+            this.penaltyStartDate = null;
+            this.penaltyEndDate = null;
+        }
         this.fase = FaseProcessoDisciplinar.NOTIFICADO;
     }
 
@@ -445,7 +464,10 @@ public class ProcessoDisciplinar {
      * desfazem [interp.]. Nulo se não há o que executar.
      */
     public LocalDate dataExecucao() {
-        if (fase != FaseProcessoDisciplinar.NOTIFICADO || pena == null || efeitosAplicadosEm != null) return null;
+        if (pena == null || efeitosAplicadosEm != null) return null;
+        if (suspensaAnos() != null)
+            return ultimo(ActoDisciplinar.Tipo.CADUCIDADE_SUSPENSAO).map(c -> c.data().plusDays(1)).orElse(null);
+        if (fase != FaseProcessoDisciplinar.NOTIFICADO) return null;
         var recurso = ultimo(ActoDisciplinar.Tipo.DECISAO_RECURSO);
         if (recurso.isPresent()) return recurso.get().data().plusDays(1);
         var n = ultimo(ActoDisciplinar.Tipo.NOTIFICACAO_DECISAO).orElseThrow();
@@ -466,12 +488,90 @@ public class ProcessoDisciplinar {
 
     /** Executada a pena e passado o prazo de recurso sem recurso (ou decidido este), o processo está concluído. */
     public boolean concluirSeTransitado(LocalDate hoje) {
-        if (fase != FaseProcessoDisciplinar.NOTIFICADO || efeitosAplicadosEm == null) return false;
+        if (fase != FaseProcessoDisciplinar.NOTIFICADO || (efeitosAplicadosEm == null && suspensaAnos() == null)) return false;
         boolean recursoDecidido = ultimo(ActoDisciplinar.Tipo.DECISAO_RECURSO).isPresent();
         var n = ultimo(ActoDisciplinar.Tipo.NOTIFICACAO_DECISAO).orElseThrow();
         if (!recursoDecidido && !hoje.isAfter(n.dataFim())) return false;
         this.fase = FaseProcessoDisciplinar.CONCLUIDO;
         return true;
+    }
+
+    // ---------------------------------------------------------------- suspensão da pena, reabilitação, revisão
+
+    /** Os anos por que a pena ficou suspensa (art. 34.º), ou nulo. */
+    public Integer suspensaAnos() {
+        if (pena == null) return null;
+        return ultimo(ActoDisciplinar.Tipo.DECISAO).map(ActoDisciplinar::dias).orElse(null);
+    }
+
+    /** O último dia da suspensão da pena: os anos contam da notificação (art. 34.º n.º 2). */
+    public LocalDate suspensaAte() {
+        Integer anos = suspensaAnos();
+        if (anos == null) return null;
+        return ultimo(ActoDisciplinar.Tipo.NOTIFICACAO_DECISAO).map(n -> n.data().plusYears(anos)).orElse(null);
+    }
+
+    /** A pena está suspensa neste dia (e não caducou). */
+    public boolean penaSuspensaEm(LocalDate dia) {
+        var ate = suspensaAte();
+        return ate != null && !dia.isAfter(ate) && ultimo(ActoDisciplinar.Tipo.CADUCIDADE_SUSPENSAO).isEmpty();
+    }
+
+    /** A suspensão caduca se o agente é punido de novo durante ela (art. 34.º n.º 4): a pena executa-se no dia seguinte. */
+    public void caducarSuspensao(LocalDate data, String motivo) {
+        if (!penaSuspensaEm(data)) throw IgrpResponseStatusException.conflict("A pena não está suspensa nessa data.");
+        actos.add(ActoDisciplinar.de(ActoDisciplinar.Tipo.CADUCIDADE_SUSPENSAO, data, motivo));
+        definirPeriodo(data.plusDays(1));
+    }
+
+    /**
+     * A reabilitação (art. 95.º): só das penas de aposentação compulsiva e demissão, executadas, decorridos 5 anos sobre a
+     * aplicação; faz cessar as incapacidades, mas não devolve o lugar (n.º 5).
+     */
+    public void reabilitar(LocalDate data, String despacho) {
+        if (pena != PenaDisciplinar.APOSENTACAO_COMPULSIVA && pena != PenaDisciplinar.DEMISSAO)
+            throw invalido("A reabilitação é das penas de aposentação compulsiva e de demissão (art. 95.º n.º 1).");
+        var efeitos = ultimo(ActoDisciplinar.Tipo.EFEITOS)
+                .orElseThrow(() -> IgrpResponseStatusException.conflict("A pena ainda não foi executada."));
+        if (ultimo(ActoDisciplinar.Tipo.REABILITACAO).isPresent()) throw IgrpResponseStatusException.conflict("Já foi reabilitado.");
+        if (despacho == null || despacho.isBlank()) throw invalido("Indique o despacho que concede a reabilitação.");
+        if (data == null || data.isBefore(efeitos.data().plusYears(5)))
+            throw invalido("A reabilitação só se pede passados 5 anos sobre a aplicação da pena (a partir de "
+                    + Datas.pt(efeitos.data().plusYears(5)) + ") — art. 95.º n.º 3.");
+        actos.add(ActoDisciplinar.de(ActoDisciplinar.Tipo.REABILITACAO, data, despacho.trim()));
+    }
+
+    public enum ResultadoRevisao { REVOGADA, ALTERADA }
+
+    /**
+     * A revisão procedente (arts. 90.º–94.º), a todo o tempo: revoga ou altera a pena, nunca a agrava (art. 90.º n.º 3). A
+     * revogação cancela o registo da pena e anula os seus efeitos (art. 94.º n.º 2).
+     */
+    public void rever(LocalDate data, ResultadoRevisao resultado, PenaDisciplinar novaPena, Integer duracao, String despacho) {
+        if (pena == null || (fase != FaseProcessoDisciplinar.CONCLUIDO && fase != FaseProcessoDisciplinar.NOTIFICADO))
+            throw IgrpResponseStatusException.conflict("Só se revê um processo decidido com pena.");
+        if (resultado == null) throw invalido("Diga se a pena é revogada ou alterada.");
+        if (despacho == null || despacho.isBlank()) throw invalido("Indique o despacho da revisão.");
+        if (data == null) throw invalido("Indique a data do acto.");
+        if (resultado == ResultadoRevisao.ALTERADA) {
+            if (novaPena == null) throw invalido("Indique a pena que fica.");
+            validarPena(novaPena, duracao);
+            boolean agrava = novaPena != pena ? novaPena.pelomenos(pena) : duracao != null && penaDuracao != null && duracao > penaDuracao;
+            if (agrava) throw invalido("A revisão não pode agravar a pena (art. 90.º n.º 3).");
+            this.pena = novaPena;
+            this.penaDuracao = duracao;
+            this.penalty = rotulo(novaPena, duracao) + " (alterada em revisão)";
+            if (novaPena.temPeriodo() && penaltyStartDate != null) this.penaltyEndDate = novaPena.fim(penaltyStartDate, duracao);
+        } else {
+            this.penalty = "Revogada em revisão";
+            this.pena = null;
+            this.penaDuracao = null;
+            this.penaltyStartDate = null;
+            this.penaltyEndDate = null;
+        }
+        actos.add(new ActoDisciplinar(java.util.UUID.randomUUID(), ActoDisciplinar.Tipo.REVISAO, data, null, null, pena, penaDuracao,
+                resultado.name() + ": " + despacho.trim()));
+        this.fase = FaseProcessoDisciplinar.CONCLUIDO;
     }
 
     /** O arquivamento antes da decisão: pelo despacho liminar (art. 50.º n.º 2) ou por outro motivo (desistência, morte…). */

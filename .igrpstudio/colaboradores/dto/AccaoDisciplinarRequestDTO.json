@@ -111,6 +111,12 @@
       "name": "motivo",
       "objectType": "java",
       "required": false
+    },
+    {
+      "type": "integer",
+      "name": "suspensaoAnos",
+      "objectType": "java",
+      "required": false
     }
   ]
 }

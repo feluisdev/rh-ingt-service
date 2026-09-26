@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import cv.igrp.RH_Service.colaboradores.application.services.ImpedimentosDisciplinares;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -49,6 +50,7 @@ class PromoverColaboradorCommandHandlerTest {
     @Mock private FuncionarioRepository funcionarioRepository;
     @Mock private VinculoLaboralService vinculoLaboralService;
     @Mock private AssignmentService assignmentService;
+    @Mock private ImpedimentosDisciplinares impedimentos;
 
     @InjectMocks private PromoverColaboradorCommandHandler handler;
 

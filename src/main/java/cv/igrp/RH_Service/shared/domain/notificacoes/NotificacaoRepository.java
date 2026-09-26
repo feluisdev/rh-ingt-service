@@ -27,4 +27,7 @@ public interface NotificacaoRepository {
 
     /** Enfileira o envio por correio electrónico (o envio em si é {@code TODO(smtp)}). */
     void enfileirarEmail(NotificacaoId notificacao, LocalDateTime agora);
+
+    /** Já há alguma notificação deste tipo sobre este recurso? (para não repetir um aviso) */
+    boolean existeSobre(TipoNotificacao tipo, String recursoTipo, String recursoId);
 }

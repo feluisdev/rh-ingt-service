@@ -126,6 +126,23 @@ class ProcessoDisciplinarServiceTest {
     }
 
     @Test
+    void novaPunicaoCaducaASuspensaoDaPenaAnterior() {
+        var suspensa = ProcessoDisciplinarTest.instruido(arguido, instrutor, PenaDisciplinar.MULTA);
+        suspensa.acusar(D.plusDays(20), PenaDisciplinar.MULTA, "A");
+        suspensa.notificarAcusacao(D.plusDays(21), 10, false);
+        suspensa.registarDefesa(D.plusDays(22), "D");
+        suspensa.relatorio(D.plusDays(30), PenaDisciplinar.MULTA, 5, "R", D.plusDays(30));
+        suspensa.decidir(D.plusDays(35), PenaDisciplinar.MULTA, 5, "D", null, false, 2);
+        suspensa.notificarDecisao(D.plusDays(40));
+        var nova = notificado(PenaDisciplinar.CENSURA_ESCRITA, null);
+        when(repository.findAllByFuncionarioId(arguido)).thenReturn(List.of(suspensa, nova));
+        service.notificarDecisao(arguido, nova.getId(), D.plusDays(90));
+        assertNotNull(suspensa.getEfeitosAplicadosEm());
+        verify(diarioFactos).registar(eq(arguido), eq(TipoFactoRh.PENA_DISCIPLINAR), eq(D.plusDays(91)), anyString(),
+                eq(suspensa.getId().getStringValor()), anyString(), any());
+    }
+
+    @Test
     void numeroPorOmissaoEAlertaDePrescricao() {
         hoje = D;
         when(repository.contarDoAno(2026)).thenReturn(4L);

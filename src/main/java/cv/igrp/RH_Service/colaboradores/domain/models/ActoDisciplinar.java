@@ -27,7 +27,10 @@ public record ActoDisciplinar(UUID id, Tipo tipo, LocalDate data, LocalDate data
         RECURSO,
         DECISAO_RECURSO,
         EFEITOS,
-        ARQUIVAMENTO
+        ARQUIVAMENTO,
+        CADUCIDADE_SUSPENSAO,
+        REABILITACAO,
+        REVISAO
     }
 
     public static ActoDisciplinar de(Tipo tipo, LocalDate data, String texto) {

@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.recrutamento.application.services;
 
 import cv.igrp.RH_Service.carreiras.domain.repository.CategoryRepository;
+import cv.igrp.RH_Service.colaboradores.application.services.ImpedimentosDisciplinares;
 import cv.igrp.RH_Service.carreiras.domain.valueobject.CategoryId;
 import cv.igrp.RH_Service.colaboradores.application.services.PublicacoesService;
 import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
@@ -62,6 +63,7 @@ public class ConcursoService {
     private final FuncionarioRepository funcionarioRepository;
     private final PublicacoesService publicacoes;
     private final Notificador notificador;
+    private final ImpedimentosDisciplinares impedimentos;
 
     // ---------------------------------------------------------------- rascunho
 
@@ -196,6 +198,7 @@ public class ConcursoService {
             Funcionario f = funcionarioRepository.findById(FuncionarioId.from(d.funcionarioId()))
                     .orElseThrow(() -> IgrpResponseStatusException.notFound("Colaborador não encontrado."));
             if (!Boolean.TRUE.equals(f.getIsActive())) throw invalido("Este colaborador já não está ao serviço.");
+            impedimentos.impedeConcurso(FuncionarioId.from(d.funcionarioId()), hoje()).ifPresent(m -> { throw invalido(m); });
             nome = f.getNomeCompleto();
             documento = documento != null ? documento : f.getNumeroDocumento();
             nif = nif != null ? nif : f.getNif();

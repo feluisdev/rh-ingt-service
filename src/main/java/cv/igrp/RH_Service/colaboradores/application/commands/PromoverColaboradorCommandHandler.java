@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.application.commands;
 
 import cv.igrp.RH_Service.colaboradores.application.dto.PromocaoResponseDTO;
+import cv.igrp.RH_Service.colaboradores.application.services.ImpedimentosDisciplinares;
 import cv.igrp.RH_Service.colaboradores.application.services.AssignmentService;
 import cv.igrp.RH_Service.colaboradores.application.services.VinculoLaboralService;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
@@ -34,6 +35,7 @@ public class PromoverColaboradorCommandHandler
     private final FuncionarioRepository funcionarioRepository;
     private final VinculoLaboralService vinculoLaboralService;
     private final AssignmentService assignmentService;
+    private final ImpedimentosDisciplinares impedimentos;
 
     @IgrpCommandHandler
     @Transactional
@@ -57,6 +59,11 @@ public class PromoverColaboradorCommandHandler
         if (!vinculo.isEligibleForProgression())
             throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
                     "O vínculo laboral '" + vinculo.getDescription() + "' não permite promoção.");
+
+        if (req.getDataEfeito() != null)
+            impedimentos.impedePromocao(funcionarioId, req.getDataEfeito()).ifPresent(m -> {
+                throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY, m);
+            });
 
         var promocao = assignmentService.promover(
                 funcionarioId,

@@ -25,7 +25,7 @@ public class AccaoDisciplinarRequestDTO {
     private String penaPrevista;
     /** A data do acto (por omissão, hoje). */
     private LocalDate data;
-    /** Instaurar. */
+    /** Instaurar, reabilitar, rever. */
     private String despacho;
     /** Instaurar, decidir. */
     private String entidade;
@@ -45,8 +45,10 @@ public class AccaoDisciplinarRequestDTO {
     private Integer duracao;
     /** Acusação, defesa, relatório, fundamentação da decisão, recurso. */
     private String texto;
-    /** Decidir o recurso: MANTIDA, DIMINUIDA, ANULADA. */
+    /** Decidir o recurso: MANTIDA, DIMINUIDA, ANULADA. Rever: REVOGADA, ALTERADA. */
     private String resultado;
     /** Arquivar. */
     private String motivo;
+    /** Decidir: a pena (multa ou suspensão; registo da censura) fica suspensa por 1 a 3 anos (art. 34.º). */
+    private Integer suspensaoAnos;
 }

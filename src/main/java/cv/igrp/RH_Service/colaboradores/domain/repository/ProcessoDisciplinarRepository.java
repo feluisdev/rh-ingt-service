@@ -15,7 +15,7 @@ public interface ProcessoDisciplinarRepository {
     /** Os processos com tramitação ainda em curso (lista de trabalho e prazos). */
     List<ProcessoDisciplinar> findEmCurso();
 
-    /** Notificados, com a pena por executar (o job decide se já é o dia). */
+    /** Com a pena por executar — notificados, ou suspensos cuja suspensão caducou (o job decide se já é o dia). */
     List<ProcessoDisciplinar> findComPenaPorExecutar();
 
     /** Algum processo em que o colaborador é arguido, instaurado e por decidir (Lei n.º 20/X/2023, art. 95.º a)). */

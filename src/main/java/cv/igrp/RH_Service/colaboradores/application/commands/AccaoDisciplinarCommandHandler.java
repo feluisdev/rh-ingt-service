@@ -48,7 +48,11 @@ public class AccaoDisciplinarCommandHandler implements CommandHandler<AccaoDisci
             case "NOTIFICAR_ACUSACAO" -> service.notificarAcusacao(fid, id, r.getData(), r.getDias(), Boolean.TRUE.equals(r.getComplexo()));
             case "DEFESA" -> service.registarDefesa(fid, id, r.getData(), r.getTexto());
             case "RELATORIO" -> service.relatorio(fid, id, r.getData(), pena, r.getDuracao(), r.getTexto());
-            case "DECIDIR" -> service.decidir(fid, id, r.getData(), pena, r.getDuracao(), r.getEntidade(), r.getTexto());
+            case "DECIDIR" -> service.decidir(fid, id, r.getData(), pena, r.getDuracao(), r.getEntidade(), r.getTexto(), r.getSuspensaoAnos());
+            case "REABILITAR" -> service.reabilitar(fid, id, r.getData(), r.getDespacho());
+            case "REVER" -> service.rever(fid, id, r.getData(),
+                    ChecklistDtos.valor(ProcessoDisciplinar.ResultadoRevisao.class, r.getResultado(), "Resultado da revisão"), pena, r.getDuracao(),
+                    r.getDespacho());
             case "NOTIFICAR_DECISAO" -> service.notificarDecisao(fid, id, r.getData());
             case "RECURSO" -> service.interporRecurso(fid, id, r.getData(), r.getTexto());
             case "DECIDIR_RECURSO" -> service.decidirRecurso(fid, id, r.getData(),
