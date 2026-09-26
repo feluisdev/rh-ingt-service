@@ -1,0 +1,434 @@
+{
+  "type": "controller",
+  "name": "AcidenteServico",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh",
+  "description": "Acidentes em serviço e doenças profissionais (Lei n.º 20/X/2023, arts. 187.º–191.º): participação, qualificação, incapacidades, alta, incapacidade permanente, seguradora",
+  "actions": [
+    {
+      "actionName": "getAcidentesServico",
+      "method": "GET",
+      "path": "acidentes-servico",
+      "summary": "Os acidentes em serviço e doenças profissionais (filtro: estado), com alertas",
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "estado",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AcidenteServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getAcidentesServicoColaborador",
+      "method": "GET",
+      "path": "funcionarios/{funcionarioId}/acidentes-servico",
+      "summary": "Os acidentes do colaborador",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AcidenteServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getMeusAcidentesServico",
+      "method": "GET",
+      "path": "me/acidentes-servico",
+      "summary": "Os meus acidentes em serviço",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AcidenteServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "participarAcidenteServico",
+      "method": "POST",
+      "path": "funcionarios/{funcionarioId}/acidentes-servico",
+      "summary": "Participar um acidente em serviço, de trajecto ou doença profissional (pelo RH)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AcidenteServicoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AcidenteServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "qualificarAcidenteServico",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/acidentes-servico/{acidenteId}/qualificar",
+      "summary": "Qualificar: é acidente em serviço (despacho) ou não (motivo — art. 187.º n.º 3)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "acidenteId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AcidenteServicoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AcidenteServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "registarIncapacidadeAcidenteServico",
+      "method": "POST",
+      "path": "funcionarios/{funcionarioId}/acidentes-servico/{acidenteId}/incapacidades",
+      "summary": "Registar um período de incapacidade temporária (faltas justificadas sem perda de direitos — art. 188.º)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "acidenteId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AcidenteServicoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AcidenteServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "altaAcidenteServico",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/acidentes-servico/{acidenteId}/alta",
+      "summary": "Registar a alta (fecha a incapacidade em aberto na véspera)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "acidenteId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AcidenteServicoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AcidenteServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "incapacidadePermanenteAcidenteServico",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/acidentes-servico/{acidenteId}/incapacidade-permanente",
+      "summary": "Registar a incapacidade permanente; absoluta, ou parcial que impede as funções, abre a aposentação por invalidez (art. 189.º)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "acidenteId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AcidenteServicoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AcidenteServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "seguradoraAcidenteServico",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/acidentes-servico/{acidenteId}/seguradora",
+      "summary": "Registar a seguradora, a apólice e a participação (art. 191.º)",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "acidenteId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AcidenteServicoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AcidenteServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "encerrarAcidenteServico",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/acidentes-servico/{acidenteId}/encerrar",
+      "summary": "Encerrar o processo do acidente",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "acidenteId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AcidenteServicoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AcidenteServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "participarMeuAcidenteServico",
+      "method": "POST",
+      "path": "me/acidentes-servico",
+      "summary": "Participar o meu acidente ou doença profissional",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AcidenteServicoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AcidenteServicoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

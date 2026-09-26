@@ -1,0 +1,137 @@
+{
+  "type": "dto",
+  "name": "AcidenteServico",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioNome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "tipo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "datetime",
+      "name": "dataHora",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "local",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "descricao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "testemunhas",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataParticipacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "participadoPeloProprio",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "despacho",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "seguradora",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "apolice",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "participacaoSeguradora",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "IncapacidadeAcidenteDTO",
+      "name": "incapacidades",
+      "objectType": "dto",
+      "module": "colaboradores",
+      "collectionType": "list",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "alta",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "decimal",
+      "name": "incapacidadePermanente",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "incapacidadeAbsoluta",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "alertas",
+      "objectType": "java",
+      "collectionType": "list",
+      "required": false
+    }
+  ]
+}

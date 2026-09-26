@@ -67,6 +67,12 @@ BEGIN
   IF to_regclass('public.t_acumulacao_funcoes') IS NOT NULL THEN
     DELETE FROM t_acumulacao_funcoes WHERE funcionario_id = ANY(extras);
   END IF;
+  IF to_regclass('public.t_acidente_incapacidade') IS NOT NULL THEN
+    DELETE FROM t_acidente_incapacidade WHERE acidente_id IN (SELECT id FROM t_acidente_servico WHERE funcionario_id = ANY(extras));
+  END IF;
+  IF to_regclass('public.t_acidente_servico') IS NOT NULL THEN
+    DELETE FROM t_acidente_servico WHERE funcionario_id = ANY(extras);
+  END IF;
   IF to_regclass('public.t_checklist_item') IS NOT NULL THEN
     DELETE FROM t_checklist_item WHERE checklist_id IN (SELECT id FROM t_checklist WHERE funcionario_id = ANY(extras));
   END IF;
@@ -315,6 +321,12 @@ DO $$ BEGIN
   END IF;
   IF to_regclass('public.t_acumulacao_funcoes') IS NOT NULL THEN
     DELETE FROM t_acumulacao_funcoes;
+  END IF;
+  IF to_regclass('public.t_acidente_incapacidade') IS NOT NULL THEN
+    DELETE FROM t_acidente_incapacidade;
+  END IF;
+  IF to_regclass('public.t_acidente_servico') IS NOT NULL THEN
+    DELETE FROM t_acidente_servico;
   END IF;
   -- Missoes de servico.
   IF to_regclass('public.t_missao_servico_participante') IS NOT NULL THEN

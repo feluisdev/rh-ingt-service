@@ -2348,3 +2348,24 @@ Lei n.º 20/X/2023, arts. 20.º–24.º (BR-ACU-01..07). A resposta traz `autori
 | POST | `/api/v1/rh/me/acumulacoes-funcoes` | Pedir |
 | PATCH | `/api/v1/rh/me/acumulacoes-funcoes/{acumulacaoId}/cessar` | Cessar a minha |
 <!-- /secao:acumulacao-funcoes -->
+
+<!-- secao:acidentes-servico -->
+## 30. Acidentes em serviço — `/api/v1/rh/acidentes-servico`
+
+Lei n.º 20/X/2023, arts. 187.º–191.º (BR-SST-01..10). A resposta traz `alertas` (prazo da participação, por qualificar, sem
+seguradora).
+
+| Método | Caminho | O quê |
+|---|---|---|
+| GET | `/api/v1/rh/acidentes-servico` | Acidentes (`estado`) |
+| GET | `/api/v1/rh/funcionarios/{funcionarioId}/acidentes-servico` | Os do colaborador |
+| POST | `/api/v1/rh/funcionarios/{funcionarioId}/acidentes-servico` | Participar (`tipo`, `dataHora`, `local`, `descricao`, `testemunhas`, `dataParticipacao`) |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/acidentes-servico/{acidenteId}/qualificar` | `emServico`, `despacho` ou `motivo` |
+| POST | `/api/v1/rh/funcionarios/{funcionarioId}/acidentes-servico/{acidenteId}/incapacidades` | `tipoIncapacidade`, `inicio`, `fim` |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/acidentes-servico/{acidenteId}/alta` | `data` |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/acidentes-servico/{acidenteId}/incapacidade-permanente` | `percentagem`, `absoluta`, `impedeFuncoes` |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/acidentes-servico/{acidenteId}/seguradora` | `seguradora`, `apolice`, `data` |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/acidentes-servico/{acidenteId}/encerrar` | Encerrar |
+| GET | `/api/v1/rh/me/acidentes-servico` | Os meus |
+| POST | `/api/v1/rh/me/acidentes-servico` | Participar o meu |
+<!-- /secao:acidentes-servico -->

@@ -992,6 +992,13 @@ pelo `PUT` a pena ou as datas dá 409 (o número, o BO e as notas continuam livr
 - Ficha do colaborador: «Acumulação de funções» — pedidos, autorizar/indeferir, cessar; quem autoriza à vista.
 - `/me/acumulacoes-funcoes`: o colaborador pede (nas privadas, com a declaração) e cessa. Notificação: `ACUMULACAO_FUNCOES`.
 
+### 11.58 Acidentes em serviço e doenças profissionais (2026-09-26)
+
+**Nada deixa de funcionar**: endpoints novos (guia §30).
+
+- Ficha do colaborador: «Acidentes em serviço» — participar, qualificar, incapacidades e alta, incapacidade permanente, seguradora.
+- `/me/acidentes-servico`: o colaborador participa o seu. Notificação: `ACIDENTE_SERVICO`.
+
 ## 12. Checklist do alinhamento com a legislação (secção 11)
 
 Por ordem das secções. Cada item remete para o ecrã correspondente em `apresentacao_aplicacao.html`.

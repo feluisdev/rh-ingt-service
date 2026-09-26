@@ -1,0 +1,116 @@
+{
+  "type": "dto",
+  "name": "AcidenteServicoRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "tipo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "datetime",
+      "name": "dataHora",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "local",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "descricao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "testemunhas",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataParticipacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "emServico",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "despacho",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "tipoIncapacidade",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "inicio",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "fim",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "data",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "decimal",
+      "name": "percentagem",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "absoluta",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "impedeFuncoes",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "seguradora",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "apolice",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

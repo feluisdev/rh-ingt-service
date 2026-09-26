@@ -1,0 +1,51 @@
+{
+  "type": "model",
+  "module": "colaboradores",
+  "name": "AcidenteIncapacidadeEntity",
+  "tableName": "t_acidente_incapacidade",
+  "audit": true,
+  "crud": false,
+  "revision": true,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": true,
+      "nullable": false
+    },
+    {
+      "name": "acidente",
+      "type": "relation",
+      "relation": {
+        "type": "ManyToOne",
+        "entity": "AcidenteServicoEntity",
+        "fetchType": "lazy",
+        "joinColumn": "acidente_id",
+        "module": "colaboradores"
+      }
+    },
+    {
+      "name": "tipo",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 20
+    },
+    {
+      "name": "inicio",
+      "type": "date",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "fim",
+      "type": "date",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    }
+  ]
+}

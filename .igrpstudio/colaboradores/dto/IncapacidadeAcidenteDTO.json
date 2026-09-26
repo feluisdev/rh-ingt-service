@@ -1,0 +1,32 @@
+{
+  "type": "dto",
+  "name": "IncapacidadeAcidente",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "tipo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "inicio",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "fim",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}
