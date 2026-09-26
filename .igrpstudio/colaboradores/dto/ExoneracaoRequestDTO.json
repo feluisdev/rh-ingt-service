@@ -1,0 +1,38 @@
+{
+  "type": "dto",
+  "name": "ExoneracaoRequest",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "date",
+      "name": "dataPreAviso",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataPretendida",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "despacho",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "data",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

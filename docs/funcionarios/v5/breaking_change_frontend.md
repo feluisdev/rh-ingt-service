@@ -977,6 +977,14 @@ pelo `PUT` a pena ou as datas dá 409 (o número, o BO e as notas continuam livr
 - `/me/missoes-servico`: pedir (próprio ou equipa), a chefia decide, o participante regista o regresso.
 - Notificação: `MISSAO_SERVICO`.
 
+### 11.56 Exoneração voluntária (2026-09-26)
+
+**Nada deixa de funcionar**: endpoints novos (guia §28).
+
+- Ficha do colaborador: «Exoneração» — registar, deferir, desistir; condicionantes e data de efeito prevista à vista.
+- `/me/exoneracoes`: o colaborador pede (com o pré-aviso de 60 dias) e pode desistir.
+- A caixa de publicações passa a mostrar a exoneração como `EXONERACAO` (não como cessação). Notificação: `EXONERACAO`.
+
 ## 12. Checklist do alinhamento com a legislação (secção 11)
 
 Por ordem das secções. Cada item remete para o ecrã correspondente em `apresentacao_aplicacao.html`.

@@ -2,6 +2,7 @@ package cv.igrp.RH_Service.colaboradores.infrastructure.scheduler;
 
 import cv.igrp.RH_Service.colaboradores.application.services.ChecklistService;
 import cv.igrp.RH_Service.shared.application.services.scheduler.JobContext;
+import cv.igrp.RH_Service.shared.application.services.scheduler.JobParametro;
 import cv.igrp.RH_Service.shared.application.services.scheduler.JobResult;
 import cv.igrp.RH_Service.shared.application.services.scheduler.ScheduledJob;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ public class AlertaChecklistsJob implements ScheduledJob {
     @Override public String getChave()       { return CHAVE; }
     @Override public String getNomeLegivel() { return "Avisos de itens das checklists de entrada e saída fora do prazo"; }
     @Override public String getCronPadrao()  { return "0 50 6 * * *"; }
+    @Override public java.util.List<JobParametro> getParametros() { return java.util.List.of(JobParametro.dataReferencia()); }
 
     @Override
     public JobResult executar(JobContext ctx) {

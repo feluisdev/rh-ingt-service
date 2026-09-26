@@ -1,0 +1,269 @@
+{
+  "type": "controller",
+  "name": "Exoneracao",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh",
+  "description": "Exoneração voluntária (Lei n.º 20/X/2023, arts. 94.º e 95.º): pré-aviso de 60 dias, condicionantes (processo disciplinar, inquérito, garantia de formação), efeitos no máximo aos 90 dias, cessação do vínculo e publicação",
+  "actions": [
+    {
+      "actionName": "getExoneracoes",
+      "method": "GET",
+      "path": "exoneracoes",
+      "summary": "Os pedidos de exoneração voluntária (filtro: estado), com as condicionantes de hoje",
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "estado",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ExoneracaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getExoneracoesColaborador",
+      "method": "GET",
+      "path": "funcionarios/{funcionarioId}/exoneracoes",
+      "summary": "Os pedidos de exoneração do colaborador",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ExoneracaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "pedirExoneracao",
+      "method": "POST",
+      "path": "funcionarios/{funcionarioId}/exoneracoes",
+      "summary": "Registar o pedido de exoneração (pelo RH), com o pré-aviso de 60 dias",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ExoneracaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ExoneracaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "deferirExoneracao",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/exoneracoes/{exoneracaoId}/deferir",
+      "summary": "Deferir (despacho): produz efeitos no dia devido — já, se chegou",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "exoneracaoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ExoneracaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ExoneracaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "desistirExoneracao",
+      "method": "PATCH",
+      "path": "funcionarios/{funcionarioId}/exoneracoes/{exoneracaoId}/desistir",
+      "summary": "Registar a desistência do pedido",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        },
+        {
+          "name": "exoneracaoId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ExoneracaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getMinhasExoneracoes",
+      "method": "GET",
+      "path": "me/exoneracoes",
+      "summary": "Os meus pedidos de exoneração",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ExoneracaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "pedirMinhaExoneracao",
+      "method": "POST",
+      "path": "me/exoneracoes",
+      "summary": "Pedir a minha exoneração, com o pré-aviso de 60 dias",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ExoneracaoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ExoneracaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "desistirMinhaExoneracao",
+      "method": "PATCH",
+      "path": "me/exoneracoes/{exoneracaoId}/desistir",
+      "summary": "Desistir do meu pedido de exoneração",
+      "pathVariables": [
+        {
+          "name": "exoneracaoId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ExoneracaoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

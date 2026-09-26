@@ -2312,3 +2312,21 @@ de factos; os valores são das tabelas do diploma de desenvolvimento, fora desta
 
 `partida` e `regresso` são data e hora (`2026-10-05T08:00:00`).
 <!-- /secao:missao-servico -->
+
+<!-- secao:exoneracao -->
+## 28. Exoneração voluntária — `/api/v1/rh/exoneracoes`
+
+Lei n.º 20/X/2023, arts. 94.º e 95.º (BR-EXO-01..08). A resposta traz as `condicionantes` de hoje, a `dataLimite` (pré-aviso + 90
+dias) e a `dataEfeitoPrevista`.
+
+| Método | Caminho | O quê |
+|---|---|---|
+| GET | `/api/v1/rh/exoneracoes` | Pedidos (`estado`) |
+| GET | `/api/v1/rh/funcionarios/{funcionarioId}/exoneracoes` | Os do colaborador |
+| POST | `/api/v1/rh/funcionarios/{funcionarioId}/exoneracoes` | Registar (`dataPreAviso`, `dataPretendida`, `motivo`) |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/exoneracoes/{exoneracaoId}/deferir` | Despacho (`despacho`, `data`) |
+| PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/exoneracoes/{exoneracaoId}/desistir` | Desistência |
+| GET | `/api/v1/rh/me/exoneracoes` | Os meus |
+| POST | `/api/v1/rh/me/exoneracoes` | Pedir a minha |
+| PATCH | `/api/v1/rh/me/exoneracoes/{exoneracaoId}/desistir` | Desistir do meu |
+<!-- /secao:exoneracao -->

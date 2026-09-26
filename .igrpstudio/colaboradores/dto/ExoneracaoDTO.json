@@ -1,0 +1,93 @@
+{
+  "type": "dto",
+  "name": "Exoneracao",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioNome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataPreAviso",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataPretendida",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataLimite",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "pedidaPeloProprio",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "despacho",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataDespacho",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataEfeito",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataEfeitoPrevista",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "condicionantes",
+      "objectType": "java",
+      "collectionType": "list",
+      "required": false
+    }
+  ]
+}

@@ -63,6 +63,11 @@ public class PublicacoesService {
         var f = evento.facto();
         var acto = ACTOS.get(f.getTipo());
         if (acto == null) return;
+        // A cessação por pena disciplinar publica-se pela pena (art. 15.º n.º 2 do Estatuto); a exoneração voluntária
+        // publica-se como o despacho de exoneração (Lei n.º 20/X/2023, art. 94.º n.º 5).
+        String motivo = f.getDados() != null ? String.valueOf(f.getDados().get("motivo")) : "";
+        if (f.getTipo() == TipoFactoRh.CESSACAO && "PENA_DISCIPLINAR".equals(motivo)) return;
+        if (f.getTipo() == TipoFactoRh.CESSACAO && "EXONERACAO_VOLUNTARIA".equals(motivo)) acto = PublicacaoOficial.TipoActo.EXONERACAO;
         String nome = funcionarioRepository.findById(f.getFuncionarioId()).map(Funcionario::getNomeCompleto).orElse("");
         aPublicar(acto, PublicacaoOficial.Meio.BOLETIM_OFICIAL, f.getFuncionarioId(), "FACTO_RH", f.getId().getStringValor(),
                 nome + " — " + f.getDescricao(), f.getDataEfeito());

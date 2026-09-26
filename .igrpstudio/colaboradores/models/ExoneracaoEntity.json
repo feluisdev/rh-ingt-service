@@ -1,0 +1,95 @@
+{
+  "type": "model",
+  "module": "colaboradores",
+  "name": "ExoneracaoEntity",
+  "tableName": "t_exoneracao",
+  "audit": true,
+  "crud": false,
+  "revision": true,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": true,
+      "nullable": false
+    },
+    {
+      "name": "funcionario",
+      "type": "relation",
+      "relation": {
+        "type": "ManyToOne",
+        "entity": "FuncionarioEntity",
+        "fetchType": "lazy",
+        "joinColumn": "funcionario_id",
+        "module": "colaboradores"
+      }
+    },
+    {
+      "name": "dataPreAviso",
+      "type": "date",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "dataPretendida",
+      "type": "date",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "motivo",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true,
+      "length": 500
+    },
+    {
+      "name": "pedidaPeloProprio",
+      "type": "boolean",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "estado",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 15
+    },
+    {
+      "name": "despacho",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true,
+      "length": 200
+    },
+    {
+      "name": "dataDespacho",
+      "type": "date",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    },
+    {
+      "name": "condicionadaAte",
+      "type": "date",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    },
+    {
+      "name": "dataEfeito",
+      "type": "date",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    }
+  ]
+}

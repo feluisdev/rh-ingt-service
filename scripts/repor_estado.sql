@@ -61,6 +61,9 @@ BEGIN
   IF to_regclass('public.t_inscricao_formacao') IS NOT NULL THEN
     DELETE FROM t_inscricao_formacao WHERE funcionario_id = ANY(extras);
   END IF;
+  IF to_regclass('public.t_exoneracao') IS NOT NULL THEN
+    DELETE FROM t_exoneracao WHERE funcionario_id = ANY(extras);
+  END IF;
   IF to_regclass('public.t_checklist_item') IS NOT NULL THEN
     DELETE FROM t_checklist_item WHERE checklist_id IN (SELECT id FROM t_checklist WHERE funcionario_id = ANY(extras));
   END IF;
@@ -304,6 +307,9 @@ DO $$ BEGIN
     DELETE FROM t_plano_formacao;
   END IF;
   DELETE FROM t_training WHERE training_type = 'ACCAO_FORMACAO';
+  IF to_regclass('public.t_exoneracao') IS NOT NULL THEN
+    DELETE FROM t_exoneracao;
+  END IF;
   -- Missoes de servico.
   IF to_regclass('public.t_missao_servico_participante') IS NOT NULL THEN
     DELETE FROM t_missao_servico_participante;
