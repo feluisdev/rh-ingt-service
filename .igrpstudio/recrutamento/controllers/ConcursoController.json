@@ -1,0 +1,762 @@
+{
+  "type": "controller",
+  "name": "Concurso",
+  "module": "recrutamento",
+  "basePath": "api/v1/rh",
+  "description": "Recrutamento e selecção por concurso (Lei n.º 20/X/2023, arts. 123.º a 129.º): aviso, júri, métodos, candidaturas registadas pelo RH, audiência prévia, lista de classificação, homologação, reserva e provimento",
+  "actions": [
+    {
+      "actionName": "criarConcurso",
+      "method": "POST",
+      "path": "concursos",
+      "summary": "Criar um concurso (em rascunho)",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ConcursoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "recrutamento"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ConcursoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "recrutamento"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "actualizarConcurso",
+      "method": "PUT",
+      "path": "concursos/{concursoId}",
+      "summary": "Alterar o concurso (só em rascunho; listas omitidas ficam como estão)",
+      "pathVariables": [
+        {
+          "name": "concursoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ConcursoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "recrutamento"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ConcursoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "recrutamento"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getConcursos",
+      "method": "GET",
+      "path": "concursos",
+      "summary": "Os concursos, do mais recente para o mais antigo (filtro opcional por estado)",
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "estado",
+          "isRequired": false
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ConcursoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "recrutamento"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getConcurso",
+      "method": "GET",
+      "path": "concursos/{concursoId}",
+      "summary": "O concurso com as candidaturas",
+      "pathVariables": [
+        {
+          "name": "concursoId",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ConcursoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "recrutamento"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "abrirConcurso",
+      "method": "PATCH",
+      "path": "concursos/{concursoId}/abrir",
+      "summary": "Abrir o concurso (publicar o aviso): exige categoria, lugares, júri com presidente e dois vogais, métodos obrigatórios e prazo de candidatura",
+      "pathVariables": [
+        {
+          "name": "concursoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ConcursoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "recrutamento"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ConcursoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "recrutamento"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "encerrarCandidaturasConcurso",
+      "method": "PATCH",
+      "path": "concursos/{concursoId}/encerrar",
+      "summary": "Encerrar o prazo das candidaturas",
+      "pathVariables": [
+        {
+          "name": "concursoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ConcursoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "recrutamento"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ConcursoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "recrutamento"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "avaliarConcurso",
+      "method": "PATCH",
+      "path": "concursos/{concursoId}/avaliar",
+      "summary": "Passar à avaliação (todas as candidaturas admitidas ou excluídas, audiências fechadas)",
+      "pathVariables": [
+        {
+          "name": "concursoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ConcursoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "recrutamento"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ConcursoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "recrutamento"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "listaProvisoriaConcurso",
+      "method": "PATCH",
+      "path": "concursos/{concursoId}/lista-provisoria",
+      "summary": "Classificar e publicar a lista de classificação provisória (todas as notas lançadas)",
+      "pathVariables": [
+        {
+          "name": "concursoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ConcursoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "recrutamento"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ConcursoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "recrutamento"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "homologarConcurso",
+      "method": "PATCH",
+      "path": "concursos/{concursoId}/homologar",
+      "summary": "Homologar a lista final (despacho e data); a reserva de recrutamento fica válida por 18 meses",
+      "pathVariables": [
+        {
+          "name": "concursoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ConcursoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "recrutamento"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ConcursoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "recrutamento"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "concluirConcurso",
+      "method": "PATCH",
+      "path": "concursos/{concursoId}/concluir",
+      "summary": "Concluir o concurso",
+      "pathVariables": [
+        {
+          "name": "concursoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ConcursoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "recrutamento"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ConcursoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "recrutamento"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "anularConcurso",
+      "method": "PATCH",
+      "path": "concursos/{concursoId}/anular",
+      "summary": "Anular o concurso, com motivo",
+      "pathVariables": [
+        {
+          "name": "concursoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ConcursoRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "recrutamento"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ConcursoDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "recrutamento"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "registarCandidatura",
+      "method": "POST",
+      "path": "concursos/{concursoId}/candidaturas",
+      "summary": "Registar uma candidatura (pelo RH), dentro do prazo",
+      "pathVariables": [
+        {
+          "name": "concursoId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CandidaturaRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "recrutamento"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "Created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "CandidaturaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "recrutamento"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "admitirCandidatura",
+      "method": "PATCH",
+      "path": "concursos/{concursoId}/candidaturas/{candidaturaId}/admitir",
+      "summary": "Admitir a candidatura",
+      "pathVariables": [
+        {
+          "name": "concursoId",
+          "type": "string"
+        },
+        {
+          "name": "candidaturaId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CandidaturaRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "recrutamento"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "CandidaturaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "recrutamento"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "excluirCandidatura",
+      "method": "PATCH",
+      "path": "concursos/{concursoId}/candidaturas/{candidaturaId}/excluir",
+      "summary": "Propor a exclusão, com motivo (abre a audiência prévia de 10 dias úteis)",
+      "pathVariables": [
+        {
+          "name": "concursoId",
+          "type": "string"
+        },
+        {
+          "name": "candidaturaId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CandidaturaRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "recrutamento"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "CandidaturaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "recrutamento"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "decidirAudienciaCandidatura",
+      "method": "PATCH",
+      "path": "concursos/{concursoId}/candidaturas/{candidaturaId}/audiencia",
+      "summary": "Decidir a audiência prévia: excluir de vez ou admitir",
+      "pathVariables": [
+        {
+          "name": "concursoId",
+          "type": "string"
+        },
+        {
+          "name": "candidaturaId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CandidaturaRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "recrutamento"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "CandidaturaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "recrutamento"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "registarNotaCandidatura",
+      "method": "PATCH",
+      "path": "concursos/{concursoId}/candidaturas/{candidaturaId}/nota",
+      "summary": "Lançar a nota de um método de selecção (0 a 20)",
+      "pathVariables": [
+        {
+          "name": "concursoId",
+          "type": "string"
+        },
+        {
+          "name": "candidaturaId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CandidaturaRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "recrutamento"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "CandidaturaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "recrutamento"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "proverCandidatura",
+      "method": "PATCH",
+      "path": "concursos/{concursoId}/candidaturas/{candidaturaId}/prover",
+      "summary": "Prover o candidato num lugar (pela ordem da lista, com a quota de deficiência primeiro)",
+      "pathVariables": [
+        {
+          "name": "concursoId",
+          "type": "string"
+        },
+        {
+          "name": "candidaturaId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CandidaturaRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "recrutamento"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "CandidaturaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "recrutamento"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "desistirCandidatura",
+      "method": "PATCH",
+      "path": "concursos/{concursoId}/candidaturas/{candidaturaId}/desistir",
+      "summary": "Registar a desistência do candidato",
+      "pathVariables": [
+        {
+          "name": "concursoId",
+          "type": "string"
+        },
+        {
+          "name": "candidaturaId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CandidaturaRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "recrutamento"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "CandidaturaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "recrutamento"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getMinhasCandidaturas",
+      "method": "GET",
+      "path": "me/candidaturas",
+      "summary": "As minhas candidaturas a concursos",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "CandidaturaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "recrutamento"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

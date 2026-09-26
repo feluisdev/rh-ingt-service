@@ -1,0 +1,20 @@
+{
+  "type": "dto",
+  "name": "NotaCandidatura",
+  "template": "classic",
+  "module": "recrutamento",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "metodo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "decimal",
+      "name": "nota",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

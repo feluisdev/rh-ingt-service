@@ -918,6 +918,14 @@ deixaram de vir de `application.properties` e passam a vir de um catálogo por v
 - `/me/tutorias`: o tutor vê os estagiários e remete o relatório.
 - Notificações novas: `PERIODO_PROVA`, `CONTRATO_TERMO_A_TERMINAR`.
 
+### 11.49 Recrutamento e selecção — concursos (2026-09-25)
+
+**Nada deixa de funcionar**: módulo e endpoints novos (guia §22).
+
+- Menu «Concursos»: lista, criação em rascunho (Lugares, métodos com ponderação, júri, prazo, quota) e as acções do ciclo.
+- No concurso: as candidaturas (registo pelo RH), admitir/excluir com audiência, notas por método, lista com posição, prover.
+- `/me/candidaturas`: o colaborador vê as suas candidaturas. Notificação nova: `CONCURSO`.
+
 ## 12. Checklist do alinhamento com a legislação (secção 11)
 
 Por ordem das secções. Cada item remete para o ecrã correspondente em `apresentacao_aplicacao.html`.

@@ -107,6 +107,7 @@
       <a href="#publicacoes">18. Publicações no Boletim Oficial</a><br>
       <a href="#cartao-profissional">19. Cartão de identificação profissional</a><br>
       <a href="#entrada-servico">20. Entrada ao serviço — provimento, estágio probatório e período experimental</a><br>
+      <a href="#concurso">21. Recrutamento e selecção — concurso</a><br>
       <a href="#invariantes">12. Invariantes transversais</a>
     </div>
   </div>
@@ -828,6 +829,34 @@
     <tr><td class="id">BR-PRV-14</td><td><b>Contratos a terminar</b>: a 30 dias do termo de um contrato corrente, o RH é avisado (renovar dentro do limite do tipo, ou deixar caducar).</td><td>—</td><td class="src">AlertaPeriodosProvaJob · ContratoRepository.findCorrentesComFimEntre</td></tr>
   </table>
   <!-- /secao:entrada-servico -->
+
+  <!-- secao:concurso -->
+  <h2 id="concurso"><span class="n">21.</span>Recrutamento e selecção — concurso</h2>
+  <p>Lei n.º 20/X/2023, arts. 123.º–129.º. O concurso é obrigatório para o ingresso e o acesso (art. 123.º). O RH prepara-o em rascunho, abre-o (o aviso vai para as publicações), regista as candidaturas (decisão do cliente: sem portal do candidato), aprecia-as com audiência prévia, lança as notas, publica a lista provisória, homologa e provê os Lugares pela ordem da lista. Módulo <code>recrutamento</code>; tabelas <code>t_concurso</code>, <code>t_concurso_lugar</code>, <code>t_concurso_metodo</code>, <code>t_concurso_juri</code>, <code>t_candidatura</code>, <code>t_candidatura_nota</code>.</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-CNC-01</td><td><b>Ciclo</b>: RASCUNHO → ABERTO → CANDIDATURAS_ENCERRADAS → EM_AVALIACAO → LISTA_PROVISORIA → HOMOLOGADO → CONCLUIDO; ANULADO. Só em rascunho se edita; depois de aberto, os termos não mudam (409).</td><td><span class="http h409">409</span></td><td class="src">Concurso</td></tr>
+    <tr><td class="id">BR-CNC-02</td><td><b>Finalidade, tipo e modalidade</b> (art. 127.º): ingresso ou acesso; comum ou especial; externo, interno ou interno restrito. Referência única (409). A categoria tem de existir.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">Concurso.definir · ConcursoService.criar</td></tr>
+    <tr><td class="id">BR-CNC-03</td><td><b>Lugares a prover</b>: pelo menos um, sem repetidos; ao abrir, cada Lugar existe, está activo, vago, é da categoria do concurso e não está noutro concurso em curso.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">Concurso.definirLugares · ConcursoService.abrir</td></tr>
+    <tr><td class="id">BR-CNC-04</td><td><b>Métodos de selecção</b> (art. 128.º n.º 1): triagem curricular, prova de conhecimentos, avaliação de competências e entrevista são obrigatórios; curso de formação e provas físicas quando a carreira o exija (n.º 2). Ponderações somam 100%; nota mínima entre 0 e 20.</td><td><span class="http h422">422</span></td><td class="src">Concurso.definirMetodos · MetodoSelecao</td></tr>
+    <tr><td class="id">BR-CNC-05</td><td><b>Excepções aos métodos</b>: no contrato a termo bastam a triagem e a entrevista (art. 128.º n.º 3); os restantes podem ser dispensados por despacho registado (n.º 5).</td><td><span class="http h422">422</span></td><td class="src">Concurso.abrir · Concurso.aTermo</td></tr>
+    <tr><td class="id">BR-CNC-06</td><td><b>Júri</b> [ind.]: um presidente, pelo menos dois vogais efectivos e dois suplentes, cada um com nome (da casa ou de fora).</td><td><span class="http h422">422</span></td><td class="src">Concurso.definirJuri</td></tr>
+    <tr><td class="id">BR-CNC-07</td><td><b>Prazo de candidatura</b>: de e até, o fim não antes do início, nem o início antes do aviso.</td><td><span class="http h422">422</span></td><td class="src">Concurso.definirPrazo</td></tr>
+    <tr><td class="id">BR-CNC-08</td><td><b>Quota de deficiência</b> (art. 127.º n.º 4): obrigatória nos externos (pode ser 0 se o número de Lugares não a comporta); nunca acima do número de Lugares.</td><td><span class="http h422">422</span></td><td class="src">Concurso.abrir</td></tr>
+    <tr><td class="id">BR-CNC-09</td><td><b>Abrir é publicar o aviso</b>: exige tudo definido; o aviso entra nas publicações a fazer no Boletim Oficial.</td><td><span class="http h422">422</span></td><td class="src">Concurso.abrir · ConcursoService.abrir</td></tr>
+    <tr><td class="id">BR-CNC-10</td><td><b>Anular</b>: com motivo, em qualquer estado antes de concluído.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">Concurso.anular</td></tr>
+    <tr><td class="id">BR-CNC-11</td><td><b>Candidatura registada pelo RH</b>, dentro do prazo e com o concurso aberto; nome e documento de identificação (ou o colaborador da casa, cujos dados vêm da ficha). O mesmo candidato não concorre duas vezes (409).</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">Candidatura.apresentar · ConcursoService.candidatar</td></tr>
+    <tr><td class="id">BR-CNC-12</td><td><b>Quem pode concorrer</b> (art. 127.º n.os 2 e 3): no interno, só quem está vinculado à Administração Pública; no interno restrito, só os funcionários desta entidade.</td><td><span class="http h422">422</span></td><td class="src">ConcursoService.candidatar</td></tr>
+    <tr><td class="id">BR-CNC-13</td><td><b>Admissão e exclusão</b>: a exclusão não é logo definitiva — abre a audiência prévia de 10 dias [ind.]; depois, exclui de vez ou admite. Os candidatos da casa são avisados.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">Candidatura.proporExclusao · Candidatura.decidirAudiencia</td></tr>
+    <tr><td class="id">BR-CNC-14</td><td><b>Encerrar e avaliar</b>: encerra-se depois do fim do prazo; a avaliação só começa com todas as candidaturas apreciadas e sem audiências por decidir.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">Concurso.encerrarCandidaturas · Concurso.iniciarAvaliacao</td></tr>
+    <tr><td class="id">BR-CNC-15</td><td><b>Notas</b>: de 0 a 20, por método do concurso, só a admitidos e durante a avaliação; num método eliminatório, abaixo da nota mínima, reprova (corrigida a nota, o estado recalcula-se).</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">Candidatura.registarNota</td></tr>
+    <tr><td class="id">BR-CNC-16</td><td><b>Classificação final</b>: média ponderada pelas ponderações dos métodos, com duas casas decimais.</td><td>—</td><td class="src">Candidatura.classificar</td></tr>
+    <tr><td class="id">BR-CNC-17</td><td><b>Lista provisória</b>: só com todas as notas lançadas; ordena os aprovados pela classificação; em empate, pela nota do método mais pesado e depois pela data da candidatura [ind.].</td><td><span class="http h409">409</span></td><td class="src">ClassificacaoConcurso.classificar · ConcursoService.listaProvisoria</td></tr>
+    <tr><td class="id">BR-CNC-18</td><td><b>Homologação</b>: com despacho e data; a lista vale como reserva de recrutamento durante 18 meses [ind.]; entra nas publicações.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">Concurso.homologar</td></tr>
+    <tr><td class="id">BR-CNC-19</td><td><b>Provimento pela ordem da lista</b>: só depois de homologada e dentro da reserva; num Lugar do concurso, vago e não provido por outro candidato. Os Lugares da quota vão primeiro aos aprovados com deficiência (descontados os já providos); os restantes, pela ordem geral. Fora da ordem, 409 com quem se segue.</td><td><span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">ClassificacaoConcurso.ordemDeProvimento · ConcursoService.prover</td></tr>
+    <tr><td class="id">BR-CNC-20</td><td><b>Desistência</b>: em qualquer altura antes de terminada; liberta o Lugar e o seguinte da lista passa à frente. <i>A entrada ao serviço do provido faz-se pelo registo, contrato, colocação e provimento (BR-PRV), com a referência do concurso.</i></td><td><span class="http h409">409</span></td><td class="src">Candidatura.desistir</td></tr>
+  </table>
+  <!-- /secao:concurso -->
 
   <!-- ============ INVARIANTES ============ -->
   <h2 id="invariantes"><span class="n">12.</span>Invariantes transversais</h2>

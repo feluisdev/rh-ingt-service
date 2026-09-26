@@ -1,0 +1,59 @@
+{
+  "type": "model",
+  "module": "recrutamento",
+  "name": "ConcursoJuriEntity",
+  "tableName": "t_concurso_juri",
+  "audit": true,
+  "crud": false,
+  "revision": true,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": true,
+      "nullable": false
+    },
+    {
+      "name": "concurso",
+      "type": "relation",
+      "relation": {
+        "type": "ManyToOne",
+        "entity": "ConcursoEntity",
+        "fetchType": "lazy",
+        "joinColumn": "concurso_id",
+        "module": "recrutamento"
+      }
+    },
+    {
+      "name": "ordem",
+      "type": "integer",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "papel",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 20
+    },
+    {
+      "name": "nome",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 300
+    },
+    {
+      "name": "funcionarioId",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    }
+  ]
+}

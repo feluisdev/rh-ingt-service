@@ -1,0 +1,26 @@
+{
+  "type": "dto",
+  "name": "MembroJuri",
+  "template": "classic",
+  "module": "recrutamento",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "papel",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "nome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "type": "dto",
+  "name": "MetodoConcurso",
+  "template": "classic",
+  "module": "recrutamento",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "metodo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "ponderacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "eliminatorio",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "decimal",
+      "name": "notaMinima",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

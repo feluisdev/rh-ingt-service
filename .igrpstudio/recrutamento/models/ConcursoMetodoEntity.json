@@ -1,0 +1,65 @@
+{
+  "type": "model",
+  "module": "recrutamento",
+  "name": "ConcursoMetodoEntity",
+  "tableName": "t_concurso_metodo",
+  "audit": true,
+  "crud": false,
+  "revision": true,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": true,
+      "nullable": false
+    },
+    {
+      "name": "concurso",
+      "type": "relation",
+      "relation": {
+        "type": "ManyToOne",
+        "entity": "ConcursoEntity",
+        "fetchType": "lazy",
+        "joinColumn": "concurso_id",
+        "module": "recrutamento"
+      }
+    },
+    {
+      "name": "ordem",
+      "type": "integer",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "metodo",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 30
+    },
+    {
+      "name": "ponderacao",
+      "type": "integer",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "eliminatorio",
+      "type": "boolean",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "notaMinima",
+      "type": "decimal",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    }
+  ]
+}

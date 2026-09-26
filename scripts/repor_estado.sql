@@ -267,6 +267,25 @@ DO $$ BEGIN
   IF to_regclass('public.t_provimento') IS NOT NULL THEN
     DELETE FROM t_provimento;
   END IF;
+  -- Recrutamento (concursos e candidaturas; sem FK para t_funcionario).
+  IF to_regclass('public.t_candidatura_nota') IS NOT NULL THEN
+    DELETE FROM t_candidatura_nota;
+  END IF;
+  IF to_regclass('public.t_candidatura') IS NOT NULL THEN
+    DELETE FROM t_candidatura;
+  END IF;
+  IF to_regclass('public.t_concurso_juri') IS NOT NULL THEN
+    DELETE FROM t_concurso_juri;
+  END IF;
+  IF to_regclass('public.t_concurso_metodo') IS NOT NULL THEN
+    DELETE FROM t_concurso_metodo;
+  END IF;
+  IF to_regclass('public.t_concurso_lugar') IS NOT NULL THEN
+    DELETE FROM t_concurso_lugar;
+  END IF;
+  IF to_regclass('public.t_concurso') IS NOT NULL THEN
+    DELETE FROM t_concurso;
+  END IF;
   IF to_regclass('public.t_notificacao_envio') IS NOT NULL THEN
     DELETE FROM t_notificacao_envio;
   END IF;

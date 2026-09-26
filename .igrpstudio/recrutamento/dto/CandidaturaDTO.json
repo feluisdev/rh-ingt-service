@@ -1,0 +1,136 @@
+{
+  "type": "dto",
+  "name": "Candidatura",
+  "template": "classic",
+  "module": "recrutamento",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "concursoId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "nome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "documento",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "nif",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "email",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "telefone",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "habilitacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "deficiencia",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "vinculadoAdministracao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataApresentacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivoExclusao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "audienciaAte",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "respostaAudiencia",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "NotaCandidaturaDTO",
+      "name": "notas",
+      "objectType": "dto",
+      "module": "recrutamento",
+      "collectionType": "list",
+      "required": false
+    },
+    {
+      "type": "decimal",
+      "name": "classificacaoFinal",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "posicao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "lugarProvidoId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataDesistencia",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

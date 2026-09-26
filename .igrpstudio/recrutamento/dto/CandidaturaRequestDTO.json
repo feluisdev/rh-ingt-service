@@ -1,0 +1,98 @@
+{
+  "type": "dto",
+  "name": "CandidaturaRequest",
+  "template": "classic",
+  "module": "recrutamento",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "nome",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "documento",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "nif",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "email",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "telefone",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "habilitacao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "deficiencia",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "vinculadoAdministracao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "excluir",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "resposta",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "metodo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "decimal",
+      "name": "nota",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "lugarId",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

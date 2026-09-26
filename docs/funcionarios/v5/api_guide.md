@@ -2138,3 +2138,38 @@ tutor); os contratos a termo, o **período experimental** (60 ou 30 dias).
 publicação). **Sem sucesso:** a cessação do vínculo na data do fim (exoneração obrigatória; cessação do contrato), salvo quem vem de
 outra carreira, que regressa. As respostas trazem `alertas` com o que o RH ainda tem de fazer.
 <!-- /secao:entrada-servico -->
+
+<!-- secao:concurso -->
+## 22. Concursos — `/api/v1/rh/concursos`
+
+Lei n.º 20/X/2023, arts. 123.º–129.º (BR-CNC-01..20). O RH cria o concurso em rascunho, define os Lugares, os métodos, o júri e o
+prazo, e abre-o. As candidaturas são registadas pelo RH. Depois: apreciar (admitir ou propor a exclusão, com audiência), lançar as
+notas, publicar a lista provisória, homologar e prover pela ordem da lista.
+
+| Método | Caminho | O quê |
+|---|---|---|
+| POST | `/api/v1/rh/concursos` | Criar em rascunho (`referencia`, `finalidade`, `tipo`, `modalidade`, `vinculo`, `categoriaId`, `lugares`, `metodos`, `juri`, `candidaturasDe`, `candidaturasAte`, `quotaDeficiencia`…) |
+| PUT | `/api/v1/rh/concursos/{concursoId}` | Alterar (só em rascunho; listas omitidas ficam como estão) |
+| GET | `/api/v1/rh/concursos` | Lista (`estado` opcional) |
+| GET | `/api/v1/rh/concursos/{concursoId}` | O concurso com as candidaturas |
+| PATCH | `/api/v1/rh/concursos/{concursoId}/abrir` | Abrir (publicar o aviso) |
+| PATCH | `/api/v1/rh/concursos/{concursoId}/encerrar` | Encerrar as candidaturas (depois do prazo) |
+| PATCH | `/api/v1/rh/concursos/{concursoId}/avaliar` | Passar à avaliação |
+| PATCH | `/api/v1/rh/concursos/{concursoId}/lista-provisoria` | Classificar e publicar a lista provisória |
+| PATCH | `/api/v1/rh/concursos/{concursoId}/homologar` | Homologar (`despacho`, `data`) |
+| PATCH | `/api/v1/rh/concursos/{concursoId}/concluir` | Concluir |
+| PATCH | `/api/v1/rh/concursos/{concursoId}/anular` | Anular (`motivo`) |
+| POST | `/api/v1/rh/concursos/{concursoId}/candidaturas` | Registar uma candidatura (`nome`, `documento`… ou `funcionarioId`; `deficiencia`, `vinculadoAdministracao`) |
+| PATCH | `/api/v1/rh/concursos/{concursoId}/candidaturas/{candidaturaId}/admitir` | Admitir |
+| PATCH | `/api/v1/rh/concursos/{concursoId}/candidaturas/{candidaturaId}/excluir` | Propor a exclusão (`motivo`; abre a audiência) |
+| PATCH | `/api/v1/rh/concursos/{concursoId}/candidaturas/{candidaturaId}/audiencia` | Decidir a audiência (`excluir`, `resposta`) |
+| PATCH | `/api/v1/rh/concursos/{concursoId}/candidaturas/{candidaturaId}/nota` | Lançar uma nota (`metodo`, `nota`) |
+| PATCH | `/api/v1/rh/concursos/{concursoId}/candidaturas/{candidaturaId}/prover` | Prover num Lugar (`lugarId`) |
+| PATCH | `/api/v1/rh/concursos/{concursoId}/candidaturas/{candidaturaId}/desistir` | Registar a desistência |
+| GET | `/api/v1/rh/me/candidaturas` | As minhas candidaturas |
+
+Valores: `finalidade` ∈ INGRESSO · ACESSO; `tipo` ∈ COMUM · ESPECIAL; `modalidade` ∈ EXTERNO · INTERNO · INTERNO_RESTRITO;
+`metodo` ∈ TRIAGEM_CURRICULAR · PROVA_CONHECIMENTOS · AVALIACAO_COMPETENCIAS · ENTREVISTA · CURSO_FORMACAO · PROVAS_FISICAS;
+papel no júri ∈ PRESIDENTE · VOGAL · SUPLENTE. O provido entra ao serviço pelo registo, contrato, colocação e provimento (§21),
+com `concursoRef` = a referência do concurso.
+<!-- /secao:concurso -->

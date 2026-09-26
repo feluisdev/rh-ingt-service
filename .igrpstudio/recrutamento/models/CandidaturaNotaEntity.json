@@ -1,0 +1,44 @@
+{
+  "type": "model",
+  "module": "recrutamento",
+  "name": "CandidaturaNotaEntity",
+  "tableName": "t_candidatura_nota",
+  "audit": true,
+  "crud": false,
+  "revision": true,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": true,
+      "nullable": false
+    },
+    {
+      "name": "candidatura",
+      "type": "relation",
+      "relation": {
+        "type": "ManyToOne",
+        "entity": "CandidaturaEntity",
+        "fetchType": "lazy",
+        "joinColumn": "candidatura_id",
+        "module": "recrutamento"
+      }
+    },
+    {
+      "name": "metodo",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 30
+    },
+    {
+      "name": "nota",
+      "type": "decimal",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    }
+  ]
+}

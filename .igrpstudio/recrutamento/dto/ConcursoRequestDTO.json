@@ -1,0 +1,127 @@
+{
+  "type": "dto",
+  "name": "ConcursoRequest",
+  "template": "classic",
+  "module": "recrutamento",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "referencia",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "finalidade",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "tipo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "modalidade",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "vinculo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "categoriaId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "requisitos",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "habilitacaoMinima",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "quotaDeficiencia",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "lugares",
+      "objectType": "java",
+      "collectionType": "list",
+      "required": false
+    },
+    {
+      "type": "MetodoConcursoDTO",
+      "name": "metodos",
+      "objectType": "dto",
+      "module": "recrutamento",
+      "collectionType": "list",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "dispensaMetodosDespacho",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "MembroJuriDTO",
+      "name": "juri",
+      "objectType": "dto",
+      "module": "recrutamento",
+      "collectionType": "list",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "dataAviso",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "candidaturasDe",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "candidaturasAte",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "despacho",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "data",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}
