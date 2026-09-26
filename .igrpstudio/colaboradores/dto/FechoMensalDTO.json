@@ -1,0 +1,63 @@
+{
+  "type": "dto",
+  "name": "FechoMensal",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "mes",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "datetime",
+      "name": "fechadoEm",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "fechos",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivoReabertura",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "datetime",
+      "name": "reabertoEm",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "totalFactos",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "linhas",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "alertas",
+      "objectType": "java",
+      "collectionType": "list",
+      "required": false
+    }
+  ]
+}

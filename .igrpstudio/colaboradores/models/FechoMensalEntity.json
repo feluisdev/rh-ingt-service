@@ -1,0 +1,77 @@
+{
+  "type": "model",
+  "module": "colaboradores",
+  "name": "FechoMensalEntity",
+  "tableName": "t_fecho_mensal",
+  "audit": true,
+  "crud": false,
+  "revision": true,
+  "attributes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "objectType": "java",
+      "primaryKey": true,
+      "nullable": false
+    },
+    {
+      "name": "mes",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 7
+    },
+    {
+      "name": "estado",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false,
+      "length": 10
+    },
+    {
+      "name": "fechadoEm",
+      "type": "datetime",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "fechos",
+      "type": "integer",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    },
+    {
+      "name": "motivoReabertura",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true,
+      "length": 500
+    },
+    {
+      "name": "reabertoEm",
+      "type": "datetime",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    },
+    {
+      "name": "relacao",
+      "type": "string",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": true
+    },
+    {
+      "name": "totalFactos",
+      "type": "integer",
+      "objectType": "java",
+      "primaryKey": false,
+      "nullable": false
+    }
+  ]
+}

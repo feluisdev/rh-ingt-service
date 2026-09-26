@@ -33,6 +33,8 @@ public class DiarioFactos {
     private final CompetenciaSalarial competenciaSalarial;
     /** Quem reage a um facto na mesma transacção (ex.: os actos sujeitos a publicação, BR-PUB-02). */
     private final org.springframework.context.ApplicationEventPublisher eventos;
+    /** O bruto base do escalão (t_grade.salary_base) vai nos factos de movimento: o RH parametriza-o, o salarial usa-o. */
+    private final cv.igrp.RH_Service.carreiras.domain.repository.GradeRepository gradeRepository;
 
     /** Um facto acabou de ser registado. */
     public record FactoRegistado(FactoRh facto) {}
@@ -47,12 +49,16 @@ public class DiarioFactos {
         return facto;
     }
 
-    /** Um movimento que abre uma afectação: o Lugar, o escalão, a função e a origem vão nos dados. */
+    /** Um movimento que abre uma afectação: o Lugar, o escalão (com o bruto base), a função e a origem vão nos dados. */
     @Transactional
     public FactoRh movimento(TipoFactoRh tipo, Assignment afectacao, String descricao) {
         var dados = new LinkedHashMap<String, Object>();
         dados.put("lugarId", afectacao.getPositionId());
         dados.put("escalaoId", afectacao.getGradeId());
+        // O bruto do escalão à data do registo (BR-FAC-06): as remunerações e os descontos calcula-os o salarial.
+        if (afectacao.getGradeId() != null && gradeRepository != null)
+            gradeRepository.findById(cv.igrp.RH_Service.carreiras.domain.valueobject.GradeId.from(afectacao.getGradeId()))
+                    .ifPresent(g -> dados.put("remuneracaoBase", g.getSalaryBase()));
         dados.put("funcaoId", afectacao.getFunctionId());
         dados.put("origem", afectacao.getOrigem());
         return registar(afectacao.getFuncionarioId(), tipo, afectacao.getDataInicio(), "AFECTACAO",

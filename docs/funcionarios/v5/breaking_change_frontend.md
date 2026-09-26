@@ -1006,6 +1006,14 @@ pelo `PUT` a pena ou as datas dá 409 (o número, o BO e as notas continuam livr
 - Ficha do colaborador: «Saúde no trabalho» — exames (aptidão, validade) e juntas médicas (pedido, parecer).
 - Nunca mostrar nem pedir dados clínicos: só a aptidão e as restrições. Notificação: `EXAME_SAUDE`.
 
+### 11.60 Fecho mensal e exportação para o salarial (2026-09-26)
+
+**Nada deixa de funcionar**: endpoints novos (guia §32). Os factos de movimento
+ganham `dados.remuneracaoBase` (campo novo, não obrigatório para quem já lê os factos).
+
+- Menu RH «Fecho mensal»: fechar o mês (com as pendências em aviso), reabrir com motivo, ver os fechos.
+- A exportação é para a integração do salarial (não é ecrã).
+
 ## 12. Checklist do alinhamento com a legislação (secção 11)
 
 Por ordem das secções. Cada item remete para o ecrã correspondente em `apresentacao_aplicacao.html`.

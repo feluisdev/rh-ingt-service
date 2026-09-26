@@ -1,0 +1,129 @@
+{
+  "type": "controller",
+  "name": "FechoMensal",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh/salarial",
+  "description": "Fecho mensal e exportação para o processamento salarial (DL n.º 3/2010, art. 75.º): o RH envia os factos e a relação mensal; o salarial calcula remunerações e descontos",
+  "actions": [
+    {
+      "actionName": "getFechosMensais",
+      "method": "GET",
+      "path": "fechos",
+      "summary": "Os meses fechados (e reabertos), dos mais recentes",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "FechoMensalDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "fecharMes",
+      "method": "PATCH",
+      "path": "fechos/{mes}/fechar",
+      "summary": "Fechar o mês (AAAA-MM): congela a relação mensal; os factos com efeito nele passam ao mês seguinte",
+      "pathVariables": [
+        {
+          "name": "mes",
+          "type": "string"
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "FechoMensalDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "reabrirMes",
+      "method": "PATCH",
+      "path": "fechos/{mes}/reabrir",
+      "summary": "Reabrir um mês fechado, com motivo",
+      "pathVariables": [
+        {
+          "name": "mes",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "FechoMensalRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "FechoMensalDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getExportacaoSalarial",
+      "method": "GET",
+      "path": "exportacao",
+      "summary": "A exportação de um mês para o salarial (contrato versionado): factos + relação mensal (congelada se fechado)",
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "mes",
+          "isRequired": true
+        }
+      ],
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ExportacaoSalarialDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "colaboradores"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "type": "dto",
+  "name": "ExportacaoSalarial",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "integer",
+      "name": "versao",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "mes",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "datetime",
+      "name": "fechadoEm",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "name": "provisoria",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "integer",
+      "name": "totalFactos",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "FactoRhDTO",
+      "name": "factos",
+      "objectType": "dto",
+      "module": "colaboradores",
+      "collectionType": "list",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "relacao",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

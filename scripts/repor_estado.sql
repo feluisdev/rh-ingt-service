@@ -340,6 +340,10 @@ DO $$ BEGIN
   IF to_regclass('public.t_junta_medica') IS NOT NULL THEN
     DELETE FROM t_junta_medica;
   END IF;
+  -- Fechos mensais (sem eles, nenhum mes esta fechado).
+  IF to_regclass('public.t_fecho_mensal') IS NOT NULL THEN
+    DELETE FROM t_fecho_mensal;
+  END IF;
   -- Missoes de servico.
   IF to_regclass('public.t_missao_servico_participante') IS NOT NULL THEN
     DELETE FROM t_missao_servico_participante;

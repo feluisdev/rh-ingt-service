@@ -117,6 +117,7 @@
       <a href="#acumulacao-funcoes">28. Acumulação de funções</a><br>
       <a href="#acidentes-servico">29. Acidentes em serviço e doenças profissionais</a><br>
       <a href="#saude-trabalho">30. Medicina do trabalho e junta médica</a><br>
+      <a href="#fecho-mensal">31. Fecho mensal e exportação para o salarial</a><br>
       <a href="#invariantes">12. Invariantes transversais</a>
     </div>
   </div>
@@ -732,6 +733,7 @@
     <tr><td class="id">BR-FAC-03</td><td><b>Mês de competência</b>: o mês da data de efeito — excepto quando esse mês já estiver fechado (BR-FEC): então entra no primeiro mês aberto, assinalado como <code>ajusteDeMesAnterior</code>.</td><td>—</td><td class="src">CompetenciaSalarial.competencia · FactoRh.isAjusteDeMesAnterior</td></tr>
     <tr><td class="id">BR-FAC-04</td><td><b>Imutável</b>: o diário só cresce. Uma correcção é um facto novo (ex.: a anulação de uma progressão aparece como o movimento que a desfaz), nunca a reescrita do que o salarial pode já ter lido.</td><td>—</td><td class="src">FactoRh · FactoRhRepositoryImpl.save</td></tr>
     <tr><td class="id">BR-FAC-05</td><td><b>Contrato de leitura, versão 1</b>: por mês (<code>GET /salarial/factos?mes=</code>, JSON e CSV) e por colaborador, com o número, o NIF e o nome para o salarial identificar a pessoa. Mês mal escrito: 422.</td><td><span class="http h422">422</span></td><td class="src">GetFactosSalariaisQueryHandler · GetFactosSalariaisCsvQueryHandler</td></tr>
+    <tr><td class="id">BR-FAC-06</td><td><b>Bruto base do escalão</b> nos factos de movimento (admissão, reingresso, progressão, promoção, transferência, mudança de carreira, consolidação): <code>remuneracaoBase</code> = o <code>salary_base</code> do escalão no momento do registo. O RH parametriza o bruto; as remunerações, os suplementos, os descontos e o líquido são do salarial.</td><td>—</td><td class="src">DiarioFactos.movimento</td></tr>
   </table>
   <!-- /secao:factos-salariais -->
 
@@ -1042,6 +1044,22 @@
     <tr><td class="id">BR-SST-18</td><td><b>Cancelar</b> um pedido de junta ainda sem parecer.</td><td><span class="http h409">409</span></td><td class="src">JuntaMedica.cancelar</td></tr>
   </table>
   <!-- /secao:saude-trabalho -->
+
+  <!-- secao:fecho-mensal -->
+  <h2 id="fecho-mensal"><span class="n">31.</span>Fecho mensal e exportação para o salarial</h2>
+  <p>DL n.º 3/2010, art. 75.º (a relação mensal). <b>Divisão de responsabilidades</b>: o RH é a fonte de quem está em que escalão (com o bruto base), situação, dias e horas, ausências, missões, penas e movimentos; o <b>processamento salarial</b> (por integração) calcula remunerações, suplementos, ajudas de custo em valor, descontos (IUR, segurança social, quotas) e o líquido. Tabela <code>t_fecho_mensal</code>.</p>
+  <table>
+    <tr><th>ID</th><th>Regra</th><th>Resultado</th><th>Origem</th></tr>
+    <tr><td class="id">BR-FEC-01</td><td><b>Fechar um mês</b> (AAAA-MM, não futuro): fotografa a relação mensal de toda a entidade (de cada unidade de topo, com as subunidades) e conta os factos do mês; o RH é avisado.</td><td><span class="http h422">422</span></td><td class="src">FechoMensal.fechar · FechoMensalService.fechar</td></tr>
+    <tr><td class="id">BR-FEC-02</td><td><b>Pendências</b> na relação (faltas por justificar, dias por validar ou por corrigir) avisam, não impedem: o que se resolver depois entra no mês seguinte.</td><td>—</td><td class="src">FechoMensalService.fechar</td></tr>
+    <tr><td class="id">BR-FEC-03</td><td><b>Depois do fecho</b>, um facto com efeito num mês fechado entra no primeiro mês aberto a seguir, assinalado como ajuste (<code>ajusteDeMesAnterior</code>); o que o salarial já recebeu não se reescreve [ind.].</td><td>—</td><td class="src">CompetenciaSalarial.competencia</td></tr>
+    <tr><td class="id">BR-FEC-04</td><td><b>Reabrir</b> exige motivo (o salarial pode já ter processado o mês); fechar de novo tira nova fotografia.</td><td><span class="http h404">404</span> <span class="http h409">409</span> <span class="http h422">422</span></td><td class="src">FechoMensal.reabrir · FechoMensal.fecharDeNovo</td></tr>
+    <tr><td class="id">BR-FEC-05</td><td><b>Exportação</b> (<code>GET /salarial/exportacao?mes=</code>), contrato versionado (<code>versao: 1</code>): os factos pelo mês de competência (com o número e o NIF de cada colaborador) e a relação mensal — a congelada se o mês está fechado; a de hoje, marcada provisória, se não.</td><td><span class="http h422">422</span></td><td class="src">FechoMensalService.exportar · GetExportacaoSalarialQueryHandler</td></tr>
+    <tr><td class="id">BR-FEC-06</td><td><b>A relação exportada</b>, por colaborador: identificação, unidade, dias fora do vínculo, férias, faltas justificadas e injustificadas por natureza, dias sem registo, faltas parciais e por justificar, licenças, trabalho suplementar por tipo, estado da linha.</td><td>—</td><td class="src">FechoMensalService.linhas</td></tr>
+    <tr><td class="id">BR-FEC-07</td><td><b>O canal</b> (API, ficheiro, fila) combina-se com a equipa do salarial: a exportação por API está pronta; os outros ficam por fazer.</td><td>—</td><td class="src">FechoMensalService</td></tr>
+    <tr><td class="id">BR-FEC-08</td><td><b>Não há valores em dinheiro</b> calculados aqui além do bruto base parametrizado: nem remunerações, nem descontos, nem ajudas de custo em valor.</td><td>—</td><td class="src">DiarioFactos.movimento</td></tr>
+  </table>
+  <!-- /secao:fecho-mensal -->
 
   <!-- ============ INVARIANTES ============ -->
   <h2 id="invariantes"><span class="n">12.</span>Invariantes transversais</h2>

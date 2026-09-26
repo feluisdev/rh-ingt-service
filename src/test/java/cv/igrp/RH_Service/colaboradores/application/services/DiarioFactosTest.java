@@ -30,12 +30,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class DiarioFactosTest {
 
     @Mock private FactoRhRepository repository;
+    @Mock private cv.igrp.RH_Service.carreiras.domain.repository.GradeRepository gradeRepository;
     private DiarioFactos diario;
     private final FuncionarioId pessoa = FuncionarioId.gerarNovo();
 
     @BeforeEach
     void setUp() {
-        diario = new DiarioFactos(repository, new CompetenciaSalarial(), org.mockito.Mockito.mock(org.springframework.context.ApplicationEventPublisher.class));
+        diario = new DiarioFactos(repository, new CompetenciaSalarial(null), org.mockito.Mockito.mock(org.springframework.context.ApplicationEventPublisher.class),
+                gradeRepository);
     }
 
     @Test
@@ -51,6 +53,19 @@ class DiarioFactosTest {
         assertEquals(escalao.toString(), f.getDados().get("escalaoId"));
         assertEquals(Assignment.PROGRESSAO, f.getDados().get("origem"));
         assertEquals("AFECTACAO", f.getReferenciaTipo());
+    }
+
+    @Test
+    void movimentoLevaOBrutoDoEscalao() {
+        when(repository.save(any())).thenAnswer(i -> i.getArgument(0));
+        UUID escalao = UUID.randomUUID();
+        var grade = org.mockito.Mockito.mock(cv.igrp.RH_Service.carreiras.domain.models.Grade.class);
+        when(grade.getSalaryBase()).thenReturn(new java.math.BigDecimal("85000.00"));
+        when(gradeRepository.findById(cv.igrp.RH_Service.carreiras.domain.valueobject.GradeId.from(escalao))).thenReturn(java.util.Optional.of(grade));
+        var a = Assignment.criar(pessoa, UUID.randomUUID(), escalao, null, TipoAfectacao.PRINCIPAL, Assignment.PROGRESSAO,
+                LocalDate.of(2026, 10, 1), null);
+        var f = diario.movimento(TipoFactoRh.PROGRESSAO, a, "Progressao");
+        assertEquals("85000.00", f.getDados().get("remuneracaoBase"));
     }
 
     @Test

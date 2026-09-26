@@ -2385,3 +2385,19 @@ BR-SST-11..18. Só o resultado de aptidão; nunca dados clínicos.
 | PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/juntas-medicas/{juntaId}/parecer` | `parecer`, `diasIncapacidade`, `data`, `observacoes` |
 | PATCH | `/api/v1/rh/funcionarios/{funcionarioId}/juntas-medicas/{juntaId}/cancelar` | Cancelar |
 <!-- /secao:saude-trabalho -->
+
+<!-- secao:fecho-mensal -->
+## 32. Fecho mensal e exportação para o salarial — `/api/v1/rh/salarial`
+
+DL n.º 3/2010, art. 75.º (BR-FEC-01..08; BR-FAC-06). O RH envia factos e dias; o salarial calcula remunerações, suplementos,
+descontos e o líquido. Os factos de movimento levam `remuneracaoBase` (o bruto do escalão).
+
+| Método | Caminho | O quê |
+|---|---|---|
+| GET | `/api/v1/rh/salarial/fechos` | Os meses fechados e reabertos |
+| PATCH | `/api/v1/rh/salarial/fechos/{mes}/fechar` | Fechar o mês (`AAAA-MM`) |
+| PATCH | `/api/v1/rh/salarial/fechos/{mes}/reabrir` | Reabrir (`motivo`) |
+| GET | `/api/v1/rh/salarial/exportacao` | Exportação do mês (`mes`): `versao`, `estado`, `provisoria`, `factos`, `relacao` |
+
+Depois de fechado um mês, os factos com efeito nele aparecem no mês seguinte com `ajusteDeMesAnterior = true`.
+<!-- /secao:fecho-mensal -->
