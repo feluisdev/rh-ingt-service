@@ -32,7 +32,8 @@ import org.junit.jupiter.api.Test;
  * controller. What it guarantees is completeness of the declaration within the surface it
  * derives -- nothing beyond that.
  *
- * Phase 111 raised this from 14 to 15.
+ * Phase 111 raised this from 14 to 15. 2026-10-02 raised it to 17, for the evaluator assignment
+ * (GOV-01) and acknowledgement (CIK-01) commands, which had shipped without a marker.
  *
  * <p><b>What ENFORCED means changed in Phase 115 (2026-08-26, plan 115-08).</b> Before this
  * phase, every {@code ACTOR-CHECK: ENFORCED} handler checked the caller itself, by calling
@@ -168,8 +169,8 @@ class SiadapCommandActorCheckCoverageTest {
   @Test
   void theDerivedCommandSetHasTheExpectedSize() {
     TreeSet<String> commandNames = deriveCommandNames();
-    assertEquals(15, commandNames.size(),
-        "Expected exactly 15 distinct `new XxxCommand(` usages in ComplianceController.java "
+    assertEquals(17, commandNames.size(),
+        "Expected exactly 17 distinct `new XxxCommand(` usages in ComplianceController.java "
             + "-- a regex that stopped matching would silently shrink this set. Found: "
             + commandNames);
   }

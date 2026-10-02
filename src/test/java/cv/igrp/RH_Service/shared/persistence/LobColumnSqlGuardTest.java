@@ -69,7 +69,9 @@ class LobColumnSqlGuardTest {
                     Set.of("current_value", "field_name", "justification", "proposed_value", "reviewer_comment")),
             Map.entry("t_institutional_identity", Set.of("mission", "values_json", "vision")),
             Map.entry("t_key_result_checkins", Set.of("comment")),
-            Map.entry("t_siadap_evaluations", Set.of("last_negotiation_comment")),
+            // acknowledgement_comment (CIK-01, 2026-09-12) copied the sibling's @Lob. Accepted as-is:
+            // dropping it now would need the stored OIDs converted with lo_get first.
+            Map.entry("t_siadap_evaluations", Set.of("acknowledgement_comment", "last_negotiation_comment")),
             Map.entry("t_sigof_sync_log", Set.of("error_message")),
             Map.entry("t_simulation_results", Set.of("details")),
             Map.entry("t_simulation_scenarios", Set.of("parameters")),

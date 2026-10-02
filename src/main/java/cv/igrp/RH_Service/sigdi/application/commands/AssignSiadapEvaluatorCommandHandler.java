@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapEvaluationDTO;
 import cv.igrp.RH_Service.sigdi.application.port.FuncionarioLookupPort;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;
@@ -12,12 +13,19 @@ import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+/**
+ * Partial guard, decided by the operator on 2026-10-02: the avaliado cannot choose their own
+ * evaluator. Any other authenticated user can still reassign it -- there is no permission for
+ * this act yet, and adding one would block reassignment everywhere until IAM grants it.
+ */
+// ACTOR-CHECK: ENFORCED -- evaluation.employeeId; the avaliado may not change their own evaluator
 @Component
 @RequiredArgsConstructor
 public class AssignSiadapEvaluatorCommandHandler
@@ -28,6 +36,7 @@ public class AssignSiadapEvaluatorCommandHandler
   private final SiadapEvaluationRepository evaluationRepository;
   private final FuncionarioLookupPort funcionarioLookupPort;
   private final SiadapEvaluationMapper mapper;
+  private final CurrentEmployeeResolver currentEmployeeResolver;
 
   @IgrpCommandHandler
   @Transactional
@@ -38,6 +47,11 @@ public class AssignSiadapEvaluatorCommandHandler
     SiadapEvaluationId evalId = SiadapEvaluationId.from(command.getEvaluationId());
     SiadapEvaluation evaluation = evaluationRepository.findById(evalId)
         .orElseThrow(() -> IgrpResponseStatusException.notFound("Avaliação não encontrada"));
+
+    String currentEmployeeId = currentEmployeeResolver.resolve().getStringValor();
+    if (currentEmployeeId.equals(evaluation.getEmployeeId()))
+      throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN,
+          "O avaliado não pode alterar o seu próprio avaliador");
 
     String evaluatorId = command.getBody() != null ? command.getBody().getEvaluatorId() : null;
     if (evaluatorId == null || evaluatorId.isBlank()) {

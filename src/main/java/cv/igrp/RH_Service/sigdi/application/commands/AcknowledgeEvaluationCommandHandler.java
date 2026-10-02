@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.sigdi.application.commands;
 
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.RH_Service.shared.domain.service.CurrentEmployeeResolver;
 import cv.igrp.RH_Service.sigdi.application.dto.SiadapEvaluationDTO;
 import cv.igrp.RH_Service.sigdi.domain.compliance.models.SiadapEvaluation;
 import cv.igrp.RH_Service.sigdi.domain.compliance.repository.SiadapEvaluationRepository;
@@ -11,10 +12,12 @@ import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+// ACTOR-CHECK: ENFORCED -- evaluation.employeeId; only the avaliado may acknowledge or contest their own evaluation
 @Component
 @RequiredArgsConstructor
 public class AcknowledgeEvaluationCommandHandler
@@ -24,6 +27,7 @@ public class AcknowledgeEvaluationCommandHandler
 
   private final SiadapEvaluationRepository evaluationRepository;
   private final SiadapEvaluationMapper mapper;
+  private final CurrentEmployeeResolver currentEmployeeResolver;
 
   @IgrpCommandHandler
   @Transactional
@@ -34,6 +38,12 @@ public class AcknowledgeEvaluationCommandHandler
     SiadapEvaluationId evalId = SiadapEvaluationId.from(command.getEvaluationId());
     SiadapEvaluation evaluation = evaluationRepository.findById(evalId)
         .orElseThrow(() -> IgrpResponseStatusException.notFound("Avaliação não encontrada"));
+
+    // Taking notice and the contraditório are the avaliado's own acts (CIK-01).
+    String currentEmployeeId = currentEmployeeResolver.resolve().getStringValor();
+    if (!currentEmployeeId.equals(evaluation.getEmployeeId()))
+      throw IgrpResponseStatusException.of(HttpStatus.FORBIDDEN,
+          "Apenas o avaliado desta avaliação pode tomar conhecimento ou apresentar contraditório");
 
     if (command.getBody() == null || command.getBody().getAgreed() == null) {
         throw IgrpResponseStatusException.badRequest("O campo agreed é obrigatório");
