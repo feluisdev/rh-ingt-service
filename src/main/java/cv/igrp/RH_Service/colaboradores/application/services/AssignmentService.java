@@ -132,9 +132,7 @@ public class AssignmentService {
                         "Lugar não encontrado: " + positionId));
 
         if (!position.podeSerOcupado())
-            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
-                    "O Lugar '" + position.getNumeroLugar() + "' não está disponível (estado="
-                            + position.getEstado() + ").");
+            throw lugarIndisponivel(position);
 
         // Coerência com a grelha PCFR
         if (position.isForaDeGrelha() && gradeId != null)
@@ -170,6 +168,20 @@ public class AssignmentService {
         }
 
         return position;
+    }
+
+    /**
+     * O Lugar não pode ser ocupado: diz-se porquê e o que fazer, em vez do estado em bruto (era «não está
+     * disponível (estado=CONGELADO)»).
+     */
+    private static IgrpResponseStatusException lugarIndisponivel(Position lugar) {
+        String motivo = Position.CONGELADO.equals(lugar.getEstado())
+                ? " está congelado e não pode ser ocupado. Descongele-o primeiro, ou escolha outro Lugar."
+                : Position.EXTINTO.equals(lugar.getEstado())
+                ? " foi extinto e já não pode ser ocupado. Escolha outro Lugar."
+                : " está desactivado e não pode ser ocupado. Escolha outro Lugar.";
+        return IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                "O Lugar '" + lugar.getNumeroLugar() + "'" + motivo);
     }
 
     /**
@@ -263,9 +275,7 @@ public class AssignmentService {
                             "Lugar de destino não encontrado: " + positionIdDestino));
 
             if (!destino.podeSerOcupado())
-                throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
-                        "O Lugar '" + destino.getNumeroLugar() + "' não está disponível (estado="
-                                + destino.getEstado() + ").");
+                throw lugarIndisponivel(destino);
 
             if (assignmentRepository.temTitular(positionIdDestino))
                 throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
@@ -327,9 +337,7 @@ public class AssignmentService {
                         "Lugar de destino não encontrado: " + positionIdDestino));
 
         if (!destino.podeSerOcupado())
-            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
-                    "O Lugar '" + destino.getNumeroLugar() + "' não está disponível (estado="
-                            + destino.getEstado() + ").");
+            throw lugarIndisponivel(destino);
 
         if (assignmentRepository.temTitular(positionIdDestino))
             throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
@@ -452,9 +460,7 @@ public class AssignmentService {
                             + "' está fora da grelha (sem carreira/categoria) — não há carreira de destino.");
 
         if (!destino.podeSerOcupado())
-            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
-                    "O Lugar '" + destino.getNumeroLugar() + "' não está disponível (estado="
-                            + destino.getEstado() + ").");
+            throw lugarIndisponivel(destino);
 
         if (assignmentRepository.temTitular(positionIdDestino))
             throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
@@ -555,9 +561,7 @@ public class AssignmentService {
                         "Lugar de destino não encontrado: " + positionIdDestino));
 
         if (!destino.podeSerOcupado())
-            throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
-                    "O Lugar '" + destino.getNumeroLugar() + "' não está disponível (estado="
-                            + destino.getEstado() + ").");
+            throw lugarIndisponivel(destino);
 
         if (assignmentRepository.temTitular(positionIdDestino))
             throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,

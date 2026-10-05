@@ -157,6 +157,35 @@ class AssignmentServiceTitularTest {
         }
     }
 
+    /** BR-AF-02: o Lugar congelado ou extinto não se ocupa, e a mensagem diz porquê sem mostrar o estado em bruto. */
+    @Nested
+    class OLugarIndisponivel {
+
+        private String mensagem(String estado) {
+            when(positionRepository.findById(PositionId.from(positionId))).thenReturn(Optional.of(
+                    Position.reconstituir(PositionId.from(positionId), "L-01", UUID.randomUUID(), UUID.randomUUID(),
+                            null, null, null, null, estado, null, !Position.EXTINTO.equals(estado))));
+            var erro = assertThrows(IgrpResponseStatusException.class, () -> afectar(TipoAfectacao.PRINCIPAL));
+            assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, erro.getStatusCode());
+            verify(assignmentRepository, never()).save(any());
+            return erro.getBody().getTitle();
+        }
+
+        @Test
+        void congeladoDizQueEstaCongeladoEOQueFazer() {
+            String m = mensagem(Position.CONGELADO);
+            org.junit.jupiter.api.Assertions.assertTrue(m.contains("congelado") && m.contains("Descongele"), m);
+            org.junit.jupiter.api.Assertions.assertFalse(m.contains("estado="), m);
+        }
+
+        @Test
+        void extintoDizQueFoiExtinto() {
+            String m = mensagem(Position.EXTINTO);
+            org.junit.jupiter.api.Assertions.assertTrue(m.contains("extinto"), m);
+            org.junit.jupiter.api.Assertions.assertFalse(m.contains("estado="), m);
+        }
+    }
+
     /** BR-AF-27: um Lugar reservado para quem aguarda o contrato não se dá a outra pessoa. */
     @Nested
     class OLugarReservado {
