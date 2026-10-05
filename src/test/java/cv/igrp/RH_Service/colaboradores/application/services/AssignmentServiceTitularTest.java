@@ -51,6 +51,7 @@ class AssignmentServiceTitularTest {
     @Mock private FunctionRepository functionRepository;
 
     @org.mockito.Mock private cv.igrp.RH_Service.colaboradores.application.services.DiarioFactos diarioFactos;
+    @Mock private cv.igrp.RH_Service.colaboradores.domain.repository.ReservaLugarRepository reservaLugarRepository;
     @InjectMocks private AssignmentService service;
 
     private final FuncionarioId funcionarioId = FuncionarioId.gerarNovo();
@@ -153,6 +154,42 @@ class AssignmentServiceTitularTest {
             // Quem vai substituir mantém o seu próprio Lugar -- o SCD Type 2 não se aplica.
             verify(assignmentRepository, never()).findCurrentPrincipalByFuncionario(any());
             verify(assignmentRepository, never()).temTitular(any());
+        }
+    }
+
+    /** BR-AF-27: um Lugar reservado para quem aguarda o contrato não se dá a outra pessoa. */
+    @Nested
+    class OLugarReservado {
+
+        private void reservadoPara(FuncionarioId quem) {
+            when(reservaLugarRepository.findActivaByPosition(positionId)).thenReturn(Optional.of(
+                    cv.igrp.RH_Service.colaboradores.domain.models.ReservaLugar.reservar(quem, positionId, null, null,
+                            null, inicio)));
+        }
+
+        @Test
+        void outraPessoaNaoOcupaOLugarReservado() {
+            lugarExiste();
+            when(assignmentRepository.temTitular(positionId)).thenReturn(false);
+            reservadoPara(FuncionarioId.gerarNovo());
+
+            var erro = assertThrows(IgrpResponseStatusException.class, () -> afectar(TipoAfectacao.PRINCIPAL));
+
+            assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, erro.getStatusCode());
+            verify(assignmentRepository, never()).save(any());
+        }
+
+        @Test
+        void quemTemOLugarReservadoOcupaO() {
+            lugarExiste();
+            when(assignmentRepository.temTitular(positionId)).thenReturn(false);
+            when(assignmentRepository.findCurrentPrincipalByFuncionario(funcionarioId)).thenReturn(Optional.empty());
+            when(assignmentRepository.save(any(Assignment.class))).thenAnswer(i -> i.getArgument(0));
+            reservadoPara(funcionarioId);
+
+            afectar(TipoAfectacao.PRINCIPAL);
+
+            verify(assignmentRepository).save(any(Assignment.class));
         }
     }
 

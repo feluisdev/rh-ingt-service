@@ -30,4 +30,7 @@ public class VagasUnidadeResponseDTO {
 
     /** dotacao - ocupados. */
     private long vagas;
+
+    /** Das vagas, quantas estão reservadas para quem aguarda o contrato (BR-AF-23). */
+    private long reservados;
 }

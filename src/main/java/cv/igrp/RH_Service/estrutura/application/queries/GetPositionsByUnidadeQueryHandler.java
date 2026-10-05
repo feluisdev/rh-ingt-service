@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -50,13 +51,15 @@ public class GetPositionsByUnidadeQueryHandler
         UUID unidadeId = UUID.fromString(query.getUnidadeId());
         List<Position> lugares = positionRepository.findByUnidade(unidadeId);
 
-        Set<UUID> ocupados = positionOccupancyPort.ocupados(
-                lugares.stream().map(p -> p.getId().getValor()).toList());
+        List<UUID> ids = lugares.stream().map(p -> p.getId().getValor()).toList();
+        Set<UUID> ocupados = positionOccupancyPort.ocupados(ids);
+        Map<UUID, PositionOccupancyPort.Reserva> reservados = positionOccupancyPort.reservados(ids);
 
         List<PositionResponseDTO> content = lugares.stream()
                 .map(p -> {
                     PositionResponseDTO dto = mapper.toDTO(p);
                     dto.setOcupado(ocupados.contains(p.getId().getValor()));
+                    marcarReserva(dto, reservados.get(p.getId().getValor()));
                     return dto;
                 })
                 .toList();
@@ -73,6 +76,16 @@ public class GetPositionsByUnidadeQueryHandler
         wrapper.setDotacao(dotacao);
         wrapper.setOcupados(providos);
         wrapper.setVagas(dotacao - providos);
+        wrapper.setReservados((int) ocupaveis.stream().filter(p -> reservados.containsKey(p.getId().getValor())).count());
         return ResponseEntity.ok(wrapper);
+    }
+
+    /** Um Lugar reservado continua vago; diz-se para quem está guardado. */
+    static void marcarReserva(PositionResponseDTO dto, PositionOccupancyPort.Reserva reserva) {
+        dto.setReservado(reserva != null);
+        if (reserva != null) {
+            dto.setReservadoParaFuncionarioId(reserva.funcionarioId() != null ? reserva.funcionarioId().toString() : null);
+            dto.setReservadoParaNome(reserva.nome());
+        }
     }
 }

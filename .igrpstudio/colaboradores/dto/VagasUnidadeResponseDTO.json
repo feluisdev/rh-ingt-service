@@ -27,6 +27,12 @@
       "type": "long",
       "objectType": "java",
       "required": false
+    },
+    {
+      "name": "reservados",
+      "type": "long",
+      "objectType": "java",
+      "required": false
     }
   ]
 }

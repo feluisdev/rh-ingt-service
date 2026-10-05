@@ -19,6 +19,9 @@ BEGIN
   DELETE FROM t_leave_request  WHERE funcionario_id = ANY(extras);
   DELETE FROM t_leave_balance  WHERE funcionario_id = ANY(extras);
   DELETE FROM t_leave_mobility WHERE funcionario_id = ANY(extras);
+  IF to_regclass('public.t_reserva_lugar') IS NOT NULL THEN
+    DELETE FROM t_reserva_lugar WHERE funcionario_id = ANY(extras);
+  END IF;
   DELETE FROM t_assignment     WHERE funcionario_id = ANY(extras);
   DELETE FROM t_contrato       WHERE funcionario_id = ANY(extras);
   DELETE FROM t_dados_bancarios WHERE funcionario_id = ANY(extras);

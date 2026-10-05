@@ -1,0 +1,50 @@
+{
+  "type": "controller",
+  "name": "ReservaLugar",
+  "module": "colaboradores",
+  "basePath": "api/v1/rh/funcionarios",
+  "description": "Lugar reservado para quem foi registado sem contrato: fica ocupado quando o contrato for registado",
+  "actions": [
+    {
+      "actionName": "cancelarReservaLugar",
+      "method": "PATCH",
+      "path": "{funcionarioId}/reserva-lugar/cancelar",
+      "summary": "Cancelar o Lugar reservado do colaborador, com motivo; o Lugar fica livre para outros",
+      "pathVariables": [
+        {
+          "name": "funcionarioId",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CancelarReservaLugarRequest",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "colaboradores"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "SuccessResponseDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

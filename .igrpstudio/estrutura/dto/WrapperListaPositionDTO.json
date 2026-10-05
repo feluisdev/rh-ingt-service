@@ -8,6 +8,7 @@
     {"name": "totalElements", "type": "integer", "required": false},
     {"name": "dotacao", "type": "integer", "required": false},
     {"name": "ocupados", "type": "integer", "required": false},
-    {"name": "vagas", "type": "integer", "required": false}
+    {"name": "vagas", "type": "integer", "required": false},
+    {"name": "reservados", "type": "integer", "required": false}
   ]
 }

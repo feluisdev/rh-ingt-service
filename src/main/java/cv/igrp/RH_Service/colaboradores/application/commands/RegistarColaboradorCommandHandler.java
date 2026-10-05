@@ -6,6 +6,7 @@ import cv.igrp.RH_Service.colaboradores.application.services.ContratoService;
 import cv.igrp.RH_Service.colaboradores.application.services.DadosBancariosService;
 import cv.igrp.RH_Service.colaboradores.application.services.ColaboradorDocumentoService;
 import cv.igrp.RH_Service.colaboradores.application.services.FuncionarioService;
+import cv.igrp.RH_Service.colaboradores.application.services.ReservaLugarService;
 import cv.igrp.RH_Service.colaboradores.domain.models.TipoAfectacao;
 import cv.igrp.RH_Service.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.framework.core.domain.CommandHandler;
@@ -30,6 +31,7 @@ public class RegistarColaboradorCommandHandler
     private final ColocacaoService colocacaoService;
     private final DadosBancariosService dadosBancariosService;
     private final ColaboradorDocumentoService documentoService;
+    private final ReservaLugarService reservaLugarService;
 
     @IgrpCommandHandler
     @Transactional
@@ -54,7 +56,21 @@ public class RegistarColaboradorCommandHandler
 
         // Modelo de movimentos: afectação a um Lugar (Position) — funde enquadramento + colocação.
         String afectacaoId = null;
-        if (dto.getAfectacao() != null) {
+        String reservaLugarId = null;
+        List<String> alertas = new ArrayList<>();
+        if (dto.getAfectacao() != null && dto.getContrato() == null) {
+            // BR-AF-23: sem contrato não há Lugar (BR-AF-18), mas o Lugar escolhido fica reservado e é ocupado
+            // quando o contrato for registado.
+            var af = dto.getAfectacao();
+            if (af.getPositionId() == null || af.getPositionId().isBlank())
+                throw IgrpResponseStatusException.badRequest("A afectação exige um Lugar (positionId).");
+            var reserva = reservaLugarService.reservar(funcionarioId, UUID.fromString(af.getPositionId()),
+                    parseUuid(af.getGradeId()), parseUuid(af.getFunctionId()),
+                    TipoAfectacao.de(af.getAssignmentType()), af.getNotes());
+            reservaLugarId = reserva.getId().getStringValor();
+            alertas.add("O colaborador ainda não tem contrato, por isso o Lugar fica reservado para este colaborador, mas não ocupado. "
+                    + "Será ocupado quando registar o contrato.");
+        } else if (dto.getAfectacao() != null) {
             var af = dto.getAfectacao();
             if (af.getPositionId() == null || af.getPositionId().isBlank())
                 throw IgrpResponseStatusException.badRequest("A afectação exige um Lugar (positionId).");
@@ -96,7 +112,9 @@ public class RegistarColaboradorCommandHandler
                 afectacaoId,
                 dadosBancariosId,
                 documentoIds,
-                "Colaborador registado com sucesso"));
+                "Colaborador registado com sucesso",
+                reservaLugarId,
+                alertas));
     }
 
     private static UUID parseUuid(String v) {

@@ -2,7 +2,7 @@
 
 > Guia de migração do frontend para o novo modelo de **Mapa de Pessoal** (Lugares + Afectações).
 > Refactor assumido como *breaking change*. pt-PT.
-> Última alteração: 2026-09-26
+> Última alteração: 2026-10-05
 >
 > As secções 1 a 10 descrevem a passagem ao Mapa de Pessoal; a secção 11 junta, por ordem de data, o que mudou
 > com o alinhamento à legislação (Lei n.º 20/X/2023 e DL n.º 3/2010), e a 12 é o checklist dessa parte.
@@ -1025,6 +1025,26 @@ já diz até quando e quantos dias há.
   mais, sem junta pedida — um quadro no ecrã das juntas médicas, com o botão «Pedir junta» (`motivo: DOENCA_PROLONGADA`).
 - O RH recebe um aviso na caixa (tipo `EXAME_SAUDE`, recurso `DOENCA_PROLONGADA`).
 
+### 11.62 Lugar reservado no registo sem contrato (2026-10-05)
+
+**Nada deixa de funcionar; um 422 desaparece.** Até aqui, o registo com `afectacao` e sem `contrato` dava 422
+(«Este colaborador não tem contrato em vigor…»). Passa a dar **201**: o colaborador é criado e o Lugar fica
+**reservado** para o colaborador, sem o ocupar (BR-AF-23). Quem já envia o contrato não vê diferença nenhuma.
+
+- Resposta do registo: campos novos `reservaLugarId` (preenchido quando houve reserva; `afectacaoId` vem `null`) e
+  `alertas` (lista, nunca nula) — mostrar os alertas.
+- Ficha (`GET /funcionarios/{id}/details`): bloco novo `reservaLugar` (`numeroLugar`, `reservadaEm`, …) enquanto houver reserva
+  activa. Mostrar «Lugar reservado — aguarda o contrato», com a acção **Cancelar reserva**
+  (`PATCH /funcionarios/{id}/reserva-lugar/cancelar`, corpo `{ "motivo": "…" }`).
+- Ao **registar o contrato** (`POST /funcionarios/{id}/contratos`), a resposta pode trazer `alertas`: «colocado no
+  Lugar reservado a partir de…», ou o motivo por que ainda não foi colocado (o contrato fica registado na mesma).
+- Listas de Lugares e de vagas: campos novos `reservado`, `reservadoParaFuncionarioId`, `reservadoParaNome`, e
+  `reservados` nos totais. **Os números de `dotacao`, `ocupados` e `vagas` não mudam** — o reservado é vago. No picker
+  de admissão, mostrar o reservado desactivado («reservado para …»): escolhê-lo para outra pessoa dá 422.
+- 422 novos, só com reserva activa: congelar/extinguir o Lugar reservado; pôr outra pessoa nele (colocação, movimentos,
+  concurso); nomear substituto quem tem reserva.
+- Notificação nova para o RH, tipo `LUGAR_RESERVADO` (recurso `RESERVA_LUGAR`), a cada 30 dias de reserva sem contrato.
+
 ## 12. Checklist do alinhamento com a legislação (secção 11)
 
 Por ordem das secções. Cada item remete para o ecrã correspondente em `apresentacao_aplicacao.html`.
@@ -1083,3 +1103,4 @@ Por ordem das secções. Cada item remete para o ecrã correspondente em `aprese
 - [ ] Separador de faltas apuradas do mês: dias com falta e motivo, débitos da aferição, total em dias e meios-dias, e atalho para justificar (pedido de ausência).
 - [ ] Congelar: pedir o motivo (e o despacho) e esconder a acção nos Lugares com titular; «Descongelar» nos congelados, com motivo; mostrar `estadoMotivo`/`estadoDesde`.
 - [ ] «Colocar num Lugar» só para quem não tem Lugar; sem campo de origem (é do sistema); no reingresso, Lugares vagos da categoria anterior; contrato antes da colocação.
+- [ ] Registo sem contrato: mostrar os `alertas` e o Lugar reservado na ficha, com «Cancelar reserva»; no picker, Lugares `reservado` desactivados.

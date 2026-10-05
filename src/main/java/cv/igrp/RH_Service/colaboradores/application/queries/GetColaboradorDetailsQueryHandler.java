@@ -31,6 +31,7 @@ import cv.igrp.RH_Service.estrutura.domain.valueobject.FunctionId;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.JobId;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.OrganizationalUnitId;
 import cv.igrp.RH_Service.estrutura.domain.valueobject.PositionId;
+import cv.igrp.RH_Service.colaboradores.domain.repository.ReservaLugarRepository;
 import cv.igrp.RH_Service.parametrizacoes.application.port.OptionDTO;
 import cv.igrp.RH_Service.parametrizacoes.application.port.OptionLookupPort;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.OptionCcode;
@@ -83,6 +84,7 @@ public class GetColaboradorDetailsQueryHandler
 
     private final DocumentoRepository documentoRepository;
     private final DocumentoMapper documentoMapper;
+    private final ReservaLugarRepository reservaLugarRepository;
 
     @IgrpQueryHandler
     public ResponseEntity<ColaboradorDetailsResponseDTO> handle(GetColaboradorDetailsQuery query) {
@@ -199,7 +201,11 @@ public class GetColaboradorDetailsQueryHandler
                         m.getDataInicio(), m.getDataFim(), m.getDespachoNumero()))
                 .orElse(null);
 
+        var reservaDTO = reservaLugarRepository.findActivaByFuncionario(funcionarioId)
+                .map(r -> ReservaLugarDtos.toDTO(r, positionRepository.findById(PositionId.from(r.getPositionId())).orElse(null)))
+                .orElse(null);
+
         return ResponseEntity.ok(new ColaboradorDetailsResponseDTO(
-                funcionarioDTO, contratoDTO, enquadramentoDTO, dadosBancariosDTO, documentos, mobilidadeDTO));
+                funcionarioDTO, contratoDTO, enquadramentoDTO, dadosBancariosDTO, documentos, mobilidadeDTO, reservaDTO));
     }
 }

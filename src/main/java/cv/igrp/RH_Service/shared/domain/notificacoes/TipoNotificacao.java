@@ -36,6 +36,7 @@ public enum TipoNotificacao {
     // Entrada ao serviço, concursos, checklists, comissões
     PERIODO_PROVA,
     CONTRATO_TERMO_A_TERMINAR,
+    LUGAR_RESERVADO,
     CONCURSO,
     CHECKLIST,
     COMISSAO_SERVICO,

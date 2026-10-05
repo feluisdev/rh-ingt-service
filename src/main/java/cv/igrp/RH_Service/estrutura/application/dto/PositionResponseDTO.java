@@ -30,4 +30,8 @@ public class PositionResponseDTO {
     private Boolean isActive;
     private Boolean foraDeGrelha;
     private Boolean ocupado;
+    /** Vago, mas reservado para quem aguarda o contrato (BR-AF-23): não se pode dar a outra pessoa. */
+    private Boolean reservado;
+    private String reservadoParaFuncionarioId;
+    private String reservadoParaNome;
 }

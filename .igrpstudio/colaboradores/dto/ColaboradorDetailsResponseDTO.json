@@ -46,6 +46,13 @@
       "objectType": "dto",
       "module": "colaboradores",
       "required": false
+    },
+    {
+      "name": "reservaLugar",
+      "type": "ReservaLugarResponseDTO",
+      "objectType": "dto",
+      "module": "colaboradores",
+      "required": false
     }
   ]
 }

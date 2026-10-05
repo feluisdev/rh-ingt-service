@@ -8,6 +8,7 @@ import cv.igrp.RH_Service.colaboradores.domain.models.HistoricoEstadoColaborador
 import cv.igrp.RH_Service.colaboradores.domain.repository.ContratoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.HistoricoEstadoColaboradorRepository;
+import cv.igrp.RH_Service.colaboradores.domain.repository.ReservaLugarRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.parametrizacoes.domain.models.WorkerState;
 import cv.igrp.RH_Service.parametrizacoes.domain.repository.WorkerStateRepository;
@@ -46,6 +47,7 @@ public class CessacaoService {
     private final AssignmentService assignmentService;
     private final SubstituicaoService substituicaoService;
     private final DiarioFactos diarioFactos;
+    private final ReservaLugarRepository reservaLugarRepository;
 
     /**
      * Resultado da cessação: o estado atribuído, o contrato cessado (se havia) e se a afectação
@@ -95,6 +97,12 @@ public class CessacaoService {
         UUID afectacaoEncerradaId = assignmentService.encerrarAfectacaoCorrente(funcionarioId, dataEfeito)
                 .map(a -> a.getId().getValor())
                 .orElse(null);
+
+        // 3a. Lugar reservado (BR-AF-28): quem cessa já não vai ocupar o Lugar que aguardava o contrato
+        reservaLugarRepository.findActivaByFuncionario(funcionarioId).ifPresent(r -> {
+            r.cancelar("Cessação da relação de emprego.", dataEfeito);
+            reservaLugarRepository.save(r);
+        });
 
         // 4. Estado do trabalhador
         funcionario.atualizarWorkerState(estadoCessacao.getId().getValor(), false);

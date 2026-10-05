@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
 import cv.igrp.RH_Service.colaboradores.domain.models.Funcionario;
 import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
+import cv.igrp.RH_Service.colaboradores.domain.repository.ReservaLugarRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.AssignmentId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.estrutura.domain.models.Position;
@@ -51,6 +52,7 @@ public class SubstituicaoService {
     private final PositionRepository positionRepository;
     private final WorkerStateRepository workerStateRepository;
     private final AssignmentService assignmentService;
+    private final ReservaLugarRepository reservaLugarRepository;
 
     /** O que a substituição produziu: a afectação nova, o Lugar, e quem está a ser substituído. */
     public record Substituicao(Assignment afectacao, Position lugar,
@@ -69,6 +71,11 @@ public class SubstituicaoService {
         Position lugar = positionRepository.findById(PositionId.from(positionId))
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Lugar não encontrado: " + positionId));
+
+        // BR-AF-27: quem tem Lugar reservado ainda não tem contrato — não ocupa Lugar nenhum, nem a substituir
+        if (reservaLugarRepository.findActivaByFuncionario(substitutoId).isPresent())
+            throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Este colaborador tem um Lugar reservado e ainda não tem contrato. Registe primeiro o contrato.");
 
         Assignment afectacaoTitular = assignmentRepository.findTitularByPosition(positionId)
                 .orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,

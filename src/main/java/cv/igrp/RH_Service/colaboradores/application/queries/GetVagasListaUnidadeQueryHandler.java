@@ -3,6 +3,7 @@ package cv.igrp.RH_Service.colaboradores.application.queries;
 import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.estrutura.application.dto.PositionResponseDTO;
 import cv.igrp.RH_Service.estrutura.application.dto.WrapperListaPositionDTO;
+import cv.igrp.RH_Service.estrutura.application.port.PositionOccupancyPort;
 import cv.igrp.RH_Service.estrutura.domain.models.Position;
 import cv.igrp.RH_Service.estrutura.domain.repository.PositionRepository;
 import cv.igrp.RH_Service.estrutura.infrastructure.mappers.PositionMapper;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -30,6 +32,7 @@ public class GetVagasListaUnidadeQueryHandler
     private final AssignmentRepository assignmentRepository;
     private final PositionRepository positionRepository;
     private final PositionMapper positionMapper;
+    private final PositionOccupancyPort positionOccupancyPort;
 
     @IgrpQueryHandler
     public ResponseEntity<WrapperListaPositionDTO> handle(GetVagasListaUnidadeQuery query) {
@@ -42,8 +45,10 @@ public class GetVagasListaUnidadeQueryHandler
         long dotacao = lugares.stream().filter(Position::podeSerOcupado).count();
 
         // Uma consulta para toda a unidade, em vez de um isPositionOccupied por Lugar (N+1).
-        Set<UUID> ocupados = assignmentRepository.findPositionIdsComTitular(
-                lugares.stream().map(p -> p.getId().getValor()).toList());
+        List<UUID> ids = lugares.stream().map(p -> p.getId().getValor()).toList();
+        Set<UUID> ocupados = assignmentRepository.findPositionIdsComTitular(ids);
+        // Os reservados continuam na lista (são vagos), marcados: o picker mostra-os sem os deixar escolher.
+        Map<UUID, PositionOccupancyPort.Reserva> reservados = positionOccupancyPort.reservados(ids);
 
         List<PositionResponseDTO> vagos = lugares.stream()
                 .filter(Position::podeSerOcupado)
@@ -51,6 +56,12 @@ public class GetVagasListaUnidadeQueryHandler
                 .map(p -> {
                     PositionResponseDTO dto = positionMapper.toDTO(p);
                     dto.setOcupado(false);
+                    var reserva = reservados.get(p.getId().getValor());
+                    dto.setReservado(reserva != null);
+                    if (reserva != null) {
+                        dto.setReservadoParaFuncionarioId(reserva.funcionarioId() != null ? reserva.funcionarioId().toString() : null);
+                        dto.setReservadoParaNome(reserva.nome());
+                    }
                     return dto;
                 })
                 .toList();
@@ -61,6 +72,7 @@ public class GetVagasListaUnidadeQueryHandler
         wrapper.setDotacao((int) dotacao);
         wrapper.setOcupados((int) (dotacao - vagos.size()));
         wrapper.setVagas(vagos.size());
+        wrapper.setReservados((int) vagos.stream().filter(v -> Boolean.TRUE.equals(v.getReservado())).count());
         return ResponseEntity.ok(wrapper);
     }
 }

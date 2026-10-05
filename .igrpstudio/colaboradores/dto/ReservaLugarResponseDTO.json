@@ -1,0 +1,86 @@
+{
+  "type": "dto",
+  "name": "ReservaLugarResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "id",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "positionId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "numeroLugar",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "unidadeOrganicaId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "gradeId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "functionId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "notes",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "estado",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "reservadaEm",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "date",
+      "name": "fechadaEm",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "motivo",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "assignmentId",
+      "objectType": "java",
+      "required": false
+    }
+  ]
+}

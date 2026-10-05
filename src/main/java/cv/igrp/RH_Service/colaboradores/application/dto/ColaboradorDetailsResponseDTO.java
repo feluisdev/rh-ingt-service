@@ -19,4 +19,6 @@ public class ColaboradorDetailsResponseDTO {
     private List<DocumentoResponseDTO> documentos;
     /** Mobilidade em vigor, se houver. O bloco enquadramento continua a ser o Lugar do titular. */
     private MobilidadeEmVigorDTO mobilidadeEmVigor;
+    /** Lugar reservado à espera do contrato (BR-AF-23), se houver. Não é enquadramento: o Lugar não está ocupado. */
+    private ReservaLugarResponseDTO reservaLugar;
 }

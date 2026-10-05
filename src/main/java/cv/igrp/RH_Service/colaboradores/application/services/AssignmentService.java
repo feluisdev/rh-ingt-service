@@ -4,6 +4,7 @@ import cv.igrp.RH_Service.colaboradores.domain.models.Assignment;
 import cv.igrp.RH_Service.colaboradores.domain.models.TipoFactoRh;
 import cv.igrp.RH_Service.colaboradores.domain.models.TipoAfectacao;
 import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
+import cv.igrp.RH_Service.colaboradores.domain.repository.ReservaLugarRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.AssignmentId;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.carreiras.domain.models.Career;
@@ -48,6 +49,7 @@ public class AssignmentService {
     private final CategoryRepository categoryRepository;
     private final CareerRepository careerRepository;
     private final FunctionRepository functionRepository;
+    private final ReservaLugarRepository reservaLugarRepository;
 
     /**
      * Afecta um colaborador a um Lugar <b>como titular</b>. Se já houver afectação PRINCIPAL
@@ -80,6 +82,8 @@ public class AssignmentService {
         if (tipo.isPrincipal() && assignmentRepository.temTitular(positionId))
             throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
                     "O Lugar '" + position.getNumeroLugar() + "' já tem titular.");
+        if (tipo.isPrincipal())
+            exigirSemReservaDeOutro(position, funcionarioId);
 
         // SCD Type 2: encerrar a afectação PRINCIPAL corrente antes de abrir a nova
         if (tipo.isPrincipal()) {
@@ -122,7 +126,7 @@ public class AssignmentService {
      * ocupável, a grelha é coerente com ele, e a função pertence ao seu cargo. O que <b>não</b>
      * está aqui é a regra do titular único, porque essa depende do título — ver {@link #afectar}.
      */
-    private Position validarLugarParaAfectacao(UUID positionId, UUID gradeId, UUID functionId) {
+    Position validarLugarParaAfectacao(UUID positionId, UUID gradeId, UUID functionId) {
         Position position = positionRepository.findById(PositionId.from(positionId))
                 .orElseThrow(() -> IgrpResponseStatusException.notFound(
                         "Lugar não encontrado: " + positionId));
@@ -166,6 +170,21 @@ public class AssignmentService {
         }
 
         return position;
+    }
+
+    /**
+     * BR-AF-27: um Lugar reservado para alguém que aguarda o contrato não pode ser ocupado por outra pessoa, por
+     * nenhuma via (colocação, promoção, transferência, mudança de carreira, consolidação). O próprio pode. A
+     * reserva não ocupa o Lugar — por isso esta guarda é explícita e não sai do {@code temTitular}.
+     */
+    private void exigirSemReservaDeOutro(Position lugar, FuncionarioId funcionarioId) {
+        reservaLugarRepository.findActivaByPosition(lugar.getId().getValor())
+                .filter(r -> !r.getFuncionarioId().equals(funcionarioId))
+                .ifPresent(r -> {
+                    throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                            "O Lugar '" + lugar.getNumeroLugar() + "' está reservado para outro colaborador, que aguarda "
+                                    + "o contrato. Escolha outro Lugar, ou cancele primeiro essa reserva.");
+                });
     }
 
     /** Resultado de uma progressão: a nova afectação e os escalões de partida e de chegada. */
@@ -251,6 +270,7 @@ public class AssignmentService {
             if (assignmentRepository.temTitular(positionIdDestino))
                 throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
                         "O Lugar '" + destino.getNumeroLugar() + "' já tem titular.");
+            exigirSemReservaDeOutro(destino, funcionarioId);
 
             if (!categoryIdDestino.equals(destino.getCategoryId()))
                 throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
@@ -314,6 +334,7 @@ public class AssignmentService {
         if (assignmentRepository.temTitular(positionIdDestino))
             throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
                     "O Lugar '" + destino.getNumeroLugar() + "' já tem titular.");
+        exigirSemReservaDeOutro(destino, funcionarioId);
 
         // A transferência não mexe na grelha: mesma carreira, mesma categoria, mesmo escalão.
         if (origem.isForaDeGrelha() != destino.isForaDeGrelha()
@@ -438,6 +459,7 @@ public class AssignmentService {
         if (assignmentRepository.temTitular(positionIdDestino))
             throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
                     "O Lugar '" + destino.getNumeroLugar() + "' já tem titular.");
+        exigirSemReservaDeOutro(destino, funcionarioId);
 
         // A guarda que distingue este movimento dos outros dois: a carreira TEM de mudar.
         if (java.util.Objects.equals(origem.getCareerId(), destino.getCareerId()))
@@ -540,6 +562,7 @@ public class AssignmentService {
         if (assignmentRepository.temTitular(positionIdDestino))
             throw IgrpResponseStatusException.of(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
                     "O Lugar '" + destino.getNumeroLugar() + "' já tem titular.");
+        exigirSemReservaDeOutro(destino, funcionarioId);
 
         // Consolida-se no serviço onde a pessoa esteve em mobilidade, e não noutro qualquer: é o
         // exercício de funções ali que a consolidação torna definitivo.

@@ -50,10 +50,20 @@ public class CongelarPositionCommandHandler
                     "O Lugar " + position.getNumeroLugar() + " está ocupado. Só se pode congelar um Lugar vago: "
                             + "primeiro, o titular tem de sair (por transferência ou cessação).");
         }
+        var reserva = positionOccupancyPort.reservados(List.of(position.getId().getValor())).get(position.getId().getValor());
+        if (reserva != null) {
+            throw IgrpResponseStatusException.of(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "O Lugar " + position.getNumeroLugar() + " está reservado para " + nomeOuColaborador(reserva)
+                            + ", que aguarda o contrato. Cancele primeiro a reserva para o poder congelar.");
+        }
 
         position.congelar(req.getMotivo(), req.getDespachoNumero(), LocalDate.now());
         positionRepository.save(position);
 
         return ResponseEntity.ok(SuccessResponseDTO.de(command.getPositionId()));
+    }
+
+    private static String nomeOuColaborador(PositionOccupancyPort.Reserva reserva) {
+        return reserva.nome() != null ? reserva.nome() : "um colaborador";
     }
 }

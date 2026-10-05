@@ -2,7 +2,7 @@
 
 > Fonte de verdade do contrato REST do núcleo RH (exclui o módulo `sigdi`).
 > Documentação **v5** — supersede a `v4`. pt-PT.
-> Última alteração: 2026-09-26
+> Última alteração: 2026-10-05
 >
 > O manual ecrã a ecrã (com os campos, a API e as regras de cada ecrã) é o `apresentacao_aplicacao.html`;
 > este guia é o contrato para quem integra. Ambos são conferidos contra o código por `scripts/verificar_docs.py`.
@@ -283,10 +283,24 @@ Cria funcionário + (opcional) contrato + **afectação a um Lugar vago** numa s
 }
 ```
 
-**Resposta:** inclui `afectacaoId` (a afectação criada). **Não** existe `enquadramentoId`.
+**Resposta:** inclui `afectacaoId` (a afectação criada), `reservaLugarId` e `alertas`. **Não** existe `enquadramentoId`.
 
-**Com afectação, o contrato é obrigatório** (BR-AF-18): sem vínculo não há Lugar. A afectação do registo passa pelas regras
-da colocação (secção 4), e a origem é sempre `ADMISSAO`.
+**Com contrato**, a afectação do registo passa pelas regras da colocação (secção 4), e a origem é sempre `ADMISSAO`.
+
+**Sem contrato** (BR-AF-18: sem vínculo não há Lugar), o Lugar pedido **não é ocupado — fica reservado** (BR-AF-23 a
+BR-AF-28): `afectacaoId` vem `null`, `reservaLugarId` preenchido, e um alerta. O Lugar passa pelas mesmas validações
+(ocupável, escalão da categoria, função do cargo, sem titular nem outra reserva — 422). A `dataInicio` e a `origem` da
+afectação são ignoradas: a colocação começa com o contrato. Enquanto a reserva existe, o Lugar continua **vago** em todas as
+contagens, mas não pode ser dado a outra pessoa, congelado nem extinto (422).
+
+Ao **registar o contrato** (`POST /funcionarios/{id}/contratos`), o colaborador é colocado no Lugar reservado, a partir do
+início do contrato (ou da admissão, se posterior); a resposta traz o resultado em `alertas`. Se a colocação falhar, o contrato
+fica registado na mesma e o alerta diz porquê.
+
+### 5.2a Cancelar a reserva — `PATCH /api/v1/rh/funcionarios/{funcionarioId}/reserva-lugar/cancelar`
+
+Corpo `{ "motivo": "string" }` (obrigatório, 400). Sem reserva activa, 422. Resposta `SuccessResponseDTO`. A reserva activa
+aparece na ficha (`GET /funcionarios/{id}/details`, bloco `reservaLugar`); a cessação cancela-a sozinha.
 
 > ⚠️ **Breaking change:** o registo já **não** aceita unidade/cargo/carreira/categoria — todos derivam do `positionId`. Ver `breaking_change_frontend.md`.
 

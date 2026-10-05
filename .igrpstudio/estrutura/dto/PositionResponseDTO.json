@@ -19,6 +19,9 @@
     {"name": "legalBase", "type": "string", "required": false},
     {"name": "isActive", "type": "boolean", "required": false},
     {"name": "foraDeGrelha", "type": "boolean", "required": false},
-    {"name": "ocupado", "type": "boolean", "required": false}
+    {"name": "ocupado", "type": "boolean", "required": false},
+    {"name": "reservado", "type": "boolean", "required": false},
+    {"name": "reservadoParaFuncionarioId", "type": "string", "required": false},
+    {"name": "reservadoParaNome", "type": "string", "required": false}
   ]
 }

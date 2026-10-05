@@ -1,0 +1,64 @@
+{
+  "type": "dto",
+  "name": "RegistarColaboradorResponse",
+  "template": "classic",
+  "module": "colaboradores",
+  "attributes": [
+    {
+      "type": "string",
+      "name": "funcionarioId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "numeroFuncionario",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "contratoId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "afectacaoId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "dadosBancariosId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "documentoIds",
+      "objectType": "java",
+      "collectionType": "list",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "message",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "reservaLugarId",
+      "objectType": "java",
+      "required": false
+    },
+    {
+      "type": "string",
+      "name": "alertas",
+      "objectType": "java",
+      "collectionType": "list",
+      "required": false
+    }
+  ]
+}

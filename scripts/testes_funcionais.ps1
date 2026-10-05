@@ -1156,6 +1156,10 @@ Chamar 'F18.13 NEG outras duas semanas passam dos 15 do ano' POST ('/funcionario
 # --- e o tecto mensal conta o mes civil, nao o ano ---
 # Um dia de cada vez, para o tecto que se exercita ser o mensal e nao o da ocorrencia.
 $diaMes1 = $segunda18.AddDays(49)
+# Os dois dias tem de cair no MESMO mes: se o primeiro for o ultimo do mes (30/11/2026, a partir de
+# 5/10/2026), o segundo ja e do mes seguinte e o tecto mensal nao se exercita. Avanca-se uma semana
+# (continua a ser segunda-feira).
+if ($diaMes1.AddDays(1).Month -ne $diaMes1.Month) { $diaMes1 = $diaMes1.AddDays(7) }
 $diaMes2 = $diaMes1.AddDays(1)
 # O mes seguinte a contar do primeiro dia usado: e a fronteira que se quer provar.
 $diaOutroMes = (Get-Date -Year $diaMes1.Year -Month $diaMes1.Month -Day 1).AddMonths(1)
@@ -1885,6 +1889,59 @@ $i37b = (Chamar 'F37.6 um ano passado' GET ('/relatorios/indicadores?unidadeId='
 Verificar 'F37.7 com referencia a 31 de Dezembro' ($i37b.referencia -eq (((Get-Date).Year - 1).ToString() + '-12-31')) ('(' + $i37b.referencia + ')')
 Chamar 'F37.8 NEG ano futuro' GET ('/relatorios/indicadores?unidadeId=' + $uMin + '&ano=' + ((Get-Date).Year + 1)) $null 422 | Out-Null
 Chamar 'F37.9 NEG unidade que nao existe' GET ('/relatorios/indicadores?unidadeId=' + [guid]::NewGuid()) $null 404 | Out-Null
+
+Write-Host ''
+Write-Host '=========== F38 - LUGAR RESERVADO NO REGISTO SEM CONTRATO (BR-AF-23 a BR-AF-28) ==========='
+
+# Sem contrato nao ha Lugar (BR-AF-18): o registo com Lugar e sem contrato deixa o Lugar RESERVADO, sem o
+# ocupar. O Lugar continua vago em todas as contagens, mas nao e de mais ninguem; o contrato ocupa-o.
+# Corre no fim: nao mexe nos numeros que o F36 e o F37 contam.
+
+$hoje38 = (Get-Date).ToString('yyyy-MM-dd')
+$vagos38 = @(Linhas (Chamar 'F38.1 Lugares vagos da unidade' GET ('/colaboradores/assignments/unidade/' + $unidadeB + '/vagas/lista')))
+$livres38 = @($vagos38 | Where-Object { $_.categoryId -eq $catBaixo.id -and $_.estado -eq 'ATIVO' -and $_.reservado -ne $true })
+$lugar38 = $livres38 | Select-Object -First 1
+$lugar38b = $livres38 | Select-Object -Skip 1 -First 1
+Verificar 'F38.2 ha Lugar vago e livre na categoria de baixo' ($null -ne $lugar38) ('(' + $lugar38.numeroLugar + ')')
+
+$nifR = '3' + (Get-Date -Format 'MMddHHmmss')
+$rReg38 = Chamar 'F38.3 registar com Lugar e sem contrato' POST '/funcionarios/registar' @{ funcionario=@{ nomeCompleto='Reserva Sem Contrato'; dataNascimento='1993-03-03'; genero='F'; estadoCivil='SOLTEIRO'; nif=$nifR; dataAdmissao=$hoje38 }; afectacao=@{ positionId=$lugar38.id; gradeId=$escBaixo } } 201
+$colabR = $rReg38.Dados.funcionarioId
+Verificar 'F38.4 o Lugar ficou reservado, nao ocupado' (($null -ne $rReg38.Dados.reservaLugarId) -and ($null -eq $rReg38.Dados.afectacaoId)) ''
+Verificar 'F38.5 e a resposta avisa' (@($rReg38.Dados.alertas).Count -ge 1) ''
+
+$det38 = (Chamar 'F38.6 ficha do colaborador' GET ('/funcionarios/' + $colabR + '/details')).Dados
+Verificar 'F38.7 a ficha mostra o Lugar reservado e nenhum enquadramento' (($det38.reservaLugar.numeroLugar -eq $lugar38.numeroLugar) -and ($null -eq $det38.enquadramento)) ('(' + $det38.reservaLugar.numeroLugar + ')')
+
+$naLista38 = @(Linhas (Chamar 'F38.8 relista vagas' GET ('/colaboradores/assignments/unidade/' + $unidadeB + '/vagas/lista'))) | Where-Object { $_.id -eq $lugar38.id } | Select-Object -First 1
+Verificar 'F38.9 continua vago, marcado como reservado e para quem' (($null -ne $naLista38) -and ($naLista38.reservado -eq $true) -and ($naLista38.reservadoParaFuncionarioId -eq $colabR)) ('(' + $naLista38.reservadoParaNome + ')')
+
+# --- o Lugar reservado nao e de mais ninguem ---
+$nifR2 = '2' + (Get-Date -Format 'MMddHHmmss')
+Chamar 'F38.10 NEG reservar o mesmo Lugar para outra pessoa' POST '/funcionarios/registar' @{ funcionario=@{ nomeCompleto='Reserva Repetida'; dataNascimento='1993-03-03'; genero='M'; estadoCivil='SOLTEIRO'; nif=$nifR2; dataAdmissao=$hoje38 }; afectacao=@{ positionId=$lugar38.id; gradeId=$escBaixo } } 422 | Out-Null
+Chamar 'F38.11 NEG ocupa-lo com outra pessoa, mesmo com contrato' POST '/funcionarios/registar' @{ funcionario=@{ nomeCompleto='Reserva Ocupada'; dataNascimento='1993-03-03'; genero='M'; estadoCivil='SOLTEIRO'; nif=$nifR2; dataAdmissao=$hoje38 }; contrato=@{ contractTypeId=$tipoNomeacao; startDate=$hoje38; regimeTrabalho='TEMPO_COMPLETO' }; afectacao=@{ positionId=$lugar38.id; gradeId=$escBaixo } } 422 | Out-Null
+Chamar 'F38.12 NEG congelar o Lugar reservado' PATCH ('/estrutura/positions/' + $lugar38.id + '/freeze') @{ motivo='Sem dotacao' } 422 | Out-Null
+# Sem contrato nem Lugar, nao ha movimento possivel.
+Chamar 'F38.13 NEG progredir quem so tem reserva' POST ('/funcionarios/' + $colabR + '/progressao') @{ dataEfeito=$hoje38 } 422 | Out-Null
+Chamar 'F38.14 NEG cancelar sem motivo' PATCH ('/funcionarios/' + $colabR + '/reserva-lugar/cancelar') @{ motivo='' } 400 | Out-Null
+
+# --- o contrato ocupa o Lugar ---
+$rCt38 = Chamar 'F38.15 registar o contrato' POST ('/funcionarios/' + $colabR + '/contratos') @{ contractTypeId=$tipoNomeacao; startDate=$hoje38; regimeTrabalho='TEMPO_COMPLETO' } 201
+Verificar 'F38.16 a resposta diz que foi colocado' (@($rCt38.Dados.alertas | Where-Object { $_ -like '*colocado no Lugar*' }).Count -eq 1) ''
+$uni38 = (Chamar 'F38.17 onde esta agora' GET ('/colaboradores/assignments/funcionario/' + $colabR + '/unidade-atual')).Dados
+Verificar 'F38.18 ocupa o Lugar que lhe estava reservado' ($uni38.positionId -eq $lugar38.id) ('(' + $uni38.numeroLugar + ')')
+$det38b = (Chamar 'F38.19 ficha depois do contrato' GET ('/funcionarios/' + $colabR + '/details')).Dados
+Verificar 'F38.20 ja nao ha reserva, ha enquadramento' (($null -eq $det38b.reservaLugar) -and ($null -ne $det38b.enquadramento)) ''
+Chamar 'F38.21 NEG cancelar sem reserva' PATCH ('/funcionarios/' + $colabR + '/reserva-lugar/cancelar') @{ motivo='ja colocado' } 422 | Out-Null
+
+# --- cancelar liberta o Lugar ---
+if ($null -ne $lugar38b) {
+    $nifR3 = '1' + (Get-Date -Format 'MMddHHmmss')
+    $colabR3 = (Chamar 'F38.22 registar outro sem contrato' POST '/funcionarios/registar' @{ funcionario=@{ nomeCompleto='Reserva Cancelada'; dataNascimento='1994-04-04'; genero='M'; estadoCivil='SOLTEIRO'; nif=$nifR3; dataAdmissao=$hoje38 }; afectacao=@{ positionId=$lugar38b.id; gradeId=$escBaixo } } 201).Dados.funcionarioId
+    Chamar 'F38.23 cancelar a reserva' PATCH ('/funcionarios/' + $colabR3 + '/reserva-lugar/cancelar') @{ motivo='Desistiu antes do contrato' } 200 | Out-Null
+    $livre38 = @(Linhas (Chamar 'F38.24 relista vagas' GET ('/colaboradores/assignments/unidade/' + $unidadeB + '/vagas/lista'))) | Where-Object { $_.id -eq $lugar38b.id } | Select-Object -First 1
+    Verificar 'F38.25 o Lugar voltou a estar livre' (($null -ne $livre38) -and ($livre38.reservado -ne $true)) ('(' + $lugar38b.numeroLugar + ')')
+}
 
 Write-Host ''
 Write-Host '=========== RESUMO ==========='

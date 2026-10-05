@@ -223,7 +223,7 @@
     <div class="kicker">RH-Service · SIGDI / SIPPROG · Administração Pública de Cabo Verde</div>
     <h1>Manual da Aplicação de Recursos Humanos</h1>
     <p>Como se configura e como se usa toda a aplicação, ecrã a ecrã: o que cada ecrã mostra, que campos tem, que API chama, que regras de negócio aplica e em que artigo da lei se funda. Do catálogo de estados ao balanço social.</p>
-    <div class="meta">Documentação <b>v5</b> · âmbito: núcleo RH (exclui o módulo <code>sigdi</code> — avaliação de desempenho) · os ecrãs são ilustrativos, desenhados a partir dos DTOs reais da API<br>Última alteração: 2026-09-26</div>
+    <div class="meta">Documentação <b>v5</b> · âmbito: núcleo RH (exclui o módulo <code>sigdi</code> — avaliação de desempenho) · os ecrãs são ilustrativos, desenhados a partir dos DTOs reais da API<br>Última alteração: 2026-10-05</div>
     <div class="hero-tags"><span>Lei n.º 20/X/2023 — regime do emprego público</span><span>Decreto-Lei n.º 3/2010 — férias, faltas e licenças</span><span>PCFR — carreiras, categorias e escalões</span><span>Estatuto Disciplinar — Lei n.º 31/III/87</span></div>
   </div>
 </header>
@@ -1356,12 +1356,21 @@
             <button type="button" data-c="grade">Escalão de outra categoria</button>
             <button type="button" data-c="semgrade">Lugar de carreira sem escalão</button>
             <button type="button" data-c="nif">NIF que já existe</button>
+            <button type="button" data-c="semcontrato">Sem contrato (ainda)</button>
+            <button type="button" data-c="reservado">Lugar reservado para outra pessoa</button>
           </div>
           <div class="respostas" id="r-registo">
             <div class="resp" data-c="ok"><div class="toast ok"><b>201</b> — registado. O servidor alinhou a data de admissão com o contrato, deu o estado ACTIVE, atribuiu o número <b>F000148</b>, criou o contrato e a afectação, e o saldo de férias do ano (proporcional).</div>
 <pre class="json">{ "funcionarioId": "6000…0001", "numeroFuncionario": "F000148",
   "contratoId": "6100…0001", "afectacaoId": "7000…0001",
-  "dadosBancariosId": "6200…0001", "documentoIds": ["6300…0001"] }</pre></div>
+  "dadosBancariosId": "6200…0001", "documentoIds": ["6300…0001"],
+  "reservaLugarId": null, "alertas": [] }</pre></div>
+            <div class="resp" data-c="semcontrato"><div class="toast ok"><b>201</b> — registado, mas <b>sem contrato não há Lugar</b>: o LUG-0007 fica <b>reservado</b> para o colaborador e não ocupado — não há afectação. Continua vago nas vagas e no mapa de pessoal, mas mais ninguém o pode ocupar. Quando o contrato for registado, o colaborador é colocado nele automaticamente. <span class="br">BR-AF-23</span><span class="br">BR-AF-25</span></div>
+<pre class="json">{ "funcionarioId": "6000…0002", "afectacaoId": null,
+  "reservaLugarId": "6400…0001",
+  "alertas": ["O colaborador ainda não tem contrato, por isso o Lugar fica reservado
+               para este colaborador, mas não ocupado. Será ocupado quando registar o contrato."] }</pre></div>
+            <div class="resp" data-c="reservado"><div class="toast bad"><b>422</b> — «O Lugar LUG-0007 já está reservado para outro colaborador. Escolha outro Lugar vago.» Na lista de vagos aparece marcado <code>reservado</code>, com o nome — o ecrã mostra-o desactivado. Com contrato, a colocação também é recusada. <span class="br">BR-AF-24</span><span class="br">BR-AF-27</span></div></div>
             <div class="resp" data-c="ocupado"><div class="toast bad"><b>422</b> — «O Lugar 'LUG-0007' já tem titular.» Uma cadeira, um titular. Nada ficou gravado — nem a pessoa. <span class="br">BR-AF-03</span></div></div>
             <div class="resp" data-c="grade"><div class="toast bad"><b>422</b> — «O escalão 'Escalão 2' pertence à categoria 'Técnico Superior', mas o Lugar 'LUG-0007' exige um escalão da categoria 'Tecnico de Regime Especial'.» <span class="br">BR-AF-06</span></div></div>
             <div class="resp" data-c="semgrade"><div class="toast bad"><b>422</b> — «O Lugar é de carreira — o escalão (gradeId) é obrigatório.» Num Lugar fora de grelha é o contrário: enviar escalão dá 422. <span class="br">BR-AF-05</span><span class="br">BR-AF-04</span></div></div>
@@ -1436,11 +1445,12 @@
       <li><span class="br">BR-COL-05</span>O número de funcionário é atribuído pelo sistema (<code>F</code> + 6 algarismos)</li>
       <li><span class="br">BR-CON-04</span><span class="br">BR-CON-05</span>Regime de trabalho válido; percentagem só (e sempre) em tempo parcial<span class="cod">400</span></li>
       <li><span class="br">BR-COL-06</span>Com bloco de afectação, o Lugar é obrigatório; aplicam-se todas as regras da afectação (<span class="br">BR-AF-01</span> a <span class="br">BR-AF-07</span>)<span class="cod">400/422</span></li>
+      <li><span class="br">BR-AF-23</span><span class="br">BR-AF-24</span>Com Lugar e <b>sem contrato</b>, o Lugar fica <b>reservado</b>, não ocupado — mesmas validações, sem titular nem outra reserva<span class="cod">422</span></li>
       <li><span class="br">BR-FER-01</span>O saldo de férias do ano nasce na admissão, proporcional (art. 3.º)</li>
       <li><span class="br">BR-COL-07</span>Tudo ou nada: uma falha desfaz o registo inteiro</li>
     </ul></div></div>
   </div>
-  <p style="font-size:13px">Também se pode criar só a pessoa (<span class="rota">POST /api/v1/rh/funcionarios</span>, que devolve o <code>numeroFuncionario</code>) e fazer depois o contrato e a colocação (<span class="rota">POST /api/v1/rh/colaboradores/assignments</span>, ver <a href="#mov-colocacao">Colocação</a>). Com afectação, o contrato é obrigatório. <span class="br">BR-AF-13</span><span class="br">BR-AF-18</span></p>
+  <p style="font-size:13px">Também se pode criar só a pessoa (<span class="rota">POST /api/v1/rh/funcionarios</span>, que devolve o <code>numeroFuncionario</code>) e fazer depois o contrato e a colocação (<span class="rota">POST /api/v1/rh/colaboradores/assignments</span>, ver <a href="#mov-colocacao">Colocação</a>). Sem vínculo não há Lugar: no registo sem contrato, o Lugar escolhido fica <b>reservado</b> e é ocupado quando se registar o contrato (<span class="rota">POST /api/v1/rh/funcionarios/{funcionarioId}/contratos</span>, que traz o resultado em <code>alertas</code>). Enquanto espera, a ficha mostra o Lugar reservado, a única acção sobre ele é <b>cancelar</b> (<span class="rota">PATCH /api/v1/rh/funcionarios/{funcionarioId}/reserva-lugar/cancelar</span>, com motivo), e não há movimento nem substituição possíveis. O RH é avisado a cada 30 dias de reserva sem contrato; a cessação cancela-a. <span class="br">BR-AF-13</span><span class="br">BR-AF-18</span><span class="br">BR-AF-26</span><span class="br">BR-AF-27</span><span class="br">BR-AF-28</span></p>
 </section>
 
 <section class="slide" id="adm-ficha" data-parte="D · Admissão e ficha">

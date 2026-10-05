@@ -123,6 +123,29 @@ class ConcursoServiceTest {
         assertEquals(l2, a.getLugarProvidoId());
     }
 
+    /** BR-AF-27: um Lugar reservado para quem aguarda o contrato não se provê por concurso. */
+    @Test
+    void naoProveUmLugarReservado() {
+        var c = aberto(Concurso.Modalidade.EXTERNO, 1, 0);
+        var a = ConcursoTest.candidato(c, "A", false, hoje, 16, 16, 16, 16);
+        var todas = new ArrayList<>(List.of(a));
+        ClassificacaoConcurso.classificar(c, todas);
+        c.encerrarCandidaturas(hoje.plusDays(16));
+        c.iniciarAvaliacao(false);
+        c.listaProvisoria(false);
+        c.homologar("Despacho 1/2026", hoje.plusDays(30));
+        hoje = hoje.plusDays(40);
+        when(repository.findCandidaturas(c.getId())).thenReturn(todas);
+        when(repository.findCandidatura(a.getId())).thenReturn(Optional.of(a));
+        var l1 = c.getLugares().get(0);
+        when(ocupacao.reservados(List.of(l1))).thenReturn(java.util.Map.of(l1,
+                new PositionOccupancyPort.Reserva(java.util.UUID.randomUUID(), "Outro")));
+
+        var ex = assertThrows(IgrpResponseStatusException.class, () -> service.prover(c.getId(), a.getId(), l1));
+        assertEquals(422, ex.getStatusCode().value());
+        assertEquals(null, a.getLugarProvidoId());
+    }
+
     @Test
     void naoProveAntesDaHomologacao() {
         var c = aberto(Concurso.Modalidade.INTERNO, 1, null);

@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.estrutura.application.port;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -23,4 +24,13 @@ public interface PositionOccupancyPort {
      * estao vagos. Resolve-se numa consulta so, para nao trazer N+1 a quem lista.
      */
     Set<UUID> ocupados(Collection<UUID> positionIds);
+
+    /** Para quem está reservado um Lugar vago, à espera do contrato (BR-AF-23). */
+    record Reserva(UUID funcionarioId, String nome) {}
+
+    /**
+     * Quais dos {@code positionIds} estao reservados, e para quem. Um Lugar reservado continua vago -- nao conta
+     * em {@link #ocupados} --, mas nao pode ser dado a outra pessoa nem congelado ou extinto (BR-AF-27).
+     */
+    Map<UUID, Reserva> reservados(Collection<UUID> positionIds);
 }

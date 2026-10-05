@@ -108,11 +108,14 @@ public class ConcursoService {
     public Concurso abrir(ConcursoId id) {
         var c = concurso(id);
         var ocupados = ocupacao.ocupados(c.getLugares());
+        var reservados = ocupacao.reservados(c.getLugares());
         for (UUID lugar : c.getLugares()) {
             var p = positionRepository.findById(PositionId.from(lugar))
                     .orElseThrow(() -> invalido("Um dos Lugares do concurso não existe."));
             if (!p.podeSerOcupado()) throw invalido("O Lugar " + p.getNumeroLugar() + " não está activo (congelado ou extinto).");
             if (ocupados.contains(lugar)) throw invalido("O Lugar " + p.getNumeroLugar() + " já está ocupado.");
+            if (reservados.containsKey(lugar))
+                throw invalido("O Lugar " + p.getNumeroLugar() + " está reservado para um colaborador que aguarda o contrato.");
             if (!c.getCategoriaId().equals(p.getCategoryId()))
                 throw invalido("O Lugar " + p.getNumeroLugar() + " não é da categoria do concurso.");
             if (repository.lugarEmConcursoActivo(lugar, id))
@@ -266,6 +269,8 @@ public class ConcursoService {
         if (cands.stream().anyMatch(x -> lugarId.equals(x.getLugarProvidoId())))
             throw IgrpResponseStatusException.conflict("Esse Lugar já foi provido por outro candidato do concurso.");
         if (ocupacao.ocupados(List.of(lugarId)).contains(lugarId)) throw invalido("Esse Lugar já está ocupado.");
+        if (ocupacao.reservados(List.of(lugarId)).containsKey(lugarId))
+            throw invalido("Esse Lugar está reservado para um colaborador que aguarda o contrato.");
         var aprovadas = cands.stream().filter(x -> x.getEstado() == Candidatura.Estado.APROVADA)
                 .sorted(java.util.Comparator.comparing(Candidatura::getPosicao)).toList();
         long providosQuota = cands.stream().filter(x -> x.getEstado() == Candidatura.Estado.PROVIDA && x.isDeficiencia()).count();

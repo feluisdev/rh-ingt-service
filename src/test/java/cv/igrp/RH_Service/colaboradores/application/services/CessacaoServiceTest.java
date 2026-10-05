@@ -53,6 +53,7 @@ class CessacaoServiceTest {
     @Mock private SubstituicaoService substituicaoService;
 
     @org.mockito.Mock private cv.igrp.RH_Service.colaboradores.application.services.DiarioFactos diarioFactos;
+    @Mock private cv.igrp.RH_Service.colaboradores.domain.repository.ReservaLugarRepository reservaLugarRepository;
     @InjectMocks private CessacaoService service;
 
     private final FuncionarioId funcionarioId = FuncionarioId.gerarNovo();
@@ -117,6 +118,23 @@ class CessacaoServiceTest {
         assertNull(resultado.contratoCessadoId());
         assertNull(resultado.afectacaoEncerradaId());
         verify(historicoRepository).save(any(HistoricoEstadoColaborador.class));
+    }
+
+    /** BR-AF-28: quem cessa já não vai ocupar o Lugar que lhe estava reservado. */
+    @Test
+    void cessarCancelaOLugarReservado() {
+        WorkerState inactive = estado("INACTIVE", true);
+        funcionarioMock();
+        when(contratoRepository.findCurrentByFuncionarioId(funcionarioId)).thenReturn(Optional.empty());
+        when(assignmentService.encerrarAfectacaoCorrente(funcionarioId, dataEfeito)).thenReturn(Optional.empty());
+        var reserva = cv.igrp.RH_Service.colaboradores.domain.models.ReservaLugar.reservar(funcionarioId, UUID.randomUUID(),
+                null, null, null, dataEfeito.minusMonths(1));
+        when(reservaLugarRepository.findActivaByFuncionario(funcionarioId)).thenReturn(Optional.of(reserva));
+
+        service.cessar(funcionarioId, inactive, dataEfeito, null, null);
+
+        assertEquals(cv.igrp.RH_Service.colaboradores.domain.models.ReservaLugar.Estado.CANCELADA, reserva.getEstado());
+        verify(reservaLugarRepository).save(reserva);
     }
 
     @Test

@@ -20,7 +20,8 @@ public class CreateContratoCommandHandler
     @IgrpCommandHandler
     public ResponseEntity<SuccessResponseDTO> handle(CreateContratoCommand command) {
         var funcionarioId = FuncionarioId.from(command.getFuncionarioId());
-        var saved = contratoService.criarContrato(funcionarioId, command.getRequest());
-        return ResponseEntity.status(201).body(SuccessResponseDTO.de(saved.getId().getStringValor()));
+        var registo = contratoService.registarContrato(funcionarioId, command.getRequest());
+        return ResponseEntity.status(201).body(SuccessResponseDTO.de(registo.contrato().getId().getStringValor(),
+                registo.alertas().toArray(String[]::new)));
     }
 }

@@ -65,6 +65,7 @@ class ColocacaoServiceTest {
     @Mock WorkerStateRepository workerStateRepository;
     @Mock HistoricoEstadoColaboradorRepository historicoRepository;
     @org.mockito.Mock private cv.igrp.RH_Service.colaboradores.application.services.DiarioFactos diarioFactos;
+    @Mock private cv.igrp.RH_Service.colaboradores.domain.repository.ReservaLugarRepository reservaLugarRepository;
     @InjectMocks ColocacaoService service;
 
     private final FuncionarioId funcionarioId = FuncionarioId.gerarNovo();
@@ -178,6 +179,38 @@ class ColocacaoServiceTest {
 
         assertEquals(1, colocar(null, null).alertas().size());
         verify(historicoRepository, never()).save(any());
+    }
+
+    @Test
+    void colocarNoLugarReservadoConcluiAReserva() {
+        var reserva = cv.igrp.RH_Service.colaboradores.domain.models.ReservaLugar.reservar(funcionarioId, lugarId, null,
+                null, null, admissao);
+        when(reservaLugarRepository.findActivaByFuncionario(funcionarioId)).thenReturn(Optional.of(reserva));
+
+        var r = colocar(null, null);
+
+        assertEquals(cv.igrp.RH_Service.colaboradores.domain.models.ReservaLugar.Estado.CONCLUIDA, reserva.getEstado());
+        assertEquals(r.afectacao().getId().getValor(), reserva.getAssignmentId());
+        verify(reservaLugarRepository).save(reserva);
+    }
+
+    @Test
+    void colocarNoutroLugarCancelaAReserva() {
+        var reserva = cv.igrp.RH_Service.colaboradores.domain.models.ReservaLugar.reservar(funcionarioId,
+                UUID.randomUUID(), null, null, null, admissao);
+        when(reservaLugarRepository.findActivaByFuncionario(funcionarioId)).thenReturn(Optional.of(reserva));
+
+        colocar(null, null);
+
+        assertEquals(cv.igrp.RH_Service.colaboradores.domain.models.ReservaLugar.Estado.CANCELADA, reserva.getEstado());
+        verify(reservaLugarRepository).save(reserva);
+    }
+
+    @Test
+    void colocacaoRecusadaNaoMexeNaReserva() {
+        when(contratoRepository.findCurrentByFuncionarioId(funcionarioId)).thenReturn(Optional.empty());
+        assert422(() -> colocar(null, null));
+        verify(reservaLugarRepository, never()).save(any());
     }
 
     // ------------------------------------------------------------------ apoio

@@ -1,6 +1,7 @@
 package cv.igrp.RH_Service.colaboradores.application.queries;
 
 import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
+import cv.igrp.RH_Service.colaboradores.domain.repository.ReservaLugarRepository;
 import cv.igrp.RH_Service.estrutura.domain.models.Position;
 import cv.igrp.RH_Service.estrutura.domain.repository.PositionRepository;
 import cv.igrp.framework.core.domain.QueryHandler;
@@ -23,6 +24,7 @@ public class GetVagasUnidadeQueryHandler
 
     private final AssignmentRepository assignmentRepository;
     private final PositionRepository positionRepository;
+    private final ReservaLugarRepository reservaLugarRepository;
 
     @IgrpQueryHandler
     public ResponseEntity<VagasUnidadeResponseDTO> handle(GetVagasUnidadeQuery query) {
@@ -35,7 +37,10 @@ public class GetVagasUnidadeQueryHandler
                 .filter(p -> assignmentRepository.temTitular(p.getId().getValor()))
                 .count();
 
+        long reservados = reservaLugarRepository.findActivasByPositions(lugares.stream()
+                .filter(Position::podeSerOcupado).map(p -> p.getId().getValor()).toList()).size();
+
         return ResponseEntity.ok(new VagasUnidadeResponseDTO(
-                query.getUnidadeId(), dotacao, ocupados, dotacao - ocupados));
+                query.getUnidadeId(), dotacao, ocupados, dotacao - ocupados, reservados));
     }
 }

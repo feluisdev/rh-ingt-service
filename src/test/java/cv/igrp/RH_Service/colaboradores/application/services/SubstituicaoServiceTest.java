@@ -57,6 +57,7 @@ class SubstituicaoServiceTest {
     @Mock private WorkerStateRepository workerStateRepository;
     @Mock private AssignmentService assignmentService;
 
+    @Mock private cv.igrp.RH_Service.colaboradores.domain.repository.ReservaLugarRepository reservaLugarRepository;
     @InjectMocks private SubstituicaoService service;
 
     private final FuncionarioId substitutoId = FuncionarioId.gerarNovo();
@@ -163,6 +164,18 @@ class SubstituicaoServiceTest {
 
     @Nested
     class OQueTornaOPedidoImpossivel {
+
+        /** BR-AF-27: quem tem Lugar reservado ainda não tem contrato — não ocupa Lugar nenhum. */
+        @Test
+        void quemAguardaOContratoNaoSubstitui() {
+            when(positionRepository.findById(PositionId.from(positionId))).thenReturn(Optional.of(lugar()));
+            when(reservaLugarRepository.findActivaByFuncionario(substitutoId)).thenReturn(Optional.of(
+                    cv.igrp.RH_Service.colaboradores.domain.models.ReservaLugar.reservar(substitutoId, UUID.randomUUID(),
+                            null, null, null, inicio)));
+
+            assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, erroAoSubstituir().getStatusCode());
+            verify(assignmentService, never()).afectarSubstituicao(any(), any(), any(), any(), any(), any(), any());
+        }
 
         @Test
         void umLugarVagoProveSeComTitularENaoComSubstituto() {

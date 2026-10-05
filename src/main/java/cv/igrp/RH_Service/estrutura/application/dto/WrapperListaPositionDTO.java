@@ -15,4 +15,6 @@ public class WrapperListaPositionDTO {
     private int dotacao;
     private int ocupados;
     private int vagas;
+    /** Das vagas, quantas estão reservadas para quem aguarda o contrato. Contam como vagas. */
+    private int reservados;
 }

@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -22,9 +23,22 @@ public class ContratoService {
     private final ContratoRepository contratoRepository;
     private final FuncionarioRepository funcionarioRepository;
     private final ContractTypeRepository contractTypeRepository;
+    private final ReservaLugarService reservaLugarService;
+
+    /** O contrato registado e os avisos para o utilizador (por exemplo, a colocação no Lugar reservado). */
+    public record Registo(Contrato contrato, List<String> alertas) {}
 
     @Transactional
     public Contrato criarContrato(FuncionarioId funcionarioId, ContratoRequestDTO dto) {
+        return registarContrato(funcionarioId, dto).contrato();
+    }
+
+    /**
+     * Regista o contrato e, se o colaborador tinha um Lugar reservado à espera dele, coloca-o nesse Lugar
+     * (BR-AF-25). Uma colocação que falhe não impede o contrato: vem em alerta.
+     */
+    @Transactional
+    public Registo registarContrato(FuncionarioId funcionarioId, ContratoRequestDTO dto) {
         if (dto.getContractTypeId() == null || dto.getContractTypeId().isBlank())
             throw IgrpResponseStatusException.badRequest("O campo contractTypeId é obrigatório.");
 
@@ -67,7 +81,7 @@ public class ContratoService {
             contratoRepository.save(contratoActual);
         }
 
-        return contratoRepository.save(Contrato.criar(
+        Contrato novo = contratoRepository.save(Contrato.criar(
                 funcionarioId,
                 contractType.getId().getValor(),
                 dto.getContractNumber(),
@@ -78,5 +92,6 @@ public class ContratoService {
                 renewalCount,
                 dto.getRegimeTrabalho(),
                 dto.getPercentagemTempo()));
+        return new Registo(novo, reservaLugarService.concretizar(funcionarioId, novo));
     }
 }

@@ -15,6 +15,7 @@ import cv.igrp.RH_Service.colaboradores.domain.repository.AssignmentRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.ContratoRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.FuncionarioRepository;
 import cv.igrp.RH_Service.colaboradores.domain.repository.HistoricoEstadoColaboradorRepository;
+import cv.igrp.RH_Service.colaboradores.domain.repository.ReservaLugarRepository;
 import cv.igrp.RH_Service.colaboradores.domain.valueobject.FuncionarioId;
 import cv.igrp.RH_Service.estrutura.domain.models.Position;
 import cv.igrp.RH_Service.estrutura.domain.repository.PositionRepository;
@@ -60,6 +61,7 @@ public class ColocacaoService {
     private final WorkerStateRepository workerStateRepository;
     private final HistoricoEstadoColaboradorRepository historicoRepository;
     private final DiarioFactos diarioFactos;
+    private final ReservaLugarRepository reservaLugarRepository;
 
     public record Resultado(Assignment afectacao, String origem, List<String> alertas) {}
 
@@ -150,9 +152,24 @@ public class ColocacaoService {
                         + "um estado de actividade no quadro para o qual o passar.");
             }
         }
+        fecharReserva(funcionarioId, positionId, afectacao);
         diarioFactos.movimento(Assignment.ADMISSAO.equals(origem) ? TipoFactoRh.ADMISSAO : TipoFactoRh.REINGRESSO,
                 afectacao, Assignment.ADMISSAO.equals(origem) ? "Admissão: colocação no primeiro Lugar" : "Reingresso num Lugar vago da sua categoria");
         return new Resultado(afectacao, origem, alertas);
+    }
+
+    /**
+     * BR-AF-25: quem tinha Lugar reservado deixa de o ter ao ser colocado — concluída, se foi no Lugar reservado;
+     * cancelada, se foi noutro (a reserva deixava de fazer sentido e prendia um Lugar a mais).
+     */
+    private void fecharReserva(FuncionarioId funcionarioId, UUID positionId, Assignment afectacao) {
+        reservaLugarRepository.findActivaByFuncionario(funcionarioId).ifPresent(r -> {
+            if (r.getPositionId().equals(positionId))
+                r.concluir(afectacao.getId().getValor(), LocalDate.now());
+            else
+                r.cancelar("O colaborador foi colocado noutro Lugar.", LocalDate.now());
+            reservaLugarRepository.save(r);
+        });
     }
 
     private UUID categoriaDoEscalao(UUID gradeId) {

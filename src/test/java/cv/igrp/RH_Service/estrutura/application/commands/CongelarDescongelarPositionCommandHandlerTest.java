@@ -64,6 +64,24 @@ class CongelarDescongelarPositionCommandHandlerTest {
         verify(positionRepository, never()).save(any());
     }
 
+    /** BR-AF-27: o Lugar reservado para quem aguarda o contrato não se congela sem cancelar a reserva. */
+    @Test
+    void naoCongelaLugarReservado() {
+        Position p = lugar(Position.ATIVO);
+        when(positionRepository.findById(any())).thenReturn(Optional.of(p));
+        when(positionOccupancyPort.ocupados(anyCollection())).thenReturn(Set.of());
+        when(positionOccupancyPort.reservados(anyCollection())).thenReturn(java.util.Map.of(p.getId().getValor(),
+                new PositionOccupancyPort.Reserva(UUID.randomUUID(), "Ana")));
+
+        IgrpResponseStatusException e = assertThrows(IgrpResponseStatusException.class,
+                () -> congelar().handle(new CongelarPositionCommand(pedido("Sem dotação"), id(p))));
+
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.value(), e.getStatusCode().value());
+        assertTrue(e.getBody().getTitle().contains("Ana"));
+        assertEquals(Position.ATIVO, p.getEstado());
+        verify(positionRepository, never()).save(any());
+    }
+
     @Test
     void congelarSemMotivoE400AntesDeProcurarOLugar() {
         IgrpResponseStatusException e = assertThrows(IgrpResponseStatusException.class,
